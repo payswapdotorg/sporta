@@ -66,3 +66,22 @@ a worker reports:
 - work items blocked by the result.
 
 The full contract is in `docs/agent-handoff/worker-contract.md`.
+
+## Testing conventions
+
+The test harness is documented in [`docs/testing/HARNESS.md`](docs/testing/HARNESS.md)
+(`docs/testing/testing-strategy.md` remains the authority). In short:
+
+- **Layers**: unit tests live in each package's `test/` directory; contract
+  fixtures live in `packages/contracts/fixtures/`; cross-package e2e tests
+  live in `tests/e2e/` at the repository root (template:
+  `tests/e2e/m0-pipeline.test.ts`).
+- **Deterministic data**: use the `@sporta/testing` builders and sequences
+  with a fixed seed — `buildMediaSession(overrides?, seed?)`,
+  `observationTimeline({ count, fromMs, stepMs, seed })`, etc. No
+  `Math.random`, no `Date.now`, no `new Date()` in tests; time is always an
+  explicit millisecond value, and wall clocks are injected constants
+  (`TEST_EPOCH_MS`).
+- **All tests run from the root**: `bun test` discovers everything, and CI
+  runs `lint`, `typecheck`, `test`, and `format:check` on every push and pull
+  request.
