@@ -32,6 +32,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/ball-state": {
+      "name": "@sporta/ball-state",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/ball-tracking": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ball-tracking": {
       "name": "@sporta/ball-tracking",
       "version": "0.1.0",
@@ -243,6 +256,8 @@
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
     "@sporta/asr": ["@sporta/asr@workspace:packages/asr"],
+
+    "@sporta/ball-state": ["@sporta/ball-state@workspace:packages/ball-state"],
 
     "@sporta/ball-tracking": ["@sporta/ball-tracking@workspace:packages/ball-tracking"],
 
