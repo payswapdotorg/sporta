@@ -6,6 +6,11 @@
       "name": "sporta",
       "devDependencies": {
         "@eslint/js": "^9.0.0",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/session": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
         "@types/bun": "^1.2.0",
         "eslint": "^9.0.0",
         "prettier": "^3.0.0",
@@ -35,6 +40,17 @@
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/testing": {
+      "name": "@sporta/testing",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+        "zod": "^4.0.0",
       },
     },
     "packages/world-model": {
@@ -79,6 +95,8 @@
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
+
+    "@sporta/testing": ["@sporta/testing@workspace:packages/testing"],
 
     "@sporta/world-model": ["@sporta/world-model@workspace:packages/world-model"],
 
