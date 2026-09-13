@@ -69,7 +69,7 @@ recorded), `BLOCKED` (reason recorded).
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
-| W701  | NOT_STARTED | — |
+| W701  | COMPLETE    | session w701-control-api; branch 15cb093; 541/541 tests; real-user HTTP E2E 19/19 (golden path + fail-closed rights + dual-side playback gate); lint/typecheck/format clean |
 | W702  | NOT_STARTED | — |
 | W703  | NOT_STARTED | — |
 | W704  | NOT_STARTED | — |
