@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rendererId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputSegments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segmentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "startMs": {
+            "type": "number",
+            "minimum": 0
+          },
+          "endMs": {
+            "type": "number",
+            "minimum": 0
+          },
+          "artifactRef": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["segmentId", "startMs", "endMs", "artifactRef"],
+        "additionalProperties": false
+      }
+    },
+    "watermarkAfter": {
+      "type": "object",
+      "properties": {
+        "watermarkMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["watermarkMs", "sequence"],
+      "additionalProperties": false
+    },
+    "rendererHealth": {
+      "type": "object",
+      "properties": {
+        "lagMs": {
+          "type": "number"
+        },
+        "degraded": {
+          "type": "boolean"
+        },
+        "degradationReason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["lagMs", "degraded"],
+      "additionalProperties": false
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "temporalConsistencyScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "snapshotVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "lastEventSequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["snapshotVersion", "lastEventSequence"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "sessionId",
+    "rendererId",
+    "outputSegments",
+    "watermarkAfter",
+    "rendererHealth",
+    "provenance"
+  ],
+  "additionalProperties": false
+}

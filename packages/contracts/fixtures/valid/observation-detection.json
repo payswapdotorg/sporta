@@ -1,0 +1,28 @@
+{
+  "observationId": "obs_det_000001",
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "eventTimeMs": 30000,
+  "ingestTimeMs": 1730571600420,
+  "modality": "vision",
+  "componentId": "detector.players.v4",
+  "modelId": "player-detector-v4",
+  "provenance": "OBSERVED",
+  "confidence": 0.87,
+  "payload": {
+    "kind": "detection",
+    "box": {
+      "x": 0.42,
+      "y": 0.31,
+      "w": 0.05,
+      "h": 0.11
+    },
+    "label": "player"
+  },
+  "subjectEntityRefs": [
+    {
+      "entityId": "ent_0007",
+      "kind": "participant"
+    }
+  ]
+}

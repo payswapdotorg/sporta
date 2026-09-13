@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "entityId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "externalSystem": {
+      "type": "string",
+      "minLength": 1
+    },
+    "externalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "justification": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": ["entityId", "externalSystem", "externalId", "justification"],
+  "additionalProperties": false
+}

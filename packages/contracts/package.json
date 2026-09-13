@@ -7,6 +7,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "export-schemas": "bun run scripts/export-schemas.ts"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
   }
 }

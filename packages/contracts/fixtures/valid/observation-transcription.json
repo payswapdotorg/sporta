@@ -1,0 +1,19 @@
+{
+  "observationId": "obs_asr_000042",
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "eventTimeMs": 30000,
+  "ingestTimeMs": 1730571600810,
+  "modality": "commentary",
+  "componentId": "asr.adapter.v2",
+  "modelId": "stt-provider-neutral-v2",
+  "provenance": "OBSERVED",
+  "payload": {
+    "kind": "transcription",
+    "text": "Great pass into the channel there.",
+    "speakerLabel": "commentator-1",
+    "channel": "main",
+    "asrConfidence": 0.93
+  },
+  "subjectEntityRefs": []
+}

@@ -1,0 +1,21 @@
+{
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "status": "processing",
+  "authorizationPolicyId": "pol_2024_11_01",
+  "sources": [],
+  "timeline": {
+    "durationMs": 6543000,
+    "videoClockOffsetMs": 0,
+    "audioClockOffsetMs": 40,
+    "driftMeasured": true
+  },
+  "processingState": {
+    "stage": "perception",
+    "watermark": {
+      "watermarkMs": 30000,
+      "sequence": 4210
+    }
+  },
+  "createdAtIso": "2024-11-02T18:30:00Z"
+}

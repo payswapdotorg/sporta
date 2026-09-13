@@ -1,0 +1,17 @@
+{
+  "eventId": "evt_000123",
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "eventTypeRef": "football/v1/pass",
+  "interval": {
+    "startTimeMs": 30120,
+    "endTimeMs": 30210
+  },
+  "eventTimeMs": 30210,
+  "provenance": "DERIVED",
+  "confidence": 0.74,
+  "evidence": {
+    "observationIds": ["obs_det_000001", "obs_asr_000042"],
+    "reportedBy": "event-fusion.v1"
+  }
+}
