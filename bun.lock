@@ -26,6 +26,20 @@
         "zod": "^4.0.0",
       },
     },
+    "packages/decoding": {
+      "name": "@sporta/decoding",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/ingestion": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/session": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ingestion": {
       "name": "@sporta/ingestion",
       "version": "0.1.0",
@@ -114,6 +128,8 @@
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
+
+    "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
