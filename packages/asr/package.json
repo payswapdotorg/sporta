@@ -1,0 +1,22 @@
+{
+  "name": "@sporta/asr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/observation": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "z-ai-web-dev-sdk": "^0.0.18"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
