@@ -20,6 +20,13 @@
         "zod": "^4.0.0",
       },
     },
+    "packages/observation": {
+      "name": "@sporta/observation",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+      },
+    },
     "packages/session": {
       "name": "@sporta/session",
       "version": "0.1.0",
@@ -61,6 +68,8 @@
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
+
+    "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
