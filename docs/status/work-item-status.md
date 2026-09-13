@@ -49,7 +49,7 @@ recorded), `BLOCKED` (reason recorded).
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
-| W501  | IN_FLIGHT   | session w501-renderer-contract dispatched (s102 spec) |
+| W501  | COMPLETE    | session w501-renderer-contract; branch 4750ce3; merge confirmed; 496/496 integrated; lint/typecheck/format clean; TL review: R1-R8 enforced by 13-check harness + negative mocks; reference renderer isolated from SWM core |
 | W502  | NOT_STARTED | — |
 | W503  | NOT_STARTED | — |
 | W504  | NOT_STARTED | — |
