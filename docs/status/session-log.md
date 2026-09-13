@@ -62,17 +62,65 @@ bun workspaces monorepo, TypeScript strict, zod v4 schemas as contract source
 of truth with JSON Schema export and golden-schema compatibility tests,
 `bun test` as the test runner, eslint + prettier, GitHub Actions CI.
 
-### 3. Session results (in progress — updated as items merge)
+### 3. Session results — M0 COMPLETE (Gate G1 satisfied)
 
-- **W001 COMPLETE** — merged bc18272 (worker branch work/s001-w001, worker commit
-  e4dfad5, dispatched chat.z.ai session `w001-repo-bootstrap` GLM-5.3/Full-Stack,
-  orchestrator-verified: bun test/lint/typecheck/format:check all green locally;
-  GitHub Actions CI run 34731407456 green on main).
-- Worker execution model per operator directive: orchestrator (tech lead) never
-  implements; workers are dispatched chat.z.ai agent sessions delivering via
-  `work/*` branches; tech lead verifies, merges, records evidence.
-- Corrupted-display lesson: `branches: ain]` in ci.yml was a display-layer ANSI
-  artifact (od -c proved bytes are `branches: [main]`); no patch applied.
-- Next: W002 (domain contracts) dispatched to Worker A; then W003+W004 (B) and
-  W005+W006 (A) in parallel; W007 last. Worker C unassigned in M0 (no
-  dependency-safe product work).
+All M0 work items COMPLETE with recorded evidence (see
+`docs/status/work-item-status.md`):
+
+| Item | Worker session | Worker commit | Merge on main |
+|------|----------------|---------------|----------------|
+| W001 | w001-repo-bootstrap | e4dfad5 | bc18272 |
+| W002 | w002-domain-contracts | c35bb90 | d851e44 (evidence 7392cf4) |
+| W004 | w004-session-model | b338854 | f5656d7 |
+| W005 | w005-observation-model | 1870cae | f5656d7 wave |
+| W006 | w006-swm-contract | 2445c7b | f5656d7 wave |
+| W003 | w003-test-ci-foundation | 806e649 | 74a955b (evidence 7e845b1) |
+| W007 | w007-observability | 41803d1 | d6d6150 (evidence 02c6b4a) |
+
+Final M0 state: **356 tests, 24 test files, 0 failures**; lint/typecheck/format
+clean; CI green on every merge (final: run on 02c6b4a, success). Packages:
+`@sporta/contracts` (14 zod v4 modules, 13 exported JSON schemas, golden
+compat enforcement), `@sporta/session` (lifecycle, fail-closed rights,
+in-memory + bun:sqlite repositories), `@sporta/observation` (store,
+evidence-linked derivation, deterministic replay), `@sporta/world-model`
+(versioned entities, at-T snapshots, bounded reorder, football extension),
+`@sporta/testing` (deterministic builders/sequences), `@sporta/observability`
+(logger/correlation/metrics/trace, zero-dep). E2E: `tests/e2e/m0-pipeline`
+(vertical slice) + `tests/e2e/m0-observability` (6-stage correlated trace).
+
+Gate G1 exit evidence: CI green ✓; contracts validate fixtures ✓
+(fixtures.test.ts); media/session lifecycle tests green ✓; tracing correlation
+works ✓ (m0-observability.test.ts).
+
+### 4. Session-end state (§14 record)
+
+- **Current milestone:** M0 complete; entering M1 (football perception +
+  commentary).
+- **Completed:** W001-W007 (all evidence above).
+- **Blocked:** none.
+- **Active risks:**
+  - GLM-5.3 peak-hour capacity (W007 queued-capacity ~40 min before
+    generating; two-state policy handled it — accepted sends must never be
+    cancelled; plan for queue delays during peak hours).
+  - Display-layer ANSI-swallow artifact (`[m` sequences, e.g. `branches: ain]`)
+    has now fooled two independent viewers — byte-verify with `od -c` before
+    ever "fixing" corrupted-looking text (also seen by W003 worker; no patch
+    applied, bytes verified `[main]`).
+  - chat.z.ai transcripts are virtualized/collapsed — `check` char counts are
+    not cumulative progress; branch push + final-report markers are the
+    reliable completion signals.
+- **Architectural deviations/proposals:** none. Accepted documented worker
+  micro-deviations: UncertainValue lives in src/uncertainty.ts (avoids
+  circular module deps); Score.status typed as UncertainValue<enum>;
+  root package.json carries workspace devDeps for e2e imports.
+- **Next executable work items (M1, dependency order):**
+  1. **W101 source ingestion** (deps: W004 ✓) — UNBLOCKED, dispatching now.
+  2. W102 demux/decode normalization (needs W101).
+  3. Then parallel wave: W103 timeline sync + W201/W202/W203 perception
+     (all need W102; W201/W202 also need W005 ✓); W207 STT adapter (needs W103).
+- **Worker ownership:** A = AI/domain (W2xx, W4xx, W5xx, W6xx); B = Platform
+  (W1xx, W3xx, W7xx-platform, W8xx); C = Product (W7xx-product) — first
+  dependency-safe Product work is W701 (needs W004 ✓ + W501).
+- **Operator credentials:** PAT + composio keys stored in ~/.secrets/env.sh
+  (never committed); workers receive push-only token via prompt; chat.z.ai
+  redacts tokens in transcripts.
