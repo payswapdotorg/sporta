@@ -1,0 +1,19 @@
+{
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "sequence": 871,
+  "watermark": {
+    "watermarkMs": 30210,
+    "sequence": 901
+  },
+  "payload": {
+    "note": "perception-batch",
+    "frameCount": 12
+  },
+  "correlationId": "corr_9f2a1c",
+  "traceId": "trace_4b7d2e",
+  "resourceBudget": {
+    "maxMemoryMb": 2048,
+    "maxGpuMs": 500
+  }
+}

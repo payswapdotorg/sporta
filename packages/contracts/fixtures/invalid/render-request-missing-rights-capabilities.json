@@ -1,0 +1,27 @@
+{
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "rendererId": "anime-renderer",
+  "rendererVersion": "0.3.0",
+  "styleConfig": {
+    "styleId": "cel-shaded-classic",
+    "configSchemaVersion": "1.1",
+    "config": {
+      "lineWeight": 2,
+      "palette": "warm"
+    }
+  },
+  "snapshotVersion": 88,
+  "eventsSinceSequence": 870,
+  "outputProfile": {
+    "resolution": {
+      "w": 1920,
+      "h": 1080
+    },
+    "frameRate": 30,
+    "codec": "h264",
+    "container": "mp4",
+    "latencyClass": "offline"
+  },
+  "sourceFrameRefs": ["sess_001/frame/004021", "sess_001/frame/004022"]
+}

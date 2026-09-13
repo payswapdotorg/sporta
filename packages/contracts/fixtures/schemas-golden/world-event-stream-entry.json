@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "snapshotVersionAfter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schemaVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$"
+        },
+        "eventTypeRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval": {
+          "type": "object",
+          "properties": {
+            "startTimeMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "endTimeMs": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": ["startTimeMs", "endTimeMs"],
+          "additionalProperties": false
+        },
+        "eventTimeMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "provenance": {
+          "type": "string",
+          "enum": ["OBSERVED", "REPORTED", "DERIVED"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "observationIds": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "reportedBy": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["observationIds"],
+          "additionalProperties": false
+        },
+        "correctionOf": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "eventId",
+        "sessionId",
+        "schemaVersion",
+        "eventTypeRef",
+        "interval",
+        "eventTimeMs",
+        "provenance",
+        "evidence"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": ["sequence", "snapshotVersionAfter", "event"],
+  "additionalProperties": false
+}

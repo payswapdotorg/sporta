@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "rendererId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rendererVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "styleConfig": {
+      "type": "object",
+      "properties": {
+        "styleId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configSchemaVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config": {}
+      },
+      "required": ["styleId", "configSchemaVersion", "config"],
+      "additionalProperties": false
+    },
+    "snapshotVersion": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "eventsSinceSequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "outputProfile": {
+      "type": "object",
+      "properties": {
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "w": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "h": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": ["w", "h"],
+          "additionalProperties": false
+        },
+        "frameRate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "codec": {
+          "type": "string",
+          "minLength": 1
+        },
+        "container": {
+          "type": "string",
+          "minLength": 1
+        },
+        "latencyClass": {
+          "type": "string",
+          "enum": ["offline", "near-live", "live"]
+        }
+      },
+      "required": ["resolution", "frameRate", "codec", "container", "latencyClass"],
+      "additionalProperties": false
+    },
+    "rightsCapabilities": {
+      "type": "object",
+      "properties": {
+        "canReferenceSourceFrames": {
+          "type": "boolean"
+        },
+        "canDeliverLive": {
+          "type": "boolean"
+        },
+        "canStoreDerivatives": {
+          "type": "boolean"
+        },
+        "canShare": {
+          "type": "boolean"
+        }
+      },
+      "required": ["canReferenceSourceFrames", "canDeliverLive", "canStoreDerivatives", "canShare"],
+      "additionalProperties": false
+    },
+    "sourceFrameRefs": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "sessionId",
+    "schemaVersion",
+    "rendererId",
+    "rendererVersion",
+    "styleConfig",
+    "snapshotVersion",
+    "eventsSinceSequence",
+    "outputProfile",
+    "rightsCapabilities",
+    "sourceFrameRefs"
+  ],
+  "additionalProperties": false
+}

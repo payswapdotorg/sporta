@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "watermark": {
+      "type": "object",
+      "properties": {
+        "watermarkMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["watermarkMs", "sequence"],
+      "additionalProperties": false
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "match",
+              "competition",
+              "team",
+              "participant",
+              "official",
+              "ball",
+              "venue",
+              "camera"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "lastEventTimeMs": {
+            "type": "number",
+            "minimum": 0
+          },
+          "state": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["known", "unknown", "uncertain"]
+                },
+                "value": {},
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": ["status"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["entityId", "kind", "version", "lastEventTimeMs", "state"],
+        "additionalProperties": false
+      }
+    },
+    "football": {
+      "type": "object",
+      "properties": {
+        "pitch": {
+          "type": "object",
+          "properties": {
+            "lengthAxisMeters": {
+              "type": "number",
+              "const": 105
+            },
+            "widthAxisMeters": {
+              "type": "number",
+              "const": 68
+            },
+            "origin": {
+              "type": "string",
+              "const": "corner"
+            },
+            "axes": {
+              "type": "string",
+              "const": "x=touchline, y=goal-line"
+            }
+          },
+          "required": ["lengthAxisMeters", "widthAxisMeters", "origin", "axes"],
+          "additionalProperties": false
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "string",
+              "enum": [
+                "first-half",
+                "second-half",
+                "half-time",
+                "pre-match",
+                "post-match",
+                "stoppage"
+              ]
+            },
+            "clockMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stoppage": {
+              "type": "boolean"
+            }
+          },
+          "required": ["period", "clockMs", "stoppage"],
+          "additionalProperties": false
+        },
+        "score": {
+          "type": "object",
+          "properties": {
+            "home": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "away": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["known", "unknown", "uncertain"]
+                },
+                "value": {
+                  "type": "string",
+                  "enum": ["provisional", "confirmed"]
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": ["status"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["home", "away", "status"],
+          "additionalProperties": false
+        },
+        "possession": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["known", "unknown", "uncertain"]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                }
+              },
+              "required": ["entityId"],
+              "additionalProperties": false
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        },
+        "eventTaxonomyVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["pitch", "clock", "score", "possession", "eventTaxonomyVersion"],
+      "additionalProperties": false
+    },
+    "generatedAtMs": {
+      "type": "number"
+    }
+  },
+  "required": ["sessionId", "schemaVersion", "watermark", "entities", "generatedAtMs"],
+  "additionalProperties": false
+}

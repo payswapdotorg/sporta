@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "observationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "eventTimeMs": {
+      "type": "number",
+      "minimum": 0
+    },
+    "ingestTimeMs": {
+      "type": "number"
+    },
+    "modality": {
+      "type": "string",
+      "enum": ["vision", "audio", "metadata", "commentary"]
+    },
+    "componentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modelId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "string",
+      "enum": ["OBSERVED", "REPORTED", "DERIVED"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "payload": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "detection"
+            },
+            "box": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "y": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "w": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "h": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": ["x", "y", "w", "h"],
+              "additionalProperties": false
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["kind", "box", "label"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "track"
+            },
+            "entityId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false
+            },
+            "velocity": {
+              "type": "object",
+              "properties": {
+                "vx": {
+                  "type": "number"
+                },
+                "vy": {
+                  "type": "number"
+                }
+              },
+              "required": ["vx", "vy"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["kind", "entityId", "position"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "transcription"
+            },
+            "text": {
+              "type": "string"
+            },
+            "speakerLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "channel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "asrConfidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["kind", "text"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "field-mapping"
+            },
+            "cameraHomographyRef": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pitchCorners": {
+              "minItems": 4,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["kind", "pitchCorners"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "generic"
+            },
+            "data": {}
+          },
+          "required": ["kind", "data"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "subjectEntityRefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "match",
+              "competition",
+              "team",
+              "participant",
+              "official",
+              "ball",
+              "venue",
+              "camera"
+            ]
+          }
+        },
+        "required": ["entityId", "kind"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "observationId",
+    "sessionId",
+    "schemaVersion",
+    "eventTimeMs",
+    "modality",
+    "componentId",
+    "provenance",
+    "payload",
+    "subjectEntityRefs"
+  ],
+  "additionalProperties": false
+}

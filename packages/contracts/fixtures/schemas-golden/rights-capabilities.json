@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "canReferenceSourceFrames": {
+      "type": "boolean"
+    },
+    "canDeliverLive": {
+      "type": "boolean"
+    },
+    "canStoreDerivatives": {
+      "type": "boolean"
+    },
+    "canShare": {
+      "type": "boolean"
+    }
+  },
+  "required": ["canReferenceSourceFrames", "canDeliverLive", "canStoreDerivatives", "canShare"],
+  "additionalProperties": false
+}

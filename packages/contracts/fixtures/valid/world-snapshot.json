@@ -1,0 +1,84 @@
+{
+  "sessionId": "sess_001",
+  "schemaVersion": "1.0",
+  "watermark": {
+    "watermarkMs": 30210,
+    "sequence": 900
+  },
+  "entities": [
+    {
+      "entityId": "ent_0007",
+      "kind": "participant",
+      "version": 12,
+      "lastEventTimeMs": 30210,
+      "state": {
+        "pitchPosition": {
+          "status": "known",
+          "value": {
+            "x": 63.4,
+            "y": 20.1
+          },
+          "confidence": 0.81
+        },
+        "teamRole": {
+          "status": "known",
+          "value": "home"
+        },
+        "jerseyNumber": {
+          "status": "uncertain",
+          "value": 7,
+          "confidence": 0.55
+        }
+      }
+    },
+    {
+      "entityId": "ent_ball_01",
+      "kind": "ball",
+      "version": 45,
+      "lastEventTimeMs": 30200,
+      "state": {
+        "pitchPosition": {
+          "status": "uncertain",
+          "value": {
+            "x": 61.0,
+            "y": 21.5
+          },
+          "confidence": 0.6
+        },
+        "lastTouchBy": {
+          "status": "unknown"
+        }
+      }
+    }
+  ],
+  "football": {
+    "pitch": {
+      "lengthAxisMeters": 105,
+      "widthAxisMeters": 68,
+      "origin": "corner",
+      "axes": "x=touchline, y=goal-line"
+    },
+    "clock": {
+      "period": "first-half",
+      "clockMs": 1830000,
+      "stoppage": false
+    },
+    "score": {
+      "home": 1,
+      "away": 1,
+      "status": {
+        "status": "known",
+        "value": "confirmed"
+      }
+    },
+    "possession": {
+      "status": "uncertain",
+      "value": {
+        "entityId": "ent_0007"
+      },
+      "confidence": 0.62
+    },
+    "eventTaxonomyVersion": "1"
+  },
+  "generatedAtMs": 1730571601200
+}
