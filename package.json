@@ -18,6 +18,7 @@
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@sporta/contracts": "workspace:*",
+    "@sporta/observability": "workspace:*",
     "@sporta/observation": "workspace:*",
     "@sporta/session": "workspace:*",
     "@sporta/testing": "workspace:*",
