@@ -26,7 +26,7 @@ recorded), `BLOCKED` (reason recorded).
 | W101  | COMPLETE    | session w101-source-ingestion; branch 37d59f1; merge f1ed65a; CI success; 395/395 tests, lint/typecheck/format clean; TL review: rights-gate-first ordering, magic-byte-only sniffing, frozen idempotent receipts verified |
 | W102  | COMPLETE    | session w102-demux-decode; branch 3c4cd71; merge ee06312; 440/440 tests incl. ffmpeg integration; lint/typecheck/format clean; TL review: policy-in-envelope, finally-unlink on 7 paths, bounded stderr |
 | W103  | COMPLETE    | session w103-timeline-sync; branch e9b5807; 544 branch tests, 643 integrated; lint/typecheck/format clean; TL review: affine clocks + exact inverse, two-anchor drift ±1ppm, clamp+anomaly, honest driftMeasured=false fallback |
-| W104  | NOT_STARTED | — |
+| W104  | COMPLETE    | session w104-segment-transport; branch 02904cb; merge 68b3aa2; CI run 34747782897 success; 674/674 tests (31 transport), lint/typecheck/format clean; TL review: bounded channel (capacity+bytes, block/reject/drop-oldest, never-silent drop accounting), deterministic injectable-clock retries (non-retryable never blind-retried), StageRunner end-to-end bounded memory + orderly shutdown |
 | W201  | COMPLETE    | session w201-detection; branch 20d04b0; 550 branch tests, 595 integrated; lint/typecheck/format clean; TL review: exact benchmark math, contract-derived types, zod-validated emission |
 | W202  | NOT_STARTED | — |
 | W203  | NOT_STARTED | — |
