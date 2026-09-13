@@ -15,7 +15,7 @@ Deliver: versioned TypeScript/JSON-schema or equivalent contracts for media sess
 Accept: contracts validate fixtures; compatibility policy is documented.
 
 ### W003 Test/CI foundation
-Owner: Platform. Dependencies: W001.
+Owner: Platform. Dependencies: W001, W002.
 Deliver: unit/integration/e2e test harness, fixture conventions, deterministic test data strategy.
 Accept: representative tests run in CI.
 

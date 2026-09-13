@@ -6,6 +6,10 @@ Sporta is an AI-powered universal sports rendering platform. It ingests licensed
 
 This repository has been bootstrapped as a clean-room implementation handoff. No production implementation has started yet.
 
+Operational state lives in `docs/status/`: `work-item-status.md` (per-item
+evidence ledger) and `session-log.md` (append-only tech-lead session records).
+The newest session-log entry is the authoritative handoff state.
+
 ## Source of truth
 
 The repository is the authoritative source of truth for the project. An implementation agent must not depend on chat history or undocumented assumptions.
