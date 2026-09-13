@@ -23,8 +23,8 @@ recorded), `BLOCKED` (reason recorded).
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
-| W101  | NOT_STARTED | — |
-| W102  | NOT_STARTED | — |
+| W101  | COMPLETE    | session w101-source-ingestion; branch 37d59f1; merge f1ed65a; CI success; 395/395 tests, lint/typecheck/format clean; TL review: rights-gate-first ordering, magic-byte-only sniffing, frozen idempotent receipts verified |
+| W102  | IN_FLIGHT   | session w102-demux-decode dispatched (s103 spec) |
 | W103  | NOT_STARTED | — |
 | W104  | NOT_STARTED | — |
 | W201  | NOT_STARTED | — |
@@ -49,7 +49,7 @@ recorded), `BLOCKED` (reason recorded).
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
-| W501  | NOT_STARTED | — |
+| W501  | IN_FLIGHT   | session w501-renderer-contract dispatched (s102 spec) |
 | W502  | NOT_STARTED | — |
 | W503  | NOT_STARTED | — |
 | W504  | NOT_STARTED | — |
