@@ -42,6 +42,19 @@
         "@sporta/contracts": "workspace:*",
       },
     },
+    "packages/renderer-contract": {
+      "name": "@sporta/renderer-contract",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+        "zod": "^4.0.0",
+      },
+    },
     "packages/session": {
       "name": "@sporta/session",
       "version": "0.1.0",
@@ -105,6 +118,8 @@
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
+
+    "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
