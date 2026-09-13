@@ -1,0 +1,27 @@
+{
+  "sessionId": "sess-fixture-001",
+  "schemaVersion": "1.0",
+  "status": "created",
+  "authorizationPolicyId": "pol-fixture-full",
+  "sources": [
+    {
+      "sourceId": "src-fixture-match-tv",
+      "kind": "file",
+      "container": "matroska",
+      "videoStreams": 1,
+      "audioStreams": 2,
+      "durationMs": 5520000,
+      "declaredRightsPolicyId": "pol-fixture-full"
+    }
+  ],
+  "timeline": {
+    "durationMs": 5520000,
+    "videoClockOffsetMs": 0,
+    "audioClockOffsetMs": 0,
+    "driftMeasured": false
+  },
+  "processingState": {
+    "stage": "created"
+  },
+  "createdAtIso": "2025-06-01T12:00:00Z"
+}

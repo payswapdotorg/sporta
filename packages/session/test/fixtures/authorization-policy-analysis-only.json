@@ -1,0 +1,5 @@
+{
+  "policyId": "pol-fixture-analysis-only",
+  "allowedOperations": ["analysis"],
+  "assertedBy": "rights-operator@sporta.test"
+}
