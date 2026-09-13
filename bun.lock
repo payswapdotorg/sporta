@@ -84,6 +84,18 @@
         "@sporta/contracts": "workspace:*",
       },
     },
+    "packages/perception-detection": {
+      "name": "@sporta/perception-detection",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/renderer-contract": {
       "name": "@sporta/renderer-contract",
       "version": "0.1.0",
@@ -166,6 +178,8 @@
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
+
+    "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
