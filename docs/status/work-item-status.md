@@ -33,7 +33,7 @@ recorded), `BLOCKED` (reason recorded).
 | W204  | COMPLETE    | session w204-identity-tracking (conversation 0559869a, landed 16:38 one-create via relay-armed fighter); branch 421d66f; merge 35a7fe1; CI success; 820/820 integrated tests (55 perception-tracking), lint/typecheck/format clean; TL review: greedy-IoU with deterministic 3-key tie-break (IoU desc, detection order, creation order), track ids never reissued, scene-cut hard boundary (close-all), confidence verbatim passthrough, subjectEntityRefs {entityId,kind} with no invented kinds, no velocity (W205/W206 boundary), image-space center position documented, identity-switch + track-purity benchmark |
 | W205  | NOT_STARTED | — |
 | W206  | NOT_STARTED | — |
-| W207  | NOT_STARTED | — |
+| W207  | COMPLETE    | session w207-stt-adapter (conversation 0697d5ee, landed 19:05 after 2.3h capacity fight incl. one false-VERIFIED void + re-arm); branch 42a09db; merge b02bc3b; CI success; 874/874 tests (54 asr), lint/typecheck/format clean; TL review: provider-neutral AsrBackend seam with lazy z-ai-web-dev-sdk import (package loads offline), WAV encoding for windowed PCM, timestamped TranscriptionUnits with actual-span endMs (never claiming audio that is not there), transcription observations modality "audio" (W209 owns commentary upgrade), confidence omitted-when-absent (never invented), speakerLabel passthrough (W208 owns diarization), bounded AsrError causes |
 | W208  | NOT_STARTED | — |
 | W209  | NOT_STARTED | — |
 
