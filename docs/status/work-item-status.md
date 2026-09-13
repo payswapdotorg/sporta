@@ -27,7 +27,7 @@ recorded), `BLOCKED` (reason recorded).
 | W102  | COMPLETE    | session w102-demux-decode; branch 3c4cd71; merge ee06312; 440/440 tests incl. ffmpeg integration; lint/typecheck/format clean; TL review: policy-in-envelope, finally-unlink on 7 paths, bounded stderr |
 | W103  | NOT_STARTED | — |
 | W104  | NOT_STARTED | — |
-| W201  | NOT_STARTED | — |
+| W201  | COMPLETE    | session w201-detection; branch 20d04b0; 550 branch tests, 595 integrated; lint/typecheck/format clean; TL review: exact benchmark math, contract-derived types, zod-validated emission |
 | W202  | NOT_STARTED | — |
 | W203  | NOT_STARTED | — |
 | W204  | NOT_STARTED | — |
