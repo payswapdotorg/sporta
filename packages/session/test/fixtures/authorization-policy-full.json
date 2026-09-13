@@ -1,0 +1,12 @@
+{
+  "policyId": "pol-fixture-full",
+  "allowedOperations": [
+    "analysis",
+    "transformation",
+    "liveDelivery",
+    "derivativeGeneration",
+    "storage",
+    "sharing"
+  ],
+  "assertedBy": "rights-operator@sporta.test"
+}

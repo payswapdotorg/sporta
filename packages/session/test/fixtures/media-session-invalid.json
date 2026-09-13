@@ -1,0 +1,17 @@
+{
+  "sessionId": "sess-fixture-invalid",
+  "schemaVersion": "9.9",
+  "status": "wrecked",
+  "authorizationPolicyId": "",
+  "sources": [],
+  "timeline": {
+    "durationMs": -1,
+    "videoClockOffsetMs": 0,
+    "audioClockOffsetMs": 0,
+    "driftMeasured": false
+  },
+  "processingState": {
+    "stage": ""
+  },
+  "createdAtIso": "not-an-iso-date"
+}

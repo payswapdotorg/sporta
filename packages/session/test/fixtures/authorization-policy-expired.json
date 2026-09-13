@@ -1,0 +1,13 @@
+{
+  "policyId": "pol-fixture-expired",
+  "allowedOperations": [
+    "analysis",
+    "transformation",
+    "liveDelivery",
+    "derivativeGeneration",
+    "storage",
+    "sharing"
+  ],
+  "assertedBy": "rights-operator@sporta.test",
+  "expiresAtIso": "2020-01-01T00:00:00Z"
+}
