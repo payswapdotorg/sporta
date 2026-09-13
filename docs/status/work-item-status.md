@@ -13,7 +13,7 @@ recorded), `BLOCKED` (reason recorded).
 |-------|-------------|----------|
 | W001  | COMPLETE    | S001: merge bc18272 (worker commit e4dfad5, session w001-repo-bootstrap); tech-lead re-ran bun test 1/1, lint clean, typecheck 0, format:check clean; CI run 34731407456 success on main |
 | W002  | COMPLETE    | S001: worker commit c35bb90 (session w002-domain-contracts); 47/47 tests green, lint/typecheck/format clean, 13 schemas exported + goldens enforced; COMPATIBILITY.md added |
-| W003  | NOT_STARTED | — |
+| W003  | COMPLETE    | S001: worker commit 806e649 (session w003-test-ci-foundation); @sporta/testing deterministic builders/sequences, tests/e2e/m0-pipeline.test.ts vertical slice, HARNESS.md + CONTRIBUTING testing conventions; 328/328 green |
 | W004  | COMPLETE    | S001: worker commit b338854 (session w004-session-model); 90 session tests + full-suite green; lifecycle machine, fail-closed rights, in-memory + bun:sqlite repositories |
 | W005  | COMPLETE    | S001: worker commit 1870cae (session w005-observation-model); 31 observation tests + full-suite green; store, evidence-linked derivation, deterministic replay with corrections |
 | W006  | COMPLETE    | S001: worker commit 2445c7b (session w006-swm-contract); 95 world-model tests + full-suite green; versioned entities, at-T snapshots, bounded reorder, football extension |
