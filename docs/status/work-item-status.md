@@ -12,7 +12,7 @@ recorded), `BLOCKED` (reason recorded).
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
 | W001  | COMPLETE    | S001: merge bc18272 (worker commit e4dfad5, session w001-repo-bootstrap); tech-lead re-ran bun test 1/1, lint clean, typecheck 0, format:check clean; CI run 34731407456 success on main |
-| W002  | NOT_STARTED | — |
+| W002  | COMPLETE    | S001: worker commit c35bb90 (session w002-domain-contracts); 47/47 tests green, lint/typecheck/format clean, 13 schemas exported + goldens enforced; COMPATIBILITY.md added |
 | W003  | NOT_STARTED | — |
 | W004  | NOT_STARTED | — |
 | W005  | NOT_STARTED | — |
