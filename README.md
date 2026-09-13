@@ -36,3 +36,45 @@ Sporta must only ingest and transform media for which the operator/user has the 
 ## Implementation rule
 
 No work item is considered complete because code exists. It is complete only when its acceptance criteria, tests, observability, documentation, and architecture conformance requirements are satisfied.
+
+## Development
+
+### Setup
+
+Requires [Bun](https://bun.sh); the required version is declared in the `engines`
+field of the root `package.json`.
+
+```bash
+bun install
+```
+
+### Commands
+
+Run from the repository root:
+
+```bash
+bun run lint         # ESLint (flat config + typescript-eslint)
+bun run format       # Prettier (write)
+bun run format:check # Prettier (check only; used by CI)
+bun run typecheck    # tsc --noEmit in every @sporta/* workspace
+bun test             # Bun test runner (all workspaces)
+```
+
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests, and
+`format:check` on every push to `main` and on every pull request.
+
+### Workspace layout
+
+```text
+.
+├── AGENTS.md            # agent operating contract
+├── CONTRIBUTING.md      # contributor guide
+├── docs/                # authority documents (frozen; see AGENTS.md)
+├── packages/
+│   └── contracts/       # @sporta/contracts — shared contract definitions
+├── tsconfig.base.json   # shared TypeScript compiler options
+└── package.json         # root scripts and shared dev tooling
+```
+
+See `CONTRIBUTING.md` for workspace conventions, the contract-first rule, and
+the worker reporting rules.
