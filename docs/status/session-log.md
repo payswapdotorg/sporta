@@ -62,6 +62,17 @@ bun workspaces monorepo, TypeScript strict, zod v4 schemas as contract source
 of truth with JSON Schema export and golden-schema compatibility tests,
 `bun test` as the test runner, eslint + prettier, GitHub Actions CI.
 
-### 3. Session results
+### 3. Session results (in progress — updated as items merge)
 
-(filled at session end — see work-item-status.md for per-item evidence)
+- **W001 COMPLETE** — merged bc18272 (worker branch work/s001-w001, worker commit
+  e4dfad5, dispatched chat.z.ai session `w001-repo-bootstrap` GLM-5.3/Full-Stack,
+  orchestrator-verified: bun test/lint/typecheck/format:check all green locally;
+  GitHub Actions CI run 34731407456 green on main).
+- Worker execution model per operator directive: orchestrator (tech lead) never
+  implements; workers are dispatched chat.z.ai agent sessions delivering via
+  `work/*` branches; tech lead verifies, merges, records evidence.
+- Corrupted-display lesson: `branches: ain]` in ci.yml was a display-layer ANSI
+  artifact (od -c proved bytes are `branches: [main]`); no patch applied.
+- Next: W002 (domain contracts) dispatched to Worker A; then W003+W004 (B) and
+  W005+W006 (A) in parallel; W007 last. Worker C unassigned in M0 (no
+  dependency-safe product work).
