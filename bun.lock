@@ -55,6 +55,18 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/field-mapping": {
+      "name": "@sporta/field-mapping",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ingestion": {
       "name": "@sporta/ingestion",
       "version": "0.1.0",
@@ -196,6 +208,8 @@
     "@sporta/control-api": ["@sporta/control-api@workspace:packages/control-api"],
 
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
+
+    "@sporta/field-mapping": ["@sporta/field-mapping@workspace:packages/field-mapping"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
