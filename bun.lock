@@ -103,6 +103,18 @@
         "zod": "^4.0.0",
       },
     },
+    "packages/timeline": {
+      "name": "@sporta/timeline",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/world-model": {
       "name": "@sporta/world-model",
       "version": "0.1.0",
@@ -155,6 +167,8 @@
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
     "@sporta/testing": ["@sporta/testing@workspace:packages/testing"],
+
+    "@sporta/timeline": ["@sporta/timeline@workspace:packages/timeline"],
 
     "@sporta/world-model": ["@sporta/world-model@workspace:packages/world-model"],
 
