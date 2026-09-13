@@ -29,7 +29,7 @@ recorded), `BLOCKED` (reason recorded).
 | W104  | COMPLETE    | session w104-segment-transport; branch 02904cb; merge 68b3aa2; CI run 34747782897 success; 674/674 tests (31 transport), lint/typecheck/format clean; TL review: bounded channel (capacity+bytes, block/reject/drop-oldest, never-silent drop accounting), deterministic injectable-clock retries (non-retryable never blind-retried), StageRunner end-to-end bounded memory + orderly shutdown |
 | W201  | COMPLETE    | session w201-detection; branch 20d04b0; 550 branch tests, 595 integrated; lint/typecheck/format clean; TL review: exact benchmark math, contract-derived types, zod-validated emission |
 | W202  | NOT_STARTED | — |
-| W203  | NOT_STARTED | — |
+| W203  | COMPLETE    | session w203-field-mapping (conversation ee80adf2, landed after 4h capacity siege via supervisor fighter); branch 9d26f55; merge 0b83682; CI success; 732/732 tests (58 field-mapping), lint/typecheck/format clean; TL review: exact 8-point DLT with partial-pivot rank check, canonical h[8]=1 form, adjugate inverse with round-trip guarantee, pure never-clamp projector (inBounds flag, out-of-play honest), fixture camera model with documented pan/zoom/jitter math, OBSERVED-provenance field-mapping observations with stable cameraHomographyRef |
 | W204  | NOT_STARTED | — |
 | W205  | NOT_STARTED | — |
 | W206  | NOT_STARTED | — |
