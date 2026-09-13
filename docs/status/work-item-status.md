@@ -17,7 +17,7 @@ recorded), `BLOCKED` (reason recorded).
 | W004  | COMPLETE    | S001: worker commit b338854 (session w004-session-model); 90 session tests + full-suite green; lifecycle machine, fail-closed rights, in-memory + bun:sqlite repositories |
 | W005  | COMPLETE    | S001: worker commit 1870cae (session w005-observation-model); 31 observation tests + full-suite green; store, evidence-linked derivation, deterministic replay with corrections |
 | W006  | COMPLETE    | S001: worker commit 2445c7b (session w006-swm-contract); 95 world-model tests + full-suite green; versioned entities, at-T snapshots, bounded reorder, football extension |
-| W007  | NOT_STARTED | — |
+| W007  | COMPLETE    | S001: worker commit 41803d1 (session w007-observability); zero-dep logger/correlation/metrics/trace + m0-observability e2e (6-stage correlated trace); 356/356 green |
 
 ## M1 — Football perception + commentary
 
