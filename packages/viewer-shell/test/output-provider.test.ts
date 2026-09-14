@@ -195,6 +195,7 @@ describe("render-output provider — the honest unsupported-output gap (W504 pen
       ["internal", 500],
       ["unknown-session", 404],
       ["unknown-render", 404],
+      ["unknown-segment", 404],
       ["unknown-route", 404],
       ["method-not-allowed", 405],
     ];

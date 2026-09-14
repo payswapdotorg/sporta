@@ -2,12 +2,13 @@
  * The viewer-shell error model (W702): every failure the shell can surface,
  * classified, labeled, and retry-classified — nothing swallowed.
  *
- * The control plane (W701) answers every deliberate refusal as
+ * The control plane (W701 + W504 playback routes) answers every deliberate
+ * refusal as
  * `{ error: { failureClass, message, details? } }` with the classes
  * `rights-denied | media-invalid | validation | resource-limit | internal |
- * unknown-session | unknown-render` (app) plus `unknown-route` and
- * `method-not-allowed` (transport). The viewer consumes those classes
- * VERBATIM and adds exactly two viewer-side classes:
+ * unknown-session | unknown-render | unknown-segment` (app + playback)
+ * plus `unknown-route` and `method-not-allowed` (transport). The viewer
+ * consumes those classes VERBATIM and adds exactly two viewer-side classes:
  *
  * - `network` — the control server could not be reached at all (fetch
  *   refused/timeout); the server never answered, so no server-side class
@@ -26,9 +27,10 @@
 /**
  * Failure classes the viewer can surface. `rights-denied`, `media-invalid`,
  * `validation`, `resource-limit`, `internal`, `unknown-session`,
- * `unknown-render` come from the control plane's error family (W701
- * `ControlFailureClass`); `unknown-route`/`method-not-allowed` from its
- * transport; `network` and `unsupported-output` are viewer-side.
+ * `unknown-render`, `unknown-segment` (W504 playback 404 family) come from
+ * the control plane's error family (W701 `ControlFailureClass`);
+ * `unknown-route`/`method-not-allowed` from its transport; `network` and
+ * `unsupported-output` are viewer-side.
  */
 export type ViewerFailureClass =
   | "rights-denied"
@@ -38,6 +40,7 @@ export type ViewerFailureClass =
   | "internal"
   | "unknown-session"
   | "unknown-render"
+  | "unknown-segment"
   | "unknown-route"
   | "method-not-allowed"
   | "network"
@@ -52,6 +55,7 @@ export const VIEWER_FAILURE_CLASSES: readonly ViewerFailureClass[] = [
   "internal",
   "unknown-session",
   "unknown-render",
+  "unknown-segment",
   "unknown-route",
   "method-not-allowed",
   "network",
@@ -75,6 +79,7 @@ export const FAILURE_CLASS_LABELS: Readonly<Record<ViewerFailureClass, string>> 
   internal: "Server error",
   "unknown-session": "Unknown session",
   "unknown-render": "Unknown render",
+  "unknown-segment": "Unknown output segment",
   "unknown-route": "Unknown route",
   "method-not-allowed": "Method not allowed",
   network: "Connection failed",

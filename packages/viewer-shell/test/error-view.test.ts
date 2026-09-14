@@ -23,6 +23,7 @@ const CONTROL_CLASSES = [
   "internal",
   "unknown-session",
   "unknown-render",
+  "unknown-segment",
   "unknown-route",
   "method-not-allowed",
 ] as const;

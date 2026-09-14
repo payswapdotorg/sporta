@@ -73,7 +73,9 @@ describe("CheckpointTracker — boundary arithmetic", () => {
 
   test("the checkpoint owns COPIES: mutating the cut inputs afterwards changes nothing", () => {
     const tracker = new CheckpointTracker(100);
-    const keys = [{ key: "k0", disposition: "emitted" as const }];
+    const keys: { key: string; disposition: "emitted" | "dead-lettered" }[] = [
+      { key: "k0", disposition: "emitted" },
+    ];
     const stats = { ...emptyStats([1]), segmentsOut: 3 };
     const cp = tracker.cut({
       watermarkMs: 100,
