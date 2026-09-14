@@ -1,0 +1,24 @@
+{
+  "name": "@sporta/streaming-ingress",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/decoding": "workspace:*",
+    "@sporta/observability": "workspace:*",
+    "@sporta/session": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/transport": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
