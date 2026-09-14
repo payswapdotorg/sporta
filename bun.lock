@@ -132,6 +132,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/fusion": {
+      "name": "@sporta/fusion",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ingestion": {
       "name": "@sporta/ingestion",
       "version": "0.1.0",
@@ -313,6 +326,8 @@
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
 
     "@sporta/field-mapping": ["@sporta/field-mapping@workspace:packages/field-mapping"],
+
+    "@sporta/fusion": ["@sporta/fusion@workspace:packages/fusion"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
