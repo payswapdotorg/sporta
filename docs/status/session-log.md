@@ -256,3 +256,82 @@ with tests.
 - **Operator credentials:** PAT + composio keys in ~/.secrets/env.sh
   (never committed); worktrees' origin remote carries the PAT for
   pushes (local .git/config only, never committed).
+
+---
+
+## Session S004 — 2026-09-14 — M3+G4, wave execution via local Task-tool workers
+
+**Tech lead:** resident implementation tech lead (operator-appointed).
+
+### 1. Context
+
+Continuation of S003 (reconstructed). Dispatch mechanism this session: the
+sandbox's Task/subagent tool with dedicated git worktrees per worker
+(`/home/z/sporta-wXXX`, branch `wXXX-<slug>`) — no chat.z.ai dependency.
+Secrets persisted in `~/.secrets/env.sh` (PAT + composio keys, never
+committed); worktree origins carry the PAT in local .git/config only.
+
+### 2. Session results (all merged to main, CI-visible)
+
+- **W302** bounded processing queues — merge aae6f00, 1784/1784.
+- **W504** anime output pipeline — merge 79c1058, 1994/1994 (worker audit
+  found a fail-open NaN rights hole in inherited work; fixed + pinned).
+- **W702** viewer shell — merge 9972833 + TL merge-seam fix 2d67300,
+  2148/2148.
+- **G4 gate ACHIEVED (M3 complete)** — exit demo `tests/e2e/m3-rendering.test.ts`,
+  branch bb7a02f, merge a661b45, 2149/2149. Surfaced the fusion
+  `position` vs renderer `pitchPosition` slot seam (measured in-test).
+- **W601** scene projection contract — merge fe808e3, 2282/2282; reconciles
+  the position/pitchPosition seam from the projection side.
+- **W705** batch playback integration — merge 878aed4, 2345/2345.
+- **W703** renderer/style selection — merge 0b7f55a, 2380/2380.
+- **W303** GPU worker protocol — merge a6047ec, 2527/2527.
+- **W706** viewer telemetry — merge 70287b0, 2588/2588 (audit found an
+  unhandled-rejection chain-poisoning bug; fixed + pinned).
+- **W602** 3D avatar/field prototype — merge 4c94b32, 2813/2813.
+
+### 3. Operational lessons (this session's dead-flight protocol)
+
+- Task calls that ERROR may still start the agent: check worktree file
+  mtimes + branch state BEFORE re-dispatching (double-booking risk). A
+  flight with 15+ min of frozen files and no commit is dead.
+- Dead flights leave uncommitted work: re-dispatch with AUDIT-FIRST prompts
+  (audit line-by-line, complete rather than rewrite, fix real bugs, pin
+  fixes with tests). Every audit so far found real defects (fail-open
+  rights holes, missing deliverables, hidden TS errors).
+- Root `bun run typecheck` does NOT propagate per-package exit codes —
+  grep the FULL output for `error TS` (count must be 0). Tail-truncated
+  verification hid two real merge-seam defects before this was learned.
+- After every merge: `bun install` (re-link) before the battery.
+- Merge-seam defects surface only on merged main (each branch green on its
+  own base) and are TL-owned fixes (2d67300 precedent).
+- For long-dead branches: the TL may reset the branch pointer to current
+  main (untracked inherited work survives) to give the next flight a
+  clean, up-to-date base (W602/W304 precedent).
+- Sequential dispatch is more reliable than parallel (parallel calls
+  failed 2/2; single calls usually succeeded).
+- Subagents can exceed max turns (200) — dispatch a focused finishing
+  flight with the exact remaining failure inventory.
+
+### 4. Session-end state (§14 record — UPDATED INCREMENTALLY, final at session close)
+
+- **Current milestone:** M3 COMPLETE (G4). M4: W301/W302/W303 done,
+  W304 finishing, W305/W306 next. M5: W701/W702/W703/W705/W706 done,
+  W704 blocked on W305. M6: W601/W602 done, W603 next (then W604/W605).
+  M7: W801 in flight (uncertain), W802 blocked on W306, W803 blocked on
+  W605, W804/W805 unblocked, W806 last.
+- **In flight at this writing:** W304 flight 4 (finishing: 13 failing
+  tests + 3 TS errors + 10 unformatted files inherited from the
+  max-turns flight 3), W801 flight 1 (uncertain — quiet 35+ min).
+- **TL backlog (worker-surfaced, accepted):** control-api playback-list
+  render classification (unknown render ids answer 200 empty); W701
+  validateRequest maps plugin rights-denied behind media-invalid;
+  real-browser paint E2E as an explicit future item; fusion slot-name
+  unification (position → pitchPosition) — projection-side reconciliation
+  already landed via W601, fusion-side rename still open.
+- **Blocked:** W704 (needs W305), W802 (needs W306), W803 (needs W605).
+- **Next executable (dependency-safe):** W305 (after W304), W603, W804,
+  W805.
+- **Evidence:** all merges + status rows pushed (main advanced
+  446c316 → 0ad05a5 this session; 1656 → 2813 tests).
+- **Operator credentials:** unchanged (env.sh, never committed).
