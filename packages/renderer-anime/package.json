@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/renderer-anime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/temporal": "workspace:*",
+    "@sporta/world-model": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}
