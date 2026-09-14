@@ -37,12 +37,24 @@ recorded), `BLOCKED` (reason recorded).
 | W208  | COMPLETE    | session w208-commentary-segmentation (re-dispatch, conversation 2717883c, landed 23:31; first session's turn died silent with sandbox reset — voided, lesson 116 discipline applied); branch 0d6cdfa; merge c596c84; CI success; 968/968 tests (52 commentary-segmentation incl. w207-integration), lint/typecheck/format clean; TL review: rule-based deterministic segmentation (punctuation/speaker/channel/gap, every rule test-pinned), empty units skipped honestly, window-level timing honesty (no invented character timing), modality upgrade audio→commentary claimed as segmentation-not-understanding, provenance DERIVED (deterministic inference), confidence omitted-when-absent, no entity refs (W209 territory), stable seg- ids, pure |
 | W209  | COMPLETE    | session w209-commentary-interpretation (conversation fb5c0ccf, landed 00:35, delivered 01:05 — 38 min); branch 15caa8d; merge 9bccc24; PUSHED to main d42a666 after PAT restore (sandbox reset 01:11 had wiped ~/.secrets/env.sh); CI run 33 success on d42a666; 1016/1016 tests, lint/typecheck/format clean; TL review: deterministic event-candidate extraction (lexicon DATA pure, priority chains goal>save>shot / free-kick>foul / corner>pass, span contention + outcome absorption), exact confidence formula 0.5·pattern + 0.3·subjects(0.4 no-subject) + 0.2·(1−0.5·emphasis), subjects/emphasis/observe all test-pinned, 48 tests |
 
+**Gate G2 — Football understanding: ACHIEVED (2026-09-14).** M1 complete
+(all 13 items). Exit demo: `tests/e2e/m1-understanding.test.ts` (branch
+775392a, merge a33cd79, session g2-exit-demo) — one deterministic fixture
+produces synchronized player/ball observations (W204→W203→W206 players,
+W202→W205 ball, one shared 40 ms session timeline, one ObservationStore:
+120 player + 50 ball vision observations incl. honestly-DERIVED
+occlusion-bridged frames) plus commentary-derived event candidates
+(W208→W209: 8 candidates, verbatim phrases, hand-derived confidences,
+goal confidence 0.91 pinned). Ingested via fail-closed rights lifecycle
+(W101-W104 chain exercised through the session model). 1159/1159 tests
+at merge; CI green.
+
 ## M2 — World model
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
 | W401  | COMPLETE    | session w401-world-fusion (conversation a6e31b7c; dispatched in parallel with G2 demo 03:21, branch pushed 03:59, report 04:12); branch c6c926c; merge 2bf5389; 1158/1158 tests (72 fusion), lint/typecheck (22 pkgs)/format clean; TL review: FOOTBALL_EVENT_MAP 14-entry table exactly per spec (set-piece→restart, foul→referee-decision, fulltime→clock post-match, other dropped-but-counted), fe-<observationId> deterministic event ids make DuplicateEventError the re-fusion dedup, entities with honest uncertainty slots (position uncertain, confidence-absent stays confidence-less, velocity ignored per boundary), EXPLICIT conflict ledger (connected-component window grouping, one record per group, resolution "none", values carry confidences, rerun-identical), possession nearest-participant product confidence with MISSING_CONFIDENCE_DEFAULT + 1e-9 tie→conflict (no silent winner), idempotent re-fusion proven (snapshot version unchanged on rerun), LateEvent/warning paths never silent, W209 generic-payload parser pending future typed contracts bump (documented) |
-| W402  | NOT_STARTED | — |
+| W402  | COMPLETE    | session w402-temporal (conversation 00314426, dispatched 04:15, branch pushed 04:41, report 04:55); branch 8d72a87; merge 64d4ab6; 1201/1201 tests (42 temporal), lint/typecheck (23 pkgs)/format clean; TL review: eventWindow inclusive bounds preserving sequence order (pinned no-resort), stateAt engine-equivalence, replayForward fresh-engine with FORCED deterministic now (REPLAY_GENERATED_AT_MS, init.now ignored — pinned), static reverse-scan supersession (X superseded by C → X skipped, C applies detached with net effect identical — worker flagged engine tension honestly, TL-accepted), orphaned corrections counted never silent, duplicate-tolerant, checkpoint boundary-crossing cadence exact, TemporalLimitsError fail-loud, deep-equal rerun, M2 vertical e2e (store→fusion→replay); honest limitations: entities not reconstructible from event windows (upserts are not events — football state caller-pinned as replay init), replay-local watermark sequence |
 | W403  | NOT_STARTED | — |
 
 ## M3 — Offline stylized rendering
