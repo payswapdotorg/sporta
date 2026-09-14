@@ -81,12 +81,15 @@ import {
   ControlMediaInvalidError,
   ControlRightsDeniedError,
   ControlUnknownRenderError,
+  ControlUnknownSegmentError,
   ControlUnknownSessionError,
   ControlValidationError,
   asControlError,
   wrapRendererResolutionError,
   wrapSessionRightsDenied,
 } from "./errors";
+import { asRenderOutputStoreError } from "./playback";
+import type { RenderOutputDocument, RenderOutputListResult, RenderOutputStore } from "./playback";
 
 /** Log/metric stage name for every record emitted by the control plane. */
 export const CONTROL_API_STAGE = "control-api";
@@ -112,7 +115,9 @@ export type ControlRoute =
   | "list_renderers"
   | "create_render"
   | "get_render"
-  | "list_renders";
+  | "list_renders"
+  | "get_render_output"
+  | "list_render_outputs";
 
 /** Default style id when the caller does not select one. */
 const DEFAULT_STYLE_ID = "default";
@@ -159,6 +164,14 @@ export interface ControlAppOptions {
    * reproducible (docs/testing/HARNESS.md).
    */
   nowMs?: () => number;
+  /**
+   * W504 (ADDITIVE): the render-output store serving the playback routes —
+   * a STRUCTURAL port satisfied by `@sporta/output-pipeline`'s segment
+   * store (no package dependency; see `./playback.ts`). Absent by default:
+   * the playback routes then answer 404 (no stored outputs exist), exactly
+   * like an empty store.
+   */
+  renderOutputStore?: RenderOutputStore;
 }
 
 /** Input for {@link ControlApp.createSession}. */
@@ -259,6 +272,24 @@ export interface ControlApp {
   ): Promise<RenderEnvelope>;
   getRender(sessionId: string, renderId: string, ctx?: ControlCallContext): Promise<RenderEnvelope>;
   listRenders(sessionId: string, ctx?: ControlCallContext): Promise<ListRendersResult>;
+  /**
+   * W504 (ADDITIVE): one stored render-output segment — the encoded document
+   * (e.g. the animated SVG text) plus its content type, byte length, content
+   * hash, and container manifest, verbatim. Same playback gate as
+   * `getRender` (fail-closed; rights checked BEFORE existence is revealed).
+   */
+  getRenderOutput(
+    sessionId: string,
+    renderId: string,
+    segmentId: string,
+    ctx?: ControlCallContext,
+  ): Promise<RenderOutputDocument>;
+  /** W504 (ADDITIVE): the segment summaries stored under one render. */
+  listRenderOutputs(
+    sessionId: string,
+    renderId: string,
+    ctx?: ControlCallContext,
+  ): Promise<RenderOutputListResult>;
 }
 
 /** A stored render, keyed by its deterministic id. */
@@ -395,6 +426,7 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
   const sessionRepository = options.sessionRepository ?? new InMemorySessionRepository();
   const rendererRegistry = options.rendererRegistry ?? defaultRendererRegistry();
   const nowMs = options.nowMs ?? createDeterministicClock();
+  const renderOutputStore = options.renderOutputStore; // W504 (additive); undefined ≡ empty store
   const logger = options.observability?.logger ?? createNoopLogger();
   const metrics = options.observability?.metrics ?? new MetricsRegistry();
   const lifecycle = new SessionLifecycle({ now: () => new Date(nowMs()) });
@@ -767,6 +799,127 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     return { renders };
   }
 
+  // --- getRenderOutput / listRenderOutputs (W504 playback access) --------
+
+  /** The stored policy of a session — fail-closed when absent (unreachable after the gate). */
+  function requireSessionPolicy(sessionId: string): AuthorizationPolicyDoc {
+    const policy = policies.get(sessionId);
+    if (policy === undefined) {
+      throw new ControlRightsDeniedError(
+        `playback access denied: no authorization policy is on record for session '${sessionId}'`,
+        { sessionId },
+      );
+    }
+    return policy;
+  }
+
+  function getRenderOutputImpl(
+    sessionId: string,
+    renderId: string,
+    segmentId: string,
+  ): RenderOutputDocument {
+    requireSession(sessionId);
+    // Playback gate: deny BEFORE revealing whether anything exists.
+    requirePlaybackRights(sessionId);
+    const policy = requireSessionPolicy(sessionId);
+    if (renderOutputStore === undefined) {
+      // No store configured behaves exactly like an empty store.
+      throw new ControlUnknownRenderError(sessionId, renderId);
+    }
+    try {
+      const record = renderOutputStore.getSegment({
+        sessionId,
+        renderId,
+        segmentId,
+        policy,
+        nowMs: nowMs(),
+      });
+      if (record === null) {
+        // Classify the miss: a render with no stored outputs at all is an
+        // unknown render; a render with outputs but not this id is an
+        // unknown segment.
+        const listed = renderOutputStore.listSegments({
+          sessionId,
+          renderId,
+          policy,
+          nowMs: nowMs(),
+        });
+        if (listed.length === 0) {
+          throw new ControlUnknownRenderError(sessionId, renderId);
+        }
+        throw new ControlUnknownSegmentError(sessionId, renderId, segmentId);
+      }
+      // Contract guard: the store must answer within the requested scope —
+      // a record from another session/render/segment is a store-contract
+      // violation, never served (architecture-lock §13: derived output must
+      // not leak across scopes through mis-scoped store answers).
+      if (
+        record.sessionId !== sessionId ||
+        record.renderId !== renderId ||
+        record.segmentId !== segmentId
+      ) {
+        throw new ControlInternalError(
+          `render output store returned a segment outside the requested scope (asked for session '${sessionId}', render '${renderId}', segment '${segmentId}'; got session '${record.sessionId}', render '${record.renderId}', segment '${record.segmentId}')`,
+          {
+            sessionId,
+            renderId,
+            segmentId,
+            storeSessionId: record.sessionId,
+            storeRenderId: record.renderId,
+            storeSegmentId: record.segmentId,
+          },
+        );
+      }
+      return {
+        sessionId: record.sessionId,
+        renderId: record.renderId,
+        segmentId: record.segmentId,
+        contentType: record.contentType,
+        byteLength: record.byteLength,
+        contentHash: record.contentHash,
+        content: record.content,
+        manifest: structuredClone(record.manifest),
+      };
+    } catch (err) {
+      // Store failures keep their structural failureClass (rights-denied →
+      // 403, resource-limit → 413, ...); the app-level gate above has
+      // already handled the ordinary denials.
+      throw asRenderOutputStoreError(err);
+    }
+  }
+
+  function listRenderOutputsImpl(sessionId: string, renderId: string): RenderOutputListResult {
+    requireSession(sessionId);
+    requirePlaybackRights(sessionId);
+    const policy = requireSessionPolicy(sessionId);
+    if (renderOutputStore === undefined) {
+      // No store configured behaves exactly like an empty store.
+      return { sessionId, renderId, segments: [] };
+    }
+    try {
+      const segments = renderOutputStore.listSegments({
+        sessionId,
+        renderId,
+        policy,
+        nowMs: nowMs(),
+      });
+      // Explicit projection to the port's summary shape (a store may carry
+      // richer records; only the documented summary fields are answered).
+      return {
+        sessionId,
+        renderId,
+        segments: segments.map((segment) => ({
+          segmentId: segment.segmentId,
+          contentType: segment.contentType,
+          byteLength: segment.byteLength,
+          contentHash: segment.contentHash,
+        })),
+      };
+    } catch (err) {
+      throw asRenderOutputStoreError(err);
+    }
+  }
+
   const app: ControlApp = {
     observability: { logger, metrics },
     createSession: (input, ctx) =>
@@ -783,6 +936,14 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       run("get_render", ctx, sessionId, async () => getRenderImpl(sessionId, renderId)),
     listRenders: (sessionId, ctx) =>
       run("list_renders", ctx, sessionId, async () => listRendersImpl(sessionId)),
+    getRenderOutput: (sessionId, renderId, segmentId, ctx) =>
+      run("get_render_output", ctx, sessionId, async () =>
+        getRenderOutputImpl(sessionId, renderId, segmentId),
+      ),
+    listRenderOutputs: (sessionId, renderId, ctx) =>
+      run("list_render_outputs", ctx, sessionId, async () =>
+        listRenderOutputsImpl(sessionId, renderId),
+      ),
   };
   return app;
 }

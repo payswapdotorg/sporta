@@ -7,8 +7,9 @@
  *   session-level `TerminalFailureClass` values (`rights-denied`,
  *   `media-invalid`, `resource-limit`, `internal`) so refusals map onto the
  *   existing failure handling, plus the control-plane-only classes
- *   `validation` (malformed caller input), `unknown-session`, and
- *   `unknown-render` (the 404-style classes);
+ *   `validation` (malformed caller input), `unknown-session`,
+ *   `unknown-render`, and `unknown-segment` (the 404-style classes; the
+ *   segment class serves the W504 playback routes);
  * - `httpStatus` — the transport status derived from `failureClass`
  *   (rights-denied → 403; media-invalid/validation → 400; resource-limit →
  *   413; internal → 500; unknown-session/unknown-render → 404);
@@ -24,12 +25,12 @@ import { RightsDeniedError } from "@sporta/session";
 
 /** Failure classification for control-plane rejections. */
 export type ControlFailureClass =
-  TerminalFailureClass | "validation" | "unknown-session" | "unknown-render";
+  TerminalFailureClass | "validation" | "unknown-session" | "unknown-render" | "unknown-segment";
 
 /**
  * The canonical typed-error → HTTP status mapping. Mirrors the W701 brief:
  * rights-denied → 403; media-invalid/validation → 400; resource-limit → 413;
- * internal → 500; unknown-session/unknown-render → 404.
+ * internal → 500; unknown-session/unknown-render/unknown-segment → 404.
  */
 export const CONTROL_HTTP_STATUS: Readonly<Record<ControlFailureClass, number>> = {
   "rights-denied": 403,
@@ -39,6 +40,7 @@ export const CONTROL_HTTP_STATUS: Readonly<Record<ControlFailureClass, number>> 
   internal: 500,
   "unknown-session": 404,
   "unknown-render": 404,
+  "unknown-segment": 404,
 };
 
 /** Structured, JSON-safe details carried on every control error. */
@@ -140,6 +142,28 @@ export class ControlUnknownRenderError extends ControlApiError {
   }
 }
 
+/**
+ * 404-style: no stored render-output segment with the given id under the
+ * given render (W504 playback routes; the render itself may exist).
+ */
+export class ControlUnknownSegmentError extends ControlApiError {
+  readonly sessionId: string;
+  readonly renderId: string;
+  readonly segmentId: string;
+
+  constructor(sessionId: string, renderId: string, segmentId: string) {
+    super(
+      "unknown-segment",
+      `render output segment '${segmentId}' was not found for render '${renderId}' on session '${sessionId}'`,
+      { sessionId, renderId, segmentId },
+    );
+    this.name = "ControlUnknownSegmentError";
+    this.sessionId = sessionId;
+    this.renderId = renderId;
+    this.segmentId = segmentId;
+  }
+}
+
 /** Union of the typed control-API errors. */
 export type ControlError =
   | ControlApiError
@@ -149,7 +173,8 @@ export type ControlError =
   | ControlResourceLimitError
   | ControlInternalError
   | ControlUnknownSessionError
-  | ControlUnknownRenderError;
+  | ControlUnknownRenderError
+  | ControlUnknownSegmentError;
 
 /** Type guard: `true` when `value` is a typed control-API error. */
 export function isControlApiError(value: unknown): value is ControlApiError {
