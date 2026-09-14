@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/scene-projection",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "export-schemas": "bun run scripts/export-scene-schema.ts"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@sporta/temporal": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/world-model": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}
