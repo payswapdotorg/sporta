@@ -1,8 +1,10 @@
 /**
- * Serve smoke tests (W702 + W705): `serveViewer` + `web/index.html` actually
- * serve and parse. This is the seam-level stand-in for real-browser E2E
- * (which arrives with W706 — W705 delivered the headless real-provider data
- * path in `playback-e2e.test.ts`): the index serves as HTML with the module
+ * Serve smoke tests (W702 + W705 + W706): `serveViewer` + `web/index.html`
+ * actually serve and parse. This is the seam-level stand-in for real-browser
+ * E2E (which remains OPEN future work — W706 as scoped delivered viewer
+ * telemetry, not browser automation; W705 delivered the headless real-provider
+ * data path in `playback-e2e.test.ts`, W706 the telemetry chain in
+ * `telemetry-e2e.test.ts`): the index serves as HTML with the module
  * entry, every browser-reachable module transpiles (a 200 from the
  * on-the-fly transpiler IS the parse proof — `Bun.Transpiler` throws on
  * syntax errors) and contains NO bare `@sporta/*` specifiers (the browser
@@ -32,6 +34,11 @@ const BROWSER_MODULES: string[] = [
   "/src/segment-player.ts",
   "/src/errors.ts",
   "/src/default-clock.ts",
+  "/src/telemetry-http-sink.ts",
+  "/src/telemetry-plan.ts",
+  "/src/telemetry.ts",
+  "/src/telemetry-events.ts",
+  "/src/telemetry-sink.ts",
 ];
 
 /** Bare `@sporta/*` import specifiers found in a transpiled module body. */

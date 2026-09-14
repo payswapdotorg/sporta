@@ -24,13 +24,23 @@
  * - the renderer-selection pane (W703) renders the DERIVED option views
  *   from `./src/selection-plan.ts` (capability-driven: selectable or greyed
  *   out with the machine reason + note; selectable buttons dispatch the
- *   plan's renderer-only selection payload).
+ *   plan's renderer-only selection payload);
+ * - the W706 TELEMETRY wiring: `createHttpTelemetrySink` (the browser-safe
+ *   bridge, DEV-GRADE and honestly labeled — each event POSTed to the dev
+ *   viewer server's own `/telemetry` route, which writes through the REAL
+ *   JSONL file sink under a declared path; failures are counted, never
+ *   fatal) feeds `createViewerCore`'s `telemetrySink`, and the playback
+ *   section renders the pure `./src/telemetry-plan.ts` affordance (the
+ *   structured feedback buttons + the privacy disclosure note).
  *
  * Honest testing boundary: this module is DOM glue — it is compile-checked
  * but not unit-tested (no DOM-testing dependency by constitution); the
  * logic behind every state it renders is covered by the `src/` tests, and
  * the real-provider data path is covered headlessly by
- * `test/playback-e2e.test.ts`. Real-browser E2E arrives with W706.
+ * `test/playback-e2e.test.ts`, while the exact telemetry composition this
+ * module wires (HTTP bridge sink → dev `/telemetry` route → JSONL file) is
+ * covered headlessly by `test/telemetry-e2e.test.ts`. Real-browser paint
+ * E2E remains OPEN future work.
  */
 import type { AuthorizationPolicy } from "@sporta/contracts";
 import { createHttpControlClient } from "../src/http-client.ts";
@@ -40,6 +50,8 @@ import type { PlayerDom } from "../src/dom-adapter.ts";
 import { detailPanePlan } from "../src/detail-plan.ts";
 import type { DetailMode } from "../src/detail-plan.ts";
 import { selectionRequestOf } from "../src/selection-plan.ts";
+import { createHttpTelemetrySink } from "../src/telemetry-http-sink.ts";
+import { telemetryAffordance } from "../src/telemetry-plan.ts";
 import { createViewerCore } from "../src/viewer-core.ts";
 import type { ViewerViewModel } from "../src/viewer-core.ts";
 import { errorBannerSignature, sessionsPaneSignature } from "../src/pane-signature.ts";
@@ -75,9 +87,18 @@ const client = createHttpControlClient({ baseUrl: "/control" });
 // remains in the package for its own tests).
 const outputProvider = createHttpPlaybackProvider({ baseUrl: "/control" });
 
+// W706: the REAL telemetry sink for the browser — the dev-grade HTTP bridge
+// to the dev viewer server's own /telemetry route (same-origin; that route
+// validates every event against the closed vocabulary and writes through
+// the real JSONL file sink under the declared path). Honestly labeled
+// DEV-GRADE: unauthenticated + local (the W701 trust boundary inherited);
+// transport failures are counted inside the sink, never fatal.
+const telemetrySink = createHttpTelemetrySink({ baseUrl: "/telemetry" });
+
 const core = createViewerCore({
   client,
   output: outputProvider,
+  telemetrySink,
   nowMs: () => performance.now(),
 });
 
@@ -395,6 +416,35 @@ function buildPlaybackSection(view: ViewerViewModel): HTMLElement {
 
   provenanceEl = text("p", "provenance");
   section.append(provenanceEl);
+
+  // W706: the telemetry affordance — every decision (visibility, the offered
+  // structured feedback kinds + labels, the privacy note) comes from the
+  // PURE `src/telemetry-plan.ts`; this code only renders it. Fire-and-forget
+  // by design (no view-model state changes on feedback).
+  const telemetrySection = text("div");
+  telemetrySection.className = "telemetry-affordance";
+  const affordance = telemetryAffordance(view);
+  if (affordance.visible) {
+    const feedbackRow = text("div");
+    feedbackRow.append(text("span", "muted", "Playback feedback (telemetry): "));
+    for (const choice of affordance.feedbackChoices) {
+      feedbackRow.append(
+        button(choice.label, () => core.dispatch({ type: "sendFeedback", feedback: choice.kind })),
+      );
+    }
+    telemetrySection.append(feedbackRow, text("p", "muted", affordance.privacyNote));
+  } else {
+    telemetrySection.append(
+      text(
+        "p",
+        "muted",
+        affordance.status === "recording"
+          ? "Viewer telemetry is recording lifecycle/error/quality events; the feedback row appears while a playback is mounted."
+          : "Viewer telemetry is not configured on this viewer (no sink wired); no events are recorded.",
+      ),
+    );
+  }
+  section.append(telemetrySection);
 
   const closeRow = text("div");
   closeRow.style.marginTop = "10px";

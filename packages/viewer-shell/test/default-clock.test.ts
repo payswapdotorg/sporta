@@ -34,7 +34,7 @@ describe("default clock — the local epoch mirror", () => {
 });
 
 describe("createViewerCore without nowMs — the deterministic default is used", () => {
-  test("connect stamps connectedAtMs from the default clock (epoch + 1)", async () => {
+  test("connect stamps connectedAtMs from the default clock (epoch + 2 — W706 pin update)", async () => {
     const client = scriptClient({ listSessions: [res({ sessions: [sessionSummary("sess-1")] })] });
     const output = scriptOutput({ loadOutput: [] });
     const core = createViewerCore({ client, output });
@@ -42,7 +42,11 @@ describe("createViewerCore without nowMs — the deterministic default is used",
     await settle();
     const view = core.view();
     expect(view.status).toBe("browsing-sessions");
-    expect(view.connectedAtMs).toBe(TEST_EPOCH_MS + 1);
+    // W706 (honest pin update): the connect startup timing reads the default
+    // clock once at `begin` (epoch + 1, the operation start) and once at
+    // success (epoch + 2, the end); `connectedAtMs` is stamped from the
+    // success read — one tick deeper than the pre-W706 single read.
+    expect(view.connectedAtMs).toBe(TEST_EPOCH_MS + 2);
   });
 
   test("a default-clock run is reproducible (deep-equal views across two cores)", async () => {

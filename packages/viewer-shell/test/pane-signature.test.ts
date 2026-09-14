@@ -36,6 +36,7 @@ function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
     },
     pendingRenderId: null,
     live: { available: false, note: "live note constant" },
+    telemetry: { enabled: true },
     error: null,
     connectedAtMs: 1,
     ...overrides,

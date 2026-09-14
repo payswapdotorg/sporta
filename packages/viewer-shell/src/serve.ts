@@ -15,7 +15,17 @@
  *   (W705);
  * - serves `GET /output/:sessionId/:renderId` — the W702 STAND-IN output
  *   route, kept for its own tests (the capture-store seam; the DEFAULT
- *   viewer path is the real playback provider since W705).
+ *   viewer path is the real playback provider since W705);
+ * - serves the W706 TELEMETRY routes — `POST /telemetry` (one JSON event;
+ *   validated through the closed event vocabulary, then recorded + flushed
+ *   into the real JSONL file sink under the declared `telemetryPath`),
+ *   `POST /telemetry/flush` (the explicit flush), and `GET /telemetry`
+ *   (a dev-grade status document: path + line counters, NO event contents).
+ *   The browser bootstrap wires `createHttpTelemetrySink` against this
+ *   route (dev-grade, honestly labeled — see `./telemetry-http-sink.ts`).
+ *   Default path: `<tmpdir>/sporta-viewer-telemetry/viewer-telemetry.jsonl`
+ *   (outside the repo, appended across runs — dev-grade accumulation);
+ *   `telemetryPath: null` disables the routes (typed 501 answers).
  *
  * By default the helper is SELF-CONTAINED on the REAL chain (W705): it
  * creates the control server itself with the REAL output pipeline wired in
@@ -30,8 +40,10 @@
  * still work through the proxy against the external server).
  *
  * Serve smoke only: tests verify boot + routes + the real data path; NO
- * real-browser execution is claimed (paint-level E2E is W706; the headless
- * data path is `test/playback-e2e.test.ts`).
+ * real-browser execution is claimed (paint-level E2E remains OPEN — W706 as
+ * scoped delivers viewer TELEMETRY, not browser automation; the headless
+ * data path is `test/playback-e2e.test.ts`, the telemetry chain is
+ * `test/telemetry-e2e.test.ts`).
  *
  * KNOWN LIMITATIONS (dev-grade, deliberate): the stand-in `/output` route
  * does NOT re-derive rights at read time (the W701 playback gate lives on
@@ -45,6 +57,7 @@
  */
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve as resolvePath } from "node:path";
+import { tmpdir } from "node:os";
 import { createControlServer } from "@sporta/control-api";
 import type { ControlServer } from "@sporta/control-api";
 import { createAnimePrototypeRenderer } from "@sporta/renderer-anime";
@@ -55,6 +68,9 @@ import { TEST_EPOCH_MS } from "@sporta/testing";
 import { createEncodingRenderer } from "./encoding-renderer.ts";
 import { createCapturingRenderer, createRenderOutputCaptureStore } from "./render-output-store.ts";
 import type { RenderOutputCaptureStore } from "./render-output-store.ts";
+import { createJsonlTelemetryFileSink } from "./telemetry-file-sink.ts";
+import type { JsonlTelemetryFileSink } from "./telemetry-file-sink.ts";
+import { parseTelemetryEvent } from "./telemetry-events.ts";
 
 /** Options for {@link serveViewer}. */
 export interface ServeViewerOptions {
@@ -77,6 +93,14 @@ export interface ServeViewerOptions {
    * clock; see the W701 app docs).
    */
   nowMs?: () => number;
+  /**
+   * Declared path of the W706 telemetry JSONL file the `/telemetry` routes
+   * write through the REAL file sink. `undefined` (default) = the dev-grade
+   * default `<tmpdir>/sporta-viewer-telemetry/viewer-telemetry.jsonl`
+   * (outside the repo; appended across runs — dev-grade accumulation).
+   * `null` = telemetry routes DISABLED (typed 501 answers).
+   */
+  telemetryPath?: string | null;
 }
 
 /** The running viewer server (plus the self-hosted control server, if any). */
@@ -91,6 +115,8 @@ export interface ViewerServer {
   captureStore: RenderOutputCaptureStore | null;
   /** The REAL output pipeline wired as the control plane's playback store (null in external mode). */
   pipeline: AnimeOutputPipeline | null;
+  /** The REAL W706 telemetry file sink behind the `/telemetry` routes (null when disabled). */
+  telemetry: JsonlTelemetryFileSink | null;
   /** Stops the viewer server (and the self-hosted control server). */
   stop(): void;
 }
@@ -115,6 +141,9 @@ function createDeterministicClock(): () => number {
   let ticks = 0;
   return (): number => TEST_EPOCH_MS + (ticks += 1);
 }
+
+/** The dev-grade default telemetry path (outside the repo; see the options). */
+const DEFAULT_TELEMETRY_PATH = join(tmpdir(), "sporta-viewer-telemetry", "viewer-telemetry.jsonl");
 
 function jsonResponse(status: number, payload: unknown): Response {
   return new Response(JSON.stringify(payload), {
@@ -167,6 +196,12 @@ export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
     const boundPort = controlServer.port ?? 0;
     controlBaseUrl = `http://127.0.0.1:${boundPort}`;
   }
+
+  // --- W706 telemetry (the real JSONL file sink behind the routes) --------
+  const telemetrySink =
+    options.telemetryPath === null
+      ? null
+      : createJsonlTelemetryFileSink({ path: options.telemetryPath ?? DEFAULT_TELEMETRY_PATH });
 
   // --- static serving (with on-the-fly TS transpilation) ------------------
   const transpiler = new Bun.Transpiler({ loader: "ts" });
@@ -254,6 +289,57 @@ export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
     return jsonResponse(200, record.output);
   }
 
+  /** The W706 telemetry routes (see the module docs; disabled answers 501). */
+  async function telemetryRoute(request: Request, sub: string): Promise<Response> {
+    if (telemetrySink === null) {
+      return errorResponse(
+        501,
+        "unsupported-output",
+        "telemetry is not configured on this viewer server (pass telemetryPath; null disables the routes)",
+      );
+    }
+    if (request.method === "GET" && sub === "") {
+      // Dev-grade introspection: counters + path only — never event contents.
+      return jsonResponse(200, { enabled: true, ...telemetrySink.status() });
+    }
+    if (request.method === "POST" && sub === "flush") {
+      const { linesWritten } = telemetrySink.flush();
+      return jsonResponse(200, { flushed: linesWritten });
+    }
+    if (request.method === "POST" && sub === "") {
+      let parsed: unknown;
+      try {
+        parsed = await request.json();
+      } catch {
+        return errorResponse(400, "validation", "telemetry request body was not valid JSON");
+      }
+      const event = parseTelemetryEvent(parsed);
+      if (!event.ok) {
+        // The closed vocabulary is the privacy boundary: out-of-schema
+        // events (unknown fields, wrong types) are refused, never stored.
+        return errorResponse(400, "validation", `telemetry event rejected: ${event.reason}`);
+      }
+      try {
+        telemetrySink.record(event.event);
+      } catch (err) {
+        return errorResponse(
+          400,
+          "validation",
+          `telemetry event rejected: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+      // Dev-grade immediate durability: each accepted event lands on disk
+      // with its own flush (explicit; no timers).
+      const { linesWritten } = telemetrySink.flush();
+      return jsonResponse(200, { accepted: true, flushed: linesWritten });
+    }
+    return errorResponse(
+      405,
+      "method-not-allowed",
+      `no /telemetry route for ${request.method} and sub-path '${sub}' (the routes are GET /telemetry, POST /telemetry, POST /telemetry/flush)`,
+    );
+  }
+
   const viewerServer = Bun.serve({
     port: options.port ?? 0,
     fetch: (request: Request): Response | Promise<Response> => {
@@ -296,6 +382,12 @@ export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
         return proxyControl(request);
       }
 
+      // W706 telemetry routes (the viewer server's own — not proxied).
+      if (first === "telemetry") {
+        const sub = segments.slice(1).join("/");
+        return telemetryRoute(request, sub);
+      }
+
       // Stand-in stored-output route.
       if (first === "output") {
         if (request.method !== "GET") {
@@ -318,9 +410,14 @@ export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
         : { server: controlServer, port: controlServer.port ?? 0, url: controlBaseUrl },
     captureStore,
     pipeline,
+    telemetry: telemetrySink,
     stop(): void {
       viewerServer.stop(true);
       controlServer?.stop(true);
+      // W706: closing the telemetry sink flushes any still-buffered lines
+      // (programmatic `server.telemetry.record()` users — the ROUTES always
+      // flushed per event) and seals it. Idempotent, never throws.
+      telemetrySink?.close();
     },
   };
 }
