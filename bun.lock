@@ -275,6 +275,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/streaming-ingress": {
+      "name": "@sporta/streaming-ingress",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/decoding": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/session": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/transport": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/temporal": {
       "name": "@sporta/temporal",
       "version": "0.1.0",
@@ -400,6 +415,8 @@
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
     "@sporta/spatial-state": ["@sporta/spatial-state@workspace:packages/spatial-state"],
+
+    "@sporta/streaming-ingress": ["@sporta/streaming-ingress@workspace:packages/streaming-ingress"],
 
     "@sporta/temporal": ["@sporta/temporal@workspace:packages/temporal"],
 
