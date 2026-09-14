@@ -58,6 +58,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/commentary-segmentation": {
+      "name": "@sporta/commentary-segmentation",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/asr": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/contracts": {
       "name": "@sporta/contracts",
       "version": "0.1.0",
@@ -260,6 +273,8 @@
     "@sporta/ball-state": ["@sporta/ball-state@workspace:packages/ball-state"],
 
     "@sporta/ball-tracking": ["@sporta/ball-tracking@workspace:packages/ball-tracking"],
+
+    "@sporta/commentary-segmentation": ["@sporta/commentary-segmentation@workspace:packages/commentary-segmentation"],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
 
