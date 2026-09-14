@@ -246,6 +246,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/temporal": {
+      "name": "@sporta/temporal",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/fusion": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/testing": {
       "name": "@sporta/testing",
       "version": "0.1.0",
@@ -353,6 +367,8 @@
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
     "@sporta/spatial-state": ["@sporta/spatial-state@workspace:packages/spatial-state"],
+
+    "@sporta/temporal": ["@sporta/temporal@workspace:packages/temporal"],
 
     "@sporta/testing": ["@sporta/testing@workspace:packages/testing"],
 
