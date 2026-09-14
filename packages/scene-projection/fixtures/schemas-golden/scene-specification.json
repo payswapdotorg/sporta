@@ -1,0 +1,806 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sceneSchemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "watermark": {
+          "type": "object",
+          "properties": {
+            "watermarkMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": ["watermarkMs", "sequence"],
+          "additionalProperties": false
+        },
+        "generatedAtMs": {
+          "type": "number"
+        },
+        "footballState": {
+          "type": "boolean"
+        },
+        "entityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["schemaVersion", "watermark", "generatedAtMs", "footballState", "entityCount"],
+      "additionalProperties": false
+    },
+    "world": {
+      "type": "object",
+      "properties": {
+        "coordinateSystem": {
+          "type": "object",
+          "properties": {
+            "units": {
+              "type": "string",
+              "const": "meters"
+            },
+            "handedness": {
+              "type": "string",
+              "const": "right-handed"
+            },
+            "origin": {
+              "type": "string",
+              "const": "pitch-corner-0-0-0"
+            },
+            "axes": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "string",
+                  "const": "touchline"
+                },
+                "y": {
+                  "type": "string",
+                  "const": "goal-line"
+                },
+                "z": {
+                  "type": "string",
+                  "const": "up"
+                }
+              },
+              "required": ["x", "y", "z"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["units", "handedness", "origin", "axes"],
+          "additionalProperties": false
+        },
+        "pitch": {
+          "type": "object",
+          "properties": {
+            "frame": {
+              "type": "object",
+              "properties": {
+                "lengthAxisMeters": {
+                  "type": "number",
+                  "const": 105
+                },
+                "widthAxisMeters": {
+                  "type": "number",
+                  "const": 68
+                },
+                "origin": {
+                  "type": "string",
+                  "const": "corner"
+                },
+                "axes": {
+                  "type": "string",
+                  "const": "x=touchline, y=goal-line"
+                }
+              },
+              "required": ["lengthAxisMeters", "widthAxisMeters", "origin", "axes"],
+              "additionalProperties": false
+            },
+            "frameSource": {
+              "type": "string",
+              "enum": ["snapshot-football", "contracts-constant"]
+            },
+            "bounds": {
+              "type": "object",
+              "properties": {
+                "xMin": {
+                  "type": "number",
+                  "const": 0
+                },
+                "xMax": {
+                  "type": "number",
+                  "const": 105
+                },
+                "yMin": {
+                  "type": "number",
+                  "const": 0
+                },
+                "yMax": {
+                  "type": "number",
+                  "const": 68
+                }
+              },
+              "required": ["xMin", "xMax", "yMin", "yMax"],
+              "additionalProperties": false
+            },
+            "planeZMeters": {
+              "type": "number",
+              "const": 0
+            },
+            "furniture": {
+              "type": "object",
+              "properties": {
+                "constantsVersion": {
+                  "type": "string",
+                  "const": "ifab-law1-standard@1"
+                },
+                "goals": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "goalLine": {
+                        "type": "string",
+                        "enum": ["x0", "x105"]
+                      },
+                      "center": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "z": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["x", "y"],
+                        "additionalProperties": false
+                      },
+                      "widthMeters": {
+                        "type": "number",
+                        "const": 7.32
+                      },
+                      "heightMeters": {
+                        "type": "number",
+                        "const": 2.44
+                      }
+                    },
+                    "required": ["goalLine", "center", "widthMeters", "heightMeters"],
+                    "additionalProperties": false
+                  }
+                },
+                "goalAreas": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "goalLine": {
+                        "type": "string",
+                        "enum": ["x0", "x105"]
+                      },
+                      "bounds": {
+                        "type": "object",
+                        "properties": {
+                          "xMin": {
+                            "type": "number"
+                          },
+                          "xMax": {
+                            "type": "number"
+                          },
+                          "yMin": {
+                            "type": "number"
+                          },
+                          "yMax": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["xMin", "xMax", "yMin", "yMax"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": ["goalLine", "bounds"],
+                    "additionalProperties": false
+                  }
+                },
+                "penaltyAreas": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "goalLine": {
+                        "type": "string",
+                        "enum": ["x0", "x105"]
+                      },
+                      "bounds": {
+                        "type": "object",
+                        "properties": {
+                          "xMin": {
+                            "type": "number"
+                          },
+                          "xMax": {
+                            "type": "number"
+                          },
+                          "yMin": {
+                            "type": "number"
+                          },
+                          "yMax": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["xMin", "xMax", "yMin", "yMax"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": ["goalLine", "bounds"],
+                    "additionalProperties": false
+                  }
+                },
+                "penaltySpots": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "goalLine": {
+                        "type": "string",
+                        "enum": ["x0", "x105"]
+                      },
+                      "position": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "z": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["x", "y"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": ["goalLine", "position"],
+                    "additionalProperties": false
+                  }
+                },
+                "centerCircle": {
+                  "type": "object",
+                  "properties": {
+                    "center": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        },
+                        "z": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["x", "y"],
+                      "additionalProperties": false
+                    },
+                    "radiusMeters": {
+                      "type": "number",
+                      "const": 9.15
+                    }
+                  },
+                  "required": ["center", "radiusMeters"],
+                  "additionalProperties": false
+                },
+                "centerMark": {
+                  "type": "object",
+                  "properties": {
+                    "position": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        },
+                        "z": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["x", "y"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["position"],
+                  "additionalProperties": false
+                },
+                "cornerArcs": {
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "corner": {
+                        "type": "string",
+                        "enum": ["x0y0", "x105y0", "x0y68", "x105y68"]
+                      },
+                      "center": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "z": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["x", "y"],
+                        "additionalProperties": false
+                      },
+                      "radiusMeters": {
+                        "type": "number",
+                        "const": 1
+                      }
+                    },
+                    "required": ["corner", "center", "radiusMeters"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "constantsVersion",
+                "goals",
+                "goalAreas",
+                "penaltyAreas",
+                "penaltySpots",
+                "centerCircle",
+                "centerMark",
+                "cornerArcs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": ["frame", "frameSource", "bounds", "planeZMeters", "furniture"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["coordinateSystem", "pitch"],
+      "additionalProperties": false
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "match",
+              "competition",
+              "team",
+              "participant",
+              "official",
+              "ball",
+              "venue",
+              "camera"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "lastEventTimeMs": {
+            "type": "number",
+            "minimum": 0
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "projected",
+              "projected-out-of-bounds",
+              "omitted-no-position",
+              "omitted-invalid-position",
+              "omitted-non-pitch-frame",
+              "not-projected-kind"
+            ]
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": ["x", "y"],
+            "additionalProperties": false
+          },
+          "positionSlotKey": {
+            "type": "string",
+            "enum": ["pitchPosition", "position"]
+          },
+          "positionStatus": {
+            "type": "string",
+            "enum": ["known", "unknown", "uncertain"]
+          },
+          "positionConfidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "height": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["known", "unknown", "uncertain"]
+              },
+              "meters": {
+                "type": "number"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": ["status"],
+            "additionalProperties": false
+          },
+          "heading": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["known", "unknown", "uncertain"]
+              },
+              "radians": {
+                "type": "number"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": ["status"],
+            "additionalProperties": false
+          },
+          "invalidSlotKeys": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["height", "heading"]
+            }
+          }
+        },
+        "required": ["entityId", "kind", "version", "lastEventTimeMs", "disposition"],
+        "additionalProperties": false
+      }
+    },
+    "scoreClock": {
+      "type": "object",
+      "properties": {
+        "footballState": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": "object",
+          "properties": {
+            "home": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "away": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["known", "unknown", "uncertain"]
+                },
+                "value": {
+                  "type": "string",
+                  "enum": ["provisional", "confirmed"]
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": ["status"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["home", "away", "status"],
+          "additionalProperties": false
+        },
+        "clock": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "string",
+              "enum": [
+                "first-half",
+                "second-half",
+                "half-time",
+                "pre-match",
+                "post-match",
+                "stoppage"
+              ]
+            },
+            "clockMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stoppage": {
+              "type": "boolean"
+            }
+          },
+          "required": ["period", "clockMs", "stoppage"],
+          "additionalProperties": false
+        },
+        "possession": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["known", "unknown", "uncertain"]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                }
+              },
+              "required": ["entityId"],
+              "additionalProperties": false
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        },
+        "eventTaxonomyVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["footballState"],
+      "additionalProperties": false
+    },
+    "eventMarkers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "snapshotVersionAfter": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "eventId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "schemaVersion": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+$"
+              },
+              "eventTypeRef": {
+                "type": "string",
+                "minLength": 1
+              },
+              "interval": {
+                "type": "object",
+                "properties": {
+                  "startTimeMs": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "endTimeMs": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["startTimeMs", "endTimeMs"],
+                "additionalProperties": false
+              },
+              "eventTimeMs": {
+                "type": "number",
+                "minimum": 0
+              },
+              "provenance": {
+                "type": "string",
+                "enum": ["OBSERVED", "REPORTED", "DERIVED"]
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "evidence": {
+                "type": "object",
+                "properties": {
+                  "observationIds": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "reportedBy": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["observationIds"],
+                "additionalProperties": false
+              },
+              "correctionOf": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "eventId",
+              "sessionId",
+              "schemaVersion",
+              "eventTypeRef",
+              "interval",
+              "eventTimeMs",
+              "provenance",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "anchoring": {
+            "type": "string",
+            "const": "timeline"
+          }
+        },
+        "required": ["sequence", "snapshotVersionAfter", "event", "anchoring"],
+        "additionalProperties": false
+      }
+    },
+    "cameraSlots": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slotId": {
+            "type": "string",
+            "enum": [
+              "main-touchline",
+              "opposite-touchline",
+              "behind-goal-x0",
+              "behind-goal-x105",
+              "aerial-tactical"
+            ]
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": ["x", "y", "z"],
+            "additionalProperties": false
+          },
+          "target": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": ["x", "y", "z"],
+            "additionalProperties": false
+          },
+          "derivation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["slotId", "position", "target", "derivation"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "sceneSchemaVersion",
+    "sessionId",
+    "source",
+    "world",
+    "entities",
+    "scoreClock",
+    "eventMarkers",
+    "cameraSlots"
+  ],
+  "additionalProperties": false
+}

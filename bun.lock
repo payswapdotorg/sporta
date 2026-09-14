@@ -291,6 +291,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/scene-projection": {
+      "name": "@sporta/scene-projection",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/temporal": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/session": {
       "name": "@sporta/session",
       "version": "0.1.0",
@@ -472,6 +486,8 @@
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
     "@sporta/renderer-evaluation": ["@sporta/renderer-evaluation@workspace:packages/renderer-evaluation"],
+
+    "@sporta/scene-projection": ["@sporta/scene-projection@workspace:packages/scene-projection"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
