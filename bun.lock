@@ -223,6 +223,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/processing-queues": {
+      "name": "@sporta/processing-queues",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/transport": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/renderer-anime": {
       "name": "@sporta/renderer-anime",
       "version": "0.1.0",
@@ -420,6 +433,8 @@
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
+
+    "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
 
     "@sporta/renderer-anime": ["@sporta/renderer-anime@workspace:packages/renderer-anime"],
 
