@@ -1,0 +1,6012 @@
+{
+  "fixtureId": "w403-eval-fixture-1",
+  "fixtureKind": "w403-fixture/1",
+  "sessionId": "sess-w403-eval",
+  "trackFrame": "pitch",
+  "possessionRadiusM": 2,
+  "maxReorderMs": 5000,
+  "footballInit": {
+    "pitch": {
+      "lengthAxisMeters": 105,
+      "widthAxisMeters": 68,
+      "origin": "corner",
+      "axes": "x=touchline, y=goal-line"
+    },
+    "clock": {
+      "period": "first-half",
+      "clockMs": 0,
+      "stoppage": false
+    },
+    "score": {
+      "home": 0,
+      "away": 0,
+      "status": {
+        "status": "unknown"
+      }
+    },
+    "possession": {
+      "status": "unknown"
+    },
+    "eventTaxonomyVersion": "1"
+  },
+  "pinnedStateAtMs": [0, 2000, 4000, 6000, 8000, 10000, 11800],
+  "eventWindow": {
+    "fromMs": 0,
+    "toMs": 12000
+  },
+  "replay": {
+    "maxEvents": 8,
+    "maxSpanMs": 12000,
+    "checkpointEveryMs": 2000
+  },
+  "observations": [
+    {
+      "observationId": "sp-f0-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 0,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.5,
+          "y": 10.25
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f0-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 0,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.6,
+          "y": 33.9
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f0-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 0,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.8,
+          "y": 34.2
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f0-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 0,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40,
+          "y": 28
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f1-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.576271186440678,
+          "y": 10.288135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f1-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.58983050847458,
+          "y": 33.90169491525423
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f1-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.7864406779661,
+          "y": 34.19661016949153
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f1-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40.16949152542373,
+          "y": 28.10169491525424
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f2-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.652542372881356,
+          "y": 10.326271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f2-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.57966101694915,
+          "y": 33.90338983050847
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f2-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.7728813559322,
+          "y": 34.19322033898305
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f2-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40.33898305084746,
+          "y": 28.203389830508474
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 500,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "kickoff",
+          "eventPhrase": "We're underway at the stadium.",
+          "subjects": [
+            {
+              "name": "Salah",
+              "role": "agent",
+              "nameConfidence": 1
+            }
+          ],
+          "emphasis": 0.3,
+          "unitId": "cu-0"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f3-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.728813559322035,
+          "y": 10.364406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f3-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.56949152542373,
+          "y": 33.90508474576271
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f3-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.7593220338983,
+          "y": 34.18983050847458
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f3-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40.50847457627118,
+          "y": 28.305084745762713
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f4-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.805084745762713,
+          "y": 10.402542372881356
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f4-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.559322033898304,
+          "y": 33.90677966101695
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f4-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.7457627118644,
+          "y": 34.186440677966104
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f4-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40.67796610169491,
+          "y": 28.406779661016948
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f5-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.88135593220339,
+          "y": 10.440677966101696
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f5-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.54915254237288,
+          "y": 33.90847457627118
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f5-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.73220338983051,
+          "y": 34.18305084745763
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f5-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 40.847457627118644,
+          "y": 28.508474576271187
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f6-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.95762711864407,
+          "y": 10.478813559322035
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f6-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.538983050847456,
+          "y": 33.91016949152542
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f6-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.71864406779661,
+          "y": 34.179661016949154
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f6-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.016949152542374,
+          "y": 28.610169491525422
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f7-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.033898305084747,
+          "y": 10.516949152542374
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f7-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.52881355932203,
+          "y": 33.91186440677966
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f7-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.70508474576271,
+          "y": 34.17627118644068
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f7-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.186440677966104,
+          "y": 28.71186440677966
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f8-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.110169491525422,
+          "y": 10.555084745762711
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f8-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.518644067796615,
+          "y": 33.9135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f8-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.69152542372881,
+          "y": 34.172881355932205
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f8-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.35593220338983,
+          "y": 28.8135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f9-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.1864406779661,
+          "y": 10.59322033898305
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f9-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.50847457627119,
+          "y": 33.91525423728813
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f9-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.67796610169491,
+          "y": 34.16949152542373
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f9-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.52542372881356,
+          "y": 28.915254237288135
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f10-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.26271186440678,
+          "y": 10.63135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f10-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.498305084745766,
+          "y": 33.91694915254237
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f10-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.664406779661014,
+          "y": 34.166101694915255
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f10-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.69491525423729,
+          "y": 29.016949152542374
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f11-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.338983050847457,
+          "y": 10.669491525423728
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f11-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.48813559322034,
+          "y": 33.918644067796606
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f11-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.650847457627115,
+          "y": 34.16271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f11-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 41.86440677966102,
+          "y": 29.11864406779661
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f12-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.415254237288135,
+          "y": 10.707627118644067
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f12-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.47796610169492,
+          "y": 33.92033898305085
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f12-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.63728813559322,
+          "y": 34.159322033898306
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f12-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.03389830508475,
+          "y": 29.220338983050848
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f13-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.491525423728813,
+          "y": 10.745762711864407
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f13-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.46779661016949,
+          "y": 33.92203389830508
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f13-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.62372881355932,
+          "y": 34.15593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f13-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.20338983050848,
+          "y": 29.322033898305087
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f14-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.56779661016949,
+          "y": 10.783898305084746
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f14-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.45762711864407,
+          "y": 33.92372881355932
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f14-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.61016949152542,
+          "y": 34.152542372881356
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f14-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 2800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.3728813559322,
+          "y": 29.423728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f15-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.64406779661017,
+          "y": 10.822033898305085
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f15-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.447457627118645,
+          "y": 33.925423728813556
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f15-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.59661016949153,
+          "y": 34.14915254237288
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f15-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.54237288135593,
+          "y": 29.52542372881356
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-2",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3000,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "pass",
+          "eventPhrase": "Salah plays a lovely pass to Mane.",
+          "subjects": [
+            {
+              "name": "Salah",
+              "role": "agent",
+              "nameConfidence": 1
+            },
+            {
+              "name": "Mane",
+              "role": "patient",
+              "nameConfidence": 0.95
+            }
+          ],
+          "emphasis": 0.5,
+          "unitId": "cu-2"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f16-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.720338983050848,
+          "y": 10.860169491525424
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f16-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.43728813559322,
+          "y": 33.9271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f16-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.58305084745763,
+          "y": 34.14576271186441
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f16-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.71186440677966,
+          "y": 29.627118644067796
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f17-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.796610169491526,
+          "y": 10.898305084745763
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f17-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.4271186440678,
+          "y": 33.92881355932203
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f17-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.56949152542373,
+          "y": 34.14237288135593
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f17-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 42.88135593220339,
+          "y": 29.728813559322035
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f18-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.872881355932204,
+          "y": 10.936440677966102
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f18-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.41694915254237,
+          "y": 33.93050847457627
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f18-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.55593220338983,
+          "y": 34.13898305084746
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f18-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.05084745762712,
+          "y": 29.83050847457627
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f19-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 21.949152542372882,
+          "y": 10.974576271186441
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f19-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.40677966101695,
+          "y": 33.932203389830505
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f19-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.54237288135593,
+          "y": 34.13559322033898
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f19-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 3800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.220338983050844,
+          "y": 29.93220338983051
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f20-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.02542372881356,
+          "y": 11.01271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f20-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.396610169491524,
+          "y": 33.933898305084746
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f20-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.52881355932203,
+          "y": 34.13220338983051
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f20-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.389830508474574,
+          "y": 30.033898305084747
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f20-off1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.65,
+      "payload": {
+        "kind": "track",
+        "entityId": "off1",
+        "position": {
+          "x": 52.5,
+          "y": 34
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "off1",
+          "kind": "official"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f21-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.10169491525424,
+          "y": 11.05084745762712
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f21-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.3864406779661,
+          "y": 33.93559322033898
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f21-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.51525423728813,
+          "y": 34.12881355932203
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f21-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.559322033898304,
+          "y": 30.135593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f21-off1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.65,
+      "payload": {
+        "kind": "track",
+        "entityId": "off1",
+        "position": {
+          "x": 52.5,
+          "y": 34
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "off1",
+          "kind": "official"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f22-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.177966101694913,
+          "y": 11.088983050847457
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f22-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.376271186440675,
+          "y": 33.93728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f22-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.501694915254234,
+          "y": 34.12542372881356
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f22-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.728813559322035,
+          "y": 30.23728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f23-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.25423728813559,
+          "y": 11.127118644067796
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f23-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.36610169491526,
+          "y": 33.938983050847455
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f23-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.488135593220335,
+          "y": 34.122033898305084
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f23-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 43.898305084745765,
+          "y": 30.338983050847457
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f24-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.33050847457627,
+          "y": 11.165254237288135
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f24-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.355932203389834,
+          "y": 33.940677966101696
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f24-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.474576271186436,
+          "y": 34.11864406779661
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f24-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 4800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.067796610169495,
+          "y": 30.440677966101696
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f25-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.406779661016948,
+          "y": 11.203389830508474
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f25-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.34576271186441,
+          "y": 33.94237288135593
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f25-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.461016949152544,
+          "y": 34.115254237288134
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f25-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.23728813559322,
+          "y": 30.54237288135593
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f26-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.483050847457626,
+          "y": 11.241525423728813
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f26-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.335593220338986,
+          "y": 33.94406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f26-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.447457627118645,
+          "y": 34.11186440677966
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f26-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.40677966101695,
+          "y": 30.64406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-3",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5200,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.72,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "shot",
+          "eventPhrase": "Mane shoots from distance.",
+          "subjects": [
+            {
+              "name": "Mane",
+              "role": "agent",
+              "nameConfidence": 0.95
+            }
+          ],
+          "emphasis": 0.7,
+          "unitId": "cu-3"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f27-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.559322033898304,
+          "y": 11.279661016949152
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f27-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.32542372881356,
+          "y": 33.945762711864404
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f27-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.433898305084746,
+          "y": 34.108474576271185
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f27-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.57627118644068,
+          "y": 30.74576271186441
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f28-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.635593220338983,
+          "y": 11.317796610169491
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f28-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.31525423728814,
+          "y": 33.947457627118645
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f28-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.42033898305085,
+          "y": 34.10508474576271
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f28-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.74576271186441,
+          "y": 30.847457627118644
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f29-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.71186440677966,
+          "y": 11.35593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f29-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.30508474576271,
+          "y": 33.94915254237288
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f29-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.40677966101695,
+          "y": 34.101694915254235
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f29-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 5800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 44.91525423728814,
+          "y": 30.949152542372882
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f30-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.78813559322034,
+          "y": 11.39406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f30-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.29491525423729,
+          "y": 33.95084745762712
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f30-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.39322033898305,
+          "y": 34.09830508474577
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f30-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.08474576271186,
+          "y": 31.050847457627118
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f31-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.864406779661017,
+          "y": 11.432203389830509
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f31-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.284745762711864,
+          "y": 33.952542372881354
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f31-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.37966101694915,
+          "y": 34.09491525423729
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f31-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.25423728813559,
+          "y": 31.152542372881356
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f32-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 22.940677966101696,
+          "y": 11.470338983050848
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f32-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.27457627118644,
+          "y": 33.954237288135594
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f32-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.36610169491525,
+          "y": 34.09152542372882
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f32-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.42372881355932,
+          "y": 31.25423728813559
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f33-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.016949152542374,
+          "y": 11.508474576271187
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f33-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.264406779661016,
+          "y": 33.95593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f33-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.35254237288135,
+          "y": 34.08813559322034
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f33-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.59322033898305,
+          "y": 31.35593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f34-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.093220338983052,
+          "y": 11.546610169491526
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f34-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.25423728813559,
+          "y": 33.95762711864407
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f34-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.33898305084745,
+          "y": 34.08474576271187
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f34-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 6800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.76271186440678,
+          "y": 31.45762711864407
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f35-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.16949152542373,
+          "y": 11.584745762711865
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f35-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.24406779661017,
+          "y": 33.9593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f35-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.32542372881356,
+          "y": 34.081355932203394
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f35-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 45.932203389830505,
+          "y": 31.559322033898304
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f36-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.24576271186441,
+          "y": 11.622881355932204
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f36-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.23389830508474,
+          "y": 33.961016949152544
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f36-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.31186440677966,
+          "y": 34.07796610169492
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f36-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.101694915254235,
+          "y": 31.661016949152543
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f37-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.322033898305087,
+          "y": 11.661016949152543
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f37-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.223728813559326,
+          "y": 33.96271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f37-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.29830508474576,
+          "y": 34.074576271186444
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f37-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.271186440677965,
+          "y": 31.76271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f38-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.39830508474576,
+          "y": 11.69915254237288
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f38-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.2135593220339,
+          "y": 33.96440677966102
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f38-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.284745762711864,
+          "y": 34.07118644067797
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f38-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.440677966101696,
+          "y": 31.864406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f39-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.47457627118644,
+          "y": 11.73728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f39-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.20338983050848,
+          "y": 33.96610169491525
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f39-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.271186440677965,
+          "y": 34.067796610169495
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f39-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 7800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.610169491525426,
+          "y": 31.966101694915253
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f40-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.550847457627118,
+          "y": 11.775423728813559
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f40-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.19322033898305,
+          "y": 33.96779661016949
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f40-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.257627118644066,
+          "y": 34.06440677966102
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f40-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.77966101694915,
+          "y": 32.067796610169495
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-4",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8000,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.95,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "goal",
+          "eventPhrase": "Salah scores for Liverpool!",
+          "subjects": [
+            {
+              "name": "Salah",
+              "role": "agent",
+              "nameConfidence": 1
+            },
+            {
+              "name": "Liverpool",
+              "role": "team",
+              "nameConfidence": 0.9
+            }
+          ],
+          "emphasis": 0.95,
+          "unitId": "cu-6"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f41-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.627118644067796,
+          "y": 11.813559322033898
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f41-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.18305084745763,
+          "y": 33.96949152542373
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f41-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.24406779661017,
+          "y": 34.061016949152545
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f41-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 46.94915254237288,
+          "y": 32.16949152542373
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f42-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.703389830508474,
+          "y": 11.851694915254237
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f42-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.172881355932205,
+          "y": 33.97118644067797
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f42-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.23050847457627,
+          "y": 34.05762711864407
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f42-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.11864406779661,
+          "y": 32.271186440677965
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f43-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.779661016949152,
+          "y": 11.889830508474576
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f43-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.16271186440678,
+          "y": 33.9728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f43-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.21694915254237,
+          "y": 34.054237288135596
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f43-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.28813559322034,
+          "y": 32.3728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f44-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.85593220338983,
+          "y": 11.927966101694915
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f44-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.152542372881356,
+          "y": 33.97457627118644
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f44-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.20338983050847,
+          "y": 34.05084745762712
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f44-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 8800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.45762711864407,
+          "y": 32.47457627118644
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f45-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 23.93220338983051,
+          "y": 11.966101694915254
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f45-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.14237288135593,
+          "y": 33.97627118644068
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f45-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.18983050847458,
+          "y": 34.047457627118646
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f45-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.62711864406779,
+          "y": 32.57627118644068
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f46-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.008474576271187,
+          "y": 12.004237288135593
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f46-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.13220338983051,
+          "y": 33.97796610169492
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f46-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.17627118644068,
+          "y": 34.04406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f46-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.79661016949153,
+          "y": 32.67796610169491
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f47-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.084745762711865,
+          "y": 12.042372881355933
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f47-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.122033898305084,
+          "y": 33.97966101694915
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f47-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.16271186440678,
+          "y": 34.0406779661017
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f47-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 47.96610169491525,
+          "y": 32.77966101694915
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f48-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.161016949152543,
+          "y": 12.080508474576272
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f48-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.11186440677966,
+          "y": 33.98135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f48-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.14915254237288,
+          "y": 34.03728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f48-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.13559322033898,
+          "y": 32.88135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f49-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.23728813559322,
+          "y": 12.11864406779661
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f49-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.101694915254235,
+          "y": 33.983050847457626
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f49-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.13559322033898,
+          "y": 34.03389830508475
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f49-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 9800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.30508474576271,
+          "y": 32.983050847457626
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f50-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.313559322033896,
+          "y": 12.156779661016948
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f50-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.09152542372881,
+          "y": 33.98474576271187
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f50-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.122033898305084,
+          "y": 34.03050847457627
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f50-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.474576271186436,
+          "y": 33.08474576271186
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f51-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.389830508474578,
+          "y": 12.194915254237289
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f51-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.08135593220339,
+          "y": 33.9864406779661
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f51-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.108474576271185,
+          "y": 34.0271186440678
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f51-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.64406779661017,
+          "y": 33.186440677966104
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f52-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.466101694915253,
+          "y": 12.233050847457626
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f52-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.07118644067797,
+          "y": 33.98813559322034
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f52-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.094915254237286,
+          "y": 34.02372881355932
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f52-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.813559322033896,
+          "y": 33.28813559322034
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f53-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.54237288135593,
+          "y": 12.271186440677965
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f53-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.061016949152545,
+          "y": 33.989830508474576
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f53-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.08135593220339,
+          "y": 34.02033898305085
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f53-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 48.983050847457626,
+          "y": 33.389830508474574
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f54-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.61864406779661,
+          "y": 12.309322033898304
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f54-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.05084745762712,
+          "y": 33.99152542372882
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f54-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.06779661016949,
+          "y": 34.016949152542374
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f54-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 10800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 49.152542372881356,
+          "y": 33.49152542372882
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f55-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.694915254237287,
+          "y": 12.347457627118644
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f55-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.0406779661017,
+          "y": 33.99322033898305
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f55-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.054237288135596,
+          "y": 34.0135593220339
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f55-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 49.32203389830509,
+          "y": 33.59322033898305
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-5",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11000,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.99,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "fulltime",
+          "eventPhrase": "And it's all over here at the stadium.",
+          "subjects": [],
+          "emphasis": 0.4,
+          "unitId": "cu-9"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f56-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.771186440677965,
+          "y": 12.385593220338983
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f56-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.03050847457627,
+          "y": 33.99491525423729
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f56-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.0406779661017,
+          "y": 34.010169491525424
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f56-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11200,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 49.49152542372882,
+          "y": 33.69491525423729
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f57-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.847457627118644,
+          "y": 12.423728813559322
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f57-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.02033898305085,
+          "y": 33.996610169491525
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f57-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.0271186440678,
+          "y": 34.00677966101695
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f57-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11400,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 49.66101694915254,
+          "y": 33.79661016949152
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "ceu-ec-6",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11500,
+      "modality": "commentary",
+      "componentId": "commentary-understanding-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.4,
+      "payload": {
+        "kind": "generic",
+        "data": {
+          "eventType": "other",
+          "eventPhrase": "What a match this has been.",
+          "subjects": [],
+          "emphasis": 0.6,
+          "unitId": "cu-9"
+        }
+      },
+      "subjectEntityRefs": []
+    },
+    {
+      "observationId": "sp-f58-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 24.923728813559322,
+          "y": 12.461864406779661
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f58-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49.010169491525424,
+          "y": 33.998305084745766
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f58-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51.0135593220339,
+          "y": 34.003389830508475
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f58-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11600,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 49.83050847457627,
+          "y": 33.898305084745765
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f59-pA",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 25,
+          "y": 12.5
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f59-pB",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pB",
+        "position": {
+          "x": 49,
+          "y": 34
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pB",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f59-pC",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.75,
+      "payload": {
+        "kind": "track",
+        "entityId": "pC",
+        "position": {
+          "x": 51,
+          "y": 34
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pC",
+          "kind": "participant"
+        }
+      ]
+    },
+    {
+      "observationId": "sp-f59-b1",
+      "sessionId": "sess-w403-eval",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 11800,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.9,
+      "payload": {
+        "kind": "track",
+        "entityId": "b1",
+        "position": {
+          "x": 50,
+          "y": 34
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "b1",
+          "kind": "ball"
+        }
+      ]
+    }
+  ]
+}
