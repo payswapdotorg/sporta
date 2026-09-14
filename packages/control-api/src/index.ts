@@ -13,6 +13,9 @@
  *   line + counters per call)
  * - `http`: `createControlServer` — the `Bun.serve` transport (v1 routes,
  *   typed-error → status mapping, request-id correlation)
+ * - `playback`: the W504 render-output store PORT (structural — satisfied by
+ *   `@sporta/output-pipeline` with no dependency in either direction) and
+ *   the playback-route result types
  *
  * KNOWN LIMITATIONS (W701): no user authentication yet (M7) — the
  * caller-supplied authorization policy is the trust boundary; world-model
@@ -48,6 +51,7 @@ export {
   ControlResourceLimitError,
   ControlRightsDeniedError,
   ControlUnknownRenderError,
+  ControlUnknownSegmentError,
   ControlUnknownSessionError,
   ControlValidationError,
   asControlError,
@@ -57,6 +61,17 @@ export {
   wrapSessionRightsDenied,
 } from "./errors";
 export type { ControlError, ControlErrorDetails, ControlFailureClass } from "./errors";
+export { asRenderOutputStoreError } from "./playback";
+export type {
+  PlaybackRightsContext,
+  RenderOutputDocument,
+  RenderOutputListQuery,
+  RenderOutputListResult,
+  RenderOutputRetrieval,
+  RenderOutputSegmentDocument,
+  RenderOutputSegmentSummary,
+  RenderOutputStore,
+} from "./playback";
 import { createControlServer } from "./http";
 
 /**

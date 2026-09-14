@@ -1,0 +1,24 @@
+{
+  "name": "@sporta/output-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/renderer-anime": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/control-api": "workspace:*",
+    "@sporta/observability": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}

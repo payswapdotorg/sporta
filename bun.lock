@@ -198,6 +198,21 @@
         "@sporta/contracts": "workspace:*",
       },
     },
+    "packages/output-pipeline": {
+      "name": "@sporta/output-pipeline",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/control-api": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/perception-detection": {
       "name": "@sporta/perception-detection",
       "version": "0.1.0",
@@ -429,6 +444,8 @@
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
+
+    "@sporta/output-pipeline": ["@sporta/output-pipeline@workspace:packages/output-pipeline"],
 
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 

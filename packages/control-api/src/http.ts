@@ -20,11 +20,16 @@
  * - `POST /v1/sessions/:id/renders` — create a render (JSON body)
  * - `GET /v1/sessions/:id/renders` — list render summaries (playback gate)
  * - `GET /v1/sessions/:id/renders/:renderId` — get a stored render (gate)
+ * - `GET /v1/sessions/:id/renders/:renderId/outputs` — list stored render
+ *   output segments (playback gate; W504)
+ * - `GET /v1/sessions/:id/renders/:renderId/outputs/:segmentId` — get one
+ *   stored render output segment: bytes + content type + manifest (gate;
+ *   W504)
  *
  * Status mapping: success → 200 with the payload; rights-denied → 403;
  * media-invalid/validation → 400; resource-limit → 413; internal → 500;
- * unknown-session/unknown-render → 404. Errors always answer
- * `{ error: { failureClass, message, details? } }`; transport-level
+ * unknown-session/unknown-render/unknown-segment → 404. Errors always
+ * answer `{ error: { failureClass, message, details? } }`; transport-level
  * rejections use the classes `validation` (400), `unknown-route` (404), and
  * `method-not-allowed` (405).
  *
@@ -85,6 +90,16 @@ const ROUTES: readonly RouteSpec[] = [
     method: "GET",
     segments: ["v1", "sessions", ":id", "renders", ":renderId"],
     name: "get_render",
+  },
+  {
+    method: "GET",
+    segments: ["v1", "sessions", ":id", "renders", ":renderId", "outputs"],
+    name: "list_render_outputs",
+  },
+  {
+    method: "GET",
+    segments: ["v1", "sessions", ":id", "renders", ":renderId", "outputs", ":segmentId"],
+    name: "get_render_output",
   },
 ];
 
@@ -302,6 +317,19 @@ export function createControlServer(options: ControlServerOptions = {}): Control
         }
         case "get_render": {
           const payload = await app.getRender(params.id ?? "", params.renderId ?? "", ctx);
+          return respond(200, payload, requestId);
+        }
+        case "list_render_outputs": {
+          const payload = await app.listRenderOutputs(params.id ?? "", params.renderId ?? "", ctx);
+          return respond(200, payload, requestId);
+        }
+        case "get_render_output": {
+          const payload = await app.getRenderOutput(
+            params.id ?? "",
+            params.renderId ?? "",
+            params.segmentId ?? "",
+            ctx,
+          );
           return respond(200, payload, requestId);
         }
       }
