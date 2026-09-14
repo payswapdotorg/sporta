@@ -208,6 +208,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/renderer-anime": {
+      "name": "@sporta/renderer-anime",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/temporal": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/renderer-contract": {
       "name": "@sporta/renderer-contract",
       "version": "0.1.0",
@@ -361,6 +375,8 @@
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
+
+    "@sporta/renderer-anime": ["@sporta/renderer-anime@workspace:packages/renderer-anime"],
 
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
