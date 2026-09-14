@@ -20,7 +20,11 @@
  * - memo guards over the pure pane signatures (`./src/pane-signature.ts`):
  *   the sessions pane and error banner re-render ONLY when their rendered
  *   fields change — while a clip plays (per-tick emissions) the create-session
- *   form keeps its focus and text (the bug the signatures fix).
+ *   form keeps its focus and text (the bug the signatures fix);
+ * - the renderer-selection pane (W703) renders the DERIVED option views
+ *   from `./src/selection-plan.ts` (capability-driven: selectable or greyed
+ *   out with the machine reason + note; selectable buttons dispatch the
+ *   plan's renderer-only selection payload).
  *
  * Honest testing boundary: this module is DOM glue — it is compile-checked
  * but not unit-tested (no DOM-testing dependency by constitution); the
@@ -35,6 +39,7 @@ import { mountPlayer } from "../src/dom-adapter.ts";
 import type { PlayerDom } from "../src/dom-adapter.ts";
 import { detailPanePlan } from "../src/detail-plan.ts";
 import type { DetailMode } from "../src/detail-plan.ts";
+import { selectionRequestOf } from "../src/selection-plan.ts";
 import { createViewerCore } from "../src/viewer-core.ts";
 import type { ViewerViewModel } from "../src/viewer-core.ts";
 import { errorBannerSignature, sessionsPaneSignature } from "../src/pane-signature.ts";
@@ -499,22 +504,28 @@ function renderSessionSection(view: ViewerViewModel): HTMLElement {
 }
 
 function renderRendererSelection(view: ViewerViewModel): HTMLElement {
+  // W703: every decision here comes from the DERIVED option views (the pure,
+  // headlessly tested `src/selection-plan.ts` derivation over the capability
+  // documents + the session's rights). This function renders options; it
+  // matches no renderer ids and holds no renderer-specific knowledge.
   const section = document.createElement("div");
   section.append(heading("Choose a renderer"));
   const selection = view.rendererSelection;
   const busy = view.pendingOperation !== null;
   const list = document.createElement("ul");
   list.className = "plain";
-  const renderers = selection?.renderers ?? [];
-  if (renderers.length === 0) {
+  const options = selection?.renderers ?? [];
+  if (options.length === 0) {
     const item = document.createElement("li");
     item.append(text("span", "muted", "No renderers registered."));
     list.append(item);
   }
-  for (const renderer of renderers) {
+  for (const option of options) {
+    const renderer = option.capability;
     const item = document.createElement("li");
     const left = text("span", undefined, `${renderer.rendererId}@${renderer.rendererVersion}`);
     const profile = renderer.supportedOutputProfiles[0];
+    const extraProfiles = renderer.supportedOutputProfiles.length - 1;
     left.append(
       text(
         "span",
@@ -523,31 +534,41 @@ function renderRendererSelection(view: ViewerViewModel): HTMLElement {
           profile !== undefined
             ? `${String(profile.resolution.w)}×${String(profile.resolution.h)} @ ${String(profile.frameRate)} fps (${profile.codec}/${profile.container}, ${profile.latencyClass})`
             : "no profile"
-        } · requiresSourceFrames: ${String(renderer.requiresSourceFrames)}`,
+        }${extraProfiles > 0 ? ` (+${String(extraProfiles)} more profile${extraProfiles > 1 ? "s" : ""})` : ""} · requiresSourceFrames: ${String(renderer.requiresSourceFrames)}`,
       ),
     );
-    item.append(
-      left,
-      button(
-        "Render",
-        () =>
-          core.dispatch({
-            type: "createRender",
-            rendererId: renderer.rendererId,
-            ...(renderer.rendererVersion !== undefined
-              ? { rendererVersion: renderer.rendererVersion }
-              : {}),
-          }),
-        { disabled: busy },
-      ),
-    );
+    item.append(left);
+    if (option.selectable) {
+      // The selection payload from the plan (renderer-only: exact identity
+      // pair; the outputProfile default + the style extension point are
+      // documented on `src/selection-plan.ts`).
+      const request = selectionRequestOf(option);
+      item.append(
+        button(
+          "Render",
+          () =>
+            core.dispatch({
+              type: "createRender",
+              rendererId: request.rendererId,
+              rendererVersion: request.rendererVersion,
+            }),
+          { disabled: busy },
+        ),
+      );
+    } else {
+      // Capability-gated: greyed out with the plan's machine reason + note.
+      const reason = text("span", "muted", ` — ${option.blockedNote}`);
+      left.append(reason);
+      item.append(button("Render", () => undefined, { disabled: true }));
+      item.append(text("span", "failure-class", ` (${option.blockedReason})`));
+    }
     list.append(item);
   }
   section.append(list);
   const note = text(
     "p",
     "muted",
-    "Renderer selection is capability-driven (W703 posture): the list comes from the control plane's registry, never hard-coded here.",
+    "Renderer selection is capability-driven (W703): the list and every selectable/greyed-out state derive from the control plane's registry capabilities and this session's rights — never hard-coded here. Style/variant choice is the documented extension point (no renderer declares style variants yet); the render request carries one verbatim when a caller provides it.",
   );
   const cancel = button("Cancel", () => core.dispatch({ type: "cancelRenderSelection" }));
   section.append(note, cancel);

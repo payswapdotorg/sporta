@@ -31,6 +31,11 @@
  *   document's real animation controls live here);
  * - `detail-plan`: the pure detail-pane layout plan (mount / update-in-place
  *   / teardown of the playback section) consumed by the bootstrap;
+ * - `selection-plan`: the W703 pure renderer-selection plan — derives the
+ *   selectable/blocked affordances from the listed capability documents +
+ *   the session's fail-closed rights (never from renderer identity; a test
+ *   pins the plan layer for renderer-id literals) and the renderer-only
+ *   selection payload (the style/profile extension points documented);
  * - `pane-signature`: the pure memo keys that keep the sessions pane and
  *   error banner from re-rendering on every per-tick emission while a clip
  *   plays (the form keeps its focus and text);
@@ -129,6 +134,17 @@ export { playerViewToDomPlan, segmentViewToDomPlan } from "./dom-plan.ts";
 export type { PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
 export { detailModeOf, detailPanePlan } from "./detail-plan.ts";
 export type { DetailMode, DetailPaneAction } from "./detail-plan.ts";
+export {
+  VIEWER_PRESENTABLE_OUTPUT_KINDS,
+  declaredOutputKindsOf,
+  deriveRendererOptions,
+  selectionRequestOf,
+} from "./selection-plan.ts";
+export type {
+  RendererBlockedReason,
+  RendererOptionView,
+  SelectionRequest,
+} from "./selection-plan.ts";
 export { errorBannerSignature, sessionsPaneSignature } from "./pane-signature.ts";
 export { VIEWER_DEFAULT_EPOCH_MS, createViewerDefaultClock } from "./default-clock.ts";
 export { mountPlayer } from "./dom-adapter.ts";

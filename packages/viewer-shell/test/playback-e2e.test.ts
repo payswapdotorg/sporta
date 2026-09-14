@@ -134,7 +134,9 @@ describe("W705 playback e2e — golden walk: session → render → stored segme
 
     core.dispatch({ type: "beginRender" });
     view = await settleUntil(core, (v) => v.status === "renderer-selection");
-    expect(view.rendererSelection?.renderers.map((r) => r.rendererId)).toEqual(["anime.prototype"]);
+    expect(view.rendererSelection?.renderers.map((option) => option.capability.rendererId)).toEqual(
+      ["anime.prototype"],
+    );
 
     // createRender drives the REAL plugin through the registry; the W705
     // encoding wrapper encodes + stores the segment HOST-side during the
