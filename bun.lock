@@ -380,6 +380,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/viewer-shell": {
+      "name": "@sporta/viewer-shell",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/control-api": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/world-model": {
       "name": "@sporta/world-model",
       "version": "0.1.0",
@@ -472,6 +486,8 @@
     "@sporta/timeline": ["@sporta/timeline@workspace:packages/timeline"],
 
     "@sporta/transport": ["@sporta/transport@workspace:packages/transport"],
+
+    "@sporta/viewer-shell": ["@sporta/viewer-shell@workspace:packages/viewer-shell"],
 
     "@sporta/world-model": ["@sporta/world-model@workspace:packages/world-model"],
 
