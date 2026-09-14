@@ -209,6 +209,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/spatial-state": {
+      "name": "@sporta/spatial-state",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/field-mapping": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/perception-tracking": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/timeline": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/testing": {
       "name": "@sporta/testing",
       "version": "0.1.0",
@@ -312,6 +327,8 @@
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
+
+    "@sporta/spatial-state": ["@sporta/spatial-state@workspace:packages/spatial-state"],
 
     "@sporta/testing": ["@sporta/testing@workspace:packages/testing"],
 

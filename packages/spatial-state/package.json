@@ -1,0 +1,24 @@
+{
+  "name": "@sporta/spatial-state",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/field-mapping": "workspace:*",
+    "@sporta/observation": "workspace:*",
+    "@sporta/perception-tracking": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/timeline": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
