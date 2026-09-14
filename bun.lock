@@ -169,6 +169,18 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/gpu-worker": {
+      "name": "@sporta/gpu-worker",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ingestion": {
       "name": "@sporta/ingestion",
       "version": "0.1.0",
@@ -452,6 +464,8 @@
     "@sporta/field-mapping": ["@sporta/field-mapping@workspace:packages/field-mapping"],
 
     "@sporta/fusion": ["@sporta/fusion@workspace:packages/fusion"],
+
+    "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
