@@ -33,6 +33,7 @@ export function detailModeOf(status: ViewerStatus): DetailMode {
       return "renderer-selection";
     case "render-queued":
     case "loading-output":
+    case "outputs-pending":
       return "pending";
     case "ready":
     case "playing":

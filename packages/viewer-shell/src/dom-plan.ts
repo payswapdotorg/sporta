@@ -9,6 +9,7 @@
  * thin `applyPlayerDomPlan` in `./dom-adapter.ts`.
  */
 import type { PlayerViewModel } from "./player.ts";
+import type { SegmentPlayerViewModel } from "./segment-player.ts";
 
 /** What the DOM adapter should do for one view-model snapshot. */
 export interface PlayerDomPlan {
@@ -57,5 +58,59 @@ export function playerViewToDomPlan(
       ? `Buffering frame ${String(view.frameIndex + 1)} of ${String(view.frameCount)} (${String(view.availableFrames)} available)`
       : null,
     statusText: `${playbackLabel} — ${frameLabel} — ${timeLabel}${view.loop ? " — loop" : ""}`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The SMIL segment presentation plan (W705)
+// ---------------------------------------------------------------------------
+
+/**
+ * What the DOM adapter should do for one SEGMENT view-model snapshot: swap
+ * the (single, self-animating) document when it changes, and — the W705
+ * honest-control contract — the `smil` sync instruction from the pure player
+ * (`seekMs` non-null exactly on discontinuous playhead moves: the adapter
+ * re-locks the presented document's SMIL clock with `setCurrentTime`; the
+ * `paused` flag drives `pauseAnimations`/`unpauseAnimations`). The buffering
+ * overlay never shows for a complete segment document (constant `false`).
+ */
+export interface SegmentDomPlan {
+  /** The document to mount when it differs from the displayed one; else `null`. */
+  swapSvg: string | null;
+  /** Constantly `false` — the segment document is complete at load. */
+  showBuffering: false;
+  /** Constantly `null` (paired with `showBuffering: false`). */
+  bufferingText: null;
+  /** The status line (always defined; deterministic from the view-model). */
+  statusText: string;
+  /** SMIL sync instruction, VERBATIM from the pure player's view. */
+  smil: SegmentPlayerViewModel["smil"];
+}
+
+/**
+ * Derives the segment DOM plan. Deterministic pure function — the same
+ * inputs yield the same plan (deep-equal pinned by tests).
+ */
+export function segmentViewToDomPlan(
+  view: SegmentPlayerViewModel,
+  previousSvg: string | null,
+): SegmentDomPlan {
+  const swapSvg = view.document !== previousSvg ? view.document : null;
+  const playbackLabel =
+    view.playback === "ready"
+      ? "Ready"
+      : view.playback === "playing"
+        ? "Playing"
+        : view.playback === "paused"
+          ? "Paused"
+          : "Ended";
+  const frameLabel = `frame ${String(view.frameIndex + 1)}/${String(view.frameCount)}`;
+  const timeLabel = `${formatMs(view.positionMs)} / ${formatMs(view.durationMs)}`;
+  return {
+    swapSvg,
+    showBuffering: false,
+    bufferingText: null,
+    statusText: `${playbackLabel} — ${frameLabel} — ${timeLabel} — self-animating SMIL document${view.loop ? " — loop" : ""}`,
+    smil: view.smil,
   };
 }

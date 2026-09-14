@@ -1,12 +1,14 @@
 /**
- * Full-stack headless E2E (W702): the browser viewer's data path driven
- * through every REAL seam — `serveViewer` (static shell + same-origin
- * control proxy + stand-in output route, self-hosted control app with the
- * capturing anime renderer), the HTTP control client, the HTTP render-output
- * provider, the viewer core, and the real frame player. This is the W702
- * accept-criterion evidence ("browser viewer plays supported batch outputs
- * and exposes clear state/errors") minus the actual browser paint (real
- * browser E2E is W705/W706).
+ * Full-stack headless E2E — the W702 STAND-IN frame-sequence path (kept for
+ * its own seam): the browser viewer's data path driven through every REAL
+ * seam — `serveViewer` (static shell + same-origin control proxy + stand-in
+ * output route, self-hosted control app with the capturing anime renderer),
+ * the HTTP control client, the HTTP render-output provider, the viewer core,
+ * and the real frame player. This is the W702 accept-criterion evidence
+ * ("browser viewer plays supported batch outputs and exposes clear
+ * state/errors") minus the actual browser paint (real-browser E2E is W706).
+ * The W705 REAL-W504 path (stored animated-SVG segments through the playback
+ * routes) has its own e2e: `playback-e2e.test.ts`.
  *
  * Both postures are pinned: the golden playback walk AND the fail-closed
  * rights leg (a policy that renders but cannot store derivatives → the W701
@@ -92,10 +94,11 @@ describe("full-stack e2e — golden playback walk through every real seam", () =
     // The real single-snapshot anime output: 6000 ms @ 1 fps → 6 frames.
     expect(view.session?.renders.map((r) => r.renderId)).toEqual(["r-1"]);
     expect(view.playback).not.toBeNull();
-    expect(view.playback?.frameCount).toBe(6);
-    expect(view.playback?.durationMs).toBe(6_000);
-    expect(view.playback?.renderer.rendererId).toBe("anime.prototype");
-    expect(view.playback?.frameSvg).toContain("<svg");
+    if (view.playback?.kind !== "frames") throw new Error("expected the frame-sequence path");
+    expect(view.playback.frameCount).toBe(6);
+    expect(view.playback.durationMs).toBe(6_000);
+    expect(view.playback.renderer.rendererId).toBe("anime.prototype");
+    expect(view.playback.frameSvg).toContain("<svg");
 
     core.dispatch({ type: "play" });
     expect(core.view().status).toBe("playing");

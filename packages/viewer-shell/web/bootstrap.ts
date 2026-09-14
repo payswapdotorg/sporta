@@ -1,17 +1,22 @@
 /**
- * The browser bootstrap (W702) — vanilla TypeScript, served as an ES module
- * (transpiled on the fly by `serveViewer`; see `src/serve.ts`).
+ * The browser bootstrap (W702 + W705) — vanilla TypeScript, served as an ES
+ * module (transpiled on the fly by `serveViewer`; see `src/serve.ts`).
  *
  * Wires the REAL stack against the real HTTP control server:
  *
  * - `createHttpControlClient` (same-origin `/control` proxy) for the
  *   control-plane operations;
- * - `createHttpRenderOutputProvider` (`/output/...`) for the playable
- *   batch output (the W504-pending stand-in route);
+ * - `createHttpPlaybackProvider` (same-origin `/control` proxy → the REAL
+ *   W504 playback routes) for the playable stored output — the DEFAULT
+ *   viewer path since W705 (the W702 stand-in `/output` route provider
+ *   remains in the package for its own tests);
  * - `createViewerCore` (the headless, fully tested state machine) as the
  *   single source of UI truth — this file renders view-models, it makes no
  *   decisions (all logic lives in the tested `src/` modules);
- * - `mountPlayer` (the thin DOM adapter) for the SVG playback stage;
+ * - `mountPlayer` (the thin DOM adapter) for the playback stage — frame
+ *   sequences (the stand-in path) AND the W504 SMIL segment document (the
+ *   real path: the adapter commands the presented document's actual SMIL
+ *   timeline via the view's sync instruction);
  * - memo guards over the pure pane signatures (`./src/pane-signature.ts`):
  *   the sessions pane and error banner re-render ONLY when their rendered
  *   fields change — while a clip plays (per-tick emissions) the create-session
@@ -19,12 +24,13 @@
  *
  * Honest testing boundary: this module is DOM glue — it is compile-checked
  * but not unit-tested (no DOM-testing dependency by constitution); the
- * logic behind every state it renders is covered by the `src/` tests.
- * Real-browser E2E arrives with W705/W706.
+ * logic behind every state it renders is covered by the `src/` tests, and
+ * the real-provider data path is covered headlessly by
+ * `test/playback-e2e.test.ts`. Real-browser E2E arrives with W706.
  */
 import type { AuthorizationPolicy } from "@sporta/contracts";
 import { createHttpControlClient } from "../src/http-client.ts";
-import { createHttpRenderOutputProvider } from "../src/output-provider.ts";
+import { createHttpPlaybackProvider } from "../src/playback-provider.ts";
 import { mountPlayer } from "../src/dom-adapter.ts";
 import type { PlayerDom } from "../src/dom-adapter.ts";
 import { detailPanePlan } from "../src/detail-plan.ts";
@@ -59,7 +65,10 @@ const sessionsPaneEl = document.getElementById("sessions-pane") as HTMLElement;
 const detailPaneEl = document.getElementById("detail-pane") as HTMLElement;
 
 const client = createHttpControlClient({ baseUrl: "/control" });
-const outputProvider = createHttpRenderOutputProvider({ baseUrl: "" });
+// The REAL W504 playback routes through the same-origin /control proxy
+// (the default viewer path since W705 — the stand-in /output provider
+// remains in the package for its own tests).
+const outputProvider = createHttpPlaybackProvider({ baseUrl: "/control" });
 
 const core = createViewerCore({
   client,
@@ -272,18 +281,23 @@ function renderStaticSection(
       return renderSessionSection(view);
     case "renderer-selection":
       return renderRendererSelection(view);
-    case "pending":
+    case "pending": {
       section.append(heading("Working"));
-      section.append(
-        text(
-          "p",
-          "muted",
-          view.status === "render-queued"
-            ? "Render queued on the control plane…"
-            : "Loading the render output…",
-        ),
-      );
+      const pendingNote =
+        view.status === "render-queued"
+          ? "Render queued on the control plane…"
+          : view.status === "outputs-pending"
+            ? "The render exists, but its encoded outputs are not stored yet — the host-side output pipeline (encode → store) has not run for it. Check again once encoding has run."
+            : "Loading the render output…";
+      section.append(text("p", "muted", pendingNote));
+      if (view.status === "outputs-pending" && view.pendingRenderId !== null) {
+        const pendingId = view.pendingRenderId;
+        section.append(
+          button("Check again", () => core.dispatch({ type: "selectRender", renderId: pendingId })),
+        );
+      }
       break;
+    }
     case "error":
       section.append(heading("Error state"));
       section.append(
@@ -402,9 +416,13 @@ function updatePlaybackSection(view: ViewerViewModel): void {
   if (loopEl !== null) loopEl.checked = playback.loop;
   if (provenanceEl !== null) {
     provenanceEl.textContent =
-      `${playback.renderer.rendererId}@${playback.renderer.rendererVersion} · style ${playback.renderer.styleId} · ` +
-      `${String(playback.frameCount)} frames @ ${String(playback.output.frameIntervalMs)} ms · ` +
-      `output start ${String(playback.output.startMs)} ms · render id from the control plane`;
+      playback.kind === "segment"
+        ? `${playback.renderer.rendererId}@${playback.renderer.rendererVersion} · style ${playback.renderer.styleId} · ` +
+          `segment ${playback.segmentId} · sha256 ${playback.contentHash.slice(0, 12)}… · ${String(playback.frameCount)} frames · ` +
+          `${String(playback.durationMs)} ms · ${String(playback.byteLength)} bytes · self-animating SMIL document (W504 stored segment)`
+        : `${playback.renderer.rendererId}@${playback.renderer.rendererVersion} · style ${playback.renderer.styleId} · ` +
+          `${String(playback.frameCount)} frames @ ${String(playback.output.frameIntervalMs)} ms · ` +
+          `output start ${String(playback.output.startMs)} ms · render id from the control plane`;
   }
 }
 

@@ -1,22 +1,27 @@
 /**
- * The HTTP render-output provider (W702): a {@link RenderOutputPort} over
- * the viewer server's stand-in output route (`GET /output/:sessionId/:renderId`).
+ * The HTTP render-output provider (W702 stand-in, kept for its own tests): a
+ * {@link RenderOutputPort} over the viewer server's stand-in output route
+ * (`GET /output/:sessionId/:renderId`). W705 RETIRED this provider as the
+ * DEFAULT viewer path — the browser bootstrap now uses the REAL W504
+ * playback provider (`./playback-provider.ts`); this module remains because
+ * its route + capture store still have their own tests (the stand-in seam's
+ * documented purpose — see `./render-output-store.ts`).
  *
  * Browser-safe by construction (part of the served ES-module graph):
  * type-only imports + platform `fetch`. Non-2xx answers map onto typed
  * viewer errors: a well-formed error envelope carrying a RECOGNIZED failure
  * class is honored VERBATIM (the server's actual classification — never
  * reclassified, never guessed; `unsupported-output` for the W504 gap on this
- * seam's stand-in route, `rights-denied`/`unknown-render`/… once W705 wires
- * this port to the real control-plane playback routes); an UNRECOGNIZED
- * class is surfaced as `internal` carrying the raw class; an envelope-less
- * body (non-JSON, or JSON without an `error` object) maps to the honest
- * `unsupported-output` default. Connection failures are the `network`
- * class. Never partial data: the body must be the W502-shaped
- * `{ frames, manifest }` document.
+ * seam's stand-in route, `rights-denied`/`unknown-render`/… on the real
+ * routes); an UNRECOGNIZED class is surfaced as `internal` carrying the raw
+ * class; an envelope-less body (non-JSON, or JSON without an `error` object)
+ * maps to the honest `unsupported-output` default. Connection failures are
+ * the `network` class. Never partial data: the body must be the W502-shaped
+ * `{ frames, manifest }` document (wrapped as the `frame-sequence` result
+ * kind of the W705 port union).
  */
 import { ViewerControlError, isViewerFailureClass } from "./errors.ts";
-import type { BatchRenderOutput, RenderOutputPort } from "./ports.ts";
+import type { BatchRenderOutput, RenderOutputPort, RenderOutputResult } from "./ports.ts";
 import type { FetchLike } from "./http-client.ts";
 
 /** Options for {@link createHttpRenderOutputProvider}. */
@@ -39,7 +44,7 @@ export function createHttpRenderOutputProvider(
   const doFetch = options.fetch ?? fetch;
   const encode = (value: string): string => encodeURIComponent(value);
 
-  async function loadOutput(sessionId: string, renderId: string): Promise<BatchRenderOutput> {
+  async function loadOutput(sessionId: string, renderId: string): Promise<RenderOutputResult> {
     let response: Response;
     try {
       response = await doFetch(`${baseUrl}/output/${encode(sessionId)}/${encode(renderId)}`, {
@@ -110,7 +115,7 @@ export function createHttpRenderOutputProvider(
         { httpStatus: response.status },
       );
     }
-    return parsed as unknown as BatchRenderOutput;
+    return { kind: "frame-sequence", output: parsed as unknown as BatchRenderOutput };
   }
 
   return { loadOutput };

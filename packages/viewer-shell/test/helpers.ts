@@ -25,7 +25,13 @@ import type {
 import { TEST_EPOCH_MS, buildMediaSession } from "@sporta/testing";
 import { ViewerControlError } from "../src/errors.ts";
 import type { ViewerFailureClass } from "../src/errors.ts";
-import type { BatchRenderOutput, ControlClient, RenderOutputPort } from "../src/ports.ts";
+import type {
+  BatchRenderOutput,
+  ControlClient,
+  PlaybackSegmentDocument,
+  RenderOutputPort,
+  RenderOutputResult,
+} from "../src/ports.ts";
 import type { AnimeClipManifest, AnimeFrame } from "@sporta/renderer-anime";
 
 /** Far-future expiry for policies that must never expire in a test. */
@@ -168,7 +174,7 @@ export interface ScriptedOutput extends RenderOutputPort {
 }
 
 export function scriptOutput(script: {
-  loadOutput: Array<Outcome<BatchRenderOutput>>;
+  loadOutput: Array<Outcome<RenderOutputResult>>;
 }): ScriptedOutput {
   const calls: ControlCall[] = [];
   return {
@@ -183,6 +189,11 @@ export function scriptOutput(script: {
       return Promise.resolve(outcome.resolve);
     },
   };
+}
+
+/** Wraps a W502 frame output as the `frame-sequence` port result (W705 union). */
+export function asFrameOutput(output: BatchRenderOutput): RenderOutputResult {
+  return { kind: "frame-sequence", output };
 }
 
 // ---------------------------------------------------------------------------
@@ -340,6 +351,58 @@ export function buildHandOutput(
     degradation: { degraded: false, reasons: [] },
   };
   return { frames, manifest };
+}
+
+// ---------------------------------------------------------------------------
+// Hand-authored W504-shaped segment document (exact, minimal)
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds a minimal W504-SHAPED stored segment document: a hand-authored
+ * animated-SVG document (NOT the real encoder's output — for the real
+ * encoded bytes use `@sporta/output-pipeline` `encodeAnimeClip` in the test)
+ * plus a container manifest whose timing table is derived EXACTLY from a
+ * hand W502 manifest ({@link buildHandOutput}). The content hash is a fixed
+ * 64-hex placeholder (client-side re-hashing is the PROVIDER's job; the
+ * player checks format + equality only), and the byte length is measured
+ * from the document — both honest for the player's contract.
+ */
+export function buildHandSegment(
+  options: { timestamps?: number[]; frameIntervalMs?: number } = {},
+): PlaybackSegmentDocument {
+  const timestamps = options.timestamps ?? [0, 1_000];
+  const base = buildHandOutput(timestamps, { frameIntervalMs: options.frameIntervalMs });
+  const manifest = base.manifest;
+  const frames = timestamps.map((timestamp, index) => ({
+    frameIndex: index,
+    outputTimestampMs: timestamp,
+    beginMs: timestamp - manifest.output.startMs,
+    durMs:
+      index === timestamps.length - 1
+        ? (options.frameIntervalMs ?? 1_000)
+        : (timestamps[index + 1] ?? timestamp) - timestamp,
+  }));
+  const content = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1170 880"><g data-frame-index="0" display="none"><set attributeName="display" to="inline" begin="0s" dur="1s" fill="remove"/></g></svg>`;
+  const segmentId = "anime-clip-0badcafe";
+  return {
+    sessionId: manifest.session.sessionId,
+    renderId: "r-hand",
+    segmentId,
+    contentType: "image/svg+xml",
+    byteLength: new TextEncoder().encode(content).length,
+    contentHash: "a".repeat(64),
+    content,
+    manifest: {
+      format: { kind: "animated-svg", version: 1 },
+      segmentId,
+      sessionId: manifest.session.sessionId,
+      frameCount: frames.length,
+      totalDurationMs: manifest.output.durationMs,
+      contentHash: "a".repeat(64),
+      frames,
+      sourceManifest: manifest,
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------

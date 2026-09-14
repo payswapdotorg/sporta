@@ -10,7 +10,9 @@ import type { ViewerCommand, ViewerViewModel } from "../src/viewer-core.ts";
 import { LIVE_UNAVAILABLE_NOTE } from "../src/viewer-core.ts";
 import type { ControlClient } from "../src/ports.ts";
 import {
+  asFrameOutput,
   buildHandOutput,
+  buildHandSegment,
   fakeClock,
   fullAllowPolicy,
   rej,
@@ -45,7 +47,7 @@ function happyScript() {
 }
 
 function makeCore(client: ControlClient, clock = fakeClock()) {
-  const output = scriptOutput({ loadOutput: [res(HAND_OUTPUT)] });
+  const output = scriptOutput({ loadOutput: [res(asFrameOutput(HAND_OUTPUT))] });
   const core = createViewerCore({ client, output, nowMs: () => clock.now() });
   return { core, clock, output };
 }
@@ -426,7 +428,7 @@ describe("ViewerCore — fail-closed posture (no partial data)", () => {
       ],
       getRender: [rej(viewerFailure("rights-denied", "playback access denied"))],
     });
-    const output = scriptOutput({ loadOutput: [res(HAND_OUTPUT)] });
+    const output = scriptOutput({ loadOutput: [res(asFrameOutput(HAND_OUTPUT))] });
     const core = createViewerCore({ client, output, nowMs: () => fakeClock().now() });
     core.dispatch({ type: "connect" });
     await settle();
@@ -619,7 +621,7 @@ describe("ViewerCore — pending/dropped commands and live honesty", () => {
     const broken = buildHandOutput([0, 1_000]);
     const badManifest = structuredClone(broken);
     badManifest.manifest.output.durationMs = 1_234; // inconsistent with windows
-    const output = scriptOutput({ loadOutput: [res(badManifest)] });
+    const output = scriptOutput({ loadOutput: [res(asFrameOutput(badManifest))] });
     const core = createViewerCore({ client, output, nowMs: () => fakeClock().now() });
     core.dispatch({ type: "connect" });
     await settle();
@@ -634,6 +636,189 @@ describe("ViewerCore — pending/dropped commands and live honesty", () => {
     expect(view.error?.failureClass).toBe("media-invalid");
     expect(view.error?.operation).toBe("createRender");
     expect(view.playback).toBeNull();
+  });
+});
+
+describe("ViewerCore — the W705 outputs-pending state (the honest processing state)", () => {
+  function pendingScript(): ReturnType<typeof scriptClient> {
+    return scriptClient({
+      listSessions: [res({ sessions: [sessionSummary("sess-1")] })],
+      getSession: [res(sessionResult("sess-1"))],
+      listRenders: [res({ renders: [] })],
+      listRenderers: [res({ renderers: [rendererCapability("anime.prototype")] })],
+      createRender: [
+        res({ renderId: "r-1", result: renderResult("sess-1", "anime.prototype", 2) }),
+      ],
+      getRender: [
+        res({ renderId: "r-1", result: renderResult("sess-1", "anime.prototype", 2) }),
+        res({ renderId: "r-1", result: renderResult("sess-1", "anime.prototype", 2) }),
+      ],
+    });
+  }
+
+  test("createRender → the render exists but no stored outputs → outputs-pending (never an error, never a fake player)", async () => {
+    const client = pendingScript();
+    const core = createViewerCore({
+      client,
+      output: scriptOutput({ loadOutput: [res({ kind: "outputs-pending" })] }),
+      nowMs: () => fakeClock().now(),
+    });
+    core.dispatch({ type: "connect" });
+    await settle();
+    core.dispatch({ type: "openSession", sessionId: "sess-1" });
+    await settle();
+    core.dispatch({ type: "beginRender" });
+    await settle();
+    core.dispatch({ type: "createRender", rendererId: "anime.prototype" });
+    await settle();
+    const view = core.view();
+    expect(view.status).toBe("outputs-pending");
+    expect(view.pendingOperation).toBeNull(); // a RESTING state, not in-flight
+    expect(view.pendingRenderId).toBe("r-1");
+    expect(view.playback).toBeNull(); // never a fake player
+    expect(view.error).toBeNull(); // never an invented error
+    // The render WAS created — it stays listed (that part succeeded).
+    expect(view.session?.renders.map((r) => r.renderId)).toEqual(["r-1"]);
+    // No pending state leak: the view-model hides the id outside the status.
+    core.dispatch({ type: "closeSession" });
+    expect(core.view().status).toBe("browsing-sessions");
+    expect(core.view().pendingRenderId).toBeNull();
+  });
+
+  test("outputs-pending is STABLE: dismissError-free flow, and re-selecting re-checks (pending → ready)", async () => {
+    const segment = buildHandSegment({ timestamps: [0, 1_000, 2_000] });
+    const client = pendingScript();
+    const core = createViewerCore({
+      client,
+      output: scriptOutput({
+        loadOutput: [res({ kind: "outputs-pending" }), res({ kind: "animated-segment", segment })],
+      }),
+      nowMs: () => fakeClock().now(),
+    });
+    core.dispatch({ type: "connect" });
+    await settle();
+    core.dispatch({ type: "openSession", sessionId: "sess-1" });
+    await settle();
+    core.dispatch({ type: "createRender", rendererId: "anime.prototype" });
+    await settle();
+    expect(core.view().status).toBe("outputs-pending");
+    // The user re-selects the render ("check again" — the host step has now
+    // stored the segment).
+    core.dispatch({ type: "selectRender", renderId: "r-1" });
+    expect(core.view().status).toBe("loading-output");
+    await settle();
+    const view = core.view();
+    expect(view.status).toBe("ready");
+    expect(view.pendingRenderId).toBeNull();
+    // The real W504 path mounted the SEGMENT player (the union view).
+    expect(view.playback?.kind).toBe("segment");
+    if (view.playback?.kind === "segment") {
+      expect(view.playback.frameCount).toBe(3);
+      expect(view.playback.durationMs).toBe(3_000);
+      expect(view.playback.document).toBe(segment.content);
+      expect(view.playback.smil).toEqual({ paused: true, seekMs: 0 });
+    }
+  });
+});
+
+describe("ViewerCore — the W705 segment playback path (the real W504 wiring)", () => {
+  test("a segment output mounts the segment player; playback commands drive the declared timeline", async () => {
+    const segment = buildHandSegment({ timestamps: [0, 1_000, 2_000] });
+    const clock = fakeClock();
+    const client = scriptClient({
+      listSessions: [res({ sessions: [sessionSummary("sess-1")] })],
+      getSession: [res(sessionResult("sess-1"))],
+      listRenders: [
+        res({
+          renders: [
+            {
+              renderId: "r-1",
+              rendererId: "anime.prototype",
+              segmentCount: 2,
+              provenance: { snapshotVersion: 1, lastEventSequence: 0 },
+              watermarkAfter: { watermarkMs: 2000, sequence: 0 },
+            },
+          ],
+        }),
+      ],
+      getRender: [res({ renderId: "r-1", result: renderResult("sess-1", "anime.prototype", 2) })],
+    });
+    const core = createViewerCore({
+      client,
+      output: scriptOutput({ loadOutput: [res({ kind: "animated-segment", segment })] }),
+      nowMs: () => clock.now(),
+    });
+    core.dispatch({ type: "connect" });
+    await settle();
+    core.dispatch({ type: "openSession", sessionId: "sess-1" });
+    await settle();
+    core.dispatch({ type: "selectRender", renderId: "r-1" });
+    await settle();
+    expect(core.view().status).toBe("ready");
+
+    core.dispatch({ type: "play" });
+    expect(core.view().status).toBe("playing");
+    clock.advance(1_500);
+    core.dispatch({ type: "tick" });
+    let view = core.view();
+    expect(view.status).toBe("playing");
+    if (view.playback?.kind === "segment") {
+      expect(view.playback.positionMs).toBe(1_500);
+      expect(view.playback.frameIndex).toBe(1);
+    }
+    core.dispatch({ type: "pause" });
+    expect(core.view().status).toBe("paused");
+    core.dispatch({ type: "play" });
+    clock.advance(2_000);
+    core.dispatch({ type: "tick" });
+    view = core.view();
+    expect(view.status).toBe("ended");
+    core.dispatch({ type: "closePlayback" });
+    expect(core.view().status).toBe("session-detail");
+    expect(core.view().playback).toBeNull();
+  });
+
+  test("a malformed segment (the player's rejection) is a classified load failure", async () => {
+    const badSegment = buildHandSegment();
+    badSegment.content = "not an svg document";
+    const client = scriptClient({
+      listSessions: [res({ sessions: [sessionSummary("sess-1")] })],
+      getSession: [res(sessionResult("sess-1"))],
+      listRenders: [
+        res({
+          renders: [
+            {
+              renderId: "r-1",
+              rendererId: "anime.prototype",
+              segmentCount: 2,
+              provenance: { snapshotVersion: 1, lastEventSequence: 0 },
+              watermarkAfter: { watermarkMs: 2000, sequence: 0 },
+            },
+          ],
+        }),
+      ],
+      getRender: [res({ renderId: "r-1", result: renderResult("sess-1", "anime.prototype", 2) })],
+    });
+    const core = createViewerCore({
+      client,
+      output: scriptOutput({
+        loadOutput: [res({ kind: "animated-segment", segment: badSegment })],
+      }),
+      nowMs: () => fakeClock().now(),
+    });
+    core.dispatch({ type: "connect" });
+    await settle();
+    core.dispatch({ type: "openSession", sessionId: "sess-1" });
+    await settle();
+    core.dispatch({ type: "selectRender", renderId: "r-1" });
+    await settle();
+    const view = core.view();
+    expect(view.status).toBe("error");
+    expect(view.error?.failureClass).toBe("media-invalid");
+    expect(view.error?.message).toContain("<svg");
+    // Fail-closed: no player mounted, the render stays listed.
+    expect(view.playback).toBeNull();
+    expect(view.session?.renders.map((r) => r.renderId)).toEqual(["r-1"]);
   });
 });
 

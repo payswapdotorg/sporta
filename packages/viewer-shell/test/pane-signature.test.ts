@@ -20,6 +20,7 @@ function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
     session: null,
     rendererSelection: null,
     playback: {
+      kind: "frames",
       playback: "playing",
       buffering: false,
       positionMs: 1_234,
@@ -33,6 +34,7 @@ function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
       renderer: { rendererId: "anime.prototype", rendererVersion: "0.1.0", styleId: "default" },
       output: { startMs: 0, frameIntervalMs: 1_000 },
     },
+    pendingRenderId: null,
     live: { available: false, note: "live note constant" },
     error: null,
     connectedAtMs: 1,
@@ -48,6 +50,7 @@ describe("sessionsPaneSignature — invariant across playback-only changes (the 
       vmOf({
         status: "playing",
         playback: {
+          kind: "frames",
           playback: "playing",
           buffering: false,
           positionMs: 5_999,

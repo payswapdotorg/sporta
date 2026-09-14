@@ -1,6 +1,6 @@
 /**
- * `serveViewer` (W702) — hosts the viewer shell for a REAL browser session:
- * a `Bun.serve` on its own port that
+ * `serveViewer` (W702 + W705) — hosts the viewer shell for a REAL browser
+ * session: a `Bun.serve` on its own port that
  *
  * - serves the static shell (`web/index.html`) and the browser ES-module
  *   graph (`web/` + `src/`) with TypeScript transpiled ON THE FLY via
@@ -8,26 +8,36 @@
  *   contains no bare `@sporta/*` imports — the browser-reachable modules
  *   use `import type` only, which the transpiler erases);
  * - proxies `/control/*` to the control API server SAME-ORIGIN (the W701
- *   server has no CORS by design; the proxy keeps the shell single-origin);
- * - serves `GET /output/:sessionId/:renderId` — the W504-pending stand-in
- *   for stored-output retrieval, backed by the
- *   {@link RenderOutputCaptureStore} (see `./render-output-store.ts`).
+ *   server has no CORS by design; the proxy keeps the shell single-origin).
+ *   This includes the REAL W504 playback routes
+ *   `/control/v1/sessions/:id/renders/:renderId/outputs[/:segmentId]` —
+ *   the browser bootstrap's playback provider talks through this proxy
+ *   (W705);
+ * - serves `GET /output/:sessionId/:renderId` — the W702 STAND-IN output
+ *   route, kept for its own tests (the capture-store seam; the DEFAULT
+ *   viewer path is the real playback provider since W705).
  *
- * By default the helper is SELF-CONTAINED: it creates the control server
- * itself (registry pre-registered with the anime prototype renderer wrapped
- * in the capturing adapter, deterministic clock) on an ephemeral port. Pass
- * `controlBaseUrl` to target an external control server instead (then no
- * capture store is wired and the output route answers `unsupported-output`
- * honestly — 501).
+ * By default the helper is SELF-CONTAINED on the REAL chain (W705): it
+ * creates the control server itself with the REAL output pipeline wired in
+ * (`renderOutputStore: pipeline`) and the REAL anime prototype renderer
+ * registered through the ENCODING wrapper (`createEncodingRenderer` — every
+ * successful render is encoded + stored through the pipeline host-side, so
+ * the real playback routes answer immediately) composed with the W702
+ * capturing wrapper (the stand-in route keeps working). Deterministic
+ * clock. Pass `controlBaseUrl` to target an external control server instead
+ * (then no pipeline/capture store is wired and the stand-in output route
+ * answers `unsupported-output` honestly — 501; the REAL playback routes
+ * still work through the proxy against the external server).
  *
  * Serve smoke only: tests verify boot + routes + the real data path; NO
- * real-browser execution is claimed (that arrives with W705/W706).
+ * real-browser execution is claimed (paint-level E2E is W706; the headless
+ * data path is `test/playback-e2e.test.ts`).
  *
- * KNOWN LIMITATIONS (dev-grade, deliberate): the output route does NOT
- * re-derive rights at read time (the W701 playback gate lives on the control
- * plane's `getRender`/`listRenders`, which the viewer core always calls
- * BEFORE `loadOutput`; the shell's `unsupported-output` seam and the real
- * rights-checked stored-output API are W504/W705 territory). The on-the-fly
+ * KNOWN LIMITATIONS (dev-grade, deliberate): the stand-in `/output` route
+ * does NOT re-derive rights at read time (the W701 playback gate lives on
+ * the control plane's `getRender`/`listRenders`, which the viewer core
+ * always calls BEFORE `loadOutput`; documented). The REAL playback routes
+ * ARE rights-gated fail-closed by the control plane. The on-the-fly
  * transpilation has no bundling, no minification, and no cache
  * invalidation — it exists so the shell runs with zero build tooling. The
  * proxy forwards only `content-type`/`x-request-id` (the shell needs no
@@ -39,7 +49,10 @@ import { createControlServer } from "@sporta/control-api";
 import type { ControlServer } from "@sporta/control-api";
 import { createAnimePrototypeRenderer } from "@sporta/renderer-anime";
 import { RendererRegistry } from "@sporta/renderer-contract";
+import { createAnimeOutputPipeline } from "@sporta/output-pipeline";
+import type { AnimeOutputPipeline } from "@sporta/output-pipeline";
 import { TEST_EPOCH_MS } from "@sporta/testing";
+import { createEncodingRenderer } from "./encoding-renderer.ts";
 import { createCapturingRenderer, createRenderOutputCaptureStore } from "./render-output-store.ts";
 import type { RenderOutputCaptureStore } from "./render-output-store.ts";
 
@@ -76,6 +89,8 @@ export interface ViewerServer {
   control: { server: ControlServer; port: number; url: string } | null;
   /** The capture store wired into the control registry (null in external mode). */
   captureStore: RenderOutputCaptureStore | null;
+  /** The REAL output pipeline wired as the control plane's playback store (null in external mode). */
+  pipeline: AnimeOutputPipeline | null;
   /** Stops the viewer server (and the self-hosted control server). */
   stop(): void;
 }
@@ -114,25 +129,40 @@ function errorResponse(status: number, failureClass: string, message: string): R
 
 /**
  * Serves the viewer shell. See the module docs for the composition, the
- * proxy, and the W504-pending output route.
+ * proxy, and the two output routes (real playback + stand-in).
  */
 export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
   const nowMs = options.nowMs ?? createDeterministicClock();
 
-  // --- control plane (self-hosted by default) -----------------------------
+  // --- control plane (self-hosted by default, REAL chain since W705) -----
   let controlServer: ControlServer | null = null;
   let controlBaseUrl: string;
   let captureStore: RenderOutputCaptureStore | null = null;
+  let pipeline: AnimeOutputPipeline | null = null;
   if (options.controlBaseUrl !== undefined) {
     controlBaseUrl = options.controlBaseUrl.replace(/\/+$/, "");
   } else {
+    // The REAL W504 chain: the output pipeline is the control plane's
+    // playback store (the playback routes serve from it), and every
+    // successful render is encoded + stored HOST-side by the encoding
+    // wrapper (the dev host runs the W504 host step synchronously — the
+    // production host may decouple it; the viewer's outputs-pending state
+    // covers that honestly). The W702 capturing wrapper composes outside
+    // so the stand-in route keeps its own data (its tests).
     captureStore = createRenderOutputCaptureStore();
+    pipeline = createAnimeOutputPipeline();
     const registry = new RendererRegistry();
-    registry.register(createCapturingRenderer(createAnimePrototypeRenderer(), captureStore));
+    registry.register(
+      createCapturingRenderer(
+        createEncodingRenderer(createAnimePrototypeRenderer(), { pipeline }),
+        captureStore,
+      ),
+    );
     controlServer = createControlServer({
       port: options.controlPort ?? 0,
       rendererRegistry: registry,
       nowMs,
+      renderOutputStore: pipeline,
     });
     const boundPort = controlServer.port ?? 0;
     controlBaseUrl = `http://127.0.0.1:${boundPort}`;
@@ -287,6 +317,7 @@ export function serveViewer(options: ServeViewerOptions = {}): ViewerServer {
         ? null
         : { server: controlServer, port: controlServer.port ?? 0, url: controlBaseUrl },
     captureStore,
+    pipeline,
     stop(): void {
       viewerServer.stop(true);
       controlServer?.stop(true);
