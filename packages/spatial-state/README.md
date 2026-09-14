@@ -1,119 +1,116 @@
 # @sporta/spatial-state
 
-Spatial state estimation (work item **W206**): fuses W204's image-space
-player **tracks**, W203's per-frame camera **calibration**, and W103's
-timeline **clocks** into the SWM-facing spatial observation stream — player
-positions in canonical PITCH space (meters), time-aligned to the session
-timeline (milliseconds), with honest confidence fusion. Owner: AI
+Spatial state estimation (work item **W206**): projects W204's image-space
+player **tracks** through W203's per-frame camera calibration into
+**pitch space** (canonical 105 x 68 m frame), time-aligned to the W103
+session timeline, and emits the result as the SWM-facing spatial
+observation stream (`TrackPayload`, pitch meters, NO velocity). Owner: AI
 (Worker A). Dependencies: W203 (`@sporta/field-mapping`) ✓, W204
 (`@sporta/perception-tracking`) ✓, W103 (`@sporta/timeline`) ✓.
 
-## Scope boundary
-
-W204 tracks players in IMAGE space; W203 maps image -> pitch; W103 maps
-frame-native time -> session timeline. This package FUSES the three and
-emits the result — no new detection, no new calibration, no new
-synchronization, and **no velocity** (velocity is W205's ball-state concern
-/ later fusion). The emitted `TrackPayload.position` carries pitch METERS
-in the unitless `Point2D` slot (tech-lead decision): **pitch space is now
-the canonical spatial frame for SWM ingestion**; the image-space ancestors
-remain in the W204/W201 streams (and in W203's corner observations), so no
-information is lost.
+Accept criterion (work-items.md): *player locations / projected
+coordinates are time-aligned* — made visible in the emitted stream's
+`eventTimeMs`, which is the point's SESSION time (not the frame-native
+`presentationMs` the W201/W203/W204/W205 ancestors emit).
 
 ## Module map
 
-- `src/state.ts` — `estimateSpatialState(frames, options?): SpatialStateSeries`
-- `src/align.ts` — `alignSessionMs(clock, presentationMs): number`,
-  `ensureSpatialMonotonic(points): SpatialStatePoint[]`
+- `src/state.ts` — `estimateSpatialState(frames, options):
+  SpatialStateSeries` — the fusion core
+- `src/align.ts` — `alignSessionMs(clock, presentationMs)` (the W103
+  seam) and `ensureSpatialMonotonic(points)` (bounded-reorder re-stamping)
 - `src/observe.ts` — `emitSpatialObservations(input): Observation[]`,
   `validateObservation(obs): boolean`
-- `src/benchmark.ts` — `runSpatialBenchmark(specs): SpatialBenchmarkReport[]`
+- `src/benchmark.ts` — `runSpatialBenchmark(scenarios):
+  SpatialBenchmarkReport[]`, `buildSpatialScenarioFrames(scenario)`
 
-## The estimator's documented rules
+## The fusion's documented rules
 
-- **Projection**: per frame, the W203 projector is solved once from the
-  frame's corner set and each tracked box's CENTER (`x + w/2`, `y + h/2`)
-  is projected into canonical pitch meters. Out-of-pitch results keep their
-  TRUE coordinates with `inBounds: false` — flagged, NEVER clamped
-  (architecture-lock §4). Degenerate camera geometry surfaces W203's typed
-  errors unchanged.
-- **Time alignment**: `presentationMs` is SOURCE time on the video track's
-  own clock; the W103 affine `TrackClock` maps it to `sessionMs`
-  (measured drift or the identity fallback; default
-  `identityClock("video")`).
-- **Confidence fusion — explicit, no inflation**: `"min"` (default, the
-  bottleneck is honest) or `"product"` of the track confidence and the
-  corner-set confidence; the raw values are preserved VERBATIM in
-  `sourceConfidences` so downstream can re-fuse differently. The
-  combination choice is a pure function of the options — callers should
-  record which mode they requested (the series shape is frozen by the W206
-  interface contract and does not embed it).
-- **Determinism**: no RNG, no clock reads, no I/O. Frames are processed in
-  ARRAY order; `points` are sorted by (`sessionMs`, `trackId`, `frameId`) —
-  a total order, so the same inputs always produce a deep-equal output.
-- **Identity**: W204 track ids pass through untouched (`trackId` on every
-  point); the optional `label` passthrough exists so emission can map
-  label -> entity kind via W204's `FOOTBALL_LABEL_KINDS` (the brief
-  sanctions carrying the label through the fusion; the point's other fields
-  are exactly the W206 interface contract).
+- **Per-frame calibration**: every `SpatialFrame` carries its own
+  `FieldCornerSet`; `createPitchProjector` solves that frame's homography
+  once (unsupported corner orders / degenerate geometry throw W203's typed
+  errors — fail loud, never a silently wrong projection).
+- **Position**: the tracked box CENTER (`box.x + box.w/2`,
+  `box.y + box.h/2`) projected into pitch METERS. Out-of-pitch
+  projections stay out-of-pitch: `inBounds` (0 <= x <= 105 AND
+  0 <= y <= 68, inclusive, W203 semantics) is passed through VERBATIM and
+  coordinates are NEVER clamped (architecture-lock §4 — out-of-play is a
+  fact, not a clamped fiction).
+- **Time**: the frame's `presentationMs` (SOURCE time on the video
+  track's own clock) is mapped ONCE per frame through the W103 affine
+  `TrackClock` (`sessionMs = presentationMs + offsetMs +
+  presentationMs * driftPpm / 1e6`). Default clock: `identityClock("video")`
+  (source === session — W103's honest fallback). Single-video output is
+  already monotonic; `ensureSpatialMonotonic` re-stamps only multi-source
+  fusions, using W103's `ensureMonotonic` semantics, purely.
+- **Identity**: the W204 `trackId` passes through VERBATIM — never
+  re-minted, never re-associated (re-identification across cuts/occlusions
+  is W204-measured, later fusion's concern).
+- **Confidence** (explicit, no inflation): `min` (default) or `product`
+  of (track confidence, corner-set confidence); the RAW sources are
+  preserved in `sourceConfidences` so downstream can re-fuse differently —
+  the combination choice is recorded, never hidden. Out-of-range
+  confidences fail loud.
+- **Ordering**: frames processed in array order; points sorted by
+  `(sessionMs, trackId)` with a stable sort.
+- **Purity**: no RNG, no clock reads, no `Date.now`, no I/O — the same
+  inputs always produce a deep-equal series.
 
 ## Emission (SWM-facing)
 
-`emitSpatialObservations` emits one contract `Observation` per fused point:
+`emitSpatialObservations` emits one contract `Observation` per point:
 
-- `observationId = "sp-<frameId>-<trackId>"` (a repeated pair in a
-  hand-built series appends `-<index>` so ids never collide);
-- `eventTimeMs = sessionMs` — the SESSION timeline. This differs from
-  W201/W203/W204's frame-native `presentationMs` convention: those streams
-  are pre-alignment perception, this one is the time-aligned fused product
-  the SWM ingests (the W206 accept criterion made visible in the stream);
-- `provenance: "DERIVED"` — the projection is inference from OBSERVED
-  corners + OBSERVED tracks; emitting it as OBSERVED would be invented
-  certainty (architecture-lock §4). `modality: "vision"`;
-- `confidence`: the fused confidence, passthrough;
+- `observationId = "sp-<frameId>-<trackId>"` (unique while
+  (frameId, trackId) pairs are — always true for single-video estimator
+  output);
+- `eventTimeMs = point.sessionMs` — the SESSION timeline (the W206
+  difference from the frame-native ancestors); `ingestTimeMs` deliberately
+  unset (deterministic package, no clock reads);
+- `provenance: "DERIVED"` — a pitch position is INFERENCE from OBSERVED
+  corners + OBSERVED tracks; OBSERVED would be invented certainty
+  (architecture-lock §4). The image-space ancestors remain in the
+  W201/W204 streams;
+- `confidence`: the fused value, passthrough;
 - `payload`: `{ kind: "track", entityId: trackId, position: pitch meters }`
-  — NO velocity key, ever;
-- `subjectEntityRefs`: `FOOTBALL_LABEL_KINDS[label]` when the label maps
-  (e.g. `"player" -> "participant"`); `[]` for an unmapped label (identity
-  is never guessed); the documented `participant` default for label-less
-  points — exact `LocalEntityRef` shape (`entityId` + `kind` only);
-- `schemaVersion` from the contracts constants; `ingestTimeMs` deliberately
-  unset (wall-clock time belongs to the pipeline; this package is
-  deterministic).
-
-`ingestTimeMs` and wall-clock concerns aside, the emitted records append
-directly to `@sporta/observation` stores (validated on append there).
+  — pitch-space is now the canonical spatial frame for SWM ingestion (TL
+  decision; the unitless `Point2D` slot is documented per payload kind) —
+  and NO `velocity` key (W205 ball-state / later fusion own velocity);
+- `subjectEntityRefs`: exactly `{ entityId, kind }` (the contracts
+  `LocalEntityRef` shape) from W204's `FOOTBALL_LABEL_KINDS` via the label
+  carried on each point; unmapped label -> `[]` (no invented kind);
+  label-less hand-built points default to `"participant"`.
 
 ## Benchmark
 
-`runSpatialBenchmark` runs, per scenario: `generateFixtureFrames` (W204)
--> `detectionsFromGroundTruth` (W204) -> `GreedyIouTracker` (W204,
-default options) -> `FixtureFieldCalibrator` (W203) ->
-`estimateSpatialState` (W206) -> metrics. Identity switches reuse W204's
-`runTrackingBenchmark` verbatim (walk semantics; for these fixtures equal
-to the sum over objects of distinct-ids-minus-one). Metrics: `frames`,
-`points`, `outOfBounds`, `maxPerFrameJump` (meters, between a track's
-consecutive points in session order), `meanConfidence`,
-`identitySwitches`, `coverage` (points / visible ground-truth entries).
-Pure and deterministic — the same specs always produce deep-equal reports.
+`runSpatialBenchmark` runs, per scenario: W204 `generateFixtureFrames` ->
+per frame W203 `FixtureFieldCalibrator` corner set + W204
+`GreedyIouTracker` boxes -> `estimateSpatialState` -> report. Metrics:
+frames, points, outOfBounds, maxPerFrameJump (max pitch distance any
+track moves between consecutive points, meters), meanConfidence,
+identitySwitches, coverage. Identity metrics are delegated VERBATIM to
+W204's `runTrackingBenchmark`; coverage is matched / total GT entries.
 
-Documented scenario deviations from the brief's type sketch (all optional,
-all required by the brief's own accept scenarios — mirroring W204's
-documented `size` deviation): `players[].size` (default 0.2 x 0.2 — W204
-fixture specs require extents), `panSweep` (the slow 0.4 -> 0.6 pan sweep
-the accept scenario demands), `sceneCutFrames` (the cut-at-frame-70
-scenario), and `motion` typed as `FixtureTrackSpec["motion"]` (W204 does
-not re-export `MotionSpec`; the indexed access is the identical type).
+Scenario sketch fields are the work-item brief's; two documented OPTIONAL
+extensions exist because the brief's own acceptance tests require them:
+`panTo` (camera pan sweep `pan -> panTo` across the frames, the
+per-frame-calibration path) and `sceneCutFrames` (hard cut markers,
+W204 semantics: fresh track ids after the cut). `MotionSpec` is derived
+TYPE-ONLY from W204's exported `FixtureTrackSpec` (perception-tracking
+does not re-export it — same type, no extra dependency). Scenario players
+get `BENCHMARK_PLAYER_SIZE` (0.1 x 0.1) boxes; `buildSpatialScenarioFrames`
+is exported so tests can inspect the series the report summarizes.
 
 ## Testing
 
 `bun test` from the repository root (or this package) runs
-`test/*.test.ts`: identity-camera projection math (hand-derived exact
-values), time alignment (identity and affine clocks, monotonic re-stamping),
-confidence fusion (min/product/bottleneck, raw provenance), inBounds
-honesty (out-of-play flagged and unclamped), the 120-frame pan-sweep
-accept scenario (time-aligned, smooth, stable identity, lossless,
-deterministic), the scene-cut scenario (fresh ids, still time-aligned), and
-contract-valid emission (zod parsing, DERIVED provenance, session-time
-event stamps, entity refs, no velocity). No `Math.random`, no `Date.now`
+`test/*.test.ts`: bit-exact identity-camera projection math, W103 clock
+alignment (identity + affine slope 1.001/offset +50) and monotonicity
+semantics, confidence fusion (min/product, sources preserved),
+out-of-play honesty (raw unclamped coordinates, bit-identical to the W203
+projector), the 120-frame pan-sweep fusion end-to-end accept proof
+(strictly increasing session time, < 3 m per-frame jumps, stable ids,
+coverage 1, deep-equal reruns), scene-cut handling (fresh ids, timeline
+survives, exact outOfBounds), and contract-valid emission (zod-parse,
+DERIVED provenance, session-time eventTimeMs, no velocity, store- and
+builder-interop). No `Math.random`, no `Date.now`
 (docs/testing/HARNESS.md).

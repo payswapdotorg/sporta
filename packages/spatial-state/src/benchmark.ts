@@ -1,69 +1,31 @@
 /**
- * Spatial consistency benchmark (W206).
+ * Spatial consistency benchmark (W206) — the "spatial state estimation is
+ * coherent under representative camera motion" instrument.
  *
- * Deterministic, pure end-to-end evaluation of the fused pipeline
- * W204-tracks + W203-calibration + W103-clock -> W206 spatial state — the
- * "player locations/projected coordinates are time-aligned" acceptance
- * evidence. Per scenario:
+ * Per scenario, the benchmark drives the FULL delivered pipeline end-to-end
+ * (consume only, never re-implement):
  *
  * ```text
- * generateFixtureFrames (W204)                 // image-space GT + frames
- *   -> detectionsFromGroundTruth (W204)        // identity-stripped detector view
- *   -> GreedyIouTracker (W204, default options)// persistent track ids
- *   -> FixtureFieldCalibrator (W203)           // per-frame corner set
- *   -> estimateSpatialState (W206)             // fused pitch-space series
- *   -> runTrackingBenchmark (W204)             // identity-continuity metric
+ *   W204 generateFixtureFrames          (ground truth + tracker frames)
+ *   -> per frame: W203 FixtureFieldCalibrator(camera) cornerSet
+ *      + W204 detectionsFromGroundTruth -> GreedyIouTracker boxes
+ *   -> W206 estimateSpatialState(frames, { clock })     (the fusion under test)
+ *   -> metrics
  * ```
  *
- * Accept-criterion THRESHOLDS live in the tests (the brief's §3.6); this
- * module computes the numbers. No RNG, no clock, no I/O — the same specs
- * always produce a deep-equal report array.
+ * Identity-level metrics (identitySwitches, coverage) are delegated
+ * VERBATIM to W204's `runTrackingBenchmark` — the correspondence (W201's
+ * `matchDetections`, label-gated, IoU >= 0.5 inclusive) and the walk-based
+ * switch counting are W204's delivered semantics; this module never
+ * re-derives them.
  *
- * METRIC DEFINITIONS (documented exactly; zero-denominator conventions mirror
- * W201/W204/W205 — a bucket with no denominator reports 0, never NaN):
- *
- * - `frames`: the scenario's frame count (spec.frames);
- * - `points` / `outOfBounds`: the fused series' point count and its
- *   `inBounds === false` count (out-of-play positions, flagged not clamped);
- * - `maxPerFrameJump`: the maximum pitch-space distance (meters) ANY track
- *   moves between its CONSECUTIVE points in session order — normally
- *   consecutive frames; across an occlusion the track's adjacent points span
- *   the gap and the jump honestly spans it too. 0 when no track has two
- *   points;
- * - `meanConfidence`: mean of the fused point confidences;
- * - `identitySwitches`: W204's identity-continuity metric
- *   (`runTrackingBenchmark`), reused VERBATIM from the delivered W204 seam:
- *   per ground-truth object, the walk over its matched detections in frame
- *   order, counting consecutive pairs whose track id changed. For these
- *   fixtures (no id flip-flops) that equals the sum over objects of
- *   (distinct track ids matched - 1) — one cut means one switch per object;
- * - `coverage`: fused points / ground-truth entries visible across the
- *   scenario (1 = the fusion dropped nothing — every visible GT entry became
- *   exactly one spatial point).
- *
- * DOCUMENTED DEVIATIONS from the brief's type sketch (each mirrors W204's
- * own documented `size` deviation — fields the sketch omits but the delivered
- * seams require; all optional, all documented here and in the README):
- *
- * - `players[].size` (optional, default `{w: 0.2, h: 0.2}`): W204's
- *   `FixtureTrackSpec` REQUIRES box extents — boxes cannot be constructed
- *   without them;
- * - `panSweep` (optional `{from, to}`): the W206 accept scenario is a slow
- *   PAN SWEEP (0.4 -> 0.6), which a single fixed `FixtureCameraSpec` cannot
- *   express. When present, the per-frame pan interpolates linearly
- *   `pan(d) = from + (to - from) * d / max(frames - 1, 1)` (the same
- *   interpolation law as W204's fixture motion); `zoom`/`jitter` still come
- *   from `camera`;
- * - `sceneCutFrames` (optional): the W206 scene-cut accept scenario needs a
- *   camera cut at a chosen frame — passed straight through to W204's
- *   `generateFixtureFrames` (fresh ids after the cut, W204 semantics);
- * - `motion` is typed `FixtureTrackSpec["motion"]` — W204's delivered motion
- *   spec (W204 does not re-export `MotionSpec` from its barrel; the indexed
- *   access is the identical type, avoiding an unsanctioned dependency on
- *   `@sporta/perception-detection`).
+ * Determinism: pure — no RNG, no clock reads, no I/O. The same scenarios
+ * always produce a deep-equal report array. The fixture camera ignores
+ * pixel content (documented in W203), so the calibration is a pure
+ * function of (spec, decodeOrder); the tracker is a pure state machine.
  */
 import { FixtureFieldCalibrator } from "@sporta/field-mapping";
-import type { FieldCornerSet, FixtureCameraSpec } from "@sporta/field-mapping";
+import type { CalibratorFrameInput, FixtureCameraSpec } from "@sporta/field-mapping";
 import {
   GreedyIouTracker,
   detectionsFromGroundTruth,
@@ -76,281 +38,276 @@ import { estimateSpatialState } from "./state";
 import type { SpatialFrame, SpatialStatePoint, SpatialStateSeries } from "./state";
 
 /**
- * Default player box size for benchmark scenarios (normalized units,
- * center-based — mirrors the W204 occlusion fixture's player boxes).
+ * The W204 fixture motion spec (W201's `MotionSpec` — linear or static box
+ * CENTER motion over the fixture's frame span). Derived TYPE-ONLY from the
+ * exported `FixtureTrackSpec` (perception-tracking does not re-export
+ * `MotionSpec` itself): this IS the same type, obtained without adding a
+ * dependency beyond the W206 brief's list.
  */
-export const DEFAULT_SPATIAL_BENCHMARK_PLAYER_SIZE = { w: 0.2, h: 0.2 } as const;
+export type MotionSpec = FixtureTrackSpec["motion"];
 
-/** Frame pixel volume offered to the fixture calibrator (it ignores content). */
-const FIXTURE_FRAME_WIDTH = 160;
-const FIXTURE_FRAME_HEIGHT = 90;
-
-/** One benchmark player: label + motion (+ optional box size). */
-export interface SpatialBenchmarkScenarioPlayer {
-  /** Class label (must match what a detector would emit for this object). */
-  readonly label: string;
-  /** Box-center motion across the scenario's frames (W204 fixture motion spec). */
-  readonly motion: FixtureTrackSpec["motion"];
-  /** Box size in normalized coordinates around the moving center (default 0.2 x 0.2). */
-  readonly size?: { readonly w: number; readonly h: number };
-}
-
-/** One benchmark scenario (see module docs for every field's semantics). */
+/**
+ * One benchmark scenario. The sketch fields are the brief's; the two
+ * OPTIONAL fields are documented extensions the brief's own tests require
+ * (a static camera cannot express the e2e pan sweep, and a cut scenario
+ * needs a cut marker):
+ *
+ * - `panTo`: when present, the camera PANS across the scenario — frame
+ *   `d`'s pan is `camera.pan + (panTo - camera.pan) * t` with
+ *   `t = d / max(frames - 1, 1)` (the W204 fixture interpolation law), so
+ *   frame 0 uses `camera.pan` and the last frame uses `panTo`. The corner
+ *   set (and therefore the homography) then differs PER FRAME — the
+ *   per-frame calibration path the fusion exists for. Must be in [0, 1].
+ * - `sceneCutFrames`: decode orders marked as hard camera cuts (passed
+ *   through to W204's `generateFixtureFrames`; with the tracker's default
+ *   `onSceneCut: "close-all"` every active track closes at the cut and
+ *   post-cut detections open FRESH ids).
+ */
 export interface SpatialBenchmarkScenario {
-  /** The scenario's label (report key). */
+  /** Scenario label (report `scenario` field). */
   readonly name: string;
-  /** The fixture camera (W203): pan/zoom/jitter; pan is superseded by panSweep. */
+  /** The fixture camera (W203 `FixtureCameraSpec`: pan, zoom, jitter). */
   readonly camera: FixtureCameraSpec;
-  /** The scenario's players. */
-  readonly players: ReadonlyArray<SpatialBenchmarkScenarioPlayer>;
-  /** Number of frames (integer >= 1; W204 fixture convention, 25 fps default). */
+  /** The scene's players: label + motion (boxes get the default size below). */
+  readonly players: ReadonlyArray<{ readonly label: string; readonly motion: MotionSpec }>;
+  /** Number of frames (drives the motion parameter `t`); integer >= 1. */
   readonly frames: number;
-  /** Optional W103 clock for timeline alignment (default: identity clock). */
+  /** Optional W103 clock for the fusion (default: the identity clock). */
   readonly clock?: TrackClock;
-  /**
-   * Optional linear pan sweep: per-frame pan interpolates from -> to over the
-   * frame span (the W206 accept scenario's slow sweep). When present it
-   * supersedes `camera.pan`.
-   */
-  readonly panSweep?: { readonly from: number; readonly to: number };
-  /** Decode orders to mark as a camera cut (passed to W204's generator). */
+  /** Optional camera pan-sweep endpoint — see interface docs. */
+  readonly panTo?: number;
+  /** Optional hard scene-cut decode orders — see interface docs. */
   readonly sceneCutFrames?: ReadonlySet<number>;
 }
 
-/** Per-scenario spatial consistency report (see module docs for metrics). */
+/** Per-scenario spatial consistency report (all values pure functions of the scenario). */
 export interface SpatialBenchmarkReport {
   /** The scenario's label. */
   readonly scenario: string;
-  /** The scenario's frame count. */
+  /** Number of fused frames. */
   readonly frames: number;
-  /** Fused spatial points in the series. */
+  /** Total spatial points (one per tracked box per frame). */
   readonly points: number;
-  /** Points flagged `inBounds === false` (out-of-play, never clamped). */
+  /** Points with `inBounds === false` (flagged, never clamped). */
   readonly outOfBounds: number;
-  /** Max pitch-space distance (meters) any track moves between consecutive points. */
+  /**
+   * Max pitch-space distance (meters, Euclidean) ANY track moves between
+   * its consecutive points in the series (appearance order — a gap spans
+   * the missing frames). 0 when no track has two points. Smooth projected
+   * motion keeps this small; the e2e accept bound is < 3 m.
+   */
   readonly maxPerFrameJump: number;
-  /** Mean fused confidence of the points. */
+  /** Mean fused confidence over all points (0 when there are none). */
   readonly meanConfidence: number;
-  /** W204 identity switches (see module docs for the exact semantics). */
+  /**
+   * Identity switches per W204 semantics: the walk-based count from W204's
+   * `runTrackingBenchmark` over the GT-vs-track correspondence (IoU 0.5).
+   * In the fixture scenarios this equals the per-object reading "distinct
+   * track ids seen per ground-truth object minus 1", summed over objects
+   * (fixture ids never oscillate, so the walk and fragment counts agree).
+   */
   readonly identitySwitches: number;
-  /** Fused points / visible ground-truth entries (1 = nothing dropped). */
+  /**
+   * Matched ground-truth entries / total ground-truth entries (via the
+   * same W204 correspondence; 0 when the scenario has no GT entries — the
+   * documented zero-denominator convention, never NaN).
+   */
   readonly coverage: number;
 }
 
-// ---------------------------------------------------------------------------
-// Validation (fail loud)
-// ---------------------------------------------------------------------------
-
-/** Validates one scenario's surface; deeper shapes fail loud in W203/W204. */
-function validateScenario(scenario: SpatialBenchmarkScenario): void {
-  if (scenario === null || typeof scenario !== "object") {
-    throw new RangeError("spatial benchmark: every scenario must be an object");
-  }
-  if (typeof scenario.name !== "string" || scenario.name.length < 1) {
-    throw new RangeError(
-      `spatial benchmark: scenario.name must be a non-empty string (got ${String(scenario.name)})`,
-    );
-  }
-  if (!Array.isArray(scenario.players)) {
-    throw new RangeError(`spatial benchmark: scenario "${scenario.name}" players must be an array`);
-  }
-  for (const [index, player] of scenario.players.entries()) {
-    if (player === null || typeof player !== "object") {
-      throw new RangeError(
-        `spatial benchmark: scenario "${scenario.name}" players[${index}] must be an object`,
-      );
-    }
-    if (typeof player.label !== "string" || player.label.length < 1) {
-      throw new RangeError(
-        `spatial benchmark: scenario "${scenario.name}" players[${index}].label must be a ` +
-          `non-empty string`,
-      );
-    }
-    if (player.motion === null || typeof player.motion !== "object") {
-      throw new RangeError(
-        `spatial benchmark: scenario "${scenario.name}" players[${index}].motion must be a ` +
-          `W204 fixture motion spec`,
-      );
-    }
-    if (player.size !== undefined) {
-      const size = player.size;
-      if (
-        size === null ||
-        typeof size !== "object" ||
-        !Number.isFinite(size.w) ||
-        !Number.isFinite(size.h)
-      ) {
-        throw new RangeError(
-          `spatial benchmark: scenario "${scenario.name}" players[${index}].size must carry ` +
-            `finite w/h when provided`,
-        );
-      }
-    }
-  }
-  if (!Number.isInteger(scenario.frames) || scenario.frames < 1) {
-    throw new RangeError(
-      `spatial benchmark: scenario "${scenario.name}" frames must be an integer >= 1 ` +
-        `(got ${String(scenario.frames)})`,
-    );
-  }
-  const sweep = scenario.panSweep;
-  if (sweep !== undefined) {
-    if (sweep === null || typeof sweep !== "object") {
-      throw new RangeError(
-        `spatial benchmark: scenario "${scenario.name}" panSweep must be an object when provided`,
-      );
-    }
-    for (const bound of [sweep.from, sweep.to] as const) {
-      if (typeof bound !== "number" || !Number.isFinite(bound) || bound < 0 || bound > 1) {
-        throw new RangeError(
-          `spatial benchmark: scenario "${scenario.name}" panSweep bounds must be finite in ` +
-            `[0, 1] (got ${String(bound)})`,
-        );
-      }
-    }
-  }
-  const clock = scenario.clock;
-  if (clock !== undefined) {
-    if (
-      clock === null ||
-      typeof clock !== "object" ||
-      typeof clock.trackId !== "string" ||
-      clock.trackId.length < 1 ||
-      !Number.isFinite(clock.offsetMs) ||
-      !Number.isFinite(clock.driftPpm)
-    ) {
-      throw new RangeError(
-        `spatial benchmark: scenario "${scenario.name}" clock must be a W103 TrackClock ` +
-          `when provided`,
-      );
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Scenario pipeline
-// ---------------------------------------------------------------------------
-
-/** Per-frame pan: the sweep interpolation when present, else the fixed pan. */
-function panAt(scenario: SpatialBenchmarkScenario, decodeOrder: number): number {
-  const sweep = scenario.panSweep;
-  if (sweep === undefined) return scenario.camera.pan;
-  const t = decodeOrder / Math.max(scenario.frames - 1, 1);
-  return sweep.from + (sweep.to - sweep.from) * t;
+/** A prepared scenario: the fused input frames plus the ground truth they came from. */
+export interface SpatialScenarioFrames {
+  /** Fused input frames (tracker frame + corner set + tracked boxes), decode order. */
+  readonly frames: readonly SpatialFrame[];
+  /** The W204 fixture ground truth (per-frame GT entries, spec order). */
+  readonly groundTruth: readonly GroundTruthFrame[];
 }
 
 /**
- * Runs the fused pipeline for one scenario (module docs) and returns the
- * series plus the predicted-tracks map the identity metric needs.
+ * Box size every scenario player gets (center-based, normalized image
+ * units — mirrors the W204 `FixtureTrackSpec.size` grammar). The scenario
+ * sketch carries label + motion only; the size is the benchmark's
+ * documented constant.
  */
-function runScenario(scenario: SpatialBenchmarkScenario): {
-  series: SpatialStateSeries;
-  groundTruth: readonly GroundTruthFrame[];
-  predicted: Map<string, readonly TrackedBox[]>;
-} {
+export const BENCHMARK_PLAYER_SIZE: { readonly w: number; readonly h: number } = { w: 0.1, h: 0.1 };
+
+/** Dummy frame dimensions for the calibrator input (the fixture ignores pixels). */
+const BENCHMARK_FRAME_WIDTH = 160;
+const BENCHMARK_FRAME_HEIGHT = 90;
+
+/** Tracker id for every scenario run (valid W204 id; fresh instance per scenario). */
+const BENCHMARK_TRACKER_ID = "spatial-benchmark-tracker";
+
+function validateScenario(scenario: SpatialBenchmarkScenario): void {
+  if (typeof scenario.name !== "string" || scenario.name.length < 1) {
+    throw new RangeError(
+      `spatial benchmark scenario: name must be a non-empty string (got ${String(scenario.name)})`,
+    );
+  }
+  if (
+    typeof scenario.frames !== "number" ||
+    !Number.isInteger(scenario.frames) ||
+    scenario.frames < 1
+  ) {
+    throw new RangeError(
+      `spatial benchmark scenario "${scenario.name}": frames must be an integer >= 1 ` +
+        `(got ${String(scenario.frames)})`,
+    );
+  }
+  if (
+    scenario.panTo !== undefined &&
+    (typeof scenario.panTo !== "number" ||
+      !Number.isFinite(scenario.panTo) ||
+      scenario.panTo < 0 ||
+      scenario.panTo > 1)
+  ) {
+    throw new RangeError(
+      `spatial benchmark scenario "${scenario.name}": panTo must be a finite number in [0, 1] ` +
+        `(got ${String(scenario.panTo)})`,
+    );
+  }
+  if (!Array.isArray(scenario.players)) {
+    throw new RangeError(`spatial benchmark scenario "${scenario.name}": players must be an array`);
+  }
+}
+
+function calibratorFrameFor(gtFrame: GroundTruthFrame, bytes: Uint8Array): CalibratorFrameInput {
+  // Pixel content, width, and height are IGNORED by the fixture calibrator
+  // (documented W203 behavior) — the bytes exist only to satisfy the
+  // CalibratorFrameInput shape and are shared across the scenario's frames.
+  return {
+    frameId: gtFrame.frame.frameId,
+    presentationMs: gtFrame.frame.presentationMs,
+    width: BENCHMARK_FRAME_WIDTH,
+    height: BENCHMARK_FRAME_HEIGHT,
+    bytes,
+    decodeOrder: gtFrame.frame.decodeOrder,
+  };
+}
+
+/**
+ * Builds one scenario's fused input frames: the W204 fixture ground truth,
+ * per-frame W203 fixture calibration (static camera, or the documented
+ * pan sweep when `panTo` is set), and the W204 tracker's boxes.
+ *
+ * Players map to `FixtureTrackSpec`s in array order with deterministic
+ * ground-truth ids `p1`, `p2`, … and {@link BENCHMARK_PLAYER_SIZE} boxes.
+ * A fresh `GreedyIouTracker` (defaults: IoU 0.5, gap 0, "close-all" on
+ * scene cuts) runs the scenario, so post-cut detections open fresh ids.
+ *
+ * Exported (not just internal) so tests can obtain the SERIES for
+ * per-point accept checks the report does not carry — the report
+ * summarizes; the frames are the evidence. Pure and deterministic.
+ */
+export function buildSpatialScenarioFrames(
+  scenario: SpatialBenchmarkScenario,
+): SpatialScenarioFrames {
+  validateScenario(scenario);
+  // Constructed eagerly: validates the camera spec fail-loud before any
+  // frame exists. Reused as-is for the whole scenario when not sweeping.
+  const staticCalibrator = new FixtureFieldCalibrator(scenario.camera);
+
   const specs: FixtureTrackSpec[] = scenario.players.map((player, index) => ({
     gtId: `p${index + 1}`,
     label: player.label,
     motion: player.motion,
-    size: player.size ?? DEFAULT_SPATIAL_BENCHMARK_PLAYER_SIZE,
+    size: BENCHMARK_PLAYER_SIZE,
   }));
-
   const groundTruth = generateFixtureFrames(specs, {
     frames: scenario.frames,
     ...(scenario.sceneCutFrames !== undefined ? { sceneCutFrames: scenario.sceneCutFrames } : {}),
   });
 
-  // The fixture calibrator ignores pixel content — one shared zeroed buffer
-  // documents that honestly (a real CV calibrator would not ignore it).
-  const bytes = new Uint8Array(FIXTURE_FRAME_WIDTH * FIXTURE_FRAME_HEIGHT * 3);
-  const tracker = new GreedyIouTracker({}, "spatial-benchmark-tracker");
-  const predicted = new Map<string, readonly TrackedBox[]>();
-  const spatialFrames: SpatialFrame[] = [];
-
+  const bytes = new Uint8Array(BENCHMARK_FRAME_WIDTH * BENCHMARK_FRAME_HEIGHT * 3);
+  const tracker = new GreedyIouTracker({}, BENCHMARK_TRACKER_ID);
+  const frames: SpatialFrame[] = [];
   for (const gtFrame of groundTruth) {
-    const cornerSet: FieldCornerSet = new FixtureFieldCalibrator(
-      {
-        pan: panAt(scenario, gtFrame.frame.decodeOrder),
-        zoom: scenario.camera.zoom,
-        jitter: scenario.camera.jitter,
-      },
-      "spatial-benchmark-calibrator",
-    ).calibrate({
-      frameId: gtFrame.frame.frameId,
-      presentationMs: gtFrame.frame.presentationMs,
-      width: FIXTURE_FRAME_WIDTH,
-      height: FIXTURE_FRAME_HEIGHT,
-      bytes,
-      decodeOrder: gtFrame.frame.decodeOrder,
-    });
-
+    let cornerSet;
+    if (scenario.panTo === undefined) {
+      cornerSet = staticCalibrator.calibrate(calibratorFrameFor(gtFrame, bytes));
+    } else {
+      // Camera pan sweep: pan(d) = pan + (panTo - pan) * t, with the W204
+      // fixture interpolation law t = d / max(frames - 1, 1). A per-frame
+      // calibrator means a per-frame homography — the calibration-varying
+      // path the fusion exists for. (FixtureFieldCalibrator re-validates
+      // each spec; rounding of the interpolated pan stays far inside [0, 1]
+      // for sweep endpoints inside it.)
+      const t = gtFrame.frame.decodeOrder / Math.max(scenario.frames - 1, 1);
+      const pan = scenario.camera.pan + (scenario.panTo - scenario.camera.pan) * t;
+      cornerSet = new FixtureFieldCalibrator({ ...scenario.camera, pan }).calibrate(
+        calibratorFrameFor(gtFrame, bytes),
+      );
+    }
     const tracks = tracker.assign(gtFrame.frame, detectionsFromGroundTruth(gtFrame));
-    predicted.set(gtFrame.frame.frameId, tracks);
-    spatialFrames.push({ frame: gtFrame.frame, cornerSet, tracks });
+    frames.push({ frame: gtFrame.frame, cornerSet, tracks });
   }
-
-  const series = estimateSpatialState(spatialFrames, { clock: scenario.clock });
-  return { series, groundTruth, predicted };
+  return { frames, groundTruth };
 }
 
-/** Max pitch-space distance between any track's consecutive points (meters). */
-function maxJumpBetweenConsecutivePoints(points: readonly SpatialStatePoint[]): number {
+/** Max consecutive-point pitch distance per track, in series order (meters). */
+function maxPerFrameJumpOf(series: SpatialStateSeries): number {
   const byTrack = new Map<string, SpatialStatePoint[]>();
-  for (const point of points) {
-    const trackPoints = byTrack.get(point.trackId);
-    if (trackPoints === undefined) {
+  for (const point of series.points) {
+    const list = byTrack.get(point.trackId);
+    if (list === undefined) {
       byTrack.set(point.trackId, [point]);
     } else {
-      trackPoints.push(point);
+      list.push(point);
     }
   }
-  let maxJump = 0;
+  let max = 0;
   for (const trackPoints of byTrack.values()) {
-    for (let index = 1; index < trackPoints.length; index += 1) {
-      const before = trackPoints[index - 1]!;
-      const after = trackPoints[index]!;
-      const dx = after.pitch.x - before.pitch.x;
-      const dy = after.pitch.y - before.pitch.y;
-      const jump = Math.sqrt(dx * dx + dy * dy);
-      if (jump > maxJump) maxJump = jump;
+    for (let i = 1; i < trackPoints.length; i += 1) {
+      const dx = trackPoints[i]!.pitch.x - trackPoints[i - 1]!.pitch.x;
+      const dy = trackPoints[i]!.pitch.y - trackPoints[i - 1]!.pitch.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance > max) max = distance;
     }
   }
-  return maxJump;
+  return max;
 }
 
 /**
- * Runs the benchmark: one {@link SpatialBenchmarkReport} per scenario, in
- * spec order. Pure and deterministic — the same specs always produce a
- * deep-equal result.
+ * Runs the spatial consistency benchmark over the scenarios, in order.
+ * Per scenario: build the fused frames ({@link buildSpatialScenarioFrames}),
+ * fuse them ({@link estimateSpatialState} with the scenario's clock or the
+ * identity default), and compute the report — identitySwitches and
+ * coverage delegated to W204's `runTrackingBenchmark`. Pure and
+ * deterministic: the same scenarios always produce a deep-equal array.
  */
 export function runSpatialBenchmark(
-  specs: readonly SpatialBenchmarkScenario[],
+  scenarios: readonly SpatialBenchmarkScenario[],
 ): SpatialBenchmarkReport[] {
-  if (!Array.isArray(specs)) {
-    throw new RangeError("spatial benchmark: specs must be an array of scenarios");
-  }
-  return specs.map((scenario) => {
-    validateScenario(scenario);
-    const { series, groundTruth, predicted } = runScenario(scenario);
+  return scenarios.map((scenario) => {
+    const { frames, groundTruth } = buildSpatialScenarioFrames(scenario);
+    const series = estimateSpatialState(
+      frames,
+      scenario.clock === undefined ? undefined : { clock: scenario.clock },
+    );
 
-    const points = series.points.length;
+    // Identity-level metrics: W204's delivered benchmark, verbatim.
+    const predicted = new Map<string, readonly TrackedBox[]>();
+    for (const frame of frames) {
+      predicted.set(frame.frame.frameId, frame.tracks);
+    }
+    const tracking = runTrackingBenchmark({ groundTruth, predicted });
+
     let confidenceSum = 0;
     for (const point of series.points) confidenceSum += point.confidence;
-    const totalGroundTruth = groundTruth.reduce(
-      (sum, gtFrame) => sum + gtFrame.groundTruth.length,
-      0,
-    );
-    const identity = runTrackingBenchmark({ groundTruth, predicted });
+    const meanConfidence = series.points.length > 0 ? confidenceSum / series.points.length : 0;
+
+    const gtEntries = tracking.matchedDetections + tracking.missedDetections;
+    const coverage = gtEntries > 0 ? tracking.matchedDetections / gtEntries : 0;
 
     return {
       scenario: scenario.name,
-      frames: scenario.frames,
-      points,
+      frames: series.frames,
+      points: series.points.length,
       outOfBounds: series.outOfBounds,
-      maxPerFrameJump: maxJumpBetweenConsecutivePoints(series.points),
-      meanConfidence: points > 0 ? confidenceSum / points : 0,
-      identitySwitches: identity.identitySwitches,
-      coverage: totalGroundTruth > 0 ? points / totalGroundTruth : 0,
+      maxPerFrameJump: maxPerFrameJumpOf(series),
+      meanConfidence,
+      identitySwitches: tracking.identitySwitches,
+      coverage,
     };
   });
 }

@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@sporta/contracts": "workspace:*",
-    "@sporta/field-mapping": "workspace:*",
     "@sporta/observation": "workspace:*",
+    "@sporta/field-mapping": "workspace:*",
     "@sporta/perception-tracking": "workspace:*",
-    "@sporta/testing": "workspace:*",
-    "@sporta/timeline": "workspace:*"
+    "@sporta/timeline": "workspace:*",
+    "@sporta/testing": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.2.0"

@@ -1,89 +1,179 @@
 import { describe, expect, test } from "bun:test";
+import {
+  CANONICAL_CORNER_ORDER,
+  UnsupportedCornerOrderError,
+  createPitchProjector,
+} from "@sporta/field-mapping";
+import type { FieldCornerSet } from "@sporta/field-mapping";
 import { estimateSpatialState } from "../src/state";
-import { frameOf, trackOf, IDENTITY_CORNER_SET } from "./helpers";
+import type { SpatialFrame } from "../src/state";
+import type { TrackedBox } from "@sporta/perception-tracking";
 
 /**
- * Projection-math tests (the brief's identity-camera case). The identity
- * corner set maps image (u, v) EXACTLY onto pitch (105u, 68v):
- *
- *   corners (0,0),(1,0),(1,1),(0,1)  <->  pitch (0,0),(105,0),(105,68),(0,68)
- *
- * so the image center (0.5, 0.5) is the pitch center (52.5, 34) and
- * (0.25, 0.5) is (26.25, 34). Expected values are hand-derived from that
- * closed form; the projection passes through W203's DLT solve, hence
- * toBeCloseTo at the repo's standard precision (10) — the same convention as
- * W203's own projector tests.
+ * W206 projection math tests. Identity camera: the corner set maps image
+ * corners (0,0),(1,0),(1,1),(0,1) onto pitch corners (0,0),(105,0),(105,68),
+ * (0,68) — the solved homography is exactly X = 105u, Y = 68v, and every
+ * hand-computed value below is BIT-EXACT through the DLT solve (verified
+ * against the W203 seam directly). Constants only; no RNG, no clock.
  */
-describe("projection math — identity camera", () => {
-  test("image center (0.5, 0.5) -> pitch center (52.5, 34) EXACT (to DLT precision)", () => {
+
+/** Identity camera corner set (canonical producer order, confidence 0.9). */
+const IDENTITY_CORNER_SET: FieldCornerSet = {
+  corners: [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: 1, y: 1 },
+    { x: 0, y: 1 },
+  ],
+  cornerOrder: CANONICAL_CORNER_ORDER,
+  confidence: 0.9,
+};
+
+function frame(d: number): SpatialFrame["frame"] {
+  return { frameId: `f-0-${d}`, presentationMs: d * 40, decodeOrder: d };
+}
+
+function track(id: string, box: { x: number; y: number; w: number; h: number }): TrackedBox {
+  return { box, label: "player", confidence: 0.9, trackId: id };
+}
+
+describe("estimateSpatialState — projection math (identity camera)", () => {
+  test("image center (0.5, 0.5) projects EXACTLY to pitch (52.5, 34)", () => {
+    // Box centered exactly on the image center: 0.25 + 0.5/2 = 0.5 (binary
+    // exact), 0.375 + 0.25/2 = 0.5.
     const series = estimateSpatialState([
       {
-        frame: frameOf("f-0-0", 0, 0),
+        frame: frame(0),
         cornerSet: IDENTITY_CORNER_SET,
-        // Box center = (0.4 + 0.2/2, 0.4 + 0.2/2) = (0.5, 0.5) — hand-checked.
-        tracks: [trackOf("t1", { x: 0.4, y: 0.4, w: 0.2, h: 0.2 })],
+        tracks: [track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 })],
       },
     ]);
+    expect(series.frames).toBe(1);
+    expect(series.points).toHaveLength(1);
     const point = series.points[0]!;
-    expect(point.pitch.x).toBeCloseTo(52.5, 10);
-    expect(point.pitch.y).toBeCloseTo(34, 10);
+    expect(point.pitch.x).toBe(52.5); // EXACT: 105 * 0.5
+    expect(point.pitch.y).toBe(34); // EXACT: 68 * 0.5
     expect(point.inBounds).toBe(true);
   });
 
-  test("image (0.25, 0.5) -> pitch (26.25, 34) EXACT (to DLT precision)", () => {
-    // Box center hand-check: x + w/2 = 0.15 + 0.2/2 = 0.25; y + h/2 =
-    // 0.35 + 0.3/2 = 0.5.
+  test("image (0.25, 0.5) projects EXACTLY to pitch (26.25, 34)", () => {
+    // Box center x: 0 + 0.5/2 = 0.25; y: 0.375 + 0.25/2 = 0.5.
     const series = estimateSpatialState([
       {
-        frame: frameOf("f-0-0", 0, 0),
+        frame: frame(0),
         cornerSet: IDENTITY_CORNER_SET,
-        tracks: [trackOf("t1", { x: 0.15, y: 0.35, w: 0.2, h: 0.3 })],
+        tracks: [track("t1", { x: 0, y: 0.375, w: 0.5, h: 0.25 })],
       },
     ]);
     const point = series.points[0]!;
-    expect(point.pitch.x).toBeCloseTo(26.25, 10);
-    expect(point.pitch.y).toBeCloseTo(34, 10);
+    expect(point.pitch.x).toBe(26.25); // EXACT: 105 * 0.25
+    expect(point.pitch.y).toBe(34);
     expect(point.inBounds).toBe(true);
   });
 
-  test("box-center formula: the projected point is the box CENTER, not an edge", () => {
-    // Same center (0.5, 0.5) via two different boxes: a small centered box
-    // and a large straddling box. Both must project identically — only the
-    // CENTER feeds the projection (documented W206 convention).
-    const small = estimateSpatialState([
-      {
-        frame: frameOf("f-0-0", 0, 0),
-        cornerSet: IDENTITY_CORNER_SET,
-        tracks: [trackOf("t1", { x: 0.4, y: 0.4, w: 0.2, h: 0.2 })],
-      },
-    ]).points[0]!;
-    const large = estimateSpatialState([
-      {
-        frame: frameOf("f-0-0", 0, 0),
-        cornerSet: IDENTITY_CORNER_SET,
-        tracks: [trackOf("t1", { x: 0.1, y: 0.1, w: 0.8, h: 0.8 })],
-      },
-    ]).points[0]!;
-    expect(large.pitch.x).toBeCloseTo(small.pitch.x, 12);
-    expect(large.pitch.y).toBeCloseTo(small.pitch.y, 12);
+  test("box-center formula hand-checked once, bit-identical to the W203 projector", () => {
+    // Hand-check the center formula: (0.25 + 0.25/2, 0.5 + 0.25/2) = (0.375, 0.625).
+    const box = { x: 0.25, y: 0.5, w: 0.25, h: 0.25 };
+    const centerX = box.x + box.w / 2;
+    const centerY = box.y + box.h / 2;
+    expect(centerX).toBe(0.375);
+    expect(centerY).toBe(0.625);
+
+    const series = estimateSpatialState([
+      { frame: frame(2), cornerSet: IDENTITY_CORNER_SET, tracks: [track("t7", box)] },
+    ]);
+    const point = series.points[0]!;
+    // Closed form: X = 105u, Y = 68v -> (39.375, 42.5), binary exact.
+    expect(point.pitch.x).toBe(105 * centerX);
+    expect(point.pitch.y).toBe(68 * centerY);
+    expect(point.pitch.x).toBe(39.375);
+    expect(point.pitch.y).toBe(42.5);
+    // Bit-identity with the W203 seam on the same center point: the fusion
+    // adds NO arithmetic of its own beyond the center formula.
+    const direct = createPitchProjector(IDENTITY_CORNER_SET).project({ x: centerX, y: centerY });
+    expect(point.pitch.x).toBe(direct.x);
+    expect(point.pitch.y).toBe(direct.y);
+    expect(point.inBounds).toBe(direct.inBounds);
   });
 
-  test("anisotropic scaling: half the image width = 52.5 m of touchline", () => {
-    // Centers (0.25, 0.5) and (0.75, 0.5): 105 * 0.5 = 52.5 m apart —
-    // the metric-consistency sanity of the identity camera.
+  test("identity clock default: sessionMs === presentationMs", () => {
     const series = estimateSpatialState([
       {
-        frame: frameOf("f-0-0", 0, 0),
+        frame: frame(7),
+        cornerSet: IDENTITY_CORNER_SET,
+        tracks: [track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 })],
+      },
+    ]);
+    expect(series.points[0]!.sessionMs).toBe(280); // 7 * 40, source === session
+    expect(series.points[0]!.frameId).toBe("f-0-7");
+  });
+
+  test("points are ordered by (sessionMs, trackId) regardless of input frame order", () => {
+    // Frame B (40 ms) is fed FIRST (array order is the caller's), frame A
+    // (0 ms) second; tracks inside frame A arrive as [t2, t1].
+    const series = estimateSpatialState([
+      {
+        frame: frame(1),
         cornerSet: IDENTITY_CORNER_SET,
         tracks: [
-          trackOf("t1", { x: 0.15, y: 0.45, w: 0.2, h: 0.1 }),
-          trackOf("t2", { x: 0.65, y: 0.45, w: 0.2, h: 0.1 }),
+          track("t3", { x: 0, y: 0.375, w: 0.5, h: 0.25 }),
+          track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 }),
+        ],
+      },
+      {
+        frame: frame(0),
+        cornerSet: IDENTITY_CORNER_SET,
+        tracks: [
+          track("t2", { x: 0, y: 0.375, w: 0.5, h: 0.25 }),
+          track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 }),
         ],
       },
     ]);
-    const [left, right] = series.points;
-    expect(left!.pitch.x).toBeCloseTo(26.25, 10);
-    expect(right!.pitch.x).toBeCloseTo(78.75, 10);
-    expect(right!.pitch.x - left!.pitch.x).toBeCloseTo(52.5, 10);
+    expect(series.frames).toBe(2);
+    expect(series.points.map((p) => p.trackId)).toEqual(["t1", "t2", "t1", "t3"]);
+    expect(series.points.map((p) => p.sessionMs)).toEqual([0, 0, 40, 40]);
+    expect(series.points.map((p) => p.frameId)).toEqual(["f-0-0", "f-0-0", "f-0-1", "f-0-1"]);
+  });
+
+  test("deterministic: same inputs -> deep-equal series", () => {
+    const input: SpatialFrame[] = [
+      {
+        frame: frame(0),
+        cornerSet: IDENTITY_CORNER_SET,
+        tracks: [track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 })],
+      },
+      {
+        frame: frame(1),
+        cornerSet: IDENTITY_CORNER_SET,
+        tracks: [track("t1", { x: 0.3, y: 0.375, w: 0.5, h: 0.25 })],
+      },
+    ];
+    expect(estimateSpatialState(input)).toEqual(estimateSpatialState(input));
+  });
+
+  test("frames with no tracks still count; outOfBounds tallies honestly", () => {
+    const series = estimateSpatialState([
+      { frame: frame(0), cornerSet: IDENTITY_CORNER_SET, tracks: [] },
+      {
+        frame: frame(1),
+        cornerSet: IDENTITY_CORNER_SET,
+        tracks: [track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 })],
+      },
+    ]);
+    expect(series.frames).toBe(2);
+    expect(series.points).toHaveLength(1);
+    expect(series.outOfBounds).toBe(0);
+  });
+
+  test("unsupported corner order fails loud through the W203 seam", () => {
+    expect(() =>
+      estimateSpatialState([
+        {
+          frame: frame(0),
+          cornerSet: { ...IDENTITY_CORNER_SET, cornerOrder: "bl, br, tr, tl" },
+          tracks: [track("t1", { x: 0.25, y: 0.375, w: 0.5, h: 0.25 })],
+        },
+      ]),
+    ).toThrow(UnsupportedCornerOrderError);
   });
 });

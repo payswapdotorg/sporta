@@ -1,234 +1,275 @@
 import { describe, expect, test } from "bun:test";
 import { Observation, SCHEMA_VERSION } from "@sporta/contracts";
 import { InMemoryObservationStore } from "@sporta/observation";
-import type { FixtureTrackSpec } from "@sporta/perception-tracking";
+import { buildObservation } from "@sporta/testing";
+import { CANONICAL_CORNER_ORDER } from "@sporta/field-mapping";
+import type { FieldCornerSet } from "@sporta/field-mapping";
+import type { TrackClock } from "@sporta/timeline";
 import { emitSpatialObservations, validateObservation } from "../src/observe";
 import type { SpatialStateSeries } from "../src/state";
-import { fuseFixtureScenario, pointWith } from "./helpers";
+import { alignSessionMs } from "../src/align";
+import { estimateSpatialState } from "../src/state";
+import type { SpatialFrame } from "../src/state";
 
 /**
- * Emission tests (the brief's §3.6 group): every observation parses with the
- * contracts Observation zod schema; eventTimeMs is the point's SESSION time
- * (NOT the frame-native presentationMs); provenance is DERIVED (projection is
- * inference from OBSERVED corners + OBSERVED tracks); entityId = trackId;
- * NO velocity key; observationId uniqueness; subjectEntityRefs kinds correct
- * for the player label. Constants only — no clock reads, no RNG.
+ * W206 emission tests: every observation parses against the contracts
+ * `Observation` zod schema; eventTimeMs is the point's SESSION time (not
+ * the frame-native presentationMs); provenance is DERIVED (projection is
+ * inference from OBSERVED corners + tracks); entityId is the track id; NO
+ * velocity key; observationIds follow "sp-<frameId>-<trackId>" and are
+ * unique; subjectEntityRefs kinds follow W204's label map. An affine clock
+ * (offset +50, drift 1000 ppm) makes session time visibly DIFFERENT from
+ * presentation time. Constants only.
  */
 
-const AFFINE = { trackId: "t-0-video", offsetMs: 50, driftPpm: 1000 };
+const SESSION_ID = "sess-w206-emission";
+const COMPONENT_ID = "spatial-state-w206";
 
-const HAND_BUILT: SpatialStateSeries = {
-  frames: 2,
-  points: [
-    {
-      trackId: "t1",
-      frameId: "f-0-0",
-      sessionMs: 150,
-      pitch: { x: 52.5, y: 34 },
-      inBounds: true,
-      confidence: 0.9,
-      sourceConfidences: { track: 0.9, corners: 0.9 },
-      label: "player",
-    },
-    {
-      trackId: "t2",
-      frameId: "f-0-1",
-      sessionMs: 190,
-      pitch: { x: 60, y: 30 },
-      inBounds: true,
-      confidence: 0.9,
-      sourceConfidences: { track: 0.9, corners: 0.9 },
-      label: "player",
-    },
+/** Affine clock: sessionMs = presentationMs + 50 + presentationMs / 1000. */
+const CLOCK: TrackClock = { trackId: "video", offsetMs: 50, driftPpm: 1000 };
+
+const IDENTITY_CORNER_SET: FieldCornerSet = {
+  corners: [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: 1, y: 1 },
+    { x: 0, y: 1 },
   ],
-  outOfBounds: 0,
+  cornerOrder: CANONICAL_CORNER_ORDER,
+  confidence: 0.9,
 };
 
-function emit(series: SpatialStateSeries) {
-  return emitSpatialObservations({
-    sessionId: "sess-spatial",
-    componentId: "spatial-state-w206",
-    series,
+// Identity camera: X = 105u, Y = 68v — all expected positions bit-exact.
+// player t1 center (0.5, 0.5) -> (52.5, 34); ball t2 center (0.75, 0.1875)
+// -> (78.75, 12.75); unmapped-label t3 center (0.25, 0.5) -> (26.25, 34).
+const TRACKS = [
+  { box: { x: 0.25, y: 0.375, w: 0.5, h: 0.25 }, label: "player", confidence: 0.8, trackId: "t1" },
+  {
+    box: { x: 0.6875, y: 0.125, w: 0.125, h: 0.125 },
+    label: "ball",
+    confidence: 0.75,
+    trackId: "t2",
+  },
+  { box: { x: 0, y: 0.375, w: 0.5, h: 0.25 }, label: "coach", confidence: 0.5, trackId: "t3" },
+];
+
+const FRAMES: SpatialFrame[] = [0, 1, 2].map((d) => ({
+  frame: { frameId: `f-0-${d}`, presentationMs: d * 40, decodeOrder: d },
+  cornerSet: IDENTITY_CORNER_SET,
+  tracks: TRACKS,
+}));
+
+const SERIES = estimateSpatialState(FRAMES, { clock: CLOCK });
+
+describe("emitSpatialObservations — SWM-facing emission", () => {
+  const observations = emitSpatialObservations({
+    sessionId: SESSION_ID,
+    componentId: COMPONENT_ID,
+    series: SERIES,
   });
-}
 
-describe("emitSpatialObservations — contract shape", () => {
-  const observations = emit(HAND_BUILT);
-
-  test("one observation per point, every record parses with the contracts zod schema", () => {
-    expect(observations).toHaveLength(2);
+  test("one zod-valid Observation per point, first record exact", () => {
+    expect(observations).toHaveLength(9); // 3 frames x 3 tracks
     for (const observation of observations) {
+      expect(() => Observation.parse(observation)).not.toThrow();
       expect(validateObservation(observation)).toBe(true);
-      expect(Observation.safeParse(observation).success).toBe(true);
     }
+    expect(observations[0]).toEqual({
+      observationId: "sp-f-0-0-t1", // "sp-<frameId>-<trackId>"
+      sessionId: SESSION_ID,
+      schemaVersion: SCHEMA_VERSION,
+      eventTimeMs: 50, // SESSION time: presentationMs 0 + offset 50
+      modality: "vision",
+      componentId: COMPONENT_ID,
+      provenance: "DERIVED", // projection is inference, not observation
+      confidence: 0.8, // fused min(0.8, 0.9)
+      payload: {
+        kind: "track",
+        entityId: "t1", // the track id IS the payload entityId
+        position: { x: 52.5, y: 34 }, // PITCH METERS (exact, identity camera)
+      },
+      subjectEntityRefs: [{ entityId: "t1", kind: "participant" }],
+    });
   });
 
-  test('observationId = "sp-<frameId>-<trackId>", unique across the stream', () => {
-    expect(observations[0]!.observationId).toBe("sp-f-0-0-t1");
-    expect(observations[1]!.observationId).toBe("sp-f-0-1-t2");
-    expect(new Set(observations.map((o) => o.observationId)).size).toBe(observations.length);
+  test("eventTimeMs equals the point's sessionMs — NOT the presentationMs", () => {
+    observations.forEach((observation, i) => {
+      const point = SERIES.points[i]!;
+      expect(observation.eventTimeMs).toBe(point.sessionMs);
+    });
+    // The frame-native convention difference, made visible: frame 1's
+    // presentationMs is 40, its session time is 40 + 50 + 0.04 = 90.04.
+    expect(observations[3]!.eventTimeMs).toBe(alignSessionMs(CLOCK, 40));
+    expect(observations[3]!.eventTimeMs).toBeCloseTo(90.04, 9);
+    expect(observations[3]!.eventTimeMs).not.toBe(40);
+    expect(observations[6]!.eventTimeMs).toBe(alignSessionMs(CLOCK, 80));
   });
 
-  test("eventTimeMs is the point's sessionMs — the SESSION timeline, not presentationMs", () => {
-    // These hand-built points carry sessionMs 150/190; the frames they came
-    // from had presentationMs 100/140 under the +50-offset clock (the
-    // pipeline case below proves the distinction on fused data).
-    expect(observations[0]!.eventTimeMs).toBe(150);
-    expect(observations[1]!.eventTimeMs).toBe(190);
-    expect(observations[0]!.sessionId).toBe("sess-spatial");
-    expect(observations[0]!.componentId).toBe("spatial-state-w206");
-    expect(observations[0]!.schemaVersion).toBe(SCHEMA_VERSION);
-    // Deterministic package: no wall-clock ingestion time is ever invented.
-    expect(observations[0]!.ingestTimeMs).toBeUndefined();
-    expect(observations[0]!.modelId).toBeUndefined();
-  });
-
-  test("provenance DERIVED, modality vision, confidence passthrough", () => {
+  test("provenance DERIVED, modality vision, on every record", () => {
     for (const observation of observations) {
-      expect(observation.provenance).toBe("DERIVED"); // honesty rule (module docs)
+      expect(observation.provenance).toBe("DERIVED");
       expect(observation.modality).toBe("vision");
-      expect(observation.confidence).toBe(0.9);
+      expect(observation.componentId).toBe(COMPONENT_ID);
+      expect(observation.schemaVersion).toBe(SCHEMA_VERSION);
     }
   });
 
-  test("payload: track kind, entityId = trackId, pitch METERS, NO velocity key", () => {
-    const payload = observations[0]!.payload;
-    expect(payload.kind).toBe("track");
-    if (payload.kind === "track") {
-      expect(payload.entityId).toBe("t1");
-      expect(payload.position).toEqual({ x: 52.5, y: 34 }); // meters, canonical pitch frame
-      expect("velocity" in payload).toBe(false); // W205/later-fusion scope boundary
-      expect(payload.velocity).toBeUndefined();
-      // Emitted positions are fresh copies — records never alias the series.
-      expect(payload.position).not.toBe(HAND_BUILT.points[0]!.pitch);
+  test("payload: entityId = trackId, pitch meters exact, NO velocity key", () => {
+    const byId = new Map(observations.map((o) => [o.observationId, o]));
+    const player = byId.get("sp-f-0-0-t1")!;
+    expect(player.payload.kind).toBe("track");
+    if (player.payload.kind === "track") {
+      expect(player.payload.entityId).toBe("t1");
+      expect(player.payload.position).toEqual({ x: 52.5, y: 34 });
+      expect("velocity" in player.payload).toBe(false); // W205/later fusion owns velocity
+      expect(player.payload.velocity).toBeUndefined();
+    }
+    const ball = byId.get("sp-f-0-1-t2")!;
+    expect(ball.payload.kind).toBe("track");
+    if (ball.payload.kind === "track") {
+      expect(ball.payload.entityId).toBe("t2");
+      expect(ball.payload.position).toEqual({ x: 78.75, y: 12.75 });
+      expect("velocity" in ball.payload).toBe(false);
     }
   });
 
-  test("subjectEntityRefs: player label maps to participant, EXACT LocalEntityRef shape", () => {
-    expect(observations[0]!.subjectEntityRefs).toEqual([{ entityId: "t1", kind: "participant" }]);
-    // The exact contracts shape: entityId + kind ONLY (no label field).
-    expect(Object.keys(observations[0]!.subjectEntityRefs[0]!).sort()).toEqual([
-      "entityId",
-      "kind",
+  test("subjectEntityRefs kinds follow W204's FOOTBALL_LABEL_KINDS; unmapped -> []", () => {
+    const byId = new Map(observations.map((o) => [o.observationId, o]));
+    // player -> participant (exact LocalEntityRef shape: entityId + kind only)
+    expect(byId.get("sp-f-0-0-t1")!.subjectEntityRefs).toEqual([
+      { entityId: "t1", kind: "participant" },
     ]);
+    // ball -> ball
+    expect(byId.get("sp-f-0-0-t2")!.subjectEntityRefs).toEqual([{ entityId: "t2", kind: "ball" }]);
+    // "coach" has NO mapping: no ref rather than an invented kind
+    expect(byId.get("sp-f-0-0-t3")!.subjectEntityRefs).toEqual([]);
+    expect(validateObservation(byId.get("sp-f-0-0-t3"))).toBe(true);
   });
 
-  test("unmapped label gets NO ref; a label-less point gets the participant default", () => {
-    const unmapped = emit({
+  test("observationIds follow sp-<frameId>-<trackId> and are unique across the series", () => {
+    expect(observations.map((o) => o.observationId)).toEqual([
+      "sp-f-0-0-t1",
+      "sp-f-0-0-t2",
+      "sp-f-0-0-t3",
+      "sp-f-0-1-t1",
+      "sp-f-0-1-t2",
+      "sp-f-0-1-t3",
+      "sp-f-0-2-t1",
+      "sp-f-0-2-t2",
+      "sp-f-0-2-t3",
+    ]);
+    expect(new Set(observations.map((o) => o.observationId)).size).toBe(9);
+  });
+
+  test("confidence passthrough of the fused value", () => {
+    const byId = new Map(observations.map((o) => [o.observationId, o]));
+    expect(byId.get("sp-f-0-0-t1")!.confidence).toBe(0.8); // min(0.8, 0.9)
+    expect(byId.get("sp-f-0-0-t2")!.confidence).toBe(0.75); // min(0.75, 0.9)
+    expect(byId.get("sp-f-0-0-t3")!.confidence).toBe(0.5); // min(0.5, 0.9)
+  });
+
+  test("a hand-built point WITHOUT a label defaults to the participant kind", () => {
+    // W206 is the player-position stream: label-less points (hand-built
+    // input — estimator output always carries the W204 label) default to
+    // "participant" per the work-item spec.
+    const series: SpatialStateSeries = {
       frames: 1,
-      points: [{ ...pointWith(100, "t9", "f-0-9"), label: "coach" }],
+      points: [
+        {
+          trackId: "t9",
+          frameId: "f-0-0",
+          sessionMs: 120,
+          pitch: { x: 52.5, y: 34 },
+          inBounds: true,
+          confidence: 0.9,
+          sourceConfidences: { track: 0.9, corners: 0.9 },
+        },
+      ],
       outOfBounds: 0,
+    };
+    const [observation] = emitSpatialObservations({
+      sessionId: SESSION_ID,
+      componentId: COMPONENT_ID,
+      series,
     });
-    expect(unmapped[0]!.subjectEntityRefs).toEqual([]); // identity is never guessed
+    expect(observation).toBeDefined();
+    expect(observation!.subjectEntityRefs).toEqual([{ entityId: "t9", kind: "participant" }]);
+    expect(validateObservation(observation)).toBe(true);
+  });
 
-    const unlabeled = emit({
+  test("validateObservation rejects contract-invalid records", () => {
+    const [valid] = observations;
+    expect(valid).toBeDefined();
+    expect(validateObservation(valid)).toBe(true);
+    expect(validateObservation({ ...valid!, confidence: 1.5 })).toBe(false);
+    expect(validateObservation({ ...valid!, eventTimeMs: -1 })).toBe(false);
+    expect(validateObservation({ ...valid!, modality: "haptic" })).toBe(false);
+    expect(validateObservation({ ...valid!, provenance: "GUESSED" })).toBe(false);
+    expect(validateObservation("not-an-object")).toBe(false);
+  });
+
+  test("emission input fails loud: empty ids, negative sessionMs", () => {
+    expect(() =>
+      emitSpatialObservations({ sessionId: "", componentId: COMPONENT_ID, series: SERIES }),
+    ).toThrow(RangeError);
+    expect(() =>
+      emitSpatialObservations({ sessionId: SESSION_ID, componentId: "", series: SERIES }),
+    ).toThrow(RangeError);
+    const negative: SpatialStateSeries = {
       frames: 1,
-      points: [{ ...pointWith(100, "t8", "f-0-8"), label: undefined }],
+      points: [
+        {
+          trackId: "t1",
+          frameId: "f-0-0",
+          sessionMs: -5, // a hand-built clock can map before session zero
+          pitch: { x: 52.5, y: 34 },
+          inBounds: true,
+          confidence: 0.9,
+          sourceConfidences: { track: 0.9, corners: 0.9 },
+        },
+      ],
       outOfBounds: 0,
-    });
-    expect(unlabeled[0]!.subjectEntityRefs).toEqual([{ entityId: "t8", kind: "participant" }]);
+    };
+    expect(() =>
+      emitSpatialObservations({
+        sessionId: SESSION_ID,
+        componentId: COMPONENT_ID,
+        series: negative,
+      }),
+    ).toThrow(RangeError);
   });
 
-  test("a repeated (frameId, trackId) pair gets a collision suffix; ids stay unique", () => {
-    const duplicated = emit({
-      frames: 1,
-      points: [pointWith(100, "t1", "f-0-0"), pointWith(140, "t1", "f-0-0")],
-      outOfBounds: 0,
-    });
-    expect(duplicated.map((o) => o.observationId)).toEqual(["sp-f-0-0-t1", "sp-f-0-0-t1-1"]);
-    expect(new Set(duplicated.map((o) => o.observationId)).size).toBe(2);
-  });
-});
-
-describe("emitSpatialObservations — fused pipeline with a non-identity clock", () => {
-  const SPECS: FixtureTrackSpec[] = [
-    {
-      gtId: "emit-p1",
-      label: "player",
-      motion: { kind: "linear", from: { x: 0.4, y: 0.5 }, to: { x: 0.5, y: 0.5 } },
-      size: { w: 0.2, h: 0.2 },
-    },
-  ];
-  const series = fuseFixtureScenario({
-    specs: SPECS,
-    frames: 10,
-    cameraAt: () => ({ pan: 0.5, zoom: 1, jitter: 0 }),
-    options: { clock: AFFINE },
-  });
-  const observations = emit(series);
-
-  test("every fused point emits a contract-valid observation", () => {
-    expect(series.points).toHaveLength(10);
-    expect(observations).toHaveLength(10);
-    for (const observation of observations) {
-      expect(validateObservation(observation)).toBe(true);
-    }
-  });
-
-  test("eventTimeMs is the W103-mapped session time, never the presentationMs", () => {
-    // presentationMs = 40d; sessionMs = 40d + 50 + (40d * 1000) / 1_000_000
-    // (the SAME expression W103 computes — bit-exact here).
-    expect(series.points[0]!.sessionMs).toBe(50); // d = 0
-    expect(series.points[1]!.sessionMs).toBe(40 + 50 + (40 * 1000) / 1_000_000); // d = 1
-    expect(series.points[1]!.sessionMs).toBeCloseTo(90.04, 10);
-    for (const [index, observation] of observations.entries()) {
-      const presentationMs = 40 * index;
-      expect(observation.eventTimeMs).toBe(series.points[index]!.sessionMs);
-      expect(observation.eventTimeMs).toBe(
-        presentationMs + 50 + (presentationMs * 1000) / 1_000_000,
-      );
-      if (index > 0) {
-        expect(observation.eventTimeMs).not.toBe(presentationMs); // session, not source
-      }
-    }
-  });
-
-  test("emitted records append cleanly to the W005 observation store", () => {
+  test("store-compatible and interop with @sporta/testing builders", () => {
     const store = new InMemoryObservationStore();
     for (const observation of observations) {
       expect(store.append(observation)).toBe("appended");
+      // Idempotent on observationId (streaming-contract duplicate tolerance).
+      expect(store.append(observation)).toBe("duplicate");
     }
+    expect(store.count()).toBe(9);
+    const queried = store.query({ sessionId: SESSION_ID, kind: "track" });
+    expect(queried).toHaveLength(9);
+    // Canonical session-time order: frame 0 (50 ms) first, frame 2 last.
+    expect(queried[0]!.eventTimeMs).toBe(50);
+    expect(queried[8]!.eventTimeMs).toBeCloseTo(130.08, 9);
+    expect(store.byId("sp-f-0-1-t2")).toBeDefined();
+
+    // A builder-made observation from the shared test harness (payload
+    // overridden to a track; zod strips the detection leftovers) appends
+    // alongside the emitted ones — same schema, same store.
+    const builderMade = buildObservation(
+      {
+        sessionId: SESSION_ID,
+        eventTimeMs: 500,
+        payload: {
+          kind: "track",
+          entityId: "t1",
+          position: { x: 42, y: 21 },
+        },
+      },
+      42,
+    );
+    expect(store.append(builderMade)).toBe("appended");
     expect(store.count()).toBe(10);
-    const queried = store.query({ sessionId: "sess-spatial" });
-    expect(queried).toHaveLength(10);
-    // Canonical eventTimeMs order — the SWM-facing stream is time-aligned.
-    for (let i = 1; i < queried.length; i += 1) {
-      expect(queried[i]!.eventTimeMs).toBeGreaterThan(queried[i - 1]!.eventTimeMs);
-    }
-  });
-});
-
-describe("emitSpatialObservations — fail-loud validation", () => {
-  test("negative sessionMs cannot emit (the session timeline is non-negative)", () => {
-    expect(() => emit({ frames: 1, points: [pointWith(-10)], outOfBounds: 0 })).toThrow(RangeError);
-  });
-
-  test("empty sessionId / componentId fail loud", () => {
-    expect(() =>
-      emitSpatialObservations({ sessionId: "", componentId: "c", series: HAND_BUILT }),
-    ).toThrow(RangeError);
-    expect(() =>
-      emitSpatialObservations({ sessionId: "s", componentId: "", series: HAND_BUILT }),
-    ).toThrow(RangeError);
-  });
-
-  test("a trackId that cannot be an EntityId fails loud (the record would not parse)", () => {
-    expect(() =>
-      emit({
-        frames: 1,
-        points: [{ ...pointWith(100, "bad id!"), trackId: "bad id!" }],
-        outOfBounds: 0,
-      }),
-    ).toThrow(RangeError);
-  });
-
-  test("out-of-range confidence fails loud", () => {
-    expect(() =>
-      emit({
-        frames: 1,
-        points: [{ ...pointWith(100), confidence: 1.5 }],
-        outOfBounds: 0,
-      }),
-    ).toThrow(RangeError);
   });
 });

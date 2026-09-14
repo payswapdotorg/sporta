@@ -1,117 +1,116 @@
 import { describe, expect, test } from "bun:test";
-import type { FixtureTrackSpec } from "@sporta/perception-tracking";
-import { runSpatialBenchmark } from "../src/benchmark";
+import { runTrackingBenchmark } from "@sporta/perception-tracking";
+import { buildSpatialScenarioFrames, runSpatialBenchmark } from "../src/benchmark";
 import type { SpatialBenchmarkScenario } from "../src/benchmark";
-import { fuseFixtureScenario } from "./helpers";
+import { estimateSpatialState } from "../src/state";
 
 /**
- * Scene-cut tests (the brief's §3.6 group): a camera cut at frame 70 — W204
- * semantics close every active track BEFORE association on the cut frame, so
- * fresh ids appear after the cut. The W206 accept claims: identitySwitches
- * exactly 1 per object, points still time-aligned across the cut, and the
- * outOfBounds count exact. Hand-derived numbers only.
+ * W206 scene-cut test: a hard camera cut at frame 70 (W204 semantics —
+ * `onSceneCut: "close-all"` closes every active track at the cut frame, so
+ * post-cut detections open FRESH ids). The accept checks:
+ *
+ * - identitySwitches 1 PER OBJECT (2 objects -> report total 2; the W204
+ *   walk-based count over the GT correspondence, delegated verbatim);
+ * - points remain time-aligned: sessionMs monotone ACROSS the cut (the cut
+ *   breaks identity, never the timeline);
+ * - outOfBounds count EXACT — 0 here, and exactly why: the fixture camera's
+ *   visible window always lies inside the pitch (pan in [0, 1], zoom >= 1)
+ *   and W204 fixture boxes clamp into the image, so every projected center
+ *   stays in play; the out-of-play honesty path is exercised separately in
+ *   `inBounds.test.ts` with off-image walking boxes.
  */
-const FRAMES = 90;
-const CUT = 70;
-
-const CUT_PLAYERS = [
-  {
-    label: "player",
-    motion: { kind: "linear" as const, from: { x: 0.3, y: 0.45 }, to: { x: 0.4, y: 0.5 } },
-  },
-  {
-    label: "player",
-    motion: { kind: "linear" as const, from: { x: 0.6, y: 0.55 }, to: { x: 0.65, y: 0.5 } },
-  },
-];
-
-const CUT_SPECS: FixtureTrackSpec[] = CUT_PLAYERS.map((player, index) => ({
-  gtId: `cut-p${index + 1}`,
-  label: player.label,
-  motion: player.motion,
-  size: { w: 0.2, h: 0.2 },
-}));
 
 const CUT_SCENARIO: SpatialBenchmarkScenario = {
-  name: "scene-cut",
+  name: "scene-cut-at-70",
   camera: { pan: 0.5, zoom: 1, jitter: 0 },
-  players: CUT_PLAYERS,
-  frames: FRAMES,
-  sceneCutFrames: new Set([CUT]),
+  players: [
+    {
+      label: "player",
+      motion: { kind: "linear", from: { x: 0.4, y: 0.4 }, to: { x: 0.6, y: 0.6 } },
+    },
+    {
+      label: "player",
+      motion: { kind: "linear", from: { x: 0.7, y: 0.25 }, to: { x: 0.55, y: 0.45 } },
+    },
+  ],
+  frames: 120,
+  sceneCutFrames: new Set([70]),
 };
 
-describe("scene cut at frame 70 — fresh ids, still time-aligned", () => {
-  const series = fuseFixtureScenario({
-    specs: CUT_SPECS,
-    frames: FRAMES,
-    sceneCutFrames: new Set([CUT]),
-    cameraAt: () => ({ pan: 0.5, zoom: 1, jitter: 0 }),
-  });
-  const report = runSpatialBenchmark([CUT_SCENARIO])[0]!;
+describe("scene cut at frame 70 — fresh ids, time alignment survives, exact outOfBounds", () => {
+  const { frames, groundTruth } = buildSpatialScenarioFrames(CUT_SCENARIO);
+  const series = estimateSpatialState(frames);
+  const [report] = runSpatialBenchmark([CUT_SCENARIO]);
 
-  test("identitySwitches is exactly 1 per object (2 total for two players)", () => {
-    // W204 walk semantics: p1's matched-id walk is [t1 x 70, t3 x 20] — one
-    // changing pair at the cut; same for p2 ([t2 x 70, t4 x 20]). Total 2.
-    expect(report.identitySwitches).toBe(2);
+  test("(pre) the cut scenario is well-formed", () => {
+    expect(report).toBeDefined();
+    expect(series.frames).toBe(120);
+    expect(series.points).toHaveLength(240);
+    expect(report!.points).toBe(240);
   });
 
-  test("ids switch exactly AT the cut frame (direct evidence)", () => {
-    const idsByFrame = new Map<string, Set<string>>();
+  test("W204 semantics: fresh track ids after the cut (t1/t2 -> t3/t4)", () => {
+    expect(frames[69]!.tracks.map((t) => t.trackId)).toEqual(["t1", "t2"]);
+    expect(frames[70]!.frame.sceneCut).toBe(true);
+    expect(frames[70]!.tracks.map((t) => t.trackId)).toEqual(["t3", "t4"]);
+    expect(frames[119]!.tracks.map((t) => t.trackId)).toEqual(["t3", "t4"]);
+  });
+
+  test("identitySwitches 1 PER OBJECT (report total 2; fragments[gt] === 2)", () => {
+    expect(report!.identitySwitches).toBe(2); // 1 per object x 2 objects
+    const predicted = new Map(frames.map((f) => [f.frame.frameId, f.tracks]));
+    const tracking = runTrackingBenchmark({ groundTruth, predicted });
+    // Each ground-truth object was carried by exactly TWO distinct track
+    // ids (one before the cut, one after) -> 1 switch per object.
+    expect(tracking.fragments).toEqual({ p1: 2, p2: 2 });
+    expect(tracking.identitySwitches).toBe(2);
+    expect(tracking.matchedDetections).toBe(240);
+    expect(tracking.missedDetections).toBe(0);
+  });
+
+  test("points stay time-aligned: sessionMs strictly increases ACROSS the cut", () => {
+    // Frame 69 -> 70 spans the cut: 2760 ms -> 2800 ms, strictly later.
+    const seen: number[] = [];
     for (const point of series.points) {
-      const ids = idsByFrame.get(point.frameId) ?? new Set<string>();
-      ids.add(point.trackId);
-      idsByFrame.set(point.frameId, ids);
+      if (seen.length === 0 || seen[seen.length - 1] !== point.sessionMs) {
+        seen.push(point.sessionMs);
+      }
     }
-    // Before the cut (frames 0..69): t1, t2. After (70..89): t3, t4.
-    expect(idsByFrame.get("f-0-69")).toEqual(new Set(["t1", "t2"]));
-    expect(idsByFrame.get("f-0-70")).toEqual(new Set(["t3", "t4"]));
-    expect(idsByFrame.get("f-0-89")).toEqual(new Set(["t3", "t4"]));
-    // Exactly four distinct ids across the run (two objects x two sides).
-    expect(new Set(series.points.map((p) => p.trackId))).toEqual(new Set(["t1", "t2", "t3", "t4"]));
-  });
-
-  test("points are still time-aligned: session times are monotone across the cut", () => {
-    const times = series.points.map((p) => p.sessionMs);
-    for (let i = 1; i < times.length; i += 1) {
-      expect(times[i]).toBeGreaterThanOrEqual(times[i - 1]!);
+    expect(seen).toHaveLength(120);
+    for (let i = 1; i < seen.length; i += 1) {
+      expect(seen[i]).toBeGreaterThan(seen[i - 1]!);
     }
-    // The cut boundary itself: frame 69 -> 2760 ms, frame 70 -> 2800 ms.
-    const byFrame = new Map<string, number>();
-    for (const point of series.points) byFrame.set(point.frameId, point.sessionMs);
-    expect(byFrame.get("f-0-69")).toBe(69 * 40);
-    expect(byFrame.get("f-0-70")).toBe(70 * 40);
-    expect(byFrame.get("f-0-70")).toBeGreaterThan(byFrame.get("f-0-69")!);
-    // And every track's own consecutive times strictly increase (each track
-    // lives on one side of the cut).
-    const byTrack = new Map<string, number[]>();
-    for (const point of series.points) {
-      const trackTimes = byTrack.get(point.trackId);
-      if (trackTimes === undefined) byTrack.set(point.trackId, [point.sessionMs]);
-      else trackTimes.push(point.sessionMs);
-    }
-    for (const trackTimes of byTrack.values()) {
-      for (let i = 1; i < trackTimes.length; i += 1) {
-        expect(trackTimes[i]).toBeGreaterThan(trackTimes[i - 1]!);
+    expect(seen[69]).toBe(2760);
+    expect(seen[70]).toBe(2800);
+    // Per track too (each track's own consecutive points strictly later).
+    for (const trackId of ["t1", "t2", "t3", "t4"]) {
+      const times = series.points.filter((p) => p.trackId === trackId).map((p) => p.sessionMs);
+      expect(times).toHaveLength(trackId === "t1" || trackId === "t2" ? 70 : 50);
+      for (let i = 1; i < times.length; i += 1) {
+        expect(times[i]).toBeGreaterThan(times[i - 1]!);
       }
     }
   });
 
-  test("outOfBounds count is exact: 0 (in-image boxes, centered window)", () => {
-    // Hand-derived: fixture box centers saturate within the image [0, 1],
-    // and the pan-0.5 zoom-1 window [26.25, 78.75] x [17, 51] lies inside the
-    // pitch — so every point of this scenario is in bounds. EXACTLY 0.
+  test("outOfBounds count EXACT: 0 (fixture window inside the pitch; boxes clamped)", () => {
     expect(series.outOfBounds).toBe(0);
-    expect(report.outOfBounds).toBe(0);
+    expect(report!.outOfBounds).toBe(0);
+    for (const point of series.points) {
+      expect(point.inBounds).toBe(true);
+    }
   });
 
-  test("series shape and coverage survive the cut untouched", () => {
-    expect(series.frames).toBe(FRAMES);
-    expect(series.points).toHaveLength(FRAMES * 2); // both players always visible
-    expect(report.points).toBe(FRAMES * 2);
-    expect(report.coverage).toBe(1); // the cut fragments identity, not coverage
+  test("coverage stays 1 and projected motion stays smooth within tracks", () => {
+    expect(report!.coverage).toBe(1);
+    // Jump pairs never span the cut WITHIN one track (ids change there), so
+    // each track's own motion remains the smooth fixture motion.
+    expect(report!.maxPerFrameJump).toBeLessThan(3);
+    // Mean of bit-exact 0.9 points (float sum error -> 12-digit close).
+    expect(report!.meanConfidence).toBeCloseTo(0.9, 12);
   });
 
-  test("deterministic: the cut scenario reproduces bit-for-bit", () => {
+  test("deterministic: run twice -> deep-equal report", () => {
     expect(runSpatialBenchmark([CUT_SCENARIO])).toEqual(runSpatialBenchmark([CUT_SCENARIO]));
+    expect(runSpatialBenchmark([CUT_SCENARIO])).toEqual([report!]);
   });
 });

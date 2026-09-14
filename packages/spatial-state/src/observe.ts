@@ -1,59 +1,50 @@
 /**
  * SWM-facing spatial observation emission (W206).
  *
- * Architecture-lock §6: perception components EMIT observations; storing them
- * is the pipeline's job. This module turns a {@link SpatialStateSeries} into
- * contract `Observation` records — one per fused point, payload
- * `kind: "track"` — which is the W206 accept criterion made VISIBLE in the
- * stream: player locations in canonical pitch space, time-aligned to the
- * session timeline.
+ * Architecture-lock §6: perception components EMIT observations; storing
+ * them is the pipeline's job. This module turns a {@link SpatialStateSeries}
+ * into contract `Observation` records — one per point — so player
+ * pitch-space positions can feed the Sports World Model (the W206
+ * acceptance criterion: "player locations/projected coordinates are
+ * time-aligned").
  *
  * HONESTY RULES (documented; the tests pin them):
  *
- * - **PROVENANCE: always `DERIVED`.** A projected position is INFERENCE built
- *   from OBSERVED corners (W203) plus OBSERVED tracks (W204) — the homography
- *   projection is not sensor evidence. Emitting it as OBSERVED would be
- *   invented certainty, exactly what architecture-lock §4 forbids. (This
- *   differs deliberately from W201/W204/W203, which emit raw perception as
- *   OBSERVED.)
- * - **TIME: `eventTimeMs = point.sessionMs`** — the SESSION-canonical
- *   timeline (W103-aligned). This differs from W201/W203/W204's frame-native
- *   convention (`eventTimeMs = presentationMs`): those streams are
- *   pre-alignment perception; this one is the fused, timeline-aligned product
- *   the SWM ingests. `ingestTimeMs` is deliberately NOT set (wall-clock
- *   ingestion belongs to the pipeline; this package is deterministic).
- * - **POSITION: pitch METERS in the unitless `Point2D` slot** (tech-lead
- *   decision, documented): pitch-space is now the canonical spatial frame for
- *   SWM ingestion; the image-space ancestors remain in the W204/W201 streams
- *   (and in the W203 corner observations), so no information is lost. The
- *   payload position object is freshly copied — emitted records never alias
- *   caller-owned objects.
- * - **NO VELOCITY** (scope boundary): the `TrackPayload` contract has an
- *   optional velocity, but velocity estimation is W205's ball-state concern /
- *   later fusion — this module NEVER sets the key.
- * - **CONFIDENCE: passthrough** of the fused confidence; the raw
- *   `sourceConfidences` stay on the series' points (not part of the contract
- *   payload) for downstream re-fusion.
- * - **IDENTITY: `entityId = trackId`** (W204 passthrough — ids are
- *   hypotheses, never re-mapped). `subjectEntityRefs` carries the exact
- *   `LocalEntityRef` shape (`entityId` + `kind` fields ONLY, matching
- *   `packages/contracts/src/identity.ts`): the kind is
- *   `FOOTBALL_LABEL_KINDS[label]` from W204 when the point carries a label;
- *   an UNMAPPED label gets NO ref (`[]` — identity is never guessed); a point
- *   WITHOUT a label (hand-built series) gets the documented W206 default
- *   `participant` (this package tracks players, per W204's player tracking).
+ * - TIMELINE: `eventTimeMs` is the point's `sessionMs` — the SESSION
+ *   timeline position (W103 clock mapping). This is THE W206 difference
+ *   from the image-space ancestors: W201/W203/W204/W205 all emit the
+ *   frame-native `presentationMs`. The time-alignment accept criterion is
+ *   made visible in the stream itself. `ingestTimeMs` is deliberately NOT
+ *   set: wall-clock ingestion time belongs to the pipeline, and this
+ *   package is deterministic (no clock reads).
+ * - PROVENANCE: `"DERIVED"`. A pitch-space position is INFERENCE from
+ *   OBSERVED evidence (W203's observed corner sets + W204's observed
+ *   tracks, combined through a homography). Emitting it as OBSERVED would
+ *   be invented certainty — exactly what architecture-lock §4 forbids. The
+ *   image-space ancestors remain in the W201/W204 observation streams with
+ *   their own OBSERVED provenance; the evidence chain stays honest.
+ * - POSITION FRAME: the payload position is the point's PITCH position in
+ *   METERS, in the unitless contracts `Point2D` slot. TL decision
+ *   (documented): pitch-space is now the canonical spatial frame for SWM
+ *   ingestion; the `Point2D` frame is "context-dependent, documented per
+ *   payload kind", and THIS module documents it as canonical-pitch-meters.
+ * - NO VELOCITY: the payload never sets `velocity` — velocity state
+ *   estimation is W205's ball-state concern / later fusion, not spatial
+ *   fusion's.
+ * - CONFIDENCE: the fused point confidence, passthrough (the fusion rule
+ *   and its raw sources live on the point — see `./state`).
+ * - IDENTITY: `subjectEntityRefs` entries are EXACTLY the contracts
+ *   `LocalEntityRef` shape — fields `entityId` + `kind` ONLY. The kind
+ *   comes from W204's `FOOTBALL_LABEL_KINDS` when the point carries a
+ *   label; a label with NO mapping gets NO ref (identity is never guessed);
+ *   a point with NO label (hand-built input) defaults to "participant" —
+ *   W206 is the player-position stream, and estimator output always
+ *   carries the true label so the map governs in practice.
  */
-import {
-  Observation as ObservationSchema,
-  SCHEMA_VERSION,
-  ENTITY_ID_PATTERN,
-} from "@sporta/contracts";
-import type { Observation, TrackPayload } from "@sporta/contracts";
+import { Observation as ObservationSchema, SCHEMA_VERSION } from "@sporta/contracts";
+import type { Observation } from "@sporta/contracts";
 import { FOOTBALL_LABEL_KINDS } from "@sporta/perception-tracking";
 import type { SpatialStatePoint, SpatialStateSeries } from "./state";
-
-/** The documented default entity kind for unlabeled spatial points. */
-export const DEFAULT_SPATIAL_ENTITY_KIND = "participant";
 
 /** Input for {@link emitSpatialObservations}. */
 export interface EmitSpatialInput {
@@ -61,123 +52,106 @@ export interface EmitSpatialInput {
   readonly sessionId: string;
   /** Producing component id (the spatial-state estimator component). */
   readonly componentId: string;
-  /** The fused series to emit (typically {@link estimateSpatialState} output). */
+  /** The fused series to emit (typically {@link estimateSpatialState}'s output). */
   readonly series: SpatialStateSeries;
 }
 
-/** Validates one point's emission surface; throws `RangeError` (fail loud). */
-function validatePoint(point: SpatialStatePoint, where: string): void {
-  if (
-    typeof point.trackId !== "string" ||
-    point.trackId.length < 1 ||
-    !ENTITY_ID_PATTERN.test(point.trackId)
-  ) {
-    throw new RangeError(
-      `spatial state emission: ${where}.trackId must match the contracts EntityId pattern ` +
-        `[A-Za-z0-9_-]{1,64} (got ${String(point.trackId)}) — the record could not parse otherwise`,
-    );
-  }
-  if (typeof point.frameId !== "string" || point.frameId.length < 1) {
-    throw new RangeError(`spatial state emission: ${where}.frameId must be a non-empty string`);
-  }
-  if (typeof point.sessionMs !== "number" || !Number.isFinite(point.sessionMs)) {
-    throw new RangeError(`spatial state emission: ${where}.sessionMs must be finite`);
-  }
-  // The contracts TimelinePoint requires eventTimeMs >= 0; emitting a record
-  // that cannot parse would fabricate nothing and help nobody — fail loud
-  // instead, and let the caller fix the clock/series.
-  if (point.sessionMs < 0) {
-    throw new RangeError(
-      `spatial state emission: ${where}.sessionMs must be >= 0 for contract emission ` +
-        `(the canonical session timeline is non-negative; got ${point.sessionMs})`,
-    );
-  }
-  if (point.pitch === null || typeof point.pitch !== "object") {
-    throw new RangeError(`spatial state emission: ${where}.pitch must be an object`);
-  }
-  if (!Number.isFinite(point.pitch.x) || !Number.isFinite(point.pitch.y)) {
-    throw new RangeError(`spatial state emission: ${where}.pitch coordinates must be finite`);
-  }
-  if (typeof point.confidence !== "number" || !Number.isFinite(point.confidence)) {
-    throw new RangeError(`spatial state emission: ${where}.confidence must be finite`);
-  }
-  if (point.confidence < 0 || point.confidence > 1) {
-    throw new RangeError(
-      `spatial state emission: ${where}.confidence must be in [0, 1] (got ${point.confidence})`,
-    );
-  }
-  if (point.label !== undefined && (typeof point.label !== "string" || point.label.length < 1)) {
-    throw new RangeError(
-      `spatial state emission: ${where}.label must be a non-empty string when provided`,
-    );
-  }
-}
-
-/** Validates the emission input; throws `RangeError` (fail loud, repo style). */
+/** Fails loud on malformed emission input (nothing is fabricated to emit). */
 function validateEmissionInput(input: EmitSpatialInput): void {
-  if (input === null || typeof input !== "object") {
-    throw new RangeError("spatial state emission: input must be an object");
-  }
   if (typeof input.sessionId !== "string" || input.sessionId.length < 1) {
-    throw new RangeError("spatial state emission: sessionId must be a non-empty string");
+    throw new RangeError(
+      `emitSpatialObservations: sessionId must be a non-empty string (got ${String(input.sessionId)})`,
+    );
   }
   if (typeof input.componentId !== "string" || input.componentId.length < 1) {
-    throw new RangeError("spatial state emission: componentId must be a non-empty string");
-  }
-  const series = input.series;
-  if (series === null || typeof series !== "object") {
-    throw new RangeError("spatial state emission: series must be a SpatialStateSeries");
-  }
-  if (typeof series.frames !== "number" || !Number.isInteger(series.frames) || series.frames < 0) {
-    throw new RangeError("spatial state emission: series.frames must be a non-negative integer");
-  }
-  if (!Array.isArray(series.points)) {
-    throw new RangeError("spatial state emission: series.points must be an array");
-  }
-  for (const [index, point] of series.points.entries()) {
-    validatePoint(point, `series.points[${index}]`);
+    throw new RangeError(
+      `emitSpatialObservations: componentId must be a non-empty string ` +
+        `(got ${String(input.componentId)})`,
+    );
   }
 }
 
 /**
- * Emits one contract `Observation` per fused point, in series order:
+ * Fails loud on a point that cannot become a contract-valid observation:
+ * the contracts require a non-negative finite `eventTimeMs`
+ * (`TimelinePoint`), and the payload's `entityId`/observation ids need
+ * non-empty frame/track ids. A negative sessionMs (a hand-built clock can
+ * produce one) is REJECTED here rather than silently emitted as a
+ * zod-invalid record.
+ */
+function validatePointForEmission(point: SpatialStatePoint): void {
+  if (typeof point.trackId !== "string" || point.trackId.length < 1) {
+    throw new RangeError(
+      `emitSpatialObservations: trackId must be a non-empty string (got ${String(point.trackId)})`,
+    );
+  }
+  if (typeof point.frameId !== "string" || point.frameId.length < 1) {
+    throw new RangeError(
+      `emitSpatialObservations: frameId must be a non-empty string (got ${String(point.frameId)})`,
+    );
+  }
+  if (
+    typeof point.sessionMs !== "number" ||
+    !Number.isFinite(point.sessionMs) ||
+    point.sessionMs < 0
+  ) {
+    throw new RangeError(
+      `emitSpatialObservations: sessionMs must be a finite number >= 0 ` +
+        `(got ${String(point.sessionMs)} for trackId "${point.trackId}") — the contracts ` +
+        `eventTimeMs is non-negative`,
+    );
+  }
+  if (
+    typeof point.confidence !== "number" ||
+    !Number.isFinite(point.confidence) ||
+    point.confidence < 0 ||
+    point.confidence > 1
+  ) {
+    throw new RangeError(
+      `emitSpatialObservations: confidence must be a finite number in [0, 1] ` +
+        `(got ${String(point.confidence)} for trackId "${point.trackId}")`,
+    );
+  }
+  if (
+    typeof point.pitch.x !== "number" ||
+    !Number.isFinite(point.pitch.x) ||
+    typeof point.pitch.y !== "number" ||
+    !Number.isFinite(point.pitch.y)
+  ) {
+    throw new RangeError(
+      `emitSpatialObservations: pitch position must be finite (got x ${String(point.pitch.x)}, ` +
+        `y ${String(point.pitch.y)} for trackId "${point.trackId}")`,
+    );
+  }
+}
+
+/**
+ * Emits one contract `Observation` per spatial point:
  *
- * - `observationId = "sp-<frameId>-<trackId>"`. Frame ids + track ids are
- *   unique per session in pipeline data; if a hand-built series repeats the
- *   pair, the SECOND and later occurrences get `-<index>` appended (the
- *   point's 0-based index), so ids never collide;
+ * - `observationId = "sp-<frameId>-<trackId>"` — unique as long as
+ *   (frameId, trackId) pairs are unique in the series (always true for
+ *   single-video estimator output: a track absorbs at most one detection
+ *   per frame; a multi-source fused series with colliding frame ids is the
+ *   caller's responsibility to disambiguate — same convention as W204);
  * - `eventTimeMs = point.sessionMs` (SESSION timeline — see module docs);
- * - `modality: "vision"`, `provenance: "DERIVED"` (see module docs);
- * - `confidence`: the fused confidence, passthrough;
- * - `payload`: `{ kind: "track", entityId: trackId, position: pitch meters }`
- *   — NO velocity key, ever;
- * - `subjectEntityRefs`: `[{ entityId: trackId, kind }]` with the kind from
- *   W204's `FOOTBALL_LABEL_KINDS` when the point carries a mapped label; `[]`
- *   for an unmapped label; the `participant` default for a label-less point —
- *   exact `LocalEntityRef` shape (`entityId` + `kind` only);
- * - `schemaVersion` from the contracts constants; `ingestTimeMs` unset.
+ * - `modality: "vision"`, `provenance: "DERIVED"`, `componentId` from the
+ *   input (see module docs for the honesty rules);
+ * - `confidence: point.confidence` (the fused value, passthrough);
+ * - `payload = { kind: "track", entityId: point.trackId, position:
+ *   { x: pitch.x, y: pitch.y } }` — pitch METERS, NO velocity; the position
+ *   object is freshly built so the record never aliases the point;
+ * - `subjectEntityRefs`: from `FOOTBALL_LABEL_KINDS[point.label]` when a
+ *   label is carried (unmapped label -> `[]` — no invented kind; no label
+ *   -> the "participant" default documented in the module docs);
+ * - `schemaVersion` from the contracts constants.
  */
 export function emitSpatialObservations(input: EmitSpatialInput): Observation[] {
   validateEmissionInput(input);
-
-  const emitted: Observation[] = [];
-  const seenIds = new Set<string>();
-
-  for (const [index, point] of input.series.points.entries()) {
-    const baseId = `sp-${point.frameId}-${point.trackId}`;
-    const observationId = seenIds.has(baseId) ? `${baseId}-${index}` : baseId;
-    seenIds.add(baseId);
-
-    const kind =
-      point.label === undefined ? DEFAULT_SPATIAL_ENTITY_KIND : FOOTBALL_LABEL_KINDS[point.label];
-    const payload: TrackPayload = {
-      kind: "track",
-      entityId: point.trackId,
-      position: { x: point.pitch.x, y: point.pitch.y },
-    };
-
-    emitted.push({
-      observationId,
+  return input.series.points.map((point) => {
+    validatePointForEmission(point);
+    const kind = point.label === undefined ? "participant" : FOOTBALL_LABEL_KINDS[point.label];
+    return {
+      observationId: `sp-${point.frameId}-${point.trackId}`,
       sessionId: input.sessionId,
       schemaVersion: SCHEMA_VERSION,
       eventTimeMs: point.sessionMs,
@@ -185,12 +159,14 @@ export function emitSpatialObservations(input: EmitSpatialInput): Observation[] 
       componentId: input.componentId,
       provenance: "DERIVED",
       confidence: point.confidence,
-      payload,
+      payload: {
+        kind: "track",
+        entityId: point.trackId,
+        position: { x: point.pitch.x, y: point.pitch.y },
+      },
       subjectEntityRefs: kind === undefined ? [] : [{ entityId: point.trackId, kind }],
-    });
-  }
-
-  return emitted;
+    };
+  });
 }
 
 /**
