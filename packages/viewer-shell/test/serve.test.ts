@@ -25,6 +25,7 @@ const BROWSER_MODULES: string[] = [
   "/src/dom-adapter.ts",
   "/src/dom-plan.ts",
   "/src/detail-plan.ts",
+  "/src/selection-plan.ts",
   "/src/pane-signature.ts",
   "/src/viewer-core.ts",
   "/src/player.ts",

@@ -61,6 +61,18 @@
  * (W705 delivered the real BATCH playback path — stored W504 segments —
  * which is what this machine plays; live remains W704's.)
  *
+ * Renderer selection (W703): `beginRender` lists the renderers through the
+ * control port and the view-model carries the DERIVED options (capability
+ * documents verbatim + the `./selection-plan.ts` affordances — selectable or
+ * blocked with a machine reason + a human note, derived from the capability
+ * data and the open session's fail-closed rights; never from renderer
+ * identity). `createRender` carries the selection payload through VERBATIM —
+ * renderer identity, an optional capability-declared `outputProfile`, and an
+ * opaque style choice (`styleId`/`config`) whose schema knowledge stays
+ * behind the plugin; a capability-violating selection surfaces the server's
+ * real typed error (media-invalid / rights-denied), never a viewer-side
+ * substitute.
+ *
  * KNOWN LIMITATIONS (W702 + W705, deliberate):
  *
  * - one in-flight control operation at a time — async commands issued while
@@ -73,9 +85,11 @@
  *   status, or `disconnected`) — never back into an in-flight status.
  */
 import { createViewerDefaultClock } from "./default-clock.ts";
+import { deriveRendererOptions } from "./selection-plan.ts";
+import type { RendererOptionView } from "./selection-plan.ts";
 import type {
   AuthorizationPolicy,
-  RendererCapability,
+  OutputProfile as OutputProfileDoc,
   RightsCapabilities,
 } from "@sporta/contracts";
 import type { RenderEnvelope, RenderSummary, SessionSummary } from "@sporta/control-api";
@@ -120,9 +134,17 @@ export interface SessionDetailView {
   renders: RenderEntryView[];
 }
 
-/** Renderer selection view: capability-driven (W703 posture), never hard-coded. */
+/**
+ * Renderer selection view: capability-driven (W703), never hard-coded. Each
+ * entry is the listed capability VERBATIM plus the derived affordance
+ * (`selectable`, and when blocked the machine `blockedReason` + the human
+ * `blockedNote` — rights-required / no-output-profiles / unsupported-output
+ * / no-session; see `./selection-plan.ts`, which owns the derivation). The
+ * plan layer derives everything from capability data + the session's rights;
+ * no renderer id is ever matched here.
+ */
 export interface RendererSelectionView {
-  renderers: RendererCapability[];
+  renderers: RendererOptionView[];
 }
 
 /** The honest live-output section (constant until W704). */
@@ -174,6 +196,14 @@ export type ViewerCommand =
       type: "createRender";
       rendererId: string;
       rendererVersion?: string;
+      /**
+       * Output profile for the render, passed through VERBATIM to the control
+       * plane when provided (a capability-declared `OutputProfile`; omitting
+       * it lets the control plane default to the plugin's first supported
+       * profile — the W703 selection seam carries the choice honestly; a
+       * violating profile surfaces the server's real `media-invalid` error).
+       */
+      outputProfile?: OutputProfileDoc;
       styleId?: string;
       /**
        * Opaque style config passed through VERBATIM to the control plane
@@ -317,7 +347,12 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       rendererSelection:
         rendererSelection === null
           ? null
-          : { renderers: rendererSelection.renderers.map((renderer) => ({ ...renderer })) },
+          : {
+              renderers: rendererSelection.renderers.map((option) => ({
+                ...option,
+                capability: { ...option.capability },
+              })),
+            },
       playback: playback === null ? null : { ...playback },
       pendingRenderId: status === "outputs-pending" ? pendingRenderId : null,
       live: { available: false, note: LIVE_UNAVAILABLE_NOTE },
@@ -605,7 +640,14 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         void run("beginRender", command, {
           operation: () => client.listRenderers(),
           onSuccess: (result) => {
-            rendererSelection = { renderers: result.renderers.map((entry) => ({ ...entry })) };
+            // W703: the selection view carries the DERIVED options (pure
+            // `./selection-plan.ts`): each listed capability plus its
+            // affordance against the open session's fail-closed rights.
+            // `session` is non-null on the real path (selection is entered
+            // from session-detail); `null` rights fail closed in the plan.
+            rendererSelection = {
+              renderers: deriveRendererOptions(result.renderers, session?.rights ?? null),
+            };
             error = null;
             setStatus("renderer-selection");
           },
@@ -627,6 +669,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
           ...(command.rendererVersion !== undefined
             ? { rendererVersion: command.rendererVersion }
             : {}),
+          ...(command.outputProfile !== undefined ? { outputProfile: command.outputProfile } : {}),
           styleConfig: {
             ...(command.styleId !== undefined ? { styleId: command.styleId } : {}),
             ...(command.config !== undefined ? { config: command.config } : {}),

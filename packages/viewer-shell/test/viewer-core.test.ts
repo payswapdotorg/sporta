@@ -83,7 +83,14 @@ describe("ViewerCore — the golden walk through every state", () => {
     await settle();
     view = core.view();
     expect(view.status).toBe("renderer-selection");
-    expect(view.rendererSelection?.renderers).toEqual([rendererCapability("anime.prototype")]);
+    // W703: the selection view carries the DERIVED options — the capability
+    // verbatim plus the affordance (session rights are full-allow here).
+    const options = view.rendererSelection?.renderers ?? [];
+    expect(options).toHaveLength(1);
+    expect(options[0]?.capability).toEqual(rendererCapability("anime.prototype"));
+    expect(options[0]?.selectable).toBe(true);
+    expect(options[0]?.blockedReason).toBeNull();
+    expect(options[0]?.blockedNote).toBe("");
 
     core.dispatch({ type: "createRender", rendererId: "anime.prototype" });
     expect(core.view().status).toBe("render-queued");

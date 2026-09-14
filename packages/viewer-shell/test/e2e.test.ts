@@ -86,8 +86,12 @@ describe("full-stack e2e — golden playback walk through every real seam", () =
 
     core.dispatch({ type: "beginRender" });
     view = await settleUntil(core, (v) => v.status === "renderer-selection");
-    // Capability-driven: the list came over the wire from the registry.
-    expect(view.rendererSelection?.renderers.map((r) => r.rendererId)).toEqual(["anime.prototype"]);
+    // Capability-driven: the list came over the wire from the registry; the
+    // view carries the DERIVED options (W703) — full-allow session → selectable.
+    expect(view.rendererSelection?.renderers.map((option) => option.capability.rendererId)).toEqual(
+      ["anime.prototype"],
+    );
+    expect(view.rendererSelection?.renderers[0]?.selectable).toBe(true);
 
     core.dispatch({ type: "createRender", rendererId: "anime.prototype" });
     view = await settleUntil(core, (v) => v.status === "ready");
