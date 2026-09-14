@@ -47,6 +47,8 @@ export interface FramePlayerSource {
 
 /** The player view-model — a pure snapshot of the playback state. */
 export interface PlayerViewModel {
+  /** Discriminates the union with the segment player's view (dom-plan). */
+  kind: "frames";
   playback: PlayerPlayback;
   /** `true` when the frame that should be displayed has not been supplied. */
   buffering: boolean;
@@ -318,6 +320,7 @@ export function createFramePlayer(options: FramePlayerOptions): FramePlayer {
     const startMs = timing?.startMs ?? 0;
     const renderer = manifest?.renderer;
     return {
+      kind: "frames",
       playback,
       buffering: svg === null,
       positionMs,

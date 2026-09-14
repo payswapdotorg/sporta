@@ -9,9 +9,20 @@
  *                                   renderer-selection → render-queued
  *                                   render-queued → loading-output
  *                                   loading-output → ready → playing ⇄ paused
+ *                                   loading-output → outputs-pending (W705)
+ *                                   outputs-pending → loading-output (re-select)
  *                                   playing → ended
  * ANY state → error (classified, retryability-flagged) → retry | dismiss
  * ```
+ *
+ * `outputs-pending` (W705): the render EXISTS on the control plane (the
+ * `getRender` gate passed) but its stored output segments are not there yet
+ * — W504's encode→store step runs HOST-side after the render completes, so
+ * an empty outputs list is a real, observable processing state. It is a
+ * RESTING state (never an error, never a fake player): the view-model names
+ * the pending render (`pendingRenderId`) and the user re-selects it to
+ * re-check. When the host step has stored segments, the same flow lands in
+ * `ready` directly.
  *
  * Properties (constitution):
  *
@@ -35,25 +46,28 @@
  *   union; the view is observed through {@link ViewerCore.view} /
  *   {@link ViewerCore.subscribe}.
  *
- * Playback: the core owns one {@link FramePlayer} per loaded output (created
- * through the injectable factory with the core's clock) and forwards the
- * playback commands (`play`/`pause`/`seek`/`step*`/`setLoop`/`replay`/`tick`)
- * to it; the player's view-model is embedded in the viewer view-model, and
- * while a playback is mounted the viewer status mirrors the player's
- * playback state (`ready`/`playing`/`paused`/`ended`).
+ * Playback (W705): the core owns one player per loaded output — the W502
+ * frame player (`{ frames, manifest }` outputs, the stand-in path) or the
+ * W705 SMIL segment player (the REAL W504 stored segment) — created through
+ * the injectable factories with the core's clock, and forwards the playback
+ * commands (`play`/`pause`/`seek`/`step*`/`setLoop`/`replay`/`tick`) to the
+ * active one; the player's view-model (a discriminated union) is embedded
+ * in the viewer view-model, and while a playback is mounted the viewer
+ * status mirrors the player's playback state (`ready`/`playing`/
+ * `paused`/`ended`).
  *
- * Live output is HONESTLY unavailable (W704/W705): the view-model carries a
+ * Live output is HONESTLY unavailable (W704): the view-model carries a
  * constant `live` section stating that; the shell never fakes a live state.
+ * (W705 delivered the real BATCH playback path — stored W504 segments —
+ * which is what this machine plays; live remains W704's.)
  *
- * KNOWN LIMITATIONS (W702, deliberate):
+ * KNOWN LIMITATIONS (W702 + W705, deliberate):
  *
  * - one in-flight control operation at a time — async commands issued while
  *   an operation is pending are DROPPED (the pending state is visible in the
  *   view-model and the UI disables controls; single-user shell, documented);
  * - no user authentication (the caller-supplied authorization policy is the
  *   trust boundary — inherited W701 limitation);
- * - render OUTPUT retrieval runs through the W504-pending stand-in seam
- *   (see `./ports.ts`);
  * - `dismissError`/`retry` return to the last STABLE status
  *   (`browsing-sessions`, `session-detail`, `renderer-selection`, a playback
  *   status, or `disconnected`) — never back into an in-flight status.
@@ -70,6 +84,8 @@ import { ViewerControlError } from "./errors.ts";
 import type { ErrorView } from "./errors.ts";
 import { createFramePlayer } from "./player.ts";
 import type { FramePlayer, PlayerViewModel } from "./player.ts";
+import { createSegmentPlayer } from "./segment-player.ts";
+import type { SegmentPlayer, SegmentPlayerViewModel } from "./segment-player.ts";
 import type { ControlClient, RenderOutputPort } from "./ports.ts";
 
 /** The viewer state-machine status (the brief's state vocabulary). */
@@ -81,6 +97,7 @@ export type ViewerStatus =
   | "renderer-selection"
   | "render-queued"
   | "loading-output"
+  | "outputs-pending"
   | "ready"
   | "playing"
   | "paused"
@@ -108,11 +125,14 @@ export interface RendererSelectionView {
   renderers: RendererCapability[];
 }
 
-/** The honest live-output section (constant until W704/W705). */
+/** The honest live-output section (constant until W704). */
 export interface LiveView {
   available: false;
   note: string;
 }
+
+/** The mounted playback view-model (discriminated union — W705). */
+export type PlaybackView = PlayerViewModel | SegmentPlayerViewModel;
 
 /** The full viewer view-model — a JSON-safe snapshot of the machine. */
 export interface ViewerViewModel {
@@ -123,7 +143,13 @@ export interface ViewerViewModel {
   sessions: SessionSummary[];
   session: SessionDetailView | null;
   rendererSelection: RendererSelectionView | null;
-  playback: PlayerViewModel | null;
+  playback: PlaybackView | null;
+  /**
+   * The render whose stored outputs are pending (non-null exactly while
+   * `status === "outputs-pending"`). Drives the "check again" affordance;
+   * null otherwise.
+   */
+  pendingRenderId: string | null;
   live: LiveView;
   error: ErrorView | null;
   /** When the connection was established (from the injected clock). */
@@ -169,8 +195,11 @@ export type ViewerCommand =
   | { type: "retry" }
   | { type: "dismissError" };
 
-/** Player factory seam (tests inject fakes; default: the real player). */
+/** Frame player factory seam (tests inject fakes; default: the real player). */
 export type PlayerFactory = (options: { clock: () => number }) => FramePlayer;
+
+/** Segment player factory seam (tests inject fakes; default: the real player). */
+export type SegmentPlayerFactory = (options: { clock: () => number }) => SegmentPlayer;
 
 /** Options for {@link createViewerCore}. */
 export interface ViewerCoreOptions {
@@ -185,8 +214,10 @@ export interface ViewerCoreOptions {
    * `performance.now()`; production must never rely on the default.
    */
   nowMs?: () => number;
-  /** Player factory (default: {@link createFramePlayer}). */
+  /** Frame player factory (default: {@link createFramePlayer}). */
   playerFactory?: PlayerFactory;
+  /** Segment player factory (default: {@link createSegmentPlayer}). */
+  segmentPlayerFactory?: SegmentPlayerFactory;
 }
 
 /** The viewer core surface. */
@@ -199,9 +230,9 @@ export interface ViewerCore {
   subscribe(listener: (view: ViewerViewModel) => void): () => void;
 }
 
-/** The honest live-output note (W704/W705 pending — never faked). */
+/** The honest live-output note (W704 pending — never faked). */
 export const LIVE_UNAVAILABLE_NOTE =
-  "Live output is not yet available: live delivery arrives with W704 (live playback integration) and W705/W706 (WebRTC output + real-browser E2E). This viewer plays supported batch outputs only.";
+  "Live output is not yet available: live delivery arrives with W704 (live playback integration) and W305/W706 (delivery + real-browser E2E). This viewer plays stored batch outputs only (W504 segments, wired in W705).";
 
 const PLAYBACK_STATUSES: readonly ViewerStatus[] = ["ready", "playing", "paused", "ended"];
 
@@ -214,6 +245,7 @@ const STABLE_STATUSES: readonly ViewerStatus[] = [
   "browsing-sessions",
   "session-detail",
   "renderer-selection",
+  "outputs-pending",
   "ready",
   "playing",
   "paused",
@@ -233,6 +265,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
   const outputPort = options.output;
   const nowMs = options.nowMs ?? createViewerDefaultClock();
   const playerFactory = options.playerFactory ?? createFramePlayer;
+  const segmentPlayerFactory = options.segmentPlayerFactory ?? createSegmentPlayer;
 
   const listeners = new Set<(view: ViewerViewModel) => void>();
 
@@ -246,11 +279,12 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
   let sessions: SessionSummary[] = [];
   let session: SessionDetailView | null = null;
   let rendererSelection: RendererSelectionView | null = null;
-  let playback: PlayerViewModel | null = null;
+  let playback: PlaybackView | null = null;
+  let pendingRenderId: string | null = null;
   let error: ErrorView | null = null;
   let retryCommand: ViewerCommand | null = null;
 
-  let activePlayer: FramePlayer | null = null;
+  let activePlayer: FramePlayer | SegmentPlayer | null = null;
   let unsubscribePlayer: (() => void) | null = null;
   // Operation epoch: bumped by `disconnect` so a resolution landing after a
   // hard reset is dropped instead of mutating a reset machine (zombie guard).
@@ -285,6 +319,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
           ? null
           : { renderers: rendererSelection.renderers.map((renderer) => ({ ...renderer })) },
       playback: playback === null ? null : { ...playback },
+      pendingRenderId: status === "outputs-pending" ? pendingRenderId : null,
       live: { available: false, note: LIVE_UNAVAILABLE_NOTE },
       error,
       connectedAtMs,
@@ -299,21 +334,35 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
     }
     activePlayer = null;
     playback = null;
+    pendingRenderId = null;
   }
 
-  /** Mounts a fresh player for a loaded output and wires its events. */
-  function mountPlayer(): FramePlayer {
+  /** Wires ONE mounted player's view-model into the machine (shared for both kinds). */
+  function wirePlayer(player: FramePlayer | SegmentPlayer, initial: PlaybackView): void {
     teardownPlayer();
-    const player = playerFactory({ clock: nowMs });
     activePlayer = player;
-    unsubscribePlayer = player.subscribe((view) => {
+    const unsubscribe = player.subscribe((view) => {
       playback = { ...view };
       if (isPlaybackStatus(status)) {
         setStatus(view.playback);
       }
       emit();
     });
-    playback = { ...player.view() };
+    unsubscribePlayer = unsubscribe;
+    playback = { ...initial };
+  }
+
+  /** Mounts a fresh FRAME player for a frame-sequence output. */
+  function mountFramePlayer(): FramePlayer {
+    const player = playerFactory({ clock: nowMs });
+    wirePlayer(player, player.view());
+    return player;
+  }
+
+  /** Mounts a fresh SEGMENT player for an animated-segment output. */
+  function mountSegmentPlayer(): SegmentPlayer {
+    const player = segmentPlayerFactory({ clock: nowMs });
+    wirePlayer(player, player.view());
     return player;
   }
 
@@ -381,12 +430,44 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
   async function loadRenderOutput(sessionId: string, renderId: string): Promise<void> {
     // 1. The W701 playback gate, live: getRender re-derives rights at now.
     await client.getRender(sessionId, renderId);
-    // 2. The playable output (W502 shape) through the stand-in seam.
-    const output = await outputPort.loadOutput(sessionId, renderId);
-    // 3. Mount the player; a malformed manifest is a classified error
-    //    (wrapped so the failure class survives the throw).
-    const player = mountPlayer();
-    const loadResult = player.load({ manifest: output.manifest, frames: output.frames });
+    // 2. The playable output through the port (W705: the real W504 playback
+    //    provider — list + segment fetch — or the W702 stand-in seam).
+    const result = await outputPort.loadOutput(sessionId, renderId);
+    if (result.kind === "outputs-pending") {
+      // Honest processing state: the render exists, no stored outputs yet
+      // (the host-side encode→store step has not run). No player mounts —
+      // never a fake one.
+      teardownPlayer();
+      pendingRenderId = renderId;
+      setStatus("outputs-pending");
+      return;
+    }
+    if (result.kind === "animated-segment") {
+      // 3a. The real W504 path: mount the SMIL segment player; a malformed
+      //     segment/manifest is a classified error (wrapped so the failure
+      //     class survives the throw).
+      const player = mountSegmentPlayer();
+      const loadResult = player.load({
+        segment: result.segment,
+        manifest: result.segment.manifest,
+      });
+      if (!loadResult.ok) {
+        teardownPlayer();
+        throw new ViewerControlError(
+          loadResult.error.failureClass,
+          loadResult.error.message,
+          loadResult.error.details,
+        );
+      }
+      setStatus(player.view().playback);
+      return;
+    }
+    // 3b. The W502 stand-in path: mount the frame player.
+    const player = mountFramePlayer();
+    const loadResult = player.load({
+      manifest: result.output.manifest,
+      frames: result.output.frames,
+    });
     if (!loadResult.ok) {
       teardownPlayer();
       throw new ViewerControlError(

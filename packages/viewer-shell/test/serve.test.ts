@@ -1,15 +1,16 @@
 /**
- * Serve smoke tests (W702): `serveViewer` + `web/index.html` actually serve
- * and parse. This is the seam-level stand-in for real-browser E2E (which
- * arrives with W705/W706): the index serves as HTML with the module entry,
- * every browser-reachable module transpiles (a 200 from the on-the-fly
- * transpiler IS the parse proof — `Bun.Transpiler` throws on syntax errors)
- * and contains NO bare `@sporta/*` specifiers (the browser cannot resolve
- * them; this pin caught a real inherited bug — viewer-core imported
- * `TEST_EPOCH_MS` as a value), the control proxy answers the real W701
- * routes, and the stand-in output route serves the captured W502 document
- * (this pin caught a real inherited bug — the route's segment indices were
- * wrong, so it always 404'd).
+ * Serve smoke tests (W702 + W705): `serveViewer` + `web/index.html` actually
+ * serve and parse. This is the seam-level stand-in for real-browser E2E
+ * (which arrives with W706 — W705 delivered the headless real-provider data
+ * path in `playback-e2e.test.ts`): the index serves as HTML with the module
+ * entry, every browser-reachable module transpiles (a 200 from the
+ * on-the-fly transpiler IS the parse proof — `Bun.Transpiler` throws on
+ * syntax errors) and contains NO bare `@sporta/*` specifiers (the browser
+ * cannot resolve them; this pin caught a real inherited bug — viewer-core
+ * imported `TEST_EPOCH_MS` as a value), the control proxy answers the real
+ * W701 routes, and the stand-in output route serves the captured W502
+ * document (this pin caught a real inherited bug — the route's segment
+ * indices were wrong, so it always 404'd).
  */
 import { describe, expect, test } from "bun:test";
 import { serveViewer } from "../src/serve.ts";
@@ -19,6 +20,7 @@ import { fullAllowPolicy } from "./helpers.ts";
 const BROWSER_MODULES: string[] = [
   "/web/bootstrap.ts",
   "/src/http-client.ts",
+  "/src/playback-provider.ts",
   "/src/output-provider.ts",
   "/src/dom-adapter.ts",
   "/src/dom-plan.ts",
@@ -26,6 +28,7 @@ const BROWSER_MODULES: string[] = [
   "/src/pane-signature.ts",
   "/src/viewer-core.ts",
   "/src/player.ts",
+  "/src/segment-player.ts",
   "/src/errors.ts",
   "/src/default-clock.ts",
 ];

@@ -80,19 +80,22 @@ const jsonResponse = (status: number, body: unknown): Response =>
   });
 
 describe("render-output provider — the real W502 document carries through verbatim", () => {
-  test("a 200 { frames, manifest } resolves deep-equal to the real render output", async () => {
+  test("a 200 { frames, manifest } resolves deep-equal to the real render output (frame-sequence kind)", async () => {
     const output = realW502Output();
     const provider = createHttpRenderOutputProvider({
       baseUrl: "http://viewer",
       fetch: scriptedFetch([{ response: jsonResponse(200, output) }]),
     });
     const loaded = await provider.loadOutput("sess-provider", "r-1");
-    expect(loaded).toEqual(output);
+    // The W705 port union wraps the document in the frame-sequence kind.
+    expect(loaded).toEqual({ kind: "frame-sequence", output });
     // It IS the W502 shape: SVG frames + the clip manifest.
-    expect(loaded.frames).toHaveLength(2);
-    expect(loaded.frames[0]?.svg.startsWith("<svg")).toBe(true);
-    expect(loaded.manifest.renderer.rendererId).toBe(ANIME_RENDERER_ID);
-    expect(loaded.manifest.frames).toHaveLength(2);
+    if (loaded.kind === "frame-sequence") {
+      expect(loaded.output.frames).toHaveLength(2);
+      expect(loaded.output.frames[0]?.svg.startsWith("<svg")).toBe(true);
+      expect(loaded.output.manifest.renderer.rendererId).toBe(ANIME_RENDERER_ID);
+      expect(loaded.output.manifest.frames).toHaveLength(2);
+    }
   });
 
   test("the request URL and method are exactly the output route", async () => {

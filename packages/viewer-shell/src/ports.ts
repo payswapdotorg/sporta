@@ -1,5 +1,5 @@
 /**
- * The viewer-shell ports (W702): the seams ViewerCore consumes.
+ * The viewer-shell ports (W702 + W705): the seams ViewerCore consumes.
  *
  * `ControlClient` mirrors the transport-free `ControlApp` operation surface
  * (W701) — the same input/result document shapes, minus the call context
@@ -8,40 +8,37 @@
  * - in-process: wraps a real `ControlApp` (headless integration, tests);
  * - HTTP: talks to a real `createControlServer` over `fetch` (browser).
  *
- * `RenderOutputPort` loads the PLAYABLE batch output for a render — the
- * W502-shaped `{ frames, manifest }` document. W701's control plane stores
- * the contract `RenderResult` (segments reference frames through opaque
- * artifact refs); retrieving the actual stored output behind the control
- * plane is the W504 concern. W702 ships an explicit stand-in seam:
- * a server-side capture store (see `./render-output-store.ts`) plus a thin
- * HTTP route on the viewer server (see `./serve.ts`). The gap is surfaced
- * through the `unsupported-output` failure class — never by faking playback.
+ * `RenderOutputPort` loads the PLAYABLE batch output for a render. W705
+ * DELIVERS the real wiring the W702 docblock promised: the port's result is a
+ * THREE-KIND union (see {@link RenderOutputResult}):
  *
- * THE W705 WIRING POINT (documented honestly): W504 (merged on main AFTER
- * this branch's base 446c316) delivers the real playback routes
- * `GET /v1/sessions/:id/renders/:renderId/outputs[/:segmentId]` —
- * rights-gated (the W701 gate re-derives at read time), answering a JSON
- * envelope `{ content, contentType, hash, manifest }` per segment, where
- * `content` is the encoded artifact (a self-contained animated-SVG document
- * with an embedded SMIL timeline), `hash` its content hash, and `manifest`
- * the deterministic container manifest carrying the W502 render manifest
- * verbatim. W705's `RenderOutputPort` implementation will fetch those
- * envelopes and assemble the playable `BatchRenderOutput` from them
- * (segment artifact(s) → frame supply / manifest read verbatim), reusing
- * this package's player, state machine, and error taxonomy UNCHANGED. The
- * seam is already shaped for it: `BatchRenderOutput` is exactly the
- * renderer-anime clip shape (SVG frames + the clip manifest), the HTTP
- * provider honors the control plane's failure classes VERBATIM (see
- * `./output-provider.ts` — a rights-gated 403 surfaces as `rights-denied`,
- * never as a retryable "server error"), and the player validates the
- * manifest's own timing (never an invented timeline). The one W705-owned
- * adaptation: today's W504 artifact is ONE animated-SVG document per render
- * (a SMIL timeline, not per-frame statics), so W705 either renders the
- * artifact document directly or decodes it into per-frame supplies — that
- * decision belongs to W705, not to this shell.
+ * - `"animated-segment"` — the REAL W504 path. The provider (see
+ *   `./playback-provider.ts`) fetches the control plane's playback routes
+ *   `GET /v1/sessions/:id/renders/:renderId/outputs[/:segmentId]`
+ *   (rights-gated, fail-closed), parses the JSON envelope, verifies the
+ *   served bytes against the declared sha-256 content hash, and hands the
+ *   player ONE self-contained animated-SVG document (an embedded SMIL
+ *   timeline) plus the deterministic container manifest (which carries the
+ *   W502 render manifest VERBATIM in `sourceManifest`). Wire failure classes
+ *   pass through VERBATIM: a rights denial (403 `rights-denied`) stays
+ *   `rights-denied` — never a retryable "server error".
+ * - `"frame-sequence"` — the W502-shaped `{ frames, manifest }` document
+ *   (the W702 stand-in path; the capture-store seam and its HTTP route
+ *   remain for their own tests — see `./render-output-store.ts`).
+ * - `"outputs-pending"` — the honest processing state: NOTHING is stored
+ *   under the requested `(sessionId, renderId)` scope yet — W504's
+ *   encode→store step runs HOST-side after the render completes, so an
+ *   empty list is a real, observable "not yet" state — surfaced as a clear
+ *   pending UI state, never as a fake player and never as an invented
+ *   error. Caller contract (honest seam note): the W504 LIST route is a
+ *   pure store projection and does not itself classify unknown render ids,
+ *   so the render-EXISTS half of the pending story is the caller's
+ *   guarantee — the viewer core's `getRender` gate always runs BEFORE
+ *   `loadOutput` (see `./playback-provider.ts` for the full note).
  *
- * Every port method rejects with a {@link ViewerControlError} (classified,
- * JSON-safe) — never a raw error.
+ * The W705 presentation model for the SMIL artifact is documented on
+ * `./segment-player.ts` (ONE self-animating document presented with its
+ * manifest metadata — no per-frame supply, no faked frame-by-frame content).
  */
 import type {
   CreateRenderInput,
@@ -56,6 +53,7 @@ import type {
 } from "@sporta/control-api";
 import type { ViewerControlError } from "./errors.ts";
 import type { AnimeClipManifest, AnimeFrame } from "@sporta/renderer-anime";
+import type { AnimeSegmentManifest } from "@sporta/output-pipeline";
 
 /**
  * The control-plane client port. Shapes are the W701 `ControlApp` operation
@@ -92,9 +90,44 @@ export interface BatchRenderOutput {
   manifest: AnimeClipManifest;
 }
 
+/**
+ * One stored render-output segment document (the W504 playback envelope,
+ * parsed): the encoded segment (a self-contained animated-SVG document with
+ * an embedded SMIL timeline) plus its integrity fields and the deterministic
+ * container manifest, VERBATIM. The container manifest's `sourceManifest`
+ * carries the complete W502 clip manifest unchanged.
+ */
+export interface PlaybackSegmentDocument {
+  sessionId: string;
+  renderId: string;
+  segmentId: string;
+  /** Media type of the segment document (`image/svg+xml` for this encoder). */
+  contentType: string;
+  /** UTF-8 byte length of `content` (as served). */
+  byteLength: number;
+  /** sha-256 of `content`, 64 lowercase hex digits (the content-addressed artifact id). */
+  contentHash: string;
+  /** The full encoded segment document, UTF-8 text. */
+  content: string;
+  /** The deterministic container manifest, verbatim. */
+  manifest: AnimeSegmentManifest;
+}
+
+/**
+ * The result of loading a render's output through the port (W705 union —
+ * see the module docs for the honest semantics of each kind).
+ */
+export type RenderOutputResult =
+  /** The W502-shaped frame sequence (the stand-in path). */
+  | { kind: "frame-sequence"; output: BatchRenderOutput }
+  /** The W504 stored animated-SVG segment (the real playback path). */
+  | { kind: "animated-segment"; segment: PlaybackSegmentDocument }
+  /** The render exists but has no stored outputs yet (honest pending state). */
+  | { kind: "outputs-pending" };
+
 /** Loads the playable output for a stored render. */
 export interface RenderOutputPort {
-  loadOutput(sessionId: string, renderId: string): Promise<BatchRenderOutput>;
+  loadOutput(sessionId: string, renderId: string): Promise<RenderOutputResult>;
 }
 
 /** Shared rejection type of every port method (see `./errors.ts`). */
