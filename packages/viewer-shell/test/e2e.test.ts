@@ -6,7 +6,8 @@
  * the HTTP control client, the HTTP render-output provider, the viewer core,
  * and the real frame player. This is the W702 accept-criterion evidence
  * ("browser viewer plays supported batch outputs and exposes clear
- * state/errors") minus the actual browser paint (real-browser E2E is W706).
+ * state/errors") minus the actual browser paint (real-browser E2E remains
+ * OPEN future work).
  * The W705 REAL-W504 path (stored animated-SVG segments through the playback
  * routes) has its own e2e: `playback-e2e.test.ts`.
  *

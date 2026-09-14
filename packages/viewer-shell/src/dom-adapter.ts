@@ -20,9 +20,11 @@
  *   headlessly (the pure model is the declared timeline; the DOM edge owns
  *   the actual one).
  *
- * It is compile-checked but NOT unit-tested — real-browser E2E arrives with
- * W706 (paint-level); the data path through the real provider/player is
- * exercised headlessly end-to-end in `test/playback-e2e.test.ts`.
+ * It is compile-checked but NOT unit-tested — real-browser paint E2E
+ * remains OPEN future work (W706 as scoped delivers viewer telemetry, not
+ * browser automation; no DOM-testing dependency exists by constitution); the
+ * data path through the real provider/player is exercised headlessly
+ * end-to-end in `test/playback-e2e.test.ts`.
  */
 import { playerViewToDomPlan, segmentViewToDomPlan } from "./dom-plan.ts";
 import type { PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";

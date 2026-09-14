@@ -60,12 +60,36 @@
  *   playback routes + the stand-in output route) for a real browser
  *   session.
  *
- * HONEST LIMITATIONS (W702 + W705):
+ * W706 VIEWER TELEMETRY (see `TELEMETRY.md` for the privacy-scope decision):
  *
- * - No real-browser E2E yet — that arrives with W706. The served module
+ * - `telemetry-events`: the versioned, typed, validated event vocabulary —
+ *   CLOSED shapes (privacy by construction: policies, media content,
+ *   source frames, renderer payloads, and free-form records are
+ *   UNREPRESENTABLE), the remediation-hint table, the closed operation/
+ *   feedback vocabularies, and the fail-loud validator;
+ * - `telemetry`: `createViewerTelemetry` — the emitter (deterministic
+ *   sequence ids + the injected clock; best-effort: drops counted, never
+ *   thrown);
+ * - `telemetry-sink`: the `TelemetrySink` port + the in-memory test sink;
+ * - `telemetry-file-sink` (node-only): the structured-JSON-lines file sink
+ *   under a declared path — buffered writes, EXPLICIT flush/close, no
+ *   timers, no network;
+ * - `telemetry-http-sink`: the browser-safe dev-grade bridge to the dev
+ *   server's `/telemetry` route (ordered fire-and-forget POSTs, failures
+ *   counted);
+ * - `telemetry-plan`: the pure feedback-affordance plan (the structured
+ *   user-feedback kinds + labels + the privacy disclosure) the bootstrap
+ *   renders.
+ *
+ * HONEST LIMITATIONS (W702 + W705 + W706):
+ *
+ * - No real-browser E2E yet — it remains OPEN future work (W706 as scoped
+ *   delivered viewer telemetry, not browser automation). The served module
  *   graph is smoke-tested (boots, transpiles, no bare imports), never
  *   claimed as browser-executed; the real-provider data path IS exercised
- *   headlessly end-to-end (`test/playback-e2e.test.ts`).
+ *   headlessly end-to-end (`test/playback-e2e.test.ts`), and the real
+ *   telemetry chain (browser-sink POST → dev route → JSONL file) in
+ *   `test/telemetry-e2e.test.ts`.
  * - Live output is HONESTLY unavailable (W704): the view-model carries a
  *   constant `live: { available: false, note }` — never a faked live tab.
  * - Multi-segment renders are not presented (one segment document per
@@ -106,6 +130,7 @@ export type {
   RendererSelectionView,
   SegmentPlayerFactory,
   SessionDetailView,
+  TelemetryView,
   ViewerCommand,
   ViewerCore,
   ViewerCoreOptions,
@@ -167,3 +192,55 @@ export { createEncodingRenderer } from "./encoding-renderer.ts";
 export type { EncodingRendererOptions } from "./encoding-renderer.ts";
 export { serveViewer } from "./serve.ts";
 export type { ServeViewerOptions, ViewerServer } from "./serve.ts";
+export {
+  REMEDIATION_HINTS,
+  TELEMETRY_EVENT_KINDS,
+  TELEMETRY_EVENT_KEYS,
+  TELEMETRY_MESSAGE_MAX_LENGTH,
+  TELEMETRY_SCHEMA_VERSION,
+  TELEMETRY_TIMED_OPERATIONS,
+  TELEMETRY_VIEWER_STATUSES,
+  TELEMETRY_OPERATIONS,
+  USER_FEEDBACK_KINDS,
+  isUserFeedbackKind,
+  isViewerOperation,
+  parseTelemetryEvent,
+  parseTelemetryLine,
+  serializeTelemetryEvent,
+} from "./telemetry-events.ts";
+export type {
+  ErrorOccurredEvent,
+  IntegrityVerifiedEvent,
+  OperationTimingEvent,
+  RebufferStallEvent,
+  StateTransitionEvent,
+  TelemetryEventCommon,
+  TelemetryEventKind,
+  TelemetryParseResult,
+  TimedOperation,
+  UserFeedbackEvent,
+  UserFeedbackKind,
+  ViewerOperation,
+  ViewerTelemetryEvent,
+} from "./telemetry-events.ts";
+export { createViewerTelemetry } from "./telemetry.ts";
+export type {
+  ViewerTelemetry,
+  ViewerTelemetryOptions,
+  ViewerTelemetryStatus,
+} from "./telemetry.ts";
+export { createInMemoryTelemetrySink } from "./telemetry-sink.ts";
+export type { InMemoryTelemetrySink, TelemetrySink } from "./telemetry-sink.ts";
+export { createJsonlTelemetryFileSink } from "./telemetry-file-sink.ts";
+export type {
+  JsonlTelemetryFileSink,
+  JsonlTelemetryFileSinkOptions,
+} from "./telemetry-file-sink.ts";
+export { createHttpTelemetrySink } from "./telemetry-http-sink.ts";
+export type {
+  HttpTelemetrySink,
+  HttpTelemetrySinkOptions,
+  HttpTelemetrySinkStatus,
+} from "./telemetry-http-sink.ts";
+export { TELEMETRY_PRIVACY_NOTE, telemetryAffordance } from "./telemetry-plan.ts";
+export type { FeedbackChoice, TelemetryAffordance } from "./telemetry-plan.ts";

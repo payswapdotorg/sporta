@@ -73,6 +73,21 @@
  * real typed error (media-invalid / rights-denied), never a viewer-side
  * substitute.
  *
+ * Telemetry (W706): when a {@link ViewerCoreOptions.telemetrySink} is
+ * injected, the core emits the typed, privacy-scoped events of
+ * `./telemetry-events.ts` at the REAL lifecycle moments — state
+ * transitions (every actual status change), startup timings measured on
+ * the injected clock (connect, output load), surfaced failures (the typed
+ * error model, verbatim class/message + remediation hint), playback
+ * health from the players' honest seams (one rebuffer-stall event per
+ * playing-while-buffering episode of the frame player; the integrity
+ * result of the real W504 playback seam), and the structured user
+ * feedback command (`sendFeedback`). Telemetry is strictly best-effort:
+ * the emitter counts its own drops/failures and can never break the
+ * viewer (the W007 logger principle). The view-model carries a constant
+ * `telemetry: { enabled }` marker the pure `./telemetry-plan.ts` derives
+ * the feedback affordance from.
+ *
  * KNOWN LIMITATIONS (W702 + W705, deliberate):
  *
  * - one in-flight control operation at a time — async commands issued while
@@ -100,6 +115,9 @@ import { createFramePlayer } from "./player.ts";
 import type { FramePlayer, PlayerViewModel } from "./player.ts";
 import { createSegmentPlayer } from "./segment-player.ts";
 import type { SegmentPlayer, SegmentPlayerViewModel } from "./segment-player.ts";
+import { createViewerTelemetry } from "./telemetry.ts";
+import type { TelemetrySink } from "./telemetry-sink.ts";
+import type { UserFeedbackKind } from "./telemetry-events.ts";
 import type { ControlClient, RenderOutputPort } from "./ports.ts";
 
 /** The viewer state-machine status (the brief's state vocabulary). */
@@ -153,6 +171,15 @@ export interface LiveView {
   note: string;
 }
 
+/**
+ * The telemetry marker (constant after construction): whether the core was
+ * given a sink and is emitting the W706 event vocabulary. The pure
+ * `./telemetry-plan.ts` derives the feedback affordance from it.
+ */
+export interface TelemetryView {
+  enabled: boolean;
+}
+
 /** The mounted playback view-model (discriminated union — W705). */
 export type PlaybackView = PlayerViewModel | SegmentPlayerViewModel;
 
@@ -173,6 +200,8 @@ export interface ViewerViewModel {
    */
   pendingRenderId: string | null;
   live: LiveView;
+  /** Whether telemetry events are being emitted (W706; see `./telemetry-plan.ts`). */
+  telemetry: TelemetryView;
   error: ErrorView | null;
   /** When the connection was established (from the injected clock). */
   connectedAtMs: number | null;
@@ -222,6 +251,12 @@ export type ViewerCommand =
   | { type: "stepBackward" }
   | { type: "setLoop"; loop: boolean }
   | { type: "tick" }
+  | {
+      /** Structured user feedback (W706): recorded as a telemetry event. */
+      type: "sendFeedback";
+      /** One of the closed feedback kinds (see `./telemetry-events.ts`). */
+      feedback: UserFeedbackKind;
+    }
   | { type: "retry" }
   | { type: "dismissError" };
 
@@ -248,6 +283,14 @@ export interface ViewerCoreOptions {
   playerFactory?: PlayerFactory;
   /** Segment player factory (default: {@link createSegmentPlayer}). */
   segmentPlayerFactory?: SegmentPlayerFactory;
+  /**
+   * Injectable telemetry sink (W706). When provided, the core emits the
+   * typed, privacy-scoped events of `./telemetry-events.ts` at the real
+   * lifecycle moments (state transitions, startup timings, typed errors,
+   * playback health, structured user feedback). Omitted → telemetry off
+   * (the view-model's `telemetry.enabled` is false and nothing is emitted).
+   */
+  telemetrySink?: TelemetrySink;
 }
 
 /** The viewer core surface. */
@@ -262,7 +305,7 @@ export interface ViewerCore {
 
 /** The honest live-output note (W704 pending — never faked). */
 export const LIVE_UNAVAILABLE_NOTE =
-  "Live output is not yet available: live delivery arrives with W704 (live playback integration) and W305/W706 (delivery + real-browser E2E). This viewer plays stored batch outputs only (W504 segments, wired in W705).";
+  "Live output is not yet available: live delivery arrives with W704 (live playback integration) and W305 (delivery). This viewer plays stored batch outputs only (W504 segments, wired in W705).";
 
 const PLAYBACK_STATUSES: readonly ViewerStatus[] = ["ready", "playing", "paused", "ended"];
 
@@ -296,6 +339,13 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
   const nowMs = options.nowMs ?? createViewerDefaultClock();
   const playerFactory = options.playerFactory ?? createFramePlayer;
   const segmentPlayerFactory = options.segmentPlayerFactory ?? createSegmentPlayer;
+  // W706: telemetry is best-effort by construction — the emitter validates
+  // its own events and guards every sink call (drops are counted, never
+  // thrown), so a failing sink can never break the state machine.
+  const telemetry =
+    options.telemetrySink !== undefined
+      ? createViewerTelemetry({ sink: options.telemetrySink, nowMs })
+      : null;
 
   const listeners = new Set<(view: ViewerViewModel) => void>();
 
@@ -316,11 +366,18 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
 
   let activePlayer: FramePlayer | SegmentPlayer | null = null;
   let unsubscribePlayer: (() => void) | null = null;
+  // W706 rebuffer-stall episode tracking: `true` while the mounted FRAME
+  // player is playing AND buffering (one event per episode — reset when the
+  // frame arrives, playback pauses, or the player is torn down/replaced).
+  let stallActive = false;
   // Operation epoch: bumped by `disconnect` so a resolution landing after a
   // hard reset is dropped instead of mutating a reset machine (zombie guard).
   let epoch = 0;
 
   function setStatus(next: ViewerStatus): void {
+    // W706: every ACTUAL transition is a lifecycle event (from !== to;
+    // no-op setStatus calls emit nothing).
+    if (status !== next) telemetry?.stateTransition(status, next);
     status = next;
     if (isStableStatus(next)) lastStableStatus = next;
   }
@@ -356,6 +413,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       playback: playback === null ? null : { ...playback },
       pendingRenderId: status === "outputs-pending" ? pendingRenderId : null,
       live: { available: false, note: LIVE_UNAVAILABLE_NOTE },
+      telemetry: { enabled: telemetry !== null },
       error,
       connectedAtMs,
     };
@@ -370,6 +428,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
     activePlayer = null;
     playback = null;
     pendingRenderId = null;
+    stallActive = false;
   }
 
   /** Wires ONE mounted player's view-model into the machine (shared for both kinds). */
@@ -378,6 +437,28 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
     activePlayer = player;
     const unsubscribe = player.subscribe((view) => {
       playback = { ...view };
+      // W706 playback health, from the players' HONEST seams: the frame
+      // player STALLS at a missing frame (it never drops one) — each
+      // playing-while-buffering EPISODE emits exactly one rebuffer-stall
+      // event with the seam's own counts. The segment player's document is
+      // complete at load (buffering constantly false) — nothing is invented
+      // for it; a dropped-frame signal does not exist at either seam.
+      if (view.kind === "frames") {
+        if (view.playback === "playing" && view.buffering) {
+          if (!stallActive) {
+            stallActive = true;
+            telemetry?.rebufferStall({
+              frameIndex: view.frameIndex,
+              frameCount: view.frameCount,
+              availableFrames: view.availableFrames,
+            });
+          }
+        } else {
+          stallActive = false;
+        }
+      } else {
+        stallActive = false;
+      }
       if (isPlaybackStatus(status)) {
         setStatus(view.playback);
       }
@@ -406,6 +487,9 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
     inFlight = false;
     pendingOperation = null;
     error = errorViewFrom(operation, err);
+    // W706: the surfaced failure is a telemetry event (the typed error
+    // model, verbatim class/message + the viewer-owned remediation hint).
+    telemetry?.errorOccurred(error);
     retryCommand = command;
     if (operation === "connect") {
       connection = "disconnected";
@@ -463,6 +547,11 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
 
   /** Loads a render's output through the ports and mounts the player. */
   async function loadRenderOutput(sessionId: string, renderId: string): Promise<void> {
+    // W706: the output load is a TIMED operation (the playback startup
+    // timing) — measured on the injected clock from this entry to the
+    // mounted/pending landing (failures surface as error-occurred events
+    // instead; a failed load emits no timing).
+    const startedAtMs = nowMs();
     // 1. The W701 playback gate, live: getRender re-derives rights at now.
     await client.getRender(sessionId, renderId);
     // 2. The playable output through the port (W705: the real W504 playback
@@ -475,9 +564,18 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       teardownPlayer();
       pendingRenderId = renderId;
       setStatus("outputs-pending");
+      telemetry?.operationTiming("load-output", nowMs() - startedAtMs);
       return;
     }
     if (result.kind === "animated-segment") {
+      // W706 quality feedback, from the REAL seam: the provider's
+      // client-side integrity check (sha-256 re-hash + byte length) passed
+      // — the segment reaching the core IS the verified one (a failure
+      // would have thrown media-invalid before this point).
+      telemetry?.integrityVerified({
+        byteLength: result.segment.byteLength,
+        frameCount: result.segment.manifest.frameCount,
+      });
       // 3a. The real W504 path: mount the SMIL segment player; a malformed
       //     segment/manifest is a classified error (wrapped so the failure
       //     class survives the throw).
@@ -495,6 +593,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         );
       }
       setStatus(player.view().playback);
+      telemetry?.operationTiming("load-output", nowMs() - startedAtMs);
       return;
     }
     // 3b. The W502 stand-in path: mount the frame player.
@@ -512,14 +611,19 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       );
     }
     setStatus(player.view().playback);
+    telemetry?.operationTiming("load-output", nowMs() - startedAtMs);
   }
 
   function dispatch(command: ViewerCommand): void {
     switch (command.type) {
       // --- connection / session list ---------------------------------------
       case "connect": {
+        // W706: the connect startup is timed on the injected clock
+        // (begin → success); the failure path emits error-occurred instead.
+        let startedAtMs = 0;
         void run("connect", command, {
           begin: () => {
+            startedAtMs = nowMs();
             setStatus("connecting");
             connection = "connecting";
           },
@@ -527,8 +631,10 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
           onSuccess: (result) => {
             sessions = result.sessions.map((entry) => ({ ...entry }));
             connection = "connected";
-            connectedAtMs = nowMs();
+            const endedAtMs = nowMs();
+            connectedAtMs = endedAtMs;
             error = null;
+            telemetry?.operationTiming("connect", endedAtMs - startedAtMs);
             setStatus("browsing-sessions");
           },
         });
@@ -546,6 +652,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         retryCommand = null;
         connection = "disconnected";
         connectedAtMs = null;
+        telemetry?.setSessionId(null);
         setStatus("disconnected");
         emit();
         return;
@@ -600,6 +707,9 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
               rights: value.detail.rightsCapabilities,
               renders: value.renders.renders.map((render) => ({ ...render })),
             };
+            // W706: correlation with the viewer's opaque session-id
+            // convention — every event from here on carries it.
+            telemetry?.setSessionId(value.detail.session.sessionId);
             rendererSelection = null;
             teardownPlayer();
             error = null;
@@ -613,6 +723,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         rendererSelection = null;
         teardownPlayer();
         error = null;
+        telemetry?.setSessionId(null);
         setStatus("browsing-sessions");
         emit();
         return;
@@ -625,6 +736,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
               session = null;
               rendererSelection = null;
               teardownPlayer();
+              telemetry?.setSessionId(null);
             }
             const result = await client.listSessions();
             sessions = result.sessions.map((entry) => ({ ...entry }));
@@ -759,6 +871,16 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       }
       case "tick": {
         activePlayer?.tick();
+        return;
+      }
+
+      // --- telemetry (W706) -----------------------------------------------------
+      case "sendFeedback": {
+        // Structured user feedback: recorded through the telemetry emitter
+        // (the closed vocabulary validates the kind; an invalid kind is
+        // counted as a drop — never thrown, never a viewer error). The view
+        // does not change — the affordance is fire-and-forget by design.
+        telemetry?.userFeedback(command.feedback);
         return;
       }
 
