@@ -179,3 +179,80 @@ chat, re-dispatch.
 - **Operator credentials:** PAT + composio keys in ~/.secrets/env.sh
   (never committed); workers receive the PAT via dispatch prompt
   (chat.z.ai redacts tokens in transcripts).
+
+---
+
+## Session S003 — 2026-09-14 — M2 complete (G3), M3 through W503, W301 landed
+
+**Tech lead:** resident implementation tech lead (operator-appointed).
+*Post-hoc reconstruction by the next session's tech lead: S003 died mid-wave
+before writing this entry. Source: worklog entries S124–S130 and
+S003-W502-A/W403-A/G3-A/W503-A/W301-B plus git history on main.*
+
+### 1. Context
+
+Continuation of S002. All dispatches ran as local subagent workers in
+dedicated git worktrees (`/home/z/sporta-w*`); the recurring hazard was
+workers dying after doing work but before committing/reporting — the
+established posture (W502/W403/W503/W301) is: audit inherited work
+line-by-line, complete rather than rewrite, fix real bugs, pin fixes
+with tests.
+
+### 2. Session results
+
+- **W403 COMPLETE** (replay/evaluation): branch 16d6b17, merge 267f015.
+  Fixed-fixture cross-run comparability, field-classified tolerance
+  (EXACT/EPSILON/COUNT/SET), forced-constant volatile fields, golden
+  baseline + mutation-detection negatives; 3 real bugs found in the
+  inherited flight's code and fixed.
+- **W502 COMPLETE** (anime renderer prototype): branch 13348f1, merge
+  766e7f7. Deterministic SVG clip rendering from SWM snapshots,
+  conformance 13/13, identity-stable palette, accounted dispositions,
+  fail-closed rights beyond R2 baseline.
+- **Gate G3 ACHIEVED** — M2 complete. Exit demo
+  `tests/e2e/m2-world-model.test.ts`: branch a66cfb4, merge 16d4293.
+  Five-wave streaming fusion, stateAt pins, a real correction through
+  public seams (deriveEvent correctionOf + applyEvent), replay with
+  supersession/orphan counted, idempotent re-fusion, deep-equal rerun.
+- **W503 COMPLETE** (temporal consistency evaluation): branch fd775e7,
+  merge 68d121c. Flicker/drift/artifact metrics over the W502 manifest,
+  21 checks, 9/9 injected defects detected, THRESHOLDS.md pinned
+  both directions.
+- **W301 COMPLETE** (streaming ingress): branch fa5769d, merge 5cb4bc4.
+  LiveSource seam, fixture feed, rights-gated admission, verbatim
+  timestamps, bounded delivery, exact accounting balance.
+- Status evidence commits: 4df59eb (W403+W502), 446c316 (G3+W503+W301).
+  Final state: main 446c316, 1656/1656 tests, 27 packages, CI green.
+
+### 3. Session-end state (§14 record)
+
+- **Current milestone:** M2 COMPLETE (G3). M3 W501/W502/W503 done, W504
+  next. M4 W301 done. M5 W701 done. M6/M7 not started.
+- **In flight when the session died (wave of 3, worktrees at base
+  446c316, all re-dispatched by S004):**
+  - W302 bounded processing queues — worktree `sporta-w302`, clean, no
+    inherited code.
+  - W504 anime output pipeline — worktree `sporta-w504` carries
+    UNCOMMITTED partial work: `packages/output-pipeline` (encode/store/
+    errors/types + ENCODING.md + 2 test files) + control-api playback
+    integration (playback.ts + app/http/errors/index modifications,
+    ~+232 lines) + bun.lock +15.
+  - W702 viewer shell — worktree `sporta-w702` carries UNCOMMITTED
+    partial work: complete-looking `packages/viewer-shell` (12 src
+    modules, 5 test files, web/index.html + bootstrap.ts) + bun.lock
+    +16.
+- **Blocked:** none.
+- **Active risks:** worker flights dying post-work pre-report
+  (mitigated by the audit-first posture + this reconstruction);
+  sandbox resets (secrets + worklog are local-only — session-log on
+  GitHub is the durable record).
+- **Architectural deviations/proposals:** none new requiring an ADR.
+  Open seams flagged by workers: W401 fusion derives no corrections
+  (demo-authored policy only); typed event-candidate payload contract
+  bump; engine-side detached-correction seam; entity event-sourcing.
+- **Next executable work items (dependency-safe):** the W302/W504/W702
+  wave, then W303 (needs W302), W703 (needs W701 ✓), W601 (needs
+  W401 ✓), W805 (needs W007 ✓).
+- **Operator credentials:** PAT + composio keys in ~/.secrets/env.sh
+  (never committed); worktrees' origin remote carries the PAT for
+  pushes (local .git/config only, never committed).
