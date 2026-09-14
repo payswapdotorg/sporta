@@ -1,0 +1,68 @@
+{
+  "fixtureId": "w403-invalid-variant",
+  "fixtureKind": "w403-fixture/0",
+  "sessionId": "sess-w403-invalid",
+  "trackFrame": "pitch",
+  "possessionRadiusM": 2,
+  "maxReorderMs": 5000,
+  "footballInit": {
+    "pitch": {
+      "lengthAxisMeters": 105,
+      "widthAxisMeters": 68,
+      "origin": "corner",
+      "axes": "x=touchline, y=goal-line"
+    },
+    "clock": {
+      "period": "first-half",
+      "clockMs": 0,
+      "stoppage": false
+    },
+    "score": {
+      "home": 0,
+      "away": 0,
+      "status": {
+        "status": "unknown"
+      }
+    },
+    "possession": {
+      "status": "unknown"
+    },
+    "eventTaxonomyVersion": "1"
+  },
+  "pinnedStateAtMs": [1000, 2000],
+  "eventWindow": {
+    "fromMs": 0,
+    "toMs": 2000
+  },
+  "replay": {
+    "maxEvents": 10,
+    "maxSpanMs": 2000,
+    "checkpointEveryMs": 1000
+  },
+  "observations": [
+    {
+      "observationId": "sp-f0-pA",
+      "sessionId": "sess-w403-invalid",
+      "schemaVersion": "1.0",
+      "eventTimeMs": 1000,
+      "modality": "vision",
+      "componentId": "spatial-state-v1",
+      "provenance": "DERIVED",
+      "confidence": 0.8,
+      "payload": {
+        "kind": "track",
+        "entityId": "pA",
+        "position": {
+          "x": 20.5,
+          "y": 10.25
+        }
+      },
+      "subjectEntityRefs": [
+        {
+          "entityId": "pA",
+          "kind": "participant"
+        }
+      ]
+    }
+  ]
+}
