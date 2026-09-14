@@ -124,3 +124,58 @@ works ✓ (m0-observability.test.ts).
 - **Operator credentials:** PAT + composio keys stored in ~/.secrets/env.sh
   (never committed); workers receive push-only token via prompt; chat.z.ai
   redacts tokens in transcripts.
+
+---
+
+## Session S002 — 2026-09-14 — Post-reset recovery: M1 completion, G2 achieved, M2 through W402
+
+**Tech lead:** resident implementation tech lead (operator-appointed).
+
+### 1. Context
+
+Continuation after a full sandbox reset (01:11 UTC) that wiped local state
+(sporta clone, replay2, ~/.secrets). GitHub repos, chat.z.ai conversations,
+and the operator survived. Recovery per lesson 118 (boot prompt): stack
+redeploy, operator login, PAT restore, prompt extraction from the dead W206
+chat, re-dispatch.
+
+### 2. Session results
+
+- **Push queue cleared**: W209 merge chain (d42a666) + evidence pushed; CI
+  runs 33/34 success.
+- **W206 COMPLETE** (re-dispatched via recovered prompt): merge 4db3641,
+  1086/1086 tests, CI 35 success. TL review found the delivery faithful;
+  the worker caught a real spec flaw (pan 0.5 zoom 1 tangency) honestly.
+- **Gate G2 ACHIEVED**: `tests/e2e/m1-understanding.test.ts` (merge
+  a33cd79) — the M1 exit demo, one synchronized store of player/ball
+  observations + commentary-derived candidates. **M1 complete: 13/13.**
+- **W401 COMPLETE** (multimodal world-model fusion, parallel dispatch):
+  merge 2bf5389, 1158/1158 tests, CI 36 success. Explicit conflict ledger,
+  idempotent re-fusion, honest uncertainty — constitution-faithful.
+- **W402 COMPLETE** (temporal snapshots/events): merge 64d4ab6, 1201/1201
+  tests. Deterministic bounded forward replay with corrections,
+  checkpoints, fail-loud limits.
+
+### 3. Session-end state (§14 record)
+
+- **Current milestone:** M2 in progress (W401 ✓, W402 ✓; W403 next).
+- **Completed this session:** W206, G2 gate, W401, W402.
+- **Blocked:** none. Capacity sieges are fought, never awaited (operator
+  policy; peak hours cost ~75 min on the G2 dispatch).
+- **Active risks:** peak-hour GLM-5.3 capacity (mitigated by the assault
+  machinery); renderer saturation on long agent turns (fresh-tab re-sync
+  is the reliable diagnostic); queue_watch completion-gate regex does not
+  match sporta report formats — retire watchers manually (kill + rm flags
+  BEFORE done/void).
+- **Architectural deviations/proposals:** none requiring an ADR. Noted
+  future seams (worker-flagged, TL-accepted): typed event-candidate
+  payload contract bump (W401 parser), engine-side detached-correction
+  seam (W402), entity event-sourcing (W402 replay limitation).
+- **Next executable work items:**
+  1. **W403 replay/evaluation** (deps W402 ✓) — dispatching next.
+  2. Then M3: W502 anime renderer prototype (deps W501 ✓, W402 ✓).
+- **Worker ownership:** A = AI/domain (W2xx/W4xx/W5xx/W6xx), B = Platform,
+  C = Product (first dependency-safe Product work: W701, deps W501).
+- **Operator credentials:** PAT + composio keys in ~/.secrets/env.sh
+  (never committed); workers receive the PAT via dispatch prompt
+  (chat.z.ai redacts tokens in transcripts).
