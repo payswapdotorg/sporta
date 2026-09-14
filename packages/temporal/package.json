@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/temporal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/fusion": "workspace:*",
+    "@sporta/observation": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/world-model": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
