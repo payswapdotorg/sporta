@@ -41,7 +41,7 @@ recorded), `BLOCKED` (reason recorded).
 
 | Item  | Status      | Evidence |
 |-------|-------------|----------|
-| W401  | NOT_STARTED | — |
+| W401  | COMPLETE    | session w401-world-fusion (conversation a6e31b7c; dispatched in parallel with G2 demo 03:21, branch pushed 03:59, report 04:12); branch c6c926c; merge 2bf5389; 1158/1158 tests (72 fusion), lint/typecheck (22 pkgs)/format clean; TL review: FOOTBALL_EVENT_MAP 14-entry table exactly per spec (set-piece→restart, foul→referee-decision, fulltime→clock post-match, other dropped-but-counted), fe-<observationId> deterministic event ids make DuplicateEventError the re-fusion dedup, entities with honest uncertainty slots (position uncertain, confidence-absent stays confidence-less, velocity ignored per boundary), EXPLICIT conflict ledger (connected-component window grouping, one record per group, resolution "none", values carry confidences, rerun-identical), possession nearest-participant product confidence with MISSING_CONFIDENCE_DEFAULT + 1e-9 tie→conflict (no silent winner), idempotent re-fusion proven (snapshot version unchanged on rerun), LateEvent/warning paths never silent, W209 generic-payload parser pending future typed contracts bump (documented) |
 | W402  | NOT_STARTED | — |
 | W403  | NOT_STARTED | — |
 
