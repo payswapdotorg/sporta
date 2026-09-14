@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/renderer-evaluation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "evaluate": "bun run scripts/evaluate.ts"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/renderer-anime": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

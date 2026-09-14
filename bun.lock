@@ -250,6 +250,19 @@
         "zod": "^4.0.0",
       },
     },
+    "packages/renderer-evaluation": {
+      "name": "@sporta/renderer-evaluation",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/session": {
       "name": "@sporta/session",
       "version": "0.1.0",
@@ -396,6 +409,8 @@
     "@sporta/renderer-anime": ["@sporta/renderer-anime@workspace:packages/renderer-anime"],
 
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
+
+    "@sporta/renderer-evaluation": ["@sporta/renderer-evaluation@workspace:packages/renderer-evaluation"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
 
