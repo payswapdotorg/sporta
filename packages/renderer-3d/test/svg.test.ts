@@ -70,11 +70,11 @@ describe("composeFrame3dSvg — the avatar group", () => {
       svg.indexOf("</g>", svg.indexOf('data-entity="striker-9"')),
     );
     // Legs quad in the trim color.
-    expect(group).toContain('fill="#ffd23f"'); // trim of palette entry 4
+    expect(group).toContain('fill="#e63946"'); // trim of palette entry 5 (0.2.0 key)
     // Torso quad: jersey fill + trim outline.
-    expect(group).toContain('fill="#9b5de5" stroke="#ffd23f" stroke-width="1.5"');
+    expect(group).toContain('fill="#00b4d8" stroke="#e63946" stroke-width="1.5"');
     // Head circle: the fixed neutral head color with trim outline.
-    expect(group).toContain('fill="#c3cad6" stroke="#ffd23f"');
+    expect(group).toContain('fill="#c3cad6" stroke="#e63946"');
     // The facing wedge (heading 0.6 carried, known → solid).
     expect((group.match(/<polygon/g) ?? []).length).toBe(3); // legs + torso + facing
     expect(group).not.toContain("dasharray"); // known heading: solid wedge
@@ -88,7 +88,7 @@ describe("composeFrame3dSvg — the avatar group", () => {
       svg.indexOf('data-entity="winger-7"'),
       svg.indexOf("</g>", svg.indexOf('data-entity="winger-7"')),
     );
-    expect(group).toContain('fill="none" stroke="#17202a" stroke-width="2" stroke-dasharray="4 3"');
+    expect(group).toContain('fill="none" stroke="#e63946" stroke-width="2" stroke-dasharray="4 3"');
     expect(group).toContain('opacity="0.805"'); // 0.35 + 0.65·0.7
   });
 

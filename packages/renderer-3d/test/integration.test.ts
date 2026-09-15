@@ -131,7 +131,7 @@ function buildE2ERequest() {
   return buildRenderRequest({
     sessionId: E2E_SESSION,
     rendererId: "avatar-field.prototype",
-    rendererVersion: "0.1.0",
+    rendererVersion: "0.2.0",
     snapshotVersion: 1,
     eventsSinceSequence: 0,
     outputProfile: {

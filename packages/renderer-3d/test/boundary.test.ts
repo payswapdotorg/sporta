@@ -3,14 +3,14 @@
  * precedent): the two standing invariants only a source scan can prove,
  * turned into permanent regression pins —
  *
- * 1. **Isolation boundary** (architecture-lock §5, RENDERER.md §11): every
+ * 1. **Isolation boundary** (architecture-lock §5, RENDERER.md §12): every
  *    import specifier in `src/*.ts` is either one of the three declared
  *    runtime dependencies (`@sporta/contracts`, `@sporta/renderer-contract`,
  *    `@sporta/scene-projection`) or a local relative module. The dev-only
  *    packages (`@sporta/temporal`, `@sporta/world-model`, `@sporta/testing`)
  *    live in `test/` ONLY — a src import of any of them would be an
  *    isolation breach this test catches at CI time.
- * 2. **Constitution** (RENDERER.md §9): zero `Math.random(…)`, `Date.now(…)`,
+ * 2. **Constitution** (RENDERER.md §10): zero `Math.random(…)`, `Date.now(…)`,
  *    and `new Date(…)` CALLS in `src` — the only time anywhere is the
  *    caller's explicit milliseconds. (Comment mentions without call syntax
  *    are fine; the regexes match the call forms.)
@@ -25,7 +25,7 @@ import { dirname, join } from "node:path";
 /** Package root: `import.meta.dir` is `<pkg>/test`, so one dirname up. */
 const PACKAGE_ROOT = dirname(import.meta.dir);
 
-/** The runtime-dependency allowlist (RENDERER.md §11, verbatim). */
+/** The runtime-dependency allowlist (RENDERER.md §12, verbatim). */
 const ALLOWED_SPECIFIERS: readonly string[] = [
   "@sporta/contracts",
   "@sporta/renderer-contract",
@@ -93,7 +93,7 @@ describe("constitution — zero wall-clock / RNG calls in src", () => {
       for (const pattern of FORBIDDEN) {
         expect(
           pattern.test(source),
-          `${modulePath} matches ${String(pattern)} — the renderer must be a pure function of its inputs (RENDERER.md §9); time is the caller's explicit milliseconds`,
+          `${modulePath} matches ${String(pattern)} — the renderer must be a pure function of its inputs (RENDERER.md §10); time is the caller's explicit milliseconds`,
         ).toBe(false);
       }
     }

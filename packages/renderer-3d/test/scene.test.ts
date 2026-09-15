@@ -136,7 +136,7 @@ describe("resolve3dFrame — the fixture through the main-touchline slot", () =>
     expect(striker.positionMeters).toEqual({ x: 60, y: 30, z: 0 });
     expect(striker.headingCarried).toBe(true);
     expect(striker.headingRadians).toBe(0.6);
-    expect(striker.style).toEqual({ paletteIndex: 4, jersey: "#9b5de5", trim: "#ffd23f" });
+    expect(striker.style).toEqual({ paletteIndex: 5, jersey: "#00b4d8", trim: "#e63946" });
     expect(striker.styleKind).toBe("identity");
     expect(striker.version).toBe(3); // verbatim, NOT a style input
   });

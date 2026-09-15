@@ -15,11 +15,12 @@
  * (possession of the striker). A 5-marker stream (one unknown-type ref).
  */
 import {
+  AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE,
   AVATAR_FIELD_OUTPUT_PROFILE,
   AVATAR_FIELD_RENDERER_ID,
   AVATAR_FIELD_RENDERER_VERSION,
 } from "../src/index";
-import type { AvatarField3dClipStep } from "../src/index";
+import type { AvatarField3dClipStep, AvatarField3dMatchStep } from "../src/index";
 import { buildEventEnvelope, buildRenderRequest, buildWorldSnapshot } from "@sporta/testing";
 import type { DeepPartial } from "@sporta/testing";
 import { projectScene } from "@sporta/scene-projection";
@@ -229,5 +230,28 @@ export function buildFixtureClip(): AvatarField3dClipStep[] {
       scene: projectScene(buildFixtureSnapshot(index), { events: windowed }),
     });
   }
+  return steps;
+}
+
+/**
+ * A deterministic match-path request targeting the W603 ANIMATED profile
+ * (1280×720 SVG at 5 fps — 200 ms frames; fractions land on 0.2 steps
+ * between the fixture's 1 s snapshots, hand-verifiable).
+ */
+export function build3dMatchRequest(overrides: DeepPartial<RenderRequest> = {}): RenderRequest {
+  return build3dRequest({
+    outputProfile: AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE,
+    ...overrides,
+  });
+}
+
+/**
+ * The canonical 6-step match timeline (W603): the fixture clip steps as
+ * MATCH steps (no declared cuts — the clean interpolation fixture). At the
+ * 5 fps profile this plans 26 frames: 5 per 1 s segment (1 observed + 4
+ * interpolated) plus the last step's observed tail frame.
+ */
+export function buildFixtureMatch(): AvatarField3dMatchStep[] {
+  const steps: AvatarField3dMatchStep[] = buildFixtureClip().map((step) => ({ ...step }));
   return steps;
 }

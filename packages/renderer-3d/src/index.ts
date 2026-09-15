@@ -1,14 +1,17 @@
 /**
- * @sporta/renderer-3d — the W602 avatar/field 3D prototype renderer.
+ * @sporta/renderer-3d — the W602 avatar/field 3D prototype renderer,
+ * extended in place by W603 match progression.
  *
  * Everything a host needs to render validated SWM snapshots into a
  * deterministic 3D-look field scene (docs/work-items/work-items.md, W602:
  * "benchmark SWM state becomes coherent playable-style field scene using
- * original/proprietary-safe assets"):
+ * original/proprietary-safe assets"; W603: "match progression rendered
+ * from SWM rather than replaying broadcast pixels"):
  *
  * - `identity`: the immutable renderer identity + capability document
- *   (`avatar-field.prototype@0.1.0`, rendererClass `procedural-3d`, the
- *   1280×720 1 fps SVG output profile)
+ *   (`avatar-field.prototype@0.2.0`, rendererClass `procedural-3d`, the
+ *   1280×720 SVG output profiles — W602's 1 fps plus the W603 animated
+ *   5/25 fps profiles)
  * - `camera`: the deterministic pinhole perspective camera at a W601 named
  *   camera slot (look-at basis, straight-down fallback, near-plane
  *   clipping) — the renderer frames FROM a carried slot, never chooses one
@@ -23,21 +26,30 @@
  *   per-entity manifest accounting (dispositions consumed, never
  *   re-derived; camera-space honesty added)
  * - `svg`: `composeFrame3dSvg` — the deterministic SVG document composition
- * - `render`: `render3dFromSnapshot` (the W501 contract path) and
- *   `render3dClip` (the multi-spec benchmark path)
+ * - `interpolate`: the W603 motion model — deterministic constant-velocity
+ *   interpolation between consecutive scene specifications with honest
+ *   discontinuity handling (declared scene cuts, disposition changes,
+ *   missing positions, physical-velocity bounds) and INFERRED provenance
+ * - `render`: `render3dFromSnapshot` (the W501 contract path),
+ *   `render3dClip` (the multi-spec benchmark path), and `render3dMatch`
+ *   (the W603 interpolated match-progression path)
  * - `plugin`: `createAvatarFieldRenderer` — the `RendererPlugin`
  *   implementation (R1–R8)
- * - `types`: the public render manifest + frame types
+ * - `types`: the public render manifest + frame types (including the W603
+ *   interpolation-provenance vocabulary)
  *
  * The normative decision record — the presentation-format decision, the
- * height/heading producer decision, the camera model, the disposition
- * vocabulary, and the honest boundaries — lives in RENDERER.md next to this
- * package's sources.
+ * height/heading producer decision, the camera model, the motion model,
+ * the disposition vocabulary, and the honest boundaries — lives in
+ * RENDERER.md next to this package's sources.
  */
 export {
   AVATAR_FIELD_RENDERER_ID,
   AVATAR_FIELD_RENDERER_VERSION,
   AVATAR_FIELD_OUTPUT_PROFILE,
+  AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE,
+  AVATAR_FIELD_GAME_OUTPUT_PROFILE,
+  MAX_RENDER_FRAMES,
   DEFAULT_CAMERA_SLOT_ID,
   DEFAULT_DURATION_MS,
   MIN_DURATION_MS,
@@ -131,17 +143,33 @@ export type {
 export { FIELD_PALETTE, composeFrame3dSvg } from "./svg";
 export type { Svg3dFrameInput } from "./svg";
 export {
+  PLAYER_MAX_SPEED_MPS,
+  BALL_MAX_SPEED_MPS,
+  SPEED_EPSILON_MPS,
+  PLAYER_INTERPOLATION_BOUND_MPS,
+  BALL_INTERPOLATION_BOUND_MPS,
+  interpolateMatchFrame,
+  sceneCutHeldProvenance,
+} from "./interpolate";
+export type { InterpolatedMatchFrame } from "./interpolate";
+export {
   MAX_EVENT_CHIPS,
   parseStyleConfig,
   admitRequest,
   render3dFromSnapshot,
   render3dClip,
+  render3dMatch,
 } from "./render";
 export type { RequestAdmission } from "./render";
 export { createAvatarFieldRenderer } from "./plugin";
 export type { AvatarFieldRenderer } from "./plugin";
 export type {
   AvatarField3dClipStep,
+  AvatarField3dMatchStep,
+  MatchHeldReason,
+  MatchEntityProvenance,
+  MatchEntityProvenanceEntry,
+  Render3dMatchInterpolation,
   Render3dEntityDisposition,
   Render3dStyleKind,
   Render3dEntityEntry,

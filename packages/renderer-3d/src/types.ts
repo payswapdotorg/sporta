@@ -1,10 +1,12 @@
 /**
- * Public types of the avatar/field 3D prototype (W602): the clip input (a
- * timeline of W601 scene specifications), the frame output (SVG documents
+ * Public types of the avatar/field 3D prototype (W602 + W603): the clip
+ * input (a timeline of W601 scene specifications), the match-timeline input
+ * (W603 — snapshots plus interpolation), the frame output (SVG documents
  * through a perspective camera), and the render manifest — the per-frame
- * provenance/accounting document (the W502 manifest posture: every
- * omission accounted, every confidence verbatim, every frame linked back
- * to the scene specification it was rendered from).
+ * provenance/accounting document (the W502 manifest posture: every omission
+ * accounted, every confidence verbatim, every frame linked back to the
+ * scene specification it was rendered from; W603 adds interpolation
+ * provenance — INFERRED positions are marked, never claimed observed).
  */
 import type { EntityKind, OutputProfile, RenderResult, UncertaintyStatus } from "@sporta/contracts";
 import type { SceneEntityDisposition, SceneSpecification } from "@sporta/scene-projection";
@@ -23,6 +25,106 @@ export interface AvatarField3dClipStep {
   atMs: number;
   /** The validated scene specification rendered at `atMs`. */
   scene: SceneSpecification;
+}
+
+/**
+ * One match-timeline step (W603): a clip step plus an optional DECLARED
+ * hard boundary. The match path interpolates constant-velocity motion
+ * between consecutive steps — never across a declared cut.
+ *
+ * `sceneCutBefore` follows the W204 tracker-frame `sceneCut` posture: the
+ * flag is DECLARED by the caller (upstream knows when the broadcast cut or
+ * the replay branch broke), never DETECTED here — no honest detection
+ * signal exists inside a `SceneSpecification`, and inventing one would
+ * fabricate discontinuity knowledge.
+ */
+export interface AvatarField3dMatchStep extends AvatarField3dClipStep {
+  /**
+   * When `true`, the boundary INTO this step is a hard scene cut: frames
+   * strictly between the previous step and this one HOLD the previous
+   * step's scene verbatim (per-entity `held` provenance, reason
+   * `"scene-cut"`), and this step's scene takes effect at its own `atMs`.
+   * Default `false`.
+   */
+  sceneCutBefore?: boolean;
+}
+
+/**
+ * Why one entity's position was HELD (not interpolated) on a match-path
+ * frame — the honest discontinuity vocabulary (accounted, never blended):
+ *
+ * - `"scene-cut"` — the segment is governed by a declared cut: the whole
+ *   scene state is the from-step's verbatim.
+ * - `"disposition-change"` — the entity's scene disposition differs
+ *   between the bracketing specs (e.g. `projected` → `omitted-no-position`):
+ *   the last OBSERVED treatment is held until the next snapshot boundary.
+ * - `"position-missing"` — at least one bracketing spec carries no usable
+ *   position for the entity (or neither spec places it): a position is
+ *   never invented for an unplaced entity.
+ * - `"velocity-bound"` — the straight-line segment between the two known
+ *   positions implies a speed above the documented physical ceiling for
+ *   the entity's kind (a teleport, not motion): the last OBSERVED position
+ *   is held rather than animated as a fabricated trajectory.
+ * - `"entity-absent-in-to"` — the entity exists in the from-step but not
+ *   in the to-step: its last observed state is held (it disappears at the
+ *   next snapshot boundary, exactly as the spec says).
+ */
+export type MatchHeldReason =
+  | "scene-cut"
+  | "disposition-change"
+  | "position-missing"
+  | "velocity-bound"
+  | "entity-absent-in-to";
+
+/**
+ * Per-entity position provenance on a match-path frame (the W205 posture:
+ * interpolated state is inference, never observation):
+ *
+ * - `"interpolated"` — the position was derived by the documented
+ *   constant-velocity motion model between the bracketing snapshots'
+ *   positions (INFERRED data: the manifest records the pair + fraction at
+ *   the frame level; the position is never claimed observed).
+ * - `"held"` — the position is the from-spec's VERBATIM value (the last
+ *   OBSERVED position; see {@link MatchHeldReason} for why it was not
+ *   interpolated).
+ */
+export type MatchEntityProvenance =
+  | { positionProvenance: "interpolated" }
+  | { positionProvenance: "held"; heldReason: MatchHeldReason };
+
+/** One entity's interpolation provenance entry (from-step entity order). */
+export interface MatchEntityProvenanceEntry {
+  entityId: string;
+  provenance: MatchEntityProvenance;
+}
+
+/**
+ * Per-frame match provenance (W603): which snapshot pair a frame came from
+ * and at what interpolation fraction. Present on EVERY match-path frame;
+ * absent on the W602 paths (whose frames are per-spec verbatim).
+ */
+export interface Render3dMatchInterpolation {
+  /**
+   * - `"observed"` — the frame sits exactly on a step's `atMs`: its scene
+   *     is that step's spec VERBATIM (all positions observed).
+   * - `"interpolated"` — the frame sits strictly between two steps: entity
+   *     positions follow the motion model (per-entity provenance marked).
+   * - `"held"` — the segment is governed by a declared scene cut: the
+   *     from-step's scene is rendered VERBATIM (all entities held).
+   */
+  kind: "observed" | "interpolated" | "held";
+  /** The authoritative (from) step index. */
+  fromStepIndex: number;
+  /** The bracketing to-step index, when a next step exists. */
+  toStepIndex?: number;
+  /** The from step's timeline position (milliseconds). */
+  fromAtMs: number;
+  /** The to step's timeline position, when a next step exists. */
+  toAtMs?: number;
+  /** The interpolation fraction in (0, 1) for interpolated frames; 0 otherwise. */
+  fraction: number;
+  /** Whether a declared scene cut governs this frame's segment. */
+  sceneCut: boolean;
 }
 
 /**
@@ -78,9 +180,25 @@ export interface Render3dEntityEntry {
   /**
    * The TRUE position in scene meters, copied VERBATIM from the spec
    * (never clamped, never rounded). Present whenever the spec carried one
-   * — including for omitted entities.
+   * — including for omitted entities. On INTERPOLATED match frames this
+   * is the motion model's INFERRED position (marked by
+   * `positionProvenance` below — never a claim of observed data).
    */
   positionMeters?: { x: number; y: number; z?: number };
+  /**
+   * Match-path provenance of this entry's POSITION (W603): present only
+   * on frames whose `interpolation.kind` is `"interpolated"` or
+   * `"held"`; absent on observed frames and on every W602 path
+   * (verbatim = observed, the default posture). See
+   * {@link MatchEntityProvenance}.
+   */
+  positionProvenance?: "interpolated" | "held";
+  /**
+   * Why a held entity was not interpolated (present exactly when
+   * `positionProvenance === "held"` on a match frame). See
+   * {@link MatchHeldReason}.
+   */
+  heldReason?: MatchHeldReason;
   /** The screen position actually drawn (2-decimal serialization). Drawn dispositions only. */
   screenPosition?: { x: number; y: number };
   /** The camera depth (meters) of the drawn figure. Drawn dispositions only. */
@@ -148,6 +266,12 @@ export interface Render3dFrameEntry {
   outputTimestampMs: number;
   /** The output window this frame covers on the session timeline. */
   windowMs: { startMs: number; endMs: number };
+  /**
+   * Match-path interpolation provenance (W603): present on every
+   * `render3dMatch` frame (which snapshot pair + fraction the frame came
+   * from); ABSENT on the W602 paths (per-spec verbatim frames).
+   */
+  interpolation?: Render3dMatchInterpolation;
   /** Provenance: the scene specification the frame was rendered from. */
   source: {
     watermark: { sequence: number; watermarkMs: number };
@@ -226,7 +350,12 @@ export interface AvatarField3dFrame {
 
 /** Parsed `styleConfig.config` for the avatar/field prototype. */
 export interface AvatarField3dStyleConfig {
-  /** Rendered clip duration in milliseconds (default 6000; clip path ignores it). */
+  /**
+   * Rendered clip duration in milliseconds (default 6000; the clip path
+   * ignores it — steps set the timeline — and the match path ignores it
+   * too: the match timeline's extent is the steps' span plus one frame
+   * interval).
+   */
   durationMs: number;
   /**
    * The camera slot to render from (default `main-touchline`). Must be one
