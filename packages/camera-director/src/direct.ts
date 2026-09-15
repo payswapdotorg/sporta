@@ -10,7 +10,9 @@
  * 0. **Fail-closed admission.** The policy re-validates
  *    (`./validate.ts`), the match timeline must be non-empty with finite,
  *    `>= 0`, strictly increasing `atMs` and record-shaped scenes, and every
- *    candidate must carry well-formed W209 fields — anything else throws
+ *    candidate must carry well-formed W209 fields with UNIQUE candidate
+ *    ids (W209's ids are the global "ec-<seq>" sequence — a repeated id
+ *    would conflate two candidates' accounting) — anything else throws
  *    `DirectorError` (never a silently partial direction).
  * 1. **Possession-following default.** Per step: the follow reference
  *    (the spec's possession entity id, verbatim → that entity's placed
@@ -140,6 +142,7 @@ function admitCandidates(candidates: readonly unknown[]): EventCandidate[] {
     throw new DirectorError("candidates-invalid", "direct requires an array of event candidates");
   }
   const admitted: EventCandidate[] = [];
+  const firstSeenIndex = new Map<string, number>();
   for (let i = 0; i < candidates.length; i += 1) {
     const candidate = candidates[i];
     if (!isRecord(candidate)) {
@@ -148,6 +151,22 @@ function admitCandidates(candidates: readonly unknown[]): EventCandidate[] {
       });
     }
     const candidateId = readNonEmptyString(candidate.candidateId);
+    if (candidateId !== undefined) {
+      // W209 guarantees gap-free UNIQUE ids ("ec-<seq>", the global
+      // sequence) — a stream with a repeated id is not a well-formed W209
+      // stream, and admitting it would CONFLATE the two candidates (one
+      // map key, one accounting outcome, ambiguous replay lookups) — a
+      // never-silent-accounting violation, refused here instead.
+      const firstIndex = firstSeenIndex.get(candidateId);
+      if (firstIndex !== undefined) {
+        throw new DirectorError(
+          "candidates-invalid",
+          `candidates[${i}].candidateId "${candidateId}" is a DUPLICATE (first seen at index ${firstIndex}) — W209 candidate ids are unique ("ec-<seq>", the global sequence); a repeated id would conflate the two candidates' accounting`,
+          { index: i, firstIndex, candidateId },
+        );
+      }
+      firstSeenIndex.set(candidateId, i);
+    }
     const eventTimeMs = readFiniteNumber(candidate.eventTimeMs);
     const eventType = readNonEmptyString(candidate.eventType);
     const confidence = readFiniteNumber(candidate.confidence);

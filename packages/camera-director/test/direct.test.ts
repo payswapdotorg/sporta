@@ -889,6 +889,41 @@ describe("direct — fail-closed admission (DirectorError, never a partial plan)
     }
   });
 
+  test("a DUPLICATE candidateId is refused (never-silent accounting: it would conflate two candidates)", () => {
+    // The audit probe: before the fix, a goal@5500 and a save@2200 both
+    // keyed "ec-1" silently merged into ONE event-focus window, BOTH got
+    // outcome "governed" through the shared map key, and the review was
+    // driven by whichever candidate the map happened to keep — the
+    // never-silent-accounting violation. W209 guarantees unique "ec-<seq>"
+    // ids, so a repeated id is not a well-formed W209 stream: refused.
+    const steps = buildDirectorMatch();
+    try {
+      direct(DEFAULT_DIRECTOR_POLICY, steps, [
+        buildCandidate({ candidateId: "ec-1", eventTimeMs: 5_500, eventType: "goal" }),
+        buildCandidate({ candidateId: "ec-1", eventTimeMs: 2_200, eventType: "save" }),
+      ]);
+      expect.unreachable();
+    } catch (error) {
+      expect(error).toBeInstanceOf(DirectorError);
+      const directorError = error as DirectorError;
+      expect(directorError.kind).toBe("candidates-invalid");
+      expect(directorError.message).toContain('candidates[1].candidateId "ec-1" is a DUPLICATE');
+      expect(directorError.message).toContain("first seen at index 0");
+      expect(directorError.details).toEqual({ index: 1, firstIndex: 0, candidateId: "ec-1" });
+    }
+    // The SAME stream with DISTINCT ids directs cleanly (both governed).
+    const plan = direct(DEFAULT_DIRECTOR_POLICY, steps, [
+      buildCandidate({ candidateId: "ec-1", eventTimeMs: 5_500, eventType: "goal" }),
+      buildCandidate({ candidateId: "ec-2", eventTimeMs: 2_200, eventType: "save" }),
+    ]);
+    expect(plan.summary.eventAccounting.map((entry) => [entry.candidateId, entry.outcome])).toEqual(
+      [
+        ["ec-1", "governed"],
+        ["ec-2", "governed"],
+      ],
+    );
+  });
+
   test("a malformed candidate stream is refused (fields, ranges, shapes)", () => {
     const steps = buildDirectorMatch();
     const cases: Array<[string, Partial<EventCandidate> | unknown]> = [
