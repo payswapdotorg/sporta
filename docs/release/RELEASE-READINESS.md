@@ -8,9 +8,9 @@ Reviewed by the resident Tech Lead. Evidence rule: every claim below cites
 executable evidence (commit, test, or checked-in artifact); anything not
 verifiable is recorded as a gap, never assumed.
 
-**Status: final draft — §4/§7/§8 and the verdict complete at the final
-battery + gate-suite run (the post-W803 refresh); every other section is
-final as of main @ 002f39e.**
+**Status: FINAL.** Reviewed on main @ 08e0240 (the final main: W605 +
+W803 merged; nothing further merges before this review). The final
+battery + the gate-suite run are recorded in §4 and §8.
 
 ## Review method
 
@@ -75,17 +75,20 @@ Control document: `docs/security/rights-security.md`. Control-by-control:
 
 ## 4. Tests
 
-- Baseline battery on main @ 2ef2be9 (pre-W605), personally re-run by the
-  TL: 3937 pass / 0 fail / 85,214 expect() calls across 279 files
-  (40.9 s); serial per-package typecheck 0 `error TS` across 41 packages;
-  lint clean; format clean. Matched the lane's recorded 3937/3937 exactly.
-- W605 merge battery (c0ae5a7, personally re-run on the merged tree):
-  4056 pass / 0 fail / 88,406 expect() calls across 285 files (46.3 s);
-  42 packages, 0 `error TS`; lint + format clean; package double-run
-  119/0/3192 identical across separate invocations.
-- Cross-subprocess determinism is pinned per package (W603/W604/W704/W802/
-  W805/W605 ledger rows — SHA-256 byte-identical suite outputs).
-- Final numbers (post-W803): recorded in §8 with the gate-suite verdict.
+- The FINAL battery on the final main (08e0240), personally re-run by
+  the TL immediately before this review: **4085 pass / 0 fail / 88,513
+  expect() calls across 290 files (39.9 s); serial per-package typecheck
+  0 `error TS` across all 43 packages; `bun run lint` clean; `bun run
+  format:check` clean.**
+- The battery chain across the program (each personally re-run at its
+  merge): 3251 (reset-3 recovery baseline) → 3488 (W604/W306) → 3589
+  (W704) → 3937 (W802/W805/W804) → 4056 (W605) → 4085 (W803) — every
+  recorded number in the ledger reproduced exactly on re-run.
+- Cross-subprocess determinism is pinned per package (W603/W604/W704/
+  W802/W805/W605/W803 ledger rows — SHA-256 byte-identical suite
+  outputs across separate processes).
+- The release gate suite itself: 29/29 package tests (detection proofs
+  through the real injector seams); gate CLI verdict recorded in §8.
 
 ## 5. Docs
 
@@ -96,7 +99,7 @@ Control document: `docs/security/rights-security.md`. Control-by-control:
   FUNNEL.md (analytics), README per package — each pinned to code by test
   where normative (drift fails the suite, both directions).
 - The status ledger + session log form a complete audit trail: every one
-  of the 48 completed items carries an evidence row with merge commit,
+  of the 50 items carries an evidence row with merge commit,
   test counts, TL verification statement, and honest limitations.
 - Recorded gap: no top-level deployment/runbook doc — matching the
   no-deployment reality (nothing is deployed; PRODUCTION.md covers the
@@ -142,6 +145,10 @@ standing boundaries of the delivered system:
 - No consent workflow in telemetry (the W804 analytics boundary).
 - W605 evaluation-internal: none beyond the above (the six-axis benchmark
   carries its own boundaries in README).
+- W803's machine gates measure what W503/W605 measure — composition,
+  policy, and accounting only; the human gate records that review HAPPENED,
+  not review QUALITY; the suite evaluates the repo fixtures, not production
+  traffic (GATES.md §6, REVIEW.md §honesty).
 
 ## 8. Release-candidate mapping + final verdict
 
@@ -162,8 +169,33 @@ The roadmap's definitions, honestly mapped:
   repo scope by design).
 - **RC4 production release: this review is the gate.**
 
-**Verdict: ⟨FINAL — recorded with the final battery + gate-suite run at
-the post-W803 refresh; the review's position as of main @ 002f39e: the
-program is READY as the deterministic offline + controlled-live system
-itself defined — fully tested, evidenced, and boundary-honest, with the
-RC3 deployment gap recorded rather than papered over.⟩**
+**The gate-suite run (W803, on the final main):**
+
+```
+temporal-stability: PASS (@sporta/renderer-evaluation, real fixture)
+scene-correctness: PASS (@sporta/scene-evaluation, match + directed)
+human-review: PASS (the checked-in demo record — the pipeline self-check)
+accounting: 3 gates = 3 pass + 0 fail + 0 not-runnable + 0 pending
+SPORTA-RELEASE-GATE PASS
+```
+
+(The demo record is the automated pipeline's self-check, explicitly NOT a
+human attestation — a REAL release sign-off requires a REAL record per
+packages/quality-gates/docs/REVIEW.md; that is the one act this review
+cannot perform for itself.)
+
+## Verdict
+
+**READY-WITH-GAPS.** The sporta program as delivered — the deterministic
+offline analysis + render pipeline, the anime and 3D renderers with their
+evaluation harnesses, the controlled-domain live path with measured
+latency structure and formalized SLOs, the viewer shell with
+privacy-by-construction telemetry, and the release-gate suite — is fully
+tested (4085/4085, zero type errors across 43 packages), fully evidenced
+(every one of the 50 items carries a TL-verified evidence row), and
+boundary-honest (the gaps are recorded, not papered over). The gaps that
+keep this from an unconditional READY are the recorded operational
+boundaries: no real-network transport, no real-browser paint E2E, no
+deployment/auth/production-telemetry (the RC3 boundary), and the human
+sign-off that remains a genuinely human act. Each has its named owner
+document and its seam in the code.
