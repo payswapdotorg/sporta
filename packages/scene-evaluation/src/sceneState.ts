@@ -28,6 +28,13 @@
  * `fromAtMs + fraction × (toAtMs − fromAtMs)` within the documented
  * numerical headroom, and the recorded (run-relative) step indexes resolve
  * through the window base to the recorded atMs values (the pair is real).
+ * The claims are also JUSTIFIED by the timeline's own declarations: a HELD
+ * frame requires its bracketing step to declare `sceneCutBefore` (a cut is
+ * the only reason to hold), and an INTERPOLATED frame requires the
+ * bracketing step NOT to declare one (a declared cut must hold, never
+ * interpolate) — a manifest that claims held without the declaration (or
+ * interpolates across a declared cut) is self-inconsistent and measured
+ * here, never trusted.
  */
 import { resolve3dFrame } from "@sporta/renderer-3d";
 import type { MatchEntityProvenanceEntry, Render3dEntityEntry } from "@sporta/renderer-3d";
@@ -170,21 +177,33 @@ export function measureSceneState(options: {
     const expectation = expectations[i]!;
     const interpolation = frame.entry.interpolation!;
 
+    // --- The window base (run-relative → global index resolution), needed
+    // by both the claim checks and the index checks below.
+    const base = windowBaseStepIndex(input, frame);
+    const globalFrom = base + interpolation.fromStepIndex;
+    const globalTo =
+      interpolation.toStepIndex === undefined ? undefined : base + interpolation.toStepIndex;
+    const toStep = globalTo === undefined ? undefined : input.steps[globalTo];
+    const declaredCut = toStep !== undefined && toStep.sceneCutBefore === true;
+
     // --- The frame's interpolation claims (the W603 frame-plan contract).
     const framePath = `$.output.manifest.frames[${frame.frameIndex}]`;
-    let interpolationClaimOk = true;
+    let interpolationClaimOk: boolean;
     if (interpolation.kind === "observed") {
       interpolationClaimOk = frame.matchTimestampMs === interpolation.fromAtMs;
     } else if (interpolation.kind === "interpolated") {
       const span = interpolation.toAtMs! - interpolation.fromAtMs;
       const derived = interpolation.fromAtMs + interpolation.fraction * span;
-      interpolationClaimOk = Math.abs(derived - frame.matchTimestampMs) <= INTERPOLATION_TIME_EPSILON_MS;
+      interpolationClaimOk =
+        Math.abs(derived - frame.matchTimestampMs) <= INTERPOLATION_TIME_EPSILON_MS && !declaredCut; // a declared cut into the bracketing step must HOLD, never interpolate
     } else {
       // A held frame is strictly between its from and to steps (the cut
-      // pair); its scene is the from-step's verbatim.
+      // pair); its scene is the from-step's verbatim; and the cut must be
+      // DECLARED by the bracketing step (the only sanctioned hold reason).
       interpolationClaimOk =
         frame.matchTimestampMs > interpolation.fromAtMs &&
-        frame.matchTimestampMs < (interpolation.toAtMs ?? Number.POSITIVE_INFINITY);
+        frame.matchTimestampMs < (interpolation.toAtMs ?? Number.POSITIVE_INFINITY) &&
+        declaredCut;
     }
     if (!interpolationClaimOk) {
       frameInterpolationMismatchCount += 1;
@@ -198,16 +217,19 @@ export function measureSceneState(options: {
             fromAtMs: interpolation.fromAtMs,
             toAtMs: interpolation.toAtMs,
             fraction: interpolation.fraction,
+            declaredCut:
+              globalTo === undefined ? undefined : input.steps[globalTo]?.sceneCutBefore === true,
           }),
-          actual: describeValue(frame.matchTimestampMs),
+          actual: describeValue({
+            matchTimestampMs: frame.matchTimestampMs,
+            declaredCut,
+          }),
         }),
       );
     }
 
     // --- The recorded (run-relative) step pair resolves through the
     // window base to the recorded atMs values (the pair is real).
-    const base = windowBaseStepIndex(input, frame);
-    const globalFrom = base + interpolation.fromStepIndex;
     const fromAtMsOk =
       input.steps[globalFrom] !== undefined &&
       input.steps[globalFrom]!.atMs === interpolation.fromAtMs;
@@ -224,7 +246,10 @@ export function measureSceneState(options: {
           path: `${framePath}.entry.interpolation.fromStepIndex`,
           expected: describeValue({
             fromStepIndex: input.stepIndexByAtMs.get(interpolation.fromAtMs),
-            toStepIndex: interpolation.toAtMs === undefined ? undefined : input.stepIndexByAtMs.get(interpolation.toAtMs),
+            toStepIndex:
+              interpolation.toAtMs === undefined
+                ? undefined
+                : input.stepIndexByAtMs.get(interpolation.toAtMs),
           }),
           actual: describeValue({
             fromStepIndex: interpolation.fromStepIndex,
@@ -251,7 +276,10 @@ export function measureSceneState(options: {
       cameraSlot: slot,
       canvas: { width: profile.w, height: profile.h },
     });
-    const expectedEntities = applyExpectedProvenance(resolved.manifestEntities, expectation.entityProvenance);
+    const expectedEntities = applyExpectedProvenance(
+      resolved.manifestEntities,
+      expectation.entityProvenance,
+    );
 
     // The entity id set: never invented, never dropped.
     const expectedIds = expectedEntities.map((entry) => entry.entityId);

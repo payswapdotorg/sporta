@@ -37,7 +37,6 @@
  * unsanctioned duplicate.
  */
 import { MAX_EVENT_CHIPS, eventChipText } from "@sporta/renderer-3d";
-import type { Render3dMarkerEntry } from "@sporta/renderer-3d";
 import type { DirectedRenderManifest } from "@sporta/camera-director";
 import type { WorldEventStreamEntry } from "@sporta/contracts";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
@@ -397,7 +396,11 @@ export function measureOrdering(options: {
           : skipped.eventTimeMs >= runEndMs + interval
             ? "after-window"
             : "in-window";
-      if (!positionBySequence.has(skipped.sequence) || expectedReason === "in-window" || skipped.reason !== expectedReason) {
+      if (
+        !positionBySequence.has(skipped.sequence) ||
+        expectedReason === "in-window" ||
+        skipped.reason !== expectedReason
+      ) {
         markerSkipAccountingMismatchCount += 1;
         findings.push({
           dimension: "ordering",
@@ -430,7 +433,10 @@ export function measureOrdering(options: {
         dimension: "ordering",
         metric: "ordering.markerUnaccountedCount",
         path: `$.output.manifest (window ${window.label})`,
-        expected: describeValue({ sequence: marker.sequence, accounting: "displayed|skipped|transferred" }),
+        expected: describeValue({
+          sequence: marker.sequence,
+          accounting: "displayed|skipped|transferred",
+        }),
         actual: describeValue({ sequence: marker.sequence, accounting: "none" }),
       });
     }
@@ -472,7 +478,7 @@ export function measureOrdering(options: {
   const liveDisplayBySequence = new Map<number, Set<number>>();
   for (const window of windows) {
     for (const frame of window.frames) {
-      for (const marker of frame.entry.markers as Render3dMarkerEntry[]) {
+      for (const marker of frame.entry.markers) {
         if (window.kind === "live" || window.kind === "match") {
           const set = liveDisplayBySequence.get(marker.sequence) ?? new Set<number>();
           set.add(window.id);

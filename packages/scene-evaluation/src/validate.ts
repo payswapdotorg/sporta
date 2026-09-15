@@ -29,17 +29,13 @@
  * drives the verdict.
  */
 import {
+  ENTITY_KINDS,
   OutputProfile,
   WorldEventStreamEntry,
   WorldSnapshot,
-  type EntityKind,
   type UncertaintyStatus,
 } from "@sporta/contracts";
-import {
-  SceneSpecification,
-  SCENE_ENTITY_DISPOSITIONS,
-  type SceneEntityDisposition,
-} from "@sporta/scene-projection";
+import { SceneSpecification, SCENE_ENTITY_DISPOSITIONS } from "@sporta/scene-projection";
 import type {
   AvatarField3dManifest,
   AvatarField3dMatchStep,
@@ -49,19 +45,28 @@ import type {
   Render3dFrameEntry,
   Render3dStyleKind,
 } from "@sporta/renderer-3d";
-import type { DirectedRenderManifest, DirectedRenderOutput } from "@sporta/camera-director";
+import type {
+  CameraPlan,
+  DirectedRenderManifest,
+  DirectedRenderOutput,
+} from "@sporta/camera-director";
 import { SceneEvaluationError } from "./errors";
+import type { SceneEvaluationErrorCode } from "./errors";
 
 // ---------------------------------------------------------------------------
 // Vocabulary pins (the renderer's own unions, compile-time-checked)
 // ---------------------------------------------------------------------------
 
-/** Compile-time equality assert (a drifted vocabulary fails typecheck). */
-type AssertEquals<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
-  ? true
-  : never;
+/** `true` when A and B are the same type; `never` on drift. */
+type AssertEquals<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : never;
 
-/** The renderer's entity treatment vocabulary (mirror of the exported union). */
+/**
+ * The renderer's entity treatment vocabulary (mirror of the exported union).
+ * The pin sits in a CONST position, so a vocabulary drift in either this
+ * mirror or the renderer's union fails `tsc` ("'true' is not assignable to
+ * 'never'") — the W503 compile-time posture, actually biting.
+ */
 const RENDER_DISPOSITIONS = [
   "rendered",
   "rendered-out-of-play",
@@ -72,22 +77,11 @@ const RENDER_DISPOSITIONS = [
   "omitted-non-pitch-frame",
   "not-rendered-kind",
 ] as const;
-
-/** Pin: the local vocabulary is EXACTLY the renderer's exported union. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type RenderDispositionPin = AssertEquals<
+const renderDispositionPin: AssertEquals<
   (typeof RENDER_DISPOSITIONS)[number],
   Render3dEntityDisposition
->;
-
-/** The scene's own disposition vocabulary (the W601 authority, imported). */
-const SCENE_DISPOSITIONS: readonly string[] = SCENE_ENTITY_DISPOSITIONS;
-type SceneDispositionPin = AssertEquals<
-  (typeof SCENE_ENTITY_DISPOSITIONS)[number],
-  SceneEntityDisposition
->;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SceneDispositionPin = SceneDispositionPin;
+> = true;
 
 /** The held-reason vocabulary (mirror of the renderer's union). */
 const HELD_REASONS = [
@@ -98,22 +92,26 @@ const HELD_REASONS = [
   "entity-absent-in-to",
 ] as const;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type HeldReasonPin = AssertEquals<(typeof HELD_REASONS)[number], MatchHeldReason>;
+const heldReasonPin: AssertEquals<(typeof HELD_REASONS)[number], MatchHeldReason> = true;
 
 /** The style-kind vocabulary (mirror of the renderer's union). */
 const STYLE_KINDS = ["identity", "official-fixed", "ball-fixed", "none"] as const;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type StyleKindPin = AssertEquals<(typeof STYLE_KINDS)[number], Render3dStyleKind>;
+const styleKindPin: AssertEquals<(typeof STYLE_KINDS)[number], Render3dStyleKind> = true;
 
-/** The SWM entity kinds (mirror of the contracts union). */
-const ENTITY_KINDS = ["participant", "official", "ball"] as const;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type EntityKindPin = AssertEquals<(typeof ENTITY_KINDS)[number], EntityKind>;
+/**
+ * The SWM entity kinds: the contracts package's OWN value export (all eight
+ * kinds — `match`, `competition`, `team`, `venue`, `camera` entities are
+ * legal renderer manifest entries via `not-rendered-kind`). Never mirrored:
+ * a partial mirror here once false-rejected real output (the audit fix).
+ */
+const ENTITY_KIND_VOCABULARY: readonly string[] = ENTITY_KINDS;
 
 /** The uncertainty statuses (mirror of the contracts union). */
-const UNCERTAINTY_STATUSES = ["known", "uncertain", "unknown"] as const;
+const UNCERTAINTY_STATUSES = ["known", "unknown", "uncertain"] as const;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type UncertaintyStatusPin = AssertEquals<(typeof UNCERTAINTY_STATUSES)[number], UncertaintyStatus>;
+const uncertaintyStatusPin: AssertEquals<(typeof UNCERTAINTY_STATUSES)[number], UncertaintyStatus> =
+  true;
 
 // ---------------------------------------------------------------------------
 // The unified frame view
@@ -154,6 +152,8 @@ export interface ValidatedSceneEvaluationInput {
   readonly frames: readonly EvalFrame[];
   /** The step index for each step `atMs` (the frame-authority lookup). */
   readonly stepIndexByAtMs: ReadonlyMap<number, number>;
+  /** The structurally validated caller plan (undefined when not supplied). */
+  readonly plan: CameraPlan | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,10 +164,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function requireFiniteNumber(value: unknown, path: string, minimum?: number): number {
-  if (typeof value !== "number" || !Number.isFinite(value) || (minimum !== undefined && value < minimum)) {
+function requireFiniteNumber(
+  value: unknown,
+  path: string,
+  minimum?: number,
+  code: SceneEvaluationErrorCode = "input-malformed",
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    (minimum !== undefined && value < minimum)
+  ) {
     throw new SceneEvaluationError(
-      "input-malformed",
+      code,
       path,
       `must be a finite number${minimum === undefined ? "" : ` >= ${minimum}`} (got ${JSON.stringify(value)})`,
     );
@@ -175,10 +184,15 @@ function requireFiniteNumber(value: unknown, path: string, minimum?: number): nu
   return value;
 }
 
-function requireInteger(value: unknown, path: string, minimum: number): number {
+function requireInteger(
+  value: unknown,
+  path: string,
+  minimum: number,
+  code: SceneEvaluationErrorCode = "input-malformed",
+): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < minimum) {
     throw new SceneEvaluationError(
-      "input-malformed",
+      code,
       path,
       `must be an integer >= ${minimum} (got ${JSON.stringify(value)})`,
     );
@@ -186,10 +200,14 @@ function requireInteger(value: unknown, path: string, minimum: number): number {
   return value;
 }
 
-function requireString(value: unknown, path: string): string {
+function requireString(
+  value: unknown,
+  path: string,
+  code: SceneEvaluationErrorCode = "input-malformed",
+): string {
   if (typeof value !== "string" || value.length < 1) {
     throw new SceneEvaluationError(
-      "input-malformed",
+      code,
       path,
       `must be a non-empty string (got ${JSON.stringify(value)})`,
     );
@@ -201,10 +219,11 @@ function requireEnum<T extends string>(
   value: unknown,
   vocabulary: readonly T[],
   path: string,
+  code: SceneEvaluationErrorCode = "input-malformed",
 ): T {
   if (typeof value !== "string" || !vocabulary.includes(value as T)) {
     throw new SceneEvaluationError(
-      "input-malformed",
+      code,
       path,
       `must be one of ${vocabulary.map((entry) => `"${entry}"`).join(", ")} (got ${JSON.stringify(value)})`,
     );
@@ -213,8 +232,49 @@ function requireEnum<T extends string>(
 }
 
 /** Formats zod issues as `path: message; ...` (the repo's reporting shape). */
-function issuesOf(error: { issues: ReadonlyArray<{ path: PropertyKey[]; message: string }> }): string {
+function issuesOf(error: {
+  issues: ReadonlyArray<{ path: PropertyKey[]; message: string }>;
+}): string {
   return error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; ");
+}
+
+// --- structure-specific leaf validators (the error-code taxonomy) ----------
+// The shared require* helpers throw `input-malformed`; these wrappers pin
+// the code to the STRUCTURE being validated, so a machine reader sees
+// `frame-malformed` for a frame-entry leaf, `output-malformed` for an
+// output-block leaf, `step-malformed` for a step leaf — never a generic
+// code that mislocates the defect.
+
+function frameNumber(value: unknown, path: string, minimum?: number): number {
+  return requireFiniteNumber(value, path, minimum, "frame-malformed");
+}
+
+function frameInteger(value: unknown, path: string, minimum: number): number {
+  return requireInteger(value, path, minimum, "frame-malformed");
+}
+
+function frameString(value: unknown, path: string): string {
+  return requireString(value, path, "frame-malformed");
+}
+
+function frameEnum<T extends string>(value: unknown, vocabulary: readonly T[], path: string): T {
+  return requireEnum(value, vocabulary, path, "frame-malformed");
+}
+
+function outputNumber(value: unknown, path: string, minimum?: number): number {
+  return requireFiniteNumber(value, path, minimum, "output-malformed");
+}
+
+function outputInteger(value: unknown, path: string, minimum: number): number {
+  return requireInteger(value, path, minimum, "output-malformed");
+}
+
+function outputString(value: unknown, path: string): string {
+  return requireString(value, path, "output-malformed");
+}
+
+function outputEnum<T extends string>(value: unknown, vocabulary: readonly T[], path: string): T {
+  return requireEnum(value, vocabulary, path, "output-malformed");
 }
 
 /** Validates the per-step ground-truth snapshots. */
@@ -321,7 +381,7 @@ function validateSteps(value: unknown): AvatarField3dMatchStep[] {
         "must be an AvatarField3dMatchStep object",
       );
     }
-    const atMs = requireFiniteNumber(step.atMs, `$.steps[${i}].atMs`, 0);
+    const atMs = requireFiniteNumber(step.atMs, `$.steps[${i}].atMs`, 0, "step-malformed");
     if (previousAtMs !== undefined && atMs <= previousAtMs) {
       throw new SceneEvaluationError(
         "step-malformed",
@@ -345,7 +405,11 @@ function validateSteps(value: unknown): AvatarField3dMatchStep[] {
         `not a valid SceneSpecification — ${issuesOf(sceneCheck.error)}`,
       );
     }
-    steps.push({ atMs, scene: sceneCheck.data, ...(step.sceneCutBefore === true ? { sceneCutBefore: true } : {}) });
+    steps.push({
+      atMs,
+      scene: sceneCheck.data,
+      ...(step.sceneCutBefore === true ? { sceneCutBefore: true } : {}),
+    });
   }
   return steps;
 }
@@ -355,14 +419,14 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
   if (!isRecord(entry)) {
     throw new SceneEvaluationError("frame-malformed", path, "must be a Render3dFrameEntry object");
   }
-  requireInteger(entry.frameIndex, `${path}.frameIndex`, 0);
-  requireFiniteNumber(entry.outputTimestampMs, `${path}.outputTimestampMs`, 0);
+  frameInteger(entry.frameIndex, `${path}.frameIndex`, 0);
+  frameNumber(entry.outputTimestampMs, `${path}.outputTimestampMs`, 0);
   const windowMs = entry.windowMs;
   if (!isRecord(windowMs)) {
     throw new SceneEvaluationError("frame-malformed", `${path}.windowMs`, "must be an object");
   }
-  const startMs = requireFiniteNumber(windowMs.startMs, `${path}.windowMs.startMs`, 0);
-  const endMs = requireFiniteNumber(windowMs.endMs, `${path}.windowMs.endMs`, 0);
+  const startMs = frameNumber(windowMs.startMs, `${path}.windowMs.startMs`, 0);
+  const endMs = frameNumber(windowMs.endMs, `${path}.windowMs.endMs`, 0);
   if (endMs <= startMs) {
     throw new SceneEvaluationError(
       "frame-malformed",
@@ -386,26 +450,23 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
       "must be present on every match-path frame (the W603 provenance contract)",
     );
   }
-  requireEnum(interpolation.kind, ["observed", "interpolated", "held"], `${path}.interpolation.kind`);
-  requireInteger(interpolation.fromStepIndex, `${path}.interpolation.fromStepIndex`, 0);
+  frameEnum(interpolation.kind, ["observed", "interpolated", "held"], `${path}.interpolation.kind`);
+  frameInteger(interpolation.fromStepIndex, `${path}.interpolation.fromStepIndex`, 0);
   if (interpolation.toStepIndex !== undefined) {
-    requireInteger(interpolation.toStepIndex, `${path}.interpolation.toStepIndex`, 0);
+    frameInteger(interpolation.toStepIndex, `${path}.interpolation.toStepIndex`, 0);
   }
-  if (
-    (interpolation.toStepIndex === undefined) !==
-    (interpolation.toAtMs === undefined)
-  ) {
+  if ((interpolation.toStepIndex === undefined) !== (interpolation.toAtMs === undefined)) {
     throw new SceneEvaluationError(
       "frame-malformed",
       `${path}.interpolation`,
       "toStepIndex and toAtMs must be present TOGETHER (the bracketing step is a pair)",
     );
   }
-  requireFiniteNumber(interpolation.fromAtMs, `${path}.interpolation.fromAtMs`, 0);
+  frameNumber(interpolation.fromAtMs, `${path}.interpolation.fromAtMs`, 0);
   if (interpolation.toAtMs !== undefined) {
-    requireFiniteNumber(interpolation.toAtMs, `${path}.interpolation.toAtMs`, 0);
+    frameNumber(interpolation.toAtMs, `${path}.interpolation.toAtMs`, 0);
   }
-  const fraction = requireFiniteNumber(interpolation.fraction, `${path}.interpolation.fraction`, 0);
+  const fraction = frameNumber(interpolation.fraction, `${path}.interpolation.fraction`, 0);
   // The documented `Render3dMatchInterpolation` contract, enforced
   // structurally (a violation is malformation, never a measured defect):
   // fraction ∈ (0, 1) ONLY on interpolated frames; sceneCut is true ONLY on
@@ -457,11 +518,15 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
   }
   const watermark = source.watermark;
   if (!isRecord(watermark)) {
-    throw new SceneEvaluationError("frame-malformed", `${path}.source.watermark`, "must be an object");
+    throw new SceneEvaluationError(
+      "frame-malformed",
+      `${path}.source.watermark`,
+      "must be an object",
+    );
   }
-  requireInteger(watermark.sequence, `${path}.source.watermark.sequence`, 0);
-  requireFiniteNumber(watermark.watermarkMs, `${path}.source.watermark.watermarkMs`, 0);
-  requireFiniteNumber(source.generatedAtMs, `${path}.source.generatedAtMs`, 0);
+  frameInteger(watermark.sequence, `${path}.source.watermark.sequence`, 0);
+  frameNumber(watermark.watermarkMs, `${path}.source.watermark.watermarkMs`, 0);
+  frameNumber(source.generatedAtMs, `${path}.source.generatedAtMs`, 0);
   if (typeof source.footballState !== "boolean") {
     throw new SceneEvaluationError(
       "frame-malformed",
@@ -469,7 +534,7 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
       `must be a boolean (got ${JSON.stringify(source.footballState)})`,
     );
   }
-  requireString(source.sceneSchemaVersion, `${path}.source.sceneSchemaVersion`);
+  frameString(source.sceneSchemaVersion, `${path}.source.sceneSchemaVersion`);
   // Markers.
   if (!Array.isArray(entry.appliedMarkerSequences)) {
     throw new SceneEvaluationError(
@@ -484,12 +549,16 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
   for (let m = 0; m < entry.markers.length; m += 1) {
     const marker = entry.markers[m];
     if (!isRecord(marker)) {
-      throw new SceneEvaluationError("frame-malformed", `${path}.markers[${m}]`, "must be an object");
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.markers[${m}]`,
+        "must be an object",
+      );
     }
-    requireInteger(marker.sequence, `${path}.markers[${m}].sequence`, 1);
-    requireString(marker.eventId, `${path}.markers[${m}].eventId`);
-    requireString(marker.eventTypeRef, `${path}.markers[${m}].eventTypeRef`);
-    requireFiniteNumber(marker.eventTimeMs, `${path}.markers[${m}].eventTimeMs`, 0);
+    frameInteger(marker.sequence, `${path}.markers[${m}].sequence`, 0);
+    frameString(marker.eventId, `${path}.markers[${m}].eventId`);
+    frameString(marker.eventTypeRef, `${path}.markers[${m}].eventTypeRef`);
+    frameNumber(marker.eventTimeMs, `${path}.markers[${m}].eventTimeMs`, 0);
     if (typeof marker.displayed !== "boolean") {
       throw new SceneEvaluationError(
         "frame-malformed",
@@ -497,7 +566,7 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
         `must be a boolean (got ${JSON.stringify(marker.displayed)})`,
       );
     }
-    requireString(marker.text, `${path}.markers[${m}].text`);
+    frameString(marker.text, `${path}.markers[${m}].text`);
   }
   // HUD.
   const hud = entry.hud;
@@ -511,7 +580,7 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
       `must be a string or null (got ${JSON.stringify(hud.statusLine)})`,
     );
   }
-  requireString(hud.cameraLabel, `${path}.hud.cameraLabel`);
+  frameString(hud.cameraLabel, `${path}.hud.cameraLabel`);
   if (!Array.isArray(hud.eventChips) || hud.eventChips.some((chip) => typeof chip !== "string")) {
     throw new SceneEvaluationError(
       "frame-malformed",
@@ -519,19 +588,23 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
       "must be an array of strings",
     );
   }
-  requireInteger(hud.markersNotDisplayed, `${path}.hud.markersNotDisplayed`, 0);
+  frameInteger(hud.markersNotDisplayed, `${path}.hud.markersNotDisplayed`, 0);
   // Possession.
   if (entry.possession !== null) {
     const possession = entry.possession;
     if (!isRecord(possession)) {
-      throw new SceneEvaluationError("frame-malformed", `${path}.possession`, "must be an object or null");
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.possession`,
+        "must be an object or null",
+      );
     }
-    requireEnum(possession.status, UNCERTAINTY_STATUSES, `${path}.possession.status`);
+    frameEnum(possession.status, UNCERTAINTY_STATUSES, `${path}.possession.status`);
     if (possession.entityId !== undefined) {
-      requireString(possession.entityId, `${path}.possession.entityId`);
+      frameString(possession.entityId, `${path}.possession.entityId`);
     }
     if (possession.confidence !== undefined) {
-      requireFiniteNumber(possession.confidence, `${path}.possession.confidence`, 0);
+      frameNumber(possession.confidence, `${path}.possession.confidence`, 0);
     }
     if (typeof possession.displayed !== "boolean") {
       throw new SceneEvaluationError(
@@ -554,12 +627,20 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
         "must be a Render3dEntityEntry object",
       );
     }
-    requireString(entity.entityId, `${path}.entities[${e}].entityId`);
-    requireEnum(entity.kind, ENTITY_KINDS, `${path}.entities[${e}].kind`);
-    requireInteger(entity.version, `${path}.entities[${e}].version`, 1);
-    requireFiniteNumber(entity.lastEventTimeMs, `${path}.entities[${e}].lastEventTimeMs`, 0);
-    requireEnum(entity.sceneDisposition, SCENE_DISPOSITIONS, `${path}.entities[${e}].sceneDisposition`);
-    requireEnum(entity.renderDisposition, RENDER_DISPOSITIONS, `${path}.entities[${e}].renderDisposition`);
+    frameString(entity.entityId, `${path}.entities[${e}].entityId`);
+    frameEnum(entity.kind, ENTITY_KIND_VOCABULARY, `${path}.entities[${e}].kind`);
+    frameInteger(entity.version, `${path}.entities[${e}].version`, 1);
+    frameNumber(entity.lastEventTimeMs, `${path}.entities[${e}].lastEventTimeMs`, 0);
+    frameEnum(
+      entity.sceneDisposition,
+      SCENE_ENTITY_DISPOSITIONS,
+      `${path}.entities[${e}].sceneDisposition`,
+    );
+    frameEnum(
+      entity.renderDisposition,
+      RENDER_DISPOSITIONS,
+      `${path}.entities[${e}].renderDisposition`,
+    );
     if (entity.positionMeters !== undefined) {
       const position = entity.positionMeters;
       if (!isRecord(position)) {
@@ -569,20 +650,20 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
           "must be an object",
         );
       }
-      requireFiniteNumber(position.x, `${path}.entities[${e}].positionMeters.x`);
-      requireFiniteNumber(position.y, `${path}.entities[${e}].positionMeters.y`);
+      frameNumber(position.x, `${path}.entities[${e}].positionMeters.x`);
+      frameNumber(position.y, `${path}.entities[${e}].positionMeters.y`);
       if (position.z !== undefined) {
-        requireFiniteNumber(position.z, `${path}.entities[${e}].positionMeters.z`);
+        frameNumber(position.z, `${path}.entities[${e}].positionMeters.z`);
       }
     }
     if (entity.positionProvenance !== undefined) {
-      requireEnum(
+      frameEnum(
         entity.positionProvenance,
         ["interpolated", "held"],
         `${path}.entities[${e}].positionProvenance`,
       );
       if (entity.positionProvenance === "held") {
-        requireEnum(entity.heldReason, HELD_REASONS, `${path}.entities[${e}].heldReason`);
+        frameEnum(entity.heldReason, HELD_REASONS, `${path}.entities[${e}].heldReason`);
       } else if (entity.heldReason !== undefined) {
         throw new SceneEvaluationError(
           "frame-malformed",
@@ -605,15 +686,19 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
       );
     }
     if (entity.headingRadians !== undefined) {
-      requireFiniteNumber(entity.headingRadians, `${path}.entities[${e}].headingRadians`);
+      frameNumber(entity.headingRadians, `${path}.entities[${e}].headingRadians`);
     }
     if (entity.positionStatus !== undefined) {
-      requireEnum(entity.positionStatus, UNCERTAINTY_STATUSES, `${path}.entities[${e}].positionStatus`);
+      frameEnum(
+        entity.positionStatus,
+        UNCERTAINTY_STATUSES,
+        `${path}.entities[${e}].positionStatus`,
+      );
     }
     if (entity.positionConfidence !== undefined) {
-      requireFiniteNumber(entity.positionConfidence, `${path}.entities[${e}].positionConfidence`, 0);
+      frameNumber(entity.positionConfidence, `${path}.entities[${e}].positionConfidence`, 0);
     }
-    requireEnum(entity.styleKind, STYLE_KINDS, `${path}.entities[${e}].styleKind`);
+    frameEnum(entity.styleKind, STYLE_KINDS, `${path}.entities[${e}].styleKind`);
   }
   // The entry is structurally validated field-by-field above; the cast
   // only restores its static type (the runtime shape was checked — the
@@ -654,6 +739,220 @@ function isDirectedManifest(
 }
 
 /**
+ * Validates one realized camera block (`Render3dCameraBlock` shape): slot id,
+ * position/target points, focal length, near plane. Types only — geometry
+ * CORRECTNESS (is it the canonical slot?) is the direction dimension's
+ * measured job, never a validation throw.
+ */
+function validateCameraBlock(camera: unknown, path: string): void {
+  if (!isRecord(camera)) {
+    throw new SceneEvaluationError("output-malformed", path, "must be a camera block object");
+  }
+  outputString(camera.slotId, `${path}.slotId`);
+  for (const block of ["position", "target"] as const) {
+    const point = camera[block];
+    if (!isRecord(point)) {
+      throw new SceneEvaluationError(
+        "output-malformed",
+        `${path}.${block}`,
+        "must be a point object",
+      );
+    }
+    outputNumber(point.x, `${path}.${block}.x`);
+    outputNumber(point.y, `${path}.${block}.y`);
+    outputNumber(point.z, `${path}.${block}.z`);
+  }
+  outputNumber(camera.focalPx, `${path}.focalPx`);
+  outputNumber(camera.nearPlaneMeters, `${path}.nearPlaneMeters`);
+}
+
+/**
+ * Validates the skipped-marker accounting list (the renderer's own honesty
+ * surface): array of entries with sequence/eventTimeMs and a closed
+ * before/after reason vocabulary; directed entries carry an in-range
+ * `windowIndex` (an out-of-range one would vanish from every window's
+ * accounting — never silent).
+ */
+function validateSkippedMarkers(skipped: unknown, path: string, windowCount: number): void {
+  if (!Array.isArray(skipped)) {
+    throw new SceneEvaluationError("output-malformed", path, "must be an array");
+  }
+  for (let i = 0; i < skipped.length; i += 1) {
+    const entry = skipped[i];
+    if (!isRecord(entry)) {
+      throw new SceneEvaluationError("output-malformed", `${path}[${i}]`, "must be an object");
+    }
+    outputInteger(entry.sequence, `${path}[${i}].sequence`, 0);
+    outputNumber(entry.eventTimeMs, `${path}[${i}].eventTimeMs`, 0);
+    outputEnum(entry.reason, ["before-window", "after-window"], `${path}[${i}].reason`);
+    if (windowCount > 0) {
+      const windowIndex = outputInteger(entry.windowIndex, `${path}[${i}].windowIndex`, 0);
+      if (windowIndex >= windowCount) {
+        throw new SceneEvaluationError(
+          "output-malformed",
+          `${path}[${i}].windowIndex`,
+          `${windowIndex} is outside the manifest's ${windowCount} windows (a skipped marker outside every window is unaccountable)`,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Validates the directed manifest's director provenance block (shape only —
+ * plan CONSISTENCY is the direction dimension's measured job). Guarantees the
+ * plan-comparison accesses can never crash and never silently skip.
+ */
+function validateDirectorBlock(director: unknown): void {
+  const path = "$.output.manifest.director";
+  if (!isRecord(director)) {
+    throw new SceneEvaluationError(
+      "output-malformed",
+      path,
+      "must be a director provenance object",
+    );
+  }
+  outputString(director.directorVersion, `${path}.directorVersion`);
+  if (!isRecord(director.policy)) {
+    throw new SceneEvaluationError("output-malformed", `${path}.policy`, "must be an object");
+  }
+  outputString(director.policy.policyId, `${path}.policy.policyId`);
+  outputString(director.policy.policyVersion, `${path}.policy.policyVersion`);
+  if (!isRecord(director.timeline)) {
+    throw new SceneEvaluationError("output-malformed", `${path}.timeline`, "must be an object");
+  }
+  outputNumber(director.timeline.startMs, `${path}.timeline.startMs`, 0);
+  outputNumber(director.timeline.endMs, `${path}.timeline.endMs`, 0);
+  for (const count of [
+    "windowCount",
+    "liveWindowCount",
+    "reviewWindowCount",
+    "cutCount",
+  ] as const) {
+    outputInteger(director[count], `${path}.${count}`, 0);
+  }
+  if (!Array.isArray(director.suppressedCuts)) {
+    throw new SceneEvaluationError(
+      "output-malformed",
+      `${path}.suppressedCuts`,
+      "must be an array",
+    );
+  }
+  if (!Array.isArray(director.eventAccounting)) {
+    throw new SceneEvaluationError(
+      "output-malformed",
+      `${path}.eventAccounting`,
+      "must be an array",
+    );
+  }
+}
+
+/**
+ * Structurally validates a caller-supplied `CameraPlan` (shape only — the
+ * plan's OWN semantics are W604's `checkCameraPlan` job, and the manifest's
+ * agreement with the plan is the direction dimension's measured job). A
+ * garbage plan must throw a typed error, never crash the comparison and
+ * never silently vanish from it.
+ */
+function validatePlan(plan: unknown): CameraPlan {
+  if (!isRecord(plan)) {
+    throw new SceneEvaluationError("input-malformed", "$.plan", "must be a CameraPlan object");
+  }
+  requireString(plan.directorVersion, "$.plan.directorVersion");
+  if (!isRecord(plan.policy)) {
+    throw new SceneEvaluationError("input-malformed", "$.plan.policy", "must be an object");
+  }
+  requireString(plan.policy.policyId, "$.plan.policy.policyId");
+  requireString(plan.policy.policyVersion, "$.plan.policy.policyVersion");
+  if (!isRecord(plan.timeline)) {
+    throw new SceneEvaluationError("input-malformed", "$.plan.timeline", "must be an object");
+  }
+  const timelineStart = requireFiniteNumber(plan.timeline.startMs, "$.plan.timeline.startMs", 0);
+  const timelineEnd = requireFiniteNumber(plan.timeline.endMs, "$.plan.timeline.endMs", 0);
+  if (timelineEnd < timelineStart) {
+    throw new SceneEvaluationError(
+      "input-malformed",
+      "$.plan.timeline.endMs",
+      `${timelineEnd} < startMs ${timelineStart} — an empty timeline is not a plan`,
+    );
+  }
+  if (!Array.isArray(plan.windows) || plan.windows.length === 0) {
+    throw new SceneEvaluationError(
+      "input-malformed",
+      "$.plan.windows",
+      "must be a non-empty array (a plan with no windows cannot be composed)",
+    );
+  }
+  for (let w = 0; w < plan.windows.length; w += 1) {
+    const window = plan.windows[w];
+    if (!isRecord(window)) {
+      throw new SceneEvaluationError(
+        "input-malformed",
+        `$.plan.windows[${w}]`,
+        "must be a DirectedWindow object",
+      );
+    }
+    requireInteger(window.index, `$.plan.windows[${w}].index`, 0);
+    requireEnum(window.kind, ["live", "review"], `$.plan.windows[${w}].kind`);
+    requireString(window.cameraSlotId, `$.plan.windows[${w}].cameraSlotId`);
+    if (!isRecord(window.source)) {
+      throw new SceneEvaluationError(
+        "input-malformed",
+        `$.plan.windows[${w}].source`,
+        "must be an object",
+      );
+    }
+    const startMs = requireFiniteNumber(
+      window.source.startMs,
+      `$.plan.windows[${w}].source.startMs`,
+      0,
+    );
+    const endMs = requireFiniteNumber(window.source.endMs, `$.plan.windows[${w}].source.endMs`, 0);
+    if (endMs < startMs) {
+      throw new SceneEvaluationError(
+        "input-malformed",
+        `$.plan.windows[${w}].source.endMs`,
+        `${endMs} < startMs ${startMs} — an empty window is not a presentation`,
+      );
+    }
+    if (!isRecord(window.decision)) {
+      throw new SceneEvaluationError(
+        "input-malformed",
+        `$.plan.windows[${w}].decision`,
+        "must be a decision record object",
+      );
+    }
+    requireString(window.decision.ruleId, `$.plan.windows[${w}].decision.ruleId`);
+  }
+  if (!isRecord(plan.summary)) {
+    throw new SceneEvaluationError("input-malformed", "$.plan.summary", "must be an object");
+  }
+  for (const count of [
+    "windowCount",
+    "liveWindowCount",
+    "reviewWindowCount",
+    "cutCount",
+  ] as const) {
+    requireInteger(plan.summary[count], `$.plan.summary.${count}`, 0);
+  }
+  if (!Array.isArray(plan.summary.suppressedCuts)) {
+    throw new SceneEvaluationError(
+      "input-malformed",
+      "$.plan.summary.suppressedCuts",
+      "must be an array",
+    );
+  }
+  if (!Array.isArray(plan.summary.eventAccounting)) {
+    throw new SceneEvaluationError(
+      "input-malformed",
+      "$.plan.summary.eventAccounting",
+      "must be an array",
+    );
+  }
+  return plan as unknown as CameraPlan;
+}
+
+/**
  * Validates the whole evaluation input. Throws {@link SceneEvaluationError}
  * on any structural problem; returns the trusted, unified view.
  */
@@ -662,22 +961,47 @@ export function validateEvaluationInput(input: {
   eventStream: unknown;
   steps: unknown;
   output: unknown;
+  plan?: unknown;
 }): ValidatedSceneEvaluationInput {
   const snapshots = validateSnapshots(input.snapshots);
   const eventStream = validateEventStream(input.eventStream);
   const steps = validateSteps(input.steps);
 
   if (input.output === null || typeof input.output !== "object") {
-    throw new SceneEvaluationError("output-malformed", "$.output", "must be a render output object");
+    throw new SceneEvaluationError(
+      "output-malformed",
+      "$.output",
+      "must be a render output object",
+    );
   }
   const output = input.output as AvatarField3dRenderOutput | DirectedRenderOutput;
   const manifest = validateManifestEnvelope(output.manifest, "$.output.manifest");
+  if (!isRecord(output.result)) {
+    throw new SceneEvaluationError(
+      "output-malformed",
+      "$.output.result",
+      "must be a RenderResult object",
+    );
+  }
   const sessionId = snapshots[0]!.sessionId;
   if (output.result.sessionId !== sessionId) {
     throw new SceneEvaluationError(
       "alignment-malformed",
       "$.output.result.sessionId",
       `must be "${sessionId}" (the render must belong to the ground-truth session)`,
+    );
+  }
+  // The renderer's own 1:1 contract: one frame document per manifest entry.
+  // (The SVG bytes themselves are NOT the W605 measurement surface — the
+  // manifest's per-frame claims are — but a frames/manifest count divergence
+  // is a document the evaluator refuses to trust.)
+  if (!Array.isArray(output.frames) || output.frames.length !== manifest.frames.length) {
+    throw new SceneEvaluationError(
+      "output-malformed",
+      "$.output.frames",
+      `must carry exactly ${manifest.frames.length} frame documents (the renderer's 1:1 frames contract) — got ${
+        Array.isArray(output.frames) ? output.frames.length : String(output.frames)
+      }`,
     );
   }
 
@@ -714,13 +1038,7 @@ export function validateEvaluationInput(input: {
   const directed = isDirectedManifest(manifest);
   if (!directed) {
     const camera = (manifest as AvatarField3dManifest).camera;
-    if (!isRecord(camera)) {
-      throw new SceneEvaluationError(
-        "output-malformed",
-        "$.output.manifest.camera",
-        "must be a camera block object",
-      );
-    }
+    validateCameraBlock(camera, "$.output.manifest.camera");
   }
   const matchCameraSlotId = directed
     ? null
@@ -731,9 +1049,39 @@ export function validateEvaluationInput(input: {
   if (!directed) {
     const output = (manifest as AvatarField3dManifest).output;
     if (!isRecord(output)) {
-      throw new SceneEvaluationError("output-malformed", "$.output.manifest.output", "must be an object");
+      throw new SceneEvaluationError(
+        "output-malformed",
+        "$.output.manifest.output",
+        "must be an object",
+      );
     }
-    requireFiniteNumber(output.frameIntervalMs, "$.output.manifest.output.frameIntervalMs", 0);
+    const frameIntervalMs = requireFiniteNumber(
+      output.frameIntervalMs,
+      "$.output.manifest.output.frameIntervalMs",
+      0,
+    );
+    if (frameIntervalMs <= 0) {
+      throw new SceneEvaluationError(
+        "output-malformed",
+        "$.output.manifest.output.frameIntervalMs",
+        `must be > 0 (got ${frameIntervalMs} — a zero interval is not a frame plan)`,
+      );
+    }
+    validateSkippedMarkers(manifest.skippedMarkers, "$.output.manifest.skippedMarkers", 0);
+  }
+  // The caller-supplied plan: only meaningful for a directed rundown, and
+  // structurally validated so the plan-consistency measurement can neither
+  // crash on garbage nor silently skip a non-array window list.
+  let plan: CameraPlan | undefined;
+  if (input.plan !== undefined) {
+    if (!directed) {
+      throw new SceneEvaluationError(
+        "input-malformed",
+        "$.plan",
+        "a CameraPlan is only meaningful for a directed rundown (match-mode outputs take no plan)",
+      );
+    }
+    plan = validatePlan(input.plan);
   }
   const frames: EvalFrame[] = [];
   let previousOutputTimestamp: number | undefined;
@@ -794,7 +1142,10 @@ export function validateEvaluationInput(input: {
         `${frames[i]!.frameIndex} breaks the contiguous 0-based rundown order (expected ${i})`,
       );
     }
-    if (previousOutputTimestamp !== undefined && frames[i]!.outputTimestampMs <= previousOutputTimestamp) {
+    if (
+      previousOutputTimestamp !== undefined &&
+      frames[i]!.outputTimestampMs <= previousOutputTimestamp
+    ) {
       throw new SceneEvaluationError(
         "frame-malformed",
         `${path}.outputTimestampMs`,
@@ -836,6 +1187,12 @@ export function validateEvaluationInput(input: {
   }
 
   if (directed) {
+    validateDirectorBlock(manifest.director);
+    validateSkippedMarkers(
+      manifest.skippedMarkers,
+      "$.output.manifest.skippedMarkers",
+      manifest.windows.length,
+    );
     for (let w = 0; w < manifest.windows.length; w += 1) {
       const window = manifest.windows[w]!;
       const path = `$.output.manifest.windows[${w}]`;
@@ -848,6 +1205,7 @@ export function validateEvaluationInput(input: {
       }
       requireString(window.cameraSlotId, `${path}.cameraSlotId`);
       requireEnum(window.kind, ["live", "review"], `${path}.kind`);
+      validateCameraBlock(window.camera, `${path}.camera`);
       const source = window.source;
       if (!isRecord(source)) {
         throw new SceneEvaluationError("window-malformed", `${path}.source`, "must be an object");
@@ -920,5 +1278,6 @@ export function validateEvaluationInput(input: {
     manifest,
     frames,
     stepIndexByAtMs,
+    plan,
   };
 }

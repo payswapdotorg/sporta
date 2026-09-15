@@ -32,7 +32,7 @@ import { projectScene } from "@sporta/scene-projection";
 import type { SceneSpecification } from "@sporta/scene-projection";
 import type { AvatarField3dMatchStep } from "@sporta/renderer-3d";
 import { deepEqualJson, describeValue } from "./internal";
-import type { FindingSink, SceneEvaluationFinding } from "./findings";
+import type { FindingSink } from "./findings";
 
 /** The measured source-truth metrics (all counts; every mismatch a finding). */
 export interface SourceTruthMetrics {

@@ -30,12 +30,7 @@ export function deepEqualJson(a: unknown, b: unknown): boolean {
   const bKeys = Object.keys(b as Record<string, unknown>);
   if (aKeys.length !== bKeys.length) return false;
   for (const key of aKeys) {
-    if (
-      !deepEqualJson(
-        (a as Record<string, unknown>)[key],
-        (b as Record<string, unknown>)[key],
-      )
-    ) {
+    if (!deepEqualJson((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
       return false;
     }
   }

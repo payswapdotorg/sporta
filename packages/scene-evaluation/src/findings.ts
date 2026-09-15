@@ -12,13 +12,7 @@ import type { EvalFrame } from "./validate";
 export interface SceneEvaluationFinding {
   /** The dimension the finding counts into (`"score"`, `"identity"`, …). */
   dimension:
-    | "source-truth"
-    | "score"
-    | "clock"
-    | "identity"
-    | "ordering"
-    | "scene-state"
-    | "direction";
+    "source-truth" | "score" | "clock" | "identity" | "ordering" | "scene-state" | "direction";
   /** The metric's report path (e.g. `identity.styleTokenDivergenceCount`). */
   metric: string;
   /** The finding's step index (source-truth findings only). */

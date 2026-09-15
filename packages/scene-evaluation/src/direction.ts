@@ -9,9 +9,11 @@
  *   fixed template over the slot actually in force (the frame's directed
  *   window's slot, or the match manifest's camera slot); the realized
  *   camera block (window or manifest) is the CANONICAL W601 slot geometry
- *   — the slot document carried by the steps' scenes, verbatim (positions
- *   never re-invented by the composer); every directed frame's own
- *   `cameraSlotId` equals its window's slot.
+ *   — slot id, position, and target carried verbatim by the steps' scenes,
+ *   plus the renderer's own exported `FOCAL_PX`/`NEAR_PLANE_METERS`
+ *   constants (positions and camera constants never re-invented by the
+ *   composer); every directed frame's own `cameraSlotId` equals its
+ *   window's slot.
  * - **Directed-mode structure**: every window's slot is one of the
  *   canonical slots carried by the steps' scenes; review windows render at
  *   the W603 review profile (`REVIEW_OUTPUT_PROFILE` — the documented
@@ -24,6 +26,7 @@
  *   verbatim. Without the plan these checks are vacuously 0 and the report
  *   records `planSupplied: false` — never a silent claim.
  */
+import { FOCAL_PX, NEAR_PLANE_METERS } from "@sporta/renderer-3d";
 import { REVIEW_OUTPUT_PROFILE } from "@sporta/camera-director";
 import type { CameraPlan, DirectedRenderManifest } from "@sporta/camera-director";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
@@ -40,7 +43,7 @@ export interface DirectionMetrics {
   frameCameraLabelMismatchCount: number;
   /** Windows (or the match manifest) whose slot is not among the steps' carried canonical slots. */
   windowSlotNotCarriedCount: number;
-  /** Realized camera blocks that are not the canonical slot geometry (position/target drift). */
+  /** Realized camera blocks that are not the canonical slot geometry (slot id, position, target, focal, near plane). */
   windowCameraBlockMismatchCount: number;
   /** Review windows not rendered at the W603 review profile. */
   reviewProfileMismatchCount: number;
@@ -53,7 +56,12 @@ export interface DirectionMetrics {
 }
 
 /** The canonical slot documents carried by the steps' scenes (by slot id). */
-function canonicalSlots(input: ValidatedSceneEvaluationInput): Map<string, { position: { x: number; y: number; z: number }; target: { x: number; y: number; z: number } }> {
+function canonicalSlots(
+  input: ValidatedSceneEvaluationInput,
+): Map<
+  string,
+  { position: { x: number; y: number; z: number }; target: { x: number; y: number; z: number } }
+> {
   const slots = new Map<
     string,
     { position: { x: number; y: number; z: number }; target: { x: number; y: number; z: number } }
@@ -66,6 +74,47 @@ function canonicalSlots(input: ValidatedSceneEvaluationInput): Map<string, { pos
     }
   }
   return slots;
+}
+
+/** A canonical camera block document (the geometry + the renderer constants). */
+function canonicalCameraBlock(
+  slotId: string,
+  canonical: {
+    position: { x: number; y: number; z: number };
+    target: { x: number; y: number; z: number };
+  },
+): Record<string, unknown> {
+  return {
+    slotId,
+    position: canonical.position,
+    target: canonical.target,
+    focalPx: FOCAL_PX,
+    nearPlaneMeters: NEAR_PLANE_METERS,
+  };
+}
+
+/** Whether a realized camera block is the canonical one (every field). */
+function isCanonicalCameraBlock(
+  camera: {
+    slotId: string;
+    position: { x: number; y: number; z: number };
+    target: { x: number; y: number; z: number };
+    focalPx: number;
+    nearPlaneMeters: number;
+  },
+  canonical: {
+    position: { x: number; y: number; z: number };
+    target: { x: number; y: number; z: number };
+  },
+  expectedSlotId: string,
+): boolean {
+  return (
+    camera.slotId === expectedSlotId &&
+    deepEqualJson(camera.position, canonical.position) &&
+    deepEqualJson(camera.target, canonical.target) &&
+    camera.focalPx === FOCAL_PX &&
+    camera.nearPlaneMeters === NEAR_PLANE_METERS
+  );
 }
 
 /**
@@ -132,7 +181,8 @@ export function measureDirection(options: {
   // --- Window/manifest-level checks.
   if (input.mode === "match") {
     const manifest = input.manifest as Exclude<typeof input.manifest, DirectedRenderManifest>;
-    const slotId = manifest.camera.slotId;
+    const camera = manifest.camera;
+    const slotId = camera.slotId;
     if (!slots.has(slotId)) {
       windowSlotNotCarriedCount += 1;
       findings.push({
@@ -144,19 +194,19 @@ export function measureDirection(options: {
       });
     } else {
       const canonical = slots.get(slotId)!;
-      if (
-        !deepEqualJson(manifest.camera.position, canonical.position) ||
-        !deepEqualJson(manifest.camera.target, canonical.target)
-      ) {
+      if (!isCanonicalCameraBlock(camera, canonical, slotId)) {
         windowCameraBlockMismatchCount += 1;
         findings.push({
           dimension: "direction",
           metric: "direction.windowCameraBlockMismatchCount",
           path: "$.output.manifest.camera",
-          expected: describeValue(canonical),
+          expected: describeValue(canonicalCameraBlock(slotId, canonical)),
           actual: describeValue({
-            position: manifest.camera.position,
-            target: manifest.camera.target,
+            slotId: camera.slotId,
+            position: camera.position,
+            target: camera.target,
+            focalPx: camera.focalPx,
+            nearPlaneMeters: camera.nearPlaneMeters,
           }),
         });
       }
@@ -187,17 +237,20 @@ export function measureDirection(options: {
       });
     } else {
       const canonical = slots.get(window.cameraSlotId)!;
-      if (
-        !deepEqualJson(window.camera.position, canonical.position) ||
-        !deepEqualJson(window.camera.target, canonical.target)
-      ) {
+      if (!isCanonicalCameraBlock(window.camera, canonical, window.cameraSlotId)) {
         windowCameraBlockMismatchCount += 1;
         findings.push({
           dimension: "direction",
           metric: "direction.windowCameraBlockMismatchCount",
           path: `${windowPath}.camera`,
-          expected: describeValue(canonical),
-          actual: describeValue({ position: window.camera.position, target: window.camera.target }),
+          expected: describeValue(canonicalCameraBlock(window.cameraSlotId, canonical)),
+          actual: describeValue({
+            slotId: window.camera.slotId,
+            position: window.camera.position,
+            target: window.camera.target,
+            focalPx: window.camera.focalPx,
+            nearPlaneMeters: window.camera.nearPlaneMeters,
+          }),
         });
       }
     }

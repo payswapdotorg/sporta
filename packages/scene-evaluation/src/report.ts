@@ -420,7 +420,7 @@ export function evaluateSceneOutput(input: SceneEvaluationInput): SceneEvaluatio
     input: validated,
     frames,
     expectations,
-    plan: input.plan,
+    plan: validated.plan,
     findings,
   });
 
@@ -687,7 +687,7 @@ export function evaluateSceneOutput(input: SceneEvaluationInput): SceneEvaluatio
           ? (validated.manifest as { windows: unknown[] }).windows.length
           : 0,
       markerCount: ordering.markerCount,
-      planSupplied: input.plan !== undefined,
+      planSupplied: validated.plan !== undefined,
     },
     sourceTruth,
     score,

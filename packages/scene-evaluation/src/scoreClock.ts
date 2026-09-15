@@ -29,7 +29,7 @@
  */
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import type { FrameExpectation } from "./expected";
-import type { FindingSink, SceneEvaluationFinding } from "./findings";
+import type { FindingSink } from "./findings";
 import { frameFinding } from "./findings";
 import { describeValue } from "./internal";
 
@@ -51,7 +51,7 @@ export interface ClockMetrics {
   stepClockMismatchCount: number;
   /** Consecutive same-segment frame pairs whose claim CHANGED mid-segment (the W603 advance discipline). */
   midSegmentClaimChangeCount: number;
-  /** Boundary crossings where the claim advanced (evidence: the clock DID move, at boundaries). */
+  /** Boundary crossings where the claim changed (evidence: clock/score state moves ONLY at snapshot boundaries — live advances, review re-presentation jumps). */
   boundaryClaimAdvanceCount: number;
   /** Frames checked (evidence). */
   frameCount: number;
@@ -124,7 +124,10 @@ function measureAdvanceDiscipline(
       boundaryAdvances += 1;
     }
   }
-  return { midSegmentClaimChangeCount: midSegmentChanges, boundaryClaimAdvanceCount: boundaryAdvances };
+  return {
+    midSegmentClaimChangeCount: midSegmentChanges,
+    boundaryClaimAdvanceCount: boundaryAdvances,
+  };
 }
 
 /** Measures the score dimension (the frame claim + the layer-1 step counts). */

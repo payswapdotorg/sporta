@@ -32,7 +32,6 @@ import type {
   Render3dFrameEntry,
 } from "@sporta/renderer-3d";
 import type { SceneEntity, SceneSpecification } from "@sporta/scene-projection";
-import type { DirectedRenderManifest } from "@sporta/camera-director";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import { SceneEvaluationError } from "./errors";
 
@@ -166,26 +165,13 @@ export function frameExpectation(
 }
 
 /** The expected style-kind for one expected scene entity (documented mapping). */
-export function expectedStyleKind(entity: SceneEntity): "identity" | "official-fixed" | "ball-fixed" | "none" {
-  if (
-    entity.disposition !== "projected" &&
-    entity.disposition !== "projected-out-of-bounds"
-  ) {
+export function expectedStyleKind(
+  entity: SceneEntity,
+): "identity" | "official-fixed" | "ball-fixed" | "none" {
+  if (entity.disposition !== "projected" && entity.disposition !== "projected-out-of-bounds") {
     return "none";
   }
   if (entity.kind === "ball") return "ball-fixed";
   if (entity.kind === "official") return "official-fixed";
   return "identity";
-}
-
-/**
- * The directed manifest's windows when the input is a directed rundown
- * (typed accessor; null in match mode).
- */
-export function directedWindows(
-  manifest: AvatarField3dManifest | DirectedRenderManifest,
-): DirectedRenderManifest["windows"] | null {
-  return Array.isArray((manifest as DirectedRenderManifest).windows)
-    ? (manifest as DirectedRenderManifest).windows
-    : null;
 }
