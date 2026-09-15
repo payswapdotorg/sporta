@@ -1,0 +1,328 @@
+{
+  "cameraSlotIds": [
+    "main-touchline",
+    "opposite-touchline",
+    "behind-goal-x0",
+    "behind-goal-x105",
+    "aerial-tactical"
+  ],
+  "events": [
+    {
+      "event": {
+        "confidence": 0.9,
+        "eventId": "fe-golden-1",
+        "eventTimeMs": 1000,
+        "eventTypeRef": "football/v1/kickoff",
+        "evidence": {
+          "observationIds": ["obs-18977d"]
+        },
+        "interval": {
+          "endTimeMs": 1000,
+          "startTimeMs": 900
+        },
+        "provenance": "DERIVED",
+        "schemaVersion": "1.0",
+        "sessionId": "sess-scene-golden"
+      },
+      "sequence": 1,
+      "snapshotVersionAfter": 14
+    },
+    {
+      "event": {
+        "confidence": 0.85,
+        "eventId": "fe-golden-2",
+        "eventTimeMs": 2500,
+        "eventTypeRef": "football/v1/pass",
+        "evidence": {
+          "observationIds": ["obs-ba8b0e"]
+        },
+        "interval": {
+          "endTimeMs": 2500,
+          "startTimeMs": 2400
+        },
+        "provenance": "DERIVED",
+        "schemaVersion": "1.0",
+        "sessionId": "sess-scene-golden"
+      },
+      "sequence": 2,
+      "snapshotVersionAfter": 15
+    },
+    {
+      "event": {
+        "confidence": 0.91,
+        "eventId": "fe-golden-3",
+        "eventTimeMs": 5500,
+        "eventTypeRef": "football/v1/goal",
+        "evidence": {
+          "observationIds": ["obs-158dac"]
+        },
+        "interval": {
+          "endTimeMs": 5500,
+          "startTimeMs": 5300
+        },
+        "provenance": "DERIVED",
+        "schemaVersion": "1.0",
+        "sessionId": "sess-scene-golden"
+      },
+      "sequence": 3,
+      "snapshotVersionAfter": 16
+    },
+    {
+      "event": {
+        "confidence": 0.97,
+        "correctionOf": "fe-golden-3",
+        "eventId": "fe-golden-4",
+        "eventTimeMs": 9000,
+        "eventTypeRef": "football/v1/referee-decision",
+        "evidence": {
+          "observationIds": ["obs-a0ee51"]
+        },
+        "interval": {
+          "endTimeMs": 9000,
+          "startTimeMs": 8900
+        },
+        "provenance": "DERIVED",
+        "schemaVersion": "1.0",
+        "sessionId": "sess-scene-golden"
+      },
+      "sequence": 4,
+      "snapshotVersionAfter": 17
+    }
+  ],
+  "fixtureKind": "sporta/eval-harness/w601-scene-fixture@1",
+  "sessionId": "sess-scene-golden",
+  "snapshot": {
+    "entities": [
+      {
+        "entityId": "striker-9",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "heading": {
+            "status": "known",
+            "value": 1.25
+          },
+          "pitchPosition": {
+            "confidence": 0.83,
+            "status": "uncertain",
+            "value": {
+              "x": 47.5,
+              "y": 30.25
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "winger-7",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "pitchPosition": {
+            "confidence": 0.77,
+            "status": "uncertain",
+            "value": {
+              "x": 105,
+              "y": 61.75
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "keeper-1",
+        "kind": "participant",
+        "lastEventTimeMs": 9500,
+        "state": {
+          "lastSeenMs": {
+            "status": "known",
+            "value": 9500
+          },
+          "position": {
+            "confidence": 0.64,
+            "status": "uncertain",
+            "value": {
+              "x": 5.25,
+              "y": 34
+            }
+          },
+          "spatialFrame": {
+            "status": "known",
+            "value": "pitch"
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "ref-1",
+        "kind": "official",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "pitchPosition": {
+            "status": "known",
+            "value": {
+              "x": 52.5,
+              "y": 42.5
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "bench-12",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "teamRole": {
+            "status": "known",
+            "value": "goalkeeper"
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "injured-3",
+        "kind": "participant",
+        "lastEventTimeMs": 4000,
+        "state": {
+          "pitchPosition": {
+            "status": "unknown"
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "lost-4",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "pitchPosition": {
+            "confidence": 0.4,
+            "status": "uncertain",
+            "value": "somewhere"
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "img-5",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "position": {
+            "confidence": 0.5,
+            "status": "uncertain",
+            "value": {
+              "x": 0.42,
+              "y": 0.67
+            }
+          },
+          "spatialFrame": {
+            "status": "known",
+            "value": "image"
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "outlier-8",
+        "kind": "participant",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "pitchPosition": {
+            "confidence": 0.55,
+            "status": "uncertain",
+            "value": {
+              "x": 112.5,
+              "y": 34
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "ball-1",
+        "kind": "ball",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "heading": {
+            "confidence": 0.3,
+            "status": "uncertain",
+            "value": 3.9269908169872414
+          },
+          "height": {
+            "status": "known",
+            "value": 1.5
+          },
+          "pitchPosition": {
+            "confidence": 0.91,
+            "status": "uncertain",
+            "value": {
+              "x": 52.5,
+              "y": 33.5
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "camera-a",
+        "kind": "camera",
+        "lastEventTimeMs": 10000,
+        "state": {
+          "position": {
+            "status": "known",
+            "value": {
+              "x": -20,
+              "y": 34
+            }
+          }
+        },
+        "version": 1
+      },
+      {
+        "entityId": "team-home",
+        "kind": "team",
+        "lastEventTimeMs": 0,
+        "state": {},
+        "version": 1
+      }
+    ],
+    "football": {
+      "clock": {
+        "clockMs": 2704000,
+        "period": "second-half",
+        "stoppage": false
+      },
+      "eventTaxonomyVersion": "v1",
+      "pitch": {
+        "axes": "x=touchline, y=goal-line",
+        "lengthAxisMeters": 105,
+        "origin": "corner",
+        "widthAxisMeters": 68
+      },
+      "possession": {
+        "confidence": 0.72,
+        "status": "uncertain",
+        "value": {
+          "entityId": "striker-9"
+        }
+      },
+      "score": {
+        "away": 1,
+        "home": 2,
+        "status": {
+          "status": "known",
+          "value": "confirmed"
+        }
+      }
+    },
+    "generatedAtMs": 1736164800000,
+    "schemaVersion": "1.0",
+    "sessionId": "sess-scene-golden",
+    "watermark": {
+      "sequence": 4,
+      "watermarkMs": 10000
+    }
+  }
+}

@@ -129,6 +129,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/eval-harness": {
+      "name": "@sporta/eval-harness",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/evaluation": "workspace:*",
+        "@sporta/renderer-evaluation": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/evaluation": {
       "name": "@sporta/evaluation",
       "version": "0.1.0",
@@ -506,6 +521,8 @@
     "@sporta/control-api": ["@sporta/control-api@workspace:packages/control-api"],
 
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
+
+    "@sporta/eval-harness": ["@sporta/eval-harness@workspace:packages/eval-harness"],
 
     "@sporta/evaluation": ["@sporta/evaluation@workspace:packages/evaluation"],
 
