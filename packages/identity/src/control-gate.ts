@@ -169,10 +169,9 @@ export function createIdentityControlGate(
     const ownerId = (await ownership.ownerIdOf(sessionId)) ?? NOT_OWNED;
     const decision = authorize(account, action, { ownerId });
     if (decision.allowed) return;
-    throw new IdentityPermissionDeniedError(
-      "media access is not authorized for this account",
-      { action },
-    );
+    throw new IdentityPermissionDeniedError("media access is not authorized for this account", {
+      action,
+    });
   }
 
   return {
@@ -196,9 +195,7 @@ export function createIdentityControlGate(
       };
       const result = await control.createSession({
         authorizationPolicy: attested,
-        ...(declaration.sourceLabel !== undefined
-          ? { sourceLabel: declaration.sourceLabel }
-          : {}),
+        ...(declaration.sourceLabel !== undefined ? { sourceLabel: declaration.sourceLabel } : {}),
       });
       await ownership.record(result.session.sessionId, account.userId);
       return result;

@@ -95,9 +95,10 @@ Three things, nothing more:
 
 ```sh
 cd packages/capability
-bun test                # 103 tests / 435 expects
+bun test                # 105 tests / 448 expects
 bun run typecheck       # tsc --noEmit, zero errors
-bun run regen-fixtures  # deterministic fixture regeneration
+bun run regen-fixtures  # deterministic fixture regeneration (Prettier-formatted,
+                        # with a formatting-losslessness proof — the regen-golden precedent)
 ```
 
 ```ts

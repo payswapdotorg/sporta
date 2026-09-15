@@ -108,10 +108,7 @@ export function toBase64Url(bytes: Uint8Array): string {
 
 /** SHA-256 hex digest of an ASCII string (WebCrypto — Bun + browsers). */
 export async function sha256Hex(text: string): Promise<string> {
-  const digest = await globalThis.crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(text),
-  );
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
@@ -155,10 +152,7 @@ export class SessionService {
    * `sha256(token)` + userId + issued/expires + `activeRole` (presentation
    * only), and returns the token once.
    */
-  async issue(input: {
-    userId: string;
-    activeRole?: Role | null;
-  }): Promise<IssuedSession> {
+  async issue(input: { userId: string; activeRole?: Role | null }): Promise<IssuedSession> {
     const token = toBase64Url(this.entropy.randomBytes(SESSION_TOKEN_BYTES));
     const issuedAtMs = this.nowMs();
     const record: SessionRecord = {

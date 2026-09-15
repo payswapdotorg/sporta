@@ -22,13 +22,7 @@ import { z } from "zod";
  * (what the account may be offered), NEVER authority (what a request may do —
  * that is decided server-side per action by `@sporta/identity`'s policy).
  */
-export const ROLES = [
-  "viewer",
-  "creator",
-  "analyst",
-  "rights-holder",
-  "operator",
-] as const;
+export const ROLES = ["viewer", "creator", "analyst", "rights-holder", "operator"] as const;
 
 /** An account role grant. */
 export type Role = (typeof ROLES)[number];

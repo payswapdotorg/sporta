@@ -32,9 +32,7 @@ export function parseCapabilityResponse(text: string): CapabilityResponse {
     throw new CapabilityParseError(
       "capability response failed schema validation (unknown keys, closed-vocabulary violations, or cross-field invariants)",
       {
-        issues: parsed.error.issues.map(
-          (issue) => `${issue.path.join(".")}: ${issue.message}`,
-        ),
+        issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
       },
     );
   }

@@ -63,11 +63,7 @@ export {
 } from "./sessions";
 export type { IssuedSession, SessionRecord, SessionServiceOptions, SessionStore } from "./sessions";
 
-export {
-  IDENTITY_ACTIONS,
-  authorize,
-  isIdentityAction,
-} from "./policy";
+export { IDENTITY_ACTIONS, authorize, isIdentityAction } from "./policy";
 export type {
   AuthorizationDecision,
   IdentityAction,
@@ -77,10 +73,7 @@ export type {
   ResourceContext,
 } from "./policy";
 
-export {
-  createIdentityControlGate,
-  InMemoryMediaOwnershipStore,
-} from "./control-gate";
+export { createIdentityControlGate, InMemoryMediaOwnershipStore } from "./control-gate";
 export type {
   GatedControlApp,
   IdentityControlGate,
@@ -104,12 +97,7 @@ export {
 } from "./errors";
 export type { IdentityError, IdentityErrorDetails, IdentityFailureClass } from "./errors";
 
-export {
-  SESSION_COOKIE,
-  createIdentityServer,
-  extractToken,
-  toIsoUtc,
-} from "./http";
+export { SESSION_COOKIE, createIdentityServer, extractToken, toIsoUtc } from "./http";
 export type {
   AccountView,
   IdentityRoute,

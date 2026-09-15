@@ -207,9 +207,9 @@ describe("closed vocabularies", () => {
       response.providers[2]!,
       response.providers[3]!,
     ];
-    expect(
-      CapabilityResponseSchema.safeParse({ ...response, providers: duplicated }).success,
-    ).toBe(false);
+    expect(CapabilityResponseSchema.safeParse({ ...response, providers: duplicated }).success).toBe(
+      false,
+    );
   });
 
   test("quota scope and surface vocabularies are closed", () => {
@@ -245,7 +245,9 @@ describe("closed vocabularies", () => {
   });
 });
 
-function r0(response: CapabilityResponse): CapabilityResponse["content"]["catalogSurfaces"][number] {
+function r0(
+  response: CapabilityResponse,
+): CapabilityResponse["content"]["catalogSurfaces"][number] {
   return response.content.catalogSurfaces[0]!;
 }
 
@@ -375,7 +377,10 @@ describe("cross-field invariants (invalid responses are unparseable)", () => {
     expect(
       CapabilityResponseSchema.safeParse({
         ...response,
-        modes: { ...response.modes, batch: { availability: "available", reasonCode: "provider-down" } },
+        modes: {
+          ...response.modes,
+          batch: { availability: "available", reasonCode: "provider-down" },
+        },
       }).success,
     ).toBe(false);
     expect(
@@ -438,7 +443,9 @@ describe("cross-field invariants (invalid responses are unparseable)", () => {
       CapabilityResponseSchema.safeParse({
         ...response,
         content: {
-          catalogSurfaces: [{ ...r0(response), visibility: "hidden", reasonCode: "surface-visible" }],
+          catalogSurfaces: [
+            { ...r0(response), visibility: "hidden", reasonCode: "surface-visible" },
+          ],
         },
       }).success,
     ).toBe(false);

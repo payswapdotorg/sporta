@@ -12,12 +12,7 @@ import { AccountConflictError, AccountNotFoundError } from "./accounts";
 
 /** Failure classification for identity rejections. */
 export type IdentityFailureClass =
-  | "validation"
-  | "auth-invalid"
-  | "unauthenticated"
-  | "permission-denied"
-  | "conflict"
-  | "internal";
+  "validation" | "auth-invalid" | "unauthenticated" | "permission-denied" | "conflict" | "internal";
 
 /**
  * The canonical typed-error → HTTP status mapping:

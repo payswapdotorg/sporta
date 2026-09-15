@@ -73,8 +73,7 @@ function createStore(): RenderOutputStore & {
       if (caps.canStoreDerivatives !== true) return [];
       return [...segments.values()]
         .filter(
-          (segment) =>
-            segment.sessionId === query.sessionId && segment.renderId === query.renderId,
+          (segment) => segment.sessionId === query.sessionId && segment.renderId === query.renderId,
         )
         .map(({ segmentId, contentType, byteLength, contentHash }) => ({
           segmentId,
@@ -199,9 +198,9 @@ describe("identity-attested media-session creation (the W701 bridge)", () => {
 
   test("an unauthenticated token cannot create anything", async () => {
     const h = createGateHarness();
-    await expect(h.gate.createMediaSession("no-such-token", FULL_ALLOW_DECLARATION)).rejects.toThrow(
-      /authentication required/,
-    );
+    await expect(
+      h.gate.createMediaSession("no-such-token", FULL_ALLOW_DECLARATION),
+    ).rejects.toThrow(/authentication required/);
   });
 
   test("a rights-holder and an operator may also create (the matrix's upload column)", async () => {
@@ -343,9 +342,9 @@ describe("output bytes: denied before exposure", () => {
 
     // The stranger is denied BEFORE the store is touched.
     const callsBefore = h.store.calls;
-    await expect(
-      h.gate.getRenderOutput(stranger.token, sessionId, "r-1", "seg-1"),
-    ).rejects.toThrow(/not authorized/);
+    await expect(h.gate.getRenderOutput(stranger.token, sessionId, "r-1", "seg-1")).rejects.toThrow(
+      /not authorized/,
+    );
     expect(h.store.calls).toBe(callsBefore); // ZERO store calls on the deny path
 
     // The owner reads the actual bytes through the REAL control app.

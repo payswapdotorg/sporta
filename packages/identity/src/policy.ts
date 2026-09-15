@@ -51,8 +51,7 @@ export type IdentityAllowVia =
 
 /** A policy decision: allow with provenance, or deny with a reason. */
 export type AuthorizationDecision =
-  | { allowed: true; via: IdentityAllowVia }
-  | { allowed: false; reason: IdentityDenialReason };
+  { allowed: true; via: IdentityAllowVia } | { allowed: false; reason: IdentityDenialReason };
 
 /** The minimum account shape the policy needs (grants + stable id). */
 export interface PolicyAccount {

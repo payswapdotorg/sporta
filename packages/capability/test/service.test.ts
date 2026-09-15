@@ -399,7 +399,10 @@ describe("live mode derivation", () => {
 
 describe("overall summary derivation", () => {
   test("all renderers unavailable (or none) = overall unavailable", () => {
-    const empty = buildCapabilityResponse({ session: ANONYMOUS_SESSION, providers: HEALTHY_PROVIDERS });
+    const empty = buildCapabilityResponse({
+      session: ANONYMOUS_SESSION,
+      providers: HEALTHY_PROVIDERS,
+    });
     expect(empty.overall.state).toBe("unavailable");
     const allDenied = buildCapabilityResponse({
       session: ANONYMOUS_SESSION,

@@ -32,11 +32,7 @@ const PACKAGE_ROOT = dirname(import.meta.dir);
  * (@sporta/capability for the role vocabulary; @sporta/contracts for the
  * rights-policy shape).
  */
-const ALLOWED_SPECIFIERS: readonly string[] = [
-  "zod",
-  "@sporta/capability",
-  "@sporta/contracts",
-];
+const ALLOWED_SPECIFIERS: readonly string[] = ["zod", "@sporta/capability", "@sporta/contracts"];
 
 function importSpecifiersOf(source: string): string[] {
   const specifiers: string[] = [];
@@ -128,4 +124,3 @@ describe("constitution — zero wall-clock / RNG calls in src", () => {
     expect(clock()).toBe(expected + 2);
   });
 });
-

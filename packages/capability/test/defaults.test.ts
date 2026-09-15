@@ -43,7 +43,10 @@ describe("the default catalog surface table", () => {
 
   test("role-gated surfaces encode the matrix rows exactly", () => {
     const byId = new Map(DEFAULT_CATALOG_SURFACES.map((surface) => [surface.surfaceId, surface]));
-    expect(byId.get("library")).toMatchObject({ requiresAuthenticated: true, requiredRoles: ["viewer"] });
+    expect(byId.get("library")).toMatchObject({
+      requiresAuthenticated: true,
+      requiredRoles: ["viewer"],
+    });
     expect(byId.get("create-studio")).toMatchObject({
       requiresAuthenticated: true,
       requiredRoles: ["creator"],
@@ -83,7 +86,9 @@ describe("surface visibility derivation (the default set in action)", () => {
         ? {
             account: {
               userId: input.userId,
-              roles: (input.roles ?? []) as ("viewer" | "creator" | "analyst" | "rights-holder" | "operator")[],
+              roles: (input.roles ?? []) as (
+                "viewer" | "creator" | "analyst" | "rights-holder" | "operator"
+              )[],
             },
           }
         : {}),

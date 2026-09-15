@@ -363,11 +363,7 @@ export function createIdentityServer(options: IdentityServerOptions = {}): Bun.S
     return respond(200, accountView(account, activeRole), requestId);
   }
 
-  async function switchRole(
-    request: Request,
-    body: unknown,
-    requestId: string,
-  ): Promise<Response> {
+  async function switchRole(request: Request, body: unknown, requestId: string): Promise<Response> {
     const { account, token } = await requireSession(request);
     const parsed = SwitchRoleInput.safeParse(body);
     if (!parsed.success) {

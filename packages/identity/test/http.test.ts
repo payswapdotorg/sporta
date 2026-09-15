@@ -126,7 +126,12 @@ describe("register / login / logout / me — happy path", () => {
   });
 
   test("login issues an opaque bearer token for a valid account", async () => {
-    const response = await post<{ token: string; tokenKind: string; expiresAtIso: string; account: AccountView }>(
+    const response = await post<{
+      token: string;
+      tokenKind: string;
+      expiresAtIso: string;
+      account: AccountView;
+    }>(
       h.baseUrl,
       "/v1/auth/login",
       { username: "GRACE", password: PASSWORD }, // normalization applies to lookup too
@@ -188,10 +193,14 @@ describe("register / login / logout / me — happy path", () => {
   });
 
   test("TOKEN STORED HASHED: the session store contains no plaintext token or password", async () => {
-    const login = await post<{ token: string; account: { userId: string } }>(h.baseUrl, "/v1/auth/login", {
-      username: "grace",
-      password: PASSWORD,
-    });
+    const login = await post<{ token: string; account: { userId: string } }>(
+      h.baseUrl,
+      "/v1/auth/login",
+      {
+        username: "grace",
+        password: PASSWORD,
+      },
+    );
     const records = await h.sessionStore.all();
     expect(records.length).toBeGreaterThanOrEqual(1);
     const dump = JSON.stringify(records);
@@ -260,12 +269,17 @@ describe("expired session (injected clock advance)", () => {
     const short = createHarness({ ttlMs: 60_000 });
     try {
       await post(short.baseUrl, "/v1/auth/register", { username: "temporal", password: PASSWORD });
-      const login = await post<{ token: string; expiresAtIso: string }>(short.baseUrl, "/v1/auth/login", {
-        username: "temporal",
-        password: PASSWORD,
-      });
-      expect(await callJson(short.baseUrl, "/v1/auth/me", { headers: bearer(login.body.token) }))
-        .toMatchObject({ status: 200 });
+      const login = await post<{ token: string; expiresAtIso: string }>(
+        short.baseUrl,
+        "/v1/auth/login",
+        {
+          username: "temporal",
+          password: PASSWORD,
+        },
+      );
+      expect(
+        await callJson(short.baseUrl, "/v1/auth/me", { headers: bearer(login.body.token) }),
+      ).toMatchObject({ status: 200 });
       short.clock.advance(59_999);
       const still = await callJson(short.baseUrl, "/v1/auth/me", {
         headers: bearer(login.body.token),
@@ -322,14 +336,24 @@ describe("role switching", () => {
       password: PASSWORD,
     });
     // First land on a held role...
-    const held = await post(h.baseUrl, "/v1/auth/switch-role", { role: "creator" }, {
-      headers: bearer(login.body.token),
-    });
+    const held = await post(
+      h.baseUrl,
+      "/v1/auth/switch-role",
+      { role: "creator" },
+      {
+        headers: bearer(login.body.token),
+      },
+    );
     expect(held.status).toBe(200);
     // ...then attempt the unheld one.
-    const response = await post(h.baseUrl, "/v1/auth/switch-role", { role: "operator" }, {
-      headers: bearer(login.body.token),
-    });
+    const response = await post(
+      h.baseUrl,
+      "/v1/auth/switch-role",
+      { role: "operator" },
+      {
+        headers: bearer(login.body.token),
+      },
+    );
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       error: {
@@ -350,9 +374,14 @@ describe("role switching", () => {
       username: "switcher",
       password: PASSWORD,
     });
-    const response = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/switch-role", { role: "wizard" }, {
-      headers: bearer(login.body.token),
-    });
+    const response = await post<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/switch-role",
+      { role: "wizard" },
+      {
+        headers: bearer(login.body.token),
+      },
+    );
     expect(response.status).toBe(400);
     expect(response.body.error.failureClass).toBe("validation");
   });
@@ -389,7 +418,11 @@ describe("role switching", () => {
   });
 
   test("switch-role requires a session (401 without token)", async () => {
-    const response = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/switch-role", { role: "viewer" });
+    const response = await post<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/switch-role",
+      { role: "viewer" },
+    );
     expect(response.status).toBe(401);
     expect(response.body.error.failureClass).toBe("unauthenticated");
   });
@@ -401,7 +434,11 @@ describe("role switching", () => {
 
 describe("validation and transport conventions", () => {
   test("a short username, a short password, and unknown keys are all 400 validation", async () => {
-    const shortUser = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register", { username: "ab", password: PASSWORD });
+    const shortUser = await post<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/register",
+      { username: "ab", password: PASSWORD },
+    );
     expect(shortUser.status).toBe(400);
     expect(shortUser.body.error.failureClass).toBe("validation");
 
@@ -427,26 +464,40 @@ describe("validation and transport conventions", () => {
   });
 
   test("self-registration cannot mint operator or rights-holder grants (privilege escalation)", async () => {
-    const response = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register", {
-      username: "escalator",
-      password: PASSWORD,
-      roles: ["operator", "rights-holder"],
-    });
+    const response = await post<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/register",
+      {
+        username: "escalator",
+        password: PASSWORD,
+        roles: ["operator", "rights-holder"],
+      },
+    );
     expect(response.status).toBe(400);
     expect(response.body.error.failureClass).toBe("validation");
     expect(await h.accounts.findByUsername("escalator")).toBeNull(); // nothing created
   });
 
   test("a duplicate username is 409 conflict", async () => {
-    const first = await post(h.baseUrl, "/v1/auth/register", { username: "clash", password: PASSWORD });
+    const first = await post(h.baseUrl, "/v1/auth/register", {
+      username: "clash",
+      password: PASSWORD,
+    });
     expect(first.status).toBe(200);
-    const second = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register", { username: "clash", password: PASSWORD });
+    const second = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register", {
+      username: "clash",
+      password: PASSWORD,
+    });
     expect(second.status).toBe(409);
     expect(second.body.error.failureClass).toBe("conflict");
   });
 
   test("malformed JSON and empty bodies are 400 validation", async () => {
-    const malformed = await post<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register", "{not json");
+    const malformed = await post<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/register",
+      "{not json",
+    );
     expect(malformed.status).toBe(400);
     expect(malformed.body.error.failureClass).toBe("validation");
     const empty = await fetch(`${h.baseUrl}/v1/auth/register`, {
@@ -460,14 +511,19 @@ describe("validation and transport conventions", () => {
     const unknown = await callJson<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/nope");
     expect(unknown.status).toBe(404);
     expect(unknown.body.error.failureClass).toBe("unknown-route");
-    const wrongMethod = await callJson<{ error: { failureClass: string } }>(h.baseUrl, "/v1/auth/register");
+    const wrongMethod = await callJson<{ error: { failureClass: string } }>(
+      h.baseUrl,
+      "/v1/auth/register",
+    );
     expect(wrongMethod.status).toBe(405);
     expect(wrongMethod.body.error.failureClass).toBe("method-not-allowed");
     expect(wrongMethod.headers.get("allow")).toBe("POST");
   });
 
   test("x-request-id is echoed back; a deterministic one is generated otherwise", async () => {
-    const echoed = await callJson(h.baseUrl, "/v1/auth/me", { headers: { "x-request-id": "rid-42" } });
+    const echoed = await callJson(h.baseUrl, "/v1/auth/me", {
+      headers: { "x-request-id": "rid-42" },
+    });
     expect(echoed.requestId).toBe("rid-42");
     const generated = await callJson(h.baseUrl, "/v1/auth/me");
     expect(generated.requestId).toMatch(/^req-\d+$/);

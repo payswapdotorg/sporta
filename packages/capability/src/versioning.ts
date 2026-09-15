@@ -21,7 +21,8 @@ export const CAPABILITY_SCHEMA_MAJOR = 1 as const;
 export const CAPABILITY_SCHEMA_MINOR = 0 as const;
 
 /** Current capability schema version as `"MAJOR.MINOR"`. */
-export const CAPABILITY_SCHEMA_VERSION = `${CAPABILITY_SCHEMA_MAJOR}.${CAPABILITY_SCHEMA_MINOR}` as const;
+export const CAPABILITY_SCHEMA_VERSION =
+  `${CAPABILITY_SCHEMA_MAJOR}.${CAPABILITY_SCHEMA_MINOR}` as const;
 
 /** Package version of @sporta/capability. */
 export const CAPABILITY_PACKAGE_VERSION = "0.1.0";

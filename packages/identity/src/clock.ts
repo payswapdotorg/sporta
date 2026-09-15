@@ -11,7 +11,7 @@
  * The epoch constant is LOCAL (the viewer-shell pattern): it mirrors
  * `@sporta/testing`'s `TEST_EPOCH_MS` (`Date.parse("2025-01-06T12:00:00.000Z")`)
  * so the identity package carries no runtime dependency on the test-harness
- * package; `test/http.test.ts` pins the two equal so the mirror can never
+ * package; `test/boundary.test.ts` pins the two equal so the mirror can never
  * drift.
  */
 

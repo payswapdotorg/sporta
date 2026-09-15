@@ -28,12 +28,7 @@ export {
   CAPABILITY_SCHEMA_VERSION,
 } from "./versioning";
 
-export {
-  ACTIVE_ROLE_CONTEXT_NOTE,
-  ROLES,
-  ROLES_ARE_GRANTS_NOTE,
-  RoleSchema,
-} from "./roles";
+export { ACTIVE_ROLE_CONTEXT_NOTE, ROLES, ROLES_ARE_GRANTS_NOTE, RoleSchema } from "./roles";
 export type { Role } from "./roles";
 
 export {

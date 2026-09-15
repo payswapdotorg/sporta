@@ -117,7 +117,11 @@ describe("the grants matrix (role-experience-matrix rows)", () => {
     const owner = account("u-owner", ["creator"]);
     const otherCreator = account("u-other", ["creator", "analyst"]);
     const operator = account("u-op", ["operator", "viewer"]);
-    for (const action of ["media-session.read", "media-session.terminate", "render-output.read"] as const) {
+    for (const action of [
+      "media-session.read",
+      "media-session.terminate",
+      "render-output.read",
+    ] as const) {
       expect(authorize(owner, action, { ownerId: "u-owner" })).toEqual({
         allowed: true,
         via: "resource-owner",

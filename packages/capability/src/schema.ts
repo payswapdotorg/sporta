@@ -535,7 +535,10 @@ export const CapabilityResponseValidated = CapabilityResponse.superRefine((respo
     });
   }
   // The active role must be a grant the account actually holds.
-  if (response.auth.activeRole !== null && !response.account.roles.includes(response.auth.activeRole)) {
+  if (
+    response.auth.activeRole !== null &&
+    !response.account.roles.includes(response.auth.activeRole)
+  ) {
     ctx.addIssue({
       code: "custom",
       path: ["auth", "activeRole"],
@@ -598,7 +601,10 @@ export const CapabilityResponseValidated = CapabilityResponse.superRefine((respo
       message: "a non-available live mode must carry a non-ok reason code",
     });
   }
-  if (response.modes.batch.availability === "available" && response.modes.batch.reasonCode !== "ok") {
+  if (
+    response.modes.batch.availability === "available" &&
+    response.modes.batch.reasonCode !== "ok"
+  ) {
     ctx.addIssue({
       code: "custom",
       path: ["modes", "batch", "reasonCode"],
@@ -636,7 +642,12 @@ export const CapabilityResponseValidated = CapabilityResponse.superRefine((respo
       });
     }
     if (quota.reasonCode === "quota-counter-invalid") {
-      if (!quota.exhausted || quota.used !== null || quota.limit !== null || quota.remaining !== null) {
+      if (
+        !quota.exhausted ||
+        quota.used !== null ||
+        quota.limit !== null ||
+        quota.remaining !== null
+      ) {
         ctx.addIssue({
           code: "custom",
           path: ["quotas", index],

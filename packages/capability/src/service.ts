@@ -161,7 +161,10 @@ interface ProviderHealthIndex {
 }
 
 function indexProviderFeeds(rawFeeds: readonly unknown[]): ProviderHealthIndex {
-  const byKind = new Map<ProviderHealth["kind"], { health: ProviderHealth["health"]; entry: ProviderHealth }>();
+  const byKind = new Map<
+    ProviderHealth["kind"],
+    { health: ProviderHealth["health"]; entry: ProviderHealth }
+  >();
   let invalidFeedCount = 0;
   for (const raw of rawFeeds) {
     const parsed = ProviderHealthFeedSchema.safeParse(raw);
@@ -425,8 +428,7 @@ function contentSection(
       // surface-request-invalid entry; an unattributable one is counted (it
       // surfaces in overall.reasonCodes as catalog-surface-request-invalid).
       invalidRequestCount += 1;
-      const id =
-        isRecord(raw) && typeof raw.surfaceId === "string" ? raw.surfaceId : undefined;
+      const id = isRecord(raw) && typeof raw.surfaceId === "string" ? raw.surfaceId : undefined;
       if (id !== undefined && (CATALOG_SURFACE_IDS as readonly string[]).includes(id)) {
         invalidSurfaces.push({
           surfaceId: id as CatalogSurfaceAvailability["surfaceId"],
@@ -441,7 +443,11 @@ function contentSection(
 
   const derived = requests.map((request): CatalogSurfaceAvailability => {
     if (request.requiresAuthenticated && !authenticated) {
-      return { surfaceId: request.surfaceId, visibility: "hidden", reasonCode: "authentication-required" };
+      return {
+        surfaceId: request.surfaceId,
+        visibility: "hidden",
+        reasonCode: "authentication-required",
+      };
     }
     if (
       request.requiredRoles.length > 0 &&
@@ -485,7 +491,11 @@ function overallSection(
   const allRenderersUnavailable =
     response.renderers.length === 0 ||
     response.renderers.every((renderer) => renderer.availability === "unavailable");
-  const state = allRenderersUnavailable ? "unavailable" : reasonCodes.length > 0 ? "degraded" : "ready";
+  const state = allRenderersUnavailable
+    ? "unavailable"
+    : reasonCodes.length > 0
+      ? "degraded"
+      : "ready";
   return { state, reasonCodes };
 }
 

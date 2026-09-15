@@ -109,7 +109,7 @@ describe("session issuance", () => {
     const service = new SessionService({ store, entropy: defaultEntropySource, nowMs: () => 0 });
     const s1 = await service.issue({ userId: "u-1" });
     const s2 = await service.issue({ userId: "u-1" });
-    expect((await store.all())).toHaveLength(2);
+    expect(await store.all()).toHaveLength(2);
     expect(s1.token).not.toBe(s2.token);
   });
 });
@@ -250,8 +250,8 @@ describe("InMemorySessionStore port semantics", () => {
     expect((await store.findByTokenHash("abc"))?.userId).toBe("u-1");
     await store.update({ ...record, activeRole: "viewer" });
     expect((await store.findByTokenHash("abc"))?.activeRole).toBe("viewer");
-    await expect(
-      store.update({ ...record, tokenHash: "nope" }),
-    ).rejects.toThrow(/unknown token hash/);
+    await expect(store.update({ ...record, tokenHash: "nope" })).rejects.toThrow(
+      /unknown token hash/,
+    );
   });
 });
