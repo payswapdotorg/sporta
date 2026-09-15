@@ -192,4 +192,15 @@ export function getSportaServer(): Promise<SportaServer> {
   return cache[SERVER_GLOBAL];
 }
 
+/**
+ * TEST-ONLY: installs a pre-built server as the process singleton, so route
+ * tests can drive the exported route handlers against a hermetic composition
+ * (deterministic clock, test hasher, optional seed) instead of the production
+ * singleton. Never imported by app code.
+ */
+export function installSportaServerForTests(server: SportaServer): void {
+  const cache = globalThis as ServerCache;
+  cache[SERVER_GLOBAL] = Promise.resolve(server);
+}
+
 export type { StoryEvent };
