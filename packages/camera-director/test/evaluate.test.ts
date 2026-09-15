@@ -76,11 +76,23 @@ describe("planDecisionRecords — the W605 evaluation surface", () => {
     expect(review!.kind).toBe("review");
   });
 
-  test("the projection is pure: the plan is never mutated", () => {
+  test("the projection is pure AND ISOLATED: mutating a record never reaches the plan", () => {
     const plan = direct(DEFAULT_DIRECTOR_POLICY, buildDirectorMatch(), []);
     const before = JSON.stringify(plan);
     const records = planDecisionRecords(plan);
+    // The records deep-equal the plan's windows (a 1:1 projection)…
+    expect(records[0]!.source).toEqual(plan.windows[0]!.source);
+    expect(records[0]!.decision).toEqual(plan.windows[0]!.decision);
+    // …and carry FRESH nested documents: mutating them — top-level fields
+    // AND nested records — never reaches the plan (an evaluator scoring or
+    // tampering with records can never corrupt the plan it scored).
     records[0]!.cameraSlotId = "aerial-tactical";
+    records[0]!.windowIndex = 99;
+    records[0]!.source.startMs = 123_456;
+    records[0]!.decision.ruleId = "director-instinct" as never;
     expect(JSON.stringify(plan)).toBe(before);
+    expect(records[0]!.source.startMs).toBe(123_456); // the mutation did land
+    // A fresh projection is unaffected (the plan document is intact).
+    expect(planDecisionRecords(plan)[0]!.source).toEqual(plan.windows[0]!.source);
   });
 });

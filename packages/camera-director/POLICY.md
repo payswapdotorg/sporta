@@ -114,8 +114,10 @@ W601 canonical slot (the selfcheck enforces it).
 0. **Fail-closed admission.** The policy re-validates; the timeline must
    be non-empty with finite, `>= 0`, strictly increasing `atMs` and
    record-shaped scenes; every candidate must carry well-formed W209
-   fields (confidence/emphasis finite in `[0, 1]`). Anything else throws
-   `DirectorError` — never a silently partial plan.
+   fields (confidence/emphasis finite in `[0, 1]`) with UNIQUE candidate
+   ids (W209's ids are the global `"ec-<seq>"` sequence — a repeated id
+   would conflate two candidates' accounting, so the stream is refused).
+   Anything else throws `DirectorError` — never a silently partial plan.
 1. **Possession-following default.** Per step, the follow reference maps
    through the zone table to a desired slot; a hysteresis walk produces
    the held default slot sequence (the initial slot at the first step is
@@ -154,7 +156,8 @@ W601 canonical slot (the selfcheck enforces it).
 5. **Accounting.** Every input candidate appears exactly once in
    `summary.eventAccounting` with its verbatim fields and one of five
    outcomes: `governed` / `superseded` / `below-confidence` / `no-rule` /
-   `outside-timeline`.
+   `outside-timeline`. (Duplicate candidate ids are REFUSED at admission
+   — §4.0 — so "exactly once" is structural, not aspirational.)
 
 ## 5. The plan invariants (the selfcheck contract)
 
@@ -180,7 +183,13 @@ admission. Violation ids:
   follow inputs;
 - `timeline-consistency` — the plan's declared timeline equals the steps'
   `atMs` span (and the steps are a non-empty, finite-atMs timeline);
-- `summary-consistency` — the window counts recompute exactly.
+- `summary-consistency` — the summary counts recompute exactly (window
+  counts AND the cut count), and the candidate accounting is internally
+  total: every entry well-formed with a UNIQUE candidate id, and every
+  event-driven window's candidate traceable to an accounting entry
+  carrying the SAME verbatim fields with outcome `governed` (a window
+  must never cite a candidate the accounting disowns — the W605
+  evaluation-surface guarantee).
 
 Every id has a negative fixture in `test/selfcheck.test.ts`.
 

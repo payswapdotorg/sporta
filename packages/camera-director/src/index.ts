@@ -22,15 +22,19 @@
  *   deterministic director function (same inputs → byte-identical plan)
  * - `selfcheck`: `checkCameraPlan(plan, steps)` — the invariant harness
  *   (one-selection-per-window, boundaries-respected, live-tiling-total,
- *   review-within-timeline, decision records, summary consistency) with
- *   stable violation ids; run by the tests AND by the composition's
- *   fail-closed admission
+ *   review-within-timeline, decision records, summary + accounting
+ *   consistency) with stable violation ids; run by the tests AND by the
+ *   composition's fail-closed admission
  * - `compose`: `render3dDirectedMatch(req, steps, plan)` — the
  *   composition with renderer-3d's match path: one `render3dMatch` call
  *   per directed window through the renderer's own
  *   `styleConfig.config.cameraSlotId` seam, stitched into one rundown
  *   (frames renumbered, reviews at the W603 review profile, manifest
  *   carrying the directed slots + plan provenance)
+ * - `evaluate`: `planDecisionRecords(plan)` — the per-window decision
+ *   records flattened for W605 scoring (which rule fired, which W209
+ *   candidate drove it with confidence/emphasis verbatim), isolated from
+ *   the plan document
  * - `errors`: `DirectorError` — the fail-loud admission error
  *
  * Honest boundaries (POLICY.md §7): a rule-table policy, not

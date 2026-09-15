@@ -36,11 +36,14 @@ direction algorithm, the composition contract, the honest boundaries — is
 - `src/selfcheck.ts` — `checkCameraPlan(plan, steps)`: the invariant
   harness (stable violation ids; run by the tests AND the composition)
 - `src/evaluate.ts` — `planDecisionRecords(plan)`: the per-window
-  evaluation surface for W605
+  evaluation surface for W605 (isolated from the plan document)
 - `src/compose.ts` — `render3dDirectedMatch(req, steps, plan)`: one
   `render3dMatch` call per directed window, stitched into one rundown
   (reviews at the W603 review profile, 5 fps)
 - `src/errors.ts` — `DirectorError`: the fail-loud admission error
+- `test/boundary.test.ts` — the isolation + constitution source-scan pins
+  (src imports only the four declared `@sporta/*` deps; zero wall-clock /
+  RNG calls — the W703/W706 teeth-test precedent)
 
 ## The pipeline in one example
 
@@ -53,7 +56,10 @@ const plan = direct(DEFAULT_DIRECTOR_POLICY, matchSteps, commentaryCandidates);
 // 2. Compose: the plan drives renderer-3d's match path window by window.
 const { result, frames, manifest } = render3dDirectedMatch(renderRequest, matchSteps, plan);
 // manifest.windows[i].cameraSlotId — the directed slot, verbatim from the plan
-// manifest.frames[j].decision — via manifest.windows — rule + verbatim candidate
+// manifest.windows[i].decision — the rule that fired + the verbatim candidate
+// manifest.frames[j] — one entry per frame: window index, directed slot,
+//   presentation kind, the rundown (output) + match (source) timestamps,
+//   and the underlying renderer manifest entry VERBATIM
 ```
 
 ## Honest boundaries (POLICY.md §7 is the normative text)
@@ -77,8 +83,12 @@ const { result, frames, manifest } = render3dDirectedMatch(renderRequest, matchS
 
 `bun test` (from the package root) — policy pins + golden, validation
 negatives, the director algorithm (all five accounting outcomes,
-hysteresis suppression, tie-breaks, determinism), selfcheck negative
-fixtures per violation id, the composition end to end (boundary-tail
-drop, review profile, parity with the undirected renderer, budget,
-byte-identical reruns). All fixtures are deterministic — no `Date.now`,
-no `Math.random`, explicit milliseconds only.
+hysteresis suppression, tie-breaks, determinism, fail-closed admission
+incl. duplicate candidate ids), selfcheck negative fixtures per violation
+id (incl. the accounting-totality fixtures), the composition end to end
+(boundary-tail drop, mid-rundown review shifting, review profile, parity
+with the undirected renderer, budget, byte-identical reruns), the
+commentary→direction acceptance chain through the REAL W209 extraction,
+and the isolation/constitution source-scan pins. All fixtures are
+deterministic — no `Date.now`, no `Math.random`, explicit milliseconds
+only.

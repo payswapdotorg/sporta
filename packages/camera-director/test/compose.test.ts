@@ -178,6 +178,60 @@ describe("render3dDirectedMatch — the canonical end-to-end (events → plan �
     expect(out.manifest.windows[0]!.frameCount).toBe(20);
   });
 
+  test("a MID-RUNDOWN review inserts its realized duration, SHIFTING every later window (rundown tiling)", () => {
+    // Two governed goals (3400, 5500) + the shot they superseded: the
+    // rundown is live, live, REVIEW, live, REVIEW — the first review sits
+    // BETWEEN live windows, so every later window's output position must
+    // shift by the review's realized extent (the §6.4 claim, pinned here
+    // for the mid-rundown case the canonical fixture does not exercise).
+    const steps = buildDirectorMatch();
+    const plan = direct(DEFAULT_DIRECTOR_POLICY, steps, [
+      buildCandidate({ candidateId: "ec-1", eventTimeMs: 5_500, eventType: "goal" }),
+      buildCandidate({ candidateId: "ec-2", eventTimeMs: 3_200, eventType: "shot" }),
+      buildCandidate({ candidateId: "ec-3", eventTimeMs: 3_400, eventType: "goal" }),
+    ]);
+    expect(
+      plan.windows.map(
+        (window) =>
+          `${window.index}:${window.kind}[${window.source.startMs},${window.source.endMs}]@${window.cameraSlotId}`,
+      ),
+    ).toEqual([
+      "0:live[1000,3000]@main-touchline",
+      "1:live[3000,5000]@behind-goal-x105",
+      "2:review[1000,6000]@behind-goal-x105",
+      "3:live[5000,7000]@behind-goal-x105",
+      "4:review[3000,7000]@behind-goal-x105",
+    ]);
+    const out = render3dDirectedMatch(buildDirectorRequest(), steps, plan);
+    // Live windows are 1:1 with the match timeline; the FIRST review
+    // occupies [5000, 10200] (26 frames × 200 ms), shifting live window 3
+    // from 5000 to 10200; the second review shifts nothing after it.
+    expect(out.manifest.windows.map((window) => window.output)).toEqual([
+      { startMs: 1_000, endMs: 3_000 },
+      { startMs: 3_000, endMs: 5_000 },
+      { startMs: 5_000, endMs: 10_200 },
+      { startMs: 10_200, endMs: 12_400 },
+      { startMs: 12_400, endMs: 16_600 },
+    ]);
+    expect(out.manifest.windows.map((window) => window.frameCount)).toEqual([10, 10, 26, 11, 21]);
+    expect(out.manifest.windows.map((window) => window.firstFrameIndex)).toEqual([
+      0, 10, 20, 46, 57,
+    ]);
+    expect(out.frames).toHaveLength(78);
+    // The shifted live window's frames keep their SOURCE timestamps
+    // (source 5000 → output 10200: the review's realized extent in between).
+    expect(out.manifest.frames[46]!.sourceTimestampMs).toBe(5_000);
+    expect(out.manifest.frames[46]!.outputTimestampMs).toBe(10_200);
+    expect(out.manifest.frames[57]!.sourceTimestampMs).toBe(3_000);
+    expect(out.manifest.frames[57]!.outputTimestampMs).toBe(12_400);
+    // The output timeline tiles with NO overlap between the review's tail
+    // ([10000, 10200]) and the shifted live window's first frame
+    // ([10200, 10400]).
+    expect(out.manifest.frames[45]!.outputWindowMs).toEqual({ startMs: 10_000, endMs: 10_200 });
+    expect(out.manifest.frames[46]!.outputWindowMs).toEqual({ startMs: 10_200, endMs: 10_400 });
+    expect(out.manifest.director.output).toEqual({ startMs: 1_000, endMs: 16_600 });
+  });
+
   test("the review renders EXISTING match time at the W603 review profile (5 fps, no new content)", () => {
     const out = render3dDirectedMatch(
       buildDirectorMatchRequestAtGameProfile(),

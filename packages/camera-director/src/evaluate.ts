@@ -2,8 +2,12 @@
  * The evaluation surface of a camera plan (W604 → W605): per-window
  * decision records, flattened for scoring. Everything here is a PURE
  * projection of the plan's own data (no re-derivation, no invention) —
- * W605 scores director quality against these records.
+ * W605 scores director quality against these records. The projection is
+ * ISOLATED: every record carries FRESH `source` and `decision` documents
+ * (deep clones of the plan's JSON-safe values), so an evaluator mutating a
+ * record can never corrupt the plan it was projected from.
  */
+import { cloneJson } from "./internal";
 import type { CameraPlan, PresentationKind, WindowDecision } from "./types";
 
 /**
@@ -33,8 +37,8 @@ export function planDecisionRecords(plan: CameraPlan): PlanDecisionRecord[] {
   return plan.windows.map((window) => ({
     windowIndex: window.index,
     kind: window.kind,
-    source: { startMs: window.source.startMs, endMs: window.source.endMs },
+    source: cloneJson(window.source),
     cameraSlotId: window.cameraSlotId,
-    decision: window.decision,
+    decision: cloneJson(window.decision),
   }));
 }

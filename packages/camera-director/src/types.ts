@@ -113,7 +113,13 @@ export interface WindowDecision {
   event?: EventDecisionRef;
   /** The possession-follow inputs in force (possession-follow windows only). */
   possession?: PossessionDecisionInputs;
-  /** The pinned duration the policy declared for this window (ms), when the rule declared one. */
+  /**
+   * The pinned duration the policy declared for this window (ms), when the
+   * rule declared one: the event-rule's `holdMs` for `event-focus`
+   * windows; for `replay-emphasis` windows the REALIZED review range
+   * (`endMs − startMs` — the policy declares lead/trail, not a hold, and
+   * the realized range is the honest record of what was re-presented).
+   */
   holdMs?: number;
   /**
    * The fixed-template explanation (deterministic: a pure function of the
