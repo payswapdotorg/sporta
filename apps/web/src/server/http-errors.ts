@@ -5,9 +5,12 @@
  * identity http.ts): classified rejections answer
  * `{ error: { failureClass, message, details? } }` with the documented
  * status; unknown failures answer a generic 500 that carries no secrets.
+ *
+ * The `@sporta/control-api` import is LAZY: its module graph reaches
+ * `bun:sqlite` (a Bun-native package) which cannot be evaluated by the
+ * Node worker Next.js uses at build time (see ./runtime.ts). It is only
+ * needed on the error path, after a request has actually arrived.
  */
-import { CONTROL_HTTP_STATUS } from "@sporta/control-api";
-import { isControlApiError } from "@sporta/control-api";
 import { AuthFlowError } from "./auth-service";
 
 /** The JSON error body every non-2xx API answer uses. */
@@ -24,7 +27,7 @@ export function jsonResponse(status: number, payload: unknown): Response {
 }
 
 /** Maps any thrown value onto the API's error-response conventions. */
-export function errorResponse(err: unknown): Response {
+export async function errorResponse(err: unknown): Promise<Response> {
   if (err instanceof AuthFlowError) {
     return jsonResponse(
       err.status,
@@ -37,6 +40,7 @@ export function errorResponse(err: unknown): Response {
       } satisfies ApiErrorBody,
     );
   }
+  const { CONTROL_HTTP_STATUS, isControlApiError } = await import("@sporta/control-api");
   if (isControlApiError(err)) {
     // The control plane's typed errors carry their own httpStatus (the
     // CONTROL_HTTP_STATUS mapping: rights-denied → 403, validation → 400,

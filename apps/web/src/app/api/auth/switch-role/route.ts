@@ -1,4 +1,4 @@
-import { getSportaServer } from "@/server/composition";
+import { getSportaServer } from "@/server/runtime";
 import { tokenFromRequest } from "@/server/auth-service";
 import { errorResponse, jsonResponse, readJsonBody } from "@/server/http-errors";
 

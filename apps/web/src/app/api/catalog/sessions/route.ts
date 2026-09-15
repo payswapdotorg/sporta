@@ -1,4 +1,4 @@
-import { getSportaServer } from "@/server/composition";
+import { getSportaServer } from "@/server/runtime";
 import { buildCatalog } from "@/server/catalog-service";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
 

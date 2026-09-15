@@ -1,4 +1,4 @@
-import { getSportaServer } from "@/server/composition";
+import { getSportaServer } from "@/server/runtime";
 import { tokenFromRequest } from "@/server/auth-service";
 import { AuthFlowError } from "@/server/auth-service";
 import { buildLibrary } from "@/server/catalog-service";

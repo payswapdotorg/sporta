@@ -1,4 +1,4 @@
-import { getSportaServer } from "@/server/composition";
+import { getSportaServer } from "@/server/runtime";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
 
 export const dynamic = "force-dynamic";
