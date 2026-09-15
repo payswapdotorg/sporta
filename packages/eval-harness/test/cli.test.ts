@@ -25,7 +25,10 @@ const LOADED = loadSuiteConfig();
  * live in the OS temp dir, so the default RELATIVE paths would resolve
  * against the wrong origin).
  */
-function writeScratchSuiteConfig(name: string, mutator: (config: Record<string, unknown>) => void): string {
+function writeScratchSuiteConfig(
+  name: string,
+  mutator: (config: Record<string, unknown>) => void,
+): string {
   const config = defaultConfigObject();
   const cases = config.cases as Array<Record<string, unknown>>;
   const w403 = cases[0]!.fixture as Record<string, unknown>;
@@ -171,7 +174,9 @@ describe("CLI: a FAILING verdict exits 1 (never silent)", () => {
     const reportPath = scratchPath("cli-failing-report.json");
     const run = cli(["--suite", path, "--report", reportPath]);
     expect(run.status).toBe(1);
-    const written = JSON.parse(readFileSync(reportPath, "utf8")) as { aggregate?: { verdict?: string } };
+    const written = JSON.parse(readFileSync(reportPath, "utf8")) as {
+      aggregate?: { verdict?: string };
+    };
     expect(written.aggregate?.verdict).toBe("FAIL");
   });
 });

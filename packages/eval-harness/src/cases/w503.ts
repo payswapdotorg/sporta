@@ -60,13 +60,13 @@ export interface W503CaseMeasured {
 export type W503CaseThresholds = Thresholds;
 
 /** Runs the W503 case: the real temporal-consistency evaluator, in-process. */
-export function runW503Case(caseConfig: W503CaseConfig): CaseOutcome<W503CaseMeasured, W503CaseThresholds> {
+export function runW503Case(
+  caseConfig: W503CaseConfig,
+): CaseOutcome<W503CaseMeasured, W503CaseThresholds> {
   const output = renderW503CleanFixture();
   const report = evaluateRenderOutput(output);
 
-  const detectionProof = caseConfig.policy.detectionProof
-    ? runDetectionProof(output)
-    : null;
+  const detectionProof = caseConfig.policy.detectionProof ? runDetectionProof(output) : null;
 
   const failureReasons: string[] = [];
   if (!report.verdict.pass) {
@@ -106,7 +106,9 @@ export function runW503Case(caseConfig: W503CaseConfig): CaseOutcome<W503CaseMea
  * set (the list `packages/renderer-evaluation/scripts/evaluate.ts` runs),
  * replicated here so the harness case carries the same teeth.
  */
-function runDetectionProof(output: ReturnType<typeof renderW503CleanFixture>): W503DetectionProofEntry[] {
+function runDetectionProof(
+  output: ReturnType<typeof renderW503CleanFixture>,
+): W503DetectionProofEntry[] {
   const manifest = output.manifest;
   const entries: W503DetectionProofEntry[] = [];
   const add = (injection: string, perturbedOutput: typeof output): void => {
@@ -126,10 +128,13 @@ function runDetectionProof(output: ReturnType<typeof renderW503CleanFixture>): W
     ...output,
     manifest: injectStyleInstability(manifest, { frameIndex: 2, entityId: "player-7" }),
   });
-  add("SVG byte-level style instability (manifest token untouched)", injectStyleByteInstability(output, {
-    frameIndex: 2,
-    entityId: "player-7",
-  }));
+  add(
+    "SVG byte-level style instability (manifest token untouched)",
+    injectStyleByteInstability(output, {
+      frameIndex: 2,
+      entityId: "player-7",
+    }),
+  );
   add("geometry drift (teleported player)", {
     ...output,
     manifest: injectGeometryTeleport(manifest, {

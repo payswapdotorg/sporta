@@ -23,12 +23,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import {
-  DEFAULT_SUITE_PATH,
-  loadSuiteConfig,
-  runSuite,
-  serializeSuiteReport,
-} from "../src/index";
+import { DEFAULT_SUITE_PATH, loadSuiteConfig, runSuite, serializeSuiteReport } from "../src/index";
 import type { SuiteReport, SuiteCaseResult } from "../src/index";
 
 interface CliOptions {
@@ -130,9 +125,7 @@ function renderCase(caseResult: SuiteCaseResult): string[] {
       );
     }
   }
-  lines.push(
-    `    injected clock: ${caseResult.clock.startMs} → ${caseResult.clock.endMs}`,
-  );
+  lines.push(`    injected clock: ${caseResult.clock.startMs} → ${caseResult.clock.endMs}`);
   for (const reason of caseResult.failureReasons) {
     lines.push(`    failure: ${reason}`);
   }
@@ -154,9 +147,7 @@ export function renderSummary(report: SuiteReport): string {
   for (const caseResult of report.cases) {
     lines.push(...renderCase(caseResult));
   }
-  lines.push(
-    `  injected clock (suite): ${report.clock.startMs} → ${report.clock.endMs}`,
-  );
+  lines.push(`  injected clock (suite): ${report.clock.startMs} → ${report.clock.endMs}`);
   if (report.aggregate.failureReasons.length > 0) {
     lines.push("FAILURE REASONS:");
     for (const reason of report.aggregate.failureReasons) {

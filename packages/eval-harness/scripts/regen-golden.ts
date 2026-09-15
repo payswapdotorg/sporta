@@ -30,12 +30,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { serializeArtifact } from "@sporta/evaluation";
-import {
-  DEFAULT_SUITE_PATH,
-  loadSuiteConfig,
-  runSuite,
-  serializeSuiteReport,
-} from "../src/index";
+import { DEFAULT_SUITE_PATH, loadSuiteConfig, runSuite, serializeSuiteReport } from "../src/index";
 
 /** The subprocess entry (package-relative). */
 const RUN_ONCE_SCRIPT = `${import.meta.dir}/run-once.ts`;
@@ -116,7 +111,7 @@ if (!options.confirm) {
   process.stderr.write(
     "regen-golden: REFUSING to write without --confirm.\n\n" +
       "The golden report is the acceptance baseline for the whole suite. Regenerating it\n" +
-      "requires TECH-LEAD REVIEW of the underlying change (README §\"Golden discipline\"): a diff\n" +
+      'requires TECH-LEAD REVIEW of the underlying change (README §"Golden discipline"): a diff\n' +
       "of the old and new reports must be reviewed, and the suite-config sha256 must be\n" +
       "unchanged unless the suite config itself was consciously changed in a separate,\n" +
       "reviewed commit.\n\n" +
@@ -210,5 +205,5 @@ process.stdout.write(
         }\n`) +
     `  bytes (canonical): ${canonical.length}\n` +
     "  Prettier losslessness + subprocess/in-process self-consistency: VERIFIED\n\n" +
-    "  REMINDER: golden regeneration requires tech-lead review (README §\"Golden discipline\").\n",
+    '  REMINDER: golden regeneration requires tech-lead review (README §"Golden discipline").\n',
 );

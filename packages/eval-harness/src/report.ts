@@ -19,12 +19,7 @@
  * nothing is ever swallowed.
  */
 import type { CaseVerdict } from "./cases/types";
-import type {
-  W403CaseConfig,
-  W503CaseConfig,
-  W601CaseConfig,
-  SuiteConfig,
-} from "./suite-config";
+import type { W403CaseConfig, W503CaseConfig, W601CaseConfig, SuiteConfig } from "./suite-config";
 import type { W403CaseMeasured, W403CaseThresholds } from "./cases/w403";
 import type { W503CaseMeasured, W503CaseThresholds } from "./cases/w503";
 import type { W601CaseMeasured, W601CaseThresholds } from "./cases/w601";

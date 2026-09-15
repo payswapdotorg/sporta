@@ -109,8 +109,7 @@ export function projectEvaluationReport(evaluation: EvaluationReport): W403CaseM
       stderr: run.stderr,
     })),
     pairwise: evaluation.pairwise.map(projectComparisonOutcome),
-    golden:
-      evaluation.golden === null ? null : projectComparisonOutcome(evaluation.golden),
+    golden: evaluation.golden === null ? null : projectComparisonOutcome(evaluation.golden),
     failureReasons: [...evaluation.failureReasons],
   };
 }

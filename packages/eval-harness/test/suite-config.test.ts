@@ -44,7 +44,9 @@ describe("suite config: the checked-in default suite loads and validates", () =>
       "w601-scene-conformance",
     ]);
     for (const caseConfig of loaded.config.cases) {
-      expect(caseConfig.caseKind).toBe(caseConfig.caseName);
+      // caseKind is a controlled union; caseName is the caller-chosen echo of
+      // it in the checked-in default suite (compared as plain strings).
+      expect(caseConfig.caseKind as string).toBe(caseConfig.caseName);
       expect(Object.keys(caseConfig.fixture).length).toBeGreaterThan(0);
       expect(Object.keys(caseConfig.policy).length).toBeGreaterThan(0);
     }
@@ -90,7 +92,9 @@ describe("suite config: fail-loud validation (no defaults, no unknown anything)"
 
   test("suiteVersion must be an integer >= 1", () => {
     expect(() => validateSuiteConfig(mutated((c) => (c.suiteVersion = 0)))).toThrow(/suiteVersion/);
-    expect(() => validateSuiteConfig(mutated((c) => (c.suiteVersion = 1.5)))).toThrow(/suiteVersion/);
+    expect(() => validateSuiteConfig(mutated((c) => (c.suiteVersion = 1.5)))).toThrow(
+      /suiteVersion/,
+    );
   });
 
   test("an empty cases array fails (a suite with no cases is a config error)", () => {
@@ -124,9 +128,9 @@ describe("suite config: fail-loud validation (no defaults, no unknown anything)"
   });
 
   test("an unknown case-level key fails", () => {
-    expect(() =>
-      validateSuiteConfig(mutated((c) => (firstCase(c).skipOnCrash = true))),
-    ).toThrow(/unknown key "skipOnCrash"/);
+    expect(() => validateSuiteConfig(mutated((c) => (firstCase(c).skipOnCrash = true)))).toThrow(
+      /unknown key "skipOnCrash"/,
+    );
   });
 
   test("a case missing its policy fails — policies are never defaulted", () => {
@@ -143,7 +147,9 @@ describe("suite config: fail-loud validation (no defaults, no unknown anything)"
 
   test("W403 policy: runs must be an integer >= 2", () => {
     expect(() =>
-      validateSuiteConfig(mutated((c) => ((firstCase(c).policy as Record<string, unknown>).runs = 1))),
+      validateSuiteConfig(
+        mutated((c) => ((firstCase(c).policy as Record<string, unknown>).runs = 1)),
+      ),
     ).toThrow(/runs must be an integer >= 2/);
     expect(() =>
       validateSuiteConfig(
@@ -169,7 +175,9 @@ describe("suite config: fail-loud validation (no defaults, no unknown anything)"
   });
 
   test("W403 fixture: goldenPath null is an explicit valid policy", () => {
-    const config = mutated((c) => ((firstCase(c).fixture as Record<string, unknown>).goldenPath = null));
+    const config = mutated(
+      (c) => ((firstCase(c).fixture as Record<string, unknown>).goldenPath = null),
+    );
     expect(() => validateSuiteConfig(config)).not.toThrow();
   });
 

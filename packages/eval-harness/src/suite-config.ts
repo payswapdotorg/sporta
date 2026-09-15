@@ -195,11 +195,7 @@ function requireBoolean(value: unknown, path: readonly string[]): boolean {
   return value;
 }
 
-function requireInteger(
-  value: unknown,
-  minimum: number,
-  path: readonly string[],
-): number {
+function requireInteger(value: unknown, minimum: number, path: readonly string[]): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < minimum) {
     throw new RangeError(
       `parseSuiteConfig: ${at(path)} must be an integer >= ${minimum} (got ${JSON.stringify(value)})`,

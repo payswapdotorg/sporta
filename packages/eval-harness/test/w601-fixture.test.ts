@@ -66,7 +66,10 @@ describe("W601 fixture: the checked-in file is pinned to the builder", () => {
 describe("W601 fixture: the loader fails loud", () => {
   const good = JSON.parse(readFileSync(FIXTURE_PATH, "utf8")) as Record<string, unknown>;
 
-  const writeVariant = (name: string, mutate: (fixture: Record<string, unknown>) => void): string => {
+  const writeVariant = (
+    name: string,
+    mutate: (fixture: Record<string, unknown>) => void,
+  ): string => {
     const clone = JSON.parse(JSON.stringify(good)) as Record<string, unknown>;
     mutate(clone);
     const path = scratchPath(name);

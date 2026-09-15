@@ -88,10 +88,6 @@ export {
   runW601Case,
 } from "./cases/w601";
 export type { W601CaseMeasured, W601CaseThresholds, W601SceneFixture } from "./cases/w601";
-export {
-  W601_FIXTURE_NOW_MS,
-  W601_FIXTURE_SESSION,
-  buildW601SceneFixture,
-} from "./w601-fixture";
+export { W601_FIXTURE_NOW_MS, W601_FIXTURE_SESSION, buildW601SceneFixture } from "./w601-fixture";
 export type { W601SceneFixtureInput } from "./w601-fixture";
 export type { CaseContext, CaseOutcome, CaseVerdict } from "./cases/types";

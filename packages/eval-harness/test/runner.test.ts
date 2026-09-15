@@ -105,7 +105,9 @@ describe("runner: measured values are VERBATIM from the real evaluators", () => 
 
   test("W601 measured equals the conformance of the real projection, deep-equal", () => {
     const caseResult = report.cases[2] as W601CaseResult;
-    const fixture = loadW601SceneFixture(join(LOADED.originDir, caseResult.fixture.sceneFixturePath));
+    const fixture = loadW601SceneFixture(
+      join(LOADED.originDir, caseResult.fixture.sceneFixturePath),
+    );
     const scene = projectScene(fixture.snapshot, {
       events: fixture.events,
       cameraSlotIds: fixture.cameraSlotIds,
@@ -149,9 +151,9 @@ describe("runner: crash containment (a crashing case never kills the suite)", ()
     expect(report.cases[0]?.verdict).toBe("PASS");
     expect(report.cases[1]?.verdict).toBe("PASS");
     // The aggregate reports the crash, attributed — never swallowed.
-    expect(report.aggregate.failureReasons.some((r) => r.startsWith("w601-scene-conformance: "))).toBe(
-      true,
-    );
+    expect(
+      report.aggregate.failureReasons.some((r) => r.startsWith("w601-scene-conformance: ")),
+    ).toBe(true);
     expect(
       report.aggregate.failureReasons.some((r) => r.includes("case crashed: SceneProjectionError")),
     ).toBe(true);
@@ -186,9 +188,9 @@ describe("runner: a failing evaluator verdict flips the conjunctive aggregate", 
     const golden = JSON.parse(readFileSync(realGolden, "utf8")) as Record<string, unknown>;
     const stateAt = golden.stateAt as Record<string, unknown>;
     const snapshot = stateAt["11800"] as { entities: unknown[] };
-    const ball = snapshot.entities.find(
-      (e) => (e as { entityId?: string }).entityId === "b1",
-    ) as { state: { position: { value: { x: number } } } };
+    const ball = snapshot.entities.find((e) => (e as { entityId?: string }).entityId === "b1") as {
+      state: { position: { value: { x: number } } };
+    };
     ball.state.position.value.x += 1e-6;
     const tamperedPath = scratchPath("tampered-w403-golden.json");
     writeFileSync(tamperedPath, JSON.stringify(golden, null, 2));
@@ -208,9 +210,9 @@ describe("runner: a failing evaluator verdict flips the conjunctive aggregate", 
     // The other cases still passed — the aggregate is conjunctive over them.
     expect(report.cases[1]?.verdict).toBe("PASS");
     expect(report.cases[2]?.verdict).toBe("PASS");
-    expect(report.aggregate.failureReasons.some((r) => r.startsWith("w403-replay-comparability: "))).toBe(
-      true,
-    );
+    expect(
+      report.aggregate.failureReasons.some((r) => r.startsWith("w403-replay-comparability: ")),
+    ).toBe(true);
   });
 });
 
@@ -294,7 +296,8 @@ function writeScratchSuite(
   }
   const w601Fixture = cases[2]!.fixture as Record<string, unknown>;
   w601Fixture.sceneFixturePath =
-    overrides.w601?.sceneFixturePath ?? join(LOADED.originDir, String(w601Fixture.sceneFixturePath));
+    overrides.w601?.sceneFixturePath ??
+    join(LOADED.originDir, String(w601Fixture.sceneFixturePath));
   writeFileSync(configPath, JSON.stringify(config, null, 2));
 }
 

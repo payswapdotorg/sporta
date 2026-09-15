@@ -24,6 +24,7 @@ import {
 } from "../src/index";
 import type { SuiteReport, W403CaseResult, W503CaseResult, W601CaseResult } from "../src/index";
 import { defaultSuiteReport } from "./helpers";
+import type { Mutable } from "./helpers";
 
 /** The golden's canonical form (canonical-to-canonical comparison). */
 function goldenCanonical(): string {
@@ -51,7 +52,8 @@ describe("golden: the checked-in report is the drift gate", () => {
 });
 
 describe("golden: mutations fail the drift gate (detection teeth)", () => {
-  const base = () => JSON.parse(goldenCanonical()) as SuiteReport;
+  // A deep-mutable mirror: mutation tests tamper with clones (helpers.ts).
+  const base = () => JSON.parse(goldenCanonical()) as Mutable<SuiteReport>;
 
   test("a flipped aggregate verdict is detected", () => {
     const mutated = base();
@@ -61,7 +63,7 @@ describe("golden: mutations fail the drift gate (detection teeth)", () => {
 
   test("a tweaked W403 measured value is detected", () => {
     const mutated = base();
-    const w403 = mutated.cases[0] as W403CaseResult;
+    const w403 = mutated.cases[0] as Mutable<W403CaseResult>;
     w403.measured!.runsCompleted = 1;
     expect(serializeArtifact(mutated)).not.toBe(freshCanonical());
   });

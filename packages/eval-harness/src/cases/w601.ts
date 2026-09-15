@@ -82,9 +82,7 @@ export function loadW601SceneFixture(sceneFixturePath: string): W601SceneFixture
   }
   for (const key of knownKeys) {
     if (!(key in envelope)) {
-      throw new RangeError(
-        `loadW601SceneFixture: scene fixture is missing required key "${key}"`,
-      );
+      throw new RangeError(`loadW601SceneFixture: scene fixture is missing required key "${key}"`);
     }
   }
   if (envelope.fixtureKind !== W601_SCENE_FIXTURE_KIND) {
@@ -148,9 +146,7 @@ export function runW601Case(
   caseConfig: W601CaseConfig,
   context: CaseContext,
 ): CaseOutcome<W601CaseMeasured, W601CaseThresholds> {
-  const fixture = loadW601SceneFixture(
-    context.resolvePath(caseConfig.fixture.sceneFixturePath),
-  );
+  const fixture = loadW601SceneFixture(context.resolvePath(caseConfig.fixture.sceneFixturePath));
   const scene = projectScene(fixture.snapshot, {
     events: fixture.events,
     cameraSlotIds: fixture.cameraSlotIds,

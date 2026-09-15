@@ -17,7 +17,10 @@
  * a HARNESS bug and fails loud (it is never reported as a case failure).
  */
 import { DEFAULT_EPSILON } from "@sporta/evaluation";
-import { REPORT_SCHEMA_TAG as W503_REPORT_SCHEMA_TAG, THRESHOLDS } from "@sporta/renderer-evaluation";
+import {
+  REPORT_SCHEMA_TAG as W503_REPORT_SCHEMA_TAG,
+  THRESHOLDS,
+} from "@sporta/renderer-evaluation";
 import { validateSuiteConfig, CASE_KINDS } from "./suite-config";
 import type { SuiteConfig, SuiteCaseConfig } from "./suite-config";
 import { ENVIRONMENT_PACKAGE_KEYS } from "./environment";
@@ -92,7 +95,11 @@ function requireBoolean(value: unknown, path: readonly string[]): boolean {
 }
 
 function requireStringArray(value: unknown, path: readonly string[]): readonly string[] {
-  if (!Array.isArray(value) || value.length < 1 || value.some((v) => typeof v !== "string" || v.length < 1)) {
+  if (
+    !Array.isArray(value) ||
+    value.length < 1 ||
+    value.some((v) => typeof v !== "string" || v.length < 1)
+  ) {
     throw new RangeError(
       `assertSuiteReportShape: ${at(path)} must be a non-empty array of non-empty strings`,
     );
@@ -123,7 +130,10 @@ function exactKeys(
 }
 
 /** Validates { startMs, endMs } clock reads (monotone within themselves). */
-function requireClockReads(value: unknown, path: readonly string[]): { startMs: number; endMs: number } {
+function requireClockReads(
+  value: unknown,
+  path: readonly string[],
+): { startMs: number; endMs: number } {
   const record = requireRecord(value, path);
   exactKeys(record, ["startMs", "endMs"], path);
   const startMs = requireFiniteNumber(record.startMs, [...path, "startMs"]);
@@ -148,11 +158,11 @@ function requireComparisonReport(value: unknown, path: readonly string[]): void 
   }
   record.diffs.forEach((diff, index) => {
     const diffRecord = requireRecord(diff, [...path, "diffs", `[${index}]`]);
-    exactKeys(diffRecord, ["path", "fieldClass", "expected", "actual", "reason", "deviation"], [
-      ...path,
-      "diffs",
-      `[${index}]`,
-    ]);
+    exactKeys(
+      diffRecord,
+      ["path", "fieldClass", "expected", "actual", "reason", "deviation"],
+      [...path, "diffs", `[${index}]`],
+    );
     requireNonEmptyString(diffRecord.path, [...path, "diffs", `[${index}]`, "path"]);
     requireNonEmptyString(diffRecord.fieldClass, [...path, "diffs", `[${index}]`, "fieldClass"]);
     requireNonEmptyString(diffRecord.expected, [...path, "diffs", `[${index}]`, "expected"]);
@@ -162,7 +172,13 @@ function requireComparisonReport(value: unknown, path: readonly string[]): void 
   const summary = requireRecord(record.summary, [...path, "summary"]);
   exactKeys(
     summary,
-    ["exactFieldsCompared", "countFieldsCompared", "epsilonFieldsCompared", "setArraysCompared", "maxAbsDeviation"],
+    [
+      "exactFieldsCompared",
+      "countFieldsCompared",
+      "epsilonFieldsCompared",
+      "setArraysCompared",
+      "maxAbsDeviation",
+    ],
     [...path, "summary"],
   );
   for (const key of [
@@ -209,11 +225,17 @@ function requireCaseCommon(
       );
     }
   }
-  for (const key of ["caseKind", "caseName", "verdict", "fixture", "policy", "clock", "failureReasons"]) {
+  for (const key of [
+    "caseKind",
+    "caseName",
+    "verdict",
+    "fixture",
+    "policy",
+    "clock",
+    "failureReasons",
+  ]) {
     if (!(key in record)) {
-      throw new RangeError(
-        `assertSuiteReportShape: ${at(path)} is missing required key "${key}"`,
-      );
+      throw new RangeError(`assertSuiteReportShape: ${at(path)} is missing required key "${key}"`);
     }
   }
   const caseKind = requireNonEmptyString(record.caseKind, [...path, "caseKind"]);
@@ -231,7 +253,9 @@ function requireCaseCommon(
   }
   const clock = requireClockReads(record.clock, [...path, "clock"]);
   if (!Array.isArray(record.failureReasons)) {
-    throw new RangeError(`assertSuiteReportShape: ${at([...path, "failureReasons"])} must be an array`);
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "failureReasons"])} must be an array`,
+    );
   }
   record.failureReasons.forEach((reason, reasonIndex) => {
     requireNonEmptyString(reason, [...path, "failureReasons", `[${reasonIndex}]`]);
@@ -255,10 +279,7 @@ function requireCaseCommon(
 }
 
 /** Validates the W403 case's thresholds + measured (one level deep). */
-function requireW403Details(
-  record: Record<string, unknown>,
-  index: number,
-): void {
+function requireW403Details(record: Record<string, unknown>, index: number): void {
   const path = ["$", "cases", `[${index}]`];
   if (!("measured" in record)) {
     return; // crashed case — nothing more to check
@@ -279,24 +300,38 @@ function requireW403Details(
     );
   }
   const measured = requireRecord(record.measured, [...path, "measured"]);
-  exactKeys(measured, ["runsCompleted", "runs", "pairwise", "golden", "failureReasons"], [
-    ...path,
-    "measured",
-  ]);
+  exactKeys(
+    measured,
+    ["runsCompleted", "runs", "pairwise", "golden", "failureReasons"],
+    [...path, "measured"],
+  );
   requireFiniteNumber(measured.runsCompleted, [...path, "measured", "runsCompleted"]);
   if (!Array.isArray(measured.runs)) {
-    throw new RangeError(`assertSuiteReportShape: ${at([...path, "measured", "runs"])} must be an array`);
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "runs"])} must be an array`,
+    );
   }
   measured.runs.forEach((run, runIndex) => {
     const runRecord = requireRecord(run, [...path, "measured", "runs", `[${runIndex}]`]);
-    exactKeys(runRecord, ["runIndex", "exitCode", "stderr"], [
+    exactKeys(
+      runRecord,
+      ["runIndex", "exitCode", "stderr"],
+      [...path, "measured", "runs", `[${runIndex}]`],
+    );
+    requireFiniteNumber(runRecord.runIndex, [
       ...path,
       "measured",
       "runs",
       `[${runIndex}]`,
+      "runIndex",
     ]);
-    requireFiniteNumber(runRecord.runIndex, [...path, "measured", "runs", `[${runIndex}]`, "runIndex"]);
-    requireFiniteNumber(runRecord.exitCode, [...path, "measured", "runs", `[${runIndex}]`, "exitCode"]);
+    requireFiniteNumber(runRecord.exitCode, [
+      ...path,
+      "measured",
+      "runs",
+      `[${runIndex}]`,
+      "exitCode",
+    ]);
     if (typeof runRecord.stderr !== "string") {
       throw new RangeError(
         `assertSuiteReportShape: ${at([...path, "measured", "runs", `[${runIndex}]`, "stderr"])} ` +
@@ -355,7 +390,17 @@ function requireW503Details(record: Record<string, unknown>, index: number): voi
     }
   }
   for (const key of Object.keys(report)) {
-    if (!["schemaTag", "input", "identity", "styleBytes", "geometry", "artifacts", "verdict"].includes(key)) {
+    if (
+      ![
+        "schemaTag",
+        "input",
+        "identity",
+        "styleBytes",
+        "geometry",
+        "artifacts",
+        "verdict",
+      ].includes(key)
+    ) {
       throw new RangeError(
         `assertSuiteReportShape: ${at([...path, "measured", "report"])} carries unknown key "${key}"`,
       );
@@ -433,7 +478,9 @@ function requireW601Details(record: Record<string, unknown>, index: number): voi
   exactKeys(measured, ["checks", "passed"], [...path, "measured"]);
   requireBoolean(measured.passed, [...path, "measured", "passed"]);
   if (!Array.isArray(measured.checks)) {
-    throw new RangeError(`assertSuiteReportShape: ${at([...path, "measured", "checks"])} must be an array`);
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "checks"])} must be an array`,
+    );
   }
   const checkIds: string[] = [];
   measured.checks.forEach((check, checkIndex) => {
@@ -568,10 +615,7 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
       );
     }
     // The case clock must sit inside the suite clock window (monotonic clock).
-    if (
-      common.clock.startMs < suiteClock.startMs ||
-      common.clock.endMs > suiteClock.endMs
-    ) {
+    if (common.clock.startMs < suiteClock.startMs || common.clock.endMs > suiteClock.endMs) {
       throw new RangeError(
         `assertSuiteReportShape: ${at([...casePath, "clock"])} lies outside the suite clock ` +
           `window [${suiteClock.startMs}, ${suiteClock.endMs}] — injected-clock reads must be ` +
@@ -610,10 +654,11 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
 
   // --- aggregate -------------------------------------------------------------
   const aggregate = requireRecord(root.aggregate, ["$", "aggregate"]);
-  exactKeys(aggregate, ["verdict", "caseCount", "passCount", "failCount", "failureReasons"], [
-    "$",
-    "aggregate",
-  ]);
+  exactKeys(
+    aggregate,
+    ["verdict", "caseCount", "passCount", "failCount", "failureReasons"],
+    ["$", "aggregate"],
+  );
   const aggregateVerdict = requireNonEmptyString(aggregate.verdict, ["$", "aggregate", "verdict"]);
   if (aggregateVerdict !== "PASS" && aggregateVerdict !== "FAIL") {
     throw new RangeError(
@@ -642,9 +687,7 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
     );
   }
   if (!Array.isArray(aggregate.failureReasons)) {
-    throw new RangeError(
-      "assertSuiteReportShape: $.aggregate.failureReasons must be an array",
-    );
+    throw new RangeError("assertSuiteReportShape: $.aggregate.failureReasons must be an array");
   }
   aggregate.failureReasons.forEach((reason, reasonIndex) => {
     const text = requireNonEmptyString(reason, [
