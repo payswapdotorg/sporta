@@ -100,6 +100,19 @@ describe("parseLatencySloInput (fail-loud: stages)", () => {
     delete (partial.stages.batch["batch-queue"] as Record<string, unknown>).maxMs;
     expect(() => parseLatencySloInput(partial)).toThrow(/maxMs/);
   });
+
+  test("mutating a built input never corrupts the shared baseline (fresh objects per build)", () => {
+    // The inherited draft's helper shallow-copied the stat rows, so this very
+    // file's delete above corrupted BASELINE_BATCH_STATS for every LATER test
+    // in the process (cross-test pollution; five failures). buildInput now
+    // clones the nested rows — pinned here.
+    const mutated = buildInput();
+    delete (mutated.stages.batch["batch-queue"] as Record<string, unknown>).maxMs;
+    expect(mutated.stages.batch["batch-queue"].maxMs).toBeUndefined();
+    const fresh = buildInput();
+    expect(fresh.stages.batch["batch-queue"].maxMs).toBe(400);
+    expect(() => parseLatencySloInput(fresh)).not.toThrow();
+  });
 });
 
 describe("parseLatencySloInput (fail-loud: accounting)", () => {

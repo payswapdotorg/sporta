@@ -31,15 +31,26 @@ export const BASELINE_FRAME_STATS: Record<FrameStageKey, LatencyStatsSubset> = {
   "end-to-end": { count: 240, minMs: 400, maxMs: 9762, p50Ms: 3968, p95Ms: 9080 },
 };
 
-/** The W306 baseline run's frame accounting (all zero loss). */
-export const BASELINE_FRAMES = {
+/**
+ * The W306 baseline run's frame accounting (all zero loss). Widened to
+ * plain numbers: the input builders apply loss overrides (emitted 239,
+ * dropped 1, …) that must typecheck against this shape.
+ */
+export const BASELINE_FRAMES: {
+  framesIn: number;
+  framesEmitted: number;
+  framesSkippedStale: number;
+  framesDropped: number;
+  framesCancelled: number;
+  framesDuplicate: number;
+} = {
   framesIn: 240,
   framesEmitted: 240,
   framesSkippedStale: 0,
   framesDropped: 0,
   framesCancelled: 0,
   framesDuplicate: 0,
-} as const;
+};
 
 export interface InputOverrides {
   batch?: Partial<Record<BatchStageKey, Partial<LatencyStatsSubset>>>;
@@ -51,11 +62,19 @@ export interface InputOverrides {
 
 /** Builds one input window from the baseline with targeted overrides. */
 export function buildInput(overrides: InputOverrides = {}): LatencySloInput {
+  // FRESH nested stat objects on EVERY build: a test that mutates its built
+  // input (deleting a stats field to prove the parser is fail-loud) must
+  // never corrupt the shared module-level baseline constants — the inherited
+  // draft's shallow copy made every later test in the process read a
+  // mutated baseline (cross-test pollution; fixed + pinned).
   const mergeStats = <K extends string>(
     base: Record<K, LatencyStatsSubset>,
     patch: Partial<Record<K, Partial<LatencyStatsSubset>>> | undefined,
   ): Record<K, LatencyStatsSubset> => {
     const merged = { ...base } as Record<K, LatencyStatsSubset>;
+    for (const key of Object.keys(merged) as K[]) {
+      merged[key] = { ...merged[key]! };
+    }
     if (patch !== undefined) {
       for (const [key, value] of Object.entries(patch) as [K, Partial<LatencyStatsSubset>][]) {
         merged[key] = { ...base[key], ...value };
@@ -93,7 +112,10 @@ export function buildStructuralReport(overrides: InputOverrides = {}): {
     fixture: { profileId: string; profileVersion: number; seed: string };
     pipeline: LatencySloInput["pipeline"];
   };
-  stages: { batch: Record<BatchStageKey, LatencyStatsSubset>; frame: Record<FrameStageKey, LatencyStatsSubset> };
+  stages: {
+    batch: Record<BatchStageKey, LatencyStatsSubset>;
+    frame: Record<FrameStageKey, LatencyStatsSubset>;
+  };
   accounting: { frames: typeof BASELINE_FRAMES };
 } {
   const input = buildInput(overrides);
@@ -126,7 +148,11 @@ export function withStageMetric(
 ): InputOverrides {
   const patch = { [metric === "p95" ? "p95Ms" : "p50Ms"]: value };
   if (scope === "batch") {
-    return { batch: { [stage]: patch } as Partial<Record<BatchStageKey, Partial<LatencyStatsSubset>>> };
+    return {
+      batch: { [stage]: patch } as Partial<Record<BatchStageKey, Partial<LatencyStatsSubset>>>,
+    };
   }
-  return { frame: { [stage]: patch } as Partial<Record<FrameStageKey, Partial<LatencyStatsSubset>>> };
+  return {
+    frame: { [stage]: patch } as Partial<Record<FrameStageKey, Partial<LatencyStatsSubset>>>,
+  };
 }

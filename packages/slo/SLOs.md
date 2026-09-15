@@ -134,21 +134,23 @@ exhausted. The loss alert is the never-silent accounting made operational.
 
 ## 5. The degradation playbook (alert → policy → machinery)
 
-Four policies; every critical alert is answered by at least one
-(`test/policies.test.ts` asserts it), and every machinery seam below is a
-real, importable export of the named package — the test imports the real
-packages and fails if any seam stops existing (**no dangling references,
-fail-closed**). `automation` is the honesty field: nothing in this
-repository watches latency and reconfigures the pipeline — the always-on
-protections are automatic by construction; everything else is an operator
-decision. No automation is invented.
+Four policies; the triggers PARTITION the alert catalog — every alert
+(warnings included: an alert with no documented response is noise) is
+answered by exactly one policy (`test/policies.test.ts` asserts the
+partition), and every machinery seam below is a real, importable export of
+the named package — the test imports the real packages and fails if any seam
+stops existing (**no dangling references, fail-closed**). `automation` is
+the honesty field: nothing in this repository watches latency and
+reconfigures the pipeline — the always-on protections are automatic by
+construction; everything else is an operator decision. No automation is
+invented.
 
 | policyId | triggers | automation | machinery (package:export) |
 |---|---|---|---|
-| queueing-latency-containment | latency.batch.swm-to-batch.warning, latency.batch.swm-to-batch.critical, latency.batch.batch-queue.warning, latency.batch.batch-queue.critical, latency.batch.w303-schedule.warning, latency.batch.w303-schedule.critical | operator-decision | @sporta/render-orchestration:evaluateStaleSkip, @sporta/render-orchestration:RenderOrchestrator, @sporta/gpu-worker:GpuJobDispatcher, @sporta/gpu-worker:DEFAULT_GPU_LIMITS |
-| render-throughput-containment | latency.batch.render-execution.warning, latency.batch.render-execution.critical | operator-decision | @sporta/gpu-worker:DEFAULT_WORKER_RETRY, @sporta/gpu-worker:assertGpuLedgerConsistency, @sporta/contracts:OutputProfile, @sporta/contracts:OutputLatencyClass, @sporta/viewer-shell:deriveRendererOptions |
-| emission-and-delivery-containment | latency.batch.finish-to-emit.warning, latency.batch.finish-to-emit.critical, latency.batch.end-to-end.warning, latency.batch.end-to-end.critical, latency.frame.swm-store-sojourn.warning, latency.frame.swm-store-sojourn.critical, latency.frame.end-to-end.warning, latency.frame.end-to-end.critical | operator-decision | @sporta/render-orchestration:DEFAULT_RENDER_LIMITS, @sporta/webrtc-output:answerLiveOutputOffer, @sporta/webrtc-output:LiveOutputRejectionReason, @sporta/viewer-shell:TELEMETRY_EVENT_KINDS |
-| frame-loss-triage | loss.unexpected-frames | operator-decision | @sporta/processing-queues:ProcessingPipeline, @sporta/processing-queues:DeadLetterQueue, @sporta/gpu-worker:assertGpuLedgerConsistency, @sporta/render-orchestration:RenderOrchestrator |
+| queueing-latency-containment | latency.batch.swm-to-batch.p50.warning, latency.batch.swm-to-batch.p50.critical, latency.batch.swm-to-batch.p95.warning, latency.batch.swm-to-batch.p95.critical, latency.batch.batch-queue.p50.warning, latency.batch.batch-queue.p50.critical, latency.batch.batch-queue.p95.warning, latency.batch.batch-queue.p95.critical, latency.batch.w303-schedule.p50.warning, latency.batch.w303-schedule.p50.critical, latency.batch.w303-schedule.p95.warning, latency.batch.w303-schedule.p95.critical | operator-decision | @sporta/render-orchestration:evaluateStaleSkip, @sporta/render-orchestration:RenderOrchestrator, @sporta/gpu-worker:GpuJobDispatcher, @sporta/gpu-worker:DEFAULT_GPU_LIMITS |
+| render-throughput-containment | latency.batch.render-execution.p50.warning, latency.batch.render-execution.p50.critical, latency.batch.render-execution.p95.warning, latency.batch.render-execution.p95.critical | operator-decision | @sporta/gpu-worker:DEFAULT_WORKER_RETRY, @sporta/gpu-worker:assertGpuAccounting, @sporta/contracts:OutputProfile, @sporta/contracts:OutputLatencyClass, @sporta/viewer-shell:deriveRendererOptions |
+| emission-and-delivery-containment | latency.batch.finish-to-emit.p50.warning, latency.batch.finish-to-emit.p50.critical, latency.batch.finish-to-emit.p95.warning, latency.batch.finish-to-emit.p95.critical, latency.batch.end-to-end.p50.warning, latency.batch.end-to-end.p50.critical, latency.batch.end-to-end.p95.warning, latency.batch.end-to-end.p95.critical, latency.frame.swm-store-sojourn.p50.warning, latency.frame.swm-store-sojourn.p50.critical, latency.frame.swm-store-sojourn.p95.warning, latency.frame.swm-store-sojourn.p95.critical, latency.frame.end-to-end.p50.warning, latency.frame.end-to-end.p50.critical, latency.frame.end-to-end.p95.warning, latency.frame.end-to-end.p95.critical | operator-decision | @sporta/render-orchestration:DEFAULT_RENDER_LIMITS, @sporta/webrtc-output:answerLiveOutputOffer, @sporta/webrtc-output:LiveOutputRejectionReason, @sporta/viewer-shell:TELEMETRY_EVENT_KINDS |
+| frame-loss-triage | loss.unexpected-frames | operator-decision | @sporta/processing-queues:ProcessingPipeline, @sporta/processing-queues:DeadLetterQueue, @sporta/gpu-worker:assertGpuAccounting, @sporta/render-orchestration:RenderOrchestrator |
 
 The full situation/action text is the code's (`src/policies.ts`, mirrored
 into this document by the pin test's id/trigger/machinery columns). In

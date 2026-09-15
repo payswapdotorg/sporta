@@ -69,12 +69,18 @@ export const DEGRADATION_POLICIES: readonly DegradationPolicy[] = [
   {
     policyId: "queueing-latency-containment",
     triggers: [
-      "latency.batch.swm-to-batch.warning",
-      "latency.batch.swm-to-batch.critical",
-      "latency.batch.batch-queue.warning",
-      "latency.batch.batch-queue.critical",
-      "latency.batch.w303-schedule.warning",
-      "latency.batch.w303-schedule.critical",
+      "latency.batch.swm-to-batch.p50.warning",
+      "latency.batch.swm-to-batch.p50.critical",
+      "latency.batch.swm-to-batch.p95.warning",
+      "latency.batch.swm-to-batch.p95.critical",
+      "latency.batch.batch-queue.p50.warning",
+      "latency.batch.batch-queue.p50.critical",
+      "latency.batch.batch-queue.p95.warning",
+      "latency.batch.batch-queue.p95.critical",
+      "latency.batch.w303-schedule.p50.warning",
+      "latency.batch.w303-schedule.p50.critical",
+      "latency.batch.w303-schedule.p95.warning",
+      "latency.batch.w303-schedule.p95.critical",
     ],
     situation:
       "The queueing stages are growing: work waits before rendering (the watermark-grid wait, " +
@@ -122,8 +128,10 @@ export const DEGRADATION_POLICIES: readonly DegradationPolicy[] = [
   {
     policyId: "render-throughput-containment",
     triggers: [
-      "latency.batch.render-execution.warning",
-      "latency.batch.render-execution.critical",
+      "latency.batch.render-execution.p50.warning",
+      "latency.batch.render-execution.p50.critical",
+      "latency.batch.render-execution.p95.warning",
+      "latency.batch.render-execution.p95.critical",
     ],
     situation:
       "Render execution is slower than the objective. In the W306 benchmark domain the " +
@@ -156,8 +164,8 @@ export const DEGRADATION_POLICIES: readonly DegradationPolicy[] = [
       },
       {
         packageName: "@sporta/gpu-worker",
-        exportName: "assertGpuLedgerConsistency",
-        seam: "the DLQ ledger identity (deadLettered === dlqRetained + dlqOverflow, asserted)",
+        exportName: "assertGpuAccounting",
+        seam: "the whole-dispatcher accounting identities incl. the DLQ balance (deadLettered === dlqRetained + dlqOverflow, asserted at every settle)",
       },
       {
         packageName: "@sporta/contracts",
@@ -179,14 +187,22 @@ export const DEGRADATION_POLICIES: readonly DegradationPolicy[] = [
   {
     policyId: "emission-and-delivery-containment",
     triggers: [
-      "latency.batch.finish-to-emit.warning",
-      "latency.batch.finish-to-emit.critical",
-      "latency.batch.end-to-end.warning",
-      "latency.batch.end-to-end.critical",
-      "latency.frame.swm-store-sojourn.warning",
-      "latency.frame.swm-store-sojourn.critical",
-      "latency.frame.end-to-end.warning",
-      "latency.frame.end-to-end.critical",
+      "latency.batch.finish-to-emit.p50.warning",
+      "latency.batch.finish-to-emit.p50.critical",
+      "latency.batch.finish-to-emit.p95.warning",
+      "latency.batch.finish-to-emit.p95.critical",
+      "latency.batch.end-to-end.p50.warning",
+      "latency.batch.end-to-end.p50.critical",
+      "latency.batch.end-to-end.p95.warning",
+      "latency.batch.end-to-end.p95.critical",
+      "latency.frame.swm-store-sojourn.p50.warning",
+      "latency.frame.swm-store-sojourn.p50.critical",
+      "latency.frame.swm-store-sojourn.p95.warning",
+      "latency.frame.swm-store-sojourn.p95.critical",
+      "latency.frame.end-to-end.p50.warning",
+      "latency.frame.end-to-end.p50.critical",
+      "latency.frame.end-to-end.p95.warning",
+      "latency.frame.end-to-end.p95.critical",
     ],
     situation:
       "Post-render latency: outputs wait behind the reorder bound (finish-to-emit), or the " +
@@ -268,8 +284,8 @@ export const DEGRADATION_POLICIES: readonly DegradationPolicy[] = [
       },
       {
         packageName: "@sporta/gpu-worker",
-        exportName: "assertGpuLedgerConsistency",
-        seam: "the W303 ledger identities incl. the DLQ balance (asserted at settle)",
+        exportName: "assertGpuAccounting",
+        seam: "the W303 whole-dispatcher accounting identities incl. the DLQ balance (asserted at settle)",
       },
       {
         packageName: "@sporta/render-orchestration",
@@ -291,14 +307,16 @@ export function policyById(policyId: string): DegradationPolicy {
 
 /**
  * Asserts the policy table's structural invariants (pinned by tests; called
- * by nothing at runtime — the table is static): every trigger names a real
- * catalog alert; every critical alert is answered by at least one policy;
- * every policy id is unique.
+ * by every evaluation): every trigger names a real catalog alert, and the
+ * triggers form an EXACT PARTITION of the catalog — every catalog alert
+ * (warnings included: an alert with no documented response is noise) is
+ * answered by exactly one policy (one fired alert, one response — the
+ * playbook is a routing table). Unique policy ids; non-empty machinery.
  */
 export function assertPolicyTableInvariants(): void {
   const catalogIds = new Set(ALERT_CATALOG.map((alert) => alert.alertId));
   const seenPolicies = new Set<string>();
-  const answeredCriticals = new Set<string>();
+  const answeredBy = new Map<string, string>();
   for (const policy of DEGRADATION_POLICIES) {
     if (seenPolicies.has(policy.policyId)) {
       throw new SloTableInconsistentError(`duplicate policyId "${policy.policyId}"`);
@@ -311,9 +329,14 @@ export function assertPolicyTableInvariants(): void {
             "reference (a policy naming machinery or alerts that do not exist is a bug)",
         );
       }
-      if (trigger.endsWith(".critical") || trigger === "loss.unexpected-frames") {
-        answeredCriticals.add(trigger);
+      const previous = answeredBy.get(trigger);
+      if (previous !== undefined) {
+        throw new SloTableInconsistentError(
+          `alert "${trigger}" is answered by both "${previous}" and "${policy.policyId}" — ` +
+            "one fired alert must map to exactly one documented response",
+        );
       }
+      answeredBy.set(trigger, policy.policyId);
     }
     if (policy.machinery.length === 0) {
       throw new SloTableInconsistentError(
@@ -322,11 +345,10 @@ export function assertPolicyTableInvariants(): void {
     }
   }
   for (const alert of ALERT_CATALOG) {
-    if (alert.severity !== "critical") continue;
-    if (!answeredCriticals.has(alert.alertId)) {
+    if (!answeredBy.has(alert.alertId)) {
       throw new SloTableInconsistentError(
-        `critical alert "${alert.alertId}" is answered by no policy — every breach tier ` +
-          "must map to a documented response",
+        `alert "${alert.alertId}" is answered by no policy — every catalog alert (warnings ` +
+          "included) must map to a documented response, or it fires into the void",
       );
     }
   }

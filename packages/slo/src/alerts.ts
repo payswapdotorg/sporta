@@ -96,9 +96,8 @@ function latencyAlertsForSlo(slo: SloDefinition): readonly LatencyAlertDefinitio
 }
 
 /** The latency alert rows, in SLO-table order (warning then critical per SLO). */
-export const LATENCY_ALERTS: readonly LatencyAlertDefinition[] = SLO_DEFINITIONS.flatMap(
-  latencyAlertsForSlo,
-);
+export const LATENCY_ALERTS: readonly LatencyAlertDefinition[] =
+  SLO_DEFINITIONS.flatMap(latencyAlertsForSlo);
 
 /** The one loss-integrity alert. */
 export const LOSS_ALERT: LossAlertDefinition = {
@@ -115,7 +114,7 @@ export const LOSS_ALERT: LossAlertDefinition = {
 };
 
 /** The full catalog (latency rows in SLO order, then the loss row). */
-export const ALERT_CATALOG: readonly (LatencyAlertDefinition | LossAlertDefinition) = [
+export const ALERT_CATALOG: readonly (LatencyAlertDefinition | LossAlertDefinition)[] = [
   ...LATENCY_ALERTS,
   LOSS_ALERT,
 ];

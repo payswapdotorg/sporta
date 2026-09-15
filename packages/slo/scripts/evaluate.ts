@@ -59,9 +59,7 @@ try {
   const projected = projectBenchmarkReport(document as LatencyBenchmarkReportSubset);
   compliance = evaluateSloCompliance(parseLatencySloInput(projected));
 } catch (error) {
-  failUsage(
-    `the document is not a valid latency report / SLO input: ${(error as Error).message}`,
-  );
+  failUsage(`the document is not a valid latency report / SLO input: ${(error as Error).message}`);
 }
 
 process.stderr.write(`${renderComplianceSummary(compliance)}\n`);

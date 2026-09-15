@@ -94,7 +94,8 @@ export function budgetFractionForMetric(metric: "p50" | "p95"): number {
 
 /** Computes a frame-stage target by the documented {@link FRAME_HEADROOM_RULE}. */
 export function frameTargetByRule(metric: "p50" | "p95", baselineMs: number): number {
-  const multiplier = metric === "p95" ? FRAME_HEADROOM_RULE.p95Multiplier : FRAME_HEADROOM_RULE.p50Multiplier;
+  const multiplier =
+    metric === "p95" ? FRAME_HEADROOM_RULE.p95Multiplier : FRAME_HEADROOM_RULE.p50Multiplier;
   const product = baselineMs * multiplier;
   const multiple = FRAME_HEADROOM_RULE.roundUpToMs;
   return Math.ceil(product / multiple) * multiple;

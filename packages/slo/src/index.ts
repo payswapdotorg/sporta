@@ -14,8 +14,9 @@
  *   objectives derived from W306's measured frame evidence by a documented
  *   formula), a 33-entry alert catalog with severity tiers and documented
  *   derivations (32 latency alerts + the loss-integrity alert), and a
- *   4-entry degradation policy table mapping every critical alert to the
- *   real machinery that exists in this repository — `test/policies.test.ts`
+ *   4-entry degradation policy table whose triggers PARTITION the catalog —
+ *   every alert (warnings included) is answered by exactly one policy naming
+ *   the real machinery that exists in this repository — `test/policies.test.ts`
  *   fails if any named seam stops existing (fail-closed, no dangling
  *   references).
  * - **It is NOT a monitoring daemon.** Nothing here watches a live system:
@@ -55,7 +56,8 @@
  *
  * SLOs.md (this package) is the normative document; its tables are pinned
  * row-for-row to the code by tests (the W503 THRESHOLDS.md convention, both
- * directions — code and docs never drift apart silently).
+ * directions — code and docs never drift apart silently). README.md is the
+ * honest boundary index (package boundary, usage, module map).
  */
 export {
   SLO_ERROR_CODES,
@@ -127,8 +129,4 @@ export {
   evaluateSloComplianceFromValue,
   renderComplianceSummary,
 } from "./evaluate";
-export type {
-  SloVerdict,
-  SloComplianceWindow,
-  SloComplianceReport,
-} from "./evaluate";
+export type { SloVerdict, SloComplianceWindow, SloComplianceReport } from "./evaluate";

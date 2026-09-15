@@ -103,7 +103,9 @@ describe("boundary pins: the exact firing semantics (all 16 SLOs, systematic)", 
 
   test("measured == warning threshold → NO warning (strictly greater fires)", () => {
     for (const slo of SLO_DEFINITIONS) {
-      const input = buildInput(withStageMetric(slo.scope, slo.stage, slo.metric, warnThresholdMs(slo)));
+      const input = buildInput(
+        withStageMetric(slo.scope, slo.stage, slo.metric, warnThresholdMs(slo)),
+      );
       expect(firedIdsFor(input)).toEqual([]);
     }
   });
@@ -142,8 +144,8 @@ describe("boundary pins: the exact firing semantics (all 16 SLOs, systematic)", 
       thresholdMs: 6000,
       kind: "latency",
     });
-    expect(alert.message).toContain("SLO objective breached");
-    expect(alert.message).toContain("batch.swm-to-batch.p95");
+    expect(alert!.message).toContain("SLO objective breached");
+    expect(alert!.message).toContain("batch.swm-to-batch.p95");
   });
 });
 
@@ -188,7 +190,9 @@ describe("the loss alert (calibrated conditions)", () => {
 
   test("multiple loss paths are enumerated in the message, in a fixed order", () => {
     const alert = evaluateLossAlert(
-      buildInput({ frames: { framesEmitted: 237, framesDropped: 1, framesCancelled: 1, framesSkippedStale: 1 } }),
+      buildInput({
+        frames: { framesEmitted: 237, framesDropped: 1, framesCancelled: 1, framesSkippedStale: 1 },
+      }),
     );
     expect(alert?.message).toContain("dropped 1 + cancelled 1 + skipped-stale 1");
   });

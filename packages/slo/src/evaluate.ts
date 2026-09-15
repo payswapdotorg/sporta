@@ -17,17 +17,8 @@
 import { SloStageMissingError } from "./errors";
 import type { LatencySloInput } from "./input";
 import { parseLatencySloInput } from "./input";
-import {
-  SLO_DEFINITIONS,
-  SLO_SET_ID,
-  assertSloTableInvariants,
-  type SloDefinition,
-} from "./slos";
-import {
-  ALERT_CATALOG_ID,
-  evaluateAlerts,
-  type FiredAlert,
-} from "./alerts";
+import { SLO_DEFINITIONS, SLO_SET_ID, assertSloTableInvariants, type SloDefinition } from "./slos";
+import { ALERT_CATALOG_ID, evaluateAlerts, type FiredAlert } from "./alerts";
 import { assertPolicyTableInvariants } from "./policies";
 
 /** One SLO's verdict over the window (evidence, not just a boolean). */
@@ -149,9 +140,7 @@ export function evaluateSloComplianceFromValue(value: unknown): SloComplianceRep
  */
 export function renderComplianceSummary(report: SloComplianceReport): string {
   const lines: string[] = [];
-  lines.push(
-    `W802 latency SLO compliance — ${report.sloSetId} (alerts ${report.alertCatalogId})`,
-  );
+  lines.push(`W802 latency SLO compliance — ${report.sloSetId} (alerts ${report.alertCatalogId})`);
   lines.push(
     `window: ${report.window.fixtureProfileId} (${report.window.clockDomain} clock, ` +
       `${report.window.percentileMethod}) — ${String(report.window.batchSampleCount)} batches, ` +

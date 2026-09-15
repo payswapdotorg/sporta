@@ -72,9 +72,7 @@ describe("the at-risk window (warnings, no breach)", () => {
 
 describe("the breached window (objective breach)", () => {
   test("one objective breach: verdict breached, the critical fires, the SLO is not met", () => {
-    const report = evaluateSloCompliance(
-      buildInput({ frame: { "end-to-end": { p95Ms: 12501 } } }),
-    );
+    const report = evaluateSloCompliance(buildInput({ frame: { "end-to-end": { p95Ms: 12501 } } }));
     expect(report.summary.verdict).toBe("breached");
     expect(report.summary.breachedCount).toBe(1);
     expect(report.summary.metCount).toBe(15);

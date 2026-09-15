@@ -37,10 +37,7 @@ export class SloInputValidationError extends SloError {
   readonly issues: string;
 
   constructor(issues: string) {
-    super(
-      "slo-input-invalid",
-      `the latency SLO input failed validation: ${issues}`,
-    );
+    super("slo-input-invalid", `the latency SLO input failed validation: ${issues}`);
     this.name = "SloInputValidationError";
     this.issues = issues;
   }

@@ -8,7 +8,12 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SLO_CANDIDATES } from "@sporta/latency-benchmark";
+import {
+  SLO_CANDIDATES,
+  BATCH_STAGE_KEYS as BENCH_BATCH_KEYS,
+  FRAME_STAGE_KEYS as BENCH_FRAME_KEYS,
+} from "@sporta/latency-benchmark";
+import { BATCH_STAGE_KEYS, FRAME_STAGE_KEYS } from "../src/input";
 import {
   BASELINE_SOURCE,
   FRAME_HEADROOM_RULE,
@@ -97,7 +102,9 @@ describe("the batch objectives ≡ the W306 SLO candidates (the harness-gate pin
     const byStageMetric = new Map(
       SLO_DEFINITIONS.map((slo) => [`${slo.scope}.${slo.stage}.${slo.metric}`, slo]),
     );
-    expect(SLO_CANDIDATES).toHaveLength(12);
+    // The W306 candidate table is 6 STAGE rows, each carrying BOTH the p50
+    // and the p95 target (12 objectives total) — not 12 rows.
+    expect(SLO_CANDIDATES).toHaveLength(6);
     for (const candidate of SLO_CANDIDATES) {
       const p50 = byStageMetric.get(`batch.${candidate.stage}.p50`);
       const p95 = byStageMetric.get(`batch.${candidate.stage}.p95`);
@@ -109,17 +116,26 @@ describe("the batch objectives ≡ the W306 SLO candidates (the harness-gate pin
   });
 
   test("no batch SLO exists beyond the candidate stages (both directions)", () => {
-    const candidateStages = new Set(SLO_CANDIDATES.map((candidate) => candidate.stage));
-    const batchStages = new Set(
+    const candidateStages = new Set<string>(SLO_CANDIDATES.map((candidate) => candidate.stage));
+    const batchStages = new Set<string>(
       SLO_DEFINITIONS.filter((slo) => slo.scope === "batch").map((slo) => slo.stage),
     );
     expect(batchStages).toEqual(candidateStages);
+  });
+
+  test("the mirrored stage vocabularies equal the real benchmark exports (no runtime dep, no drift)", () => {
+    expect([...BATCH_STAGE_KEYS]).toEqual([...BENCH_BATCH_KEYS]);
+    expect([...FRAME_STAGE_KEYS]).toEqual([...BENCH_FRAME_KEYS]);
   });
 });
 
 describe("the frame objectives' derivation rule (deterministic, recomputed)", () => {
   test("the rule constants are the documented ones", () => {
-    expect(FRAME_HEADROOM_RULE).toEqual({ p50Multiplier: 1.25, p95Multiplier: 1.35, roundUpToMs: 500 });
+    expect(FRAME_HEADROOM_RULE).toEqual({
+      p50Multiplier: 1.25,
+      p95Multiplier: 1.35,
+      roundUpToMs: 500,
+    });
   });
 
   test("every frame target equals the rule applied to its baseline", () => {
