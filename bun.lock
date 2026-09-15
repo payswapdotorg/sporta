@@ -249,6 +249,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/identity": {
+      "name": "@sporta/identity",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/capability": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/control-api": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/ingestion": {
       "name": "@sporta/ingestion",
       "version": "0.1.0",
@@ -672,6 +685,8 @@
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/health": ["@sporta/health@workspace:packages/health"],
+
+    "@sporta/identity": ["@sporta/identity@workspace:packages/identity"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
