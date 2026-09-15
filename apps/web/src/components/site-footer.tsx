@@ -21,9 +21,8 @@ export function SiteFooter() {
           </div>
           <p className="footer-tagline">{BRAND.tagline}</p>
           <p className="footer-note">
-            Pre-beta shell: this app is the Sporta product frontend before
-            the data plane exists. Surfaces populate as real capabilities
-            land — nothing here is simulated.
+            Pre-beta shell: this app is the Sporta product frontend before the data plane exists.
+            Surfaces populate as real capabilities land — nothing here is simulated.
           </p>
         </div>
         <nav className="footer-nav" aria-label={A11Y.footerNavLabel}>

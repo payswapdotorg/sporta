@@ -43,14 +43,10 @@
   --sidebar-w: 248px;
   --content-max: 1180px;
   --font-ui:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  --font-display:
-    "Avenir Next", "Segoe UI Variable Display", "Segoe UI", system-ui,
-    sans-serif;
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
   --font-mono:
-    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo,
-    Consolas, monospace;
+    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
   color-scheme: dark;
 }
 
@@ -722,12 +718,11 @@ svg {
   padding: 26px 24px 22px;
   border: 1px dashed var(--surface-border-strong);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--bg-raised) 88%, transparent),
-      var(--bg-inset)
-    );
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--bg-raised) 88%, transparent),
+    var(--bg-inset)
+  );
 }
 
 .deferred-frame {

@@ -18,15 +18,14 @@ export default function OfflinePage() {
         <p className="page-kicker">Offline</p>
         <h1 className="page-title">You&rsquo;re offline</h1>
         <p className="page-description">
-          Sporta&rsquo;s app shell was loaded from your device, but this
-          preview has no offline data: every page needs the network to show
-          real content.
+          Sporta&rsquo;s app shell was loaded from your device, but this preview has no offline
+          data: every page needs the network to show real content.
         </p>
       </header>
       <section className="offline-panel">
         <p>
-          Reconnect and try again — nothing was lost, because nothing here
-          pretends to work without the network.
+          Reconnect and try again — nothing was lost, because nothing here pretends to work without
+          the network.
         </p>
         <Link className="button-primary" href={ROUTES.home}>
           Try Home again

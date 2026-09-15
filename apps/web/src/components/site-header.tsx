@@ -22,11 +22,7 @@ export function SiteHeader() {
         </Link>
         <SearchBox />
         <div className="header-actions">
-          <Link
-            href={ROUTES.search}
-            className="icon-button search-jump"
-            aria-label="Open search"
-          >
+          <Link href={ROUTES.search} className="icon-button search-jump" aria-label="Open search">
             <NavIcon name="search" />
           </Link>
           <Link href={ROUTES.signin} className="signin-link">

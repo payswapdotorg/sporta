@@ -36,25 +36,21 @@ export const REALITIES: readonly {
   {
     key: "original",
     name: "Original",
-    description:
-      "The broadcast presentation of the source event, enhanced from the world model.",
+    description: "The broadcast presentation of the source event, enhanced from the world model.",
   },
   {
     key: "anime",
     name: "Anime",
-    description:
-      "A stylized hand-drawn reality — the same match, re-imagined frame-coherent.",
+    description: "A stylized hand-drawn reality — the same match, re-imagined frame-coherent.",
   },
   {
     key: "3d",
     name: "3D",
-    description:
-      "A game-like three-dimensional reality you can follow from any angle.",
+    description: "A game-like three-dimensional reality you can follow from any angle.",
   },
   {
     key: "tactical",
     name: "Tactical",
-    description:
-      "The pure intelligence view: pitches, positioning, events and evidence.",
+    description: "The pure intelligence view: pitches, positioning, events and evidence.",
   },
 ];

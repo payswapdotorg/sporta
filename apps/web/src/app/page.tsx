@@ -28,10 +28,9 @@ export default function HomePage() {
           <p className="page-kicker">The sports reality platform</p>
           <h1 className="hero-title">{BRAND.tagline}</h1>
           <p className="hero-lede">
-            Sporta turns a single sporting event into many viewing realities.
-            Watch the original broadcast, then switch — without leaving the
-            match — into an Anime, 3D or Tactical rendering of the same
-            event, all backed by one sports world model.
+            Sporta turns a single sporting event into many viewing realities. Watch the original
+            broadcast, then switch — without leaving the match — into an Anime, 3D or Tactical
+            rendering of the same event, all backed by one sports world model.
           </p>
           <div className="hero-actions">
             <Link className="button-primary" href="#coming-to-sporta">
@@ -42,9 +41,8 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="hero-note">
-            You are looking at the product shell. It loads, navigates and
-            installs — and every data surface says plainly what it is
-            waiting for.
+            You are looking at the product shell. It loads, navigates and installs — and every data
+            surface says plainly what it is waiting for.
           </p>
         </div>
       </section>
@@ -56,24 +54,18 @@ export default function HomePage() {
             Four ways to watch the same game
           </h2>
           <p className="section-lede">
-            These are the visual realities of one event — not different
-            matches. Availability on any given event will be shown honestly,
-            driven by real renderer capabilities and rights.
+            These are the visual realities of one event — not different matches. Availability on any
+            given event will be shown honestly, driven by real renderer capabilities and rights.
           </p>
         </header>
         <ul className="reality-grid" id="coming-to-sporta">
           {REALITIES.map((reality) => (
-            <li
-              key={reality.key}
-              className="reality-card"
-              data-reality={reality.key}
-            >
+            <li key={reality.key} className="reality-card" data-reality={reality.key}>
               <span
                 className="reality-swatch"
                 style={
                   {
-                    "--reality-accent":
-                      BRAND.realityAccents[reality.key],
+                    "--reality-accent": BRAND.realityAccents[reality.key],
                   } as React.CSSProperties
                 }
                 aria-hidden="true"

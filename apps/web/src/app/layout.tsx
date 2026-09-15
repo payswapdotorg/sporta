@@ -41,9 +41,7 @@ export const viewport: Viewport = {
  * landmark as the skip target, and a footer pinned to the bottom of the
  * flex app frame (`margin-top: auto`) with no floating gap.
  */
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>

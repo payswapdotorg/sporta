@@ -26,10 +26,7 @@ export default function SignInPage() {
       <div className="surface-stack">
         <DeferredSurface surface="signin" />
         <section className="signin-return">
-          <p>
-            In the meantime, the shell is fully explorable without an
-            account.
-          </p>
+          <p>In the meantime, the shell is fully explorable without an account.</p>
           <Link className="button-ghost" href={ROUTES.home}>
             Back to Home
           </Link>

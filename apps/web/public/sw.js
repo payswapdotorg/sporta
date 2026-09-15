@@ -37,19 +37,13 @@ const PRECACHE_URLS = [
   "/icons/icon-192.png",
   "/icons/icon-512.png",
 ];
-const CACHE_FIRST_PREFIXES = [
-  "/_next/static/",
-  "/icons/",
-  "/manifest.webmanifest",
-];
+const CACHE_FIRST_PREFIXES = ["/_next/static/", "/icons/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(SHELL_CACHE);
-      await cache.addAll(
-        PRECACHE_URLS.map((url) => new Request(url, { cache: "reload" })),
-      );
+      await cache.addAll(PRECACHE_URLS.map((url) => new Request(url, { cache: "reload" })));
       await self.skipWaiting();
     })(),
   );
@@ -59,11 +53,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(
-        keys
-          .filter((key) => key !== SHELL_CACHE)
-          .map((key) => caches.delete(key)),
-      );
+      await Promise.all(keys.filter((key) => key !== SHELL_CACHE).map((key) => caches.delete(key)));
       await self.clients.claim();
     })(),
   );
@@ -100,9 +90,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 function isCacheFirstAsset(pathname) {
-  return CACHE_FIRST_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix),
-  );
+  return CACHE_FIRST_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 }
 
 async function networkFirstNavigation(request) {

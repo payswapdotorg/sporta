@@ -119,7 +119,14 @@ function insideCircle(u: number, v: number, cx: number, cy: number, r: number): 
   return dist2(u, v, cx, cy) <= r * r;
 }
 
-function insideRing(u: number, v: number, cx: number, cy: number, r: number, halfStroke: number): boolean {
+function insideRing(
+  u: number,
+  v: number,
+  cx: number,
+  cy: number,
+  r: number,
+  halfStroke: number,
+): boolean {
   const d = Math.sqrt(dist2(u, v, cx, cy));
   return Math.abs(d - r) <= halfStroke;
 }
@@ -134,7 +141,11 @@ function insideRoundedSquare(u: number, v: number, radius: number): boolean {
 }
 
 /** One subsample of the mark; returns [r, g, b, a]. */
-function sampleMark(u: number, v: number, options: MarkOptions): readonly [number, number, number, number] {
+function sampleMark(
+  u: number,
+  v: number,
+  options: MarkOptions,
+): readonly [number, number, number, number] {
   const { rounded, scale } = options;
 
   // Background: rounded (transparent corners) or full bleed.

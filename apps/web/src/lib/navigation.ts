@@ -35,15 +35,7 @@ export function isRoutePath(path: string): path is RoutePath {
 
 /** Icon vocabulary — one glyph per destination, rendered by <NavIcon />. */
 export type NavIcon =
-  | "home"
-  | "live"
-  | "explore"
-  | "library"
-  | "following"
-  | "create"
-  | "search"
-  | "watch"
-  | "signin";
+  "home" | "live" | "explore" | "library" | "following" | "create" | "search" | "watch" | "signin";
 
 /** One primary navigation destination. */
 export type NavItem = {

@@ -68,9 +68,7 @@ export type DeferredSurfaceSpec = {
   plannedWorkOrder: string;
 };
 
-export const DEFERRED_SURFACES: Readonly<
-  Record<SurfaceKey, DeferredSurfaceSpec>
-> = {
+export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>> = {
   "home-live": {
     id: "home-live",
     route: "/",
@@ -109,8 +107,7 @@ export const DEFERRED_SURFACES: Readonly<
     route: "/live",
     state: "unavailable",
     title: "Live now",
-    summary:
-      "Everything currently streaming over a real live transport will be listed here.",
+    summary: "Everything currently streaming over a real live transport will be listed here.",
     detail:
       "Sporta does not label anything as live without a real live network delivery behind it. There is no live transport in this preview, so this page truthfully shows nothing (see docs/testing/ux-operational-simulation.md, Simulation F).",
     plannedWorkOrder: "W915",
@@ -194,9 +191,7 @@ export const DEFERRED_SURFACES: Readonly<
   },
 };
 
-export const DEFERRED_SURFACE_KEYS = Object.keys(
-  DEFERRED_SURFACES,
-) as readonly SurfaceKey[];
+export const DEFERRED_SURFACE_KEYS = Object.keys(DEFERRED_SURFACES) as readonly SurfaceKey[];
 
 /** Look up a surface spec (unknown keys fail loudly in tests and code). */
 export function getDeferredSurface(key: SurfaceKey): DeferredSurfaceSpec {

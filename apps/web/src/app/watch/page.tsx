@@ -18,9 +18,8 @@ export default function WatchPage() {
         <p className="page-kicker">Watch</p>
         <h1 className="page-title">The match view</h1>
         <p className="page-description">
-          One match, many realities: the player, the event timeline and the
-          Reality Switcher will live here — switching the visual reality
-          without ever leaving the match.
+          One match, many realities: the player, the event timeline and the Reality Switcher will
+          live here — switching the visual reality without ever leaving the match.
         </p>
       </header>
       <div className="watch-stage" role="region" aria-label="Watch surface">
