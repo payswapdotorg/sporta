@@ -13,6 +13,7 @@
         "@sporta/commentary-understanding": "workspace:*",
         "@sporta/contracts": "workspace:*",
         "@sporta/field-mapping": "workspace:*",
+        "@sporta/health": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/observation": "workspace:*",
         "@sporta/perception-tracking": "workspace:*",
@@ -207,6 +208,17 @@
         "@sporta/contracts": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/health": {
+      "name": "@sporta/health",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/observability": "workspace:*",
+        "zod": "^4.0.0",
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",
@@ -585,6 +597,8 @@
     "@sporta/fusion": ["@sporta/fusion@workspace:packages/fusion"],
 
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
+
+    "@sporta/health": ["@sporta/health@workspace:packages/health"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 
