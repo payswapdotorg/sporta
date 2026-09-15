@@ -1,257 +1,396 @@
 /**
- * Frozen-fixture loading (W403).
+ * The FIXED evaluation fixture (W403, pure).
  *
- * The fixture (`fixtures/w403-fixture.json`) is CHECKED-IN, BYTE-STABLE INPUT:
- * the loader never writes it, never regenerates it, and pins its bytes via a
- * sha256 that flows into the artifact (and is compared `EXACT`). Regenerating
- * the fixture is not a supported operation — a fixture change invalidates the
- * golden (the `fixtureSha256` comparison fails loud) and demands an explicit,
- * tech-lead-reviewed golden regeneration (see TOLERANCE.md).
+ * ONE hand-built deterministic fixture — fixed constants, no RNG, no clock
+ * reads — the single input every evaluation run consumes, so cross-run
+ * output differences can only come from the chain, never the input. The
+ * accept criterion ("a fixed fixture produces comparable world-model
+ * outputs across runs") starts here.
  *
- * Fail loud (repo style): a missing file, a malformed envelope, a
- * contract-invalid observation, or a drifted canonical constant throws a
- * `RangeError` with full context — never a silent skip or a default.
+ * SHAPE (mirrors the delivered M1/M2 seams so the chain under evaluation is
+ * the real one):
+ *
+ * - `tracks` — W206-shaped pitch-space track observations (`modality:
+ *   "vision"`, `provenance: "DERIVED"`, `payload.kind: "track"` with
+ *   `entityId` + pitch-meter `position`, one `subjectEntityRef` carrying
+ *   the tracked subject's session-local kind — the shape
+ *   `emitSpatialObservations` produces): 60 frames x 3 players + ball on
+ *   LINEAR pitch motions over a 40 ms grid, with ONE occlusion gap in the
+ *   ball stream (frames 30-34 absent — 200 ms of honest no-observation,
+ *   what W202/W205 emit when the ball is occluded).
+ * - `candidates` — W209-shaped commentary event candidate observations
+ *   (`modality: "commentary"`, generic payload with
+ *   `{eventType, eventPhrase, subjects, emphasis, unitId}` — the shape
+ *   `emitEventCandidateObservations` produces): kickoff, pass, pass, goal,
+ *   save, fulltime on a 5 s window grid (0..25000 ms) with a known entity
+ *   lexicon ({@link EVALUATION_ENTITY_LEXICON}).
+ *
+ * TIMING LAYOUT (documented, load-bearing): the vision tracks start at
+ * 20400 ms — AFTER the last log event (the save at 20000 ms) and before
+ * the fulltime clock patch's timeline position (25000 ms). The commentary
+ * covers the whole 25 s excerpt while the tracker delivers only its final
+ * 2.36 s window; W403 evaluates cross-RUN comparability, not full-match
+ * realism. This layout is what makes the W402 replay-vs-live
+ * reconciliation honest: the live state AT THE EVENT HORIZON
+ * (`stateAt(engine, EVALUATION_LAST_EVENT_TIME_MS)`) excludes the
+ * track-derived entities and the post-fulltime football state for the same
+ * documented reason the event-window replay cannot reconstruct them — so
+ * the replay-vs-live comparison compares exactly the event-derived state
+ * both sides can honestly hold.
+ *
+ * The fixture is FROZEN: `buildEvaluationFixture()` deep-freezes every
+ * observation, payload, and array (and re-parses each observation through
+ * the contracts `Observation` zod schema at build time, so an invalid
+ * constant fails loud at construction, never inside a run).
  */
-import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { Observation } from "@sporta/contracts";
-import {
-  PITCH_AXES,
-  PITCH_LENGTH_AXIS_METERS,
-  PITCH_ORIGIN,
-  PITCH_WIDTH_AXIS_METERS,
-} from "@sporta/contracts";
-import type { Observation as ObservationType } from "@sporta/contracts";
-import type { FootballState } from "@sporta/world-model";
-import { FIXTURE_KIND } from "./artifact";
-import type { FixtureSpec } from "./artifact";
+import { Observation, SCHEMA_VERSION } from "@sporta/contracts";
+import type { Observation as ObservationDoc } from "@sporta/contracts";
 
-/** The default checked-in fixture path (package-relative). */
-export const DEFAULT_FIXTURE_PATH = `${import.meta.dir}/../fixtures/w403-fixture.json`;
+/** The single media session every fixture observation belongs to. */
+export const EVALUATION_SESSION_ID = "w403-evaluation";
 
-/** Everything the pipeline needs from the frozen fixture file. */
-export interface LoadedFixture {
-  /** The validated spec (parsed fixture envelope + validated observations). */
-  readonly spec: FixtureSpec;
-  /** sha256 (hex) over the fixture FILE bytes — the byte-stability proof. */
-  readonly sha256: string;
-}
+// ---------------------------------------------------------------------------
+// Vision track layout (W206-shaped)
+// ---------------------------------------------------------------------------
 
-/** Validates a football init carried by the fixture (canonical constants only). */
-function validateFootballInit(value: unknown): FootballState {
-  const football = value as FootballState;
-  const problems: string[] = [];
-  if (football?.pitch?.lengthAxisMeters !== PITCH_LENGTH_AXIS_METERS) {
-    problems.push(`pitch.lengthAxisMeters must be the canonical ${PITCH_LENGTH_AXIS_METERS}`);
-  }
-  if (football?.pitch?.widthAxisMeters !== PITCH_WIDTH_AXIS_METERS) {
-    problems.push(`pitch.widthAxisMeters must be the canonical ${PITCH_WIDTH_AXIS_METERS}`);
-  }
-  if (football?.pitch?.origin !== PITCH_ORIGIN) {
-    problems.push(`pitch.origin must be the canonical "${PITCH_ORIGIN}"`);
-  }
-  if (football?.pitch?.axes !== PITCH_AXES) {
-    problems.push(`pitch.axes must be the canonical "${PITCH_AXES}"`);
-  }
-  if (problems.length > 0) {
-    throw new RangeError(
-      `loadFixture: footballInit is not the canonical pitch frame — ${problems.join("; ")}`,
-    );
-  }
-  // The engine validates the full FootballState contract at create(); the
-  // checks above guard the constants the fixture must not drift on.
-  return football;
+/** Frames per tracked subject (the fixture's vision window length). */
+export const TRACK_FRAME_COUNT = 60;
+
+/** The 40 ms frame grid of the vision stream. */
+export const TRACK_FRAME_STEP_MS = 40;
+
+/**
+ * First track frame's timeline position (20400 ms — after the last log
+ * event at 20000 ms; see the module docblock's TIMING LAYOUT).
+ */
+export const TRACK_START_MS = 20_400;
+
+/**
+ * The ball-stream occlusion gap: ball frames 30-34 (inclusive) are absent —
+ * 200 ms of honest no-observation (what W202/W205 emit when the ball is
+ * occluded; the fusion simply never sees those upserts).
+ */
+export const BALL_OCCLUSION_GAP = { fromFrame: 30, toFrame: 34 } as const;
+
+/** A tracked subject's linear motion: pitch-meter start plus per-frame delta. */
+interface TrackSpec {
+  readonly entityId: string;
+  readonly kind: "participant" | "ball";
+  readonly startX: number;
+  readonly startY: number;
+  readonly dxPerFrame: number;
+  readonly dyPerFrame: number;
+  readonly confidence: number;
+  /** Frames this subject's stream SKIPS (the ball's occlusion gap). */
+  readonly skipFrames?: readonly number[];
 }
 
 /**
- * Loads and validates the frozen fixture. Pure: reads the file, validates,
- * returns — no mutation of anything, no writes.
+ * The three players + the ball, on linear pitch motions in distinct,
+ * non-crossing lanes. The ball's final position sits ~1.74 m from player
+ * p1's final position (inside the W401 default 2 m possession radius,
+ * with p2/p3 more than 20 m away) — the possession candidate is
+ * deliberately UNAMBIGUOUS so the fusion's possession step is
+ * deterministic and conflict-free.
  */
-export function loadFixture(fixturePath: string = DEFAULT_FIXTURE_PATH): LoadedFixture {
-  let bytes: string;
-  try {
-    bytes = readFileSync(fixturePath, "utf8");
-  } catch (cause) {
-    throw new RangeError(
-      `loadFixture: cannot read the frozen fixture at "${fixturePath}" — the fixture is ` +
-        `checked-in input and must exist (${(cause as Error).message})`,
-    );
-  }
-  const sha256 = createHash("sha256").update(bytes).digest("hex");
+const TRACK_SPECS: readonly TrackSpec[] = [
+  {
+    entityId: "p1",
+    kind: "participant",
+    startX: 40,
+    startY: 30,
+    dxPerFrame: 0.06,
+    dyPerFrame: 0.03,
+    confidence: 0.93,
+  },
+  {
+    entityId: "p2",
+    kind: "participant",
+    startX: 62,
+    startY: 45,
+    dxPerFrame: -0.25,
+    dyPerFrame: 0.15,
+    confidence: 0.9,
+  },
+  {
+    entityId: "p3",
+    kind: "participant",
+    startX: 15,
+    startY: 12,
+    dxPerFrame: 0.12,
+    dyPerFrame: 0.06,
+    confidence: 0.87,
+  },
+  {
+    entityId: "ball",
+    kind: "ball",
+    startX: 41,
+    startY: 29,
+    dxPerFrame: 0.07,
+    dyPerFrame: 0.035,
+    confidence: 0.86,
+    skipFrames: [30, 31, 32, 33, 34],
+  },
+];
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(bytes);
-  } catch (cause) {
-    throw new RangeError(
-      `loadFixture: fixture "${fixturePath}" is not valid JSON (${(cause as Error).message})`,
-    );
-  }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new RangeError(`loadFixture: fixture "${fixturePath}" must be a JSON object`);
-  }
-  const envelope = parsed as Record<string, unknown>;
+// ---------------------------------------------------------------------------
+// Commentary candidate layout (W209-shaped)
+// ---------------------------------------------------------------------------
 
-  const requireString = (key: string): string => {
-    const value = envelope[key];
-    if (typeof value !== "string" || value.length < 1) {
-      throw new RangeError(
-        `loadFixture: fixture "${key}" must be a non-empty string (got ${String(value)})`,
-      );
+/** The 5 s window grid the commentary candidates ride. */
+export const CANDIDATE_GRID_STEP_MS = 5_000;
+
+/**
+ * The six candidates' event types, in stream order (kickoff, pass, pass,
+ * goal, save, fulltime). `fulltime` is the period-establishing candidate:
+ * W401 maps it to a CLOCK PATCH, not a log event.
+ */
+export const CANDIDATE_EVENT_TYPES = [
+  "kickoff",
+  "pass",
+  "pass",
+  "goal",
+  "save",
+  "fulltime",
+] as const;
+
+/**
+ * The timeline position of the LAST LOG EVENT (the save at 20000 ms — the
+ * event horizon of the fixture; the fulltime candidate at 25000 ms is a
+ * clock patch, never a log entry). The W402 replay-vs-live comparison pins
+ * the live side at exactly this horizon.
+ */
+export const EVALUATION_LAST_EVENT_TIME_MS = 20_000;
+
+/**
+ * The known entity lexicon the commentary candidates' subjects come from
+ * (W209's `KnownEntityLexicon` shape, structural subset). Subjects are
+ * NAME-level mentions — the fusion consumes candidates by `eventType`, so
+ * the lexicon is fixture documentation, not engine input.
+ */
+export const EVALUATION_ENTITY_LEXICON = {
+  players: ["Sato", "Ndiaye", "Krause"],
+  teams: ["Polaris SC"],
+} as const;
+
+/** One commentary candidate's authored content (all constants). */
+interface CandidateSpec {
+  readonly eventType: string;
+  readonly eventPhrase: string;
+  readonly subjects: readonly string[];
+  readonly emphasis: number;
+  readonly unitId: string;
+  readonly confidence: number;
+}
+
+const CANDIDATE_SPECS: readonly CandidateSpec[] = [
+  {
+    eventType: "kickoff",
+    eventPhrase: "We are underway at Polaris Park.",
+    subjects: ["Sato"],
+    emphasis: 0.2,
+    unitId: "w403-cu-1",
+    confidence: 0.77,
+  },
+  {
+    eventType: "pass",
+    eventPhrase: "Sato slides it to Ndiaye.",
+    subjects: ["Sato", "Ndiaye"],
+    emphasis: 0.3,
+    unitId: "w403-cu-2",
+    confidence: 0.85,
+  },
+  {
+    eventType: "pass",
+    eventPhrase: "Ndiaye switches play wide.",
+    subjects: ["Ndiaye"],
+    emphasis: 0.35,
+    unitId: "w403-cu-3",
+    confidence: 0.85,
+  },
+  {
+    eventType: "goal",
+    eventPhrase: "Krause strikes — what a goal!",
+    subjects: ["Krause"],
+    emphasis: 0.4,
+    unitId: "w403-cu-4",
+    confidence: 0.91,
+  },
+  {
+    eventType: "save",
+    eventPhrase: "Sato's effort is saved!",
+    subjects: ["Sato"],
+    emphasis: 0.5,
+    unitId: "w403-cu-5",
+    confidence: 0.85,
+  },
+  {
+    eventType: "fulltime",
+    eventPhrase: "That is full time at Polaris Park.",
+    subjects: [],
+    emphasis: 0.1,
+    unitId: "w403-cu-6",
+    confidence: 0.99,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// The fixture
+// ---------------------------------------------------------------------------
+
+/**
+ * The fixed evaluation fixture: the W206-shaped pitch track observations
+ * (players + ball) and the W209-shaped commentary candidates, all belonging
+ * to {@link EVALUATION_SESSION_ID}, all contract-valid, all deep-frozen.
+ */
+export interface EvaluationFixture {
+  sessionId: string;
+  /** W206-shaped pitch track observations (players + ball). */
+  tracks: readonly Observation[];
+  /** W209-shaped commentary candidate observations. */
+  candidates: readonly Observation[];
+}
+
+/** Recursively freezes a plain value (the fixture's immutability guard). */
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === "object") {
+    if (Array.isArray(value)) {
+      for (const element of value) deepFreeze(element);
+    } else {
+      for (const key of Object.keys(value as Record<string, unknown>)) {
+        deepFreeze((value as Record<string, unknown>)[key]);
+      }
     }
-    return value;
-  };
-  const requireNumber = (key: string, minimum: number): number => {
-    const value = envelope[key];
-    if (typeof value !== "number" || !Number.isFinite(value) || value < minimum) {
-      throw new RangeError(
-        `loadFixture: fixture "${key}" must be a finite number >= ${minimum} (got ${String(value)})`,
-      );
-    }
-    return value;
-  };
+    Object.freeze(value);
+  }
+  return value;
+}
 
-  const fixtureId = requireString("fixtureId");
-  const fixtureKind = requireString("fixtureKind");
-  if (fixtureKind !== FIXTURE_KIND) {
-    throw new RangeError(
-      `loadFixture: fixture "${fixturePath}" has kind "${fixtureKind}" — this loader ` +
-        `only consumes "${FIXTURE_KIND}" fixtures`,
-    );
-  }
-
-  if (envelope.trackFrame !== "pitch") {
-    throw new RangeError(
-      `loadFixture: fixture trackFrame must be "pitch" (got ${String(envelope.trackFrame)})`,
-    );
-  }
-
-  const pinned = envelope.pinnedStateAtMs;
-  if (!Array.isArray(pinned) || pinned.length === 0) {
-    throw new RangeError("loadFixture: fixture pinnedStateAtMs must be a non-empty number array");
-  }
-  for (let i = 0; i < pinned.length; i += 1) {
-    const t = pinned[i];
-    if (typeof t !== "number" || !Number.isFinite(t) || t < 0) {
-      throw new RangeError(`loadFixture: pinnedStateAtMs[${i}] must be a finite number >= 0`);
-    }
-    if (i > 0 && (t as number) <= (pinned[i - 1] as number)) {
-      throw new RangeError(
-        `loadFixture: pinnedStateAtMs must be strictly ascending (${pinned[i - 1]} !< ${t})`,
-      );
-    }
-  }
-
-  const windowValue = envelope.eventWindow;
-  const windowOk =
-    typeof windowValue === "object" &&
-    windowValue !== null &&
-    !Array.isArray(windowValue) &&
-    typeof (windowValue as Record<string, unknown>).fromMs === "number" &&
-    typeof (windowValue as Record<string, unknown>).toMs === "number";
-  const wv = windowValue as { fromMs: number; toMs: number } | undefined;
-  if (!windowOk || !wv || wv.fromMs < 0 || wv.fromMs > wv.toMs) {
-    throw new RangeError(
-      "loadFixture: fixture eventWindow must be { fromMs, toMs } with 0 <= fromMs <= toMs",
-    );
-  }
-
-  const replayValue = envelope.replay;
-  const replayOk =
-    typeof replayValue === "object" &&
-    replayValue !== null &&
-    !Array.isArray(replayValue) &&
-    typeof (replayValue as Record<string, unknown>).maxEvents === "number" &&
-    Number.isInteger((replayValue as Record<string, unknown>).maxEvents) &&
-    typeof (replayValue as Record<string, unknown>).maxSpanMs === "number" &&
-    typeof (replayValue as Record<string, unknown>).checkpointEveryMs === "number" &&
-    Number.isInteger((replayValue as Record<string, unknown>).checkpointEveryMs);
-  const rv = replayValue as
-    { maxEvents: number; maxSpanMs: number; checkpointEveryMs: number } | undefined;
-  if (
-    !replayOk ||
-    !rv ||
-    rv.maxEvents < 1 ||
-    !Number.isFinite(rv.maxSpanMs) ||
-    rv.maxSpanMs < 0 ||
-    rv.checkpointEveryMs < 1
-  ) {
-    throw new RangeError(
-      "loadFixture: fixture replay must be { maxEvents >= 1, maxSpanMs >= 0, checkpointEveryMs >= 1 }",
-    );
-  }
-
-  const observationsValue = envelope.observations;
-  if (!Array.isArray(observationsValue) || observationsValue.length === 0) {
-    throw new RangeError("loadFixture: fixture observations must be a non-empty array");
-  }
-  const observations: ObservationType[] = [];
-  for (let i = 0; i < observationsValue.length; i += 1) {
-    const check = Observation.safeParse(observationsValue[i]);
-    if (!check.success) {
-      const issues = check.error.issues
-        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-        .join("; ");
-      throw new RangeError(
-        `loadFixture: observations[${i}] does not parse against the Observation contract ` +
-          `(${issues}) — the frozen fixture has drifted; it must never be regenerated silently`,
-      );
-    }
-    observations.push(check.data);
-  }
-
-  const knownEnvelopeKeys = new Set([
-    "fixtureId",
-    "fixtureKind",
-    "sessionId",
-    "trackFrame",
-    "possessionRadiusM",
-    "maxReorderMs",
-    "footballInit",
-    "pinnedStateAtMs",
-    "eventWindow",
-    "replay",
-    "observations",
-  ]);
-  for (const key of Object.keys(envelope)) {
-    if (!knownEnvelopeKeys.has(key)) {
-      throw new RangeError(
-        `loadFixture: fixture carries unknown envelope key "${key}" — the fixture shape is ` +
-          "frozen; extending it is a conscious act that requires a golden regeneration",
-      );
-    }
-  }
-
-  const spec: FixtureSpec = {
-    fixtureId,
-    fixtureKind,
-    sessionId: requireString("sessionId"),
-    trackFrame: "pitch",
-    possessionRadiusM: requireNumber("possessionRadiusM", 0),
-    maxReorderMs: requireNumber("maxReorderMs", 0),
-    footballInit: validateFootballInit(envelope.footballInit),
-    pinnedStateAtMs: pinned as number[],
-    eventWindow: {
-      fromMs: wv.fromMs,
-      toMs: wv.toMs,
+/** Builds one W206-shaped track observation (validated, not yet frozen). */
+function buildTrackObservation(spec: TrackSpec, frame: number): ObservationDoc {
+  const eventTimeMs = TRACK_START_MS + frame * TRACK_FRAME_STEP_MS;
+  return Observation.parse({
+    observationId: `w403-trk-f${String(frame).padStart(3, "0")}-${spec.entityId}`,
+    sessionId: EVALUATION_SESSION_ID,
+    schemaVersion: SCHEMA_VERSION,
+    eventTimeMs,
+    modality: "vision",
+    componentId: "w403-spatial-state",
+    provenance: "DERIVED",
+    confidence: spec.confidence,
+    payload: {
+      kind: "track",
+      entityId: spec.entityId,
+      position: {
+        x: spec.startX + frame * spec.dxPerFrame,
+        y: spec.startY + frame * spec.dyPerFrame,
+      },
     },
-    replay: {
-      maxEvents: rv.maxEvents,
-      maxSpanMs: rv.maxSpanMs,
-      checkpointEveryMs: rv.checkpointEveryMs,
-    },
-    observations,
-  };
+    subjectEntityRefs: [{ entityId: spec.entityId, kind: spec.kind }],
+  });
+}
 
-  // Cross-field sanity: every observation belongs to the fixture's session.
-  for (let i = 0; i < spec.observations.length; i += 1) {
-    if (spec.observations[i]!.sessionId !== spec.sessionId) {
-      throw new RangeError(
-        `loadFixture: observations[${i}] belongs to session ` +
-          `"${spec.observations[i]!.sessionId}", not the fixture session "${spec.sessionId}"`,
-      );
+/** Builds one W209-shaped candidate observation (validated, not yet frozen). */
+function buildCandidateObservation(spec: CandidateSpec, index: number): ObservationDoc {
+  return Observation.parse({
+    observationId: `w403-cand-${spec.eventType}-${index + 1}`,
+    sessionId: EVALUATION_SESSION_ID,
+    schemaVersion: SCHEMA_VERSION,
+    eventTimeMs: index * CANDIDATE_GRID_STEP_MS,
+    modality: "commentary",
+    componentId: "w403-commentary-understanding",
+    provenance: "DERIVED",
+    confidence: spec.confidence,
+    payload: {
+      kind: "generic",
+      data: {
+        eventType: spec.eventType,
+        eventPhrase: spec.eventPhrase,
+        subjects: spec.subjects.map((name) => ({ name })),
+        emphasis: spec.emphasis,
+        unitId: spec.unitId,
+      },
+    },
+    subjectEntityRefs: [],
+  });
+}
+
+/**
+ * Builds the FIXED evaluation fixture from the constants above. Pure and
+ * deterministic: every call returns a fresh, deep-frozen, contract-valid,
+ * deep-equal fixture. No RNG, no clock reads.
+ */
+export function buildEvaluationFixture(): EvaluationFixture {
+  const tracks: ObservationDoc[] = [];
+  for (let frame = 0; frame < TRACK_FRAME_COUNT; frame += 1) {
+    for (const spec of TRACK_SPECS) {
+      if (spec.skipFrames?.includes(frame)) continue;
+      tracks.push(buildTrackObservation(spec, frame));
     }
   }
+  const candidates = CANDIDATE_SPECS.map((spec, index) => buildCandidateObservation(spec, index));
+  return deepFreeze({
+    sessionId: EVALUATION_SESSION_ID,
+    tracks: deepFreeze(tracks),
+    candidates: deepFreeze(candidates),
+  });
+}
 
-  return { spec, sha256 };
+/**
+ * Perturbs ONE track observation's pitch position by EXACT deltas, for the
+ * negative (mutation-detected) tests: the returned fixture is a fresh
+ * deep-frozen copy whose `tracks[trackIndex]` carries
+ * `position.{x + dxM, y + dyM}` and everything else is untouched (same
+ * observation ids, same times — only the position moves, so the mutation
+ * survives the store -> fusion chain and lands in the fused entity's
+ * `state.position.value`).
+ *
+ * The original fixture is never mutated (it is frozen; this helper is
+ * pure). Throws `RangeError` (fail loud, repo style) on an out-of-range
+ * index, a non-track observation, or non-finite deltas.
+ */
+export function mutateFixturePosition(
+  fixture: EvaluationFixture,
+  trackIndex: number,
+  dxM: number,
+  dyM: number,
+): EvaluationFixture {
+  if (!Number.isInteger(trackIndex) || trackIndex < 0 || trackIndex >= fixture.tracks.length) {
+    throw new RangeError(
+      `mutateFixturePosition: trackIndex ${String(trackIndex)} is out of range ` +
+        `(fixture has ${fixture.tracks.length} tracks)`,
+    );
+  }
+  if (typeof dxM !== "number" || !Number.isFinite(dxM)) {
+    throw new RangeError(`mutateFixturePosition: dxM must be a finite number (got ${String(dxM)})`);
+  }
+  if (typeof dyM !== "number" || !Number.isFinite(dyM)) {
+    throw new RangeError(`mutateFixturePosition: dyM must be a finite number (got ${String(dyM)})`);
+  }
+  const target = fixture.tracks[trackIndex]!;
+  if (target.payload.kind !== "track") {
+    throw new RangeError(
+      `mutateFixturePosition: tracks[${trackIndex}] has payload kind "${target.payload.kind}" ` +
+        '(requires "track")',
+    );
+  }
+  const targetPosition = target.payload.position;
+  const tracks = fixture.tracks.map((observation, index) => {
+    if (index !== trackIndex) return observation;
+    return Observation.parse({
+      ...observation,
+      payload: {
+        ...observation.payload,
+        position: {
+          x: targetPosition.x + dxM,
+          y: targetPosition.y + dyM,
+        },
+      },
+    });
+  });
+  return deepFreeze({
+    sessionId: fixture.sessionId,
+    tracks: deepFreeze(tracks),
+    candidates: fixture.candidates,
+  });
 }

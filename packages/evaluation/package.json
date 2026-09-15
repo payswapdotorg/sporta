@@ -8,9 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "bun test",
-    "evaluate": "bun run scripts/evaluate.ts",
-    "regen-golden": "bun run scripts/regen-golden.ts"
+    "test": "bun test"
   },
   "dependencies": {
     "@sporta/contracts": "workspace:*",

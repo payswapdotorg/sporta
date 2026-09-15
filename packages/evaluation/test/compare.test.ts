@@ -1,386 +1,283 @@
 /**
- * W403 comparator unit tests — the mandated coverage: exact pass, epsilon
- * pass, epsilon breach fails, exact breach fails, UNCLASSIFIED field fails
- * loud with its JSON path, NaN flagged — plus SET/COUNT semantics,
- * undefined-vs-missing, structural mismatches, summary counts, deterministic
- * diff order, and spec validation. Pure: no pipeline run, no I/O.
+ * W403 comparison-math tests — the tolerance arithmetic of
+ * {@link compareSnapshots}, pinned at the documented boundaries.
+ *
+ * Every epsilon class is exercised at its EXACT boundary: a delta AT the
+ * epsilon passes (`<=`), a delta at 2x the epsilon fails. The exact-zero
+ * bases from `makeSnapshot` make the deltas EXACT (e.g. `positionX: 1e-9`
+ * differs from 0 by exactly the double `1e-9`, which IS the tolerance —
+ * no rounding noise at the boundary).
  */
 import { describe, expect, test } from "bun:test";
 import {
-  DEFAULT_EPSILON,
-  W403_ARTIFACT_CLASSIFICATION,
-  compareWorldModelArtifacts,
-  deepCompare,
-} from "../src/compare";
-import type { ClassificationRule, ComparisonReport, ToleranceSpec } from "../src/compare";
-import type { WorldModelArtifact } from "../src/artifact";
-import { cloneArtifact, minimalArtifact } from "./helpers";
+  DEFAULT_CONFIDENCE_EPSILON,
+  DEFAULT_POSITION_EPSILON_M,
+  compareSnapshots,
+  valuesEqual,
+} from "../src/index";
+import type { FieldDiff, ToleranceSpec } from "../src/index";
+import { DEFAULT_TOLERANCE } from "../src/index";
+import { BASE_ENTITY_ID, makeSnapshot } from "./helpers";
 
-/** The minimal artifact compared against itself (the zero-diff baseline). */
-function selfReport(): ComparisonReport {
-  return compareWorldModelArtifacts(minimalArtifact(), minimalArtifact());
+/** The non-excluded diffs (the only ones that can fail comparability). */
+function nonExcluded(diffs: readonly FieldDiff[]): FieldDiff[] {
+  return diffs.filter((entry) => entry.kind !== "excluded");
 }
 
-/**
- * A mutable view of the `stateAt["1000"]` position value of one entity
- * (test mutations; `UncertainValue.value` is statically `unknown`).
- */
-function positionValue(artifact: WorldModelArtifact, entityId: string): { x: number; y: number } {
-  const entity = artifact.stateAt["1000"]!.entities.find((e) => e.entityId === entityId)!;
-  return entity.state.position!.value as { x: number; y: number };
+/** Finds one diff entry by path (fail loud when missing). */
+function pin(diffs: readonly FieldDiff[], path: string): FieldDiff {
+  const entry = diffs.find((candidate) => candidate.path === path);
+  if (entry === undefined) throw new Error(`no diff entry at path "${path}"`);
+  return entry;
 }
 
-/** A mutable record view of an artifact level (test key additions). */
-function asRecord(value: unknown): Record<string, unknown> {
-  return value as Record<string, unknown>;
-}
-
-describe("deepCompare — the mandated cases", () => {
-  test("EXACT pass: identical artifacts compare with zero diffs", () => {
-    const report = selfReport();
-    expect(report.passed).toBe(true);
-    expect(report.diffCount).toBe(0);
-    expect(report.diffs).toEqual([]);
+describe("comparison math — position epsilon (1e-9 m)", () => {
+  test("identical snapshots: comparable, only the always-recorded excluded entries", () => {
+    const a = makeSnapshot();
+    const b = makeSnapshot();
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(true);
+    // Recording semantics: excluded-by-rule fields are recorded ALWAYS
+    // (equal or not); everything equal is not recorded.
+    expect(diff.diffs.map((entry) => entry.path)).toEqual(["watermark.sequence", "generatedAtMs"]);
+    expect(diff.diffs.every((entry) => entry.kind === "excluded")).toBe(true);
   });
 
-  test("EPSILON pass: a float-derived value within 1e-9 passes and is counted", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    // 0.8 vs 0.8 + 5e-10: within the default epsilon, still a PASS.
-    actual.stateAt["1000"]!.entities[0]!.state.position!.confidence = 0.8 + 5e-10;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(true);
-    expect(report.summary.epsilonFieldsCompared).toBe(selfReport().summary.epsilonFieldsCompared);
-    // Double arithmetic: |0.8 − (0.8 + 5e-10)| is 5.000000413701855e-10, so
-    // assert the deviation approximately, not bit-exactly.
-    expect(report.summary.maxAbsDeviation).toBeCloseTo(5e-10, 15);
-    expect(report.summary.maxAbsDeviation).toBeLessThanOrEqual(DEFAULT_EPSILON);
+  test("AT the epsilon passes (delta === positionM)", () => {
+    const a = makeSnapshot({ positionX: 0 });
+    const b = makeSnapshot({ positionX: DEFAULT_POSITION_EPSILON_M });
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(true);
+    const entry = pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.position.value.x`);
+    expect(entry.kind).toBe("numeric");
+    expect(entry.delta).toBe(DEFAULT_POSITION_EPSILON_M);
+    expect(entry.tolerance).toBe(DEFAULT_POSITION_EPSILON_M);
   });
 
-  test("EPSILON breach fails with deviation and the full JSON path", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    positionValue(actual, "pA").x = 1.5 + 1e-6;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffCount).toBe(1);
-    const diff = report.diffs[0]!;
-    expect(diff.path).toBe("$.stateAt.1000.entities[pA].state.position.value.x");
-    expect(diff.fieldClass).toBe("EPSILON");
-    expect(diff.expected).toBe("1.5");
-    expect(diff.actual).toBe(String(1.5 + 1e-6));
-    expect(diff.deviation).toBeCloseTo(1e-6, 12);
-    expect(diff.reason).toContain("epsilon-breach");
+  test("2x the epsilon fails", () => {
+    const a = makeSnapshot({ positionX: 0 });
+    const b = makeSnapshot({ positionX: 2 * DEFAULT_POSITION_EPSILON_M });
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(false);
+    const entry = pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.position.value.x`);
+    expect(entry.delta).toBeGreaterThan(DEFAULT_POSITION_EPSILON_M);
+    // The ONLY failing entry is the position (a single-field difference).
+    expect(nonExcluded(diff.diffs)).toHaveLength(1);
   });
 
-  test("EXACT breach fails (an integer position value)", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.eventWindow.entries[0]!.sequence = 2;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    const diff = report.diffs[0]!;
-    expect(diff.path).toBe("$.eventWindow.entries[0].sequence");
-    expect(diff.fieldClass).toBe("EXACT");
-    expect(diff.deviation).toBe(1);
-  });
-
-  test("EXACT breach fails (an enum/id string value)", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.stateAt["1000"]!.entities[0]!.kind = "ball";
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.path).toBe("$.stateAt.1000.entities[pA].kind");
-    expect(report.diffs[0]!.fieldClass).toBe("EXACT");
-    expect(report.diffs[0]!.reason).toContain("exact-mismatch");
-  });
-
-  test("UNCLASSIFIED field fails LOUD with its JSON path", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    // A brand-new field no rule covers — never a silent pass.
-    asRecord(actual.stateAt["1000"]).surpriseField = 42;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    const unclassified = report.diffs.filter((diff) => diff.fieldClass === "UNCLASSIFIED");
-    expect(unclassified).toHaveLength(1);
-    expect(unclassified[0]!.path).toBe("$.stateAt.1000.surpriseField");
-    expect(unclassified[0]!.reason).toContain("no classification rule covers this JSON path");
-  });
-
-  test("a top-level unknown key fails loud (root walk reaches it)", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    asRecord(actual).newSection = {};
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.path).toBe("$.newSection");
-    expect(report.diffs[0]!.fieldClass).toBe("UNCLASSIFIED");
-  });
-
-  test("NaN is flagged explicitly (EXACT leaf), never coerced to equality", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.eventWindow.entries[0]!.sequence = Number.NaN;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    const diff = report.diffs[0]!;
-    expect(diff.path).toBe("$.eventWindow.entries[0].sequence");
-    expect(diff.reason).toContain("NaN");
-    expect(diff.actual).toBe("NaN");
-    expect(diff.expected).toBe("1");
-  });
-
-  test("NaN is flagged explicitly (EPSILON leaf), never within tolerance", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.eventWindow.entries[0]!.event.confidence = Number.NaN;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.fieldClass).toBe("EPSILON");
-    expect(report.diffs[0]!.reason).toContain("NaN");
-  });
-
-  test("NaN vs NaN is still a flagged diff (NaN equals nothing, not even itself)", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    expected.fusion.first.snapshotVersionAfter = Number.NaN;
-    actual.fusion.first.snapshotVersionAfter = Number.NaN;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.reason).toContain("NaN");
+  test("y axis and nested slot values use the same position class", () => {
+    const a = makeSnapshot({ positionY: 0 });
+    const b = makeSnapshot({ positionY: 0.75 });
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.position.value.y`).delta).toBe(0.75);
   });
 });
 
-describe("deepCompare — undefined / missing / structural semantics", () => {
-  test("undefined-vs-missing is an explicit diff, never silently equal", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    // Key present-with-undefined on one side, absent on the other: flagged.
-    const expectedEvent = expected.eventWindow.entries[0]!.event as Record<string, unknown>;
-    const actualEvent = actual.eventWindow.entries[0]!.event as Record<string, unknown>;
-    expectedEvent.correctionOf = undefined;
-    delete actualEvent.correctionOf;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.path).toBe("$.eventWindow.entries[0].event.correctionOf");
-    expect(report.diffs[0]!.reason).toContain("undefined-vs-missing");
-    // A real value on one side, absence on the other: also a diff.
-    const expected2 = minimalArtifact();
-    const actual2 = cloneArtifact(expected2);
-    (expected2.eventWindow.entries[0]!.event as Record<string, unknown>).correctionOf = "fe-x";
-    const report2 = compareWorldModelArtifacts(expected2, actual2);
-    expect(report2.passed).toBe(false);
-    expect(report2.diffs[0]!.path).toBe("$.eventWindow.entries[0].event.correctionOf");
-    expect(report2.diffs[0]!.reason).toContain("missing-field");
+describe("comparison math — confidence epsilon (1e-12)", () => {
+  test("AT the epsilon passes; 2x fails", () => {
+    const at = compareSnapshots(
+      makeSnapshot({ positionConfidence: 0 }),
+      makeSnapshot({ positionConfidence: DEFAULT_CONFIDENCE_EPSILON }),
+    );
+    expect(at.comparable).toBe(true);
+    expect(pin(at.diffs, `entities[${BASE_ENTITY_ID}].state.position.confidence`).delta).toBe(
+      DEFAULT_CONFIDENCE_EPSILON,
+    );
+
+    const beyond = compareSnapshots(
+      makeSnapshot({ positionConfidence: 0 }),
+      makeSnapshot({ positionConfidence: 2 * DEFAULT_CONFIDENCE_EPSILON }),
+    );
+    expect(beyond.comparable).toBe(false);
+    expect(nonExcluded(beyond.diffs)).toHaveLength(1);
   });
 
-  test("undefined-vs-missing with a real undefined value is flagged", () => {
-    const expected = { a: undefined } as unknown;
-    const actual = {} as unknown;
-    const spec: ToleranceSpec = {
-      epsilon: DEFAULT_EPSILON,
-      rules: [{ pattern: "$", fieldClass: "EXACT", rationale: "root" }],
-    };
-    const report = deepCompare(expected, actual, spec);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.path).toBe("$.a");
-    expect(report.diffs[0]!.reason).toContain("undefined-vs-missing");
+  test("possession.confidence uses the confidence class (football extension)", () => {
+    const diff = compareSnapshots(
+      makeSnapshot({ possessionConfidence: 0 }),
+      makeSnapshot({ possessionConfidence: 1 }),
+    );
+    expect(diff.comparable).toBe(false);
+    const entry = pin(diff.diffs, "football.possession.confidence");
+    expect(entry.kind).toBe("numeric");
+    expect(entry.tolerance).toBe(DEFAULT_CONFIDENCE_EPSILON);
   });
 
-  test("type mismatch, array length mismatch, and missing elements are diffs", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.replay.limits.maxEvents = "10" as unknown as number;
-    let report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.reason).toContain("type-mismatch");
-
-    const actual2 = cloneArtifact(expected);
-    const longer = [...expected.eventWindow.entries, expected.eventWindow.entries[0]!];
-    (actual2.eventWindow as unknown as { entries: typeof longer }).entries = longer;
-    report = compareWorldModelArtifacts(expected, actual2);
-    expect(report.passed).toBe(false);
-    expect(report.diffs.some((diff) => diff.reason.includes("array-length"))).toBe(true);
-    expect(report.diffs.some((diff) => diff.reason.includes("missing-element"))).toBe(true);
+  test("a missing-vs-present confidence is structural (never coerced)", () => {
+    // status "unknown" slots carry no confidence: present-vs-absent is a
+    // structural difference, not a numeric one.
+    const a = makeSnapshot({ positionStatus: "unknown" });
+    a.entities[0]!.state.position = { status: "unknown" };
+    const b = makeSnapshot({ positionStatus: "unknown" });
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.position.confidence`).kind).toBe(
+      "structural",
+    );
   });
 });
 
-describe("deepCompare — SET semantics (snapshot entity arrays)", () => {
-  test("entity order is genuinely irrelevant: a reorder passes", () => {
-    const expected = minimalArtifact();
-    // Two entities, so a real reorder happens.
-    expected.stateAt["1000"]!.entities.push({
-      entityId: "pB",
-      kind: "participant",
-      version: 1,
-      lastEventTimeMs: 0,
-      state: {
-        position: { status: "uncertain", value: { x: 2.5, y: 3.5 }, confidence: 0.7 },
-        spatialFrame: { status: "known", value: "pitch" },
-        lastSeenMs: { status: "known", value: 0 },
-      },
+describe("comparison math — time fields are EXACT (timeMs default 0)", () => {
+  test("a 1 ms lastEventTimeMs difference fails", () => {
+    const diff = compareSnapshots(
+      makeSnapshot({ lastEventTimeMs: 1_000 }),
+      makeSnapshot({ lastEventTimeMs: 1_001 }),
+    );
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, `entities[${BASE_ENTITY_ID}].lastEventTimeMs`).tolerance).toBe(0);
+  });
+
+  test("lastSeenMs slot values use the timeMs class; clockMs and watermarkMs too", () => {
+    const lastSeen = compareSnapshots(
+      makeSnapshot({ lastSeenMs: 1_000 }),
+      makeSnapshot({ lastSeenMs: 1_001 }),
+    );
+    expect(
+      pin(lastSeen.diffs, `entities[${BASE_ENTITY_ID}].state.lastSeenMs.value`).tolerance,
+    ).toBe(0);
+    expect(lastSeen.comparable).toBe(false);
+
+    const clock = compareSnapshots(
+      makeSnapshot({ clockMs: 1_000 }),
+      makeSnapshot({ clockMs: 2_000 }),
+    );
+    expect(pin(clock.diffs, "football.clock.clockMs").tolerance).toBe(0);
+
+    const watermark = compareSnapshots(
+      makeSnapshot({ watermarkMs: 1_000 }),
+      makeSnapshot({ watermarkMs: 1_000.5 }),
+    );
+    expect(pin(watermark.diffs, "watermark.watermarkMs").tolerance).toBe(0);
+  });
+});
+
+describe("comparison math — integers are EXACT", () => {
+  test("an entity version difference fails with the exact sentinel", () => {
+    const diff = compareSnapshots(
+      makeSnapshot({ entityVersion: 2 }),
+      makeSnapshot({ entityVersion: 3 }),
+    );
+    expect(diff.comparable).toBe(false);
+    const entry = pin(diff.diffs, `entities[${BASE_ENTITY_ID}].version`);
+    expect(entry.kind).toBe("numeric");
+    expect(entry.tolerance).toBe("exact");
+  });
+
+  test("score integers are exact", () => {
+    const diff = compareSnapshots(makeSnapshot({ scoreHome: 1 }), makeSnapshot({ scoreHome: 2 }));
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, "football.score.home").tolerance).toBe("exact");
+  });
+});
+
+describe("comparison math — structural equality (everything else)", () => {
+  test("entity union: an entity present in only one snapshot is one structural diff", () => {
+    const missing = compareSnapshots(makeSnapshot(), makeSnapshot({ dropEntity: true }));
+    expect(missing.comparable).toBe(false);
+    expect(pin(missing.diffs, `entities[${BASE_ENTITY_ID}]`).kind).toBe("structural");
+
+    const extra = compareSnapshots(makeSnapshot(), makeSnapshot({ extraEntityId: "t9" }));
+    expect(extra.comparable).toBe(false);
+    expect(pin(extra.diffs, "entities[t9]").kind).toBe("structural");
+  });
+
+  test("enums and ids are structural: period, statuses, sessionId", () => {
+    const period = compareSnapshots(
+      makeSnapshot({ clockPeriod: "first-half" }),
+      makeSnapshot({ clockPeriod: "post-match" }),
+    );
+    expect(pin(period.diffs, "football.clock.period").kind).toBe("structural");
+    expect(period.comparable).toBe(false);
+
+    const status = compareSnapshots(
+      makeSnapshot({ positionStatus: "uncertain" }),
+      makeSnapshot({ positionStatus: "known" }),
+    );
+    expect(pin(status.diffs, `entities[${BASE_ENTITY_ID}].state.position.status`).kind).toBe(
+      "structural",
+    );
+
+    const session = compareSnapshots(
+      makeSnapshot({ sessionId: "s-one" }),
+      makeSnapshot({ sessionId: "s-two" }),
+    );
+    expect(pin(session.diffs, "sessionId").kind).toBe("structural");
+  });
+
+  test("football presence mismatch is one structural diff at the subtree root", () => {
+    const diff = compareSnapshots(makeSnapshot(), makeSnapshot({ dropFootball: true }));
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, "football").kind).toBe("structural");
+    expect(nonExcluded(diff.diffs)).toHaveLength(1);
+  });
+
+  test("a slot present on only one entity is a structural presence diff", () => {
+    const a = makeSnapshot();
+    const b = makeSnapshot();
+    // b's entity loses its lastSeenMs slot entirely (key-set mismatch).
+    delete b.entities[0]!.state.lastSeenMs;
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(false);
+    expect(pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.lastSeenMs`).kind).toBe("structural");
+  });
+
+  test("deep differences NEVER throw — every difference is reported", () => {
+    const a = makeSnapshot();
+    const b = makeSnapshot({
+      sessionId: "other-session",
+      dropFootball: true,
+      dropEntity: true,
+      watermarkMs: 9_999,
     });
-    const actual = cloneArtifact(expected);
-    actual.stateAt["1000"]!.entities.reverse();
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(true);
-    expect(report.summary.setArraysCompared).toBeGreaterThan(0);
+    expect(() => compareSnapshots(a, b)).not.toThrow();
+    const diff = compareSnapshots(a, b);
+    expect(diff.comparable).toBe(false);
+    expect(nonExcluded(diff.diffs).length).toBeGreaterThan(0);
   });
 
-  test("a SET element present on one side only fails with its key", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.stateAt["1000"]!.entities[0]!.entityId = "pZ";
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    const paths = report.diffs.map((diff) => diff.path);
-    expect(paths).toContain("$.stateAt.1000.entities[pA]");
-    expect(paths).toContain("$.stateAt.1000.entities[pZ]");
-    expect(report.diffs.every((diff) => diff.reason.includes("set-element-missing"))).toBe(true);
-  });
-
-  test("duplicate setKey inside one snapshot fails loud (never collapsed)", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    const first = actual.stateAt["1000"]!.entities[0]!;
-    actual.stateAt["1000"]!.entities.push({ ...first, version: 2 });
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.reason).toContain("set-key-duplicate");
-  });
-
-  test("a SET element differing INSIDE (epsilon field) still fails", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    positionValue(actual, "pA").x = 2.5;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.path).toBe("$.stateAt.1000.entities[pA].state.position.value.x");
+  test("malformed input throws RangeError (fail loud, repo style)", () => {
+    expect(() => compareSnapshots(null as never, makeSnapshot())).toThrow(RangeError);
+    expect(() => compareSnapshots(makeSnapshot(), { bad: true } as never)).toThrow(RangeError);
   });
 });
 
-describe("deepCompare — COUNT semantics", () => {
-  test("count mismatch fails with a deviation", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    actual.fusion.first.entitiesUpserted += 3;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    const diff = report.diffs[0]!;
-    expect(diff.path).toBe("$.fusion.first.entitiesUpserted");
-    expect(diff.fieldClass).toBe("COUNT");
-    expect(diff.deviation).toBe(3);
-    expect(diff.reason).toContain("count-mismatch");
+describe("comparison math — custom tolerance specs are honored", () => {
+  test("a loosened position epsilon absorbs a 0.5 m difference", () => {
+    const loose: ToleranceSpec = { ...DEFAULT_TOLERANCE, positionM: 1 };
+    const diff = compareSnapshots(
+      makeSnapshot({ positionX: 10 }),
+      makeSnapshot({ positionX: 10.5 }),
+      loose,
+    );
+    expect(diff.comparable).toBe(true);
+    // The within-tolerance difference is still RECORDED (visible info).
+    expect(pin(diff.diffs, `entities[${BASE_ENTITY_ID}].state.position.value.x`).delta).toBe(0.5);
   });
 
-  test("a non-integer count fails loud", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    (actual.replay as { eventsApplied: number }).eventsApplied = 1.5;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.reason).toContain("count-not-integer");
-  });
-
-  test("a non-number count fails loud", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    (actual.replay as { eventsApplied: number }).eventsApplied = "1" as unknown as number;
-    const report = compareWorldModelArtifacts(expected, actual);
-    expect(report.passed).toBe(false);
-    expect(report.diffs[0]!.reason).toContain("type-mismatch");
+  test("a zero position epsilon rejects any position difference", () => {
+    const strict: ToleranceSpec = { ...DEFAULT_TOLERANCE, positionM: 0 };
+    const diff = compareSnapshots(
+      makeSnapshot({ positionX: 0 }),
+      makeSnapshot({ positionX: DEFAULT_POSITION_EPSILON_M }),
+      strict,
+    );
+    expect(diff.comparable).toBe(false);
   });
 });
 
-describe("deepCompare — summary, determinism, and spec validation", () => {
-  test("summary counts every compared field by class and is deterministic", () => {
-    const first = selfReport();
-    const second = selfReport();
-    expect(first.summary).toEqual(second.summary);
-    expect(first.summary.exactFieldsCompared).toBeGreaterThan(0);
-    expect(first.summary.countFieldsCompared).toBeGreaterThan(0);
-    expect(first.summary.epsilonFieldsCompared).toBeGreaterThan(0);
-    expect(first.summary.setArraysCompared).toBeGreaterThan(0);
-    expect(first.summary.maxAbsDeviation).toBe(0);
-  });
-
-  test("the diff list itself is deterministic (same input, same order)", () => {
-    const mutate = () => {
-      const expected = minimalArtifact();
-      const actual = cloneArtifact(expected);
-      (actual.fusion.first as { entitiesUpserted: number }).entitiesUpserted = 5;
-      (actual.replay as { eventsApplied: number }).eventsApplied = 2;
-      (actual.stateAt["1000"]!.watermark as { sequence: number }).sequence = 9;
-      return compareWorldModelArtifacts(expected, actual);
-    };
-    expect(mutate().diffs.map((diff) => diff.path)).toEqual(
-      mutate().diffs.map((diff) => diff.path),
-    );
-  });
-
-  test("epsilon override: a custom epsilon tightens or widens the verdict", () => {
-    const expected = minimalArtifact();
-    const actual = cloneArtifact(expected);
-    const deviation = 5e-10; // within the default 1e-9, above a tighter 1e-10
-    actual.eventWindow.entries[0]!.event.confidence = 0.9 + deviation;
-    expect(compareWorldModelArtifacts(expected, actual).passed).toBe(true);
-    expect(compareWorldModelArtifacts(expected, actual, { epsilon: 1e-10 }).passed).toBe(false);
-    expect(compareWorldModelArtifacts(expected, actual, { epsilon: 1e-7 }).passed).toBe(true);
-  });
-
-  test("spec validation fails loud: non-positive epsilon, empty rules", () => {
-    const artifact = minimalArtifact();
-    expect(() =>
-      deepCompare(artifact, artifact, { epsilon: 0, rules: W403_ARTIFACT_CLASSIFICATION }),
-    ).toThrow(RangeError);
-    expect(() => deepCompare(artifact, artifact, { epsilon: DEFAULT_EPSILON, rules: [] })).toThrow(
-      RangeError,
-    );
-  });
-
-  test("custom rules replace the table (a two-rule world)", () => {
-    const rules: ClassificationRule[] = [
-      { pattern: "$", fieldClass: "EXACT", rationale: "root only" },
-      { pattern: "$.hello", fieldClass: "EPSILON", rationale: "a custom epsilon leaf" },
-    ];
-    const report = deepCompare(
-      { hello: 1 },
-      { hello: 1 },
-      {
-        epsilon: DEFAULT_EPSILON,
-        rules,
-      },
-    );
-    expect(report.passed).toBe(true);
-    // Containers are not counted; only leaves: one EPSILON leaf here.
-    expect(report.summary.exactFieldsCompared).toBe(0);
-    expect(report.summary.epsilonFieldsCompared).toBe(1);
-    // And with the custom table, an unknown leaf fails loud as UNCLASSIFIED.
-    const drifted = deepCompare(
-      { hello: 1, extra: 2 },
-      { hello: 1, extra: 2 },
-      {
-        epsilon: DEFAULT_EPSILON,
-        rules,
-      },
-    );
-    expect(drifted.passed).toBe(false);
-    expect(drifted.diffs[0]!.path).toBe("$.extra");
-    expect(drifted.diffs[0]!.fieldClass).toBe("UNCLASSIFIED");
-  });
-
-  test("the W403 rule table: no duplicate patterns, no stray setKey", () => {
-    const patterns = W403_ARTIFACT_CLASSIFICATION.map((rule) => rule.pattern);
-    expect(new Set(patterns).size).toBe(patterns.length);
-    for (const rule of W403_ARTIFACT_CLASSIFICATION) {
-      if (rule.fieldClass !== "SET") {
-        expect(rule.setKey).toBeUndefined();
-      }
-    }
-    expect(patterns).toContain("$.stateAt.*.entities[*].state.position.value.x");
-    expect(patterns).toContain("$.replay.final.generatedAtMs");
-    expect(patterns).toContain("$.fusion.*.conflicts[*].values[*].confidence");
+describe("valuesEqual — the structural-equality primitive", () => {
+  test("primitives, arrays, objects, key sets", () => {
+    expect(valuesEqual(1, 1)).toBe(true);
+    expect(valuesEqual("a", "a")).toBe(true);
+    expect(valuesEqual(1, 2)).toBe(false);
+    expect(valuesEqual([1, 2], [1, 2])).toBe(true);
+    expect(valuesEqual([1, 2], [2, 1])).toBe(false);
+    expect(valuesEqual([1, 2], [1, 2, 3])).toBe(false);
+    expect(valuesEqual({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
+    expect(valuesEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+    expect(valuesEqual(null, null)).toBe(true);
+    expect(valuesEqual(null, {})).toBe(false);
+    expect(valuesEqual(undefined, undefined)).toBe(true);
   });
 });

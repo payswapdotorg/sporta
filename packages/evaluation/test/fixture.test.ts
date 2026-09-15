@@ -1,112 +1,208 @@
 /**
- * W403 frozen-fixture loader tests: the checked-in fixture loads, parses, and
- * is sha256-PINNED (byte drift fails the suite); every targeted invalid
- * variant (checked-in under `test/fixtures/invalid/`) fails LOUD with a
- * RangeError naming the break — never a silent skip or default.
+ * W403 fixture tests — the FIXED evaluation input, pinned.
+ *
+ * The fixture is the single input every evaluation run consumes: these
+ * tests pin its SHAPE (counts, grids, occlusion gap, linear motions,
+ * candidate sequence, lexicon), its VALIDITY (every observation parses
+ * with the contracts `Observation` schema), its IMMUTABILITY (deep-frozen),
+ * its DETERMINISM (two builds are deep-equal), and the
+ * `mutateFixturePosition` helper's exact-delta/purity/fail-loud contract.
  */
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
-import { DEFAULT_FIXTURE_PATH, loadFixture } from "../src/fixture";
-import { FIXTURE_KIND } from "../src/artifact";
+import { Observation } from "@sporta/contracts";
+import {
+  BALL_OCCLUSION_GAP,
+  CANDIDATE_EVENT_TYPES,
+  CANDIDATE_GRID_STEP_MS,
+  EVALUATION_ENTITY_LEXICON,
+  EVALUATION_LAST_EVENT_TIME_MS,
+  EVALUATION_SESSION_ID,
+  TRACK_FRAME_COUNT,
+  TRACK_FRAME_STEP_MS,
+  TRACK_START_MS,
+  buildEvaluationFixture,
+  mutateFixturePosition,
+} from "../src/index";
+import type { EvaluationFixture } from "../src/index";
+import type { Observation as ObservationDoc, TrackPayload } from "@sporta/contracts";
 
-/**
- * The PINNED sha256 of the checked-in fixture bytes. The fixture is frozen
- * input: any byte change (regeneration, reformatting, reordering) changes
- * the hash, fails this test, and invalidates the golden — regenerating the
- * fixture is a separate, tech-lead-reviewed act (TOLERANCE.md §7).
- */
-const PINNED_FIXTURE_SHA256 = "7da57e102d45e93a77e108b0e8a813ac01fc03544fa2e1b2dba46632ea4059c2";
+/** Narrows an observation's payload to the track variant (fail loud). */
+function trackPayloadOf(observation: ObservationDoc): TrackPayload {
+  if (observation.payload.kind !== "track") {
+    throw new Error(`observation ${observation.observationId} is not a track payload`);
+  }
+  return observation.payload;
+}
 
-/** The pinned content facts of the checked-in fixture (spec-level pins). */
-const PINNED_SPEC = {
-  fixtureId: "w403-eval-fixture-1",
-  sessionId: "sess-w403-eval",
-  observationCount: 248,
-  pinnedStateAtMs: [0, 2_000, 4_000, 6_000, 8_000, 10_000, 11_800],
-  eventWindow: { fromMs: 0, toMs: 12_000 },
-  replay: { maxEvents: 8, maxSpanMs: 12_000, checkpointEveryMs: 2_000 },
-  possessionRadiusM: 2,
-  maxReorderMs: 5_000,
-} as const;
+/** The expected per-subject observation counts (the ball skips 5 frames). */
+const EXPECTED_TRACK_COUNTS: Readonly<Record<string, number>> = {
+  p1: TRACK_FRAME_COUNT,
+  p2: TRACK_FRAME_COUNT,
+  p3: TRACK_FRAME_COUNT,
+  ball: TRACK_FRAME_COUNT - (BALL_OCCLUSION_GAP.toFrame - BALL_OCCLUSION_GAP.fromFrame + 1),
+};
 
-const INVALID_DIR = `${import.meta.dir}/fixtures/invalid`;
+describe("fixture — shape and grid (pinned constants)", () => {
+  const fixture = buildEvaluationFixture();
 
-describe("loadFixture — the checked-in frozen fixture", () => {
-  test("loads and validates (fixture file exists at the default path)", () => {
-    expect(existsSync(DEFAULT_FIXTURE_PATH)).toBe(true);
-    const loaded = loadFixture();
-    expect(loaded.spec.fixtureKind).toBe(FIXTURE_KIND);
-    expect(loaded.spec.observations).toHaveLength(PINNED_SPEC.observationCount);
+  test("the session and the observation counts", () => {
+    expect(fixture.sessionId).toBe(EVALUATION_SESSION_ID);
+    expect(fixture.tracks).toHaveLength(
+      EXPECTED_TRACK_COUNTS.p1! +
+        EXPECTED_TRACK_COUNTS.p2! +
+        EXPECTED_TRACK_COUNTS.p3! +
+        EXPECTED_TRACK_COUNTS.ball!,
+    ); // 60 + 60 + 60 + 55 = 235
+    expect(fixture.candidates).toHaveLength(6);
   });
 
-  test("the fixture bytes are sha256-pinned (byte drift fails the suite)", () => {
-    const loaded = loadFixture();
-    expect(loaded.sha256).toBe(PINNED_FIXTURE_SHA256);
-    // Independent re-hash straight from the file bytes.
-    const bytes = readFileSync(DEFAULT_FIXTURE_PATH, "utf8");
-    expect(createHash("sha256").update(bytes).digest("hex")).toBe(PINNED_FIXTURE_SHA256);
+  test("every observation belongs to the fixture session and is zod-valid", () => {
+    for (const observation of [...fixture.tracks, ...fixture.candidates]) {
+      expect(observation.sessionId).toBe(EVALUATION_SESSION_ID);
+      expect(() => Observation.parse(observation)).not.toThrow();
+    }
   });
 
-  test("the spec's pinned content facts hold (counts, pins, window, limits)", () => {
-    const { spec } = loadFixture();
-    expect(spec.fixtureId).toBe(PINNED_SPEC.fixtureId);
-    expect(spec.sessionId).toBe(PINNED_SPEC.sessionId);
-    expect(spec.trackFrame).toBe("pitch");
-    expect(spec.pinnedStateAtMs).toEqual([...PINNED_SPEC.pinnedStateAtMs]);
-    expect(spec.eventWindow).toEqual({ ...PINNED_SPEC.eventWindow });
-    expect(spec.replay).toEqual({ ...PINNED_SPEC.replay });
-    expect(spec.possessionRadiusM).toBe(PINNED_SPEC.possessionRadiusM);
-    expect(spec.maxReorderMs).toBe(PINNED_SPEC.maxReorderMs);
-    // Every observation parses (the loader already asserted it) and belongs
-    // to the fixture session; the stream mixes tracks and candidates.
-    const kinds = new Set(spec.observations.map((obs) => obs.payload.kind));
-    expect(kinds.has("track")).toBe(true);
-    expect(kinds.has("generic")).toBe(true);
-    expect(spec.observations.every((obs) => obs.sessionId === spec.sessionId)).toBe(true);
+  test("tracks ride the 40 ms grid starting at 20400 ms (after the event horizon)", () => {
+    const perSubject = new Map<string, number>();
+    for (const observation of fixture.tracks) {
+      const payload = trackPayloadOf(observation);
+      const frame = Number(observation.observationId.match(/f(\d{3})-/)?.[1]);
+      expect(observation.eventTimeMs).toBe(TRACK_START_MS + frame * TRACK_FRAME_STEP_MS);
+      perSubject.set(payload.entityId, (perSubject.get(payload.entityId) ?? 0) + 1);
+    }
+    for (const [entityId, count] of perSubject) {
+      expect(count).toBe(EXPECTED_TRACK_COUNTS[entityId]!);
+    }
   });
 
-  test("the footballInit is the canonical pitch frame", () => {
-    const { spec } = loadFixture();
-    expect(spec.footballInit.pitch).toEqual({
-      lengthAxisMeters: 105,
-      widthAxisMeters: 68,
-      origin: "corner",
-      axes: "x=touchline, y=goal-line",
+  test("the ball stream carries EXACTLY one occlusion gap (frames 30-34 absent)", () => {
+    const ballFrames = fixture.tracks
+      .filter((observation) => trackPayloadOf(observation).entityId === "ball")
+      .map((observation) => Number(observation.observationId.match(/f(\d{3})-/)?.[1]));
+    for (let frame = 0; frame < TRACK_FRAME_COUNT; frame += 1) {
+      const inGap = frame >= BALL_OCCLUSION_GAP.fromFrame && frame <= BALL_OCCLUSION_GAP.toFrame;
+      expect(ballFrames.includes(frame)).toBe(!inGap);
+    }
+    // The gap is 200 ms of honest no-observation (5 frames x 40 ms).
+    expect(BALL_OCCLUSION_GAP.toFrame - BALL_OCCLUSION_GAP.fromFrame).toBe(4);
+  });
+
+  test("motions are LINEAR: p3 frame 59 sits at start + 59 * delta", () => {
+    const p3 = fixture.tracks.find(
+      (observation) => observation.observationId === "w403-trk-f059-p3",
+    )!;
+    expect(trackPayloadOf(p3).position.x).toBeCloseTo(15 + 59 * 0.12, 12);
+    expect(trackPayloadOf(p3).position.y).toBeCloseTo(12 + 59 * 0.06, 12);
+  });
+
+  test("candidates: the six event types on the 5 s grid, lexicon subjects", () => {
+    fixture.candidates.forEach((observation, index) => {
+      expect(observation.modality).toBe("commentary");
+      expect(observation.payload.kind).toBe("generic");
+      expect(observation.eventTimeMs).toBe(index * CANDIDATE_GRID_STEP_MS);
+      const data = (observation.payload as { data: Record<string, unknown> }).data;
+      expect(data.eventType).toBe(CANDIDATE_EVENT_TYPES[index]);
+      for (const subject of data.subjects as ReadonlyArray<{ name: string }>) {
+        expect(EVALUATION_ENTITY_LEXICON.players as readonly string[]).toContain(subject.name);
+      }
     });
+    // The event horizon: the save at 20000 ms is the LAST LOG EVENT; the
+    // fulltime candidate at 25000 ms is a clock patch, never a log entry.
+    expect(EVALUATION_LAST_EVENT_TIME_MS).toBe(20_000);
+    expect(fixture.candidates[5]!.eventTimeMs).toBe(25_000);
   });
 });
 
-describe("loadFixture — fail-loud coverage (checked-in invalid variants)", () => {
-  const cases: ReadonlyArray<{ file: string; message: RegExp }> = [
-    {
-      file: "wrong-kind.json",
-      message: /only consumes "w403-fixture\/1" fixtures/,
-    },
-    { file: "bad-pins.json", message: /strictly ascending/ },
-    { file: "bad-window.json", message: /eventWindow must be \{ fromMs, toMs \}/ },
-    {
-      file: "bad-observation.json",
-      message: /observations\[0\] does not parse against the Observation contract/,
-    },
-    { file: "unknown-envelope-key.json", message: /unknown envelope key "extraEnvelopeKey"/ },
-    { file: "bad-football-init.json", message: /not the canonical pitch frame/ },
-    { file: "session-mismatch.json", message: /not the fixture session "sess-w403-invalid"/ },
-    // Deliberately unparsable content — a .txt (not JSON data): Prettier's
-    // JSON parser cannot be pointed at intentionally-broken JSON.
-    { file: "malformed.txt", message: /not valid JSON/ },
-  ];
+describe("fixture — immutability and determinism", () => {
+  test("the fixture is deep-frozen (documented immutable)", () => {
+    const fixture = buildEvaluationFixture();
+    expect(Object.isFrozen(fixture)).toBe(true);
+    expect(Object.isFrozen(fixture.tracks)).toBe(true);
+    expect(Object.isFrozen(fixture.candidates)).toBe(true);
+    for (const observation of fixture.tracks) {
+      expect(Object.isFrozen(observation)).toBe(true);
+      expect(Object.isFrozen(observation.payload)).toBe(true);
+      if (observation.payload.kind === "track") {
+        expect(Object.isFrozen(observation.payload.position)).toBe(true);
+      }
+    }
+  });
 
-  for (const { file, message } of cases) {
-    test(`"${file}" throws a RangeError matching ${message}`, () => {
-      expect(() => loadFixture(`${INVALID_DIR}/${file}`)).toThrow(RangeError);
-      expect(() => loadFixture(`${INVALID_DIR}/${file}`)).toThrow(message);
-    });
-  }
+  test("two builds are deep-equal (the fixture is a pure function of its constants)", () => {
+    expect(buildEvaluationFixture()).toEqual(buildEvaluationFixture());
+  });
+});
 
-  test("a missing fixture file fails loud (the fixture is checked-in input)", () => {
-    expect(() => loadFixture(`${INVALID_DIR}/does-not-exist.json`)).toThrow(
-      /cannot read the frozen fixture/,
+describe("mutateFixturePosition — the negative-test helper", () => {
+  const fixture = buildEvaluationFixture();
+  const targetIndex = fixture.tracks.findIndex(
+    (observation) => observation.observationId === "w403-trk-f059-p3",
+  );
+
+  test("perturbs ONE observation's position by EXACT deltas, nothing else", () => {
+    expect(targetIndex).toBeGreaterThanOrEqual(0);
+    const mutated = mutateFixturePosition(fixture, targetIndex, 0.5, -0.25);
+    const target = trackPayloadOf(mutated.tracks[targetIndex]!);
+    const original = trackPayloadOf(fixture.tracks[targetIndex]!);
+    expect(target.position.x).toBe(original.position.x + 0.5);
+    expect(target.position.y).toBe(original.position.y - 0.25);
+    // Same observation ids, same times, same counts — only the position moved.
+    expect(mutated.tracks).toHaveLength(fixture.tracks.length);
+    expect(mutated.tracks[targetIndex]!.observationId).toBe(
+      fixture.tracks[targetIndex]!.observationId,
     );
+    expect(mutated.tracks[targetIndex]!.eventTimeMs).toBe(fixture.tracks[targetIndex]!.eventTimeMs);
+    // The mutated observation is still contract-valid.
+    expect(() => Observation.parse(mutated.tracks[targetIndex]!)).not.toThrow();
+  });
+
+  test("is PURE: the original frozen fixture is untouched", () => {
+    const before = buildEvaluationFixture();
+    mutateFixturePosition(fixture, targetIndex, 1, 1);
+    expect(fixture).toEqual(before);
+    // And a fresh build is still equal to the untouched original.
+    expect(buildEvaluationFixture()).toEqual(before);
+  });
+
+  test("fails loud on an out-of-range index or non-finite deltas (repo style)", () => {
+    expect(() => mutateFixturePosition(fixture, -1, 1, 0)).toThrow(RangeError);
+    expect(() => mutateFixturePosition(fixture, fixture.tracks.length, 1, 0)).toThrow(RangeError);
+    expect(() => mutateFixturePosition(fixture, 0, Number.NaN, 0)).toThrow(RangeError);
+    expect(() => mutateFixturePosition(fixture, 0, 1, Number.POSITIVE_INFINITY)).toThrow(
+      RangeError,
+    );
+  });
+
+  test("accepts a zero mutation (a no-op copy is still a fresh fixture)", () => {
+    const unchanged = mutateFixturePosition(fixture, targetIndex, 0, 0);
+    expect(unchanged.tracks[targetIndex]).toEqual(fixture.tracks[targetIndex]);
+    expect(unchanged).toEqual(fixture);
+  });
+});
+
+describe("mutateFixturePosition — the mutation SURVIVES the store->fusion chain", () => {
+  const fixture = buildEvaluationFixture();
+  const targetIndex = fixture.tracks.findIndex(
+    (observation) => observation.observationId === "w403-trk-f059-p3",
+  );
+
+  test("the chosen target is the entity's LAST observation (nothing later overwrites it)", () => {
+    // The fusion upserts track observations in time order and W006 replaces
+    // entity state wholesale, so only a mutation on the entity's LAST track
+    // observation can survive to the fused entity. This pins the test
+    // fixture choice used by the mutation tests: frame 59 is p3's last.
+    const p3Observations = fixture.tracks.filter(
+      (observation) => trackPayloadOf(observation).entityId === "p3",
+    );
+    const last = p3Observations.at(-1)!;
+    expect(last.observationId).toBe("w403-trk-f059-p3");
+    expect(last.eventTimeMs).toBe(TRACK_START_MS + 59 * TRACK_FRAME_STEP_MS);
+  });
+
+  test("the mutated fixture is still a valid EvaluationFixture (session preserved)", () => {
+    const mutated: EvaluationFixture = mutateFixturePosition(fixture, targetIndex, 0.5, 0);
+    expect(mutated.sessionId).toBe(fixture.sessionId);
+    expect(mutated.candidates).toBe(fixture.candidates);
   });
 });

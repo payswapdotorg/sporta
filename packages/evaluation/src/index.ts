@@ -1,57 +1,63 @@
 /**
- * @sporta/evaluation — the M2 replay/evaluation harness (work item W403).
+ * @sporta/evaluation — the replay/evaluation harness (work item W403).
  *
- * The accept criterion made executable: "a fixed fixture produces comparable
- * world-model outputs across runs with documented tolerance."
+ * The accept criterion made executable: "a fixed fixture produces
+ * comparable world-model outputs across runs with documented tolerance."
  *
- * - `fixture`: loads the CHECKED-IN, byte-stable W403 fixture (sha256-pinned;
- *   never regenerated) — W206-shaped pitch track observations + W209-shaped
- *   commentary event candidates;
- * - `pipeline`: `runFixtureEvaluation` — one deterministic walk
- *   fixture → W005 store → W401 fusion (first + idempotent refusion) → W402
- *   temporal outputs (`stateAt`, `eventWindow`, `replayForward`) → the
- *   canonical {@link WorldModelArtifact};
- * - `serialize`: `serializeArtifact` — canonical bytes (sorted keys, full
- *   float precision, NaN/undefined rejected with the JSON path);
- * - `compare`: `compareWorldModelArtifacts` / `deepCompare` — the
- *   field-classified deep comparator (EXACT / EPSILON / COUNT / SET;
- *   unclassified paths FAIL LOUD with their JSON path; NaN and
- *   undefined-vs-missing flagged explicitly);
- * - `runner`: `runCrossRunEvaluation` — the cross-run runner (separate bun
- *   subprocesses, pairwise + checked-in-golden comparison);
- * - `shape`: `assertArtifactShape` — the structural self-check (unknown keys
- *   fail loud before serialization).
- *
- * The tolerance contract — every field's class and rationale, the policy, and
- * the golden-regeneration procedure — is `packages/evaluation/TOLERANCE.md`.
+ * - `tolerance`: the DOCUMENTED tolerance spec — every default epsilon
+ *   named, exported, and rationalized; the per-field-class comparison
+ *   rules; and the exclusion rules (`generatedAtMs`,
+ *   `watermark.sequence` — the W402-documented replay-vs-live differences),
+ *   which the comparator records as visible, never-failing entries.
+ * - `fixture`: the FIXED evaluation fixture — one frozen, hand-built,
+ *   deterministic input (W206-shaped tracks + W209-shaped commentary
+ *   candidates) plus the `mutateFixturePosition` negative-test helper.
+ * - `compare`: `compareSnapshots` — the field-classified structural walk
+ *   over two `WorldSnapshot`s (report, never throw; entity union; football
+ *   state; excluded-by-rule fields recorded).
+ * - `evaluate`: `runReplayEvaluation` — the harness that runs the whole
+ *   W005→W401→W006→W402 chain repeatedly over the fixed fixture and
+ *   pairwise-proves cross-run comparability (final snapshots, a mid-run
+ *   checkpoint pair, and exact fusion-report equality); `evaluateFixture`
+ *   drives the same chain once (the mutation tests' entry point).
  */
-export { ARTIFACT_SCHEMA, FIXTURE_KIND } from "./artifact";
-export type { FixtureSpec, WorldModelArtifact } from "./artifact";
-export { assertArtifactShape } from "./shape";
-export { DEFAULT_FIXTURE_PATH, loadFixture } from "./fixture";
-export type { LoadedFixture } from "./fixture";
-export { runFixtureEvaluation } from "./pipeline";
-export type { PipelineResult } from "./pipeline";
-export { canonicalizeValue, serializeArtifact } from "./serialize";
 export {
-  DEFAULT_EPSILON,
-  W403_ARTIFACT_CLASSIFICATION,
-  compareWorldModelArtifacts,
-  deepCompare,
-} from "./compare";
-export type {
-  ClassificationRule,
-  ComparisonReport,
-  ComparisonSummary,
-  FieldClass,
-  FieldDiff,
-  ToleranceSpec,
-} from "./compare";
+  DEFAULT_CONFIDENCE_EPSILON,
+  DEFAULT_EXCLUDED_FIELDS,
+  DEFAULT_POSITION_EPSILON_M,
+  DEFAULT_TIME_EPSILON_MS,
+  DEFAULT_TOLERANCE,
+  isExcludedField,
+  validateToleranceSpec,
+} from "./tolerance";
+export type { ToleranceSpec } from "./tolerance";
 export {
-  DEFAULT_GOLDEN_PATH,
+  BALL_OCCLUSION_GAP,
+  CANDIDATE_EVENT_TYPES,
+  CANDIDATE_GRID_STEP_MS,
+  EVALUATION_ENTITY_LEXICON,
+  EVALUATION_LAST_EVENT_TIME_MS,
+  EVALUATION_SESSION_ID,
+  TRACK_FRAME_COUNT,
+  TRACK_FRAME_STEP_MS,
+  TRACK_START_MS,
+  buildEvaluationFixture,
+  mutateFixturePosition,
+} from "./fixture";
+export type { EvaluationFixture } from "./fixture";
+export { compareSnapshots, valuesEqual } from "./compare";
+export type { FieldDiff, SnapshotDiff } from "./compare";
+export {
   DEFAULT_RUNS,
-  RUN_ONCE_SCRIPT,
-  renderComparisonReport,
-  runCrossRunEvaluation,
-} from "./runner";
-export type { ComparisonOutcome, EvaluationReport, RunRecord, RunnerOptions } from "./runner";
+  EVALUATION_ENGINE_NOW_MS,
+  EVALUATION_FOOTBALL_INIT,
+  evaluateFixture,
+  runReplayEvaluation,
+} from "./evaluate";
+export type {
+  EvaluationOptions,
+  EvaluationReport,
+  EvaluationRunResult,
+  PairwiseKind,
+  PairwiseRecord,
+} from "./evaluate";
