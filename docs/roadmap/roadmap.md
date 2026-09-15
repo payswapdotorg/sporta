@@ -4,64 +4,78 @@
 
 Outcome: the repository is self-contained and an LLM tech lead can begin without chat context.
 Required artifacts: agent contract, architecture lock, architecture, dependency graph, work items, contracts, testing/release guidance.
-Current state: READY after this bootstrap commit.
+State: complete.
 
 ## Gate G1 — Foundation
 
-Complete M0. The team can develop, validate contracts, run CI, persist a media session, and trace a request.
-
-Exit evidence:
-- CI green;
-- contracts validate fixtures;
-- media/session lifecycle tests green;
-- tracing correlation works.
+M0 complete.
 
 ## Gate G2 — Football understanding
 
-Complete M1. An authorized football clip can be ingested, decoded, time-aligned, tracked, and semantically interpreted.
-
-Exit demo: a fixture produces synchronized player/ball observations plus commentary-derived event candidates.
+M1 complete.
 
 ## Gate G3 — Sports World Model
 
-Complete M2. Sporta can reconstruct and replay a coherent temporal match state.
-
-Exit demo: query state at selected timestamps and replay event sequence with provenance/confidence.
+M2 complete.
 
 ## Gate G4 — First consumer value
 
-Complete M3. Offline authorized clips render in an anime/stylized mode with measurable temporal consistency.
-
-Exit demo: one clip -> original reference + transformed output, with fixture metrics and playback.
+M3 complete.
 
 ## Gate G5 — Near/live value
 
-Complete M4 and enough M5 to view output. Streaming input flows through bounded queues to a browser-visible live renderer.
-
-Exit evidence: measured latency; controlled degradation under load; reconnect behavior tested.
+M4 complete in the controlled/in-process domain; real-network delivery remains a productization requirement.
 
 ## Gate G6 — Product experience
 
-Complete M5. Users can create sessions, select supported renderers, watch batch/live outputs, and see processing/errors.
+M5 core viewer package complete; the public product UI remains a productization requirement.
 
 ## Gate G7 — Game-style renderer
 
-Complete M6. SWM is rendered into a proprietary-safe 3D football experience. No dependency on commercial game code/assets.
+M6 complete.
 
 ## Gate G8 — Production readiness
 
-Complete M7. Security, rights enforcement, evaluation, observability, performance, rollback, and known limitations are reviewed.
+M7 complete with a READY-WITH-GAPS verdict. The recorded gaps are deployment/auth/production telemetry, real-network transport, real-browser paint E2E and human release sign-off.
 
-## Recommended execution strategy
+## Productization gates G9-G14
 
-M0 should be completed before substantial feature work. M1 can parallelize platform ingestion (W101-W104) with AI perception (W201-W203) once contracts exist. Commentary (W207-W209) can progress in parallel with perception after timeline synchronization. M2 begins when sufficient observations exist. M3 and streaming foundation can proceed in parallel where their dependencies allow. M5 should follow stable session/renderer contracts. M6 deliberately comes after the world model so the renderer is not coupled to broadcast pixels.
+The next stage is authoritative in `docs/roadmap/productization-roadmap.md` and `docs/work-items/productization-work-orders.md`.
 
-## Definition of release candidates
+### G9 — Installable product shell
+`apps/web` is a real installable web/PWA surface with authentication, shared navigation, responsive UX and role switching.
 
-RC0: deterministic offline analysis fixture.
-RC1: offline anime renderer demo.
-RC2: controlled live streaming prototype.
-RC3: public beta for authorized/user-owned media.
-RC4: production release after release-readiness gate.
+### G10 — YouTube-like watch experience
+Fresh users can discover content, search, open watch pages, see related renderings, and switch realities without leaving the match.
+
+### G11 — Hosted control plane
+Public authenticated API + durable hosted session/job state using the target deployment stack.
+
+### G12 — Hosted media/render path
+Authorized upload -> hosted processing -> R2 artifact -> fresh-browser playback through a real compute adapter.
+
+### G13 — Real live
+At least one authorized real-network source reaches the public system and browser through measured live transport.
+
+### G14 — Public beta
+A fresh user can complete viewer and creator flows, switch roles, encounter real rights/quota/degraded states, and use the product from a public URL.
+
+## Recommended three-worker execution
+
+Wave 1: Worker A W903; Worker B W901-W902; Worker C audit/prepare W914.
+Wave 2: A W904-W905; B W910-W913; C W914.
+Wave 3: A W906-W908; B W915/W919; C hosted rendering validation.
+Wave 4: A W909 + product surfaces; B hosted catalog/rights/operations; C integration hardening.
+Wave 5: Tech lead W920 release validation.
+
+The existing M0-M7 dependency graph remains authoritative for the completed core. Productization dependencies are defined separately to minimize drift and protect the stable core contracts.
+
+## Release candidates
+
+RC0 deterministic offline analysis fixture — delivered.
+RC1 offline anime renderer demo — delivered.
+RC2 controlled live streaming prototype — delivered within the documented controlled-domain boundary.
+RC3 public beta — next target; requires G9-G14.
+RC4 production release — after public-beta evidence and real human sign-off.
 
 Any target or latency number not backed by benchmark evidence is an aspiration, not an SLO.
