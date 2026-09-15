@@ -4,7 +4,7 @@ Status: TARGET ARCHITECTURE FOR PUBLIC-BETA PRODUCTIZATION.
 
 ## Deployment goal
 
-Provide an installable browser application and a public hosted deployment while keeping compute and storage replaceable. The public control plane and web application should favor free/low-cost services; heavy media/GPU work must be isolated so it can scale independently.
+Provide an installable browser application and a public hosted deployment while keeping compute and storage replaceable. The initial web deployment target is **Vercel Hobby** for personal/non-commercial development and beta validation. The supporting control/data plane favors free/low-cost services; heavy media/GPU work remains isolated so it can scale independently.
 
 ## Reference topology
 
@@ -12,7 +12,9 @@ Provide an installable browser application and a public hosted deployment while 
 Browser / PWA
     |
     v
-Cloudflare Pages/Workers  <--- public web + edge/API gateway
+Vercel Hobby  <--- public web application / Next.js deployment
+    |
+    +----> Cloudflare Workers  <--- edge/API adapter when needed
     |
     +----> Neon PostgreSQL <--- control-plane state
     |
@@ -31,28 +33,35 @@ Apify is an optional managed execution adapter for bounded actor jobs, ingestion
 
 ## Hosting policy
 
-- Public web/app: Cloudflare Pages or Workers-first deployment.
+- Public web/app initially: **Vercel Hobby**.
+- Vercel Hobby is explicitly a personal/non-commercial deployment target under Vercel's current terms. It may be used for development, demos, internal validation, and a non-commercial beta. It must not be represented as the commercial production deployment target. citeturn918436search0turn918436search1
+- Commercial operation requires a Vercel plan whose terms permit that use, or a migration of `apps/web` to another commercially permitted host without changing Sporta's domain contracts.
 - Public API gateway/edge functions: Cloudflare Workers.
 - Database: Neon PostgreSQL.
 - Redis-compatible cache/queue: Upstash Redis.
 - Media/artifacts: Cloudflare R2.
 - Heavy compute: isolated worker adapter; Apify can be used for bounded jobs and experimentation, while GPU-heavy production rendering remains an explicitly metered compute dependency.
-- Vercel: allowed for previews/personal deployments, but the free Hobby plan must not be treated as the commercial production target because Vercel states Hobby is for personal/non-commercial use. citeturn701638search0turn701638search1
 
 ## Free-tier baseline
 
-The target public-beta control plane should be able to run within provider free allowances for low-volume usage, with hard usage guards and clear degradation once limits are reached.
+The target initial control plane should run within provider free allowances for low-volume usage, with hard usage guards and clear degradation once limits are reached.
 
-Current provider references: Cloudflare Workers Free includes 100,000 requests/day; Cloudflare Pages Free allows 500 builds/month; R2 Free includes 10 GB-month, 1M Class A and 10M Class B operations with free egress; Neon Free currently provides 10 projects, 50 CU-hours/project/month, 0.5 GB/project and 5 GB egress/project; Upstash Redis Free provides 256 MB, 10 GB monthly bandwidth and 500K commands/month; Apify Free currently includes $5/month of usage credit. citeturn478647search0turn478647search1turn645750search1turn478647search3turn645750search0turn645750search3
+Current planning references checked 2026-09-15:
 
-These limits are planning inputs, not permanent guarantees; the deployment manifests/docs must carry a checked date and source URLs.
+- Cloudflare R2 Free: 10 GB-month standard storage, 1M Class A operations, 10M Class B operations, and free egress. citeturn844288search2
+- Neon Free: 10 projects, 50 CU-hours/project/month, 0.5 GB/project, and 5 GB egress/project according to Neon’s published plan description. citeturn844288search5
+- Upstash Redis Free: 256 MB data, 10 GB monthly bandwidth, and 500K commands/month. citeturn844288search0
+- Apify Free: $5/month of usage credit and no credit card required. citeturn844288search6
+- Vercel Hobby: $0 with automated CI/CD, CDN and related platform features, but limited to personal/non-commercial use under current Vercel terms. citeturn918436search0turn918436search1
+
+These limits are planning inputs, not permanent guarantees; deployment docs/manifests must carry a checked date and source URLs.
 
 ## Environments
 
 `local` -> deterministic fixtures and local services.
-`preview` -> public browser app against isolated preview control-plane resources.
-`beta` -> hosted user environment with auth, quotas, rights enforcement and production-like storage.
-`production` -> same contracts, replaceable service bindings and paid capacity as needed.
+`preview` -> Vercel preview deployment against isolated preview control-plane resources.
+`beta-personal` -> hosted user environment for personal/non-commercial validation with auth, quotas, rights enforcement and production-like storage.
+`production` -> same contracts, replaceable service bindings and a commercially permitted web host/plan plus paid capacity as needed.
 
 ## Cost safety
 
