@@ -335,3 +335,96 @@ committed); worktree origins carry the PAT in local .git/config only.
 - **Evidence:** all merges + status rows pushed (main advanced
   446c316 → 0ad05a5 this session; 1656 → 2813 tests).
 - **Operator credentials:** unchanged (env.sh, never committed).
+
+## S005 — 2026-09-14/15 — post-S004 completion wave (W603 + reset survival)
+
+- TL merges: W603 (a15d49b → merge 61a92cb; 73 new tests; survived sandbox
+  reset #2 — flight 2 audited the recovered uncommitted worktree, fixed 1
+  code bug + 3 test-authoring bugs + 2 hidden TS errors, completed the
+  benchmark + plugin-seam deliveries). main advanced to cf6abf0 (2991 tests).
+- Sandbox reset #2 (~01:30 UTC 2026-09-15) wiped /home/z/sporta, worktrees
+  (except w603), secrets, replay2, and the worklog. Recovery per lesson 118:
+  secrets re-persisted from operator-supplied values, re-clone + battery,
+  w603 remote re-armed, W801/W305 dead-flight work restarted.
+- Parent-session context death mid-dispatch: three worktrees (w305/w604/
+  w801) left with substantial uncommitted flight-1 work, no commits, no
+  pushes (S009 audit verdict: all dead flights).
+
+## S006 — 2026-09-15 — operator ruling: the replay is the dispatch surface
+
+- Operator: "fix the replay so I can watch you work from within, you should
+  only dispatch workers from inside the replay." Lesson 121 pushed to
+  replay2 (ae0ab66): local Task-tool dispatch retired as primary surface;
+  all worker dispatch via dispatch_worker.py (agents tab, GLM-5.3,
+  Full-Stack) inside the replay browser; operator watches live.
+- Replay stack restored from the durable GitHub repo (120 lessons intact):
+  Chrome/CDP :9222, replayd :3100, console :3000 (port free — the sandbox
+  my-project has no app), watcher⇄supervisor, resident presence.
+- Dead-flight preservation via GIT TRANSIT: inherited WIP committed as
+  labeled wip commits + pushed (w305 c5d2a70, w604 bbae3a7, w801 087682b)
+  so replay workers can audit-and-complete on top.
+- Audit-first prompts built for all three (known-state sections: w305 4
+  failing tests = interrupted frontier; w604/w801 suites green but
+  undelivered), real PAT embedded per lesson 117, report gate =
+  literal SPORTA-COMPLETION-REPORT <WID> END.
+
+## S007 — 2026-09-15 — the dispatch wave + churn forensics
+
+- Operator logged in via the replay image (JWT verified ali10@payswap.org,
+  non-guest). W305 dispatched (2 assault rounds: phantom /c/ + capacity
+  popup — auto-handled; send VERIFIED + server-side confirmed). W604
+  dispatched (first-round VERIFIED after releasing one idle stale
+  sandbox). W801 dispatched (first-round VERIFIED).
+- W604 churn forensics: v1 send accepted then chat DESTROYED by the site
+  during peak (0 messages in tree server-side) → void + re-dispatch; v2
+  zombie-queued (user msg in tree, no assistant turn — sandbox slot held
+  by a stale W403 workspace from 9/14); TL released the stale holder via
+  the settings modal with KEEP protection (lesson-111 tooling) — exactly
+  the right target released; v3 queued-capacity → watcher unstick →
+  escalation; v4+ the watcher's bounded assault continues (never-wait
+  policy).
+- queue_watch patched (54ccafa): the filled gate now accepts the sporta
+  report format (SPORTA W<N> COMPLETION REPORT + Branch @ <hex sha>) —
+  prompt-echo-proof (the template's <final-sha> placeholder is not hex).
+- Watchers armed for all three sessions; supervisor-restartable.
+- CDP strain noted (busy:WebSocketTimeoutException on wedged session
+  tabs); renderers wedge mid-stream while workers keep running
+  server-side — reload-before-diagnose (lesson 19b) applied repeatedly.
+
+## S008 — 2026-09-15 — W305 + W801 verified, merged, evidenced
+
+- W801 worker: pushed 2 commits (fd71d25: 29 hidden TS errors repaired —
+  the W602 grep-lesson recurring — + 2 unused imports + 14 unformatted
+  files; genuine fix: inter-case injected-clock monotonicity in the
+  suite-report self-check, test-pinned), then its sandbox was REAPED
+  mid-report (stuck-open turn, lesson-104 signature; report previewed in
+  DOM, never committed server-side). TL nudge phantom-failed (server tree
+  unchanged). MERGED ON TL VERIFICATION (the standard — never trust
+  reported numbers): all five battery commands green at the integration
+  station incl. serial per-package typecheck (121 tests package, 121/121
+  twice, 255 expects identical) — merge 2280688.
+- W305 worker: complete audit-first delivery pushed (39d6e43: integrity
+  diagnostics per-frame sha256, answer-side zod offer grammar,
+  settle-includes-parked-receipt, +950/+384 transport/viewer/e2e test
+  lines, 165-line README). Its chat later destroyed by site churn; the
+  watcher's re-dispatch was retired per lesson-119 order (TL battery
+  verified the branch first). TL battery all green incl. serial typecheck
+  after the parallel root script OOM-killed twice (exit 137 with
+  Chrome+console resident — serial per-package typecheck is the
+  memory-safe pattern; recorded for future merges) — merge e5b5209.
+- Evidence rows written + pushed (d4e67e9): 42 items COMPLETE.
+- main @ d4e67e9: 3251/3251 tests, 36 packages all typecheck-rc=0.
+- Milestones: M4 5/6 (W306 left, now unblocked), M5 6/7 (W704 unblocked),
+  M6 3/5 (W604 churning, W605 blocked), M7 1/6 (W802 blocked on W306,
+  W803 on W605, W804/W805 unblocked, W806 last).
+- Next wave dispatched from inside the replay: W306 (create assaulting
+  through capacity), W704 next. W604 watcher assault continues (round 9+).
+
+### Session-end state (§14 record — updated at each wave)
+
+- In flight: W604 (watcher assault, capacity churn), W306 (create
+  assault), W704 queued next.
+- TL backlog unchanged (control-api playback-list classification; W701
+  validateRequest mapping; real-browser paint E2E; fusion slot rename).
+- Operator credentials: unchanged (env.sh, never committed); replay
+  browser session: operator JWT injected state OK.
