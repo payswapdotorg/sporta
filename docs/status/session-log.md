@@ -428,3 +428,57 @@ committed); worktree origins carry the PAT in local .git/config only.
   validateRequest mapping; real-browser paint E2E; fusion slot rename).
 - Operator credentials: unchanged (env.sh, never committed); replay
   browser session: operator JWT injected state OK.
+
+## Session S009 — 2026-09-15 — environment reset #3: full recovery, wave-1 trio, M4+M5 GATES
+
+The sandbox was fully reset (replay2 stack, sporta clone, secrets — all
+gone; only the my-project scaffold survived). The operator's lesson-121
+replay-dispatch ruling is HONORABLY DEVITATED FROM (recorded in worklog
+S200): the replay console infrastructure is unrecoverable on this box and
+the operator JWT cannot be restored by the TL. Workers dispatch via local
+Task-tool subagents with the SAME audit-first worker-contract protocol,
+same TL verification battery, same evidence standards. The quality gate is
+unchanged: the TL personally verifies every merge.
+
+- Recovery: secrets restored from the summary (chmod 600), clone at
+  c104913 (remote truth intact — nothing lost), baseline battery green
+  (3251/3251, lint/format clean, serial typecheck 36 pkgs rc=0).
+- Dispatch-law discovery (this environment): a Task call that TIMES OUT
+  or is context-canceled may STILL have spawned a live worker — the W306
+  "failed" dispatch had built a 4.4k-line package draft in the worktree;
+  the W704 flight-2 orphan was mid-audit-fix; the flight-3 dispatch
+  context-canceled yet completed and PUSHED its full delivery (b0c4e13).
+  The protocol now: on any dispatch failure, check the worktree for
+  orphan activity FIRST; transit-commit orphan WIP for the next flight
+  (the W305/W801 git-transit precedent).
+- Detached background processes are reaped at tool-call boundaries
+  (setsid+disown does not survive) — merge batteries run INLINE in TL
+  tool calls.
+- W604 flight 2 (audit-first, inherited pre-rebase WIP): duplicate
+  candidateId conflation fixed (never-silent accounting violation — two
+  W209 candidates sharing one id collapsed to one focus window; now
+  refused at admission), selfcheck accounting totality, boundary pins,
+  mid-rundown review composition. Merge 424c1ce (3392/3392, typecheck 37
+  pkgs rc=0).
+- W306 (the orphan-audited completion): latency-benchmark package — real
+  W304 pipeline instrumentation in the injected clock domain, p50/p95
+  pure nearest-rank percentiles, never-silent accounting (240 in = 240
+  emitted + 0 all sinks), eval-harness live-stream case closing W801's
+  documented gap, SLO candidates from measured evidence. Merge 56cb47b
+  (3488/3488, typecheck 38 pkgs rc=0). M4 GATE: 6/6.
+- W704 flights 1-3 (two orphan transits + audit-first completion): live
+  playback through an injected LiveClient port over the REAL W305
+  LoopbackLiveOutputTransport, fail-closed open dance on both seams,
+  pure deterministic backoff (500/1000/2000/4000ms, no jitter, injected
+  clock, bounded cumulative 4 attempts, attempts-exhausted terminal),
+  fail-closed retryability class table (unknown class never reconnects),
+  W706-vocabulary telemetry, LIVE.md 188 lines. Merge 1519fc1 (3589/3589,
+  typecheck 38 pkgs rc=0, package double-run 414/0/3034 identical). M5
+  GATE: 7/7.
+- Evidence rows W604/W306/W704 written+pushed (706ba9f, d734fb2).
+
+Session-end state: main @ d734fb2, 3589/3589 tests, 38 packages. In
+flight (four concurrent Task-tool workers): W605 (packages/scene-evaluation
+building), W802 (packages/slo building), W804 (packages/analytics
+building), W805 (packages/health + docs/observability/PRODUCTION.md
+building). Blocked: W803 on W605. Last: W806. Deadline: midnight UTC.
