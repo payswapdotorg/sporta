@@ -165,10 +165,12 @@ const RENDERER_SITES: Array<[string, string]> = [
 const W302_SITES: Array<[string, string]> = [["@sporta/processing-queues", "src/types.ts"]];
 const W303_SITES: Array<[string, string]> = [["@sporta/gpu-worker", "src/types.ts"]];
 const W305_SITES: Array<[string, string]> = [["@sporta/webrtc-output", "src/types.ts"]];
-const W701_SITES: Array<[string, string]> = [
-  ["@sporta/control-api", "src/app.ts"],
-  ["@sporta/control-api", "src/http.ts"],
-];
+// Control-api emits both counters through the shared CONTROL_METRIC_NAMES
+// constant, declared (and used inline) in src/app.ts; src/http.ts imports it
+// — so the literal site is app.ts (the every-site literal pin would otherwise
+// drift). The W302/W303/W305 convention: the literal-declaring module is the
+// site; other emitting modules are named in the emission prose.
+const W701_SITES: Array<[string, string]> = [["@sporta/control-api", "src/app.ts"]];
 
 // ---------------------------------------------------------------------------
 // The audited map (W805 deliverable 1).
@@ -184,22 +186,100 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
         "source ingestion (W101 fail-closed rights gate), decoding (W102), timeline " +
         "synchronization (W103), live-source ingress (W201-era live channel admission)",
       registrySeams: [
-        counter("ingest_accepted", [], [["@sporta/ingestion", "src/ingest.ts"]], "once per accepted source (idempotent duplicates included)"),
-        counter("ingest_rejected_total", ["failure_class"], [["@sporta/ingestion", "src/ingest.ts"]], "once per rejected source — the fail-closed W101 gate (rights, malformed, checksum)"),
-        counter("decode_frames_total", [], [["@sporta/decoding", "src/service.ts"]], "once per yielded normalized video frame"),
-        counter("decode_audio_chunks_total", [], [["@sporta/decoding", "src/service.ts"]], "once per yielded normalized audio chunk"),
-        counter("decode_bytes_total", [], [["@sporta/decoding", "src/service.ts"]], "incremented by the byte size of every yielded item"),
-        counter("decode_failures_total", [], [["@sporta/decoding", "src/service.ts"]], "once per classified decode/probe refusal"),
-        counter("timeline_sync_alignments_total", [], [["@sporta/timeline", "src/sync.ts"]], "once per successful track-timeline alignment"),
-        counter("timeline_sync_failures_total", [], [["@sporta/timeline", "src/sync.ts"]], "once per classified alignment refusal"),
-        counter("streaming_segments_in_total", [], [["@sporta/streaming-ingress", "src/types.ts"]], "once per delivery received from the live source"),
-        counter("streaming_segments_out_total", [], [["@sporta/streaming-ingress", "src/types.ts"]], "once per segment admitted to the output channel"),
-        counter("streaming_rejected_total", ["failure_class"], [["@sporta/streaming-ingress", "src/types.ts"]], "once per refused delivery, labeled with the failure class (rights-denied included)"),
-        counter("streaming_duplicate_segments_total", [], [["@sporta/streaming-ingress", "src/types.ts"]], "once per idempotent duplicate re-delivery"),
-        counter("streaming_abandoned_segments_total", ["reason"], [["@sporta/streaming-ingress", "src/types.ts"]], "once per segment abandoned at shutdown"),
-        counter("streaming_backpressure_events_total", [], [["@sporta/streaming-ingress", "src/types.ts"]], "once per explicit backpressure refusal event (a W104 policy action, not a failure)"),
-        histogram("streaming_arrival_lag_ms", [["@sporta/streaming-ingress", "src/types.ts"]], "measured arrival lag per accepted live-source segment"),
-        histogram("streaming_send_wait_ms", [["@sporta/streaming-ingress", "src/types.ts"]], "output-send wait per accepted segment"),
+        counter(
+          "ingest_accepted",
+          [],
+          [["@sporta/ingestion", "src/ingest.ts"]],
+          "once per accepted source (idempotent duplicates included)",
+        ),
+        counter(
+          "ingest_rejected_total",
+          ["failure_class"],
+          [["@sporta/ingestion", "src/ingest.ts"]],
+          "once per rejected source — the fail-closed W101 gate (rights, malformed, checksum)",
+        ),
+        counter(
+          "decode_frames_total",
+          [],
+          [["@sporta/decoding", "src/service.ts"]],
+          "once per yielded normalized video frame",
+        ),
+        counter(
+          "decode_audio_chunks_total",
+          [],
+          [["@sporta/decoding", "src/service.ts"]],
+          "once per yielded normalized audio chunk",
+        ),
+        counter(
+          "decode_bytes_total",
+          [],
+          [["@sporta/decoding", "src/service.ts"]],
+          "incremented by the byte size of every yielded item",
+        ),
+        counter(
+          "decode_failures_total",
+          ["failure_class"],
+          [["@sporta/decoding", "src/service.ts"]],
+          "once per classified decode/probe refusal (unlabeled total + per-failure-class series)",
+        ),
+        counter(
+          "timeline_sync_alignments_total",
+          [],
+          [["@sporta/timeline", "src/sync.ts"]],
+          "once per successful track-timeline alignment",
+        ),
+        counter(
+          "timeline_sync_failures_total",
+          ["failure_class"],
+          [["@sporta/timeline", "src/sync.ts"]],
+          "once per classified alignment refusal (unlabeled total + per-failure-class series)",
+        ),
+        counter(
+          "streaming_segments_in_total",
+          [],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per delivery received from the live source",
+        ),
+        counter(
+          "streaming_segments_out_total",
+          [],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per segment admitted to the output channel",
+        ),
+        counter(
+          "streaming_rejected_total",
+          ["failure_class"],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per refused delivery, labeled with the failure class (rights-denied included)",
+        ),
+        counter(
+          "streaming_duplicate_segments_total",
+          [],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per idempotent duplicate re-delivery",
+        ),
+        counter(
+          "streaming_abandoned_segments_total",
+          ["reason"],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per segment abandoned at shutdown",
+        ),
+        counter(
+          "streaming_backpressure_events_total",
+          [],
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "once per explicit backpressure refusal event (a W104 policy action, not a failure)",
+        ),
+        histogram(
+          "streaming_arrival_lag_ms",
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "measured arrival lag per accepted live-source segment",
+        ),
+        histogram(
+          "streaming_send_wait_ms",
+          [["@sporta/streaming-ingress", "src/types.ts"]],
+          "output-send wait per accepted segment",
+        ),
       ],
       telemetrySeams: [],
       gaps: [
@@ -227,29 +307,148 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
         "processing-queues (W302) segment accounting + DLQ; gpu-worker (W303) job admission, " +
         "duplicate dedupe, retry/DLQ accounting, and ready-queue congestion",
       registrySeams: [
-        counter("processing_segments_in_total", [], W302_SITES, "once per accounted submit attempt (pipeline.ts)"),
-        counter("processing_segments_out_total", [], W302_SITES, "once per segment admitted to the output queue (pipeline.ts)"),
-        counter("processing_rejected_total", ["failure_class"], W302_SITES, "once per refused attempt (pipeline.ts) — includes W104 backpressure policy actions"),
-        counter("processing_duplicate_segments_total", [], W302_SITES, "once per idempotent duplicate submission (pipeline.ts)"),
-        counter("processing_dead_lettered_total", [], W302_SITES, "once per terminally failed segment (dlq.ts)"),
-        counter("processing_abandoned_segments_total", ["reason"], W302_SITES, "once per segment abandoned at shutdown (pipeline.ts)"),
-        counter("processing_dlq_entries_total", ["terminal"], W302_SITES, "once per retained + overflowed DLQ entry (dlq.ts)"),
-        counter("processing_retries_total", ["stage"], W302_SITES, "once per retry attempt consumed (pipeline.ts)"),
-        counter("processing_checkpoints_total", [], W302_SITES, "once per checkpoint cut (pipeline.ts)"),
-        histogram("processing_stage_latency_ms", W302_SITES, "per-stage summed handler latency per segment (pipeline.ts)"),
-        counter("gpu_jobs_submitted_total", [], W303_SITES, "once per accounted job submission (dispatcher.ts)"),
-        counter("gpu_jobs_admitted_total", [], W303_SITES, "once per admission past resource checks (dispatcher.ts)"),
-        counter("gpu_duplicate_jobs_total", [], W303_SITES, "once per idempotency-key duplicate — counted, never double-run (dispatcher.ts)"),
-        counter("gpu_jobs_succeeded_total", [], W303_SITES, "once per succeeded job (dispatcher.ts)"),
-        counter("gpu_jobs_failed_total", [], W303_SITES, "once per terminally failed job (dispatcher.ts)"),
-        counter("gpu_jobs_cancelled_total", [], W303_SITES, "once per accounted cancellation (dispatcher.ts)"),
-        counter("gpu_jobs_dead_lettered_total", [], W303_SITES, "once per job dead-lettered after bounded attempts (dlq.ts)"),
-        counter("gpu_dlq_entries_total", ["terminal"], W303_SITES, "once per DLQ entry, labeled terminal (dlq.ts)"),
-        counter("gpu_malformed_submissions_total", [], W303_SITES, "once per structurally invalid submission envelope (dispatcher.ts)"),
-        counter("gpu_refused_submissions_total", [], W303_SITES, "once per refused submission — malformed, over-capacity, or dispatcher-ended (dispatcher.ts)"),
-        counter("gpu_job_claims_total", [], W303_SITES, "once per job claim by a worker (dispatcher.ts)"),
-        counter("gpu_job_requeues_total", [], W303_SITES, "once per lease-expired requeue (dispatcher.ts)"),
-        histogram("gpu_job_queue_wait_ms", W303_SITES, "startedAtMs − submittedAtMs per finished job — the W303 ready-queue wait (dispatcher.ts)"),
+        counter(
+          "processing_segments_in_total",
+          [],
+          W302_SITES,
+          "once per accounted submit attempt (pipeline.ts)",
+        ),
+        counter(
+          "processing_segments_out_total",
+          [],
+          W302_SITES,
+          "once per segment admitted to the output queue (pipeline.ts)",
+        ),
+        counter(
+          "processing_rejected_total",
+          ["failure_class"],
+          W302_SITES,
+          "once per refused attempt (pipeline.ts) — includes W104 backpressure policy actions",
+        ),
+        counter(
+          "processing_duplicate_segments_total",
+          [],
+          W302_SITES,
+          "once per idempotent duplicate submission (pipeline.ts)",
+        ),
+        counter(
+          "processing_dead_lettered_total",
+          [],
+          W302_SITES,
+          "once per terminally failed segment (dlq.ts)",
+        ),
+        counter(
+          "processing_abandoned_segments_total",
+          ["reason"],
+          W302_SITES,
+          "once per segment abandoned at shutdown (pipeline.ts)",
+        ),
+        counter(
+          "processing_dlq_entries_total",
+          ["terminal"],
+          W302_SITES,
+          "once per retained + overflowed DLQ entry (dlq.ts)",
+        ),
+        counter(
+          "processing_retries_total",
+          ["stage"],
+          W302_SITES,
+          "once per retry attempt consumed (pipeline.ts)",
+        ),
+        counter(
+          "processing_checkpoints_total",
+          [],
+          W302_SITES,
+          "once per checkpoint cut (pipeline.ts)",
+        ),
+        histogram(
+          "processing_stage_latency_ms",
+          W302_SITES,
+          "per-stage summed handler latency per segment (pipeline.ts)",
+        ),
+        counter(
+          "gpu_jobs_submitted_total",
+          [],
+          W303_SITES,
+          "once per accounted job submission (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_jobs_admitted_total",
+          [],
+          W303_SITES,
+          "once per admission past resource checks (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_duplicate_jobs_total",
+          [],
+          W303_SITES,
+          "once per idempotency-key duplicate — counted, never double-run (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_jobs_succeeded_total",
+          [],
+          W303_SITES,
+          "once per succeeded job (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_jobs_failed_total",
+          [],
+          W303_SITES,
+          "once per terminally failed job (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_jobs_cancelled_total",
+          [],
+          W303_SITES,
+          "once per accounted cancellation (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_jobs_dead_lettered_total",
+          [],
+          W303_SITES,
+          "once per job dead-lettered after bounded attempts (dlq.ts)",
+        ),
+        counter(
+          "gpu_dlq_entries_total",
+          ["terminal"],
+          W303_SITES,
+          "once per DLQ entry, labeled terminal (dlq.ts)",
+        ),
+        counter(
+          "gpu_malformed_submissions_total",
+          [],
+          W303_SITES,
+          "once per structurally invalid submission envelope (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_refused_submissions_total",
+          [],
+          W303_SITES,
+          "once per refused submission — malformed, over-capacity, or dispatcher-ended (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_job_claims_total",
+          [],
+          W303_SITES,
+          "once per job claim by a worker (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_job_requeues_total",
+          [],
+          W303_SITES,
+          "once per lease-expired requeue (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_job_attempts_total",
+          ["disposition"],
+          W303_SITES,
+          "sums report.attempts for every report that reaches a known job record, labeled disposition recorded|superseded (malformed and unknown-job reports never reach it) (dispatcher.ts)",
+        ),
+        histogram(
+          "gpu_job_queue_wait_ms",
+          W303_SITES,
+          "startedAtMs − submittedAtMs per finished job — the W303 ready-queue wait (dispatcher.ts)",
+        ),
       ],
       telemetrySeams: [],
       gaps: [
@@ -314,18 +513,76 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
         "render-orchestration batch accounting + skip-stale + budget policies (W304), " +
         "render-job round-trip latency (W303)",
       registrySeams: [
-        counter("render_requests_total", ["rendererId"], RENDERER_SITES, "once per render call, labeled rendererId (inline literal at each plugin)"),
-        counter("render_failures_total", ["rendererId"], RENDERER_SITES, "once per failed render call — typed, never silent (inline literal at each plugin)"),
-        counter("render_batches_in_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per batch admitted to rendering (orchestrator.ts)"),
-        counter("render_batches_skipped_stale_total", ["phase"], [["@sporta/render-orchestration", "src/types.ts"]], "once per batch skipped by the stale policy, labeled admission|dequeue (orchestrator.ts)"),
-        counter("render_batches_dropped_total", ["reason"], [["@sporta/render-orchestration", "src/types.ts"]], "once per dropped batch, labeled BatchDropReason — queue-evicted (incl. exceeds-byte-budget), queue-refused, abandoned-at-stop, render-queue-refused, render-failed, reorder-overflow, render-output-invalid (orchestrator.ts)"),
-        counter("render_batches_cancelled_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per cancelled batch (orchestrator.ts)"),
-        counter("render_batches_duplicate_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per same-watermark duplicate batch — counted, never double-executed (orchestrator.ts)"),
-        counter("render_outputs_emitted_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per ordered output emission (orchestrator.ts)"),
-        counter("render_checkpoints_cut_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per watermark-boundary checkpoint (orchestrator.ts)"),
-        counter("render_consumer_park_attempts_total", [], [["@sporta/render-orchestration", "src/types.ts"]], "once per consumer park attempt at settle (orchestrator.ts)"),
-        histogram("render_watermark_lag_at_emission_ms", [["@sporta/render-orchestration", "src/types.ts"]], "watermark lag observed at output emission (orchestrator.ts)"),
-        histogram("gpu_job_latency_ms", W303_SITES, "finishedAtMs − submittedAtMs per finished render job = ready-queue wait + execution (dispatcher.ts)"),
+        counter(
+          "render_requests_total",
+          ["rendererId"],
+          RENDERER_SITES,
+          "once per render call, labeled rendererId (inline literal at each plugin)",
+        ),
+        counter(
+          "render_failures_total",
+          ["rendererId"],
+          RENDERER_SITES,
+          "once per failed render call — typed, never silent (inline literal at each plugin)",
+        ),
+        counter(
+          "render_batches_in_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per batch admitted to rendering (orchestrator.ts)",
+        ),
+        counter(
+          "render_batches_skipped_stale_total",
+          ["phase"],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per batch skipped by the stale policy, labeled admission|dequeue (orchestrator.ts)",
+        ),
+        counter(
+          "render_batches_dropped_total",
+          ["reason"],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per dropped batch, labeled BatchDropReason — queue-evicted (incl. exceeds-byte-budget), queue-refused, abandoned-at-stop, render-queue-refused, render-failed, reorder-overflow, render-output-invalid (orchestrator.ts)",
+        ),
+        counter(
+          "render_batches_cancelled_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per cancelled batch (orchestrator.ts)",
+        ),
+        counter(
+          "render_batches_duplicate_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per same-watermark duplicate batch — counted, never double-executed (orchestrator.ts)",
+        ),
+        counter(
+          "render_outputs_emitted_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per ordered output emission (orchestrator.ts)",
+        ),
+        counter(
+          "render_checkpoints_cut_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per watermark-boundary checkpoint (orchestrator.ts)",
+        ),
+        counter(
+          "render_consumer_park_attempts_total",
+          [],
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "once per consumer park attempt at settle (orchestrator.ts)",
+        ),
+        histogram(
+          "render_watermark_lag_at_emission_ms",
+          [["@sporta/render-orchestration", "src/types.ts"]],
+          "watermark lag observed at output emission (orchestrator.ts)",
+        ),
+        histogram(
+          "gpu_job_latency_ms",
+          W303_SITES,
+          "finishedAtMs − submittedAtMs per finished render job = ready-queue wait + execution (dispatcher.ts)",
+        ),
       ],
       telemetrySeams: [],
       gaps: [
@@ -333,8 +590,8 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
           id: "renderer-rendered-total-unemitted",
           title: "render_batches_rendered_total is declared but never observed",
           detail:
-            "RENDER_METRIC_NAMES.batchesRendered exists in the W304 vocabulary but the " +
-            "orchestrator only counts rendered batches in its ledger — no registry series is " +
+            "render_batches_rendered_total exists in the W304 vocabulary (RENDER_METRIC_NAMES.batchesRendered) " +
+            "but the orchestrator only counts rendered batches in its ledger — no registry series is " +
             "observed. Dashboards/alerts must not read it; rendered-throughput is derivable " +
             "as outputs emitted minus non-rendered dispositions only at the ledger layer.",
         },
@@ -347,25 +604,116 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
         "live output accounting + session phase machine (W305), viewer session consumption " +
         "(W704 playback), viewer telemetry (W706)",
       registrySeams: [
-        counter("live_output_windows_in_total", ["outcome"], W305_SITES, "once per window admitted or rejected-invalid (transport.ts)"),
-        counter("live_output_windows_delivered_total", [], W305_SITES, "once per verified window hand-over (transport.ts)"),
-        counter("live_output_windows_skipped_stale_total", ["at"], W305_SITES, "once per skip-stale window, labeled admission|dequeue (transport.ts)"),
-        counter("live_output_windows_dropped_by_policy_total", ["at"], W305_SITES, "once per policy drop (incoming admission or eviction), labeled at (transport.ts)"),
-        counter("live_output_windows_refused_total", [], W305_SITES, "once per typed no-downgrade refusal — protocol/codec/latency protection (transport.ts)"),
-        counter("live_output_windows_abandoned_total", ["reason"], W305_SITES, "once per window abandoned at close/cancel (transport.ts)"),
-        counter("live_output_windows_failed_total", [], W305_SITES, "once per send failure — terminal for the window; session ends failed (transport.ts)"),
-        counter("live_output_windows_redelivered_total", [], W305_SITES, "once per retention replay delivery (transport.ts)"),
-        counter("live_output_windows_skipped_at_reconnect_total", [], W305_SITES, "once per window lost to a reconnect gap (transport.ts)"),
-        counter("live_output_viewer_reconnects_total", ["event"], W305_SITES, "once per viewer disconnect/reconnect event (transport.ts)"),
-        counter("live_output_state_transitions_total", ["from", "to"], W305_SITES, "once per legal session phase transition: negotiating→established→(degraded↔established)→closed (state.ts)"),
-        counter("live_output_session_ends_total", ["outcome"], W305_SITES, "once per session end, labeled outcome incl. failed (transport.ts)"),
-        counter("live_output_viewer_windows_applied_total", [], W305_SITES, "once per window applied by the viewer session (viewer.ts)"),
-        counter("live_output_viewer_windows_duplicate_total", [], W305_SITES, "once per duplicate window seen by the viewer (viewer.ts)"),
-        counter("live_output_viewer_windows_skipped_total", [], W305_SITES, "once per window skipped by viewer catch-up (viewer.ts)"),
-        histogram("live_output_transit_lag_ms", W305_SITES, "deliveredAtMs − admittedAtMs per delivered window (transport.ts)"),
-        histogram("live_output_delivery_lag_ms", W305_SITES, "deliveredAtMs − emittedAtMs per delivered window (transport.ts)"),
-        histogram("live_output_watermark_lag_at_delivery_ms", W305_SITES, "media-time lag at delivery: newest observed watermark − window watermark (transport.ts)"),
-        histogram("live_output_link_depth", W305_SITES, "queued windows at emission time (transport.ts)"),
+        counter(
+          "live_output_windows_in_total",
+          ["outcome"],
+          W305_SITES,
+          "once per window admitted or rejected-invalid (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_delivered_total",
+          [],
+          W305_SITES,
+          "once per verified window hand-over (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_skipped_stale_total",
+          ["at"],
+          W305_SITES,
+          "once per skip-stale window, labeled admission|dequeue (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_dropped_by_policy_total",
+          ["at"],
+          W305_SITES,
+          "once per policy drop (incoming admission or eviction), labeled at (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_refused_total",
+          [],
+          W305_SITES,
+          "once per typed no-downgrade refusal — protocol/codec/latency protection (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_abandoned_total",
+          ["reason"],
+          W305_SITES,
+          "once per window abandoned at close/cancel (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_failed_total",
+          [],
+          W305_SITES,
+          "once per send failure — terminal for the window; session ends failed (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_redelivered_total",
+          [],
+          W305_SITES,
+          "once per retention replay delivery (transport.ts)",
+        ),
+        counter(
+          "live_output_windows_skipped_at_reconnect_total",
+          [],
+          W305_SITES,
+          "once per window lost to a reconnect gap (transport.ts)",
+        ),
+        counter(
+          "live_output_viewer_reconnects_total",
+          ["event"],
+          W305_SITES,
+          "once per viewer disconnect/reconnect event (transport.ts)",
+        ),
+        counter(
+          "live_output_state_transitions_total",
+          ["from", "to"],
+          W305_SITES,
+          "once per legal session phase transition: negotiating→established→(degraded↔established)→closed (state.ts)",
+        ),
+        counter(
+          "live_output_session_ends_total",
+          ["outcome"],
+          W305_SITES,
+          "once per session end, labeled outcome incl. failed (transport.ts)",
+        ),
+        counter(
+          "live_output_viewer_windows_applied_total",
+          [],
+          W305_SITES,
+          "once per window applied by the viewer session (viewer.ts)",
+        ),
+        counter(
+          "live_output_viewer_windows_duplicate_total",
+          [],
+          W305_SITES,
+          "once per duplicate window seen by the viewer (viewer.ts)",
+        ),
+        counter(
+          "live_output_viewer_windows_skipped_total",
+          [],
+          W305_SITES,
+          "once per window skipped by viewer catch-up (viewer.ts)",
+        ),
+        histogram(
+          "live_output_transit_lag_ms",
+          W305_SITES,
+          "deliveredAtMs − admittedAtMs per delivered window (transport.ts)",
+        ),
+        histogram(
+          "live_output_delivery_lag_ms",
+          W305_SITES,
+          "deliveredAtMs − emittedAtMs per delivered window (transport.ts)",
+        ),
+        histogram(
+          "live_output_watermark_lag_at_delivery_ms",
+          W305_SITES,
+          "media-time lag at delivery: newest observed watermark − window watermark (transport.ts)",
+        ),
+        histogram(
+          "live_output_link_depth",
+          W305_SITES,
+          "queued windows at emission time (transport.ts)",
+        ),
       ],
       telemetrySeams: [
         {
@@ -425,19 +773,83 @@ export const HEALTH_DOMAIN_MAP: HealthDomainMap = {
         "gpu-worker process liveness (W303 heartbeats/leases/timeouts), clock health (W103 " +
         "drift clamp), control plane (W701), stage transport (W104)",
       registrySeams: [
-        counter("gpu_worker_heartbeats_total", [], W303_SITES, "once per worker heartbeat accepted (dispatcher.ts)"),
-        counter("gpu_worker_heartbeats_rejected_total", ["reason"], W303_SITES, "once per rejected heartbeat — dispatcher-ended, unknown-worker, sequence-not-monotone (dispatcher.ts)"),
-        counter("gpu_stale_workers_total", [], W303_SITES, "once per staleness detection — a worker went silent (dispatcher.ts)"),
-        counter("gpu_lease_expiries_total", [], W303_SITES, "once per lease expiry — worker stopped heartbeating mid-job; jobs requeued, never silently reassigned (dispatcher.ts)"),
-        counter("gpu_late_results_total", [], W303_SITES, "once per result arriving after its job was superseded (dispatcher.ts)"),
-        counter("gpu_job_timeouts_total", ["kind"], W303_SITES, "once per per-job deadline breach on the injected clock, labeled timeout kind (dispatcher.ts)"),
-        counter("timeline_sync_drift_anomalies_total", [], [["@sporta/timeline", "src/sync.ts"]], "once per clamped drift anomaly — |driftPpm| exceeded DRIFT_CLAMP_PPM (1000), the clock-health signal"),
-        histogram("timeline_sync_abs_drift_ppm", [["@sporta/timeline", "src/sync.ts"]], "clamped |driftPpm| observed once per measured alignment"),
-        counter("control_requests_total", ["route"], W701_SITES, "once per control-plane method call, labeled route (app.ts + http.ts)"),
-        counter("control_failures_total", ["failure_class"], W701_SITES, "once per failed control-plane call, labeled failure class (app.ts + http.ts)"),
-        counter("transport_messages_total", ["stage", "status"], [["@sporta/transport", "src/runner.ts"]], "once per stage-message processed, labeled stage + status"),
-        counter("transport_retries_total", ["stage"], [["@sporta/transport", "src/runner.ts"]], "summed retries consumed per stage-message (runner.ts)"),
-        counter("transport_failures_total", ["stage", "errorClass"], [["@sporta/transport", "src/runner.ts"]], "once per retry-exhausted stage-message failure (runner.ts)"),
+        counter(
+          "gpu_worker_heartbeats_total",
+          [],
+          W303_SITES,
+          "once per worker heartbeat accepted (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_worker_heartbeats_rejected_total",
+          ["reason"],
+          W303_SITES,
+          "once per rejected heartbeat — dispatcher-ended, unknown-worker, sequence-not-monotone (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_stale_workers_total",
+          [],
+          W303_SITES,
+          "once per staleness detection — a worker went silent (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_lease_expiries_total",
+          [],
+          W303_SITES,
+          "once per lease expiry — worker stopped heartbeating mid-job; jobs requeued, never silently reassigned (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_late_results_total",
+          [],
+          W303_SITES,
+          "once per result arriving after its job was superseded (dispatcher.ts)",
+        ),
+        counter(
+          "gpu_job_timeouts_total",
+          ["kind"],
+          W303_SITES,
+          "once per per-job deadline breach on the injected clock, labeled timeout kind (dispatcher.ts)",
+        ),
+        counter(
+          "timeline_sync_drift_anomalies_total",
+          [],
+          [["@sporta/timeline", "src/sync.ts"]],
+          "once per clamped drift anomaly — |driftPpm| exceeded DRIFT_CLAMP_PPM (1000), the clock-health signal",
+        ),
+        histogram(
+          "timeline_sync_abs_drift_ppm",
+          [["@sporta/timeline", "src/sync.ts"]],
+          "clamped |driftPpm| observed once per measured alignment",
+        ),
+        counter(
+          "control_requests_total",
+          ["route"],
+          W701_SITES,
+          "once per control-plane method call, labeled route (app.ts + http.ts)",
+        ),
+        counter(
+          "control_failures_total",
+          ["failure_class"],
+          W701_SITES,
+          "once per failed control-plane call, labeled failure class (app.ts + http.ts)",
+        ),
+        counter(
+          "transport_messages_total",
+          ["stage", "status"],
+          [["@sporta/transport", "src/runner.ts"]],
+          "once per stage-message processed, labeled stage + status",
+        ),
+        counter(
+          "transport_retries_total",
+          ["stage"],
+          [["@sporta/transport", "src/runner.ts"]],
+          "summed retries consumed per stage-message (runner.ts)",
+        ),
+        counter(
+          "transport_failures_total",
+          ["stage", "errorClass"],
+          [["@sporta/transport", "src/runner.ts"]],
+          "once per retry-exhausted stage-message failure (runner.ts)",
+        ),
       ],
       telemetrySeams: [
         {
@@ -493,7 +905,10 @@ export function allRegistrySeams(map: HealthDomainMap): RegistrySeam[] {
 }
 
 /** The registry seam with exactly `metricName`, or undefined. */
-export function findRegistrySeam(map: HealthDomainMap, metricName: string): RegistrySeam | undefined {
+export function findRegistrySeam(
+  map: HealthDomainMap,
+  metricName: string,
+): RegistrySeam | undefined {
   return allRegistrySeams(map).find((seam) => seam.metricName === metricName);
 }
 

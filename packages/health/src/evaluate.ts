@@ -146,12 +146,7 @@ export function evaluateAlert(alert: AlertDefinition, snapshot: MetricsSnapshot)
       }
       if (stats.count === 0) {
         // An empty histogram observed nothing — no-data, not a healthy zero.
-        return verdict(
-          alert,
-          "no-data",
-          null,
-          `histogram "${metric}" has 0 observations`,
-        );
+        return verdict(alert, "no-data", null, `histogram "${metric}" has 0 observations`);
       }
       const value = percentile === "p95" ? stats.p95 : stats.p50;
       return value > thresholdMs
@@ -167,7 +162,7 @@ export function evaluateAlert(alert: AlertDefinition, snapshot: MetricsSnapshot)
             value,
             `histogram "${metric}" ${percentile} ${value} <= ${thresholdMs}`,
           );
-      }
+    }
   }
 }
 

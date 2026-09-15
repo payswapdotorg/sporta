@@ -4,16 +4,9 @@
  * — the W802 mapping-consistency precedent with teeth.
  */
 import { describe, expect, test } from "bun:test";
-import {
-  ALERT_CATALOG,
-  type AlertCatalog,
-  type AlertDefinition,
-} from "../src/alerts";
+import { ALERT_CATALOG, type AlertCatalog, type AlertDefinition } from "../src/alerts";
 import { HEALTH_DOMAIN_MAP, type HealthDomainMap } from "../src/domains";
-import {
-  PRODUCTION_DASHBOARD,
-  type DashboardSpec,
-} from "../src/dashboard";
+import { PRODUCTION_DASHBOARD, type DashboardSpec } from "../src/dashboard";
 import {
   HealthConsistencyError,
   checkAlertCatalog,
@@ -23,7 +16,10 @@ import {
 } from "../src/consistency";
 
 function cloneCatalog(mutate: (alerts: AlertDefinition[]) => void): AlertCatalog {
-  const alerts = ALERT_CATALOG.alerts.map((alert) => ({ ...alert, expression: { ...alert.expression } }));
+  const alerts = ALERT_CATALOG.alerts.map((alert) => ({
+    ...alert,
+    expression: { ...alert.expression },
+  }));
   mutate(alerts);
   return { schemaVersion: ALERT_CATALOG.schemaVersion, alerts };
 }

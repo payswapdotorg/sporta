@@ -48,13 +48,19 @@ describe("counter-above evaluation — boundary cases", () => {
   const alert = counterAlert(); // ingest_rejected_total > 0
 
   test("value 0 at threshold 0 is ok (strictly-above semantics)", () => {
-    const verdict = evaluateAlert(alert, snapshotOf([{ name: "ingest_rejected_total", value: 0 }], []));
+    const verdict = evaluateAlert(
+      alert,
+      snapshotOf([{ name: "ingest_rejected_total", value: 0 }], []),
+    );
     expect(verdict.status).toBe("ok");
     expect(verdict.observedValue).toBe(0);
   });
 
   test("value 1 fires", () => {
-    const verdict = evaluateAlert(alert, snapshotOf([{ name: "ingest_rejected_total", value: 1 }], []));
+    const verdict = evaluateAlert(
+      alert,
+      snapshotOf([{ name: "ingest_rejected_total", value: 1 }], []),
+    );
     expect(verdict.status).toBe("firing");
     expect(verdict.observedValue).toBe(1);
   });
@@ -82,10 +88,7 @@ describe("counter-above evaluation — boundary cases", () => {
   });
 
   test("unrelated counters are ignored", () => {
-    const verdict = evaluateAlert(
-      alert,
-      snapshotOf([{ name: "ingest_accepted", value: 500 }], []),
-    );
+    const verdict = evaluateAlert(alert, snapshotOf([{ name: "ingest_accepted", value: 500 }], []));
     expect(verdict.status).toBe("no-data");
   });
 });
@@ -98,7 +101,12 @@ describe("counter-ratio-above evaluation — boundary cases", () => {
       severity: "warning",
       title: "test ratio",
       summary: "numerator/denominator > 0.01",
-      expression: { kind: "counter-ratio-above", numerator: "gpu_jobs_failed_total", denominator: "gpu_jobs_submitted_total", threshold: 0.01 },
+      expression: {
+        kind: "counter-ratio-above",
+        numerator: "gpu_jobs_failed_total",
+        denominator: "gpu_jobs_submitted_total",
+        threshold: 0.01,
+      },
       derivation: "test fixture",
       runbook: "docs/observability/PRODUCTION.md#runbook-test-ratio",
     };
@@ -135,9 +143,18 @@ describe("counter-ratio-above evaluation — boundary cases", () => {
   });
 
   test("zero denominator is no-data, never a healthy zero (never-silent)", () => {
+    // The numerator is present (2 attempts failed) but the denominator
+    // summed 0 — nothing was ever submitted — so the ratio is undefined:
+    // no-data, not a healthy 0/0 = 0.
     const verdict = evaluateAlert(
       ratioAlert(),
-      snapshotOf([{ name: "gpu_jobs_submitted_total", value: 0 }], []),
+      snapshotOf(
+        [
+          { name: "gpu_jobs_failed_total", value: 2 },
+          { name: "gpu_jobs_submitted_total", value: 0 },
+        ],
+        [],
+      ),
     );
     expect(verdict.status).toBe("no-data");
     expect(verdict.observed).toContain("denominator summed 0");
@@ -158,7 +175,10 @@ describe("histogram percentile evaluation — boundary cases", () => {
   test("p95 exactly at threshold is ok (strictly-above)", () => {
     const verdict = evaluateAlert(
       alert,
-      snapshotOf([], [{ name: "gpu_job_queue_wait_ms", stats: { count: 10, p50: 100, p95: 6000 } }]),
+      snapshotOf(
+        [],
+        [{ name: "gpu_job_queue_wait_ms", stats: { count: 10, p50: 100, p95: 6000 } }],
+      ),
     );
     expect(verdict.status).toBe("ok");
     expect(verdict.observedValue).toBe(6000);
@@ -167,7 +187,10 @@ describe("histogram percentile evaluation — boundary cases", () => {
   test("p95 above threshold fires", () => {
     const verdict = evaluateAlert(
       alert,
-      snapshotOf([], [{ name: "gpu_job_queue_wait_ms", stats: { count: 10, p50: 100, p95: 6001 } }]),
+      snapshotOf(
+        [],
+        [{ name: "gpu_job_queue_wait_ms", stats: { count: 10, p50: 100, p95: 6001 } }],
+      ),
     );
     expect(verdict.status).toBe("firing");
   });

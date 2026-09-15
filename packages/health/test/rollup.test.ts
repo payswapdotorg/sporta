@@ -18,7 +18,11 @@ import {
   type HealthStatus,
 } from "../src/rollup";
 
-function verdictOf(alert: AlertDefinition, status: AlertVerdict["status"], observed = 1): AlertVerdict {
+function verdictOf(
+  alert: AlertDefinition,
+  status: AlertVerdict["status"],
+  observed = 1,
+): AlertVerdict {
   return {
     alertId: alert.id,
     domain: alert.domain,
@@ -30,7 +34,11 @@ function verdictOf(alert: AlertDefinition, status: AlertVerdict["status"], obser
   };
 }
 
-function alertOf(id: string, domain: HealthDomainId, severity: AlertDefinition["severity"]): AlertDefinition {
+function alertOf(
+  id: string,
+  domain: HealthDomainId,
+  severity: AlertDefinition["severity"],
+): AlertDefinition {
   return {
     id,
     domain,
@@ -152,7 +160,13 @@ describe("rollupHealth — the worst-first lattice", () => {
     const base: DomainHealth[] = HEALTH_DOMAIN_IDS.map((domain): DomainHealth => ({
       domain,
       status:
-        domain === "delivery" ? "down" : domain === "queue" ? "degraded" : domain === "model" ? "unknown" : "healthy",
+        domain === "delivery"
+          ? "down"
+          : domain === "queue"
+            ? "degraded"
+            : domain === "model"
+              ? "unknown"
+              : "healthy",
       reasons: [],
     }));
     expect(rollupHealth(base).status).toBe("down");

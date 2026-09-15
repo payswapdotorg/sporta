@@ -390,9 +390,7 @@ export function renderDashboardMarkdown(spec: DashboardSpec, map: HealthDomainMa
           .map((site) => `${site.packageName} ${site.module}`)
           .join("; ");
         const labelNote =
-          resolved.seam.labels.length === 0
-            ? ""
-            : ` (labels: ${resolved.seam.labels.join(", ")})`;
+          resolved.seam.labels.length === 0 ? "" : ` (labels: ${resolved.seam.labels.join(", ")})`;
         lines.push(
           `  - \`${resolved.metric}\` → ${resolved.stat} — ${resolved.seam.kind}${labelNote} — ${sites}`,
         );

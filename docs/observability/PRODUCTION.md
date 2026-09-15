@@ -48,8 +48,13 @@ aspiration). Telemetry seams are non-registry observability surfaces.
 Gaps are health facts this codebase cannot emit today — listed, never
 invented.
 
-Inventory: **83 registry seams** across the six domains
-(media 16, queue 23, model 0, renderer 12, delivery 19, infrastructure 13).
+Inventory: **84 registry seams** across the six domains
+(media 16, queue 24, model 0, renderer 12, delivery 19, infrastructure 13).
+Both directions are pinned by test: every map seam is a literal in its
+referenced module, and every metric name the packages declare in their
+`*_METRIC_NAMES` vocabularies (plus the renderer plugins' inline literals)
+appears in the map — or is a documented declared-but-never-observed
+exception tied to a gap below (`render_batches_rendered_total`).
 
 ### Domain: media
 
@@ -63,9 +68,9 @@ synchronization (W103), live-source ingress.
 | decode_frames_total | counter | — | @sporta/decoding src/service.ts | once per yielded normalized video frame |
 | decode_audio_chunks_total | counter | — | @sporta/decoding src/service.ts | once per yielded normalized audio chunk |
 | decode_bytes_total | counter | — | @sporta/decoding src/service.ts | incremented by yielded item byte size |
-| decode_failures_total | counter | — | @sporta/decoding src/service.ts | once per classified decode/probe refusal |
+| decode_failures_total | counter | failure_class | @sporta/decoding src/service.ts | once per classified decode/probe refusal (unlabeled total + per-failure-class series) |
 | timeline_sync_alignments_total | counter | — | @sporta/timeline src/sync.ts | once per successful track-timeline alignment |
-| timeline_sync_failures_total | counter | — | @sporta/timeline src/sync.ts | once per classified alignment refusal |
+| timeline_sync_failures_total | counter | failure_class | @sporta/timeline src/sync.ts | once per classified alignment refusal (unlabeled total + per-failure-class series) |
 | streaming_segments_in_total | counter | — | @sporta/streaming-ingress src/types.ts | once per live-source delivery received |
 | streaming_segments_out_total | counter | — | @sporta/streaming-ingress src/types.ts | once per segment admitted to the output channel |
 | streaming_rejected_total | counter | failure_class | @sporta/streaming-ingress src/types.ts | once per refused delivery (rights-denied included) |
@@ -115,6 +120,7 @@ admission, duplicate dedupe, retry/DLQ accounting, ready-queue congestion.
 | gpu_refused_submissions_total | counter | — | @sporta/gpu-worker src/types.ts | once per refused submission — malformed, over-capacity, or dispatcher-ended (dispatcher.ts) |
 | gpu_job_claims_total | counter | — | @sporta/gpu-worker src/types.ts | once per job claim by a worker (dispatcher.ts) |
 | gpu_job_requeues_total | counter | — | @sporta/gpu-worker src/types.ts | once per lease-expired requeue (dispatcher.ts) |
+| gpu_job_attempts_total | counter | disposition | @sporta/gpu-worker src/types.ts | sums report.attempts for every report reaching a known job record, labeled recorded\|superseded (dispatcher.ts) |
 | gpu_job_queue_wait_ms | histogram | — | @sporta/gpu-worker src/types.ts | startedAtMs − submittedAtMs per finished job — the W303 ready-queue wait (dispatcher.ts) |
 
 #### Telemetry seams — queue
@@ -237,8 +243,8 @@ health (W103 drift clamp), control plane (W701), stage transport (W104).
 | gpu_job_timeouts_total | counter | kind | @sporta/gpu-worker src/types.ts | once per per-job deadline breach on the injected clock, labeled timeout kind (dispatcher.ts) |
 | timeline_sync_drift_anomalies_total | counter | — | @sporta/timeline src/sync.ts | once per clamped drift anomaly — |driftPpm| exceeded DRIFT_CLAMP_PPM (1000), the clock-health signal |
 | timeline_sync_abs_drift_ppm | histogram | — | @sporta/timeline src/sync.ts | clamped |driftPpm| observed once per measured alignment |
-| control_requests_total | counter | route | @sporta/control-api src/app.ts; @sporta/control-api src/http.ts | once per control-plane method call, labeled route |
-| control_failures_total | counter | failure_class | @sporta/control-api src/app.ts; @sporta/control-api src/http.ts | once per failed control-plane call, labeled failure class |
+| control_requests_total | counter | route | @sporta/control-api src/app.ts | once per control-plane method call, labeled route (app.ts + http.ts via the shared CONTROL_METRIC_NAMES constant) |
+| control_failures_total | counter | failure_class | @sporta/control-api src/app.ts | once per failed control-plane call, labeled failure class (app.ts + http.ts via the shared constant) |
 | transport_messages_total | counter | stage, status | @sporta/transport src/runner.ts | once per stage-message processed, labeled stage + status |
 | transport_retries_total | counter | stage | @sporta/transport src/runner.ts | summed retries consumed per stage-message |
 | transport_failures_total | counter | stage, errorClass | @sporta/transport src/runner.ts | once per retry-exhausted stage-message failure |
@@ -433,6 +439,14 @@ What exists, honestly:
   limitation). Deployment, metric collection, cross-process aggregation,
   exposition, and exfil are ops' world — this package provides the
   definitions and the pure machinery they would evaluate.
+  `FOUNDATION.md` §3 names the OpenTelemetry adapter "W805 scope": the
+  honest scope line drawn here is the adapter POINT, not the adapter — an
+  OTLP exporter would be a new external runtime dependency (constitution:
+  none allowed) with no deployed backend to export to. The seams the
+  foundation reserved (`MetricsRegistry.snapshot()`, the logger `sink`)
+  are exactly what this package's machinery consumes and what an ops-side
+  adapter would consume; nothing here blocks it, and nothing here pretends
+  it exists.
 - **Latency alerts are algorithmic, not wall-clock.** The two percentile
   thresholds derive from W306's controlled fixture in the injected-clock
   domain — they characterize the pipeline's algorithmic latency

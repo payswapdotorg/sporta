@@ -145,8 +145,7 @@ export function rollupHealth(domains: readonly DomainHealth[]): HealthRollup {
     }
   }
   const ordered = HEALTH_DOMAIN_IDS.map(
-    (domain) =>
-      domains.find((entry) => entry.domain === domain) as DomainHealth, // presence proven above
+    (domain) => domains.find((entry) => entry.domain === domain) as DomainHealth, // presence proven above
   );
   let status: HealthStatus = "healthy";
   for (const entry of ordered) {

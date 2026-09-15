@@ -94,12 +94,13 @@ export type AlertDefinition = z.infer<typeof AlertDefinitionSchema>;
 
 export const AlertCatalogSchema = z.object({
   schemaVersion: z.literal(ALERT_CATALOG_VERSION),
-  alerts: z
-    .array(AlertDefinitionSchema)
-    .refine((alerts) => {
+  alerts: z.array(AlertDefinitionSchema).refine(
+    (alerts) => {
       const ids = alerts.map((alert) => alert.id);
       return ids.length === new Set(ids).size;
-    }, { message: "alert ids must be unique" }),
+    },
+    { message: "alert ids must be unique" },
+  ),
 });
 
 export type AlertCatalog = z.infer<typeof AlertCatalogSchema>;
@@ -200,7 +201,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "GPU ready-queue wait p95 high",
       summary: "gpu_job_queue_wait_ms p95 > 6000",
-      expression: { kind: "histogram-p95-above", metric: "gpu_job_queue_wait_ms", thresholdMs: 6000 },
+      expression: {
+        kind: "histogram-p95-above",
+        metric: "gpu_job_queue_wait_ms",
+        thresholdMs: 6000,
+      },
       derivation:
         "W306-derived: on the checked-in controlled fixture (injected-clock domain) the W303 " +
         "ready-queue wait measured p95 4000 ms — the suite's identified congestion point — and " +
@@ -246,7 +251,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Render skip-stale degradation active",
       summary: "render_batches_skipped_stale_total > 0",
-      expression: { kind: "counter-above", metric: "render_batches_skipped_stale_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "render_batches_skipped_stale_total",
+        threshold: 0,
+      },
       derivation:
         "The codebase's own semantics: the W305 session phase machine enters `degraded` on the " +
         "FIRST skip-stale window — by the platform's own definition, any skip-stale batch is " +
@@ -277,7 +286,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "critical",
       title: "Live window delivery failures",
       summary: "live_output_windows_failed_total > 0",
-      expression: { kind: "counter-above", metric: "live_output_windows_failed_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "live_output_windows_failed_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance, CRITICAL: a send failure is terminal for the window and ends the " +
         "session failed (W305) — output the pipeline rendered is lost to the viewer. This is " +
@@ -291,7 +304,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Live windows dropped by policy",
       summary: "live_output_windows_dropped_by_policy_total > 0",
-      expression: { kind: "counter-above", metric: "live_output_windows_dropped_by_policy_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "live_output_windows_dropped_by_policy_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance: W305 drops a window by capacity policy only at admission or eviction " +
         "(labeled at) — an accounted loss. Any drop means the link depth exceeded the retained " +
@@ -304,7 +321,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Live windows refused (no-downgrade protections)",
       summary: "live_output_windows_refused_total > 0",
-      expression: { kind: "counter-above", metric: "live_output_windows_refused_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "live_output_windows_refused_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance: W305 refuses a window only through its typed no-downgrade rejects " +
         "(protocol/codec/latency protections) — a refusal means the transport refused to " +
@@ -317,7 +338,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Windows lost to reconnect gaps",
       summary: "live_output_windows_skipped_at_reconnect_total > 0",
-      expression: { kind: "counter-above", metric: "live_output_windows_skipped_at_reconnect_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "live_output_windows_skipped_at_reconnect_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance: W305 counts every window lost across a viewer reconnect gap. " +
         "Reconnect itself is expected recovery (not alerted); the windows it cost are " +
@@ -330,7 +355,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Live output skip-stale degradation active",
       summary: "live_output_windows_skipped_stale_total > 0",
-      expression: { kind: "counter-above", metric: "live_output_windows_skipped_stale_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "live_output_windows_skipped_stale_total",
+        threshold: 0,
+      },
       derivation:
         "The codebase's own semantics: the W305 phase machine enters `degraded` on the first " +
         "skip-stale window and recovers only on a subsequent in-bound delivery — any nonzero " +
@@ -344,7 +373,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "GPU worker heartbeats rejected",
       summary: "gpu_worker_heartbeats_rejected_total > 0",
-      expression: { kind: "counter-above", metric: "gpu_worker_heartbeats_rejected_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "gpu_worker_heartbeats_rejected_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance: W303 rejects a heartbeat only for a fail-closed protocol violation " +
         "(dispatcher-ended, unknown-worker, sequence-not-monotone — labeled reason). Nonzero " +
@@ -410,7 +443,11 @@ export const ALERT_CATALOG: AlertCatalog = {
       severity: "warning",
       title: "Track clock drift clamped",
       summary: "timeline_sync_drift_anomalies_total > 0",
-      expression: { kind: "counter-above", metric: "timeline_sync_drift_anomalies_total", threshold: 0 },
+      expression: {
+        kind: "counter-above",
+        metric: "timeline_sync_drift_anomalies_total",
+        threshold: 0,
+      },
       derivation:
         "Zero-tolerance: W103 clamps |driftPpm| at DRIFT_CLAMP_PPM = 1000 (0.1%) and counts " +
         "every clamped measurement — a clamped anomaly means a media track's timestamps " +

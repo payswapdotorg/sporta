@@ -14,7 +14,12 @@ import {
   alertIds,
   findAlert,
 } from "../src/alerts";
-import { findRegistrySeam, HEALTH_DOMAIN_MAP, type RegistrySeam } from "../src/domains";
+import {
+  findRegistrySeam,
+  HEALTH_DOMAIN_IDS,
+  HEALTH_DOMAIN_MAP,
+  type RegistrySeam,
+} from "../src/domains";
 
 const REPO_ROOT = join(dirname(import.meta.dir), "..", "..");
 const DOC_PATH = join(REPO_ROOT, "docs", "observability", "PRODUCTION.md");
@@ -34,7 +39,11 @@ describe("alert catalog — schema and structure", () => {
 
   test("the catalog size and per-domain coverage are pinned", () => {
     expect(ALERT_CATALOG.alerts).toHaveLength(24);
-    const perDomain: Record<string, number> = {};
+    // Initialized over ALL domains so the model: 0 pin is explicit — a
+    // domain with no alerts must appear as 0, never silently vanish.
+    const perDomain: Record<string, number> = Object.fromEntries(
+      HEALTH_DOMAIN_IDS.map((domain) => [domain, 0]),
+    );
     for (const alert of ALERT_CATALOG.alerts) {
       perDomain[alert.domain] = (perDomain[alert.domain] ?? 0) + 1;
     }
@@ -71,7 +80,8 @@ describe("alert catalog — schema and structure", () => {
   test("exactly two latency alerts exist, both W306-derived and metric-generic", () => {
     const latencyAlerts = ALERT_CATALOG.alerts.filter(
       (alert) =>
-        alert.expression.kind === "histogram-p95-above" || alert.expression.kind === "histogram-p50-above",
+        alert.expression.kind === "histogram-p95-above" ||
+        alert.expression.kind === "histogram-p50-above",
     );
     expect(latencyAlerts.map((alert) => alert.id).sort()).toEqual([
       "queue-gpu-queue-wait-p95",
@@ -100,17 +110,25 @@ describe("alert catalog — doc pins (PRODUCTION.md matches the catalog)", () =>
     const tableIndex = doc.indexOf("### The catalog table");
     expect(tableIndex).toBeGreaterThanOrEqual(0);
     const after = doc.slice(tableIndex);
-    const nextHeading = after.indexOf("\n# ", 1); // the next heading of any level
-    const section = nextHeading < 0 ? after : after.slice(0, nextHeading);
+    // The next heading of level >= 2 ends the section (a `\n# `-only search
+    // matches H1 alone, which never recurs — the section then spills into
+    // §4-§10 and swallows the rollup truth-table rows as fake alerts).
+    const nextHeading = after.slice(1).search(/\n#{2,6} /);
+    const section = nextHeading < 0 ? after : after.slice(0, nextHeading + 1);
     const rows = section
       .split("\n")
-      .filter((line) => line.startsWith("| ") && !line.startsWith("| id ") && !/^\|[-\s|]+\|$/.test(line))
+      .filter(
+        (line) => line.startsWith("| ") && !line.startsWith("| id ") && !/^\|[-\s|]+\|$/.test(line),
+      )
       .map((line) =>
         line
           .slice(1, -1)
           .split("|")
           .map((cell) => cell.trim()),
       );
+    expect(rows.length, "the doc table and the catalog must have the same row count").toBe(
+      ALERT_CATALOG.alerts.length,
+    );
     expect(rows.map((row) => row[0])).toEqual(ALERT_CATALOG.alerts.map((alert) => alert.id));
     expect(rows.map((row) => row[1])).toEqual(ALERT_CATALOG.alerts.map((alert) => alert.domain));
     expect(rows.map((row) => row[2])).toEqual(ALERT_CATALOG.alerts.map((alert) => alert.severity));

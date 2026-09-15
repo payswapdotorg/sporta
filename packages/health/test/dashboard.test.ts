@@ -39,7 +39,8 @@ describe("the shipped production dashboard — spec validity and coverage", () =
     const modelPanel = PRODUCTION_DASHBOARD.panels.find((panel) => panel.domain === "model");
     expect(modelPanel).toBeDefined();
     expect(modelPanel?.kind).toBe("health");
-    if (modelPanel?.kind !== "health") throw new Error("fixture broken: model panel is not a health panel");
+    if (modelPanel?.kind !== "health")
+      throw new Error("fixture broken: model panel is not a health panel");
     expect(modelPanel.detail).toContain("UNKNOWN");
   });
 
@@ -130,9 +131,7 @@ describe("query resolution — fail-closed", () => {
     for (const panel of PRODUCTION_DASHBOARD.panels) {
       if (panel.kind !== "metric") continue;
       for (const query of panel.queries) {
-        expect(() =>
-          resolveQuery(HEALTH_DOMAIN_MAP, query, `panel ${panel.id}`),
-        ).not.toThrow();
+        expect(() => resolveQuery(HEALTH_DOMAIN_MAP, query, `panel ${panel.id}`)).not.toThrow();
       }
     }
   });

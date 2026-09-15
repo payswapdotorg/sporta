@@ -50,13 +50,16 @@ function serializeCanonical(value: unknown): string {
     const parts: string[] = [];
     for (const key of keys) {
       const serialized = serializeCanonical(record[key]);
-      if (serialized === undefined) continue; // matches JSON.stringify: undefined drops
       parts.push(`${JSON.stringify(key)}:${serialized}`);
     }
     return `{${parts.join(",")}}`;
   }
-  // undefined / functions / symbols / bigint: JSON.stringify would fail or
-  // drop — fail loud instead of inventing a representation.
+  // undefined / functions / symbols / bigint: JSON.stringify would drop or
+  // fail on these — fail loud instead of inventing a representation
+  // (note: unlike JSON.stringify, an object key with an `undefined` value
+  // THROWS here rather than being silently dropped — artifacts must be
+  // JSON-safe by construction, and a half-serialized artifact is worse than
+  // a loud error).
   throw new TypeError(
     `canonicalJson cannot serialize a ${String(typeof value)} (artifacts must be JSON-safe)`,
   );

@@ -28,7 +28,9 @@ export class HealthConsistencyError extends Error {
       violations.length === 0
         ? "HealthConsistencyError (no violations — do not throw empty)"
         : `health posture consistency check failed (${violations.length} violation(s)):\n` +
-            violations.map((violation) => `- [${violation.source}] ${violation.problem}`).join("\n"),
+            violations
+              .map((violation) => `- [${violation.source}] ${violation.problem}`)
+              .join("\n"),
     );
     this.name = "HealthConsistencyError";
     this.violations = violations;
@@ -124,7 +126,10 @@ export function checkDashboard(spec: DashboardSpec, map: HealthDomainMap): void 
   const ids = new Set<string>();
   for (const panel of spec.panels) {
     if (ids.has(panel.id)) {
-      violations.push({ source: `dashboard:${spec.id}`, problem: `duplicate panel id "${panel.id}"` });
+      violations.push({
+        source: `dashboard:${spec.id}`,
+        problem: `duplicate panel id "${panel.id}"`,
+      });
     }
     ids.add(panel.id);
     if (panel.kind === "metric") {
