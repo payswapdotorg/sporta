@@ -1,9 +1,9 @@
 {
   "aggregate": {
-    "caseCount": 3,
+    "caseCount": 4,
     "failCount": 0,
     "failureReasons": [],
-    "passCount": 3,
+    "passCount": 4,
     "verdict": "PASS"
   },
   "cases": [
@@ -1212,10 +1212,325 @@
         "ruleDocument": "packages/scene-projection/CONTRACT.md"
       },
       "verdict": "PASS"
+    },
+    {
+      "caseKind": "w306-latency-benchmark",
+      "caseName": "w306-latency-benchmark",
+      "clock": {
+        "endMs": 1736164800008,
+        "startMs": 1736164800007
+      },
+      "failureReasons": [],
+      "fixture": {
+        "benchmark": "w306-live-fixture"
+      },
+      "measured": {
+        "accounting": {
+          "frames": {
+            "balanced": true,
+            "dropReasons": {},
+            "emittedManifestFrames": 240,
+            "framesCancelled": 0,
+            "framesDropped": 0,
+            "framesDuplicate": 0,
+            "framesEmitted": 240,
+            "framesIn": 240,
+            "framesSkippedStale": 0
+          },
+          "orchestratorStats": {
+            "batchSplits": 50,
+            "batchesAbandoned": 0,
+            "batchesCancelled": 0,
+            "batchesCancelledInQueue": 0,
+            "batchesDropped": 0,
+            "batchesDuplicateSkips": 0,
+            "batchesDuplicateSkipsAtConsume": 0,
+            "batchesDuplicateSubmits": 0,
+            "batchesIn": 140,
+            "batchesInFlight": 0,
+            "batchesQueueEvicted": 0,
+            "batchesQueueRefused": 0,
+            "batchesReceivedFromQueue": 140,
+            "batchesRenderCancelled": 0,
+            "batchesRenderFailed": 0,
+            "batchesRenderOutputInvalid": 0,
+            "batchesRenderQueueRefused": 0,
+            "batchesRendered": 140,
+            "batchesReorderOverflow": 0,
+            "batchesSentToQueue": 140,
+            "batchesSkippedStale": 0,
+            "batchesSkippedStaleAtAdmission": 0,
+            "batchesSkippedStaleInQueue": 0,
+            "checkpointsCut": 90,
+            "consumerSendParkAttempts": 0,
+            "maxEmissionLagMs": 8062.5,
+            "outputsEmitted": 140,
+            "peakBatchesInSystem": 13,
+            "peakQueuedNow": 0,
+            "peakReorderSize": 1,
+            "queuedNow": 0,
+            "renderJobsDuplicate": 0,
+            "renderJobsInFlight": 0,
+            "renderJobsSubmitted": 140
+          }
+        },
+        "benchmark": {
+          "benchmarkId": "w306-latency-w306-live-fixture",
+          "clockDomain": "injected-virtual",
+          "clockEndMs": 103859,
+          "clockStartMs": 0,
+          "driver": {
+            "settleQuantaPerArrival": 32
+          },
+          "fixture": {
+            "burstEventFromMs": 30000,
+            "burstEventToMs": 40000,
+            "profileId": "w306-live-fixture",
+            "profileVersion": 1,
+            "seconds": 90,
+            "seed": "w306-live-fixture-v1",
+            "updateCount": 240
+          },
+          "orchestratorOutcome": "completed",
+          "percentileMethod": "nearest-rank",
+          "pipeline": {
+            "backpressure": "block",
+            "batchIntervalMs": 1000,
+            "degradation": {
+              "kind": "disabled"
+            },
+            "maxAdmittedJobs": 1000000,
+            "maxQueuedBatchBytes": 0,
+            "maxQueuedBatches": 8,
+            "maxQueuedRenderJobs": 64,
+            "maxReorderOutputs": 16,
+            "maxUpdatesPerBatch": 3,
+            "renderDurationMs": 400,
+            "workers": [
+              {
+                "maxConcurrentJobs": 2,
+                "workerId": "render-worker-0"
+              }
+            ]
+          }
+        },
+        "reportSchema": "sporta/latency-benchmark/report@1",
+        "run": {
+          "exitCode": 0,
+          "stderr": "W306 end-to-end latency benchmark — w306-latency-w306-live-fixture\nclock domain: injected-virtual (NOT wall time) — characterizes the pipeline's algorithmic latency structure only\nfixture: w306-live-fixture v1 (seed w306-live-fixture-v1, 90s event time, 240 updates)\npipeline: render 400ms, batch interval 1000ms, max 3 updates/batch, render-worker-0(2), backpressure block, degradation disabled\norchestrator outcome: completed\n\nstage latencies (nearest-rank, injected-clock ms):\n  batch stages:\n    swm-to-batch       n=140  p50=    102  p95=   4478  max=   5027\n    batch-queue        n=140  p50=      0  p95=    400  max=    400\n    w303-schedule      n=140  p50=      0  p95=   4000  max=   4400\n    render-execution   n=140  p50=    400  p95=    400  max=    400\n    finish-to-emit     n=140  p50=      0  p95=    400  max=    400\n    end-to-end         n=140  p50=   2029  p95=   8849  max=   9762\n  frame stages:\n    swm-store-sojourn  n=240  p50=   2121  p95=   4680  max=   5027\n    end-to-end         n=240  p50=   3968  p95=   9080  max=   9762\n  source model (AUTHORED, not measured): world-model update derive p50=82ms p95=117ms\n\nnever-silent accounting (balanced):\n  frames in 240 = emitted 240 + skipped-stale 0 + dropped 0 + cancelled 0 + duplicate 0\n  batches in 140, rendered 140, splits 50, peak-in-system 13\n  emitted manifest frames 240 === emitted frames 240\n",
+          "stdoutBytes": 222467
+        },
+        "sloVerdicts": [
+          {
+            "measuredMs": 102,
+            "metric": "p50",
+            "pass": true,
+            "stage": "swm-to-batch",
+            "targetMs": 250
+          },
+          {
+            "measuredMs": 4478,
+            "metric": "p95",
+            "pass": true,
+            "stage": "swm-to-batch",
+            "targetMs": 6000
+          },
+          {
+            "measuredMs": 0,
+            "metric": "p50",
+            "pass": true,
+            "stage": "batch-queue",
+            "targetMs": 50
+          },
+          {
+            "measuredMs": 400,
+            "metric": "p95",
+            "pass": true,
+            "stage": "batch-queue",
+            "targetMs": 1000
+          },
+          {
+            "measuredMs": 0,
+            "metric": "p50",
+            "pass": true,
+            "stage": "w303-schedule",
+            "targetMs": 50
+          },
+          {
+            "measuredMs": 4000,
+            "metric": "p95",
+            "pass": true,
+            "stage": "w303-schedule",
+            "targetMs": 6000
+          },
+          {
+            "measuredMs": 400,
+            "metric": "p50",
+            "pass": true,
+            "stage": "render-execution",
+            "targetMs": 750
+          },
+          {
+            "measuredMs": 400,
+            "metric": "p95",
+            "pass": true,
+            "stage": "render-execution",
+            "targetMs": 1000
+          },
+          {
+            "measuredMs": 0,
+            "metric": "p50",
+            "pass": true,
+            "stage": "finish-to-emit",
+            "targetMs": 50
+          },
+          {
+            "measuredMs": 400,
+            "metric": "p95",
+            "pass": true,
+            "stage": "finish-to-emit",
+            "targetMs": 1000
+          },
+          {
+            "measuredMs": 2029,
+            "metric": "p50",
+            "pass": true,
+            "stage": "end-to-end",
+            "targetMs": 3000
+          },
+          {
+            "measuredMs": 8849,
+            "metric": "p95",
+            "pass": true,
+            "stage": "end-to-end",
+            "targetMs": 12000
+          }
+        ],
+        "stageDefinitions": {
+          "batch-queue": "jobTiming.submittedAtMs − cutAtMs: the bounded batch channel sojourn + scheduler admission before the W303 submit",
+          "end-to-end": "batch: emittedAtMs − first update visibleAtMs (all inputs visible → output emitted); frame: emittedAtMs − visibleAtMs",
+          "finish-to-emit": "emittedAtMs − jobTiming.finishedAtMs: the reorder hold + in-order emission wait after the render finished",
+          "render-execution": "jobTiming.executionMs VERBATIM: the worker-measured renderer execution time (the authored render duration through the real anime render)",
+          "swm-store-sojourn": "frame-level: firstQueriedAtMs − visibleAtMs — how long a visible update waits for the consumer's query",
+          "swm-to-batch": "batch cutAtMs − last update visibleAtMs: from the batch's last input being visible in the store to the batch being cut (the watermark-grid wait)",
+          "w303-schedule": "jobTiming.queueWaitMs VERBATIM: the W303 dispatcher ready-queue wait from submit to the first executor invocation"
+        },
+        "stages": {
+          "batch": {
+            "batch-queue": {
+              "count": 140,
+              "maxMs": 400,
+              "minMs": 0,
+              "p50Ms": 0,
+              "p95Ms": 400
+            },
+            "end-to-end": {
+              "count": 140,
+              "maxMs": 9762,
+              "minMs": 400,
+              "p50Ms": 2029,
+              "p95Ms": 8849
+            },
+            "finish-to-emit": {
+              "count": 140,
+              "maxMs": 400,
+              "minMs": 0,
+              "p50Ms": 0,
+              "p95Ms": 400
+            },
+            "render-execution": {
+              "count": 140,
+              "maxMs": 400,
+              "minMs": 400,
+              "p50Ms": 400,
+              "p95Ms": 400
+            },
+            "swm-to-batch": {
+              "count": 140,
+              "maxMs": 5027,
+              "minMs": 0,
+              "p50Ms": 102,
+              "p95Ms": 4478
+            },
+            "w303-schedule": {
+              "count": 140,
+              "maxMs": 4400,
+              "minMs": 0,
+              "p50Ms": 0,
+              "p95Ms": 4000
+            }
+          },
+          "frame": {
+            "end-to-end": {
+              "count": 240,
+              "maxMs": 9762,
+              "minMs": 400,
+              "p50Ms": 3968,
+              "p95Ms": 9080
+            },
+            "swm-store-sojourn": {
+              "count": 240,
+              "maxMs": 5027,
+              "minMs": 0,
+              "p50Ms": 2121,
+              "p95Ms": 4680
+            }
+          },
+          "sourceModel": {
+            "authoredNotMeasured": true,
+            "worldModelUpdateDeriveMs": {
+              "count": 240,
+              "maxMs": 120,
+              "minMs": 40,
+              "p50Ms": 82,
+              "p95Ms": 117
+            }
+          }
+        }
+      },
+      "policy": {
+        "checkSloCandidates": true
+      },
+      "thresholds": {
+        "candidates": [
+          {
+            "p50TargetMs": 250,
+            "p95TargetMs": 6000,
+            "stage": "swm-to-batch"
+          },
+          {
+            "p50TargetMs": 50,
+            "p95TargetMs": 1000,
+            "stage": "batch-queue"
+          },
+          {
+            "p50TargetMs": 50,
+            "p95TargetMs": 6000,
+            "stage": "w303-schedule"
+          },
+          {
+            "p50TargetMs": 750,
+            "p95TargetMs": 1000,
+            "stage": "render-execution"
+          },
+          {
+            "p50TargetMs": 50,
+            "p95TargetMs": 1000,
+            "stage": "finish-to-emit"
+          },
+          {
+            "p50TargetMs": 3000,
+            "p95TargetMs": 12000,
+            "stage": "end-to-end"
+          }
+        ],
+        "sloProfileId": "w306-candidate-v1"
+      },
+      "verdict": "PASS"
     }
   ],
   "clock": {
-    "endMs": 1736164800007,
+    "endMs": 1736164800009,
     "startMs": 1736164800000
   },
   "environment": {
@@ -1223,6 +1538,7 @@
       "@sporta/contracts": "0.1.0",
       "@sporta/eval-harness": "0.1.0",
       "@sporta/evaluation": "0.1.0",
+      "@sporta/latency-benchmark": "0.1.0",
       "@sporta/renderer-evaluation": "0.1.0",
       "@sporta/scene-projection": "0.1.0",
       "@sporta/testing": "0.1.0",
@@ -1263,14 +1579,24 @@
           "policy": {
             "evidence": "full"
           }
+        },
+        {
+          "caseKind": "w306-latency-benchmark",
+          "caseName": "w306-latency-benchmark",
+          "fixture": {
+            "benchmark": "w306-live-fixture"
+          },
+          "policy": {
+            "checkSloCandidates": true
+          }
         }
       ],
       "suiteId": "sporta-eval-harness-default",
       "suiteKind": "sporta/eval-harness/suite-config@1",
-      "suiteVersion": 1
+      "suiteVersion": 2
     },
-    "suiteConfigSha256": "9d5ebaa3a8ecf511140e61d0047b678945aaa7d2e28d2f8b06501f2e53cfcb2c",
+    "suiteConfigSha256": "57bada79a859f9e1d8e5bc46432ff215dc5fc263714224f3ea3fbf81e61309a9",
     "suiteId": "sporta-eval-harness-default",
-    "suiteVersion": 1
+    "suiteVersion": 2
   }
 }

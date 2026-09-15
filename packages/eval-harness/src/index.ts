@@ -3,11 +3,14 @@
  *
  * The work item's accept criterion made executable: "repeatable benchmark
  * suite produces machine-readable reports." ONE declarative suite config
- * runs the three existing evaluators — W403 replay comparability
+ * runs the four existing cases — W403 replay comparability
  * (`@sporta/evaluation`), W503 temporal consistency
  * (`@sporta/renderer-evaluation`), W601 scene conformance
- * (`@sporta/scene-projection`) — as ONE repeatable suite, in-process against
- * the real packages, and produces ONE canonical, versioned,
+ * (`@sporta/scene-projection`), and the W306 end-to-end latency benchmark
+ * (`@sporta/latency-benchmark`, the suite's live-stream case: one real
+ * benchmark subprocess, parsed through its versioned report schema, checked
+ * against its SLO candidate table) — as ONE repeatable suite, in-process
+ * against the real packages, and produces ONE canonical, versioned,
  * schema-validated, machine-readable aggregate report.
  *
  * - `suite-config`: the declarative, versioned, strictly-validated suite
@@ -31,8 +34,9 @@
  *   `regen-golden` discipline (see README).
  *
  * Package boundary: runtime dependencies are `@sporta/*` only —
- * evaluation, renderer-evaluation, scene-projection, world-model, testing,
- * contracts. No external deps; no ambient clocks; no RNG anywhere.
+ * evaluation, renderer-evaluation, scene-projection, latency-benchmark,
+ * world-model, testing, contracts. No external deps; no ambient clocks; no
+ * RNG anywhere.
  */
 export {
   DEFAULT_CLOCK_EPOCH_MS,
@@ -56,6 +60,7 @@ export type {
   W403CaseConfig,
   W503CaseConfig,
   W601CaseConfig,
+  W306CaseConfig,
 } from "./suite-config";
 export { ENVIRONMENT_PACKAGE_KEYS, measurePackageVersions } from "./environment";
 export { DEFAULT_GOLDEN_REPORT_PATH, REPORT_SCHEMA_TAG } from "./report";
@@ -68,6 +73,7 @@ export type {
   W403CaseResult,
   W503CaseResult,
   W601CaseResult,
+  W306CaseResult,
 } from "./report";
 export { runSuite, serializeSuiteReport } from "./runner";
 export type { RunSuiteOptions } from "./runner";
@@ -88,6 +94,13 @@ export {
   runW601Case,
 } from "./cases/w601";
 export type { W601CaseMeasured, W601CaseThresholds, W601SceneFixture } from "./cases/w601";
+export { W306_RUN_ONCE_SCRIPT, projectBenchmarkReport, runW306Case } from "./cases/w306";
+export type {
+  W306CaseMeasured,
+  W306CaseRunRecord,
+  W306CaseThresholds,
+  W306SloVerdict,
+} from "./cases/w306";
 export { W601_FIXTURE_NOW_MS, W601_FIXTURE_SESSION, buildW601SceneFixture } from "./w601-fixture";
 export type { W601SceneFixtureInput } from "./w601-fixture";
 export type { CaseContext, CaseOutcome, CaseVerdict } from "./cases/types";

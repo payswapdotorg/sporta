@@ -37,6 +37,7 @@ const PACKAGE_DIRS: ReadonlyArray<{ readonly name: string; readonly path: string
   { name: "@sporta/contracts", path: "../contracts/package.json" },
   { name: "@sporta/evaluation", path: "../evaluation/package.json" },
   { name: "@sporta/eval-harness", path: "package.json" },
+  { name: "@sporta/latency-benchmark", path: "../latency-benchmark/package.json" },
   { name: "@sporta/renderer-evaluation", path: "../renderer-evaluation/package.json" },
   { name: "@sporta/scene-projection", path: "../scene-projection/package.json" },
   { name: "@sporta/testing", path: "../testing/package.json" },

@@ -38,6 +38,7 @@ export const CASE_KINDS = [
   "w403-replay-comparability",
   "w503-temporal-consistency",
   "w601-scene-conformance",
+  "w306-latency-benchmark",
 ] as const;
 
 export type CaseKind = (typeof CASE_KINDS)[number];
@@ -110,8 +111,34 @@ export interface W601CaseConfig {
   };
 }
 
+/**
+ * W306 case: the end-to-end latency benchmark (the suite's live-stream
+ * case — the W801 known limitation W306 owns).
+ */
+export interface W306CaseConfig {
+  readonly caseKind: "w306-latency-benchmark";
+  readonly caseName: string;
+  /**
+   * The checked-in live-stream fixture profile the benchmark runs. The
+   * controlled value is `"w306-live-fixture"` (the latency-benchmark
+   * package's own checked-in `LIVE_FIXTURE_PROFILE.profileId`) — anything
+   * else fails loud.
+   */
+  readonly fixture: {
+    readonly benchmark: "w306-live-fixture";
+  };
+  /**
+   * Whether the case also checks the measured stages against the benchmark
+   * package's SLO candidate table (`checkSloCandidates` — every breach is a
+   * case FAIL with a machine-readable reason). Explicit boolean, no default.
+   */
+  readonly policy: {
+    readonly checkSloCandidates: boolean;
+  };
+}
+
 /** One suite case (discriminated on `caseKind`). */
-export type SuiteCaseConfig = W403CaseConfig | W503CaseConfig | W601CaseConfig;
+export type SuiteCaseConfig = W403CaseConfig | W503CaseConfig | W601CaseConfig | W306CaseConfig;
 
 /** The validated suite configuration. */
 export interface SuiteConfig {
@@ -355,6 +382,47 @@ function parseW601Case(
   };
 }
 
+/** Validates a W306 case config. */
+function parseW306Case(
+  body: Record<string, unknown>,
+  caseName: string,
+  index: number,
+): W306CaseConfig {
+  const casePath = ["$", "cases", `[${index}]`];
+  const fixture = body.fixture;
+  if (!isRecord(fixture)) {
+    throw new RangeError(
+      `parseSuiteConfig: ${at([...casePath, "fixture"])} must be an object { benchmark }`,
+    );
+  }
+  exactKeys(fixture, ["benchmark"], [...casePath, "fixture"]);
+  if (fixture.benchmark !== "w306-live-fixture") {
+    throw new RangeError(
+      `parseSuiteConfig: ${at([...casePath, "fixture", "benchmark"])} must be ` +
+        `"w306-live-fixture" (the only checked-in live-stream profile the benchmark ` +
+        `ships; got ${JSON.stringify(fixture.benchmark)})`,
+    );
+  }
+  const policy = body.policy;
+  if (!isRecord(policy)) {
+    throw new RangeError(
+      `parseSuiteConfig: ${at([...casePath, "policy"])} must be an object { checkSloCandidates }`,
+    );
+  }
+  exactKeys(policy, ["checkSloCandidates"], [...casePath, "policy"]);
+  const checkSloCandidates = requireBoolean(policy.checkSloCandidates, [
+    ...casePath,
+    "policy",
+    "checkSloCandidates",
+  ]);
+  return {
+    caseKind: "w306-latency-benchmark",
+    caseName,
+    fixture: { benchmark: "w306-live-fixture" },
+    policy: { checkSloCandidates },
+  };
+}
+
 const CASE_PARSERS: Record<
   string,
   (body: Record<string, unknown>, caseName: string, index: number) => SuiteCaseConfig
@@ -362,6 +430,7 @@ const CASE_PARSERS: Record<
   "w403-replay-comparability": parseW403Case,
   "w503-temporal-consistency": parseW503Case,
   "w601-scene-conformance": parseW601Case,
+  "w306-latency-benchmark": parseW306Case,
 };
 
 /**

@@ -21,6 +21,11 @@ import {
   REPORT_SCHEMA_TAG as W503_REPORT_SCHEMA_TAG,
   THRESHOLDS,
 } from "@sporta/renderer-evaluation";
+import {
+  REPORT_SCHEMA_TAG as W306_BENCHMARK_REPORT_SCHEMA_TAG,
+  SLO_CANDIDATES,
+  SLO_CANDIDATE_PROFILE_ID,
+} from "@sporta/latency-benchmark";
 import { validateSuiteConfig, CASE_KINDS } from "./suite-config";
 import type { SuiteConfig, SuiteCaseConfig } from "./suite-config";
 import { ENVIRONMENT_PACKAGE_KEYS } from "./environment";
@@ -506,6 +511,250 @@ function requireW601Details(record: Record<string, unknown>, index: number): voi
   }
 }
 
+/** Validates one W306 latency-stats block (count + min/max/p50/p95). */
+function requireW306LatencyStats(value: unknown, path: readonly string[]): void {
+  const stats = requireRecord(value, path);
+  exactKeys(stats, ["count", "minMs", "maxMs", "p50Ms", "p95Ms"], path);
+  for (const key of ["count", "minMs", "maxMs", "p50Ms", "p95Ms"]) {
+    const latency = requireFiniteNumber(stats[key], [...path, key]);
+    if (latency < 0) {
+      throw new RangeError(
+        `assertSuiteReportShape: ${at([...path, key])} must be >= 0 (latencies are ` +
+          "non-negative injected-clock milliseconds)",
+      );
+    }
+  }
+  const count = stats.count as number;
+  if (!Number.isInteger(count) || count < 1) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "count"])} must be an integer >= 1 — a stage ` +
+        "with no samples is undefined, never a fabricated zero",
+    );
+  }
+}
+
+/**
+ * Validates the W306 case's thresholds + measured (one level deep): the SLO
+ * candidate table must be the benchmark package's CURRENT export (a drift
+ * forces a report regeneration), the carried report must carry the current
+ * benchmark schema tag, the stage tables must be complete non-empty
+ * summaries, and the accounting block must balance (the never-silent rule
+ * extends to consumers reading the suite report from disk).
+ */
+function requireW306Details(record: Record<string, unknown>, index: number): void {
+  const path = ["$", "cases", `[${index}]`];
+  if (!("measured" in record)) {
+    return; // crashed case — nothing more to check
+  }
+  const thresholds = requireRecord(record.thresholds, [...path, "thresholds"]);
+  exactKeys(thresholds, ["sloProfileId", "candidates"], [...path, "thresholds"]);
+  if (thresholds.sloProfileId !== SLO_CANDIDATE_PROFILE_ID) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "thresholds", "sloProfileId"])} must be ` +
+        `"${SLO_CANDIDATE_PROFILE_ID}" — a candidate-table drift must force a report ` +
+        "regeneration",
+    );
+  }
+  if (!jsonDeepEqual(thresholds.candidates, SLO_CANDIDATES)) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "thresholds", "candidates"])} does not deep-equal ` +
+        "the benchmark package's current SLO_CANDIDATES — a candidate drift must force a " +
+        "report regeneration",
+    );
+  }
+  const measured = requireRecord(record.measured, [...path, "measured"]);
+  exactKeys(
+    measured,
+    ["run", "reportSchema", "benchmark", "stages", "accounting", "stageDefinitions", "sloVerdicts"],
+    [...path, "measured"],
+  );
+  // The subprocess evidence: a successful run's record.
+  const run = requireRecord(measured.run, [...path, "measured", "run"]);
+  exactKeys(run, ["exitCode", "stderr", "stdoutBytes"], [...path, "measured", "run"]);
+  const exitCode = requireFiniteNumber(run.exitCode, [...path, "measured", "run", "exitCode"]);
+  if (exitCode !== 0) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "run", "exitCode"])} is ` +
+        `${String(exitCode)}, not 0 — a crashing benchmark is a FAILED case, never a ` +
+        "measured report",
+    );
+  }
+  if (typeof run.stderr !== "string") {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "run", "stderr"])} must be a string`,
+    );
+  }
+  const stdoutBytes = requireFiniteNumber(run.stdoutBytes, [
+    ...path,
+    "measured",
+    "run",
+    "stdoutBytes",
+  ]);
+  if (!Number.isInteger(stdoutBytes) || stdoutBytes < 1) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "run", "stdoutBytes"])} must be a ` +
+        "positive integer — the measured values came from real report bytes",
+    );
+  }
+  // The carried benchmark report's own schema tag must be the CURRENT one.
+  if (measured.reportSchema !== W306_BENCHMARK_REPORT_SCHEMA_TAG) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "reportSchema"])} is ` +
+        `"${String(measured.reportSchema)}", not the benchmark package's current tag ` +
+        `"${W306_BENCHMARK_REPORT_SCHEMA_TAG}" — a benchmark schema drift must force a ` +
+        "report regeneration",
+    );
+  }
+  // The benchmark identity block: clock domain + percentile method are the
+  // W306 honesty constants — the report may never silently change them.
+  const benchmark = requireRecord(measured.benchmark, [...path, "measured", "benchmark"]);
+  if (benchmark.clockDomain !== "injected-virtual") {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "benchmark", "clockDomain"])} must ` +
+        'be "injected-virtual" — every carried timing is injected-clock domain',
+    );
+  }
+  if (benchmark.percentileMethod !== "nearest-rank") {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "benchmark", "percentileMethod"])} ` +
+        'must be "nearest-rank" (the documented, test-pinned method)',
+    );
+  }
+  // The stage tables: every batch/frame stage carries a complete summary.
+  const stages = requireRecord(measured.stages, [...path, "measured", "stages"]);
+  exactKeys(stages, ["batch", "frame", "sourceModel"], [...path, "measured", "stages"]);
+  const batchStages = requireRecord(stages.batch, [...path, "measured", "stages", "batch"]);
+  for (const key of [
+    "swm-to-batch",
+    "batch-queue",
+    "w303-schedule",
+    "render-execution",
+    "finish-to-emit",
+    "end-to-end",
+  ]) {
+    requireW306LatencyStats(batchStages[key], [...path, "measured", "stages", "batch", key]);
+  }
+  const frameStages = requireRecord(stages.frame, [...path, "measured", "stages", "frame"]);
+  for (const key of ["swm-store-sojourn", "end-to-end"]) {
+    requireW306LatencyStats(frameStages[key], [...path, "measured", "stages", "frame", key]);
+  }
+  const sourceModel = requireRecord(stages.sourceModel, [
+    ...path,
+    "measured",
+    "stages",
+    "sourceModel",
+  ]);
+  exactKeys(
+    sourceModel,
+    ["worldModelUpdateDeriveMs", "authoredNotMeasured"],
+    [...path, "measured", "stages", "sourceModel"],
+  );
+  requireW306LatencyStats(sourceModel.worldModelUpdateDeriveMs, [
+    ...path,
+    "measured",
+    "stages",
+    "sourceModel",
+    "worldModelUpdateDeriveMs",
+  ]);
+  if (sourceModel.authoredNotMeasured !== true) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "stages", "sourceModel", "authoredNotMeasured"])} ` +
+        "must be true — the authored source model is never presented as measured",
+    );
+  }
+  // The accounting block: the never-silent identity must balance HERE too.
+  const accounting = requireRecord(measured.accounting, [...path, "measured", "accounting"]);
+  exactKeys(accounting, ["frames", "orchestratorStats"], [...path, "measured", "accounting"]);
+  const frames = requireRecord(accounting.frames, [...path, "measured", "accounting", "frames"]);
+  const frameKeys = [
+    "framesIn",
+    "framesEmitted",
+    "framesSkippedStale",
+    "framesDropped",
+    "framesCancelled",
+    "framesDuplicate",
+    "dropReasons",
+    "emittedManifestFrames",
+    "balanced",
+  ];
+  for (const key of Object.keys(frames)) {
+    if (!frameKeys.includes(key)) {
+      throw new RangeError(
+        `assertSuiteReportShape: ${at([...path, "measured", "accounting", "frames"])} carries ` +
+          `unknown key "${key}"`,
+      );
+    }
+  }
+  for (const key of frameKeys) {
+    if (!(key in frames)) {
+      throw new RangeError(
+        `assertSuiteReportShape: ${at([...path, "measured", "accounting", "frames"])} is ` +
+          `missing key "${key}"`,
+      );
+    }
+  }
+  for (const key of [
+    "framesIn",
+    "framesEmitted",
+    "framesSkippedStale",
+    "framesDropped",
+    "framesCancelled",
+    "framesDuplicate",
+    "emittedManifestFrames",
+  ]) {
+    requireFiniteNumber(frames[key], [...path, "measured", "accounting", "frames", key]);
+  }
+  if (frames.balanced !== true) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "accounting", "frames", "balanced"])} ` +
+        "must be true — an unbalanced accounting is a benchmark crash, never a report",
+    );
+  }
+  const framesIn = frames.framesIn as number;
+  const accounted =
+    (frames.framesEmitted as number) +
+    (frames.framesSkippedStale as number) +
+    (frames.framesDropped as number) +
+    (frames.framesCancelled as number) +
+    (frames.framesDuplicate as number);
+  if (framesIn !== accounted) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "accounting", "frames"])} does not ` +
+        "balance (framesIn !== emitted + skippedStale + dropped + cancelled + duplicate) — " +
+        "the never-silent rule extends to consumers reading the suite report",
+    );
+  }
+  if ((frames.framesEmitted as number) !== (frames.emittedManifestFrames as number)) {
+    throw new RangeError(
+      `assertSuiteReportShape: ${at([...path, "measured", "accounting", "frames"])} — ` +
+        "framesEmitted must equal emittedManifestFrames",
+    );
+  }
+  // The SLO verdicts: one per (stage, metric), all pass-consistent.
+  if (measured.sloVerdicts !== null) {
+    if (!Array.isArray(measured.sloVerdicts)) {
+      throw new RangeError(
+        `assertSuiteReportShape: ${at([...path, "measured", "sloVerdicts"])} must be an array ` +
+          "or null",
+      );
+    }
+    measured.sloVerdicts.forEach((verdict, verdictIndex) => {
+      const verdictPath = [...path, "measured", "sloVerdicts", `[${verdictIndex}]`];
+      const verdictRecord = requireRecord(verdict, verdictPath);
+      exactKeys(verdictRecord, ["stage", "metric", "targetMs", "measuredMs", "pass"], verdictPath);
+      requireNonEmptyString(verdictRecord.stage, [...verdictPath, "stage"]);
+      if (verdictRecord.metric !== "p50" && verdictRecord.metric !== "p95") {
+        throw new RangeError(
+          `assertSuiteReportShape: ${at([...verdictPath, "metric"])} must be "p50" or "p95"`,
+        );
+      }
+      requireFiniteNumber(verdictRecord.targetMs, [...verdictPath, "targetMs"]);
+      requireFiniteNumber(verdictRecord.measuredMs, [...verdictPath, "measuredMs"]);
+      requireBoolean(verdictRecord.pass, [...verdictPath, "pass"]);
+    });
+  }
+}
+
 /** Finds the config case a report case must echo (by position). */
 function configCaseAt(config: SuiteConfig, index: number): SuiteCaseConfig {
   const caseConfig = config.cases[index];
@@ -643,8 +892,10 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
       requireW403Details(common.record, index);
     } else if (common.caseKind === "w503-temporal-consistency") {
       requireW503Details(common.record, index);
-    } else {
+    } else if (common.caseKind === "w601-scene-conformance") {
       requireW601Details(common.record, index);
+    } else {
+      requireW306Details(common.record, index);
     }
     // Verdict/reason consistency.
     const reasons = common.record.failureReasons as readonly unknown[];

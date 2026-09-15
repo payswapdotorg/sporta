@@ -16,6 +16,7 @@
   "dependencies": {
     "@sporta/contracts": "workspace:*",
     "@sporta/evaluation": "workspace:*",
+    "@sporta/latency-benchmark": "workspace:*",
     "@sporta/renderer-evaluation": "workspace:*",
     "@sporta/scene-projection": "workspace:*",
     "@sporta/testing": "workspace:*",

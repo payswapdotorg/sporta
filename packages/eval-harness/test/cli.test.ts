@@ -98,7 +98,7 @@ describe("CLI: the human summary (deterministic, from the report only)", () => {
     expect(run.stdout).toContain("case w403-replay-comparability");
     expect(run.stdout).toContain("case w503-temporal-consistency");
     expect(run.stdout).toContain("case w601-scene-conformance");
-    expect(run.stdout).toContain("AGGREGATE VERDICT: PASS — 3/3 case(s) passed (conjunctive)");
+    expect(run.stdout).toContain("AGGREGATE VERDICT: PASS — 4/4 case(s) passed (conjunctive)");
     // The summary never prints a wall clock or a hostname.
     expect(run.stdout).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
   });
@@ -160,7 +160,7 @@ describe("CLI: a FAILING verdict exits 1 (never silent)", () => {
 
     const run = cli(["--suite", path]);
     expect(run.status).toBe(1);
-    expect(run.stdout).toContain("AGGREGATE VERDICT: FAIL — 2/3 case(s) passed (conjunctive)");
+    expect(run.stdout).toContain("AGGREGATE VERDICT: FAIL — 3/4 case(s) passed (conjunctive)");
     expect(run.stdout).toContain("w601-scene-conformance: case crashed: RangeError");
     expect(run.stdout).toContain("FAILURE REASONS");
   });

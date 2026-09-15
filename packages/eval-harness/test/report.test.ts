@@ -15,7 +15,13 @@ import {
   measurePackageVersions,
   serializeSuiteReport,
 } from "../src/index";
-import type { SuiteReport, W403CaseResult, W503CaseResult, W601CaseResult } from "../src/index";
+import type {
+  SuiteReport,
+  W403CaseResult,
+  W503CaseResult,
+  W601CaseResult,
+  W306CaseResult,
+} from "../src/index";
 import { cloneReport, defaultSuiteReport } from "./helpers";
 import type { Mutable } from "./helpers";
 
@@ -107,7 +113,7 @@ describe("report shape: every violation class fails loud", () => {
       // Keep every OTHER consistency invariant intact: counts + attributed
       // reasons agree with the mutated cases — ONLY the verdict is wrong.
       report.aggregate.verdict = "PASS";
-      report.aggregate.passCount = 2;
+      report.aggregate.passCount = 3;
       report.aggregate.failCount = 1;
       report.aggregate.failureReasons = ["w403-replay-comparability: injected failure"];
     });
@@ -141,7 +147,7 @@ describe("report shape: every violation class fails loud", () => {
       report.cases[0]!.failureReasons = ["injected failure"];
       report.aggregate.verdict = "FAIL";
       report.aggregate.failCount = 1;
-      report.aggregate.passCount = 2;
+      report.aggregate.passCount = 3;
       report.aggregate.failureReasons = ["unattributed failure"];
     });
     expect(() => assertSuiteReportShape(value)).toThrow(/not prefixed/);
@@ -189,6 +195,50 @@ describe("report shape: every violation class fails loud", () => {
       (report.cases[2] as Mutable<W601CaseResult>).thresholds!.checkIds = ["made-up-check"];
     });
     expect(() => assertSuiteReportShape(value)).toThrow(/checkIds/);
+  });
+
+  test("W306 thresholds drifting from the benchmark's SLO_CANDIDATES fail", () => {
+    const value = mutate((report) => {
+      const w306 = report.cases[3] as Mutable<W306CaseResult>;
+      w306.thresholds!.candidates = w306.thresholds!.candidates.map((candidate) => ({
+        ...candidate,
+        p95TargetMs: candidate.p95TargetMs + 1,
+      }));
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/SLO_CANDIDATES/);
+  });
+
+  test("W306 measured with an unbalanced accounting fails (never-silent, at parse time)", () => {
+    const value = mutate((report) => {
+      const w306 = report.cases[3] as Mutable<W306CaseResult>;
+      w306.measured!.accounting.frames.framesDropped += 1;
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/does not balance/);
+  });
+
+  test("W306 measured with a stage count of zero fails (never a fabricated zero)", () => {
+    const value = mutate((report) => {
+      const w306 = report.cases[3] as Mutable<W306CaseResult>;
+      w306.measured!.stages.batch["end-to-end"]!.count = 0;
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/count/);
+  });
+
+  test("W306 measured carrying an unknown key fails", () => {
+    const value = mutate((report) => {
+      (
+        (report.cases[3] as Mutable<W306CaseResult>).measured as unknown as Record<string, unknown>
+      ).scoreAverage = 0.42;
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/unknown key "scoreAverage"/);
+  });
+
+  test("W306 measured drifting from the injected clock domain fails", () => {
+    const value = mutate((report) => {
+      const w306 = report.cases[3] as Mutable<W306CaseResult>;
+      w306.measured!.benchmark.clockDomain = "wall-clock" as never;
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/injected-virtual/);
   });
 
   test("W403 measured carrying an unknown key fails", () => {

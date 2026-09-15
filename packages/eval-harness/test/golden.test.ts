@@ -22,7 +22,13 @@ import {
   runSuite,
   serializeSuiteReport,
 } from "../src/index";
-import type { SuiteReport, W403CaseResult, W503CaseResult, W601CaseResult } from "../src/index";
+import type {
+  SuiteReport,
+  W403CaseResult,
+  W503CaseResult,
+  W601CaseResult,
+  W306CaseResult,
+} from "../src/index";
 import { defaultSuiteReport } from "./helpers";
 import type { Mutable } from "./helpers";
 
@@ -79,6 +85,13 @@ describe("golden: mutations fail the drift gate (detection teeth)", () => {
     const mutated = base();
     const w601 = mutated.cases[2] as W601CaseResult;
     w601.measured!.checks[0]!.passed = false;
+    expect(serializeArtifact(mutated)).not.toBe(freshCanonical());
+  });
+
+  test("a tweaked W306 measured latency is detected", () => {
+    const mutated = base();
+    const w306 = mutated.cases[3] as W306CaseResult;
+    w306.measured!.stages.batch["end-to-end"]!.p95Ms += 1;
     expect(serializeArtifact(mutated)).not.toBe(freshCanonical());
   });
 

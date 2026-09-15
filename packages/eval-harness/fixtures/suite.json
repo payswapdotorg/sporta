@@ -1,7 +1,7 @@
 {
   "suiteKind": "sporta/eval-harness/suite-config@1",
   "suiteId": "sporta-eval-harness-default",
-  "suiteVersion": 1,
+  "suiteVersion": 2,
   "cases": [
     {
       "caseName": "w403-replay-comparability",
@@ -32,6 +32,16 @@
       },
       "policy": {
         "evidence": "full"
+      }
+    },
+    {
+      "caseName": "w306-latency-benchmark",
+      "caseKind": "w306-latency-benchmark",
+      "fixture": {
+        "benchmark": "w306-live-fixture"
+      },
+      "policy": {
+        "checkSloCandidates": true
       }
     }
   ]

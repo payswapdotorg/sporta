@@ -1,7 +1,7 @@
 /**
  * W801 runner tests: the suite execution semantics —
  *
- * - the default suite passes 3/3 (real evaluators, real fixtures);
+ * - the default suite passes 4/4 (real evaluators, real fixtures);
  * - the per-case MEASURED VALUES are VERBATIM from the evaluators (each case
  *   deep-equals the evaluator's own direct output for the same input);
  * - thresholds are the evaluators' own exported constants;
@@ -12,6 +12,7 @@
  * - the clock is INJECTED (custom clocks produce custom clock reads).
  */
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { runCrossRunEvaluation, DEFAULT_EPSILON } from "@sporta/evaluation";
@@ -23,13 +24,27 @@ import {
 } from "@sporta/renderer-evaluation";
 import { CAMERA_SLOT_IDS, projectScene, runSceneConformance } from "@sporta/scene-projection";
 import {
+  SLO_CANDIDATES,
+  SLO_CANDIDATE_PROFILE_ID,
+  checkSloCandidates,
+  parseLatencyReport,
+} from "@sporta/latency-benchmark";
+import type { LatencyBenchmarkReport } from "@sporta/latency-benchmark";
+import {
   createStepClock,
   loadSuiteConfig,
   loadW601SceneFixture,
   projectEvaluationReport,
   runSuite,
+  W306_RUN_ONCE_SCRIPT,
 } from "../src/index";
-import type { SuiteReport, W403CaseResult, W503CaseResult, W601CaseResult } from "../src/index";
+import type {
+  SuiteReport,
+  W403CaseResult,
+  W503CaseResult,
+  W601CaseResult,
+  W306CaseResult,
+} from "../src/index";
 import { cloneReport, defaultConfigObject, defaultSuiteReport, scratchPath } from "./helpers";
 
 const LOADED = loadSuiteConfig();
@@ -37,10 +52,10 @@ const LOADED = loadSuiteConfig();
 describe("runner: the default suite (real evaluators, checked-in fixtures)", () => {
   const report = defaultSuiteReport();
 
-  test("the aggregate is PASS, 3/3, conjunctive", () => {
+  test("the aggregate is PASS, 4/4, conjunctive", () => {
     expect(report.aggregate.verdict).toBe("PASS");
-    expect(report.aggregate.caseCount).toBe(3);
-    expect(report.aggregate.passCount).toBe(3);
+    expect(report.aggregate.caseCount).toBe(4);
+    expect(report.aggregate.passCount).toBe(4);
     expect(report.aggregate.failCount).toBe(0);
     expect(report.aggregate.failureReasons).toEqual([]);
   });
@@ -50,6 +65,7 @@ describe("runner: the default suite (real evaluators, checked-in fixtures)", () 
       "w403-replay-comparability",
       "w503-temporal-consistency",
       "w601-scene-conformance",
+      "w306-latency-benchmark",
     ]);
     for (const caseResult of report.cases) {
       expect(caseResult.verdict).toBe("PASS");
@@ -121,6 +137,53 @@ describe("runner: measured values are VERBATIM from the real evaluators", () => 
     expect(caseResult.measured?.passed).toBe(true);
   });
 
+  test("W306 measured is the honest projection of the subprocess's parsed report", () => {
+    const caseResult = report.cases[3] as W306CaseResult;
+    const measured = caseResult.measured;
+    expect(measured).toBeDefined();
+    const run = measured!.run;
+    expect(run.exitCode).toBe(0);
+    expect(run.stdoutBytes).toBeGreaterThan(0);
+    // The subprocess's stderr is the benchmark's deterministic human summary.
+    expect(run.stderr).toContain("W306 end-to-end latency benchmark");
+    expect(run.stderr).toContain("clock domain: injected-virtual");
+    // The projection pin (the W403 precedent): the case's measured deep-equals
+    // a HAND-TRIMMED copy of a SEPARATE subprocess run's parsed report — only
+    // the trace rows are dropped, nothing else is altered (and the two
+    // subprocess runs agreeing IS the byte-determinism property, re-proven
+    // through the harness seam).
+    const direct = directBenchmarkRun();
+    expect(measured).toEqual({
+      run,
+      reportSchema: direct.parsed.reportSchema,
+      benchmark: direct.parsed.benchmark,
+      stages: direct.parsed.stages,
+      accounting: direct.parsed.accounting,
+      stageDefinitions: direct.parsed.stageDefinitions,
+      sloVerdicts: direct.sloVerdicts,
+    });
+    // The dropped rows are really dropped (never carried silently).
+    expect(JSON.stringify(measured)).not.toContain('"trace"');
+    expect(measured!.benchmark.fixture.profileId).toBe("w306-live-fixture");
+    expect(measured!.benchmark.fixture.updateCount).toBe(240);
+    // The SLO verdicts are the benchmark package's own computation, verbatim.
+    expect(measured!.sloVerdicts).toEqual(direct.sloVerdicts);
+  });
+
+  test("W306 SLO verdicts: 12 checks, all met, thresholds verbatim", () => {
+    const caseResult = report.cases[3] as W306CaseResult;
+    expect(caseResult.thresholds?.sloProfileId).toBe(SLO_CANDIDATE_PROFILE_ID);
+    expect(caseResult.thresholds?.candidates).toEqual(SLO_CANDIDATES);
+    const verdicts = caseResult.measured?.sloVerdicts ?? [];
+    expect(verdicts).toHaveLength(12); // 6 stages × {p50, p95}
+    for (const verdict of verdicts) {
+      expect(
+        verdict.pass,
+        `${verdict.stage} ${verdict.metric}: ${String(verdict.measuredMs)} vs ${String(verdict.targetMs)}`,
+      ).toBe(true);
+    }
+  });
+
   test("thresholds are the evaluators' own exported constants", () => {
     const w403 = report.cases[0] as W403CaseResult;
     expect(w403.thresholds?.defaultEpsilon).toBe(DEFAULT_EPSILON);
@@ -130,6 +193,8 @@ describe("runner: measured values are VERBATIM from the real evaluators", () => 
     expect(w601.thresholds?.checkIds).toEqual(
       (report.cases[2] as W601CaseResult).measured?.checks.map((check) => check.checkId),
     );
+    const w306 = report.cases[3] as W306CaseResult;
+    expect(w306.thresholds?.candidates).toEqual(SLO_CANDIDATES);
   });
 });
 
@@ -167,7 +232,15 @@ describe("runner: crash containment (a crashing case never kills the suite)", ()
     expect(failed.error?.errorClass).toBe("RangeError");
     expect(failed.error?.message).toContain("cannot read the scene fixture");
     expect(report.aggregate.verdict).toBe("FAIL");
-    expect(JSON.stringify(report)).not.toContain("skip");
+    // No case is ever SKIPPED (the W306 case's carried W304 stats legitimately
+    // spell "skippedStale" — a real loss bucket, not a skipped case — so the
+    // check targets the case verdicts, never the raw JSON text).
+    for (const caseResult of report.cases) {
+      expect(caseResult.verdict === "FAIL" || caseResult.verdict === "PASS").toBe(true);
+      expect(caseResult).not.toHaveProperty("skipped");
+    }
+    expect(report.cases).toHaveLength(4);
+    expect(report.aggregate.caseCount).toBe(4);
   });
 
   test("a W601 fixture with an unknown camera slot fails the case (loader gate)", () => {
@@ -221,11 +294,12 @@ describe("runner: the clock is injected (never ambient)", () => {
     const clock = createStepClock({ epochMs: 42, stepMs: 1 });
     const report = runSuite(LOADED, { clock });
     expect(report.clock.startMs).toBe(42);
-    expect(report.clock.endMs).toBe(49);
+    expect(report.clock.endMs).toBe(51);
     expect(report.cases.map((c) => [c.clock.startMs, c.clock.endMs])).toEqual([
       [43, 44],
       [45, 46],
       [47, 48],
+      [49, 50],
     ]);
   });
 
@@ -239,9 +313,9 @@ describe("runner: the clock is injected (never ambient)", () => {
         },
       },
     });
-    // 1 suite read + 2 per case + 1 final suite read = 8 reads, all from the seam.
-    expect(reads).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
-    expect(report.clock).toEqual({ startMs: 1_001, endMs: 1_008 });
+    // 1 suite read + 2 per case + 1 final suite read = 10 reads, all from the seam.
+    expect(reads).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(report.clock).toEqual({ startMs: 1_001, endMs: 1_010 });
     expect(report.cases[0]?.clock).toEqual({ startMs: 1_002, endMs: 1_003 });
   });
 
@@ -343,3 +417,24 @@ test("helpers: cloneReport is deep-equal to the source", () => {
   const report: SuiteReport = defaultSuiteReport();
   expect(cloneReport(report)).toEqual(report);
 });
+
+/**
+ * One DIRECT benchmark subprocess run (the W306 case's own seam, invoked
+ * independently): parses the report through the benchmark package's
+ * versioned parser and computes the SLO verdicts — the verbatim evidence the
+ * W306 case's measured is pinned against. Fails the test loud on any
+ * subprocess problem (an expect, never a silent fallback).
+ */
+function directBenchmarkRun(): {
+  parsed: LatencyBenchmarkReport;
+  sloVerdicts: ReturnType<typeof checkSloCandidates>;
+} {
+  const result = spawnSync(process.execPath, [W306_RUN_ONCE_SCRIPT], {
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  expect(result.error).toBeUndefined();
+  expect(result.status).toBe(0);
+  const parsed = parseLatencyReport(JSON.parse(result.stdout ?? ""));
+  return { parsed, sloVerdicts: checkSloCandidates(parsed) };
+}
