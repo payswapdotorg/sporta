@@ -589,6 +589,10 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
   let passCount = 0;
   let failCount = 0;
   const aggregateReasonPrefixes: string[] = [];
+  // The previous case's endMs — case clock windows must not regress across
+  // the run (the runner reads suiteStart, then start/end per case in order,
+  // then suiteEnd; a monotonic clock therefore yields non-decreasing windows).
+  let previousCaseEndMs: number | undefined;
   root.cases.forEach((caseResult, index) => {
     const common = requireCaseCommon(caseResult, index);
     const casePath = ["$", "cases", `[${index}]`];
@@ -622,6 +626,18 @@ export function assertSuiteReportShape(report: unknown): asserts report is Suite
           "monotonic across the run",
       );
     }
+    // The case clock windows must not regress across the run either: cases
+    // run in declared order on one monotonic clock, so case N's startMs must
+    // be >= case N-1's endMs (containment alone let a swapped-window report
+    // through — pinned by the report-shape regression test).
+    if (previousCaseEndMs !== undefined && common.clock.startMs < previousCaseEndMs) {
+      throw new RangeError(
+        `assertSuiteReportShape: ${at([...casePath, "clock"])} regresses before the previous ` +
+          `case's endMs (${previousCaseEndMs}) — injected-clock reads must be monotonic across ` +
+          "the run",
+      );
+    }
+    previousCaseEndMs = common.clock.endMs;
     // Kind-specific details.
     if (common.caseKind === "w403-replay-comparability") {
       requireW403Details(common.record, index);

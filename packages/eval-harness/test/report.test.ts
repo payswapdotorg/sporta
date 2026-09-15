@@ -201,6 +201,18 @@ describe("report shape: every violation class fails loud", () => {
     });
     expect(() => assertSuiteReportShape(value)).toThrow(/unknown key "scoreAverage"/);
   });
+
+  test("an inter-case injected-clock regression fails (monotonic across the run)", () => {
+    const value = mutate((report) => {
+      // Case 3's window moves BACK before case 2's, while staying inside the
+      // suite window and internally monotone — ONLY the run-order invariant
+      // breaks (this pinned the self-check gap: the containment check alone
+      // let such a report through).
+      const early = report.cases[0]!.clock;
+      report.cases[2]!.clock = { startMs: early.startMs, endMs: early.endMs };
+    });
+    expect(() => assertSuiteReportShape(value)).toThrow(/monotonic/);
+  });
 });
 
 describe("environment honesty: versions are measured from the workspace", () => {
