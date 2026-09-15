@@ -1,8 +1,8 @@
 /**
- * The W602 render paths: validated input → deterministic SVG frame
+ * The W602/W603 render paths: validated input → deterministic SVG frame
  * sequence + manifest + contract `RenderResult`.
  *
- * Two entry points share one core (`./scene.ts` `resolve3dFrame` +
+ * Three entry points share one core (`./scene.ts` `resolve3dFrame` +
  * `./svg.ts` `composeFrame3dSvg`):
  *
  * - {@link render3dFromSnapshot}: the RENDERER-CONTRACT path — one immutable
@@ -17,19 +17,32 @@
  * - {@link render3dClip}: the CLIP path — a timeline of W601 scene
  *   specifications (one per step, e.g. `projectScene(stateAt(engine, t))`
  *   with per-step `eventWindow` markers). Each step renders one frame from
- *   its OWN spec — real motion, per-frame provenance (the W602 benchmark
- *   path).
+ *   its OWN spec — real per-snapshot motion, per-frame provenance (the W602
+ *   benchmark path).
+ * - {@link render3dMatch}: the MATCH-PROGRESSION path (W603) — the same
+ *   timeline of scene specifications, but rendered as a coherent ANIMATED
+ *   sequence at the output profile's frame rate: one frame per frame
+ *   interval, with deterministic constant-velocity interpolation between
+ *   consecutive snapshots' known positions (the motion model in
+ *   `./interpolate.ts`), per-frame interpolation provenance (INFERRED
+ *   positions marked, never claimed observed), discontinuities accounted
+ *   and never blended across (declared scene cuts, disposition changes,
+ *   missing positions, physical-velocity bounds), a stable camera within
+ *   each segment, markers landing at their timeline positions, and
+ *   score/clock display state advancing exactly as the specs state it.
  *
- * Both are PURE: no clocks, no RNG, no I/O — the same request over the same
- * input yields a deep-equal output on every call (pinned by tests).
+ * All three are PURE: no clocks, no RNG, no I/O — the same request over the
+ * same input yields a deep-equal output on every call (pinned by tests).
  *
  * Fail-closed admission ({@link admitRequest}) is re-run by every render
  * entry point (defense in depth — `render` never assumes prior
  * `validateRequest`), and malformed render input fails LOUD with
  * `RendererContractError` (`media-invalid`): schema-invalid snapshots or
  * event entries, session mismatches, non-ascending event sequences,
- * schema-invalid or version-incompatible scene specifications, and unknown
- * or uncarried camera slots are never silently tolerated.
+ * schema-invalid or version-incompatible scene specifications, unknown or
+ * uncarried camera slots, regressing snapshot watermarks (mixed replay
+ * branches), and render work beyond {@link MAX_RENDER_FRAMES} are never
+ * silently tolerated.
  */
 import { WorldEventStreamEntry, WorldSnapshot } from "@sporta/contracts";
 import type { RenderRequest, RenderResult } from "@sporta/contracts";
@@ -51,10 +64,12 @@ import {
   DEFAULT_CAMERA_SLOT_ID,
   DEFAULT_DURATION_MS,
   MAX_DURATION_MS,
+  MAX_RENDER_FRAMES,
   MIN_DURATION_MS,
   avatarFieldCapability,
 } from "./identity";
 import { cameraLabel, eventChipText, statusLine } from "./hud";
+import { interpolateMatchFrame, sceneCutHeldProvenance } from "./interpolate";
 import { resolve3dFrame } from "./scene";
 import { composeFrame3dSvg } from "./svg";
 import { FOCAL_PX, NEAR_PLANE_METERS } from "./camera";
@@ -63,8 +78,11 @@ import type {
   AvatarField3dClipStep,
   AvatarField3dFrame,
   AvatarField3dManifest,
+  AvatarField3dMatchStep,
   AvatarField3dRenderOutput,
   AvatarField3dStyleConfig,
+  MatchEntityProvenanceEntry,
+  Render3dEntityEntry,
   Render3dFrameEntry,
   Render3dMarkerEntry,
   Render3dSkippedMarker,
@@ -501,6 +519,7 @@ export function render3dFromSnapshot(
   const durationMs = style.durationMs;
   const windowEndMs = startMs + durationMs;
   const frameCount = Math.max(1, Math.ceil(durationMs / intervalMs));
+  enforceFrameBudget(frameCount, intervalMs);
   const canvas = {
     width: req.outputProfile.resolution.w,
     height: req.outputProfile.resolution.h,
@@ -812,4 +831,437 @@ export function render3dClip(
     degradation: manifest.degradation,
   });
   return { result, frames, manifest };
+}
+
+// ---------------------------------------------------------------------------
+// Path 3: the match-progression path (W603 — interpolated timeline)
+// ---------------------------------------------------------------------------
+
+/**
+ * Validates match steps: the clip-path rules (non-empty; finite
+ * `atMs >= 0` strictly increasing; each scene schema-valid,
+ * version-compatible, session-consistent) PLUS the match-path rules:
+ *
+ * - `sceneCutBefore`, when present, must be a boolean (a declared flag —
+ *   never a truthy coercion);
+ * - every step's scene must CARRY the requested camera slot (fail loud up
+ *   front, before any frame is synthesized);
+ * - the steps' `source.watermark.sequence` values must be NON-DECREASING —
+ *   the W006 engine's snapshots at ascending times have monotone watermark
+ *   sequences, so a regression means the caller mixed replay branches;
+ *   refusing is safer than interpolating across inconsistent provenance.
+ *
+ * Returns the parsed scenes (one per step, in step order) so the render
+ * loop never re-parses.
+ */
+function enforceValidMatchSteps(
+  req: RenderRequest,
+  steps: readonly AvatarField3dMatchStep[],
+  cameraSlotId: string,
+): SceneSpecificationDoc[] {
+  if (!Array.isArray(steps) || steps.length === 0) {
+    throw new RendererContractError(
+      "render3dMatch requires a non-empty array of match steps",
+      "media-invalid",
+      { sessionId: req.sessionId },
+    );
+  }
+  const scenes: SceneSpecificationDoc[] = [];
+  let previousAtMs: number | undefined;
+  let previousWatermarkSequence: number | undefined;
+  for (let i = 0; i < steps.length; i += 1) {
+    const step = steps[i]!;
+    if (step === null || typeof step !== "object" || Array.isArray(step)) {
+      throw new RendererContractError(
+        `match steps[${i}] must be an AvatarField3dMatchStep object`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i },
+      );
+    }
+    const atMs = step.atMs;
+    if (typeof atMs !== "number" || !Number.isFinite(atMs) || atMs < 0) {
+      throw new RendererContractError(
+        `match steps[${i}].atMs must be a finite number >= 0 (got ${describeValue(atMs)})`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i },
+      );
+    }
+    if (previousAtMs !== undefined && atMs <= previousAtMs) {
+      throw new RendererContractError(
+        `match steps must have strictly increasing atMs (steps[${i}].atMs ${atMs} <= ${previousAtMs})`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i },
+      );
+    }
+    previousAtMs = atMs;
+    if (step.sceneCutBefore !== undefined && typeof step.sceneCutBefore !== "boolean") {
+      throw new RendererContractError(
+        `match steps[${i}].sceneCutBefore must be a boolean when present (got ${describeValue(step.sceneCutBefore)})`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i },
+      );
+    }
+    if (step.scene === undefined) {
+      throw new RendererContractError(
+        `match steps[${i}].scene must be a SceneSpecification (got undefined)`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i },
+      );
+    }
+    const scene = enforceValidScene(req, step.scene, i);
+    enforceCarriedSlot(scene, cameraSlotId, i);
+    const sequence = scene.source.watermark.sequence;
+    if (previousWatermarkSequence !== undefined && sequence < previousWatermarkSequence) {
+      throw new RendererContractError(
+        `match steps[${i}].scene declares watermark sequence ${sequence} < the previous step's ${previousWatermarkSequence} — snapshots from mixed replay branches must not be interpolated across`,
+        "media-invalid",
+        { sessionId: req.sessionId, index: i, sequence, previousWatermarkSequence },
+      );
+    }
+    previousWatermarkSequence = sequence;
+    scenes.push(scene);
+  }
+  return scenes;
+}
+
+/**
+ * Enforces the per-render frame budget ({@link MAX_RENDER_FRAMES}): a
+ * fail-loud `media-invalid` (bounded render work — the W602 1 fps × 1 h
+ * worst case is now the universal bound; longer animated timelines belong
+ * to the W304 watermark-batched orchestration seam).
+ */
+function enforceFrameBudget(frameCount: number, intervalMs: number): void {
+  if (frameCount > MAX_RENDER_FRAMES) {
+    throw new RendererContractError(
+      `the requested render implies ${frameCount} frames at a ${intervalMs} ms interval, beyond the per-render budget of ${MAX_RENDER_FRAMES} frames — reduce the duration or the frame rate (longer animated timelines belong to the watermark-batched orchestration seam)`,
+      "media-invalid",
+      { frameCount, frameIntervalMs: intervalMs, maxRenderFrames: MAX_RENDER_FRAMES },
+    );
+  }
+}
+
+/** One planned match frame (before rendering). */
+interface PlannedMatchFrame {
+  /** The frame's timeline position (milliseconds). */
+  frameMs: number;
+  /** The frame's window end (the next frame position or the segment end). */
+  windowEndMs: number;
+  /** The authoritative (from) step index. */
+  segmentIndex: number;
+  /** Observed (on a step's atMs) / interpolated (between steps) / held (scene cut). */
+  kind: "observed" | "interpolated" | "held";
+  /** The interpolation fraction (0 for observed/held; (0, 1) for interpolated). */
+  fraction: number;
+}
+
+/**
+ * Renders the MATCH PROGRESSION (W603): a timeline of W601 scene
+ * specifications (typically `projectScene(stateAt(engine, t).snapshot,
+ * { events: eventWindow(...) })` per step — the W402-style snapshot
+ * windows) as one coherent animated sequence at the output profile's frame
+ * rate. "Match progression rendered from SWM rather than replaying
+ * broadcast pixels."
+ *
+ * ## The frame plan (deterministic; no clock reads — pure arithmetic over
+ * the timeline's own `atMs` values)
+ *
+ * Frames are planned PER SEGMENT (each pair of consecutive steps): frames
+ * at `t₀ + j·interval` for `j = 0 … ceil(span/interval) − 1`, each with
+ * window `[frameMs, min(frameMs + interval, t₁))`. This guarantees an
+ * OBSERVED frame exactly at every step's `atMs` (each snapshot's true state
+ * is shown verbatim — never skipped by grid drift), tiles the timeline
+ * without overlaps (R8-shape segments), and caps the cadence at the
+ * profile's frame rate (snapshots DENSER than the frame interval yield
+ * their own observed cadence — the frame rate is a cap, never an
+ * invention). The LAST step renders one observed frame covering its tail
+ * window `[t_last, t_last + interval)`. Total frames =
+ * `Σ ceil(span_i / interval) + 1`, bounded by {@link MAX_RENDER_FRAMES}.
+ *
+ * ## Motion (the model lives in `./interpolate.ts`)
+ *
+ * Frames strictly between two steps render the interpolated scene:
+ * constant-velocity segments between the snapshots' known positions
+ * (INFERRED — every frame's manifest records the snapshot pair + fraction,
+ * every interpolated position is marked `positionProvenance:
+ * "interpolated"`, never claimed observed); discontinuities are HELD and
+ * accounted (declared scene cuts render the from-scene verbatim;
+ * disposition changes, missing positions, physical-velocity bounds, and
+ * entities absent from the to-spec hold the from-spec's verbatim values).
+ *
+ * ## Presentation coherence
+ *
+ * - **Camera**: STABLE within each segment — the from-step's carried slot
+ *   (the renderer never moves the camera; a camera change is a W604 cut
+ *   that lands at a snapshot boundary, never mid-segment). The manifest's
+ *   camera block records the FIRST step's slot (the W602 clip-path
+ *   convention); each frame's HUD label shows its own actual slot.
+ * - **Score/clock/possession**: the from-step's `scoreClock` VERBATIM —
+ *   displayed state advances exactly as the specs state it, at snapshot
+ *   boundaries; the clock never ticks by frame time (that would invent
+ *   match time).
+ * - **Markers**: the union of all steps' event markers (deduplicated by
+ *   sequence, first occurrence) assigned to the frame whose window
+ *   contains each marker's `eventTimeMs` — every marker appears at its
+ *   timeline position in exactly one frame's HUD (or its not-displayed
+ *   accounting). Markers outside `[start, end)` are skipped with accounted
+ *   reasons AND set `degraded` with `"markers-outside-render-window"` (R7
+ *   — the single-snapshot-path semantics).
+ * - **`durationMs` is IGNORED** (the timeline's extent IS the duration:
+ *   `lastAtMs + interval − firstAtMs`), exactly like the clip path.
+ *
+ * ## Provenance/watermark (the R5/R6 analogs)
+ *
+ * - `provenance.lastEventSequence` = the highest APPLIED marker sequence
+ *   (0 when none) — never more (R5);
+ * - `watermarkAfter.watermarkMs` = the render end (`t_last + interval`);
+ *   `watermarkAfter.sequence` = the MAXIMUM of the last step's scene
+ *   watermark sequence and every consumed marker sequence — never less
+ *   than anything the render consumed (the strict superset of the clip
+ *   path's rule, documented).
+ */
+export function render3dMatch(
+  req: RenderRequest,
+  steps: readonly AvatarField3dMatchStep[],
+): AvatarField3dRenderOutput {
+  const style = enforceAdmission(req);
+  const scenes = enforceValidMatchSteps(req, steps, style.cameraSlotId);
+
+  const intervalMs = frameIntervalMsOf(req.outputProfile);
+  const canvas = {
+    width: req.outputProfile.resolution.w,
+    height: req.outputProfile.resolution.h,
+  };
+
+  // The marker union: every step's markers, deduplicated by sequence
+  // (first occurrence wins — steps are in ascending timeline order).
+  const markerUnion: SceneSpecificationDoc["eventMarkers"] = [];
+  const seenMarkerSequences = new Set<number>();
+  let maxMarkerSequence = 0;
+  for (const scene of scenes) {
+    for (const marker of scene.eventMarkers) {
+      if (!seenMarkerSequences.has(marker.sequence)) {
+        seenMarkerSequences.add(marker.sequence);
+        markerUnion.push(marker);
+        if (marker.sequence > maxMarkerSequence) maxMarkerSequence = marker.sequence;
+      }
+    }
+  }
+
+  // The frame plan (per-segment grids + the last step's observed tail).
+  const plan: PlannedMatchFrame[] = [];
+  for (let i = 0; i + 1 < steps.length; i += 1) {
+    const fromMs = steps[i]!.atMs;
+    const toMs = steps[i + 1]!.atMs;
+    const span = toMs - fromMs;
+    const framesInSegment = Math.max(1, Math.ceil(span / intervalMs));
+    const sceneCut = steps[i + 1]!.sceneCutBefore === true;
+    for (let j = 0; j < framesInSegment; j += 1) {
+      const frameMs = fromMs + j * intervalMs;
+      // The fraction contract (`Render3dMatchInterpolation`): a nonzero
+      // fraction is recorded ONLY on interpolated frames — observed frames
+      // sit exactly on a snapshot (no interpolation) and cut-held frames
+      // interpolate NOTHING (the whole scene is the from-spec verbatim, so
+      // there is no interpolation parameter to report). 0 otherwise.
+      const kind: PlannedMatchFrame["kind"] =
+        j === 0 ? "observed" : sceneCut ? "held" : "interpolated";
+      plan.push({
+        frameMs,
+        windowEndMs: Math.min(frameMs + intervalMs, toMs),
+        segmentIndex: i,
+        kind,
+        fraction: kind === "interpolated" ? (frameMs - fromMs) / span : 0,
+      });
+    }
+  }
+  const lastIndex = steps.length - 1;
+  const lastAtMs = steps[lastIndex]!.atMs;
+  const endMs = lastAtMs + intervalMs;
+  plan.push({
+    frameMs: lastAtMs,
+    windowEndMs: endMs,
+    segmentIndex: lastIndex,
+    kind: "observed",
+    fraction: 0,
+  });
+  enforceFrameBudget(plan.length, intervalMs);
+
+  const startMs = steps[0]!.atMs;
+  const durationMs = endMs - startMs;
+
+  const frames: AvatarField3dFrame[] = [];
+  const manifestFrames: Render3dFrameEntry[] = [];
+  const segments: RenderResult["outputSegments"] = [];
+  let lastEventSequence = 0;
+  let firstSlot: SceneCameraSlot | undefined;
+  for (let index = 0; index < plan.length; index += 1) {
+    const planned = plan[index]!;
+    const segmentIndex = planned.segmentIndex;
+    const fromStep = steps[segmentIndex]!;
+    const fromScene = scenes[segmentIndex]!;
+    const slot = enforceCarriedSlot(fromScene, style.cameraSlotId, segmentIndex);
+    if (index === 0) firstSlot = slot;
+
+    // The scene this frame renders + its per-entity position provenance.
+    let scene: SceneSpecificationDoc;
+    let entityProvenance: MatchEntityProvenanceEntry[] | null = null;
+    if (planned.kind === "interpolated") {
+      const toScene = scenes[segmentIndex + 1]!;
+      const spanMs = steps[segmentIndex + 1]!.atMs - fromStep.atMs;
+      const interpolated = interpolateMatchFrame({
+        from: fromScene,
+        to: toScene,
+        fraction: planned.fraction,
+        spanMs,
+      });
+      scene = interpolated.scene;
+      entityProvenance = interpolated.entities;
+    } else {
+      scene = fromScene;
+      if (planned.kind === "held") {
+        entityProvenance = sceneCutHeldProvenance(fromScene);
+      }
+    }
+
+    const resolved = resolve3dFrame({ scene, cameraSlot: slot, canvas });
+    // Markers: each lands in the ONE frame whose window contains its time.
+    const frameMarkers = markerUnion.filter(
+      (marker) =>
+        marker.event.eventTimeMs >= planned.frameMs &&
+        marker.event.eventTimeMs < planned.windowEndMs,
+    );
+    for (const marker of frameMarkers) {
+      if (marker.sequence > lastEventSequence) lastEventSequence = marker.sequence;
+    }
+    const accounting = markerAccounting(frameMarkers);
+    const line = statusLine(scene.scoreClock) ?? null;
+    const svg = composeFrame3dSvg({
+      frameIndex: index,
+      camera: resolved.camera,
+      canvas,
+      field: resolved.field,
+      entities: resolved.entities,
+      possession: resolved.possessionDrawable,
+      hud: {
+        statusLine: line,
+        cameraLabel: cameraLabel(slot.slotId),
+        eventChips: accounting.chips,
+      },
+    });
+    frames.push({ frameIndex: index, outputTimestampMs: planned.frameMs, svg });
+    manifestFrames.push({
+      frameIndex: index,
+      outputTimestampMs: planned.frameMs,
+      windowMs: { startMs: planned.frameMs, endMs: planned.windowEndMs },
+      interpolation: {
+        kind: planned.kind,
+        fromStepIndex: segmentIndex,
+        ...(segmentIndex + 1 < steps.length
+          ? { toStepIndex: segmentIndex + 1, toAtMs: steps[segmentIndex + 1]!.atMs }
+          : {}),
+        fromAtMs: fromStep.atMs,
+        fraction: planned.fraction,
+        sceneCut: planned.kind === "held",
+      },
+      source: {
+        watermark: {
+          sequence: scene.source.watermark.sequence,
+          watermarkMs: scene.source.watermark.watermarkMs,
+        },
+        generatedAtMs: scene.source.generatedAtMs,
+        footballState: scene.source.footballState,
+        sceneSchemaVersion: scene.sceneSchemaVersion,
+      },
+      appliedMarkerSequences: accounting.markers.map((marker) => marker.sequence),
+      markers: accounting.markers,
+      hud: {
+        statusLine: line,
+        cameraLabel: cameraLabel(slot.slotId),
+        eventChips: accounting.chips,
+        markersNotDisplayed: accounting.notDisplayed,
+      },
+      possession: resolved.possession,
+      entities:
+        entityProvenance === null
+          ? resolved.manifestEntities
+          : applyEntityProvenance(resolved.manifestEntities, entityProvenance),
+    });
+    segments.push({
+      segmentId: `scene3d-${index}`,
+      startMs: planned.frameMs,
+      endMs: planned.windowEndMs,
+      artifactRef: artifactRefOf(req, index),
+    });
+  }
+
+  // Skipped markers: outside [startMs, endMs) — accounted + degradation.
+  const skipped: Render3dSkippedMarker[] = markerUnion
+    .filter((marker) => marker.event.eventTimeMs < startMs || marker.event.eventTimeMs >= endMs)
+    .map((marker) => ({
+      sequence: marker.sequence,
+      eventId: marker.event.eventId,
+      eventTimeMs: marker.event.eventTimeMs,
+      reason:
+        marker.event.eventTimeMs < startMs ? ("before-window" as const) : ("after-window" as const),
+    }));
+
+  const lastSceneWatermark = scenes[lastIndex]!.source.watermark.sequence;
+  const watermarkAfter = {
+    watermarkMs: endMs,
+    sequence: Math.max(lastSceneWatermark, maxMarkerSequence),
+  };
+
+  const reasons: string[] = [];
+  if (skipped.length > 0) reasons.push("markers-outside-render-window");
+  if (style.simulateDegradation) reasons.push("simulated-degradation");
+
+  const manifest: AvatarField3dManifest = {
+    renderer: {
+      rendererId: AVATAR_FIELD_RENDERER_ID,
+      rendererVersion: AVATAR_FIELD_RENDERER_VERSION,
+      styleId: req.styleConfig.styleId,
+      configSchemaVersion: req.styleConfig.configSchemaVersion,
+    },
+    camera: cameraBlockOf(firstSlot!),
+    session: {
+      sessionId: req.sessionId,
+      snapshotVersion: req.snapshotVersion,
+      eventsSinceSequence: req.eventsSinceSequence,
+    },
+    output: { profile: req.outputProfile, startMs, frameIntervalMs: intervalMs, durationMs },
+    provenance: { snapshotVersion: req.snapshotVersion, lastEventSequence },
+    watermarkAfter,
+    frames: manifestFrames,
+    skippedMarkers: skipped,
+    degradation: { degraded: reasons.length > 0, reasons },
+  };
+  const result = toRenderResult({
+    req,
+    segments,
+    watermarkAfter,
+    provenance: manifest.provenance,
+    degradation: manifest.degradation,
+  });
+  return { result, frames, manifest };
+}
+
+/**
+ * Overlays the motion model's per-entity provenance onto the resolved
+ * manifest entries (fresh objects — the resolved entries are never
+ * mutated). Every from-spec entity has exactly one provenance entry
+ * (total accounting).
+ */
+function applyEntityProvenance(
+  manifestEntities: readonly Render3dEntityEntry[],
+  provenance: readonly MatchEntityProvenanceEntry[],
+): Render3dEntityEntry[] {
+  const byId = new Map(provenance.map((entry) => [entry.entityId, entry.provenance] as const));
+  return manifestEntities.map((entry) => {
+    const mark = byId.get(entry.entityId);
+    if (mark === undefined) return entry;
+    return {
+      ...entry,
+      positionProvenance: mark.positionProvenance,
+      ...(mark.positionProvenance === "held" ? { heldReason: mark.heldReason } : {}),
+    };
+  });
 }

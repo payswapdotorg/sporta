@@ -8,6 +8,8 @@ import type { RendererContext } from "@sporta/renderer-contract";
 import { RenderResult } from "@sporta/contracts";
 import type { RenderResult as RenderResultDoc } from "@sporta/contracts";
 import {
+  AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE,
+  AVATAR_FIELD_GAME_OUTPUT_PROFILE,
   AVATAR_FIELD_RENDERER_ID,
   AVATAR_FIELD_RENDERER_VERSION,
   createAvatarFieldRenderer,
@@ -63,6 +65,28 @@ describe("validateRequest — admission gates (R3 + rights + style)", () => {
       build3dRequest({ outputProfile: { ...build3dRequest().outputProfile, frameRate: 30 } }),
     );
     expect(rejection).toMatchObject({ ok: false, failureClass: "media-invalid" });
+  });
+
+  test("accepts the W603 animated + game-style output profiles (the capability grew them)", () => {
+    const { plugin, input } = setup();
+    // R3 admission through the REAL plugin seam: the 5 fps animated review
+    // profile and the 25 fps game-style profile are on the capability list.
+    expect(
+      plugin.validateRequest(
+        build3dRequest({ outputProfile: AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE }),
+      ),
+    ).toEqual({ ok: true });
+    expect(
+      plugin.validateRequest(build3dRequest({ outputProfile: AVATAR_FIELD_GAME_OUTPUT_PROFILE })),
+    ).toEqual({ ok: true });
+    // And they RENDER: the single-snapshot path at 5 fps over the default
+    // 6000 ms duration → ceil(6000/200) = 30 frames (200 ms apart).
+    const result = plugin.render(
+      build3dRequest({ outputProfile: AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE }),
+      input,
+    );
+    expect(result.outputSegments).toHaveLength(30);
+    expect(result.outputSegments[1]!.startMs).toBe(1_200);
   });
 
   test("rejects a stale snapshot version with media-invalid (R3)", () => {
@@ -252,6 +276,19 @@ describe("RendererRegistry integration", () => {
     const result = plugin.render(req, input) as RenderResultDoc;
     expect(result.rendererId).toBe(AVATAR_FIELD_RENDERER_ID);
     expect(result.outputSegments).toHaveLength(6);
+  });
+
+  test("the registry seam renders the W603 animated profile end-to-end", () => {
+    const registry = new RendererRegistry();
+    registry.register(createAvatarFieldRenderer());
+    const plugin = registry.resolve(AVATAR_FIELD_RENDERER_ID, AVATAR_FIELD_RENDERER_VERSION);
+    const req = build3dRequest({ outputProfile: AVATAR_FIELD_ANIMATED_OUTPUT_PROFILE });
+    const result = plugin.render(req, {
+      snapshot: buildFixtureSnapshot(0),
+      events: [],
+    }) as RenderResultDoc;
+    expect(result.outputSegments).toHaveLength(30); // 5 fps × 6000 ms
+    expect(result.provenance.lastEventSequence).toBe(0);
   });
 
   test("coexists with the W501 test-card renderer (replaceable plugins)", () => {

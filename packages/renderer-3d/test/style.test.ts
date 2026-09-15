@@ -24,9 +24,12 @@ describe("fnv1a32 — the deterministic hash (known test vectors)", () => {
     expect(fnv1a32("foobar")).toBe(0xbf9cf968);
   });
 
-  test("pinned hashes for the composite style inputs", () => {
+  test("pinned hashes for the composite style inputs (0.1.0 key + the 0.2.0 key)", () => {
     expect(fnv1a32("avatar-field.prototype:0.1.0:striker-9")).toBe(2_086_319_900);
     expect(fnv1a32("avatar-field.prototype:0.1.0:winger-7")).toBe(4_075_311_610);
+    // The W603 bump's key (re-pinned):
+    expect(fnv1a32("avatar-field.prototype:0.2.0:striker-9")).toBe(2_712_985_589);
+    expect(fnv1a32("avatar-field.prototype:0.2.0:winger-7")).toBe(3_701_444_837);
   });
 });
 
@@ -57,11 +60,17 @@ describe("stableAvatarStyle — identity-stable, version-independent", () => {
   });
 
   test("a different styleKey (renderer version bump) restyles — the ONLY restyle path", () => {
+    // The W603 0.2.0 bump is the restyle moment: striker-9 moves from the
+    // 0.1.0 entry (index 4) to the 0.2.0 entry (index 5) — the W602
+    // documented restyle semantics, now exercised in production.
     const underThis = stableAvatarStyle("avatar-field.prototype:0.1.0", "striker-9");
-    const underNext = stableAvatarStyle("avatar-field.prototype:0.2.0", "striker-9");
+    const underCurrent = stableAvatarStyle("avatar-field.prototype:0.2.0", "striker-9");
+    const underNext = stableAvatarStyle("avatar-field.prototype:0.3.0", "striker-9");
     expect(underThis.paletteIndex).toBe(4);
-    expect(underNext).toEqual({ paletteIndex: 5, jersey: "#00b4d8", trim: "#e63946" });
-    expect(underNext.paletteIndex).not.toBe(underThis.paletteIndex);
+    expect(underCurrent).toEqual({ paletteIndex: 5, jersey: "#00b4d8", trim: "#e63946" });
+    expect(underNext).toEqual({ paletteIndex: 6, jersey: "#ef476f", trim: "#f8f9fa" });
+    expect(underCurrent.paletteIndex).not.toBe(underThis.paletteIndex);
+    expect(underNext.paletteIndex).not.toBe(underCurrent.paletteIndex);
   });
 
   test("the palette table: 8 two-tone entries, valid hex colors", () => {
@@ -80,7 +89,7 @@ describe("stableAvatarStyle — identity-stable, version-independent", () => {
   });
 
   test("avatarFieldStyleKey derives from the renderer identity", () => {
-    expect(avatarFieldStyleKey()).toBe("avatar-field.prototype:0.1.0");
+    expect(avatarFieldStyleKey()).toBe("avatar-field.prototype:0.2.0");
   });
 
   test("avatarEntityStyle ignores the entity's SWM version (no-flicker by construction)", () => {

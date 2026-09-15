@@ -120,8 +120,9 @@ describe("render3dClip — the benchmark clip path (one frame per step)", () => 
     expect(striker.map((entry) => entry.version)).toEqual([3, 4, 5, 6, 7, 8]);
     const styleTokens = striker.map((entry) => JSON.stringify(entry.style));
     expect(new Set(styleTokens).size).toBe(1);
+    // Re-keyed by the 0.2.0 bump (the sanctioned restyle moment):
     expect(styleTokens[0]).toBe(
-      JSON.stringify({ paletteIndex: 4, jersey: "#9b5de5", trim: "#ffd23f" }),
+      JSON.stringify({ paletteIndex: 5, jersey: "#00b4d8", trim: "#e63946" }),
     );
   });
 
