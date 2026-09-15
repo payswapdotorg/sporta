@@ -1,0 +1,1276 @@
+{
+  "aggregate": {
+    "caseCount": 3,
+    "failCount": 0,
+    "failureReasons": [],
+    "passCount": 3,
+    "verdict": "PASS"
+  },
+  "cases": [
+    {
+      "caseKind": "w403-replay-comparability",
+      "caseName": "w403-replay-comparability",
+      "clock": {
+        "endMs": 1736164800002,
+        "startMs": 1736164800001
+      },
+      "failureReasons": [],
+      "fixture": {
+        "fixturePath": "../../evaluation/fixtures/w403-fixture.json",
+        "goldenPath": "../../evaluation/fixtures/golden/w403-golden.json"
+      },
+      "measured": {
+        "failureReasons": [],
+        "golden": {
+          "byteIdentical": true,
+          "label": "run 1 ↔ golden",
+          "report": {
+            "diffCount": 0,
+            "diffs": [],
+            "passed": true,
+            "summary": {
+              "countFieldsCompared": 15,
+              "epsilonFieldsCompared": 20,
+              "exactFieldsCompared": 246,
+              "maxAbsDeviation": 0,
+              "setArraysCompared": 12
+            }
+          }
+        },
+        "pairwise": [
+          {
+            "byteIdentical": true,
+            "label": "run 1 ↔ run 2",
+            "report": {
+              "diffCount": 0,
+              "diffs": [],
+              "passed": true,
+              "summary": {
+                "countFieldsCompared": 15,
+                "epsilonFieldsCompared": 20,
+                "exactFieldsCompared": 246,
+                "maxAbsDeviation": 0,
+                "setArraysCompared": 12
+              }
+            }
+          }
+        ],
+        "runs": [
+          {
+            "exitCode": 0,
+            "runIndex": 1,
+            "stderr": ""
+          },
+          {
+            "exitCode": 0,
+            "runIndex": 2,
+            "stderr": ""
+          }
+        ],
+        "runsCompleted": 2
+      },
+      "policy": {
+        "runs": 2
+      },
+      "thresholds": {
+        "defaultEpsilon": 1e-9,
+        "toleranceDocument": "packages/evaluation/TOLERANCE.md"
+      },
+      "verdict": "PASS"
+    },
+    {
+      "caseKind": "w503-temporal-consistency",
+      "caseName": "w503-temporal-consistency",
+      "clock": {
+        "endMs": 1736164800004,
+        "startMs": 1736164800003
+      },
+      "failureReasons": [],
+      "fixture": {
+        "clip": "w503-clean-fixture"
+      },
+      "measured": {
+        "detectionProof": [
+          {
+            "detected": true,
+            "failingMetrics": [
+              "identity.unexplainedAbsenceCount",
+              "identity.flickerCount",
+              "artifacts.possessionDisplayMismatchCount"
+            ],
+            "injection": "identity flicker (unexplained entity absence)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["identity.styleStabilityRatio"],
+            "injection": "style instability (restyled entity on one frame)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["styleBytes.stabilityRatio"],
+            "injection": "SVG byte-level style instability (manifest token untouched)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["geometry.jumpCount", "geometry.maxJumpRatio"],
+            "injection": "geometry drift (teleported player)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": [
+              "artifacts.watermarkSequenceRegressionCount",
+              "artifacts.watermarkTimeRegressionCount"
+            ],
+            "injection": "watermark regression"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["artifacts.dispositionFlapCount"],
+            "injection": "disposition flapping (drawn→omitted→drawn)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["artifacts.appliedGapCount"],
+            "injection": "applied-sequence gap (silently dropped event)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": [
+              "artifacts.captionDuplicateCount",
+              "artifacts.appliedDuplicateCount"
+            ],
+            "injection": "duplicate event attribution (event shown twice)"
+          },
+          {
+            "detected": true,
+            "failingMetrics": ["artifacts.windowOverlapCount"],
+            "injection": "caption window overlap"
+          }
+        ],
+        "report": {
+          "artifacts": {
+            "anomalies": [],
+            "appliedDuplicateCount": 0,
+            "appliedGapCount": 0,
+            "appliedUnaccountedCount": 0,
+            "appliedUnsortedCount": 0,
+            "captionDuplicateCount": 0,
+            "captionUnappliedCount": 0,
+            "dispositionFlapCount": 0,
+            "dispositionTransitionCount": 0,
+            "frameCount": 6,
+            "invertedWindowCount": 0,
+            "kindChangeCount": 0,
+            "possessionDisplayMismatchCount": 0,
+            "watermarkBelowEventsCount": 0,
+            "watermarkSequenceRegressionCount": 0,
+            "watermarkTimeRegressionCount": 0,
+            "windowOverlapCount": 0,
+            "windowTimestampMismatchCount": 0
+          },
+          "geometry": {
+            "ballMaxSpeedMps": 40,
+            "frameCount": 6,
+            "gapFrameCount": 0,
+            "gapSpanCount": 0,
+            "jumpCount": 0,
+            "maxDisplacementMeters": 0.8000000000000043,
+            "maxJumpMeters": 0,
+            "maxJumpRatio": 0.06394884092725854,
+            "measuredEntityIds": ["player-7", "player-9", "player-out", "player-far", "ball-1"],
+            "measuredPairCount": 25,
+            "notMeasuredEntityIds": ["player-11", "team-1"],
+            "perEntity": [
+              {
+                "bound": {
+                  "epsilonMeters": 0.01,
+                  "maxSpeedMps": 12.5
+                },
+                "entityId": "player-7",
+                "gapFrameCount": 0,
+                "gapSpanCount": 0,
+                "jumpCount": 0,
+                "kind": "participant",
+                "maxDisplacementMeters": 0.8000000000000043,
+                "maxJumpMeters": 0,
+                "maxJumpRatio": 0.06394884092725854,
+                "measuredFrameCount": 6,
+                "series": [
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.7999999999999972,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 0,
+                    "fromMeters": {
+                      "x": 52.5,
+                      "y": 34
+                    },
+                    "jumpRatio": 0.06394884092725797,
+                    "spansGap": false,
+                    "toFrameIndex": 1,
+                    "toMeters": {
+                      "x": 53.3,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.8000000000000043,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 1,
+                    "fromMeters": {
+                      "x": 53.3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0.06394884092725854,
+                    "spansGap": false,
+                    "toFrameIndex": 2,
+                    "toMeters": {
+                      "x": 54.1,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.7999999999999972,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 2,
+                    "fromMeters": {
+                      "x": 54.1,
+                      "y": 34
+                    },
+                    "jumpRatio": 0.06394884092725797,
+                    "spansGap": false,
+                    "toFrameIndex": 3,
+                    "toMeters": {
+                      "x": 54.9,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.8000000000000043,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 3,
+                    "fromMeters": {
+                      "x": 54.9,
+                      "y": 34
+                    },
+                    "jumpRatio": 0.06394884092725854,
+                    "spansGap": false,
+                    "toFrameIndex": 4,
+                    "toMeters": {
+                      "x": 55.7,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.7999999999999972,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 4,
+                    "fromMeters": {
+                      "x": 55.7,
+                      "y": 34
+                    },
+                    "jumpRatio": 0.06394884092725797,
+                    "spansGap": false,
+                    "toFrameIndex": 5,
+                    "toMeters": {
+                      "x": 56.5,
+                      "y": 34
+                    }
+                  }
+                ]
+              },
+              {
+                "bound": {
+                  "epsilonMeters": 0.01,
+                  "maxSpeedMps": 12.5
+                },
+                "entityId": "player-9",
+                "gapFrameCount": 0,
+                "gapSpanCount": 0,
+                "jumpCount": 0,
+                "kind": "participant",
+                "maxDisplacementMeters": 0.6000000000000014,
+                "maxJumpMeters": 0,
+                "maxJumpRatio": 0.047961630695443756,
+                "measuredFrameCount": 6,
+                "series": [
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.6000000000000014,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 0,
+                    "fromMeters": {
+                      "x": 30,
+                      "y": 20
+                    },
+                    "jumpRatio": 0.047961630695443756,
+                    "spansGap": false,
+                    "toFrameIndex": 1,
+                    "toMeters": {
+                      "x": 30,
+                      "y": 20.6
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.5999999999999979,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 1,
+                    "fromMeters": {
+                      "x": 30,
+                      "y": 20.6
+                    },
+                    "jumpRatio": 0.04796163069544348,
+                    "spansGap": false,
+                    "toFrameIndex": 2,
+                    "toMeters": {
+                      "x": 30,
+                      "y": 21.2
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.6000000000000014,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 2,
+                    "fromMeters": {
+                      "x": 30,
+                      "y": 21.2
+                    },
+                    "jumpRatio": 0.047961630695443756,
+                    "spansGap": false,
+                    "toFrameIndex": 3,
+                    "toMeters": {
+                      "x": 30,
+                      "y": 21.8
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.5999999999999979,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 3,
+                    "fromMeters": {
+                      "x": 30,
+                      "y": 21.8
+                    },
+                    "jumpRatio": 0.04796163069544348,
+                    "spansGap": false,
+                    "toFrameIndex": 4,
+                    "toMeters": {
+                      "x": 30,
+                      "y": 22.4
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0.6000000000000014,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 4,
+                    "fromMeters": {
+                      "x": 30,
+                      "y": 22.4
+                    },
+                    "jumpRatio": 0.047961630695443756,
+                    "spansGap": false,
+                    "toFrameIndex": 5,
+                    "toMeters": {
+                      "x": 30,
+                      "y": 23
+                    }
+                  }
+                ]
+              },
+              {
+                "bound": {
+                  "epsilonMeters": 0.01,
+                  "maxSpeedMps": 12.5
+                },
+                "entityId": "player-out",
+                "gapFrameCount": 0,
+                "gapSpanCount": 0,
+                "jumpCount": 0,
+                "kind": "participant",
+                "maxDisplacementMeters": 0,
+                "maxJumpMeters": 0,
+                "maxJumpRatio": 0,
+                "measuredFrameCount": 6,
+                "series": [
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 0,
+                    "fromMeters": {
+                      "x": -3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 1,
+                    "toMeters": {
+                      "x": -3,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 1,
+                    "fromMeters": {
+                      "x": -3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 2,
+                    "toMeters": {
+                      "x": -3,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 2,
+                    "fromMeters": {
+                      "x": -3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 3,
+                    "toMeters": {
+                      "x": -3,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 3,
+                    "fromMeters": {
+                      "x": -3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 4,
+                    "toMeters": {
+                      "x": -3,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 4,
+                    "fromMeters": {
+                      "x": -3,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 5,
+                    "toMeters": {
+                      "x": -3,
+                      "y": 34
+                    }
+                  }
+                ]
+              },
+              {
+                "bound": {
+                  "epsilonMeters": 0.01,
+                  "maxSpeedMps": 12.5
+                },
+                "entityId": "player-far",
+                "gapFrameCount": 0,
+                "gapSpanCount": 0,
+                "jumpCount": 0,
+                "kind": "participant",
+                "maxDisplacementMeters": 0,
+                "maxJumpMeters": 0,
+                "maxJumpRatio": 0,
+                "measuredFrameCount": 6,
+                "series": [
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 0,
+                    "fromMeters": {
+                      "x": 120,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 1,
+                    "toMeters": {
+                      "x": 120,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 1,
+                    "fromMeters": {
+                      "x": 120,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 2,
+                    "toMeters": {
+                      "x": 120,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 2,
+                    "fromMeters": {
+                      "x": 120,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 3,
+                    "toMeters": {
+                      "x": 120,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 3,
+                    "fromMeters": {
+                      "x": 120,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 4,
+                    "toMeters": {
+                      "x": 120,
+                      "y": 34
+                    }
+                  },
+                  {
+                    "boundMeters": 12.51,
+                    "displacementMeters": 0,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 4,
+                    "fromMeters": {
+                      "x": 120,
+                      "y": 34
+                    },
+                    "jumpRatio": 0,
+                    "spansGap": false,
+                    "toFrameIndex": 5,
+                    "toMeters": {
+                      "x": 120,
+                      "y": 34
+                    }
+                  }
+                ]
+              },
+              {
+                "bound": {
+                  "epsilonMeters": 0.01,
+                  "maxSpeedMps": 40
+                },
+                "entityId": "ball-1",
+                "gapFrameCount": 0,
+                "gapSpanCount": 0,
+                "jumpCount": 0,
+                "kind": "ball",
+                "maxDisplacementMeters": 0.5,
+                "maxJumpMeters": 0,
+                "maxJumpRatio": 0.012496875781054738,
+                "measuredFrameCount": 6,
+                "series": [
+                  {
+                    "boundMeters": 40.01,
+                    "displacementMeters": 0.5,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 0,
+                    "fromMeters": {
+                      "x": 50.5,
+                      "y": 34.5
+                    },
+                    "jumpRatio": 0.012496875781054738,
+                    "spansGap": false,
+                    "toFrameIndex": 1,
+                    "toMeters": {
+                      "x": 51,
+                      "y": 34.5
+                    }
+                  },
+                  {
+                    "boundMeters": 40.01,
+                    "displacementMeters": 0.5,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 1,
+                    "fromMeters": {
+                      "x": 51,
+                      "y": 34.5
+                    },
+                    "jumpRatio": 0.012496875781054738,
+                    "spansGap": false,
+                    "toFrameIndex": 2,
+                    "toMeters": {
+                      "x": 51.5,
+                      "y": 34.5
+                    }
+                  },
+                  {
+                    "boundMeters": 40.01,
+                    "displacementMeters": 0.5,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 2,
+                    "fromMeters": {
+                      "x": 51.5,
+                      "y": 34.5
+                    },
+                    "jumpRatio": 0.012496875781054738,
+                    "spansGap": false,
+                    "toFrameIndex": 3,
+                    "toMeters": {
+                      "x": 52,
+                      "y": 34.5
+                    }
+                  },
+                  {
+                    "boundMeters": 40.01,
+                    "displacementMeters": 0.5,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 3,
+                    "fromMeters": {
+                      "x": 52,
+                      "y": 34.5
+                    },
+                    "jumpRatio": 0.012496875781054738,
+                    "spansGap": false,
+                    "toFrameIndex": 4,
+                    "toMeters": {
+                      "x": 52.5,
+                      "y": 34.5
+                    }
+                  },
+                  {
+                    "boundMeters": 40.01,
+                    "displacementMeters": 0.5,
+                    "dtMs": 1000,
+                    "exceedsBound": false,
+                    "fromFrameIndex": 4,
+                    "fromMeters": {
+                      "x": 52.5,
+                      "y": 34.5
+                    },
+                    "jumpRatio": 0.012496875781054738,
+                    "spansGap": false,
+                    "toFrameIndex": 5,
+                    "toMeters": {
+                      "x": 53,
+                      "y": 34.5
+                    }
+                  }
+                ]
+              }
+            ],
+            "playerMaxSpeedMps": 12.5,
+            "positionEpsilonMeters": 0.01
+          },
+          "identity": {
+            "entityIds": [
+              "player-7",
+              "player-9",
+              "player-11",
+              "player-out",
+              "player-far",
+              "team-1",
+              "ball-1"
+            ],
+            "flickerCount": 0,
+            "frameCount": 6,
+            "perEntity": [
+              {
+                "distinctStyleTokens": 1,
+                "entityId": "player-7",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "participant",
+                "presence": [
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 6,
+                "styleTokenFrames": 6,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 1,
+                "entityId": "player-9",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "participant",
+                "presence": [
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 6,
+                "styleTokenFrames": 6,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 0,
+                "entityId": "player-11",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "participant",
+                "presence": [
+                  "omitted-no-position",
+                  "omitted-no-position",
+                  "omitted-no-position",
+                  "omitted-no-position",
+                  "omitted-no-position",
+                  "omitted-no-position"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 0,
+                "styleTokenFrames": 0,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 0,
+                "entityId": "player-out",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "participant",
+                "presence": [
+                  "rendered-out-of-play",
+                  "rendered-out-of-play",
+                  "rendered-out-of-play",
+                  "rendered-out-of-play",
+                  "rendered-out-of-play",
+                  "rendered-out-of-play"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 0,
+                "styleTokenFrames": 0,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 0,
+                "entityId": "player-far",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "participant",
+                "presence": [
+                  "omitted-out-of-play",
+                  "omitted-out-of-play",
+                  "omitted-out-of-play",
+                  "omitted-out-of-play",
+                  "omitted-out-of-play",
+                  "omitted-out-of-play"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 0,
+                "styleTokenFrames": 0,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 0,
+                "entityId": "team-1",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "team",
+                "presence": [
+                  "not-rendered-kind",
+                  "not-rendered-kind",
+                  "not-rendered-kind",
+                  "not-rendered-kind",
+                  "not-rendered-kind",
+                  "not-rendered-kind"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 0,
+                "styleTokenFrames": 0,
+                "unexplainedAbsenceCount": 0
+              },
+              {
+                "distinctStyleTokens": 0,
+                "entityId": "ball-1",
+                "firstFrameIndex": 0,
+                "flickerCount": 0,
+                "kind": "ball",
+                "presence": [
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered",
+                  "rendered"
+                ],
+                "reappearanceCount": 0,
+                "styleStableFrames": 0,
+                "styleTokenFrames": 0,
+                "unexplainedAbsenceCount": 0
+              }
+            ],
+            "reappearanceCount": 0,
+            "styleInstabilityFrames": 0,
+            "styleStabilityRatio": 1,
+            "styleStableFrames": 12,
+            "styleTokenFrames": 12,
+            "unexplainedAbsenceCount": 0
+          },
+          "input": {
+            "frameCount": 6,
+            "frameIntervalMs": 1000,
+            "rendererId": "anime.prototype",
+            "rendererVersion": "0.1.0",
+            "sessionId": "sess-anime-clip",
+            "snapshotVersion": 1,
+            "styleId": "style-anime-test",
+            "svgFramesMeasured": true
+          },
+          "schemaTag": "sporta/renderer-evaluation/w503@1",
+          "styleBytes": {
+            "groupFrames": 24,
+            "perEntity": [
+              {
+                "distinctGroups": 1,
+                "entityId": "player-7",
+                "groupFrames": 6,
+                "unstableFrames": 0
+              },
+              {
+                "distinctGroups": 1,
+                "entityId": "player-9",
+                "groupFrames": 6,
+                "unstableFrames": 0
+              },
+              {
+                "distinctGroups": 1,
+                "entityId": "player-out",
+                "groupFrames": 6,
+                "unstableFrames": 0
+              },
+              {
+                "distinctGroups": 1,
+                "entityId": "ball-1",
+                "groupFrames": 6,
+                "unstableFrames": 0
+              }
+            ],
+            "stabilityRatio": 1,
+            "stableFrames": 24,
+            "unstableFrames": 0
+          },
+          "verdict": {
+            "checks": [
+              {
+                "measured": 0,
+                "metric": "identity.unexplainedAbsenceCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "identity.flickerCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 1,
+                "metric": "identity.styleStabilityRatio",
+                "operator": "min",
+                "pass": true,
+                "threshold": 1
+              },
+              {
+                "measured": 0,
+                "metric": "geometry.jumpCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0.06394884092725854,
+                "metric": "geometry.maxJumpRatio",
+                "operator": "max",
+                "pass": true,
+                "threshold": 1
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.windowOverlapCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.invertedWindowCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.windowTimestampMismatchCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.captionDuplicateCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.captionUnappliedCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.appliedDuplicateCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.appliedUnsortedCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.appliedGapCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.appliedUnaccountedCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.watermarkSequenceRegressionCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.watermarkTimeRegressionCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.watermarkBelowEventsCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.dispositionFlapCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.kindChangeCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 0,
+                "metric": "artifacts.possessionDisplayMismatchCount",
+                "operator": "max",
+                "pass": true,
+                "threshold": 0
+              },
+              {
+                "measured": 1,
+                "metric": "styleBytes.stabilityRatio",
+                "operator": "min",
+                "pass": true,
+                "threshold": 1
+              }
+            ],
+            "failures": [],
+            "pass": true
+          }
+        }
+      },
+      "policy": {
+        "detectionProof": true
+      },
+      "thresholds": {
+        "BALL_MAX_SPEED_MPS": 40,
+        "MAX_APPLIED_DUPLICATE_COUNT": 0,
+        "MAX_APPLIED_GAP_COUNT": 0,
+        "MAX_APPLIED_UNACCOUNTED_COUNT": 0,
+        "MAX_APPLIED_UNSORTED_COUNT": 0,
+        "MAX_CAPTION_DUPLICATE_COUNT": 0,
+        "MAX_CAPTION_UNAPPLIED_COUNT": 0,
+        "MAX_DISPOSITION_FLAP_COUNT": 0,
+        "MAX_GEOMETRY_JUMP_COUNT": 0,
+        "MAX_GEOMETRY_JUMP_RATIO": 1,
+        "MAX_IDENTITY_FLICKER_COUNT": 0,
+        "MAX_INVERTED_WINDOW_COUNT": 0,
+        "MAX_KIND_CHANGE_COUNT": 0,
+        "MAX_POSSESSION_DISPLAY_MISMATCH_COUNT": 0,
+        "MAX_UNEXPLAINED_ABSENCE_COUNT": 0,
+        "MAX_WATERMARK_BELOW_EVENTS_COUNT": 0,
+        "MAX_WATERMARK_SEQUENCE_REGRESSION_COUNT": 0,
+        "MAX_WATERMARK_TIME_REGRESSION_COUNT": 0,
+        "MAX_WINDOW_OVERLAP_COUNT": 0,
+        "MAX_WINDOW_TIMESTAMP_MISMATCH_COUNT": 0,
+        "MIN_STYLE_BYTE_STABILITY_RATIO": 1,
+        "MIN_STYLE_STABILITY_RATIO": 1,
+        "PLAYER_MAX_SPEED_MPS": 12.5,
+        "POSITION_EPSILON_METERS": 0.01
+      },
+      "verdict": "PASS"
+    },
+    {
+      "caseKind": "w601-scene-conformance",
+      "caseName": "w601-scene-conformance",
+      "clock": {
+        "endMs": 1736164800006,
+        "startMs": 1736164800005
+      },
+      "failureReasons": [],
+      "fixture": {
+        "sceneFixturePath": "./w601-scene-fixture.json"
+      },
+      "measured": {
+        "checks": [
+          {
+            "checkId": "scene-schema-valid",
+            "description": "S2/S8: the document parses against the SceneSpecification schema",
+            "detail": "the document parses against the current SceneSpecification schema",
+            "passed": true
+          },
+          {
+            "checkId": "scene-version-compatible",
+            "description": "S8: sceneSchemaVersion is consumable by this schema version",
+            "detail": "sceneSchemaVersion \"1.0\" is compatible with scene schema version \"1.0\"",
+            "passed": true
+          },
+          {
+            "checkId": "source-provenance-complete",
+            "description": "S1: source provenance (session, version, watermark, counts) is verbatim",
+            "detail": "source provenance matches the snapshot verbatim",
+            "passed": true
+          },
+          {
+            "checkId": "identity-stable-and-total",
+            "description": "S1: entity ids/kinds/versions/lastEventTimeMs are verbatim, ordered, and total",
+            "detail": "every snapshot entity appears exactly once, in order, with verbatim identity",
+            "passed": true
+          },
+          {
+            "checkId": "disposition-accounting-closed",
+            "description": "S3/S4: entity dispositions are closed and consistent",
+            "detail": "every entity disposition is consistent with its carried fields and the pitch bounds",
+            "passed": true
+          },
+          {
+            "checkId": "pitch-geometry-canonical",
+            "description": "S2/S4: pitch geometry is the canonical frame + IFAB Law 1 constants",
+            "detail": "pitch frame and furniture match the canonical constants (frameSource consistent with the snapshot)",
+            "passed": true
+          },
+          {
+            "checkId": "camera-slots-canonical",
+            "description": "S2: camera slots are the canonical named slots",
+            "detail": "camera slots match the canonical set (geometry, derivation, canonical order)",
+            "passed": true
+          },
+          {
+            "checkId": "score-clock-verbatim",
+            "description": "S6: score/clock/possession display state is verbatim",
+            "detail": "the display state is the snapshot's football extension, verbatim",
+            "passed": true
+          },
+          {
+            "checkId": "entity-slots-verbatim",
+            "description": "S2/S6: entity positions/statuses/confidences/heights/headings are verbatim",
+            "detail": "every entity entry is the verbatim slot projection of its snapshot entity",
+            "passed": true
+          },
+          {
+            "checkId": "event-markers-verbatim",
+            "description": "S7: event markers are the verbatim event tail, timeline-anchored",
+            "detail": "event markers match the 4 input entries verbatim, in order, timeline-anchored",
+            "passed": true
+          },
+          {
+            "checkId": "determinism-byte-identical",
+            "description": "S5: re-projecting the snapshot reproduces the scene byte-identically",
+            "detail": "re-projection is deep-equal and byte-identical under canonical serialization",
+            "passed": true
+          },
+          {
+            "checkId": "serialization-roundtrip",
+            "description": "S5: serialize → parse reproduces the scene (canonical form is total)",
+            "detail": "serialize → parse reproduces the scene deep-equal (no unknown keys, no undefined leakage)",
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "policy": {
+        "evidence": "full"
+      },
+      "thresholds": {
+        "checkIds": [
+          "scene-schema-valid",
+          "scene-version-compatible",
+          "source-provenance-complete",
+          "identity-stable-and-total",
+          "disposition-accounting-closed",
+          "pitch-geometry-canonical",
+          "camera-slots-canonical",
+          "score-clock-verbatim",
+          "entity-slots-verbatim",
+          "event-markers-verbatim",
+          "determinism-byte-identical",
+          "serialization-roundtrip"
+        ],
+        "ruleDocument": "packages/scene-projection/CONTRACT.md"
+      },
+      "verdict": "PASS"
+    }
+  ],
+  "clock": {
+    "endMs": 1736164800007,
+    "startMs": 1736164800000
+  },
+  "environment": {
+    "packageVersions": {
+      "@sporta/contracts": "0.1.0",
+      "@sporta/eval-harness": "0.1.0",
+      "@sporta/evaluation": "0.1.0",
+      "@sporta/renderer-evaluation": "0.1.0",
+      "@sporta/scene-projection": "0.1.0",
+      "@sporta/testing": "0.1.0",
+      "@sporta/world-model": "0.1.0"
+    }
+  },
+  "reportSchema": "sporta/eval-harness/suite-report@1",
+  "suite": {
+    "config": {
+      "cases": [
+        {
+          "caseKind": "w403-replay-comparability",
+          "caseName": "w403-replay-comparability",
+          "fixture": {
+            "fixturePath": "../../evaluation/fixtures/w403-fixture.json",
+            "goldenPath": "../../evaluation/fixtures/golden/w403-golden.json"
+          },
+          "policy": {
+            "runs": 2
+          }
+        },
+        {
+          "caseKind": "w503-temporal-consistency",
+          "caseName": "w503-temporal-consistency",
+          "fixture": {
+            "clip": "w503-clean-fixture"
+          },
+          "policy": {
+            "detectionProof": true
+          }
+        },
+        {
+          "caseKind": "w601-scene-conformance",
+          "caseName": "w601-scene-conformance",
+          "fixture": {
+            "sceneFixturePath": "./w601-scene-fixture.json"
+          },
+          "policy": {
+            "evidence": "full"
+          }
+        }
+      ],
+      "suiteId": "sporta-eval-harness-default",
+      "suiteKind": "sporta/eval-harness/suite-config@1",
+      "suiteVersion": 1
+    },
+    "suiteConfigSha256": "9d5ebaa3a8ecf511140e61d0047b678945aaa7d2e28d2f8b06501f2e53cfcb2c",
+    "suiteId": "sporta-eval-harness-default",
+    "suiteVersion": 1
+  }
+}

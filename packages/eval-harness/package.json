@@ -1,0 +1,27 @@
+{
+  "name": "@sporta/eval-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "evaluate": "bun run scripts/evaluate.ts",
+    "regen-golden": "bun run scripts/regen-golden.ts",
+    "regen-w601-fixture": "bun run scripts/generate-w601-fixture.ts"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/evaluation": "workspace:*",
+    "@sporta/renderer-evaluation": "workspace:*",
+    "@sporta/scene-projection": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/world-model": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

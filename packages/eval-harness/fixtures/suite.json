@@ -1,0 +1,38 @@
+{
+  "suiteKind": "sporta/eval-harness/suite-config@1",
+  "suiteId": "sporta-eval-harness-default",
+  "suiteVersion": 1,
+  "cases": [
+    {
+      "caseName": "w403-replay-comparability",
+      "caseKind": "w403-replay-comparability",
+      "fixture": {
+        "fixturePath": "../../evaluation/fixtures/w403-fixture.json",
+        "goldenPath": "../../evaluation/fixtures/golden/w403-golden.json"
+      },
+      "policy": {
+        "runs": 2
+      }
+    },
+    {
+      "caseName": "w503-temporal-consistency",
+      "caseKind": "w503-temporal-consistency",
+      "fixture": {
+        "clip": "w503-clean-fixture"
+      },
+      "policy": {
+        "detectionProof": true
+      }
+    },
+    {
+      "caseName": "w601-scene-conformance",
+      "caseKind": "w601-scene-conformance",
+      "fixture": {
+        "sceneFixturePath": "./w601-scene-fixture.json"
+      },
+      "policy": {
+        "evidence": "full"
+      }
+    }
+  ]
+}
