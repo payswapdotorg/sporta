@@ -24,14 +24,19 @@ import type { ViewerViewModel } from "./viewer-core.ts";
 /**
  * The memo key for the sessions pane (left). The pane renders:
  * `connection`, `pendingOperation` (button disabled states), `sessions`
- * (the list), and the constant live note — nothing else.
+ * (the list), and the live section's COARSE state + note (never the
+ * per-tick playback fields — the detail pane's live section carries those,
+ * updated in place; and never the open-session state — opening a session
+ * renders the RIGHT pane, so the left pane's form keeps its focus).
  */
 export function sessionsPaneSignature(view: ViewerViewModel): string {
   return JSON.stringify({
     connection: view.connection,
     pendingOperation: view.pendingOperation,
     sessions: view.sessions,
-    liveNote: view.live.note,
+    live: view.live.available
+      ? { available: true as const, state: view.live.state }
+      : { available: false as const, note: view.live.note },
   });
 }
 

@@ -1,10 +1,11 @@
 /**
- * @sporta/viewer-shell — the browser viewer shell (W702 + W705).
+ * @sporta/viewer-shell — the browser viewer shell (W702 + W705 + W704).
  *
  * The EXPERIENCE-plane playback slice: a browser viewer that plays the
  * supported batch output through the real control plane (W701) — the REAL
- * W504 stored segments since W705 — with every state and error surfaced
- * clearly. Module map:
+ * W504 stored segments since W705 — plus the LIVE output path (W704) through
+ * W305's transport contract, with every state and error surfaced clearly.
+ * Module map:
  *
  * - `errors`: the viewer error model — every failure class the shell can
  *   surface (the W701 control classes verbatim + `network` +
@@ -16,7 +17,8 @@
  * - `viewer-core`: `createViewerCore` — the headless, fully tested viewer
  *   state machine (states: disconnected → connecting → browsing-sessions →
  *   session-detail → renderer-selection → render-queued → loading-output →
- *   outputs-pending/ready/playing/paused/ended, plus the classified error
+ *   outputs-pending/ready/playing/paused/ended, the LIVE statuses
+ *   live-connecting/playing/reconnecting/ended, plus the classified error
  *   state);
  * - `player`: `createFramePlayer` — pure SVG frame playback with an
  *   injected clock; frame-index math EXACT from the manifest windows;
@@ -26,11 +28,26 @@
  *   for the REAL W504 stored output: ONE self-animating document presented
  *   with its manifest metadata, declared-timeline playhead, and explicit
  *   SMIL sync instructions for the DOM edge (no faked frame supplies);
- * - `dom-plan` + `dom-adapter`: the pure DOM decision layer (both players'
- *   plans, tested headlessly) and the thin browser-only writer (the SMIL
+ * - `live-ports`: the W704 live ports — the `LiveClient` seam, the
+ *   W305-failure-class map (verbatim evidence), and the browser-safe views
+ *   (offer summary, never-silent delivery accounting, honest status);
+ * - `live-player`: `createLivePlayer` — the pure live presentation model
+ *   (join at the live edge, grow-as-delivered buffer, honest re-buffer
+ *   stalls, injected-domain latency; absent metrics absent);
+ * - `live-backoff`: the PURE deterministic reconnect schedule
+ *   (500 → 1000 → 2000 → 4000 ms, 4 attempts max, retryable classes only);
+ * - `live-plan`: the PURE live status-surface decision module (headline /
+ *   status line / accounting / degradation / reconnect countdown / outcome);
+ * - `live-client` (NODE-side): `createInProcessLiveClient` — the live
+ *   adapter over a REAL W305 `LoopbackLiveOutputTransport` (the offer
+ *   dance: request → exact-key + zod grammar validation → answer → attach;
+ *   typed rejects, never guesses);
+ * - `dom-plan` + `dom-adapter`: the pure DOM decision layer (the players'
+ *   plans — batch frames, the W504 SMIL segment, and the live view-model —
+ *   all tested headlessly) and the thin browser-only writer (the SMIL
  *   document's real animation controls live here);
  * - `detail-plan`: the pure detail-pane layout plan (mount / update-in-place
- *   / teardown of the playback section) consumed by the bootstrap;
+ *   / teardown of the playback AND live sections) consumed by the bootstrap;
  * - `selection-plan`: the W703 pure renderer-selection plan — derives the
  *   selectable/blocked affordances from the listed capability documents +
  *   the session's fail-closed rights (never from renderer identity; a test
@@ -81,17 +98,25 @@
  *   user-feedback kinds + labels + the privacy disclosure) the bootstrap
  *   renders.
  *
- * HONEST LIMITATIONS (W702 + W705 + W706):
+ * HONEST LIMITATIONS (W702 + W705 + W706 + W704):
  *
  * - No real-browser E2E yet — it remains OPEN future work (W706 as scoped
  *   delivered viewer telemetry, not browser automation). The served module
  *   graph is smoke-tested (boots, transpiles, no bare imports), never
  *   claimed as browser-executed; the real-provider data path IS exercised
- *   headlessly end-to-end (`test/playback-e2e.test.ts`), and the real
- *   telemetry chain (browser-sink POST → dev route → JSONL file) in
- *   `test/telemetry-e2e.test.ts`.
- * - Live output is HONESTLY unavailable (W704): the view-model carries a
- *   constant `live: { available: false, note }` — never a faked live tab.
+ *   headlessly end-to-end (`test/playback-e2e.test.ts`), the real telemetry
+ *   chain in `test/telemetry-e2e.test.ts`, and the real live path in
+ *   `test/live-e2e.test.ts`.
+ * - LIVE OUTPUT BOUNDARY (W704, see `LIVE.md`): the delivered live path is
+ *   the in-process seam over W305's loopback transport (no real
+ *   RTCPeerConnection exists in this monorepo); the BROWSER build wires no
+ *   live client (the dev server does not bridge the W305 offer dance over
+ *   HTTP — no wire protocol exists to bridge), so the browser's `live`
+ *   section carries the honest unavailable note while the state machine,
+ *   reconnect policy, and status surface are fully exercised headlessly.
+ * - The live latency shown is INJECTED-DOMAIN stream position (now − the
+ *   newest applied window's emission time), never network latency (W306's
+ *   measurement, W802's SLO formalization).
  * - Multi-segment renders are not presented (one segment document per
  *   render is today's W504 shape); a surplus fails loud as
  *   `unsupported-output`, never a silent first-segment-wins.
@@ -99,7 +124,8 @@
  *   authorization policy is the trust boundary.
  * - No new external dependencies: runtime deps are workspace packages only
  *   (`@sporta/control-api`, `@sporta/contracts`, `@sporta/output-pipeline`,
- *   `@sporta/renderer-anime`, `@sporta/renderer-contract`, `@sporta/testing`).
+ *   `@sporta/renderer-anime`, `@sporta/renderer-contract`,
+ *   `@sporta/testing`, `@sporta/webrtc-output`).
  */
 export {
   FAILURE_CLASS_LABELS,
@@ -123,6 +149,9 @@ export type {
 export { LIVE_UNAVAILABLE_NOTE, createViewerCore } from "./viewer-core.ts";
 export type {
   ConnectionState,
+  LiveAttachedSection,
+  LiveSectionState,
+  LiveUnavailableView,
   LiveView,
   PlaybackView,
   PlayerFactory,
@@ -155,10 +184,51 @@ export type {
   SegmentPlayerViewModel,
   SmilSync,
 } from "./segment-player.ts";
-export { playerViewToDomPlan, segmentViewToDomPlan } from "./dom-plan.ts";
-export type { PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
+export { createLivePlayer } from "./live-player.ts";
+export type {
+  LivePlayer,
+  LivePlayerOptions,
+  LivePlayerResult,
+  LivePlayerViewModel,
+} from "./live-player.ts";
+export { LIVE_FAILURE_CLASS_MAP } from "./live-ports.ts";
+export type {
+  LiveAccountingView,
+  LiveAttached,
+  LiveClient,
+  LiveDeliveryEvent,
+  LiveOfferDocument,
+  LiveOfferView,
+  LiveOutputFailureClass,
+  LiveReconnectReportView,
+  LiveStreamHandle,
+  LiveStreamStatusView,
+} from "./live-ports.ts";
+export {
+  LIVE_RECONNECT_BASE_DELAY_MS,
+  LIVE_RECONNECT_MAX_ATTEMPTS,
+  LIVE_RECONNECT_MAX_DELAY_MS,
+  LIVE_RECONNECT_SCHEDULE_MS,
+  LIVE_RETRYABLE_FAILURE_CLASSES,
+  isLiveRetryableFailureClass,
+  liveReconnectDecision,
+  liveReconnectDelayMs,
+} from "./live-backoff.ts";
+export type {
+  LiveReconnectDecision,
+  LiveReconnectTerminalReason,
+  LiveRetryableFailureClass,
+} from "./live-backoff.ts";
+export { liveStatusPlan } from "./live-plan.ts";
+export type { LiveStatusPlan } from "./live-plan.ts";
+export { checkOfferExactKeys, createInProcessLiveClient, mapLiveError } from "./live-client.ts";
+export type {
+  InProcessLiveClientOptions,
+} from "./live-client.ts";
+export { playerViewToDomPlan, segmentViewToDomPlan, liveViewToDomPlan } from "./dom-plan.ts";
+export type { LiveDomPlan, PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
 export { detailModeOf, detailPanePlan } from "./detail-plan.ts";
-export type { DetailMode, DetailPaneAction } from "./detail-plan.ts";
+export type { DetailMode, DetailPaneAction, DetailPaneMounted } from "./detail-plan.ts";
 export {
   VIEWER_PRESENTABLE_OUTPUT_KINDS,
   declaredOutputKindsOf,

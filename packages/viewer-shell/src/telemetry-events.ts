@@ -30,11 +30,14 @@
  * `TELEMETRY.md`; consumers reject other versions fail-loud.
  *
  * DROPPED-FRAME HONESTY: no event kind carries a "dropped frames" fact —
- * neither player drops frames (the frame player STALLS at a missing frame
- * and re-syncs on arrival — `./player.ts`; the SMIL segment player's
- * document is complete at load — `./segment-player.ts`), so a dropped-frame
- * signal does not exist at the real seams and is not invented. The honest
- * equivalent is the `rebuffer-stall` event (a stall episode while playing).
+ * neither batch player drops frames (the frame player STALLS at a missing
+ * frame and re-syncs on arrival — `./player.ts`; the SMIL segment player's
+ * document is complete at load — `./segment-player.ts`), and the live
+ * player never drops either (W305's transport accounts every skip itself;
+ * the viewer consumes the accounted stream — `./live-player.ts`), so a
+ * dropped-frame signal does not exist at the real seams and is not
+ * invented. The honest equivalent is the `rebuffer-stall` event (a stall
+ * episode while playing — batch frame player and live player alike).
  */
 import type { ViewerStatus } from "./viewer-core.ts";
 import { isViewerFailureClass } from "./errors.ts";
@@ -64,6 +67,10 @@ export const TELEMETRY_VIEWER_STATUSES = [
   "playing",
   "paused",
   "ended",
+  "live-connecting",
+  "live-playing",
+  "live-reconnecting",
+  "live-ended",
   "error",
 ] as const;
 
@@ -100,6 +107,7 @@ export const TELEMETRY_OPERATIONS = [
   "beginRender",
   "createRender",
   "selectRender",
+  "openLive",
 ] as const;
 
 /** One of the closed viewer operation names (see {@link TELEMETRY_OPERATIONS}). */
@@ -114,7 +122,7 @@ export function isViewerOperation(value: unknown): value is ViewerOperation {
  * The operations whose durations are timed on the injected clock (the
  * startup-timing events). Extension = add here AND to the event validator.
  */
-export const TELEMETRY_TIMED_OPERATIONS = ["connect", "load-output"] as const;
+export const TELEMETRY_TIMED_OPERATIONS = ["connect", "load-output", "openLive"] as const;
 
 /** One of the timed operations (see {@link TELEMETRY_TIMED_OPERATIONS}). */
 export type TimedOperation = (typeof TELEMETRY_TIMED_OPERATIONS)[number];

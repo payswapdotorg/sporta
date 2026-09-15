@@ -45,7 +45,7 @@ function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
 }
 
 describe("telemetryAffordance — the pure W706 decision layer", () => {
-  test("visible exactly while a playback is mounted AND telemetry is enabled", () => {
+  test("visible exactly while a presentation is mounted AND telemetry is enabled", () => {
     expect(telemetryAffordance(vmOf({})).visible).toBe(true);
     // No playback mounted (any non-playback status): hidden.
     for (const status of [
@@ -60,6 +60,56 @@ describe("telemetryAffordance — the pure W706 decision layer", () => {
     const unconfigured = telemetryAffordance(vmOf({ telemetry: { enabled: false } }));
     expect(unconfigured.visible).toBe(false);
     expect(unconfigured.status).toBe("not-configured");
+  });
+
+  test("W704: a mounted LIVE presentation is rateable too (the user is watching something)", () => {
+    // The live player owns the live section's `player` view-model; with one
+    // mounted the affordance shows exactly like a batch playback.
+    const livePlayer = {
+      kind: "live" as const,
+      buffering: false,
+      playheadMs: 4_000,
+      frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      frameSvg: "<svg>live-1</svg>",
+      frameCount: 8,
+      bufferedAhead: 3,
+      windowsApplied: 4,
+      frameIntervalMs: 1_000,
+      liveEdgeMs: 7_000,
+      latencyMs: 120,
+      lastDisplayedFrame: 7,
+    };
+    const liveView = vmOf({
+      playback: null,
+      status: "live-playing",
+      live: {
+        available: true,
+        state: "playing",
+        sessionId: "sess-1",
+        streamId: "live-sess-1",
+        offer: null,
+        viewerId: "viewer-shell",
+        player: livePlayer,
+        accounting: null,
+        degradationReasons: [],
+        reconnect: null,
+        outcome: null,
+      },
+    });
+    const affordance = telemetryAffordance(liveView);
+    expect(affordance.visible).toBe(true);
+    expect(affordance.feedbackChoices).toHaveLength(3);
+    expect(affordance.status).toBe("recording");
+    // The live section with NO player mounted (idle/connecting/before an
+    // attach) hides the row — nothing is rateable yet.
+    const idleLive = telemetryAffordance(
+      vmOf({
+        playback: null,
+        status: "session-detail",
+        live: { ...liveView.live, player: null, state: "idle" },
+      }),
+    );
+    expect(idleLive.visible).toBe(false);
   });
 
   test("the offered feedback kinds + labels are the closed vocabulary in fixed order", () => {

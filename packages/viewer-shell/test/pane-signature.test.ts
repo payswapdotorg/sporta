@@ -131,6 +131,59 @@ describe("sessionsPaneSignature — invariant across playback-only changes (the 
     ).not.toBe(base);
   });
 
+  test("W704: the live line — per-tick live PLAYER changes keep the signature; live SECTION state changes flip it", () => {
+    // The pane renders the live section's COARSE state only; the per-tick
+    // player facts (frame, latency, buffering) live in the detail pane's
+    // live section (updated in place) — the sessions pane must NOT re-render
+    // while a live stream plays (the form keeps its focus).
+    const liveBase = { available: true as const, state: "playing" as const };
+    const base = sessionsPaneSignature(vmOf({ live: liveBase }));
+    // Two different player snapshots under the SAME coarse state:
+    const playerA = {
+      kind: "live" as const,
+      buffering: false,
+      playheadMs: 4_000,
+      frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      frameSvg: "<svg>live-1</svg>",
+      frameCount: 8,
+      bufferedAhead: 3,
+      windowsApplied: 4,
+      frameIntervalMs: 1_000,
+      liveEdgeMs: 7_000,
+      latencyMs: 120,
+      lastDisplayedFrame: 7,
+    };
+    const playerB = {
+      ...playerA,
+      buffering: true,
+      playheadMs: 9_999,
+      frame: { windowOrdinal: 4, frameIndex: 0, timestampMs: 9_000 },
+      frameSvg: "<svg>live-2</svg>",
+      frameCount: 9,
+      bufferedAhead: 0,
+      latencyMs: 2_500,
+      lastDisplayedFrame: 8,
+    };
+    expect(
+      sessionsPaneSignature(
+        vmOf({ live: { ...liveBase, player: playerA } }),
+      ),
+    ).toBe(base);
+    expect(
+      sessionsPaneSignature(
+        vmOf({ live: { ...liveBase, player: playerB } }),
+      ),
+    ).toBe(base);
+    // The coarse state IS a rendered field — each transition flips it.
+    for (const state of ["idle", "connecting", "reconnecting", "ended"] as const) {
+      expect(sessionsPaneSignature(vmOf({ live: { ...liveBase, state } }))).not.toBe(base);
+    }
+    // And the available/unavailable boundary flips it (note vs state).
+    expect(
+      sessionsPaneSignature(vmOf({ live: { available: false, note: "live note constant" } })),
+    ).not.toBe(base);
+  });
+
   test("the signature is pure (same view, same string) and JSON-deterministic", () => {
     const view = vmOf({});
     expect(sessionsPaneSignature(view)).toBe(sessionsPaneSignature(view));

@@ -12,8 +12,32 @@
  *                                   loading-output → outputs-pending (W705)
  *                                   outputs-pending → loading-output (re-select)
  *                                   playing → ended
+ *                                   session-detail → live-connecting (W704)
+ *                                   live-connecting → live-playing
+ *                                   live-playing → live-reconnecting (W704)
+ *                                   live-reconnecting → live-playing (attempt fired)
+ *                                   live-playing → live-ended (completed/stopped)
  * ANY state → error (classified, retryability-flagged) → retry | dismiss
  * ```
+ *
+ * LIVE PLAYBACK (W704): `openLive` requests the session's live output
+ * through the injected {@link ViewerCoreOptions.live} client — the offer is
+ * validated + decided by W305's answer-side zod grammar inside the adapter
+ * (`./live-client.ts`), a typed reject or rights denial lands in the error
+ * state (fail-closed, never a retry storm), and an accepted offer attaches
+ * the consuming stream: the core mounts the live player
+ * (`./live-player.ts`), pulls delivery events (viewer-driven
+ * backpressure — one pull at a time), and reconnects through the PURE
+ * deterministic backoff schedule (`./live-backoff.ts`: 500 → 1000 → 2000 →
+ * 4000 ms, capped at 4 attempts; only `connection-lost`/`transport-failed`
+ * reconnect — rights and protocol verdicts are terminal) driven by the
+ * host-issued `tick` on the injected clock (no timers). The live statuses
+ * are first-class machine states (`live-connecting`, `live-playing`,
+ * `live-reconnecting`, `live-ended`) — every transition is a W706
+ * state-transition event, each reconnect attempt is visible as a
+ * `live-reconnecting → live-playing` transition, and every live failure
+ * surfaces through the typed error model (the W305 class verbatim in
+ * `details.liveFailureClass`).
  *
  * `outputs-pending` (W705): the render EXISTS on the control plane (the
  * `getRender` gate passed) but its stored output segments are not there yet
@@ -56,10 +80,14 @@
  * status mirrors the player's playback state (`ready`/`playing`/
  * `paused`/`ended`).
  *
- * Live output is HONESTLY unavailable (W704): the view-model carries a
- * constant `live` section stating that; the shell never fakes a live state.
+ * Live output is HONESTLY unavailable when NO live client is injected (the
+ * browser bootstrap today: W305's transport is an in-process seam — no real
+ * RTCPeerConnection exists in this monorepo, and the dev server does not
+ * bridge live over HTTP): the view-model carries the constant `live:`
+ * section stating that. With a live client wired (tests, dev composition),
+ * `live.available` is `true` and the section carries the live stream state.
  * (W705 delivered the real BATCH playback path — stored W504 segments —
- * which is what this machine plays; live remains W704's.)
+ * which is what this machine plays otherwise.)
  *
  * Renderer selection (W703): `beginRender` lists the renderers through the
  * control port and the view-model carries the DERIVED options (capability
@@ -88,7 +116,7 @@
  * `telemetry: { enabled }` marker the pure `./telemetry-plan.ts` derives
  * the feedback affordance from.
  *
- * KNOWN LIMITATIONS (W702 + W705, deliberate):
+ * KNOWN LIMITATIONS (W702 + W705 + W704, deliberate):
  *
  * - one in-flight control operation at a time — async commands issued while
  *   an operation is pending are DROPPED (the pending state is visible in the
@@ -97,7 +125,16 @@
  *   trust boundary — inherited W701 limitation);
  * - `dismissError`/`retry` return to the last STABLE status
  *   (`browsing-sessions`, `session-detail`, `renderer-selection`, a playback
- *   status, or `disconnected`) — never back into an in-flight status.
+ *   status, or `disconnected`) — never back into an in-flight status;
+ * - ONE presentation at a time: opening live tears down a mounted batch
+ *   playback and selecting a render tears down a mounted live stream (the
+ *   single status vocabulary is the machine's honest shape);
+ * - a live presentation has no pause/seek — live content is consumed at the
+ *   live edge (the batch players own pause/seek); closing the live view is
+ *   the live equivalent;
+ * - the live reconnect wait is TICK-DRIVEN (host ticks against the injected
+ *   clock — no timers by constitution), so a host that stops ticking stops
+ *   the schedule too.
  */
 import { createViewerDefaultClock } from "./default-clock.ts";
 import { deriveRendererOptions } from "./selection-plan.ts";
@@ -110,11 +147,27 @@ import type {
 import type { RenderEnvelope, RenderSummary, SessionSummary } from "@sporta/control-api";
 import { errorViewFrom } from "./errors.ts";
 import { ViewerControlError } from "./errors.ts";
+import { isViewerControlError } from "./errors.ts";
+import { toErrorView } from "./errors.ts";
 import type { ErrorView } from "./errors.ts";
 import { createFramePlayer } from "./player.ts";
 import type { FramePlayer, PlayerViewModel } from "./player.ts";
 import { createSegmentPlayer } from "./segment-player.ts";
 import type { SegmentPlayer, SegmentPlayerViewModel } from "./segment-player.ts";
+import { createLivePlayer } from "./live-player.ts";
+import type { LivePlayer, LivePlayerViewModel } from "./live-player.ts";
+import { LIVE_FAILURE_CLASS_MAP } from "./live-ports.ts";
+import type {
+  LiveAccountingView,
+  LiveClient,
+  LiveDeliveryEvent,
+  LiveOfferView,
+  LiveOutputFailureClass,
+  LiveStreamHandle,
+} from "./live-ports.ts";
+import { LIVE_RECONNECT_MAX_ATTEMPTS } from "./live-backoff.ts";
+import { isLiveRetryableFailureClass } from "./live-backoff.ts";
+import { liveReconnectDecision } from "./live-backoff.ts";
 import { createViewerTelemetry } from "./telemetry.ts";
 import type { TelemetrySink } from "./telemetry-sink.ts";
 import type { UserFeedbackKind } from "./telemetry-events.ts";
@@ -134,6 +187,10 @@ export type ViewerStatus =
   | "playing"
   | "paused"
   | "ended"
+  | "live-connecting"
+  | "live-playing"
+  | "live-reconnecting"
+  | "live-ended"
   | "error";
 
 /** Connection state (independent of the flow status). */
@@ -165,11 +222,52 @@ export interface RendererSelectionView {
   renderers: RendererOptionView[];
 }
 
-/** The honest live-output section (constant until W704). */
-export interface LiveView {
+/** The honest live-output section when no live client is wired (constant). */
+export interface LiveUnavailableView {
   available: false;
   note: string;
 }
+
+/** The live section's own state (drives the panes; see `./live-plan.ts`). */
+export type LiveSectionState = "idle" | "connecting" | "playing" | "reconnecting" | "ended";
+
+/** The live-output section with a live client wired (W704). */
+export interface LiveAttachedSection {
+  available: true;
+  /** The live section's own state (coarse; the pane headline). */
+  state: LiveSectionState;
+  /** The session the live stream belongs to (null while idle). */
+  sessionId: string | null;
+  /** The attached stream's id (from the validated offer). */
+  streamId: string | null;
+  /** The validated offer, summarized verbatim (null while idle/connecting-before-offer). */
+  offer: LiveOfferView | null;
+  /** The viewer endpoint id that answered the offer. */
+  viewerId: string | null;
+  /** The live presentation view-model (mounted while a stream is attached). */
+  player: LivePlayerViewModel | null;
+  /** The consumer-side delivery accounting (W305's verbatim receipts). */
+  accounting: LiveAccountingView | null;
+  /** Why the W305 session is degraded (verbatim reasons; empty when established). */
+  degradationReasons: readonly string[];
+  /** Reconnect bookkeeping (non-null while/after a reconnect window). */
+  reconnect: {
+    /** Attempts FIRED so far. */
+    attempts: number;
+    maxAttempts: number;
+    /** When the next attempt fires (injected clock domain; null when idle). */
+    nextAttemptAtMs: number | null;
+    /** The failure class that started the current reconnect window. */
+    lastFailureClass: string;
+    /** The last fired attempt's report (evidence). */
+    lastReport: { resumeFromOrdinal: number; replayCount: number; gapSkipped: number } | null;
+  } | null;
+  /** The terminal session outcome, once the stream ended (`completed`/`stopped`/`failed`). */
+  outcome: { outcome: "completed" | "stopped" | "failed"; failureClass?: string } | null;
+}
+
+/** The live-output section (W704): unavailable with the honest note, or the live stream state. */
+export type LiveView = LiveUnavailableView | LiveAttachedSection;
 
 /**
  * The telemetry marker (constant after construction): whether the core was
@@ -243,6 +341,14 @@ export type ViewerCommand =
     }
   | { type: "selectRender"; renderId: string }
   | { type: "closePlayback" }
+  | {
+      /** Opens the session's live output (W704): offer → validate → attach. */
+      type: "openLive";
+    }
+  | {
+      /** Closes the live view: disconnects the stream, back to the session. */
+      type: "closeLive";
+    }
   | { type: "play" }
   | { type: "pause" }
   | { type: "replay" }
@@ -291,6 +397,13 @@ export interface ViewerCoreOptions {
    * (the view-model's `telemetry.enabled` is false and nothing is emitted).
    */
   telemetrySink?: TelemetrySink;
+  /**
+   * Injectable live client (W704). When provided, the view-model's `live`
+   * section becomes available and `openLive` runs the full live dance
+   * (offer → W305-grammar validation → attach). Omitted → live honestly
+   * unavailable (the constant note; the command is a no-op).
+   */
+  live?: LiveClient;
 }
 
 /** The viewer core surface. */
@@ -303,9 +416,9 @@ export interface ViewerCore {
   subscribe(listener: (view: ViewerViewModel) => void): () => void;
 }
 
-/** The honest live-output note (W704 pending — never faked). */
+/** The honest live-output note when no live client is wired (W704 delivered; the seam is the boundary). */
 export const LIVE_UNAVAILABLE_NOTE =
-  "Live output is not yet available: live delivery arrives with W704 (live playback integration) and W305 (delivery). This viewer plays stored batch outputs only (W504 segments, wired in W705).";
+  "Live output is wired (W704) but requires a live transport seam: W305's live output is an in-process contract (no real RTCPeerConnection exists in this monorepo — the documented W305 boundary), and this viewer build has no live client connected. The dev server does not bridge live output over HTTP. Stored batch outputs (W504 segments) play through the real path.";
 
 const PLAYBACK_STATUSES: readonly ViewerStatus[] = ["ready", "playing", "paused", "ended"];
 
@@ -323,6 +436,8 @@ const STABLE_STATUSES: readonly ViewerStatus[] = [
   "playing",
   "paused",
   "ended",
+  "live-playing",
+  "live-ended",
 ];
 
 function isStableStatus(status: ViewerStatus): boolean {
@@ -374,6 +489,28 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
   // hard reset is dropped instead of mutating a reset machine (zombie guard).
   let epoch = 0;
 
+  // Live state (W704). `liveClient === null` → the constant honest note.
+  const liveClient = options.live ?? null;
+  let liveStream: LiveStreamHandle | null = null;
+  let livePlayer: LivePlayer | null = null;
+  let liveSection: LiveSectionState = "idle";
+  let liveSessionId: string | null = null;
+  let liveStreamId: string | null = null;
+  let liveOffer: LiveOfferView | null = null;
+  let liveViewerId: string | null = null;
+  let liveAccounting: LiveAccountingView | null = null;
+  let liveDegradationReasons: readonly string[] = [];
+  let liveReconnect: {
+    attempts: number;
+    nextAttemptAtMs: number | null;
+    lastFailureClass: string;
+    lastReport: { resumeFromOrdinal: number; replayCount: number; gapSkipped: number } | null;
+  } | null = null;
+  let liveOutcome: { outcome: "completed" | "stopped" | "failed"; failureClass?: string } | null =
+    null;
+  // W706 live stall episode tracking (the frame-player seam's live analog).
+  let liveStallActive = false;
+
   function setStatus(next: ViewerStatus): void {
     // W706: every ACTUAL transition is a lifecycle event (from !== to;
     // no-op setStatus calls emit nothing).
@@ -412,11 +549,320 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
             },
       playback: playback === null ? null : { ...playback },
       pendingRenderId: status === "outputs-pending" ? pendingRenderId : null,
-      live: { available: false, note: LIVE_UNAVAILABLE_NOTE },
+      live: liveClient === null ? { available: false, note: LIVE_UNAVAILABLE_NOTE } : liveView(),
       telemetry: { enabled: telemetry !== null },
       error,
       connectedAtMs,
     };
+  }
+
+  /** The live section of the view-model (a JSON-safe snapshot). */
+  function liveView(): LiveAttachedSection {
+    return {
+      available: true,
+      state: liveSection,
+      sessionId: liveSessionId,
+      streamId: liveStreamId,
+      offer: liveOffer === null ? null : { ...liveOffer },
+      viewerId: liveViewerId,
+      player: livePlayer === null ? null : { ...livePlayer.view() },
+      accounting: liveAccounting === null ? null : { ...liveAccounting },
+      degradationReasons: [...liveDegradationReasons],
+      reconnect:
+        liveReconnect === null
+          ? null
+          : {
+              attempts: liveReconnect.attempts,
+              maxAttempts: LIVE_RECONNECT_MAX_ATTEMPTS,
+              nextAttemptAtMs: liveReconnect.nextAttemptAtMs,
+              lastFailureClass: liveReconnect.lastFailureClass,
+              lastReport:
+                liveReconnect.lastReport === null ? null : { ...liveReconnect.lastReport },
+            },
+      outcome: liveOutcome === null ? null : { ...liveOutcome },
+    };
+  }
+
+  /** Tears down the live section: disconnect the stream, forget everything. */
+  function teardownLive(): void {
+    if (liveStream !== null) {
+      // Idempotent by W305's design; the host keeps its transport (the
+      // in-process seam's ownership boundary — the wiring draws a fresh one
+      // per open). The stream-identity guard in `consumeLive` invalidates
+      // any in-flight pull (the zombie guard's live twin).
+      liveStream.disconnect();
+      liveStream = null;
+    }
+    livePlayer = null;
+    liveSection = "idle";
+    liveSessionId = null;
+    liveStreamId = null;
+    liveOffer = null;
+    liveViewerId = null;
+    liveAccounting = null;
+    liveDegradationReasons = [];
+    liveReconnect = null;
+    liveOutcome = null;
+    liveStallActive = false;
+  }
+
+  /**
+   * Refreshes the live accounting + degradation snapshot from the stream's
+   * honest status (W305's never-silent receipts, verbatim).
+   */
+  function refreshLiveAccounting(): void {
+    if (liveStream === null) return;
+    try {
+      const status = liveStream.status();
+      liveAccounting = { ...status.accounting };
+      liveDegradationReasons = [...status.degradationReasons];
+    } catch (err) {
+      liveFail(err);
+    }
+  }
+
+  /** W706 stall-episode edge for the live player (one event per episode). */
+  function liveStallCheck(): void {
+    if (livePlayer === null) return;
+    const view = livePlayer.view();
+    if (liveSection === "playing" && view.buffering) {
+      if (!liveStallActive) {
+        liveStallActive = true;
+        telemetry?.rebufferStall({
+          // The live analog of the frame-player seam: the stall's frame facts
+          // from the presentation buffer (the last displayed frame, the
+          // frames applied, all of them available — the missing one is the
+          // not-yet-arrived live edge).
+          frameIndex: view.lastDisplayedFrame ?? 0,
+          frameCount: view.frameCount,
+          availableFrames: view.frameCount,
+        });
+      }
+    } else {
+      liveStallActive = false;
+    }
+  }
+
+  /**
+   * The live consumption loop: pulls delivery events one at a time
+   * (viewer-driven backpressure), applying each to the live player and the
+   * accounting surface. Exits on a terminal/consuming-end event (the
+   * reconnect path restarts it) and is invalidated by any live teardown
+   * through the stream-identity guard (the zombie guard's live twin).
+   *
+   * A THROWN failure from the stream (integrity violation, transport death,
+   * …) is classified here and NEVER becomes an unhandled rejection (the
+   * W706 poisoned-dispatch-chain lesson): a retryable class opens the next
+   * reconnect window; every other class lands the terminal error state.
+   */
+  async function consumeLive(stream: LiveStreamHandle): Promise<void> {
+    for (;;) {
+      let event: LiveDeliveryEvent | null;
+      try {
+        event = await stream.nextEvent();
+      } catch (err) {
+        if (liveStream !== stream) return; // torn down or replaced mid-flight
+        handleLiveStreamError(err);
+        return;
+      }
+      if (liveStream !== stream) return; // torn down or replaced mid-flight
+      if (event === null) return; // not consumable now (handled by the events)
+      applyLiveEvent(event);
+      if (liveStream !== stream) return; // a terminal event tore it down
+    }
+  }
+
+  /**
+   * The W305 failure class of a thrown live error, when it carries one (the
+   * adapters map `LiveOutputError`s onto the viewer model with the class
+   * verbatim in `details.liveFailureClass`); `null` for classless failures.
+   */
+  function liveFailureClassOf(err: unknown): string | null {
+    if (isViewerControlError(err)) {
+      const w305Class = err.details.liveFailureClass;
+      return typeof w305Class === "string" ? w305Class : null;
+    }
+    return null;
+  }
+
+  /**
+   * Classifies a THROWN live failure: the retryable classes (`transport-failed`;
+   * see `./live-backoff.ts`) open the next reconnect window — every other
+   * class (and any classless failure) is the terminal `liveFail` path.
+   */
+  function handleLiveStreamError(err: unknown): void {
+    const failureClass = liveFailureClassOf(err);
+    if (failureClass !== null && isLiveRetryableFailureClass(failureClass)) {
+      openReconnectWindow(failureClass);
+      return;
+    }
+    liveFail(err);
+  }
+
+  /** Applies ONE delivery event to the live section (never silent). */
+  function applyLiveEvent(event: LiveDeliveryEvent): void {
+    switch (event.kind) {
+      case "window": {
+        if (livePlayer === null) return;
+        const result = livePlayer.applyWindow(event.window, event.payload);
+        if (!result.ok) {
+          liveFail(new ViewerControlError(result.error.failureClass, result.error.message, result.error.details));
+          return;
+        }
+        refreshLiveAccounting();
+        liveStallCheck();
+        emit();
+        return;
+      }
+      case "window-skipped":
+      case "reconnect-gap": {
+        // The session already accounted the skip/gap into its own counts —
+        // the accounting snapshot is the honest source; nothing is invented
+        // here. (The event itself is never swallowed: the counts moved.)
+        refreshLiveAccounting();
+        emit();
+        return;
+      }
+      case "connection-lost": {
+        openReconnectWindow("connection-lost");
+        return;
+      }
+      case "session-closed": {
+        const outcome = event.outcome;
+        if (outcome === "failed") {
+          const w305Class: LiveOutputFailureClass = event.failureClass ?? "protocol-violation";
+          liveFail(
+            new ViewerControlError(LIVE_FAILURE_CLASS_MAP[w305Class], `live output session failed: ${w305Class}`, {
+              liveFailureClass: w305Class,
+              outcome,
+            }),
+          );
+          return;
+        }
+        // Completed/stopped: an honest end — the presentation holds the last
+        // frame; the outcome is carried verbatim for the pane.
+        liveOutcome = {
+          outcome,
+          ...(event.failureClass === undefined ? {} : { failureClass: event.failureClass }),
+        };
+        liveReconnect = null;
+        liveSection = "ended";
+        setStatus("live-ended");
+        refreshLiveAccounting();
+        emit();
+        return;
+      }
+    }
+  }
+
+  /**
+   * The live terminal failure path: classified error view (W706 event),
+   * honest teardown, and the error landing with `openLive` as the retry
+   * command (a retryable live failure re-opens the live stream; a rights
+   * denial is not retryable — never a retry storm).
+   */
+  function liveFail(err: unknown): void {
+    const liveError = errorViewFrom("openLive", err);
+    teardownLive();
+    telemetry?.errorOccurred(liveError);
+    error = liveError;
+    retryCommand = { type: "openLive" };
+    // The stable landing context after a live failure: the session detail
+    // (the stream is torn down — never back into a live status).
+    setStatus("session-detail");
+    setStatus("error");
+    emit();
+  }
+
+  /**
+   * Opens the NEXT reconnect window for a retryable failure class (or the
+   * classless `connection-lost` event): the PURE backoff decision over the
+   * fired-attempt count. At the cap the failure is terminal (named
+   * honestly — the schedule's own reason, never a retry storm); otherwise the
+   * attempt is scheduled at `now + delay` in the injected clock domain and
+   * the machine enters `live-reconnecting` (the presentation holds its
+   * frame — the honest wait; `liveTick` fires the attempt when due).
+   */
+  function openReconnectWindow(failureClass: string): void {
+    const attemptsSoFar = liveReconnect?.attempts ?? 0;
+    const decision = liveReconnectDecision(failureClass, attemptsSoFar);
+    if (decision.action === "terminal") {
+      liveFail(
+        new ViewerControlError(
+          "network",
+          `live output stopped: ${decision.reason} after ${String(attemptsSoFar)} reconnect attempt${attemptsSoFar === 1 ? "" : "s"}`,
+          { liveFailureClass: "transport-failed", attempts: attemptsSoFar },
+        ),
+      );
+      return;
+    }
+    liveReconnect = {
+      attempts: decision.attempt,
+      nextAttemptAtMs: nowMs() + decision.delayMs,
+      lastFailureClass: failureClass,
+      lastReport: null,
+    };
+    liveSection = "reconnecting";
+    setStatus("live-reconnecting");
+    refreshLiveAccounting();
+    emit();
+  }
+
+  /**
+   * The live tick: advances the presentation playhead while playing, and —
+   * the reconnect driver — fires the scheduled attempt when the injected
+   * clock reaches it (no timers by constitution; the host's `tick` IS the
+   * clock's heartbeat). While reconnecting the playhead is HELD (content is
+   * not flowing — the honest presentation of a dropped connection).
+   */
+  function liveTick(): void {
+    if (livePlayer === null) return;
+    if (liveSection === "reconnecting") {
+      const reconnect = liveReconnect;
+      const stream = liveStream;
+      if (
+        reconnect !== null &&
+        reconnect.nextAttemptAtMs !== null &&
+        nowMs() >= reconnect.nextAttemptAtMs &&
+        stream !== null
+      ) {
+        fireReconnectAttempt(stream);
+        return;
+      }
+      emit(); // the countdown line derives from (now, nextAttemptAtMs)
+      return;
+    }
+    if (liveSection !== "playing") return; // idle/connecting/ended: nothing advances
+    livePlayer.tick();
+    refreshLiveAccounting();
+    liveStallCheck();
+    emit();
+  }
+
+  /** Fires the due reconnect attempt (see `liveTick`). */
+  function fireReconnectAttempt(stream: LiveStreamHandle): void {
+    // Resume AFTER the last applied ordinal: retained windows at or after
+    // the resume point are re-delivered (idempotent — counted duplicates),
+    // and a resume point older than the retention covers surfaces a counted
+    // reconnect-gap (never a silent skip).
+    const resumeFromOrdinal = (liveAccounting?.lastAppliedOrdinal ?? -1) + 1;
+    try {
+      const report = stream.reconnect(resumeFromOrdinal);
+      if (liveReconnect !== null) {
+        liveReconnect = { ...liveReconnect, nextAttemptAtMs: null, lastReport: report };
+      }
+      liveSection = "playing";
+      setStatus("live-playing");
+      refreshLiveAccounting();
+      emit();
+      void consumeLive(stream);
+    } catch (err) {
+      // The attempt FIRED and failed: a retryable class consumes the
+      // attempt and opens the NEXT window (the schedule's whole point — a
+      // capped count of attempts, each absorbing a failure); every other
+      // class is the terminal verdict it always was.
+      handleLiveStreamError(err);
+    }
   }
 
   /** Tears down the active player (unsubscribe + forget). */
@@ -642,6 +1088,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       }
       case "disconnect": {
         teardownPlayer();
+        teardownLive();
         epoch += 1; // invalidate in-flight resolutions (zombie guard)
         inFlight = false;
         pendingOperation = null;
@@ -712,6 +1159,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
             telemetry?.setSessionId(value.detail.session.sessionId);
             rendererSelection = null;
             teardownPlayer();
+            teardownLive();
             error = null;
             setStatus("session-detail");
           },
@@ -722,6 +1170,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         session = null;
         rendererSelection = null;
         teardownPlayer();
+        teardownLive();
         error = null;
         telemetry?.setSessionId(null);
         setStatus("browsing-sessions");
@@ -736,6 +1185,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
               session = null;
               rendererSelection = null;
               teardownPlayer();
+              teardownLive();
               telemetry?.setSessionId(null);
             }
             const result = await client.listSessions();
@@ -819,6 +1269,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         void run("selectRender", command, {
           begin: () => {
             teardownPlayer();
+            teardownLive(); // one presentation at a time (documented)
             // Stable landing context if the load fails: the session detail.
             setStatus("session-detail");
             setStatus("loading-output");
@@ -834,6 +1285,77 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       }
       case "closePlayback": {
         teardownPlayer();
+        error = null;
+        setStatus("session-detail");
+        emit();
+        return;
+      }
+
+      // --- live output (W704) -----------------------------------------------
+      case "openLive": {
+        const sessionId = session?.sessionId;
+        if (session === null || sessionId === undefined || liveClient === null) return; // dropped
+        // FAIL-CLOSED RIGHTS PRE-CHECK (the W701-derived surface): live
+        // delivery requires the `liveDelivery` capability — a session
+        // without it never sends a request (the live host's own W305 gate
+        // re-derives at the offer; both sides hold, defense in depth).
+        if (session.rights.canDeliverLive !== true) {
+          const rightsError = toErrorView(
+            "openLive",
+            "rights-denied",
+            "this session's authorization policy does not grant live delivery (canDeliverLive is false) — the live output was never requested",
+          );
+          telemetry?.errorOccurred(rightsError);
+          error = rightsError;
+          retryCommand = command; // not retryable: the Retry button never shows
+          setStatus("error");
+          emit();
+          return;
+        }
+        let liveStartedAtMs = 0;
+        void run("openLive", command, {
+          begin: () => {
+            liveStartedAtMs = nowMs();
+            teardownPlayer(); // one presentation at a time (documented)
+            teardownLive();
+            // Stable landing context if the open fails: the session detail.
+            setStatus("session-detail");
+            setStatus("live-connecting");
+            liveSection = "connecting";
+            liveSessionId = sessionId;
+            liveStreamId = null;
+            liveOffer = null;
+            liveViewerId = null;
+            liveAccounting = null;
+            liveDegradationReasons = [];
+            liveReconnect = null;
+            liveOutcome = null;
+          },
+          operation: () => liveClient.requestLive(sessionId),
+          onSuccess: (attached) => {
+            liveStream = attached.stream;
+            liveOffer = attached.offer;
+            liveViewerId = attached.viewerId;
+            liveStreamId = attached.offer.streamId;
+            livePlayer = createLivePlayer({ clock: nowMs });
+            liveSection = "playing";
+            liveAccounting = null;
+            liveDegradationReasons = [];
+            liveReconnect = null;
+            liveOutcome = null;
+            error = null;
+            setStatus("live-playing");
+            // W706: the live open dance is a TIMED operation (offer →
+            // validate → attach), measured on the injected clock — the
+            // same startup-timing posture as `connect` / `load-output`.
+            telemetry?.operationTiming("openLive", nowMs() - liveStartedAtMs);
+            void consumeLive(attached.stream);
+          },
+        });
+        return;
+      }
+      case "closeLive": {
+        teardownLive();
         error = null;
         setStatus("session-detail");
         emit();
@@ -871,6 +1393,7 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
       }
       case "tick": {
         activePlayer?.tick();
+        liveTick();
         return;
       }
 

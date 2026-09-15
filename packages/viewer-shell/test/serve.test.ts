@@ -1,18 +1,21 @@
 /**
- * Serve smoke tests (W702 + W705 + W706): `serveViewer` + `web/index.html`
- * actually serve and parse. This is the seam-level stand-in for real-browser
- * E2E (which remains OPEN future work — W706 as scoped delivered viewer
- * telemetry, not browser automation; W705 delivered the headless real-provider
- * data path in `playback-e2e.test.ts`, W706 the telemetry chain in
- * `telemetry-e2e.test.ts`): the index serves as HTML with the module
- * entry, every browser-reachable module transpiles (a 200 from the
- * on-the-fly transpiler IS the parse proof — `Bun.Transpiler` throws on
+ * Serve smoke tests (W702 + W705 + W706 + W704): `serveViewer` +
+ * `web/index.html` actually serve and parse. This is the seam-level
+ * stand-in for real-browser E2E (which remains OPEN future work — W706 as
+ * scoped delivered viewer telemetry, not browser automation; W705 delivered
+ * the headless real-provider data path in `playback-e2e.test.ts`, W706 the
+ * telemetry chain in `telemetry-e2e.test.ts`, W704 the live path over the
+ * REAL W305 transport in `live-e2e.test.ts`): the index serves as HTML with
+ * the module entry, every browser-reachable module transpiles (a 200 from
+ * the on-the-fly transpiler IS the parse proof — `Bun.Transpiler` throws on
  * syntax errors) and contains NO bare `@sporta/*` specifiers (the browser
  * cannot resolve them; this pin caught a real inherited bug — viewer-core
- * imported `TEST_EPOCH_MS` as a value), the control proxy answers the real
- * W701 routes, and the stand-in output route serves the captured W502
- * document (this pin caught a real inherited bug — the route's segment
- * indices were wrong, so it always 404'd).
+ * imported `TEST_EPOCH_MS` as a value; the W704 live modules join the graph
+ * with TYPE-ONLY `@sporta/webrtc-output` imports — erased at transpile,
+ * pinned here), the control proxy answers the real W701 routes, and the
+ * stand-in output route serves the captured W502 document (this pin caught
+ * a real inherited bug — the route's segment indices were wrong, so it
+ * always 404'd).
  */
 import { describe, expect, test } from "bun:test";
 import { serveViewer } from "../src/serve.ts";
@@ -32,6 +35,10 @@ const BROWSER_MODULES: string[] = [
   "/src/viewer-core.ts",
   "/src/player.ts",
   "/src/segment-player.ts",
+  "/src/live-ports.ts",
+  "/src/live-backoff.ts",
+  "/src/live-player.ts",
+  "/src/live-plan.ts",
   "/src/errors.ts",
   "/src/default-clock.ts",
   "/src/telemetry-http-sink.ts",
@@ -85,6 +92,31 @@ describe("serveViewer — the static shell serves and parses", () => {
         const bare = bareImports(body);
         expect(bare, modulePath).toEqual([]);
       }
+    } finally {
+      server.stop();
+    }
+  });
+
+  test("the W704 live modules are browser-safe by construction (type-only W305 imports erased); the node-side live client is NOT in the browser graph", async () => {
+    const server = serveViewer({ port: 0 });
+    try {
+      // The browser-graph live modules import @sporta/webrtc-output
+      // TYPE-ONLY — after transpile the specifier is gone entirely.
+      for (const modulePath of [
+        "/src/live-ports.ts",
+        "/src/live-player.ts",
+        "/src/live-backoff.ts",
+      ]) {
+        const response = await fetch(`${server.url}${modulePath}`);
+        expect(response.status, modulePath).toBe(200);
+        const body = await response.text();
+        expect(body, modulePath).not.toContain("webrtc-output");
+        expect(bareImports(body)).toEqual([]);
+      }
+      // The node-side adapter imports the W305 package at RUNTIME — it is
+      // deliberately NOT part of the browser graph (nothing in the graph
+      // pulls it; it stays absent from BROWSER_MODULES by design).
+      expect(BROWSER_MODULES.includes("/src/live-client.ts")).toBe(false);
     } finally {
       server.stop();
     }
