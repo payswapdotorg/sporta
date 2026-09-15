@@ -1,0 +1,46 @@
+{
+  "schemaTag": "sporta/quality-gates/human-review@1",
+  "recordId": "w803-fixture-demo-self-check",
+  "reviewer": "automated-pipeline-self-check",
+  "reviewedAt": "2025-01-06",
+  "scope": "fixture demo run only: W503 clean clip (sess-anime-clip) and W605 clean/corrections/directed fixtures (sess-w605-clean, sess-w605-corr); no production output was evaluated",
+  "isHumanAttestation": false,
+  "checklistResults": [
+    {
+      "itemId": "rendered-clip-anime",
+      "result": "pass",
+      "notes": "self-check path: the W503 fixture clip was re-rendered inside @sporta/renderer-evaluation by renderW503CleanFixture and is byte-pinned by that package's own tests; no human viewed this clip"
+    },
+    {
+      "itemId": "rendered-clip-3d-match",
+      "result": "pass",
+      "notes": "self-check path: the W605 match fixtures were rebuilt through the real W601-W603 seams by buildCleanMatchFixture/buildCorrectionsMatchFixture and are byte-pinned by @sporta/scene-evaluation's own tests; no human viewed these clips"
+    },
+    {
+      "itemId": "rendered-clip-3d-directed",
+      "result": "pass",
+      "notes": "self-check path: the W605 directed rundown was rebuilt through the real W604 chain by buildDirectedReviewFixture and is byte-pinned by @sporta/scene-evaluation's own tests; no human viewed this rundown"
+    },
+    {
+      "itemId": "gate-report-read",
+      "result": "pass",
+      "notes": "self-check path: the release report is read programmatically — every gate row, key value, and accounted reason is asserted by @sporta/quality-gates tests"
+    },
+    {
+      "itemId": "machine-gate-evidence-reviewed",
+      "result": "pass",
+      "notes": "self-check path: both machine gates PASS with zero failing checks on the fixtures, and the detection tests prove every gate bites on injected defects"
+    },
+    {
+      "itemId": "release-scope-verified",
+      "result": "pass",
+      "notes": "self-check path: the evaluated artifacts are exactly the four fixtures documented in README (w503-clean-clip; w605-clean-match; w605-corrections-match; w605-directed-review)"
+    },
+    {
+      "itemId": "release-signoff",
+      "result": "pass",
+      "notes": "self-check sign-off of the fixture demo verdict only — this is NOT a human attestation; a production release requires a record with isHumanAttestation true"
+    }
+  ],
+  "notes": "Automated-pipeline self-check record for the W803 fixture demo run. It exists to exercise the record format and the human gate's complete-record path so the demo run shows a full PASS verdict. isHumanAttestation is false: no human reviewed production output, and the visual-inspection items were satisfied by the deterministic re-render/byte-pin path that docs/REVIEW.md documents for self-check records — not by a human viewing clips. Reviewer is the reserved self-check id; a human attestation record must carry a real reviewer name and isHumanAttestation true."
+}
