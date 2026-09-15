@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { DeferredSurface } from "@/components/deferred-surface";
+import { HomeSurface } from "@/components/home-surface";
 import { SportaMark } from "@/components/sporta-mark";
 import { BRAND, REALITIES } from "@/lib/brand";
 import { ROUTES } from "@/lib/navigation";
@@ -11,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Home (W903). The shell of the main discovery surface: the brand story,
- * the four realities Sporta will offer, and — per ux-architecture — the
- * three home categories (live/upcoming, alternate realities, things to
- * create), each rendered as an honest deferred surface because no real
- * catalog exists yet.
+ * Home (W904). The brand story and the four realities Sporta will offer,
+ * then the three home categories per ux-architecture — live/upcoming,
+ * alternate realities, things you can create — with the first two now REAL
+ * (capability + catalog driven) and the create shelf honestly deferred to
+ * the Create Studio (W906).
  */
 export default function HomePage() {
   return (
@@ -33,16 +34,17 @@ export default function HomePage() {
             rendering of the same event, all backed by one sports world model.
           </p>
           <div className="hero-actions">
-            <Link className="button-primary" href="#coming-to-sporta">
-              See what&rsquo;s coming
+            <Link className="button-primary" href={ROUTES.explore}>
+              Explore the catalog
             </Link>
-            <Link className="button-ghost" href={ROUTES.explore}>
-              Browse Explore
+            <Link className="button-ghost" href="#todays-sporta">
+              What&rsquo;s on today
             </Link>
           </div>
           <p className="hero-note">
-            You are looking at the product shell. It loads, navigates and installs — and every data
-            surface says plainly what it is waiting for.
+            This deployment runs a real in-process control plane with dev-seed content — every
+            card, state and output below is real engine output, and live is honestly absent until a
+            real live transport exists.
           </p>
         </div>
       </section>
@@ -55,7 +57,7 @@ export default function HomePage() {
           </h2>
           <p className="section-lede">
             These are the visual realities of one event — not different matches. Availability on any
-            given event will be shown honestly, driven by real renderer capabilities and rights.
+            given event is shown honestly, driven by real renderer capabilities and rights.
           </p>
         </header>
         <ul className="reality-grid" id="coming-to-sporta">
@@ -73,21 +75,24 @@ export default function HomePage() {
               <h3 className="reality-name">{reality.name}</h3>
               <p className="reality-description">{reality.description}</p>
               <p className="status-chip subtle" role="status">
-                Planned — not yet available
+                {reality.key === "anime"
+                  ? "Prototype renderer registered"
+                  : reality.key === "original"
+                    ? "Reference renderer registered"
+                    : "No renderer registered yet"}
               </p>
             </li>
           ))}
         </ul>
       </section>
 
-      <PageHeader
-        kicker="Home"
-        title="Today on Sporta"
-        description="The three home shelves — live and upcoming matches, alternate realities of those matches, and things you can create — appear below as they become real."
-      />
-      <div className="surface-stack">
-        <DeferredSurface surface="home-live" />
-        <DeferredSurface surface="home-realities" />
+      <div id="todays-sporta">
+        <PageHeader
+          kicker="Home"
+          title="Today on Sporta"
+          description="The three home shelves — live and upcoming, alternate realities, and things you can create — driven by the real capability response and control-plane catalog."
+        />
+        <HomeSurface />
         <DeferredSurface surface="home-create" />
       </div>
     </>

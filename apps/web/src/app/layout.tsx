@@ -7,6 +7,7 @@ import { SiteSidebar } from "@/components/site-sidebar";
 import { MobileTabbar } from "@/components/mobile-tabbar";
 import { SiteFooter } from "@/components/site-footer";
 import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
+import { AccountProvider } from "@/components/account-provider";
 
 export const metadata: Metadata = {
   applicationName: BRAND.name,
@@ -49,15 +50,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {A11Y.skipLinkText}
         </a>
         <div className="app-frame">
-          <SiteHeader />
-          <div className="app-body">
-            <SiteSidebar />
-            <main id={A11Y.mainId} className="main-content" tabIndex={-1}>
-              {children}
-            </main>
-          </div>
-          <SiteFooter />
-          <MobileTabbar />
+          <AccountProvider>
+            <SiteHeader />
+            <div className="app-body">
+              <SiteSidebar />
+              <main id={A11Y.mainId} className="main-content" tabIndex={-1}>
+                {children}
+              </main>
+            </div>
+            <SiteFooter />
+            <MobileTabbar />
+          </AccountProvider>
         </div>
         <ServiceWorkerRegistrar />
       </body>

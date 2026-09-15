@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { LiveSurface } from "@/components/live-surface";
 
 export const metadata: Metadata = {
   title: "Live",
 };
 
 /**
- * Live (W903). The live surface is empty by policy, not by accident:
- * Sporta labels something live only when a real live network transport
- * backs it (ux-operational-simulation, Simulation F). No fake live badges.
+ * Live (W904). Live is a capability verdict (Simulation F): with the
+ * in-process control plane this deployment runs, the surface renders the
+ * honest unavailable state — and shows the real transport evidence it
+ * derived that from.
  */
 export default function LivePage() {
   return (
@@ -17,11 +18,9 @@ export default function LivePage() {
       <PageHeader
         kicker="Watch"
         title="Live"
-        description="Matches streaming now over real live delivery. Sporta never marks anything live without a real live transport behind it — so while that transport does not exist, this page shows nothing."
+        description="Matches streaming now over real live delivery. Sporta never marks anything live without a real live transport behind it."
       />
-      <div className="surface-stack">
-        <DeferredSurface surface="live" />
-      </div>
+      <LiveSurface />
     </>
   );
 }

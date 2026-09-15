@@ -1,30 +1,29 @@
 import type { Metadata } from "next";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { WatchExperience } from "@/components/watch-experience";
 
 export const metadata: Metadata = {
   title: "Watch",
 };
 
 /**
- * Watch (W903). The main product surface is reserved but empty: no player
- * is rendered because no real Sporta-rendered output exists to play. The
- * region below is the clearly-marked placeholder for the watch experience
- * that arrives with the data plane (W905).
+ * Watch (W905) — the main product surface: one match, many realities.
+ * `?session=<id>` selects the match (constant for the page's life);
+ * `?renderer=<id>` optionally pre-selects a reality.
  */
-export default function WatchPage() {
+export default async function WatchPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const sessionParam = params.session;
+  const rendererParam = params.renderer;
+  const sessionId =
+    typeof sessionParam === "string" && sessionParam.length > 0 ? sessionParam : null;
+  const initialRenderer =
+    typeof rendererParam === "string" && rendererParam.length > 0 ? rendererParam : null;
+
   return (
-    <>
-      <header className="page-header">
-        <p className="page-kicker">Watch</p>
-        <h1 className="page-title">The match view</h1>
-        <p className="page-description">
-          One match, many realities: the player, the event timeline and the Reality Switcher will
-          live here — switching the visual reality without ever leaving the match.
-        </p>
-      </header>
-      <div className="watch-stage" role="region" aria-label="Watch surface">
-        <DeferredSurface surface="watch" />
-      </div>
-    </>
+    <WatchExperience sessionId={sessionId} initialRenderer={initialRenderer} />
   );
 }
