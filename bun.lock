@@ -454,6 +454,24 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/webrtc-output": {
+      "name": "@sporta/webrtc-output",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/transport": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/gpu-worker": "workspace:*",
+        "@sporta/render-orchestration": "workspace:*",
+        "@sporta/temporal": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/world-model": {
       "name": "@sporta/world-model",
       "version": "0.1.0",
@@ -556,6 +574,8 @@
     "@sporta/transport": ["@sporta/transport@workspace:packages/transport"],
 
     "@sporta/viewer-shell": ["@sporta/viewer-shell@workspace:packages/viewer-shell"],
+
+    "@sporta/webrtc-output": ["@sporta/webrtc-output@workspace:packages/webrtc-output"],
 
     "@sporta/world-model": ["@sporta/world-model@workspace:packages/world-model"],
 
