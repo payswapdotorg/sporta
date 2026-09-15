@@ -1,0 +1,27 @@
+{
+  "name": "@sporta/render-orchestration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/gpu-worker": "workspace:*",
+    "@sporta/observability": "workspace:*",
+    "@sporta/renderer-anime": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@sporta/transport": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/temporal": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/world-model": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}

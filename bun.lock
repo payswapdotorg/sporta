@@ -263,6 +263,24 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/render-orchestration": {
+      "name": "@sporta/render-orchestration",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/gpu-worker": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/transport": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/temporal": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/renderer-3d": {
       "name": "@sporta/renderer-3d",
       "version": "0.1.0",
@@ -510,6 +528,8 @@
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
 
     "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
+
+    "@sporta/render-orchestration": ["@sporta/render-orchestration@workspace:packages/render-orchestration"],
 
     "@sporta/renderer-3d": ["@sporta/renderer-3d@workspace:packages/renderer-3d"],
 
