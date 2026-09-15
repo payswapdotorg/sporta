@@ -1,5 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { PRIMARY_NAV, ROUTES, ROUTE_PATHS, isNavActive, isRoutePath } from "../src/lib/navigation";
+import { fileURLToPath } from "node:url";
+import {
+  PRIMARY_NAV,
+  ROUTES,
+  ROUTE_PATHS,
+  isNavActive,
+  isRoutePath,
+  type RoutePath,
+} from "../src/lib/navigation";
 
 describe("W903 route map", () => {
   test("contains every required product route", () => {
@@ -108,5 +116,33 @@ describe("W903 active-route highlighting", () => {
   test("an unrelated pathname highlights nothing in the primary nav", () => {
     const pathname = "/definitely/not/a/section";
     expect(PRIMARY_NAV.some((item) => isNavActive(pathname, item.href))).toBe(false);
+  });
+});
+
+describe("W903 route map integrity (filesystem ↔ model)", () => {
+  const appDir = new URL("../src/app/", import.meta.url);
+
+  function pagePathForRoute(route: RoutePath): string {
+    return route === "/" ? "page.tsx" : `${route.replace(/^\//, "")}/page.tsx`;
+  }
+
+  test("every declared route has a real page file on disk", async () => {
+    for (const route of ROUTE_PATHS) {
+      const file = Bun.file(new URL(pagePathForRoute(route), appDir));
+      expect(await file.exists()).toBe(true);
+    }
+  });
+
+  test("every page file on disk is a declared route (no orphan routes)", async () => {
+    const glob = new Bun.Glob("**/page.tsx");
+    const found: string[] = [];
+    for await (const rel of glob.scan({ cwd: fileURLToPath(appDir) })) {
+      found.push(rel === "page.tsx" ? "/" : `/${rel.replace(/\/page\.tsx$/, "")}`);
+    }
+    expect(found.sort()).toEqual([...ROUTE_PATHS].sort());
+  });
+
+  test("the offline fallback route is part of the declared map", () => {
+    expect(ROUTE_PATHS).toContain("/offline");
   });
 });

@@ -17,7 +17,12 @@ export default async function SearchPage({
 }) {
   const params = await searchParams;
   const raw = params.q;
-  const query = (Array.isArray(raw) ? raw[0] : raw)?.trim().slice(0, 200) ?? "";
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  // Truncate by code points (never split a surrogate pair), then trim.
+  const query = Array.from(value ?? "")
+    .slice(0, 200)
+    .join("")
+    .trim();
   const hasQuery = query.length > 0;
 
   return (

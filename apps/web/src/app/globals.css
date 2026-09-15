@@ -228,8 +228,11 @@ svg {
   padding: 28px 0 56px;
 }
 
-.main-content:focus {
-  outline: none;
+.main-content:focus-visible {
+  /* visible landing target for the skip link (inset: no page-edge overflow) */
+  outline: 3px solid var(--focus);
+  outline-offset: -6px;
+  border-radius: var(--radius-sm);
 }
 
 /* Header                                                              */
@@ -404,6 +407,7 @@ svg {
   flex-direction: column;
   gap: 3px;
   padding: 9px 2px 7px;
+  border-radius: var(--radius-md);
   font-size: 0.66rem;
   letter-spacing: 0.01em;
 }
@@ -418,10 +422,6 @@ svg {
 .nav-tabbar .nav-icon {
   width: 23px;
   height: 23px;
-}
-
-.nav-tabbar .nav-link {
-  border-radius: var(--radius-md);
 }
 
 .nav-link {
@@ -737,7 +737,6 @@ svg {
 
 .deferred-frame svg circle {
   fill: none;
-  stroke: var(--text);
   stroke: var(--sky);
 }
 
@@ -869,10 +868,6 @@ svg {
 /* ------------------------------------------------------------------ */
 
 @media (min-width: 640px) {
-  .search-jump {
-    display: none;
-  }
-
   .footer-nav ul {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -918,6 +913,11 @@ svg {
 
   .search-box {
     display: flex;
+  }
+
+  /* the compact search button hands over to the full search box */
+  .search-jump {
+    display: none;
   }
 
   .home-hero {
