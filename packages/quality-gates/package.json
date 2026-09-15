@@ -1,0 +1,21 @@
+{
+  "name": "@sporta/quality-gates",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "gate": "bun run scripts/gate.ts"
+  },
+  "dependencies": {
+    "@sporta/renderer-evaluation": "workspace:*",
+    "@sporta/scene-evaluation": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

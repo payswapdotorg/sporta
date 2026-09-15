@@ -1,0 +1,46 @@
+{
+  "schemaTag": "sporta/quality-gates/human-review@1",
+  "recordKind": "pipeline-self-check",
+  "checklistVersion": "w803-review-checklist-v1",
+  "reviewer": "w803-automated-pipeline",
+  "reviewedAt": "2026-09-15",
+  "scope": "fixture-based demo run: @sporta/renderer-evaluation W503 clean fixture clip (session sess-anime-clip, 6 frames at 1000 ms) and @sporta/scene-evaluation W605 fixtures clean-match (sess-w605-clean, 16 frames), corrections-match (sess-w605-corr, 36 frames, 9 markers), directed-review (62 frames, 4 windows) — deterministic checked-in fixtures rebuilt through the real renderer seams; no production traffic exists to review",
+  "items": [
+    {
+      "checklistItemId": "clips.w503-anime-fixture",
+      "result": "pass",
+      "notes": "All 6 SVG frames of the W503 fixture clip inspected as the authored markup they deterministically are (rebuilt via renderW503CleanFixture): pitch, markings, and center circle well formed; every DRAWN entity carries its <g data-entity=...> marker group with label at its manifest position (e.g. frame 0: player-7, player-9, player-out, ball-1); the justified omissions (omitted-no-position, omitted-out-of-play, not-rendered-kind) are accounted in the manifest, never drawn; the caption texts (status line 'First half · 01:02 · 1-0?' and event phrases like 'Pass') render as legible <text> elements inside their frame windows; the watermark is manifest-level provenance (frame.source.watermark, monotone sequence/time — measured by the machine gate, not an SVG element). Inspection performed by the W803 delivery pipeline on the checked-in fixture bytes — a human did not view a rendered video."
+    },
+    {
+      "checklistItemId": "clips.w603-match-fixture",
+      "result": "pass",
+      "notes": "The corrections-match manifest (36 frames, 9 markers) inspected: entities at their recorded positions with recorded dispositions, the HUD score/clock line following the timeline's 0-0 -> 1-0 provisional -> confirmed evolution, event chips inside their windows and below the renderer's chip cap, the declared scene cut present on the last step. Machine-read against the manifest structure by the pipeline; a human did not view a rendered video."
+    },
+    {
+      "checklistItemId": "clips.w604-directed-fixture",
+      "result": "pass",
+      "notes": "The directed-review manifest (62 frames, 4 windows) inspected: each window carries its plan-declared camera block and canonical slot, the review window presents the replay profile, the boundary-transferred restart marker is re-presented in the next window, markers appear once and inside their windows. Machine-read against the manifest and plan structure by the pipeline; a human did not view a rendered video."
+    },
+    {
+      "checklistItemId": "reports.temporal-gate",
+      "result": "pass",
+      "notes": "The temporal gate's source report (sporta/renderer-evaluation/w503@1) read in full: verdict PASS, 21 checks each with measured value and threshold (identity 3, geometry 2, artifacts 15, styleBytes 1), 0 failing checks, svgFramesMeasured true. Every check row is carried verbatim into the release report's temporal gate row."
+    },
+    {
+      "checklistItemId": "reports.scene-gate",
+      "result": "pass",
+      "notes": "The scene gate's three source reports (sporta/scene-evaluation/w605@1) read in full: clean-match, corrections-match, directed-review each PASS with 0 failing checks out of 44 per fixture across the seven dimensions; findings accounting reconciles (0 recorded, 0 dropped, cap 200, no truncation in each). Every check row and the findings accounting are carried verbatim into the release report's scene gate row."
+    },
+    {
+      "checklistItemId": "reports.release-accounting",
+      "result": "pass",
+      "notes": "The release report's gate table read: all 4 declared gates present in policy order (temporal-stability, scene-correctness, human-quality-checks, gate-accounting), no NOT-RUNNABLE rows in this run, ledger reconciles (4 = 4 pass + 0 fail + 0 not-runnable)."
+    },
+    {
+      "checklistItemId": "scope.fixture-demo-confirmed",
+      "result": "pass",
+      "notes": "Confirmed: this run evaluates the deterministic checked-in fixtures only. docs/GATES.md §boundaries read and understood — machine gates measure what W503/W605 measure, nothing more; this record accounts that the checklist was executed, not that a human attested to production output."
+    }
+  ],
+  "notes": "AUTOMATED-PIPELINE SELF-CHECK RECORD — NOT a human attestation. This record was produced by the W803 delivery pipeline executing the w803-review-checklist-v1 checklist against the deterministic checked-in fixtures (clip frames inspected as authored SVG/manifest data; reports read as machine-generated JSON; the counts and examples in the item notes were read off the real rebuilt fixtures). It is included so the fixture-demo run exercises the complete-record path of the human gate end to end. It is NOT a claim that a human reviewed production output — no production traffic exists (docs/GATES.md §boundaries) — and it cannot attest to review QUALITY. A release intended as human-reviewed requires a record with recordKind \"human-review\" completed by a person."
+}
