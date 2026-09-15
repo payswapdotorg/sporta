@@ -1,8 +1,7 @@
 # W914 Compute Adapter Audit — Seam-by-Seam (Wave 1)
 
 **Task:** W914 audit + provider-neutral compute-adapter contract preparation.
-**Status:** AUDIT + CONTRACT SKELETON DELIVERED (this document + `packages/compute-adapter`). W914 implementation is Wave 2.
-**Audited at:** main @ `839b307` (branch `work/w914-compute-adapter`).
+**Status:** AUDIT + CONTRACT DELIVERED AND VERIFIED (flight 2 completed the line-by-line audit, fixed three real defects in the inherited WIP, and delivered the full test battery). W914 implementation is Wave 2. **Audited at:** main @ `839b307`, verified in the `work/w914-compute-adapter` worktree (flight-1 WIP transit-committed as 5d8bb8c; see §9 for the flight-2 audit record).
 **Scope rule:** this audit records findings; it does not modify `packages/gpu-worker`, `packages/render-orchestration`, `packages/output-pipeline`, or any existing package. Items those packages must change (or that need tech-lead/ADR decisions) are tagged `contract-change-required`; everything else is `implementation-only`.
 
 ---
@@ -35,7 +34,7 @@ There are exactly two live job-creation paths plus one renderer-level recipe:
 | `outputProfile?` | `OutputProfile` doc | omit = plugin's first supported profile |
 | `styleConfig?` | `{ styleId?, config? }` | omit = `{ styleId: "default", config: {} }` |
 
-The render **executes synchronously inside the request**: the app snapshots the session's in-process world-model engine (`worldModelFor(sessionId)`, `stateAt` + empty event tail), builds a contracts `RenderRequest`, and `await plugin.render(request, { snapshot, events })`. There is **no job identity, no deadline, no idempotency key, no queue, no progress, no cancel** — the HTTP request *is* the job. The render id is the deterministic envelope key `r-<seq>`. This is the primary "assumed in-process" that must become transport-safe.
+The render **executes synchronously inside the request**: the app snapshots the session's in-process world-model engine (`worldModelFor(sessionId)`: `engine.snapshot()` + `eventsSince(snapshot.watermark.sequence)` — the tail is empty in W701 because no perception pipeline feeds the control plane), builds a contracts `RenderRequest`, and `await plugin.render(request, { snapshot, events })`. There is **no job identity, no deadline, no idempotency key, no queue, no progress, no cancel** — the HTTP request *is* the job. The render id is the deterministic envelope key `r-<seq>`. This is the primary "assumed in-process" that must become transport-safe.
 
 **(b) Streaming path — `@sporta/render-orchestration` (W304).**
 The orchestrator cuts watermark-aligned `RenderBatch`es (`batchId`, `sessionId`, `ordinal`, `fromSequence`/`toSequence`, `windowMs`, `watermark`, `updates[]`, `closedBy`, `byteSize`, `idempotencyKey`) from the `SwmUpdateStore` seam, then maps each batch to a W303 `GpuJobEnvelope`:
@@ -43,7 +42,7 @@ The orchestrator cuts watermark-aligned `RenderBatch`es (`batchId`, `sessionId`,
 - `jobId = render-job-<session>-<ordinal>`,
 - `idempotencyKey = render-<session>-wm-<watermarkMs>-seq-<sequence>` (derived from the batch watermark — same watermark never double-submits),
 - `payloadRef = render-batch:<batchId>` — an **opaque string** resolved through the in-process `BatchRegistry` map (`registry.ts`: unknown ref throws `RenderOutputInvalidError`),
-- `kind`, `priority`, `requirements`, `deadlineMs` (`renderDeadlineMs`, default 60 000), `maxAttempts`.
+- `kind`, `priority` (always 0), `requirements` (`{ modelClass }`), `deadlineMs` (`renderDeadlineMs`, default 60 000). W304 does NOT set `maxAttempts` — the W303 dispatcher default (3 claims) applies.
 
 **(c) Renderer recipe — `@sporta/contracts` `RenderRequest` (W501/W502).**
 `{ sessionId, schemaVersion, rendererId, rendererVersion, styleConfig, snapshotVersion, eventsSinceSequence, outputProfile, rightsCapabilities, sourceFrameRefs }` — versioned zod, validated once by W304 at construction and re-shaped per batch (`snapshotVersion` verbatim, `eventsSinceSequence` = batch `fromSequence`).
@@ -144,7 +143,7 @@ The orchestrator cuts watermark-aligned `RenderBatch`es (`batchId`, `sessionId`,
 **Exists today:**
 
 - `@sporta/observability` (W007): `MetricsRegistry` (counters + nearest-rank histograms), the recommended vocabulary `METRIC_NAMES` (`frames_dropped`, `queue_depth`, `stage_latency_ms`, `model_latency_ms`, `renderer_latency_ms`, `e2e_latency_ms` — aligned to architecture-lock §12), `CorrelationContext` (`sessionId`/`correlationId`/`traceId`), structured `Logger`.
-- W303 `GPU_METRIC_NAMES` (20 `gpu_*` series incl. `gpu_job_latency_ms`, `gpu_job_queue_wait_ms`, and every accounting counter has a series); W304 `RENDER_METRIC_NAMES` (`render_*`, incl. `render_watermark_lag_at_emission_ms`). W805's health/telemetry consumes these shapes.
+- W303 `GPU_METRIC_NAMES` (21 `gpu_*` series incl. `gpu_job_latency_ms`, `gpu_job_queue_wait_ms`, and a series for every counter the dispatcher increments — but not for the pure gauges `inFlight`/`queuedJobs`/`executingJobs` or for `unknownReports`/`workerRejoins`/`rejectedClaims`, which are ledger-visible only); W304 `RENDER_METRIC_NAMES` (10 `render_*` series, incl. `render_watermark_lag_at_emission_ms`). W805's health/telemetry consumes these shapes.
 - W806/W802 (release/SLO) review metering posture; W919 (cost/usage guardrails) depends on W911-W914 and needs "provider usage counters, user/job quotas, spend alarms and fail-closed admission" (work orders).
 
 **Missing for W919 (what the hosted adapter must meter per job):** a *usage record* per terminal job carrying the **provider identity**, the job's timing envelope (W303 names: `queueWaitMs`, `executionMs`), attempt/claim counts, and **cost units in the units the adapter's descriptor declared** (abstract unit ids — provider-neutral; e.g. `cpu-seconds`, `requests`, `credit` — never a hard-coded vendor currency). Metering invariants: exactly one usage record per terminally-disposed job (never silent, including cancelled-never-executed), quantities finite ≥ 0, units closed against the descriptor. The contract layer for this is delivered in `@sporta/compute-adapter` (`ComputeUsageRecord` + descriptor `costUnits`); W919 consumes it for quotas/alarms/fail-closed admission.
@@ -197,3 +196,30 @@ No finding requires changing W303/W304/W504 code to proceed: all three are suffi
 4. **Evidence plan**: work-item-status row with the hosted run's accounting snapshot (dispatched === terminal + in-flight, usage records total), latency measurements feeding W915/W919, and the honest limitation list (single provider first; provider selection config-driven; free-tier budget guards from W919).
 
 **Sequencing:** depends on W910 (edge deployed), W912 (R2 store port) for the stored-artifact mode — the contract allows inline-content mode so the worker can land before W912 and switch delivery modes by configuration.
+
+---
+
+## 9. Flight-2 audit record (line-by-line verification of the inherited WIP)
+
+The flight-1 worker died before ANY verification. Flight 2 re-read every seam claim in this document against the actual W303/W304/W504/W701 source (all verified: envelope/message shapes, the `idempotencyKeyOf`/`jobIdOf` derivations, the 9-identity W304 lattice, `renderDeadlineMs` default 60 000, `r-<seq>` render ids, `PlaybackRightsContext` fail-closed retrieval, `anime-clip-<fnv1a32-hex8>` segment ids, the `bun:sqlite` store implementations, the `locateAnimeRef` playback seam, the `RenderOutputInvalidError` payloadRef resolution) and audited the inherited `packages/compute-adapter` line by line.
+
+**Audit corrections to this document (facts fixed):**
+
+1. `GPU_METRIC_NAMES` has **21** series, not 20; and it is not true that "every accounting counter has a series" (the gauges `inFlight`/`queuedJobs`/`executingJobs` and the counters `unknownReports`/`workerRejoins`/`rejectedClaims` are ledger-visible only) — §5 corrected.
+2. W701's snapshot call is `engine.snapshot()` + `eventsSince(snapshot.watermark.sequence)` (not "`stateAt`") — §1.1(a) corrected.
+3. W304 does NOT set `maxAttempts` on its job envelopes (the W303 dispatcher default of 3 applies) — §1.1(b) corrected.
+
+**Real defects found in the inherited `packages/compute-adapter` WIP (all fixed):**
+
+| # | Defect | Severity | Fix |
+|---|---|---|---|
+| F1 | `ComputeOutputArtifact` inline-delivery validation required `byteLength === content.length` (UTF-16 code units), contradicting the W504 convention it cites (the output-pipeline store validates `byteLength` as the **UTF-8 byte length** of `content`) | real contract bug (any non-ASCII inline artifact would be rejected, or a wrong length accepted) | measure with `TextEncoder` (the W504 `byteLengthOf` convention); pinned by a non-ASCII test (`"héllo"` = 5 code units ≠ 6 UTF-8 bytes) |
+| F2 | `InMemoryComputeAdapter.dispatch()` crashed with an illegal-transition `RangeError` if a `cancel()` landed while the provider handoff was `await`-ed (the late acceptance/refusal then tried `dispatched → queued/failed` from `cancelled`) | real reference-adapter race | the cancel WINS (the W303 supersession posture): a terminal record after the await returns the honest admitted handle with no further transition; pinned by a gated-promise test |
+| F3 | `onProviderStarted` did not count `invalidProviderReports` for unknown-job/misuse reports, unlike `onProviderProgress`/`onProviderOutcome` | counting inconsistency (a refused provider report would be invisible in stats) | counted like the other report handlers |
+| F4 | The inherited tests had **four TypeScript errors** (`schemas.test.ts` spread-of-unknown ×2, `providerKind` literal ×2) — proof the flight-1 "no verification" was literal | test-suite defect | fixed; `tsc --noEmit` is now zero-error |
+| F5 | The package docs promised `test/vocabulary.test.ts` and `test/boundary.test.ts`; **neither existed**, and the entire in-memory reference adapter had **zero tests** | missing deliverable | both written (vocabulary pins against the real packages incl. source-scans of the type-only W303 unions; boundary source-scans for the purity + zod-only constitution with teeth tests), plus the full reference-adapter suite (130 tests / 508 assertions across 5 files) |
+| F6 | No package README | missing deliverable | written with the honest Wave-1/Wave-2 boundary |
+
+No dead code or over-engineering was found in the inherited schema/state/error/accounting modules — the contract design itself survived the line-by-line audit unchanged (including the `admitted`/`dispatched` adapter-level state additions and the 14-edge transition table, which were re-derived from the W303 lifecycle and the decoupled-handoff need).
+
+**Verification battery (this worktree, flight 2):** `bun install` (lockfile unchanged); `bun test` in `packages/compute-adapter` — 130 pass / 0 fail / 508 assertions, run twice with identical counts; root `bun test` — 4085 pre-existing + 130 new, all green; `bun run typecheck` zero errors; `bun run lint` + `bun run format:check` clean; purity grep over `src` (`Math.random|Date.now|performance.now`) empty.

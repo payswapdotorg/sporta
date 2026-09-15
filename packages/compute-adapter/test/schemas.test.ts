@@ -40,12 +40,13 @@ describe("ComputeJobDescription (the transport-safe job description)", () => {
   });
 
   it("rejects unknown keys in every nested shape", () => {
+    const job = makeJob();
     for (const override of [
-      { renderer: { ...makeJob().renderer, extra: 1 } },
-      { recipe: { ...makeJob().recipe, extra: 1 } },
-      { outputProfile: { ...(makeJob().outputProfile as object), extra: 1 } },
-      { rights: { ...(makeJob().rights as object), extra: 1 } },
-      { constraints: { ...(makeJob().constraints as object), extra: 1 } },
+      { renderer: { ...(job.renderer as Record<string, unknown>), extra: 1 } },
+      { recipe: { ...(job.recipe as Record<string, unknown>), extra: 1 } },
+      { outputProfile: { ...(job.outputProfile as object), extra: 1 } },
+      { rights: { ...(job.rights as object), extra: 1 } },
+      { constraints: { ...(job.constraints as object), extra: 1 } },
     ]) {
       expect(ComputeJobDescription.safeParse(makeJob(override)).success).toBe(false);
     }
@@ -65,12 +66,8 @@ describe("ComputeJobDescription (the transport-safe job description)", () => {
   });
 
   it("pins the schemaVersion literal (cross-version negotiation is explicit)", () => {
-    expect(ComputeJobDescription.safeParse(makeJob({ schemaVersion: "2.0" })).success).toBe(
-      false,
-    );
-    expect(ComputeJobDescription.safeParse(makeJob({ schemaVersion: "1.1" })).success).toBe(
-      false,
-    );
+    expect(ComputeJobDescription.safeParse(makeJob({ schemaVersion: "2.0" })).success).toBe(false);
+    expect(ComputeJobDescription.safeParse(makeJob({ schemaVersion: "1.1" })).success).toBe(false);
     expect(COMPUTE_SCHEMA_VERSION).toBe("1.0");
   });
 
@@ -111,19 +108,21 @@ describe("ComputeJobDescription (the transport-safe job description)", () => {
   });
 
   it("deadline and attempt constraints follow the W303 envelope rules", () => {
-    expect(ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: 0 } })).success).toBe(
-      false,
-    );
+    expect(
+      ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: 0 } })).success,
+    ).toBe(false);
     expect(
       ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: -1 } })).success,
     ).toBe(false);
     expect(
-      ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: Number.POSITIVE_INFINITY } }))
-        .success,
+      ComputeJobDescription.safeParse(
+        makeJob({ constraints: { deadlineMs: Number.POSITIVE_INFINITY } }),
+      ).success,
     ).toBe(false);
     expect(
-      ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: 1000, maxAttempts: 0 } }))
-        .success,
+      ComputeJobDescription.safeParse(
+        makeJob({ constraints: { deadlineMs: 1000, maxAttempts: 0 } }),
+      ).success,
     ).toBe(false);
     expect(
       ComputeJobDescription.safeParse(makeJob({ constraints: { deadlineMs: 1000, priority: 0.5 } }))
@@ -161,12 +160,12 @@ describe("ComputeAdapterDescriptor (provider-neutral capability declaration)", (
   });
 
   it("closed vocabulary: a VENDOR provider kind rejects (architecture-lock §9)", () => {
-    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ providerKind: "aws-ec2" })).success).toBe(
-      false,
-    );
-    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ providerKind: "gcp" })).success).toBe(
-      false,
-    );
+    expect(
+      ComputeAdapterDescriptor.safeParse(makeDescriptor({ providerKind: "aws-ec2" })).success,
+    ).toBe(false);
+    expect(
+      ComputeAdapterDescriptor.safeParse(makeDescriptor({ providerKind: "gcp" })).success,
+    ).toBe(false);
   });
 
   it("closed vocabulary: an invented cost-unit kind rejects", () => {
@@ -179,10 +178,12 @@ describe("ComputeAdapterDescriptor (provider-neutral capability declaration)", (
   });
 
   it("requires at least one supported renderer and one cost unit (metering is not optional)", () => {
-    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ supportedRenderers: [] })).success).toBe(
+    expect(
+      ComputeAdapterDescriptor.safeParse(makeDescriptor({ supportedRenderers: [] })).success,
+    ).toBe(false);
+    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ costUnits: [] })).success).toBe(
       false,
     );
-    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ costUnits: [] })).success).toBe(false);
   });
 
   it("rejects duplicate renderer ids and duplicate cost-unit ids", () => {
@@ -217,9 +218,9 @@ describe("ComputeAdapterDescriptor (provider-neutral capability declaration)", (
   });
 
   it("adapterVersion must be MAJOR.MINOR", () => {
-    expect(ComputeAdapterDescriptor.safeParse(makeDescriptor({ adapterVersion: "1" })).success).toBe(
-      false,
-    );
+    expect(
+      ComputeAdapterDescriptor.safeParse(makeDescriptor({ adapterVersion: "1" })).success,
+    ).toBe(false);
     expect(
       ComputeAdapterDescriptor.safeParse(makeDescriptor({ adapterVersion: "v1.0" })).success,
     ).toBe(false);
@@ -254,15 +255,19 @@ describe("lifecycle/event vocabularies (closed)", () => {
     expect(ComputeJobEvent.safeParse({ ...base, fraction: 1 }).success).toBe(true);
     expect(ComputeJobEvent.safeParse({ ...base, fraction: 0 }).success).toBe(false);
     expect(ComputeJobEvent.safeParse({ ...base, fraction: 1.5 }).success).toBe(false);
-    expect(
-      ComputeJobEvent.safeParse({ ...base, fraction: Number.NaN }).success,
-    ).toBe(false);
+    expect(ComputeJobEvent.safeParse({ ...base, fraction: Number.NaN }).success).toBe(false);
   });
 
   it("progress events may carry a stage label; other events may carry JSON details", () => {
     expect(
-      ComputeJobEvent.safeParse({ schemaVersion: "1.0", jobId: "j", type: "progress", atMs: 1, fraction: 0.5, stage: "encoding" })
-        .success,
+      ComputeJobEvent.safeParse({
+        schemaVersion: "1.0",
+        jobId: "j",
+        type: "progress",
+        atMs: 1,
+        fraction: 0.5,
+        stage: "encoding",
+      }).success,
     ).toBe(true);
     expect(
       ComputeJobEvent.safeParse({
@@ -294,7 +299,9 @@ describe("ComputeOutputArtifact (the W504-aligned handoff)", () => {
   it("stored delivery carries a store receipt instead of content", () => {
     expect(
       ComputeOutputArtifact.safeParse(
-        makeArtifact({ delivery: { mode: "stored", receipt: { storeId: "r2-primary", storedAtMs: 1 } } }),
+        makeArtifact({
+          delivery: { mode: "stored", receipt: { storeId: "r2-primary", storedAtMs: 1 } },
+        }),
       ).success,
     ).toBe(true);
     expect(
@@ -304,8 +311,9 @@ describe("ComputeOutputArtifact (the W504-aligned handoff)", () => {
 
   it("rejects unknown metadata keys (the W504 AnimeArtifactMetadata field names)", () => {
     expect(
-      ComputeOutputArtifact.safeParse(makeArtifact({ metadata: { ...(makeArtifact().metadata as object), bucket: "x" } }))
-        .success,
+      ComputeOutputArtifact.safeParse(
+        makeArtifact({ metadata: { ...(makeArtifact().metadata as object), bucket: "x" } }),
+      ).success,
     ).toBe(false);
   });
 });
@@ -364,12 +372,14 @@ describe("ComputeJobCompletion (the terminal envelope)", () => {
       ).success,
     ).toBe(true);
     expect(
-      ComputeJobCompletion.safeParse(makeCompletion(job, { status: "succeeded", terminalDisposition: "dead-lettered" }))
-        .success,
+      ComputeJobCompletion.safeParse(
+        makeCompletion(job, { status: "succeeded", terminalDisposition: "dead-lettered" }),
+      ).success,
     ).toBe(false);
     expect(
-      ComputeJobCompletion.safeParse(makeCompletion(job, { status: "cancelled", terminalDisposition: "succeeded" }))
-        .success,
+      ComputeJobCompletion.safeParse(
+        makeCompletion(job, { status: "cancelled", terminalDisposition: "succeeded" }),
+      ).success,
     ).toBe(false);
   });
 
@@ -377,7 +387,12 @@ describe("ComputeJobCompletion (the terminal envelope)", () => {
     const failure = { errorClass: "render-refused", message: "no", terminal: "non-retryable" };
     expect(
       ComputeJobCompletion.safeParse(
-        makeCompletion(job, { status: "failed", terminalDisposition: "failed", outputs: [], failure }),
+        makeCompletion(job, {
+          status: "failed",
+          terminalDisposition: "failed",
+          outputs: [],
+          failure,
+        }),
       ).success,
     ).toBe(true);
     expect(
@@ -386,15 +401,25 @@ describe("ComputeJobCompletion (the terminal envelope)", () => {
       ).success,
     ).toBe(false);
     expect(
-      ComputeJobCompletion.safeParse(makeCompletion(job, { status: "cancelled", terminalDisposition: "cancelled", outputs: [], failure }))
-        .success,
+      ComputeJobCompletion.safeParse(
+        makeCompletion(job, {
+          status: "cancelled",
+          terminalDisposition: "cancelled",
+          outputs: [],
+          failure,
+        }),
+      ).success,
     ).toBe(false);
   });
 
   it("outputs are only legal on success", () => {
     expect(
       ComputeJobCompletion.safeParse(
-        makeCompletion(job, { status: "cancelled", terminalDisposition: "cancelled", outputs: [makeArtifact()] }),
+        makeCompletion(job, {
+          status: "cancelled",
+          terminalDisposition: "cancelled",
+          outputs: [makeArtifact()],
+        }),
       ).success,
     ).toBe(false);
   });
@@ -455,16 +480,28 @@ describe("ComputeJobCompletion (the terminal envelope)", () => {
   });
 
   it("timing must be internally ordered", () => {
-    expect(ComputeJobTiming.safeParse({ submittedAtMs: 5, startedAtMs: 3, finishedAtMs: 9, executionMs: 1 }).success).toBe(
-      false,
-    );
-    expect(ComputeJobTiming.safeParse({ submittedAtMs: 5, finishedAtMs: 3, executionMs: 0 }).success).toBe(
-      false,
-    );
     expect(
-      ComputeJobTiming.safeParse({ submittedAtMs: 5, startedAtMs: 6, finishedAtMs: 9, executionMs: 3 }).success,
+      ComputeJobTiming.safeParse({
+        submittedAtMs: 5,
+        startedAtMs: 3,
+        finishedAtMs: 9,
+        executionMs: 1,
+      }).success,
+    ).toBe(false);
+    expect(
+      ComputeJobTiming.safeParse({ submittedAtMs: 5, finishedAtMs: 3, executionMs: 0 }).success,
+    ).toBe(false);
+    expect(
+      ComputeJobTiming.safeParse({
+        submittedAtMs: 5,
+        startedAtMs: 6,
+        finishedAtMs: 9,
+        executionMs: 3,
+      }).success,
     ).toBe(true);
-    expect(ComputeJobTiming.safeParse({ submittedAtMs: 5, finishedAtMs: 9, executionMs: 0 }).success).toBe(true);
+    expect(
+      ComputeJobTiming.safeParse({ submittedAtMs: 5, finishedAtMs: 9, executionMs: 0 }).success,
+    ).toBe(true);
   });
 });
 
@@ -502,9 +539,10 @@ describe("ComputeUsageRecord (metering)", () => {
       ComputeUsageRecord.safeParse({ ...base, costUnits: [{ unitId: "compute-ms", quantity: -1 }] })
         .success,
     ).toBe(false);
-    expect(ComputeUsageRecord.safeParse({ ...base, timing: { queueWaitMs: -1, executionMs: 0 } }).success).toBe(
-      false,
-    );
+    expect(
+      ComputeUsageRecord.safeParse({ ...base, timing: { queueWaitMs: -1, executionMs: 0 } })
+        .success,
+    ).toBe(false);
     expect(ComputeUsageRecord.safeParse({ ...base, currency: "EUR" }).success).toBe(false);
   });
 
@@ -529,16 +567,19 @@ describe("dispatch / cancel outcome discriminators", () => {
         },
       }).success,
     ).toBe(true);
-    expect(
-      ComputeDispatchOutcome.safeParse({ disposition: "queued", jobId: "j" }).success,
-    ).toBe(false);
+    expect(ComputeDispatchOutcome.safeParse({ disposition: "queued", jobId: "j" }).success).toBe(
+      false,
+    );
   });
 
   it("cancel outcomes follow the W303 GpuCancelOutcome shape", () => {
     expect(ComputeCancelOutcome.safeParse({ cancelled: true, jobId: "j" }).success).toBe(true);
     expect(
-      ComputeCancelOutcome.safeParse({ cancelled: false, jobId: "j", terminalDisposition: "succeeded" })
-        .success,
+      ComputeCancelOutcome.safeParse({
+        cancelled: false,
+        jobId: "j",
+        terminalDisposition: "succeeded",
+      }).success,
     ).toBe(true);
     expect(ComputeCancelOutcome.safeParse({ cancelled: false, jobId: "j" }).success).toBe(false);
   });

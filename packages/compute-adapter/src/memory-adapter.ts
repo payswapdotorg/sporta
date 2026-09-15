@@ -18,8 +18,8 @@
  * The reference adapter reads NO time source and spawns NO timers: every
  * `atMs`/timing field comes from the INJECTED `options.nowMs()` source
  * (default: the constant `0` — tests inject a deterministic counter). There
- * is no `Date.now`, no `performance.now`, no `Math.random`, no
- * `setTimeout`/`setInterval` anywhere in this package (grep-pinned by
+ * is no wall-clock read and no randomness anywhere in this package
+ * (grep-pinned by
  * test/boundary.test.ts). Execution is driven EXCLUSIVELY by the test
  * through `this.provider` (the simulated provider port):
  *
@@ -42,7 +42,10 @@
  *   deliberate W303 divergence);
  * - failures are VALUES: every ledger job resolves exactly one terminal
  *   completion; a provider report racing a cancellation is counted
- *   `superseded-report`, never silently dropped;
+ *   `superseded-report`, never silently dropped; a cancel that lands while
+ *   the provider handoff is still in flight WINS — the late acceptance or
+ *   refusal is not acted on, and the dispatch call still returns the honest
+ *   handle for the job that was admitted;
  * - retryable provider failures consume the claim budget (`maxAttempts`,
  *   default 3 — the W303 default): each retry requeues (`in-flight →
  *   queued`, the lease-expiry edge), exhaustion dead-letters with
@@ -124,9 +127,12 @@ export interface InMemoryComputeAdapterOptions {
   /**
    * The provider's acceptance policy (default: accept everything). Return
    * `{ accepted: false, reason }` to exercise the determinate
-   * provider-refusal path.
+   * provider-refusal path; returning a PROMISE parks the dispatch at the
+   * handoff (the race tests use this to prove cancel-wins-during-handoff).
    */
-  providerSubmit?: (job: ComputeJobDescription) => ComputeProviderSubmission;
+  providerSubmit?: (
+    job: ComputeJobDescription,
+  ) => ComputeProviderSubmission | Promise<ComputeProviderSubmission>;
   /**
    * The metering function (default: every declared cost unit at quantity 0 —
    * the reference has no real usage knowledge; tests inject real
@@ -169,7 +175,9 @@ interface JobRecord {
 export class InMemoryComputeAdapter implements ComputeAdapterPort {
   private readonly descriptor: ComputeAdapterDescriptor;
   private readonly nowMs: NowMsSource;
-  private readonly providerSubmit: (job: ComputeJobDescription) => ComputeProviderSubmission;
+  private readonly providerSubmit: (
+    job: ComputeJobDescription,
+  ) => ComputeProviderSubmission | Promise<ComputeProviderSubmission>;
   private readonly meterUsage: MeterUsageFn;
   private readonly defaultMaxAttempts: number;
   private readonly limits: InMemoryComputeLimits;
@@ -197,19 +205,19 @@ export class InMemoryComputeAdapter implements ComputeAdapterPort {
       (() => this.descriptor.costUnits.map((unit) => ({ unitId: unit.unitId, quantity: 0 })));
     this.defaultMaxAttempts = options.defaultMaxAttempts ?? 3;
     this.limits = { ...DEFAULT_IN_MEMORY_LIMITS, ...options.limits };
-    const adapter = this;
+    // Arrow-captured `this` (no aliasing): the provider port delegates to
+    // this adapter's private handlers — the TEST DRIVE SURFACE.
     this.provider = {
-      async submit(job: ComputeJobDescription): Promise<ComputeProviderSubmission> {
-        return adapter.providerSubmit(job);
+      submit: async (job: ComputeJobDescription): Promise<ComputeProviderSubmission> =>
+        this.providerSubmit(job),
+      reportStarted: (jobId: string): void => {
+        this.onProviderStarted(jobId);
       },
-      reportStarted(jobId: string): void {
-        adapter.onProviderStarted(jobId);
+      reportProgress: (jobId: string, progress: { fraction: number; stage?: string }): void => {
+        this.onProviderProgress(jobId, progress);
       },
-      reportProgress(jobId: string, progress: { fraction: number; stage?: string }): void {
-        adapter.onProviderProgress(jobId, progress);
-      },
-      reportOutcome(jobId: string, outcome: ComputeProviderOutcome): void {
-        adapter.onProviderOutcome(jobId, outcome);
+      reportOutcome: (jobId: string, outcome: ComputeProviderOutcome): void => {
+        this.onProviderOutcome(jobId, outcome);
       },
     };
   }
@@ -291,9 +299,7 @@ export class InMemoryComputeAdapter implements ComputeAdapterPort {
         },
       );
     }
-    if (
-      !this.descriptor.supportedLatencyClasses.includes(description.outputProfile.latencyClass)
-    ) {
+    if (!this.descriptor.supportedLatencyClasses.includes(description.outputProfile.latencyClass)) {
       this.statsState.refusedAdmissions += 1;
       throw new ComputeAdmissionError(
         `adapter '${this.descriptor.adapterId}' does not serve latency class '${description.outputProfile.latencyClass}'`,
@@ -394,6 +400,25 @@ export class InMemoryComputeAdapter implements ComputeAdapterPort {
       atMs: this.nowMs(),
     });
     const submission = await this.providerSubmit(description);
+    // A cancel (or any other terminal resolution) may have landed while the
+    // provider handoff was in flight — the cancel WINS (the W303
+    // supersession posture): no further transition is attempted, the
+    // provider's acceptance is simply not acted on, and the dispatch still
+    // honestly returns the handle for the job that WAS admitted.
+    if (isTerminalComputeState(record.state)) {
+      return {
+        disposition: "admitted",
+        handle: {
+          schemaVersion: "1.0",
+          jobId: description.jobId,
+          idempotencyKey: description.idempotencyKey,
+          sessionId: description.sessionId,
+          rendererId: description.renderer.rendererId,
+          adapterId: this.descriptor.adapterId,
+          admittedAtMs: now,
+        },
+      };
+    }
     if (!submission.accepted) {
       // Determinate provider refusal: the job resolves failed (never silent).
       const reason = submission.reason ?? {
@@ -586,11 +611,13 @@ export class InMemoryComputeAdapter implements ComputeAdapterPort {
   private onProviderStarted(jobId: string): void {
     const record = this.records.get(jobId);
     if (record === undefined) {
+      this.statsState.invalidProviderReports += 1;
       throw new UnknownComputeJobError(`provider reported start of unknown job '${jobId}'`, {
         jobId,
       });
     }
     if (record.state !== "queued") {
+      this.statsState.invalidProviderReports += 1;
       throw new ComputeAdapterMisuseError(
         `provider reported start of job '${jobId}' in state '${record.state}' (expected 'queued')`,
       );

@@ -94,6 +94,16 @@ const sha256 = z.string().regex(/^[0-9a-f]{64}$/, "must be 64 lowercase hex digi
 /** A finite non-negative millisecond reading (injected-clock domain). */
 const ms = z.number().finite().min(0);
 
+/**
+ * UTF-8 byte length of a string (the W504 `byteLengthOf` convention — the
+ * output-pipeline store validates `byteLength` as the UTF-8 byte length of
+ * `content`, so the compute contract must measure the same way; this module
+ * uses the platform `TextEncoder`, no new dependency).
+ */
+function utf8ByteLengthOf(content: string): number {
+  return new TextEncoder().encode(content).length;
+}
+
 // ---------------------------------------------------------------------------
 // Job description (the transport-safe render job — the W914 seam)
 // ---------------------------------------------------------------------------
@@ -103,7 +113,12 @@ const ms = z.number().finite().min(0);
  * vendor-neutral: a `ref` is an OPAQUE address the provider resolves (the
  * W303 `payloadRef` posture — the protocol never interprets it).
  */
-export const ComputeInputKind = z.enum(["swm-snapshot", "swm-event-window", "source-media", "renderer-fixture"]);
+export const ComputeInputKind = z.enum([
+  "swm-snapshot",
+  "swm-event-window",
+  "source-media",
+  "renderer-fixture",
+]);
 export type ComputeInputKind = z.infer<typeof ComputeInputKind>;
 
 /** One entry of a job's inputs manifest. */
@@ -257,7 +272,12 @@ export type ComputeJobDescription = z.infer<typeof ComputeJobDescription>;
  * itself; production descriptors declare `cpu-worker` / `gpu-worker` /
  * `managed-actor` behind the same interface.
  */
-export const ComputeProviderKind = z.enum(["in-memory", "cpu-worker", "gpu-worker", "managed-actor"]);
+export const ComputeProviderKind = z.enum([
+  "in-memory",
+  "cpu-worker",
+  "gpu-worker",
+  "managed-actor",
+]);
 export type ComputeProviderKind = z.infer<typeof ComputeProviderKind>;
 
 /** The closed vocabulary of cost-unit kinds (abstract; W919 consumes). */
@@ -676,11 +696,14 @@ export const ComputeOutputArtifact = z
         message: "contentHash must equal artifactId (content-addressed identity)",
       });
     }
-    if (artifact.delivery.mode === "inline" && artifact.delivery.content.length !== artifact.byteLength) {
+    if (
+      artifact.delivery.mode === "inline" &&
+      artifact.byteLength !== utf8ByteLengthOf(artifact.delivery.content)
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["byteLength"],
-        message: `inline delivery byteLength (${artifact.byteLength}) does not match the content's UTF-16 length (${artifact.delivery.content.length})`,
+        message: `inline delivery byteLength (${artifact.byteLength}) does not match the content's UTF-8 byte length (${utf8ByteLengthOf(artifact.delivery.content)})`,
       });
     }
   });

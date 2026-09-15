@@ -33,9 +33,7 @@ export const TEST_HASH_B = "b".repeat(64);
  * latency class list mirrors the contracts `OutputLatencyClass` enum — the
  * vocabulary-alignment tests pin both.
  */
-export function makeDescriptor(
-  overrides: Partial<ComputeAdapterDescriptor> = {},
-): ComputeAdapterDescriptor {
+export function makeDescriptor(overrides: Record<string, unknown> = {}): ComputeAdapterDescriptor {
   return {
     schemaVersion: COMPUTE_SCHEMA_VERSION,
     adapterId: "compute-test-0",
@@ -51,7 +49,7 @@ export function makeDescriptor(
       { unitId: "jobs", unitKind: "count" },
     ],
     ...overrides,
-  };
+  } as ComputeAdapterDescriptor;
 }
 
 /** A valid transport-safe job description (the W914 seam's happy shape). */

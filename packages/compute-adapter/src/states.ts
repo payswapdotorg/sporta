@@ -78,7 +78,13 @@ export const COMPUTE_TRANSITIONS: Readonly<Record<ComputeJobState, readonly Comp
     admitted: Object.freeze(["dispatched", "queued", "cancelled"] as const),
     dispatched: Object.freeze(["queued", "failed", "cancelled"] as const),
     queued: Object.freeze(["in-flight", "failed", "dead-lettered", "cancelled"] as const),
-    "in-flight": Object.freeze(["queued", "succeeded", "failed", "dead-lettered", "cancelled"] as const),
+    "in-flight": Object.freeze([
+      "queued",
+      "succeeded",
+      "failed",
+      "dead-lettered",
+      "cancelled",
+    ] as const),
     succeeded: Object.freeze([] as const),
     failed: Object.freeze([] as const),
     cancelled: Object.freeze([] as const),
@@ -86,7 +92,9 @@ export const COMPUTE_TRANSITIONS: Readonly<Record<ComputeJobState, readonly Comp
   });
 
 /** `true` when `state` is one of the terminal dispositions (no outgoing edges). */
-export function isTerminalComputeState(state: ComputeJobState): state is ComputeTerminalDisposition {
+export function isTerminalComputeState(
+  state: ComputeJobState,
+): state is ComputeTerminalDisposition {
   return (COMPUTE_TERMINAL_DISPOSITIONS as readonly string[]).includes(state);
 }
 

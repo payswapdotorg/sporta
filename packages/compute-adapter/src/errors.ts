@@ -129,10 +129,7 @@ export class ComputeAdapterMisuseError extends Error {
 
 /** Union of the classified compute-adapter boundary errors. */
 export type ClassifiedComputeError =
-  | ComputeValidationError
-  | ComputeAdmissionError
-  | ComputeResourceLimitError
-  | ComputeRightsError;
+  ComputeValidationError | ComputeAdmissionError | ComputeResourceLimitError | ComputeRightsError;
 
 /**
  * Type guard: `true` when `value` is one of the classified compute-adapter
