@@ -34,7 +34,12 @@
  *   follow inputs.
  * - **timeline-consistency**: the plan's declared timeline equals the
  *   steps' `atMs` span (the composition contract).
- * - **summary-consistency**: the summary counts recompute exactly.
+ * - **summary-consistency**: the summary counts recompute exactly
+ *   (window counts AND the cut count), and the candidate accounting is
+ *   internally total: every entry well-formed with a UNIQUE candidate id,
+ *   and every event-driven window's candidate traceable to an accounting
+ *   entry carrying the same verbatim fields with outcome `governed` (a
+ *   window must never cite a candidate the accounting disowns).
  */
 import { CAMERA_SLOT_IDS } from "@sporta/scene-projection";
 import type { AvatarField3dMatchStep } from "@sporta/renderer-3d";
@@ -287,9 +292,142 @@ export function checkCameraPlan(
         `must be ${windows.length - liveCount}`,
       );
     }
+    // The cut count recomputes: slot changes between ADJACENT rundown
+    // windows (the types.ts definition, verbatim).
+    let expectedCutCount = 0;
+    for (let i = 1; i < windows.length; i += 1) {
+      const previous = windows[i - 1];
+      const current = windows[i];
+      if (
+        isWindow(previous) &&
+        isWindow(current) &&
+        previous.cameraSlotId !== current.cameraSlotId
+      ) {
+        expectedCutCount += 1;
+      }
+    }
+    if (plan.summary.cutCount !== expectedCutCount) {
+      push(
+        "summary-consistency",
+        "plan.summary.cutCount",
+        `must be ${expectedCutCount} (slot changes between adjacent rundown windows)`,
+      );
+    }
+    checkAccounting(windows, plan.summary, push);
   } else {
     push("summary-consistency", "plan.summary", "must be an object");
   }
 
   return { ok: violations.length === 0, violations };
+}
+
+/**
+ * The candidate-accounting totality check (the W605 evaluation surface):
+ * every accounting entry well-formed with a UNIQUE candidate id, and every
+ * event-driven window's candidate traceable to an entry carrying the SAME
+ * verbatim fields with outcome `governed`.
+ */
+function checkAccounting(
+  windows: readonly unknown[],
+  summary: Record<string, unknown>,
+  push: (id: string, path: string, message: string) => void,
+): void {
+  const accounting = summary.eventAccounting;
+  if (!Array.isArray(accounting)) {
+    push("summary-consistency", "plan.summary.eventAccounting", "must be an array");
+    return;
+  }
+  const byId = new Map<string, Record<string, unknown>>();
+  for (let i = 0; i < accounting.length; i += 1) {
+    const entry = accounting[i];
+    if (!isRecord(entry)) {
+      push("summary-consistency", `plan.summary.eventAccounting[${i}]`, "must be an object");
+      continue;
+    }
+    const candidateId = typeof entry.candidateId === "string" ? entry.candidateId : "";
+    if (candidateId === "") {
+      push(
+        "summary-consistency",
+        `plan.summary.eventAccounting[${i}].candidateId`,
+        "must be a non-empty string",
+      );
+      continue;
+    }
+    if (byId.has(candidateId)) {
+      push(
+        "summary-consistency",
+        `plan.summary.eventAccounting[${i}].candidateId`,
+        `"${candidateId}" appears more than once (every input candidate appears exactly once)`,
+      );
+      continue;
+    }
+    byId.set(candidateId, entry);
+    for (const name of ["eventTimeMs", "confidence", "emphasis"] as const) {
+      if (!isFiniteNumber(entry[name]) || entry[name] < 0) {
+        push(
+          "summary-consistency",
+          `plan.summary.eventAccounting[${i}].${name}`,
+          "must be a finite number >= 0 (verbatim)",
+        );
+      }
+    }
+    if (typeof entry.eventType !== "string" || entry.eventType === "") {
+      push(
+        "summary-consistency",
+        `plan.summary.eventAccounting[${i}].eventType`,
+        "must be a non-empty string",
+      );
+    }
+  }
+  // Every event-driven window's candidate must be an accounted GOVERNOR
+  // with the same verbatim fields (a window citing a candidate the
+  // accounting disowns — or tampered fields — is an evaluation-surface
+  // inconsistency).
+  for (let i = 0; i < windows.length; i += 1) {
+    const window = windows[i];
+    if (!isWindow(window)) continue;
+    const decision = window.decision as unknown as Record<string, unknown>;
+    const event =
+      decision.ruleId === "event-focus" || decision.ruleId === "replay-emphasis"
+        ? decision.event
+        : undefined;
+    if (!isRecord(event)) continue; // decision-records covers the missing case
+    const candidateId = typeof event.candidateId === "string" ? event.candidateId : "";
+    const entry = candidateId === "" ? undefined : byId.get(candidateId);
+    if (entry === undefined) {
+      push(
+        "summary-consistency",
+        `windows[${i}].decision.event.candidateId`,
+        `"${candidateId}" is absent from the candidate accounting (every event-driven window must trace to an accounted candidate)`,
+      );
+      continue;
+    }
+    if (entry.outcome !== "governed") {
+      push(
+        "summary-consistency",
+        `windows[${i}].decision.event.candidateId`,
+        `"${candidateId}" is accounted "${String(entry.outcome)}" — only a governed candidate may drive a window`,
+      );
+      continue;
+    }
+    for (const [name, value] of [
+      ["eventType", event.eventType],
+      ["eventTimeMs", event.eventTimeMs],
+      ["confidence", event.confidence],
+      ["emphasis", event.emphasis],
+    ] as Array<[string, unknown]>) {
+      if (entry[name] !== value) {
+        push(
+          "summary-consistency",
+          `windows[${i}].decision.event.${name}`,
+          `${describeOf(value)} disagrees with the accounting entry (${describeOf(entry[name])}) — the candidate must ride VERBATIM`,
+        );
+      }
+    }
+  }
+}
+
+/** A compact value description for violation messages (never throws). */
+function describeOf(value: unknown): string {
+  return typeof value === "string" ? `"${value}"` : String(value);
 }

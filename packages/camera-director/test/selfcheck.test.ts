@@ -254,6 +254,99 @@ describe("checkCameraPlan — negative fixtures per violation id", () => {
       "summary-consistency: plan.summary.windowCount: must be 3",
     ]);
   });
+
+  test("summary-consistency: the CUT count must recompute (slot changes between adjacent windows)", () => {
+    // The canonical plan cuts once (main-touchline → behind-goal-x105
+    // between windows 0 and 1; the review repeats the goal slot).
+    const plan = planClone();
+    expect(plan.summary.cutCount).toBe(1);
+    plan.summary.cutCount = 7;
+    expect(violationsOf(plan, "summary-consistency")).toEqual([
+      "summary-consistency: plan.summary.cutCount: must be 1 (slot changes between adjacent rundown windows)",
+    ]);
+    // A slot tamper that changes the REAL cut count flips the recomputed
+    // value (the window count is unchanged — only cutCount catches it).
+    const plan2 = planClone();
+    plan2.windows[2]!.cameraSlotId = "aerial-tactical";
+    expect(violationsOf(plan2, "summary-consistency")).toEqual([
+      "summary-consistency: plan.summary.cutCount: must be 2 (slot changes between adjacent rundown windows)",
+    ]);
+  });
+
+  test("summary-consistency: every accounting entry must be a well-formed record", () => {
+    const plan = planClone();
+    (plan.summary.eventAccounting as unknown[])[0] = "not an entry";
+    expect(violationsOf(plan, "summary-consistency")).toEqual([
+      "summary-consistency: plan.summary.eventAccounting[0]: must be an object",
+      'summary-consistency: windows[1].decision.event.candidateId: "ec-1" is absent from the candidate accounting (every event-driven window must trace to an accounted candidate)',
+      'summary-consistency: windows[2].decision.event.candidateId: "ec-1" is absent from the candidate accounting (every event-driven window must trace to an accounted candidate)',
+    ]);
+    const plan2 = planClone();
+    (plan2.summary as { eventAccounting?: unknown }).eventAccounting = undefined;
+    expect(violationsOf(plan2, "summary-consistency")).toEqual([
+      "summary-consistency: plan.summary.eventAccounting: must be an array",
+    ]);
+    const plan3 = planClone();
+    plan3.summary.eventAccounting[0]!.confidence = Number.NaN;
+    expect(violationsOf(plan3, "summary-consistency")).toEqual([
+      "summary-consistency: plan.summary.eventAccounting[0].confidence: must be a finite number >= 0 (verbatim)",
+      "summary-consistency: windows[1].decision.event.confidence: 0.86 disagrees with the accounting entry (NaN) — the candidate must ride VERBATIM",
+      "summary-consistency: windows[2].decision.event.confidence: 0.86 disagrees with the accounting entry (NaN) — the candidate must ride VERBATIM",
+    ]);
+  });
+
+  test("summary-consistency: candidate ids in the accounting must be UNIQUE (exactly-once totality)", () => {
+    const plan = planClone();
+    plan.summary.eventAccounting.push({ ...plan.summary.eventAccounting[0]! });
+    expect(violationsOf(plan, "summary-consistency")).toEqual([
+      'summary-consistency: plan.summary.eventAccounting[1].candidateId: "ec-1" appears more than once (every input candidate appears exactly once)',
+    ]);
+  });
+
+  test("summary-consistency: every event-driven window must trace to an ACCOUNTED, GOVERNED candidate", () => {
+    // An event window citing a candidate the accounting disowns.
+    const plan = planClone();
+    plan.windows[1]!.decision.event!.candidateId = "ec-ghost";
+    expect(violationsOf(plan, "summary-consistency")).toEqual([
+      'summary-consistency: windows[1].decision.event.candidateId: "ec-ghost" is absent from the candidate accounting (every event-driven window must trace to an accounted candidate)',
+    ]);
+    // A window citing a candidate accounted as NOT governed (the focus
+    // window AND its review both trace to the disowned candidate).
+    const plan2 = planClone();
+    plan2.summary.eventAccounting[0]!.outcome = "below-confidence";
+    expect(violationsOf(plan2, "summary-consistency")).toEqual([
+      'summary-consistency: windows[1].decision.event.candidateId: "ec-1" is accounted "below-confidence" — only a governed candidate may drive a window',
+      'summary-consistency: windows[2].decision.event.candidateId: "ec-1" is accounted "below-confidence" — only a governed candidate may drive a window',
+    ]);
+    // A window whose candidate fields DISAGREE with the accounting entry
+    // (the verbatim rule: the record must quote the accounted candidate).
+    const plan3 = planClone();
+    plan3.windows[2]!.decision.event!.emphasis = 0.1111;
+    expect(violationsOf(plan3, "summary-consistency")).toEqual([
+      "summary-consistency: windows[2].decision.event.emphasis: 0.1111 disagrees with the accounting entry (0.9) — the candidate must ride VERBATIM",
+    ]);
+  });
+
+  test("summary-consistency: the canonical multi-event plans pass the accounting checks clean", () => {
+    // All five outcomes at once, through the REAL director (the property
+    // loop below also covers this — here the accounting itself is the
+    // point: duplicates impossible, every window traceable).
+    const plan = direct(DEFAULT_DIRECTOR_POLICY, buildDirectorMatch(), [
+      buildCandidate({ candidateId: "ec-1", eventTimeMs: 5_500, eventType: "goal" }),
+      buildCandidate({ candidateId: "ec-2", eventTimeMs: 3_200, eventType: "shot" }),
+      buildCandidate({ candidateId: "ec-3", eventTimeMs: 3_400, eventType: "goal" }),
+      buildCandidate({ candidateId: "ec-4", eventTimeMs: 2_000, eventType: "pass" }),
+      buildCandidate({
+        candidateId: "ec-5",
+        eventTimeMs: 1_500,
+        eventType: "goal",
+        confidence: 0.3,
+      }),
+      buildCandidate({ candidateId: "ec-6", eventTimeMs: 99_000, eventType: "save" }),
+    ]);
+    expect(checkCameraPlan(plan, buildDirectorMatch()).ok).toBe(true);
+    expect(new Set(plan.summary.eventAccounting.map((e) => e.candidateId)).size).toBe(6);
+  });
 });
 
 describe("checkCameraPlan — the harness runs against REAL director output (property loop)", () => {
