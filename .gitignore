@@ -4,3 +4,7 @@ coverage/
 *.log
 .DS_Store
 .env*
+.next/
+out/
+*.tsbuildinfo
+.vercel

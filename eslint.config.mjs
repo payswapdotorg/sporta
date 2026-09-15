@@ -3,7 +3,15 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/.next/**",
+      "**/out/**",
+      // Hand-written service worker: WebWorker global scope, no DOM globals.
+      "apps/web/public/sw.js",
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
