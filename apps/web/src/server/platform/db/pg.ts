@@ -40,5 +40,10 @@ export function neonClient(): PostgresSql | null {
 
 /** Creates a FRESH client for a caller-managed lifecycle (tests, migration CLI). */
 export function createPostgresClient(url: string): PostgresSql {
-  return postgres(url, { max: 3, idle_timeout: 20, connect_timeout: 10, onnotice: () => undefined });
+  return postgres(url, {
+    max: 3,
+    idle_timeout: 20,
+    connect_timeout: 10,
+    onnotice: () => undefined,
+  });
 }

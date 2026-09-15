@@ -132,14 +132,19 @@ export const HOSTED_STORE_DEFAULT_LIMITS: HostedSegmentStoreLimits = {
 // ---------------------------------------------------------------------------
 
 /** Failure classification (the session-level `TerminalFailureClass` values). */
-export type PlatformFailureClass = "rights-denied" | "media-invalid" | "resource-limit" | "internal";
+export type PlatformFailureClass =
+  "rights-denied" | "media-invalid" | "resource-limit" | "internal";
 
 /** The base of the platform store error family. */
 export class PlatformStoreError extends Error {
   readonly failureClass: PlatformFailureClass;
   readonly details: Record<string, unknown>;
 
-  constructor(failureClass: PlatformFailureClass, message: string, details: Record<string, unknown> = {}) {
+  constructor(
+    failureClass: PlatformFailureClass,
+    message: string,
+    details: Record<string, unknown> = {},
+  ) {
     super(message);
     this.name = "PlatformStoreError";
     this.failureClass = failureClass;
@@ -470,10 +475,7 @@ export class R2RenderOutputStore {
       const storedDoc = await this.#requireDocument(sessionId, renderId, existing);
       if (storedDoc.contentHash === segment.contentHash) {
         storedDoc.duplicateCount += 1;
-        await this.#putJson(
-          this.#documentKey(sessionId, renderId, segment.segmentId),
-          storedDoc,
-        );
+        await this.#putJson(this.#documentKey(sessionId, renderId, segment.segmentId), storedDoc);
         index.duplicateStores += 1;
         await this.#writeIndex(sessionId, renderId, index);
         const stats = await this.#readStats();
@@ -521,10 +523,7 @@ export class R2RenderOutputStore {
       storeSequence: index.nextSequence,
       duplicateCount: 0,
     };
-    await this.#putJson(
-      this.#documentKey(sessionId, renderId, segment.segmentId),
-      document,
-    );
+    await this.#putJson(this.#documentKey(sessionId, renderId, segment.segmentId), document);
     index.entries.push({
       segmentId: segment.segmentId,
       storeSequence: index.nextSequence,

@@ -59,7 +59,14 @@ export const nodeScryptPasswordHasher: PasswordHasher = {
     const n = Number(parts[1]);
     const r = Number(parts[2]);
     const p = Number(parts[3]);
-    if (!Number.isInteger(n) || n <= 0 || !Number.isInteger(r) || r <= 0 || !Number.isInteger(p) || p <= 0) {
+    if (
+      !Number.isInteger(n) ||
+      n <= 0 ||
+      !Number.isInteger(r) ||
+      r <= 0 ||
+      !Number.isInteger(p) ||
+      p <= 0
+    ) {
       return false;
     }
     let salt: Buffer;

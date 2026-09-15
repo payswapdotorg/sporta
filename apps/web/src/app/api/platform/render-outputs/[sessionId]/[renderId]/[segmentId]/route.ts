@@ -22,11 +22,15 @@ import { AuthorizationPolicy } from "@sporta/contracts";
 import { neonDatabaseUrl } from "@/server/platform/env";
 import { getHostedIdentity, identityReady } from "@/server/platform/identity/hosted";
 import { getHostedRenderOutputStore } from "@/server/platform/r2/hosted";
+import { PlaybackRightsDeniedError, PlatformStoreError } from "@/server/platform/r2/r2-store";
 import {
-  PlaybackRightsDeniedError,
-  PlatformStoreError,
-} from "@/server/platform/r2/r2-store";
-import { apiError, bearerToken, cookieToken, jsonRespond, newRequestId, toIsoUtc } from "@/server/platform/api-utils";
+  apiError,
+  bearerToken,
+  cookieToken,
+  jsonRespond,
+  newRequestId,
+  toIsoUtc,
+} from "@/server/platform/api-utils";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -50,7 +54,11 @@ export async function GET(
   }
   const token = bearerToken(request) ?? cookieToken(request);
   if (token === null) {
-    return apiError("unauthenticated", "a session is required for render-output delivery", requestId);
+    return apiError(
+      "unauthenticated",
+      "a session is required for render-output delivery",
+      requestId,
+    );
   }
   try {
     await identityReady();

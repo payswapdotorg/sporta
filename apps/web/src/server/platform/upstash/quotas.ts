@@ -36,8 +36,7 @@ export interface PlatformQuotaState {
 
 /** The outcome of a consume attempt. */
 export type QuotaConsumeOutcome =
-  | { allowed: true; state: PlatformQuotaState }
-  | { allowed: false; state: PlatformQuotaState };
+  { allowed: true; state: PlatformQuotaState } | { allowed: false; state: PlatformQuotaState };
 
 /** One quota definition (id + hard limit). */
 export interface QuotaDefinition {

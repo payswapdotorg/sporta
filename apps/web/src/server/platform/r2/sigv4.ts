@@ -58,7 +58,10 @@ function hmac(key: Buffer | string, data: string): Buffer {
 
 /** ISO-basic `YYYYMMDDTHHMMSSZ`. */
 export function amzDateFormat(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 }
 
 /** Datestamp `YYYYMMDD`. */
@@ -99,11 +102,7 @@ function signingKey(credentials: SigV4Credentials, date: Date): Buffer {
 }
 
 /** The string-to-sign (canonical request → scope → hash). */
-function stringToSign(
-  credentials: SigV4Credentials,
-  date: Date,
-  canonicalRequest: string,
-): string {
+function stringToSign(credentials: SigV4Credentials, date: Date, canonicalRequest: string): string {
   return [
     "AWS4-HMAC-SHA256",
     amzDateFormat(date),

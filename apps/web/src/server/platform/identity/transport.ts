@@ -185,7 +185,9 @@ export async function loginHandler(request: Request): Promise<Response> {
 }
 
 /** Resolves the caller's session — shared by logout/me. */
-async function requireSession(request: Request): Promise<{ account: Account; token: string } | null> {
+async function requireSession(
+  request: Request,
+): Promise<{ account: Account; token: string } | null> {
   const token = bearerToken(request) ?? cookieToken(request);
   if (token === null) return null;
   const identity = getHostedIdentity();

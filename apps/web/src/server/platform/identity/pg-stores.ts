@@ -40,7 +40,10 @@ function parseRoles(json: string): Role[] {
   } catch {
     throw new Error("pg identity store: roles column is not valid JSON");
   }
-  if (!Array.isArray(parsed) || parsed.some((role) => typeof role !== "string" || !ROLE_SET.has(role))) {
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((role) => typeof role !== "string" || !ROLE_SET.has(role))
+  ) {
     throw new Error("pg identity store: roles column is not a valid role array");
   }
   return parsed as Role[];
@@ -78,8 +81,7 @@ function rowToSession(row: Record<string, unknown>): SessionRecord {
   if (
     typeof row["token_hash"] !== "string" ||
     typeof row["user_id"] !== "string" ||
-    typeof row["active_role"] !== "string" &&
-      row["active_role"] !== null
+    (typeof row["active_role"] !== "string" && row["active_role"] !== null)
   ) {
     throw new Error("pg identity store: session row shape invalid");
   }

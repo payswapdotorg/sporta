@@ -49,7 +49,11 @@ export const LOGIN_QUOTA: import("./quotas").QuotaDefinition = {
 /** The hosted job queue (single named queue for this wave's compute lane). */
 export function getHostedJobQueue(): BoundedJobQueue {
   const { redis } = getHostedTransientState();
-  return new BoundedJobQueue({ redis, key: "sporta:jobs:render", maxDepth: HOSTED_QUEUE_MAX_DEPTH });
+  return new BoundedJobQueue({
+    redis,
+    key: "sporta:jobs:render",
+    maxDepth: HOSTED_QUEUE_MAX_DEPTH,
+  });
 }
 
 /** The hosted capability/cache layer. */

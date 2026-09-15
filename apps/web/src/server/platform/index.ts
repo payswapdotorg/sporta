@@ -21,7 +21,11 @@ export {
   upstashRedisUrl,
 } from "./env";
 export { neonClient, createPostgresClient } from "./db/pg";
-export { applyPlatformMigrations, appliedPlatformMigrations, PLATFORM_MIGRATIONS } from "./db/migrate";
+export {
+  applyPlatformMigrations,
+  appliedPlatformMigrations,
+  PLATFORM_MIGRATIONS,
+} from "./db/migrate";
 export { getHostedIdentity, identityReady } from "./identity/hosted";
 export { nodeScryptPasswordHasher, isNodeScryptHash } from "./identity/node-scrypt-hasher";
 export { PgAccountStore, PgSessionStore, PgMediaOwnershipStore } from "./identity/pg-stores";

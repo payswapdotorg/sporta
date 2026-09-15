@@ -11,9 +11,8 @@ import type { PostgresSql } from "./pg";
 import { MIGRATION_0001_IDENTITY, type PlatformMigration } from "./migrations/0001-identity";
 
 /** Every migration, in ascending version order (pinned by test). */
-export const PLATFORM_MIGRATIONS: readonly PlatformMigration[] = [
-  MIGRATION_0001_IDENTITY,
-].slice()
+export const PLATFORM_MIGRATIONS: readonly PlatformMigration[] = [MIGRATION_0001_IDENTITY]
+  .slice()
   .sort((a, b) => a.version - b.version);
 
 /** A migration that was applied (as recorded in the database). */

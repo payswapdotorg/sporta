@@ -60,7 +60,9 @@ async function checkUpstash(): Promise<ProviderCheck> {
   if (state.provider === "in-memory") return { state: "unconfigured", detail: "in-memory" };
   try {
     const pong = await state.redis.ping();
-    return pong === "PONG" ? { state: "ok", detail: "upstash" } : { state: "error", detail: "upstash" };
+    return pong === "PONG"
+      ? { state: "ok", detail: "upstash" }
+      : { state: "error", detail: "upstash" };
   } catch {
     return { state: "error", detail: "upstash" };
   }
