@@ -60,7 +60,10 @@ describe("LiveOutputOffer (zod validation)", () => {
   });
 
   test("a wrong protocol version is rejected (no silent downgrade)", () => {
-    const doc = { ...(validOffer() as Record<string, unknown>), protocolVersion: "sporta.live-output/v0" };
+    const doc = {
+      ...(validOffer() as Record<string, unknown>),
+      protocolVersion: "sporta.live-output/v0",
+    };
     expect(LiveOutputOffer.safeParse(doc).success).toBe(false);
   });
 
@@ -243,21 +246,33 @@ describe("metric vocabulary (the W306 data source names)", () => {
   test("every metric name is namespaced and stable", () => {
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsIn).toBe("live_output_windows_in_total");
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsDelivered).toBe("live_output_windows_delivered_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.windowsSkippedStale).toBe("live_output_windows_skipped_stale_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy).toBe("live_output_windows_dropped_by_policy_total");
+    expect(LIVE_OUTPUT_METRIC_NAMES.windowsSkippedStale).toBe(
+      "live_output_windows_skipped_stale_total",
+    );
+    expect(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy).toBe(
+      "live_output_windows_dropped_by_policy_total",
+    );
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsRefused).toBe("live_output_windows_refused_total");
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsAbandoned).toBe("live_output_windows_abandoned_total");
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsFailed).toBe("live_output_windows_failed_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.windowsRedelivered).toBe("live_output_windows_redelivered_total");
+    expect(LIVE_OUTPUT_METRIC_NAMES.windowsRedelivered).toBe(
+      "live_output_windows_redelivered_total",
+    );
     expect(LIVE_OUTPUT_METRIC_NAMES.windowsSkippedAtReconnect).toBe(
       "live_output_windows_skipped_at_reconnect_total",
     );
     expect(LIVE_OUTPUT_METRIC_NAMES.viewerReconnects).toBe("live_output_viewer_reconnects_total");
     expect(LIVE_OUTPUT_METRIC_NAMES.stateTransitions).toBe("live_output_state_transitions_total");
     expect(LIVE_OUTPUT_METRIC_NAMES.sessionEnds).toBe("live_output_session_ends_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsApplied).toBe("live_output_viewer_windows_applied_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsDuplicate).toBe("live_output_viewer_windows_duplicate_total");
-    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsSkipped).toBe("live_output_viewer_windows_skipped_total");
+    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsApplied).toBe(
+      "live_output_viewer_windows_applied_total",
+    );
+    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsDuplicate).toBe(
+      "live_output_viewer_windows_duplicate_total",
+    );
+    expect(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsSkipped).toBe(
+      "live_output_viewer_windows_skipped_total",
+    );
     expect(LIVE_OUTPUT_METRIC_NAMES.transitLagMs).toBe("live_output_transit_lag_ms");
     expect(LIVE_OUTPUT_METRIC_NAMES.deliveryLagMs).toBe("live_output_delivery_lag_ms");
     expect(LIVE_OUTPUT_METRIC_NAMES.watermarkLagAtDeliveryMs).toBe(

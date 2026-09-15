@@ -19,9 +19,7 @@ import { FRAME_INTERVAL_MS, LIVE_PROFILE, fixtureEmission, fixtureFrame } from "
 
 describe("hashing primitives (the W504/W101 sha-256 posture)", () => {
   test("sha256Hex matches the known empty-string vector", () => {
-    expect(sha256Hex("")).toBe(
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    );
+    expect(sha256Hex("")).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
   });
 
   test("sha256Hex matches the known 'abc' vector", () => {
@@ -65,7 +63,9 @@ describe("frameWindowId (the idempotency key)", () => {
 
 describe("validateLiveOutputPayload (the structural intake seam)", () => {
   test("a W502-shaped payload with extra manifest fields is valid", () => {
-    const check = validateLiveOutputPayload(fixtureEmission({ ordinal: 0, watermarkMs: 1_000 }).output);
+    const check = validateLiveOutputPayload(
+      fixtureEmission({ ordinal: 0, watermarkMs: 1_000 }).output,
+    );
     expect(check).toEqual({ ok: true });
   });
 
@@ -121,11 +121,7 @@ describe("buildLiveFrameWindow (deterministic construction)", () => {
 
   test("descriptors derive from the payload's OWN timestamps (verbatim)", () => {
     const { window } = built();
-    expect(window.frames.map((f) => f.presentationTimestampMs)).toEqual([
-      3_000,
-      4_000,
-      5_000,
-    ]);
+    expect(window.frames.map((f) => f.presentationTimestampMs)).toEqual([3_000, 4_000, 5_000]);
     expect(window.frames.map((f) => f.frameIndex)).toEqual([0, 1, 2]);
   });
 
@@ -259,6 +255,27 @@ describe("verifyFrameWindowIntegrity (the fail-closed delivery boundary)", () =>
     const result = verifyFrameWindowIntegrity(env);
     expect(result).toMatchObject({ ok: false, frameIndex: 1 });
   });
+
+  test("an extra descriptor beyond the payload fails (never silently ignored)", () => {
+    const env = corrupted((copy) => {
+      copy.window.frames = [...copy.window.frames, structuredClone(copy.window.frames[0]!)];
+    });
+    const result = verifyFrameWindowIntegrity(env);
+    expect(result).toMatchObject({ ok: false });
+    expect(result.ok === false && result.reason).toContain("descriptor table mismatch");
+  });
+
+  test("tampered content diagnoses as a hash mismatch even when the length changes", () => {
+    // The diagnostic contract pinned from the OTHER side: a byte-length
+    // change is NOT sufficient to mislabel content tampering as a
+    // descriptor-size problem — the hash check runs first, always.
+    const env = corrupted((copy) => {
+      const frame = copy.payload.frames[0]!;
+      frame.svg = `${frame.svg}!`;
+    });
+    const result = verifyFrameWindowIntegrity(env);
+    expect(result.ok === false && result.reason).toContain("content hash mismatch");
+  });
 });
 
 describe("payload timestamps (the presentation clock source)", () => {
@@ -271,10 +288,7 @@ describe("payload timestamps (the presentation clock source)", () => {
       frameIntervalMs: FRAME_INTERVAL_MS,
     });
     expect(emission.output.frames.map((f) => f.outputTimestampMs)).toEqual([
-      6_000,
-      7_000,
-      8_000,
-      9_000,
+      6_000, 7_000, 8_000, 9_000,
     ]);
   });
 

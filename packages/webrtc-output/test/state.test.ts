@@ -22,7 +22,12 @@ function machine(): {
   const lines: string[] = [];
   const logger = createLogger({ sink: (line) => lines.push(line), now: () => 0 });
   const metrics = new MetricsRegistry();
-  return { m: new LiveSessionPhaseMachine(stats, logger, metrics, "live-s"), stats, metrics, lines };
+  return {
+    m: new LiveSessionPhaseMachine(stats, logger, metrics, "live-s"),
+    stats,
+    metrics,
+    lines,
+  };
 }
 
 describe("the phase vocabulary", () => {
@@ -40,7 +45,9 @@ describe("legal transitions", () => {
     expect(stats.stateTransitions).toEqual({ "negotiating->established": 1 });
     expect(lines.some((line) => line.includes("phase transition"))).toBe(true);
     const snapshot = metrics.snapshot();
-    const transition = snapshot.counters.find((c) => c.name === "live_output_state_transitions_total");
+    const transition = snapshot.counters.find(
+      (c) => c.name === "live_output_state_transitions_total",
+    );
     expect(transition?.value).toBe(1);
   });
 
@@ -138,8 +145,18 @@ describe("closeTerminal (idempotent terminal transition)", () => {
   test("the failure class rides along in the transition context", () => {
     const { m, lines } = machine();
     m.closeTerminal("transport-failed");
-    const closed = lines.find((line) => line.includes("established->closed") === false && line.includes("negotiating->closed"));
+    // The logger emits ONE structured JSON line per call (the observability
+    // contract): the transition record carries `from`/`to` as FIELDS plus the
+    // caller's context. Locate the terminal transition by those fields (the
+    // machine never logs the "from->to" key form — that key lives in
+    // `stats.stateTransitions`), then pin the failure class in the context.
+    const records = lines.map((line) => JSON.parse(line) as { fields?: Record<string, unknown> });
+    const closed = records.find(
+      (record) => record.fields?.from === "negotiating" && record.fields?.to === "closed",
+    );
     expect(closed).toBeDefined();
-    expect(closed).toContain("transport-failed");
+    expect(closed?.fields?.failureClass).toBe("transport-failed");
+    // And no other transition happened (first-wins terminal).
+    expect(records).toHaveLength(1);
   });
 });

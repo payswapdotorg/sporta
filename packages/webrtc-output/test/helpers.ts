@@ -96,7 +96,10 @@ export function expiredLiveDeliveryPolicy(nowMs: number): AuthorizationPolicy {
  * One deterministic frame document: the index and timestamp derive from the
  * parameters — the SVG bytes are a pure function of both (byte-stable).
  */
-export function fixtureFrame(frameIndex: number, outputTimestampMs: number): {
+export function fixtureFrame(
+  frameIndex: number,
+  outputTimestampMs: number,
+): {
   frameIndex: number;
   outputTimestampMs: number;
   svg: string;
@@ -132,26 +135,26 @@ export function fixtureEmission(options: {
     fixtureFrame(i, startMs + i * interval),
   );
   const rendererId = options.rendererId ?? "anime.prototype";
-  const payload: LiveOutputPayload = {
-    frames,
-    manifest: {
-      renderer: { rendererId, rendererVersion: "0.1.0" },
-      output: {
-        profile: LIVE_PROFILE,
-        startMs,
-        frameIntervalMs: interval,
-        durationMs: Math.max(0, (frameCount - 1) * interval),
-      },
-      // Extra manifest fields (the real W502 shape) are carried VERBATIM —
-      // the structural payload seam passes them through untouched.
-      session: { sessionId: "sess-live-out", snapshotVersion: 1, eventsSinceSequence: 0 },
-      provenance: { snapshotVersion: 1, lastEventSequence: 0 },
-      watermarkAfter: { watermarkMs: options.watermarkMs, sequence: options.ordinal },
-      frames: [],
-      skippedEvents: [],
-      degradation: { degraded: false, reasons: [] },
+  // The manifest is built UNTYPED first: it carries the real W502 shape's
+  // extra fields (session, provenance, the frame table, …) VERBATIM — the
+  // structural payload seam (`LiveOutputPayload`) types only the fields the
+  // transport needs and passes everything else through by reference.
+  const manifest = {
+    renderer: { rendererId, rendererVersion: "0.1.0" },
+    output: {
+      profile: LIVE_PROFILE,
+      startMs,
+      frameIntervalMs: interval,
+      durationMs: Math.max(0, (frameCount - 1) * interval),
     },
+    session: { sessionId: "sess-live-out", snapshotVersion: 1, eventsSinceSequence: 0 },
+    provenance: { snapshotVersion: 1, lastEventSequence: 0 },
+    watermarkAfter: { watermarkMs: options.watermarkMs, sequence: options.ordinal },
+    frames: [],
+    skippedEvents: [],
+    degradation: { degraded: false, reasons: [] },
   };
+  const payload: LiveOutputPayload = { frames, manifest };
   const watermark: Watermark = {
     watermarkMs: options.watermarkMs,
     sequence: options.ordinal * 10 + 1,
@@ -171,7 +174,10 @@ export function fixtureEmission(options: {
 }
 
 /** An emission whose payload profile mismatches the negotiated track. */
-export function mismatchedProfileEmission(ordinal: number, watermarkMs: number): LiveOutputEmission {
+export function mismatchedProfileEmission(
+  ordinal: number,
+  watermarkMs: number,
+): LiveOutputEmission {
   const emission = fixtureEmission({ ordinal, watermarkMs });
   return {
     ...emission,
