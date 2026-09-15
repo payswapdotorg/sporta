@@ -29,6 +29,7 @@
  * drives the verdict.
  */
 import {
+  OutputProfile,
   WorldEventStreamEntry,
   WorldSnapshot,
   type EntityKind,
@@ -390,24 +391,64 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
   if (interpolation.toStepIndex !== undefined) {
     requireInteger(interpolation.toStepIndex, `${path}.interpolation.toStepIndex`, 0);
   }
+  if (
+    (interpolation.toStepIndex === undefined) !==
+    (interpolation.toAtMs === undefined)
+  ) {
+    throw new SceneEvaluationError(
+      "frame-malformed",
+      `${path}.interpolation`,
+      "toStepIndex and toAtMs must be present TOGETHER (the bracketing step is a pair)",
+    );
+  }
   requireFiniteNumber(interpolation.fromAtMs, `${path}.interpolation.fromAtMs`, 0);
   if (interpolation.toAtMs !== undefined) {
     requireFiniteNumber(interpolation.toAtMs, `${path}.interpolation.toAtMs`, 0);
   }
   const fraction = requireFiniteNumber(interpolation.fraction, `${path}.interpolation.fraction`, 0);
-  if (fraction >= 1) {
-    throw new SceneEvaluationError(
-      "frame-malformed",
-      `${path}.interpolation.fraction`,
-      `must be in [0, 1) (got ${fraction})`,
-    );
-  }
-  if (typeof interpolation.sceneCut !== "boolean") {
-    throw new SceneEvaluationError(
-      "frame-malformed",
-      `${path}.interpolation.sceneCut`,
-      `must be a boolean (got ${JSON.stringify(interpolation.sceneCut)})`,
-    );
+  // The documented `Render3dMatchInterpolation` contract, enforced
+  // structurally (a violation is malformation, never a measured defect):
+  // fraction ∈ (0, 1) ONLY on interpolated frames; sceneCut is true ONLY on
+  // held frames; an interpolated frame always carries its bracketing pair.
+  // (Without these, `interpolateMatchFrame` would throw a bare RangeError
+  // mid-measurement — the evaluator never measures over an untrusted doc.)
+  if (interpolation.kind === "interpolated") {
+    if (fraction <= 0) {
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.interpolation.fraction`,
+        `an interpolated frame must carry a fraction in (0, 1) (got ${fraction})`,
+      );
+    }
+    if (interpolation.toStepIndex === undefined || interpolation.toAtMs === undefined) {
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.interpolation`,
+        "an interpolated frame must carry its bracketing to-step",
+      );
+    }
+    if (interpolation.sceneCut !== false) {
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.interpolation.sceneCut`,
+        `must be false on an interpolated frame (got ${JSON.stringify(interpolation.sceneCut)})`,
+      );
+    }
+  } else {
+    if (fraction !== 0) {
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.interpolation.fraction`,
+        `an ${interpolation.kind} frame interpolates NOTHING — fraction must be 0 (got ${fraction})`,
+      );
+    }
+    if (interpolation.sceneCut !== (interpolation.kind === "held")) {
+      throw new SceneEvaluationError(
+        "frame-malformed",
+        `${path}.interpolation.sceneCut`,
+        `must be ${interpolation.kind === "held"} on a ${interpolation.kind} frame (got ${JSON.stringify(interpolation.sceneCut)})`,
+      );
+    }
   }
   // The source provenance block.
   const source = entry.source;
@@ -662,6 +703,19 @@ export function validateEvaluationInput(input: {
   }
 
   const directed = isDirectedManifest(manifest);
+  const matchCameraSlotId = directed
+    ? null
+    : requireString(
+        (manifest as AvatarField3dManifest).camera?.slotId,
+        "$.output.manifest.camera.slotId",
+      );
+  if (!directed) {
+    const output = (manifest as AvatarField3dManifest).output;
+    if (!isRecord(output)) {
+      throw new SceneEvaluationError("output-malformed", "$.output.manifest.output", "must be an object");
+    }
+    requireFiniteNumber(output.frameIntervalMs, "$.output.manifest.output.frameIntervalMs", 0);
+  }
   const frames: EvalFrame[] = [];
   let previousOutputTimestamp: number | undefined;
   for (let i = 0; i < manifest.frames.length; i += 1) {
@@ -730,11 +784,20 @@ export function validateEvaluationInput(input: {
     }
     previousOutputTimestamp = frames[i]!.outputTimestampMs;
     const interpolation = frames[i]!.entry.interpolation!;
-    if (!stepIndexByAtMs.has(interpolation.fromAtMs)) {
+    const fromStepIndex = stepIndexByAtMs.get(interpolation.fromAtMs)!;
+    // Slot resolvability (the expectation precondition): the slot in force
+    // for this frame must be CARRIED by the frame's from-step's scene — the
+    // renderer refuses an uncarried slot, so a manifest claiming one is a
+    // document the evaluator cannot derive expectations from (fail loud).
+    const frameSlotId = directed
+      ? manifest.windows[frames[i]!.windowIndex!]!.cameraSlotId
+      : matchCameraSlotId!;
+    const fromStep = steps[fromStepIndex]!;
+    if (!fromStep.scene.cameraSlots.some((slot) => slot.slotId === frameSlotId)) {
       throw new SceneEvaluationError(
         "alignment-malformed",
-        `${path}.entry.interpolation.fromAtMs`,
-        `${interpolation.fromAtMs} is not any step's atMs — the frame's authority must resolve against the steps`,
+        `$.output.manifest.frames[${i}]`,
+        `the slot "${frameSlotId}" in force for this frame is not carried by step ${fromStepIndex}'s scene — the expectation cannot resolve`,
       );
     }
     if (interpolation.toAtMs !== undefined && !stepIndexByAtMs.has(interpolation.toAtMs)) {
@@ -759,6 +822,34 @@ export function validateEvaluationInput(input: {
       }
       requireString(window.cameraSlotId, `${path}.cameraSlotId`);
       requireEnum(window.kind, ["live", "review"], `${path}.kind`);
+      const source = window.source;
+      if (!isRecord(source)) {
+        throw new SceneEvaluationError("window-malformed", `${path}.source`, "must be an object");
+      }
+      const startMs = requireFiniteNumber(source.startMs, `${path}.source.startMs`, 0);
+      const endMs = requireFiniteNumber(source.endMs, `${path}.source.endMs`, 0);
+      if (endMs <= startMs) {
+        throw new SceneEvaluationError(
+          "window-malformed",
+          `${path}.source`,
+          `endMs (${endMs}) must be > startMs (${startMs})`,
+        );
+      }
+      const profileCheck = OutputProfile.safeParse(window.outputProfile);
+      if (!profileCheck.success) {
+        throw new SceneEvaluationError(
+          "window-malformed",
+          `${path}.outputProfile`,
+          `not a valid OutputProfile — ${issuesOf(profileCheck.error)}`,
+        );
+      }
+      if (window.outputProfile.frameRate < 1 || !Number.isInteger(window.outputProfile.frameRate)) {
+        throw new SceneEvaluationError(
+          "window-malformed",
+          `${path}.outputProfile.frameRate`,
+          `must be an integer >= 1 (got ${JSON.stringify(window.outputProfile.frameRate)})`,
+        );
+      }
     }
     let previousWindowIndex = -1;
     for (const frame of frames) {

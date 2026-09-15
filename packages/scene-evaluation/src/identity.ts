@@ -33,7 +33,7 @@ import type { AvatarStyle, Render3dStyleKind } from "@sporta/renderer-3d";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import type { FrameExpectation } from "./expected";
 import { expectedStyleKind, expectedStyleToken } from "./expected";
-import type { SceneEvaluationFinding } from "./findings";
+import type { FindingSink, SceneEvaluationFinding } from "./findings";
 import { frameFinding } from "./findings";
 import { describeValue } from "./internal";
 
@@ -73,7 +73,7 @@ export function measureIdentity(options: {
   input: ValidatedSceneEvaluationInput;
   frames: readonly EvalFrame[];
   expectations: readonly FrameExpectation[];
-  findings: SceneEvaluationFinding[];
+  findings: FindingSink;
 }): IdentityMetrics {
   const { frames, expectations, findings } = options;
   const styleKey = expectations[0]!.styleKey;
@@ -97,10 +97,6 @@ export function measureIdentity(options: {
   for (let i = 0; i < frames.length; i += 1) {
     const frame = frames[i]!;
     const expectation = expectations[i]!;
-    const expectedKindById = new Map<string, string>();
-    for (const sceneEntity of expectation.scene.entities) {
-      expectedKindById.set(sceneEntity.entityId, sceneEntity.kind);
-    }
     for (const entity of frame.entry.entities) {
       const entityId = entity.entityId;
       seenEntities.add(entityId);
@@ -117,7 +113,7 @@ export function measureIdentity(options: {
             dimension: "identity",
             metric: "identity.entityKindChangeCount",
             entityId,
-            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entity.entityId}].kind`,
+            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].kind`,
             expected: describeValue(firstSeenKind),
             actual: describeValue(recordedKind),
           }),
@@ -136,7 +132,7 @@ export function measureIdentity(options: {
             dimension: "identity",
             metric: "identity.entityStyleKindChangeCount",
             entityId,
-            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entity.entityId}].styleKind`,
+            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].styleKind`,
             expected: describeValue(firstSeenStyleKind),
             actual: describeValue(recordedStyleKind),
           }),
@@ -165,7 +161,7 @@ export function measureIdentity(options: {
             dimension: "identity",
             metric: "identity.styleTokenDivergenceCount",
             entityId,
-            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entity.entityId}].style`,
+            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].style`,
             expected: describeValue(
               recordedStyleKind === "official-fixed"
                 ? OFFICIAL_STYLE
@@ -189,7 +185,7 @@ export function measureIdentity(options: {
             dimension: "identity",
             metric: "identity.styleTokenDivergenceCount",
             entityId,
-            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entity.entityId}].style`,
+            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].style`,
             expected: describeValue(expectedToken),
             actual: describeValue(recordedToken),
           }),
@@ -206,7 +202,7 @@ export function measureIdentity(options: {
             dimension: "identity",
             metric: "identity.styleTokenInstabilityCount",
             entityId,
-            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entity.entityId}].style`,
+            path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].style`,
             expected: describeValue(firstSeenToken),
             actual: describeValue(recordedToken),
           }),

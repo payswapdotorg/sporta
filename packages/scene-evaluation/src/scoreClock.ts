@@ -29,7 +29,7 @@
  */
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import type { FrameExpectation } from "./expected";
-import type { SceneEvaluationFinding } from "./findings";
+import type { FindingSink, SceneEvaluationFinding } from "./findings";
 import { frameFinding } from "./findings";
 import { describeValue } from "./internal";
 
@@ -61,8 +61,9 @@ export interface ClockMetrics {
 function measureClaims(
   frames: readonly EvalFrame[],
   expectations: readonly FrameExpectation[],
-  findings: SceneEvaluationFinding[],
+  findings: FindingSink,
   metric: string,
+  dimension: "score" | "clock",
 ): number {
   let mismatches = 0;
   for (let i = 0; i < frames.length; i += 1) {
@@ -73,7 +74,7 @@ function measureClaims(
       mismatches += 1;
       findings.push(
         frameFinding(frame, {
-          dimension: metric.startsWith("score.") ? "score" : "clock",
+          dimension,
           metric,
           path: `$.output.manifest.frames[${frame.frameIndex}].entry.hud.statusLine`,
           expected: describeValue(expected),
@@ -93,7 +94,7 @@ function measureClaims(
 function measureAdvanceDiscipline(
   frames: readonly EvalFrame[],
   expectations: readonly FrameExpectation[],
-  findings: SceneEvaluationFinding[],
+  findings: FindingSink,
 ): { midSegmentClaimChangeCount: number; boundaryClaimAdvanceCount: number } {
   let midSegmentChanges = 0;
   let boundaryAdvances = 0;
@@ -132,7 +133,7 @@ export function measureScore(options: {
   frames: readonly EvalFrame[];
   expectations: readonly FrameExpectation[];
   stepScoreMismatchCount: number;
-  findings: SceneEvaluationFinding[];
+  findings: FindingSink;
 }): ScoreMetrics {
   const { frames, expectations, stepScoreMismatchCount, findings } = options;
   return {
@@ -141,6 +142,7 @@ export function measureScore(options: {
       expectations,
       findings,
       "score.frameClaimMismatchCount",
+      "score",
     ),
     stepScoreMismatchCount,
     frameCount: frames.length,
@@ -153,10 +155,16 @@ export function measureClock(options: {
   frames: readonly EvalFrame[];
   expectations: readonly FrameExpectation[];
   stepClockMismatchCount: number;
-  findings: SceneEvaluationFinding[];
+  findings: FindingSink;
 }): ClockMetrics {
   const { frames, expectations, stepClockMismatchCount, findings } = options;
-  const claims = measureClaims(frames, expectations, findings, "clock.frameClaimMismatchCount");
+  const claims = measureClaims(
+    frames,
+    expectations,
+    findings,
+    "clock.frameClaimMismatchCount",
+    "clock",
+  );
   const advance = measureAdvanceDiscipline(frames, expectations, findings);
   return {
     frameClaimMismatchCount: claims,

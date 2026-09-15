@@ -54,6 +54,8 @@ export interface FrameExpectation {
   expectedStatusLine: string | null;
   /** The camera label the frame's HUD must carry. */
   expectedCameraLabel: string;
+  /** The slot id in force for the frame (the directed window's, or the match manifest's). */
+  expectedCameraSlotId: string;
   /** The expected style key (`"<rendererId>:<rendererVersion>"`, the documented derivation). */
   styleKey: string;
 }
@@ -61,6 +63,17 @@ export interface FrameExpectation {
 /** Computes the expected style token for one entity (the real function). */
 export function expectedStyleToken(styleKey: string, entityId: string) {
   return stableAvatarStyle(styleKey, entityId);
+}
+
+/** The slot id in force for one frame (its directed window's, or the match manifest's). */
+function resolveFrameSlotId(input: ValidatedSceneEvaluationInput, frame: EvalFrame): string {
+  if (frame.windowSlotId !== null) return frame.windowSlotId;
+  if (input.mode === "match") return (input.manifest as AvatarField3dManifest).camera.slotId;
+  throw new SceneEvaluationError(
+    "alignment-malformed",
+    `$.output.manifest.frames[${frame.frameIndex}]`,
+    "no camera slot in force for this frame (a directed frame must belong to a window)",
+  );
 }
 
 /**
@@ -93,9 +106,16 @@ export function frameExpectation(
     );
   }
   const toStepIndex =
-    interpolation.toStepIndex !== undefined
-      ? (input.stepIndexByAtMs.get(interpolation.toAtMs) as number)
+    interpolation.toAtMs !== undefined
+      ? input.stepIndexByAtMs.get(interpolation.toAtMs)
       : undefined;
+  if (toStepIndex === undefined && interpolation.toAtMs !== undefined) {
+    throw new SceneEvaluationError(
+      "alignment-malformed",
+      `$.output.manifest.frames[${frame.frameIndex}].entry.interpolation.toAtMs`,
+      `${interpolation.toAtMs} is not any step's atMs (validate should have caught this)`,
+    );
+  }
   if (toStepIndex !== undefined && toStepIndex !== fromStepIndex + 1) {
     throw new SceneEvaluationError(
       "alignment-malformed",
@@ -132,9 +152,7 @@ export function frameExpectation(
     entityProvenance = undefined;
   }
 
-  const expectedCameraSlotId =
-    frame.windowSlotId ??
-    (input.manifest as AvatarField3dManifest).camera.slotId;
+  const expectedCameraSlotId = resolveFrameSlotId(input, frame);
   return {
     fromStepIndex,
     toStepIndex,
@@ -142,6 +160,7 @@ export function frameExpectation(
     entityProvenance,
     expectedStatusLine: statusLine(scene.scoreClock) ?? null,
     expectedCameraLabel: cameraLabel(expectedCameraSlotId),
+    expectedCameraSlotId,
     styleKey,
   };
 }

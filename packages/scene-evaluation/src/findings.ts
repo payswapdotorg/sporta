@@ -38,9 +38,10 @@ export interface SceneEvaluationFinding {
 }
 
 /** The bounded finding collector (never silent: truncation is accounted). */
-export class FindingCollector {
+export class FindingCollector implements FindingSink {
   private readonly findings: SceneEvaluationFinding[] = [];
   private truncated = false;
+  private dropped = 0;
 
   constructor(private readonly max: number) {}
 
@@ -48,6 +49,7 @@ export class FindingCollector {
   push(finding: SceneEvaluationFinding): void {
     if (this.findings.length >= this.max) {
       this.truncated = true;
+      this.dropped += 1;
       return;
     }
     this.findings.push(finding);
@@ -62,6 +64,19 @@ export class FindingCollector {
   wasTruncated(): boolean {
     return this.truncated;
   }
+
+  /** How many findings were dropped beyond the cap (0 when not truncated). */
+  droppedCount(): number {
+    return this.dropped;
+  }
+}
+
+/**
+ * Where measurements record their findings: a plain array satisfies this,
+ * and so does {@link FindingCollector} (the report's bounded sink).
+ */
+export interface FindingSink {
+  push(finding: SceneEvaluationFinding): void;
 }
 
 /** Builds a frame-level finding path with the frame's coordinates prefilled. */

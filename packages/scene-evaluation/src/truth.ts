@@ -32,7 +32,7 @@ import { projectScene } from "@sporta/scene-projection";
 import type { SceneSpecification } from "@sporta/scene-projection";
 import type { AvatarField3dMatchStep } from "@sporta/renderer-3d";
 import { deepEqualJson, describeValue } from "./internal";
-import type { SceneEvaluationFinding } from "./findings";
+import type { FindingSink, SceneEvaluationFinding } from "./findings";
 
 /** The measured source-truth metrics (all counts; every mismatch a finding). */
 export interface SourceTruthMetrics {
@@ -57,7 +57,7 @@ function compareBlock(
   select: (scene: SceneSpecification) => unknown,
   label: string,
   metric: string,
-  findings: SceneEvaluationFinding[],
+  findings: FindingSink,
 ): number {
   let mismatches = 0;
   for (let k = 0; k < steps.length; k += 1) {
@@ -85,7 +85,7 @@ function compareBlock(
 export function measureSourceTruth(options: {
   snapshots: readonly WorldSnapshot[];
   steps: readonly AvatarField3dMatchStep[];
-  findings: SceneEvaluationFinding[];
+  findings: FindingSink;
 }): SourceTruthMetrics {
   const { snapshots, steps, findings } = options;
   const expected = snapshots.map((snapshot) => projectScene(snapshot));
