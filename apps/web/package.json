@@ -2,20 +2,27 @@
   "name": "@sporta/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Sporta product frontend — installable web application shell (W903).",
+  "description": "Sporta product frontend \u2014 installable web application shell (W903) + hosted platform composition root (W910-W913).",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
-    "icons": "bun run scripts/generate-icons.ts"
+    "icons": "bun run scripts/generate-icons.ts",
+    "platform:migrate": "bun run src/server/platform/db/run-migrations.ts"
   },
   "dependencies": {
+    "@sporta/capability": "workspace:*",
+    "@sporta/contracts": "workspace:*",
+    "@sporta/identity": "workspace:*",
     "next": "16.3.5",
+    "postgres": "^3.4.7",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@sporta/output-pipeline": "workspace:*",
     "@types/bun": "^1.4.2",
     "@types/node": "^22.20.2",
     "@types/react": "19.3.0",
