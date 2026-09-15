@@ -408,6 +408,23 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/slo": {
+      "name": "@sporta/slo",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/gpu-worker": "workspace:*",
+        "@sporta/latency-benchmark": "workspace:*",
+        "@sporta/processing-queues": "workspace:*",
+        "@sporta/render-orchestration": "workspace:*",
+        "@sporta/viewer-shell": "workspace:*",
+        "@sporta/webrtc-output": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/spatial-state": {
       "name": "@sporta/spatial-state",
       "version": "0.1.0",
@@ -615,6 +632,8 @@
     "@sporta/scene-projection": ["@sporta/scene-projection@workspace:packages/scene-projection"],
 
     "@sporta/session": ["@sporta/session@workspace:packages/session"],
+
+    "@sporta/slo": ["@sporta/slo@workspace:packages/slo"],
 
     "@sporta/spatial-state": ["@sporta/spatial-state@workspace:packages/spatial-state"],
 

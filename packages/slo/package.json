@@ -1,0 +1,27 @@
+{
+  "name": "@sporta/slo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "evaluate": "bun run scripts/evaluate.ts"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/gpu-worker": "workspace:*",
+    "@sporta/latency-benchmark": "workspace:*",
+    "@sporta/processing-queues": "workspace:*",
+    "@sporta/render-orchestration": "workspace:*",
+    "@sporta/viewer-shell": "workspace:*",
+    "@sporta/webrtc-output": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}
