@@ -1,7 +1,7 @@
 # W914 Compute Adapter Audit — Seam-by-Seam (Wave 1)
 
 **Task:** W914 audit + provider-neutral compute-adapter contract preparation.
-**Status:** AUDIT + CONTRACT DELIVERED AND VERIFIED (flight 2 completed the line-by-line audit, fixed three real defects in the inherited WIP, and delivered the full test battery). W914 implementation is Wave 2. **Audited at:** main @ `839b307`, verified in the `work/w914-compute-adapter` worktree (flight-1 WIP transit-committed as 5d8bb8c; see §9 for the flight-2 audit record).
+**Status:** AUDIT + CONTRACT DELIVERED AND VERIFIED (flight 3 re-audited everything line-by-line against the real seams, fixed two citation defects, and ran the full battery green; see §9.2 for the flight-3 record and §9.1 for the flight-2 record — flight 2 died mid-battery, so its battery claims were re-proven, not trusted). W914 implementation is Wave 2. **Audited at:** main @ `839b307`, verified in the `work/w914-compute-adapter` worktree (flight-1 WIP transit-committed as 5d8bb8c, flight-2 as c0d941c).
 **Scope rule:** this audit records findings; it does not modify `packages/gpu-worker`, `packages/render-orchestration`, `packages/output-pipeline`, or any existing package. Items those packages must change (or that need tech-lead/ADR decisions) are tagged `contract-change-required`; everything else is `implementation-only`.
 
 ---
@@ -201,9 +201,11 @@ No finding requires changing W303/W304/W504 code to proceed: all three are suffi
 
 ## 9. Flight-2 audit record (line-by-line verification of the inherited WIP)
 
-The flight-1 worker died before ANY verification. Flight 2 re-read every seam claim in this document against the actual W303/W304/W504/W701 source (all verified: envelope/message shapes, the `idempotencyKeyOf`/`jobIdOf` derivations, the 9-identity W304 lattice, `renderDeadlineMs` default 60 000, `r-<seq>` render ids, `PlaybackRightsContext` fail-closed retrieval, `anime-clip-<fnv1a32-hex8>` segment ids, the `bun:sqlite` store implementations, the `locateAnimeRef` playback seam, the `RenderOutputInvalidError` payloadRef resolution) and audited the inherited `packages/compute-adapter` line by line.
+The flight-1 worker died before ANY verification. Flight 2 re-read every seam claim in this document against the actual W303/W304/W504/W701 source (all verified: envelope/message shapes, the `idempotencyKeyOf`/`jobIdOf` derivations, the 9-identity W304 lattice, `renderDeadlineMs` default 60 000, `r-<seq>` render ids, `PlaybackRightsContext` fail-closed retrieval, `anime-clip-<fnv1a32-hex8>` segment ids, the `bun:sqlite` store implementations, the `locateAnimeRef` playback seam, the `RenderOutputInvalidError` payloadRef resolution) and audited the inherited `packages/compute-adapter` line by line. Flight 2 then died mid-battery (per the TL transit record); its fixes below are real, but its battery claims were NOT independently proven until flight 3 re-ran everything (§9.2).
 
 **Audit corrections to this document (facts fixed):**
+
+### 9.1 Flight-2 corrections and defects (re-confirmed by flight 3)
 
 1. `GPU_METRIC_NAMES` has **21** series, not 20; and it is not true that "every accounting counter has a series" (the gauges `inFlight`/`queuedJobs`/`executingJobs` and the counters `unknownReports`/`workerRejoins`/`rejectedClaims` are ledger-visible only) — §5 corrected.
 2. W701's snapshot call is `engine.snapshot()` + `eventsSince(snapshot.watermark.sequence)` (not "`stateAt`") — §1.1(a) corrected.
@@ -222,4 +224,21 @@ The flight-1 worker died before ANY verification. Flight 2 re-read every seam cl
 
 No dead code or over-engineering was found in the inherited schema/state/error/accounting modules — the contract design itself survived the line-by-line audit unchanged (including the `admitted`/`dispatched` adapter-level state additions and the 14-edge transition table, which were re-derived from the W303 lifecycle and the decoupled-handoff need).
 
-**Verification battery (this worktree, flight 2):** `bun install` (lockfile unchanged); `bun test` in `packages/compute-adapter` — 130 pass / 0 fail / 508 assertions, run twice with identical counts; root `bun test` — 4085 pre-existing + 130 new, all green; `bun run typecheck` zero errors; `bun run lint` + `bun run format:check` clean; purity grep over `src` (`Math.random|Date.now|performance.now`) empty.
+**Verification battery (flight 2, per its own record — re-proven by flight 3 below):** `bun install` (lockfile unchanged); `bun test` in `packages/compute-adapter` — 130 pass / 0 fail / 508 assertions, run twice with identical counts; root `bun test` — 4085 pre-existing + 130 new, all green; `bun run typecheck` zero errors; `bun run lint` + `bun run format:check` clean; purity grep over `src` (`Math.random|Date.now|performance.now`) empty.
+
+### 9.2 Flight-3 audit record (the completion flight)
+
+Flight 3 inherited the transit-preserved flight-2 state (c0d941c: worker died ~21:56 mid-battery, after the fixes and new tests were written but before any battery output was recorded). The flight-3 audit re-verified everything independently:
+
+**Seam re-verification:** every §1-§7 claim above re-checked against the real sources, including the W303 `GpuTerminalClass`/`GpuJobState`/`GpuTerminalDisposition`/`GpuJobEventType` unions (types.ts), the submit-order posture (idempotency-key check FIRST, then jobId collision — dispatcher.ts), the four-method `GpuDispatcherPort`, `GPU_METRIC_NAMES` = 21 series, the W304 derivations (`render-job-<session>-<ordinal>`, `render-<session>-wm-<watermarkMs>-seq-<sequence>`, `render-batch:<batchId>`, priority 0, `requirements: { modelClass }`, `renderDeadlineMs` default 60 000, NO `maxAttempts` set), the W504 conventions (`byteLengthOf` = UTF-8 byte length via `TextEncoder`, `anime-clip-<fnv1a32-hex8>`, `canStoreDerivatives` fail-closed retrieval, the `GET /v1/sessions/:id/renders/:renderId/outputs/:segmentId` playback seam), the W701 synchronous `createRender` (`engine.snapshot()` + `eventsSince`, `r-<seq>` ids), and the contracts `OutputProfile`/`styleConfig`/`RightsCapabilities.canReferenceSourceFrames` shapes. The flight-2 seam corrections (§9.1 facts 1-3) were re-confirmed accurate.
+
+**Defects found by the flight-3 line-by-line audit of the inherited `packages/compute-adapter` (both citation-level, both fixed):**
+
+| # | Defect | Severity | Fix |
+|---|---|---|---|
+| F7 | `src/schemas.ts` cited the W303 `GpuJobEventType` members WITHOUT `"submitted"` (two doc comments), implying it is an adapter-level addition — but `"submitted"` IS a W303 member (gpu-worker `src/types.ts`) and the enum correctly includes it (the vocabulary pin already proves the enum; the citation was wrong) | citation inaccuracy (the acceptance criterion requires vocabularies CITED accurately) | both comments now list `"submitted"` among the VERBATIM members |
+| F8 | `src/memory-adapter.ts` called `DEFAULT_IN_MEMORY_LIMITS` "the W303 magnitudes" — but W303's `DEFAULT_GPU_LIMITS.maxQueuedJobs` is 1 000, not 64 (only `maxAdmittedJobs` = 1 000 000 matches) | citation inaccuracy | the comment now states the honest split (admitted budget matches W303; the queue bound is a deliberately smaller in-memory magnitude) |
+
+No functional, schema, state-machine, accounting, or port defects were found: the flight-2 fixed contract (schemas/states/errors/accounting/adapter/memory-adapter + the 5 test files) survived the re-audit unchanged.
+
+**Flight-3 verification battery (this worktree, run inline and sequentially):** `bun install` — no changes; `bun test` in `packages/compute-adapter` — 130 pass / 0 fail / 508 assertions, run twice with identical counts; `bun run typecheck` + `bunx tsc --noEmit` — zero errors; root `bun test` — all green (4085 pre-existing + 130 new); `bun run lint` + `bun run format:check` from the worktree root — clean; purity grep over `src` (`Math.random|Date.now|performance.now`) — empty.

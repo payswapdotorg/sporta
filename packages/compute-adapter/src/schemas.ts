@@ -22,11 +22,12 @@
  *   "timeout" | "internal"` — VERBATIM `GpuTerminalClass` (W303), which
  *   extends the W302 DLQ taxonomy with the W303 timeout class;
  * - decision-event kinds — the W303 `GpuJobEventType` members VERBATIM
- *   (`"claimed"`, `"lease-expired"`, `"requeued"`, `"worker-stale"`,
- *   `"deadline-timeout"`, `"cancelled"`, `"superseded-report"`,
- *   `"succeeded"`, `"failed"`, `"dead-lettered"`) plus the adapter-level
- *   `"dispatched"` (provider handoff) and `"progress"` (fractional
- *   progress — W906's "observe actual processing state");
+ *   (`"submitted"`, `"claimed"`, `"lease-expired"`, `"requeued"`,
+ *   `"worker-stale"`, `"deadline-timeout"`, `"cancelled"`,
+ *   `"superseded-report"`, `"succeeded"`, `"failed"`, `"dead-lettered"`)
+ *   plus the adapter-level `"dispatched"` (provider handoff) and
+ *   `"progress"` (fractional progress — W906's "observe actual processing
+ *   state");
  * - result timing field names (`submittedAtMs`, `startedAtMs`,
  *   `finishedAtMs`, `queueWaitMs`, `executionMs`) — VERBATIM
  *   `GpuJobResultTiming` (W303);
@@ -424,10 +425,11 @@ export type ComputeTerminalClass = z.infer<typeof ComputeTerminalClass>;
 
 /**
  * The closed decision/progress-event vocabulary: the W303 `GpuJobEventType`
- * members VERBATIM (`claimed`, `lease-expired`, `requeued`, `worker-stale`,
- * `deadline-timeout`, `cancelled`, `superseded-report`, `succeeded`, `failed`,
- * `dead-lettered`) plus the adapter-level `"dispatched"` (provider handoff)
- * and `"progress"` (fractional progress, for the W906 processing-state UX).
+ * members VERBATIM (`submitted`, `claimed`, `lease-expired`, `requeued`,
+ * `worker-stale`, `deadline-timeout`, `cancelled`, `superseded-report`,
+ * `succeeded`, `failed`, `dead-lettered`) plus the adapter-level
+ * `"dispatched"` (provider handoff) and `"progress"` (fractional progress,
+ * for the W906 processing-state UX).
  */
 export const ComputeJobEventType = z.enum([
   "submitted",

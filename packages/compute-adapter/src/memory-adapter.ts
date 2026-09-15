@@ -95,7 +95,12 @@ export interface InMemoryComputeLimits {
   maxAdmittedJobs: number;
 }
 
-/** Frozen default limits (the W303 magnitudes). */
+/**
+ * Frozen default limits. The admitted-job budget matches the W303 magnitude
+ * (`DEFAULT_GPU_LIMITS.maxAdmittedJobs` = 1_000_000); the queue bound is a
+ * deliberately SMALLER in-memory magnitude (64 vs W303's 1_000) so tests
+ * exercise the typed `ComputeResourceLimitError` refusal path cheaply.
+ */
 export const DEFAULT_IN_MEMORY_LIMITS: InMemoryComputeLimits = Object.freeze({
   maxQueuedJobs: 64,
   maxAdmittedJobs: 1_000_000,
