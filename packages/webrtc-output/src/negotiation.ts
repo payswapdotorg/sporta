@@ -6,9 +6,24 @@
  * {@link LiveOutputOffer} (tracks declared from the render output profile,
  * VERBATIM — codec/container/resolution/frameRate/latencyClass), the viewer
  * endpoint answers with a typed accept or reject, and the host establishes
- * on the accept. Documents are zod-validated at BOTH boundaries
- * (`parseLiveOutputOffer` / `parseLiveOutputAnswer`): a malformed document
- * is a typed `protocol-violation`, never a best-effort guess.
+ * on the accept. Documents are zod-validated at BOTH boundaries — with the
+ * TWO-GRAMMAR posture this contract's own rejection vocabulary requires:
+ *
+ * - The STRICT wire schema (`LiveOutputOffer`, via `parseLiveOutputOffer`)
+ *   is the v1 protocol contract: what a v1 host mints
+ *   (`buildLiveOutputOffer` self-validates against it) and what establishes
+ *   a session — at least one track, every track of v1's `"video"` kind, the
+ *   v1 protocol-version literal. A v1 host cannot mint anything else.
+ * - The ANSWER-side intake grammar (`AnswerableLiveOutputOffer`, below) is
+ *   what the VIEWER endpoint decides over: offer-SHAPED documents whose
+ *   tracks may be empty or of future kinds and whose protocol version may
+ *   be foreign — because the rejection reasons `no-video-track` and
+ *   `unsupported-protocol-version` are NEGOTIATION outcomes (a peer we
+ *   cannot serve is answered with a typed reject), not malformedness. Only
+ *   documents that are not offer-shaped at all (wrong field types, missing
+ *   session controls, a broken profile) are a typed `protocol-violation`
+ *   throw — never a best-effort guess. This mirrors SDP semantics: an
+ *   endpoint answers offers it cannot serve; it does not crash on them.
  *
  * RIGHTS (architecture-lock §11, the W301 admission posture): the offer is
  * only minted after a fail-closed rights re-derivation on the injected
@@ -18,16 +33,47 @@
  * the stream opens. The policy is re-derived on every `sendWindow`; a
  * mid-stream lapse terminates the session LOUDLY (class `rights-lapsed`).
  */
-import { deriveRightsCapabilities, type AuthorizationPolicy, type OutputProfile } from "@sporta/contracts";
+import {
+  OutputProfile,
+  deriveRightsCapabilities,
+  type AuthorizationPolicy,
+} from "@sporta/contracts";
+import { z } from "zod";
 import { LiveOutputProtocolError, LiveOutputRightsError } from "./errors";
 import {
   LiveOutputAnswer,
   LiveOutputOffer,
+  LiveOutputSessionControls,
   type LiveOutputAnswer as LiveOutputAnswerType,
   type LiveOutputOffer as LiveOutputOfferType,
   type LiveOutputRejectionReason,
 } from "./types";
 import { LIVE_OUTPUT_PROTOCOL_VERSION } from "./types";
+
+/**
+ * The ANSWER-side offer intake grammar (see the module doc): the strict wire
+ * schema's field validation with the two POLICY dimensions relaxed — the
+ * tracks array may be empty or carry future track kinds, and the protocol
+ * version may be foreign. Everything else (identity fields, session-control
+ * bounds, the output-profile shape, timestamps) is validated as strictly as
+ * the wire schema: an offer that fails THIS grammar is not offer-shaped and
+ * throws the typed protocol error; an offer that passes it gets the
+ * endpoint's typed decision.
+ */
+const AnswerableLiveOutputOffer = z.object({
+  protocolVersion: z.string().min(1),
+  sessionId: z.string().min(1),
+  streamId: z.string().min(1),
+  tracks: z.array(
+    z.object({
+      trackId: z.string().min(1),
+      kind: z.string().min(1),
+      profile: OutputProfile,
+    }),
+  ),
+  sessionControls: LiveOutputSessionControls,
+  offeredAtMs: z.number(),
+});
 
 /** Parse result for a wire document (typed ok/invalid — never a guess). */
 export type DocumentParse<T> = { ok: true; value: T } | { ok: false; reason: string };
@@ -117,11 +163,13 @@ export function buildLiveOutputOffer(input: {
 }
 
 /**
- * The viewer-side decision over an offer: validates the document, applies
- * the endpoint's policy (supported protocol version, at least one video
- * track, optional codec/latency-class allow-lists), and produces the typed
- * answer document. Malformed documents throw the typed protocol error;
- * policy mismatches produce a typed REJECT answer (negotiation, not fault).
+ * The viewer-side decision over an offer: validates the document against the
+ * ANSWER-side intake grammar (offer-shaped, any tracks/version — see the
+ * module doc), applies the endpoint's policy (supported protocol version, at
+ * least one video track, optional codec/latency-class allow-lists), and
+ * produces the typed answer document. Documents that are not offer-shaped
+ * throw the typed protocol error; policy mismatches produce a typed REJECT
+ * answer (negotiation, not fault).
  */
 export function answerLiveOutputOffer(
   offerDocument: unknown,
@@ -136,15 +184,15 @@ export function answerLiveOutputOffer(
     supportedLatencyClasses?: readonly string[];
   },
 ): LiveOutputAnswerType {
-  const parsed = parseLiveOutputOffer(offerDocument);
-  if (!parsed.ok) {
-    throw new LiveOutputProtocolError(parsed.reason, {
+  const parsed = AnswerableLiveOutputOffer.safeParse(offerDocument);
+  if (!parsed.success) {
+    throw new LiveOutputProtocolError(`invalid live output offer: ${parsed.error.message}`, {
       streamId: "unknown",
       failureClass: "protocol-violation",
       document: offerDocument,
     });
   }
-  const offer = parsed.value;
+  const offer = parsed.data;
   const reject = (reason: LiveOutputRejectionReason): LiveOutputAnswerType => ({
     kind: "reject",
     reason,
@@ -171,9 +219,18 @@ export function answerLiveOutputOffer(
   ) {
     return reject("unsupported-latency-class");
   }
+  // The v1 ANSWER vocabulary can only echo the v1 protocol version (the
+  // accept document's `protocolVersion` is the v1 literal — a future v2
+  // answer gets its own vocabulary). The allow-list check above already
+  // rejected offers the endpoint does not speak; this check keeps the ACCEPT
+  // honest for a viewer configured with a FOREIGN expected version whose
+  // offer happens to match it: this package can still only ACCEPT in v1.
+  if (offer.protocolVersion !== LIVE_OUTPUT_PROTOCOL_VERSION) {
+    return reject("unsupported-protocol-version");
+  }
   return {
     kind: "accept",
-    protocolVersion: offer.protocolVersion,
+    protocolVersion: LIVE_OUTPUT_PROTOCOL_VERSION,
     viewerId: options.viewerId,
     acceptedAtMs: options.nowMs,
   };

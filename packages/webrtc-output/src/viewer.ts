@@ -117,7 +117,9 @@ export function createEndpoint(
         ...(options.supportedProtocolVersion === undefined
           ? {}
           : { supportedProtocolVersion: options.supportedProtocolVersion }),
-        ...(options.supportedCodecs === undefined ? {} : { supportedCodecs: options.supportedCodecs }),
+        ...(options.supportedCodecs === undefined
+          ? {}
+          : { supportedCodecs: options.supportedCodecs }),
         ...(options.supportedLatencyClasses === undefined
           ? {}
           : { supportedLatencyClasses: options.supportedLatencyClasses }),
@@ -134,7 +136,11 @@ export function createEndpoint(
       if (terminal !== null) {
         throw new LiveOutputProtocolError(
           `cannot connect a viewer to a closed session (${terminal.outcome})`,
-          { streamId: host.streamId, failureClass: "protocol-violation", outcome: terminal.outcome },
+          {
+            streamId: host.streamId,
+            failureClass: "protocol-violation",
+            outcome: terminal.outcome,
+          },
         );
       }
       if (session !== null && session.connected && !session.terminated) {
@@ -280,7 +286,7 @@ export class LiveViewerSession {
   private skippedCount = 0;
   private connectedState = true;
   /** Latched ONLY on the terminal `session-closed` event (never on a reconnectable connection-lost). */
-  private closedEvent: LiveDeliveryEvent & { kind: "session-closed" } | null = null;
+  private closedEvent: (LiveDeliveryEvent & { kind: "session-closed" }) | null = null;
   private pulling = false;
 
   constructor(binding: LiveViewerTransportBinding, options: LiveViewerSessionOptions) {
@@ -358,8 +364,7 @@ export class LiveViewerSession {
       degradationReasons: this.binding.degradationReasons(),
       latestObservedWatermark: head,
       bufferDepth: this.binding.linkDepth(),
-      latencyToLatestWindowMs:
-        latest === undefined ? null : nowMs - latest.window.emittedAtMs,
+      latencyToLatestWindowMs: latest === undefined ? null : nowMs - latest.window.emittedAtMs,
       mediaLagMs:
         latest === undefined || head === null
           ? null
@@ -408,10 +413,10 @@ export class LiveViewerSession {
    */
   reconnect(resumeFromOrdinal: number): LiveReconnectReport {
     if (this.closedEvent !== null) {
-      throw new LiveOutputProtocolError(
-        "cannot reconnect a terminally closed viewer session",
-        { streamId: this.streamId, failureClass: "protocol-violation" },
-      );
+      throw new LiveOutputProtocolError("cannot reconnect a terminally closed viewer session", {
+        streamId: this.streamId,
+        failureClass: "protocol-violation",
+      });
     }
     const report = this.binding.reconnect(resumeFromOrdinal);
     this.connectedState = true;
@@ -493,7 +498,11 @@ export class LiveViewerSession {
 
   /** Applies one window event: idempotency, integrity, in-order, telemetry. */
   private applyWindow(
-    event: LiveDeliveryEvent & { kind: "window"; window: LiveFrameWindow; payload: LiveOutputPayload },
+    event: LiveDeliveryEvent & {
+      kind: "window";
+      window: LiveFrameWindow;
+      payload: LiveOutputPayload;
+    },
   ): void {
     const { window, payload } = event;
     const nowMs = this.binding.clock().now();
@@ -586,8 +595,7 @@ export class LiveViewerSession {
       watermark: { ...window.watermark },
       appliedAtMs: nowMs,
       bufferDepthAtApply: this.binding.linkDepth(),
-      mediaLagAtApplyMs:
-        head === null ? 0 : head.watermarkMs - window.watermark.watermarkMs,
+      mediaLagAtApplyMs: head === null ? 0 : head.watermarkMs - window.watermark.watermarkMs,
       deliveryLatencyMs: nowMs - window.emittedAtMs,
     });
     this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.viewerWindowsApplied).inc();

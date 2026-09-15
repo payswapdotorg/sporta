@@ -245,11 +245,8 @@ export const LiveFrameDocument = z.object({
 export type LiveFrameDocument = z.infer<typeof LiveFrameDocument>;
 
 /**
- * The minimal structural shape of a render output payload this transport
- * moves. A real W502 `AnimeRenderOutput` (and therefore every W304
- * `RenderOutputRecord.output`) satisfies it structurally; unknown extra
- * fields (`result`, the full manifest, …) are carried VERBATIM — by
- * reference, never rebuilt, never re-stamped (`.passthrough()` keeps them).
+ * The wire-validation schema for a render output payload (unknown extra
+ * manifest fields are passed through at runtime, never rejected).
  */
 export const LiveOutputPayload = z.object({
   frames: z.array(LiveFrameDocument).min(1),
@@ -265,7 +262,32 @@ export const LiveOutputPayload = z.object({
     })
     .passthrough(),
 });
-export type LiveOutputPayload = z.infer<typeof LiveOutputPayload>;
+
+/**
+ * The STRUCTURAL payload seam (hand-written, like `LiveOutputEmission`
+ * below): a real W502 `AnimeRenderOutput` — and therefore every W304
+ * `RenderOutputRecord.output` — satisfies this shape STRUCTURALLY at the
+ * type level too (the zod-inferred `.passthrough()` type carries an index
+ * signature that concrete interfaces like `AnimeClipManifest` can never
+ * satisfy, which would make the documented adapter seam a lie). Unknown
+ * extra fields (`result`, the full manifest table, …) are carried VERBATIM
+ * by reference — the transport moves the payload object itself, never a
+ * rebuild, so they survive regardless of the static type. Keep this
+ * interface and {@link LiveOutputPayload} (the schema above) in agreement:
+ * the schema's declared fields are exactly the interface's.
+ */
+export interface LiveOutputPayload {
+  frames: LiveFrameDocument[];
+  manifest: {
+    renderer: { rendererId: string; rendererVersion: string };
+    output: {
+      profile: OutputProfile;
+      startMs: number;
+      frameIntervalMs: number;
+      durationMs: number;
+    };
+  };
+}
 
 /**
  * One frame window envelope: the protocol document plus the payload it
@@ -422,11 +444,7 @@ export const DEFAULT_LIVE_OUTPUT_LIMITS: LiveOutputLimits = Object.freeze({
 // ---------------------------------------------------------------------------
 
 /** Typed refusal classes (policy outcomes — loud, never silent, not faults). */
-export type LiveSendRefusalClass =
-  | "resource-limit"
-  | "rights"
-  | "session-limit"
-  | "session-closed";
+export type LiveSendRefusalClass = "resource-limit" | "rights" | "session-limit" | "session-closed";
 
 /** The receipt returned by one `sendWindow` call (exactly one kind). */
 export type LiveWindowSendReceipt =
@@ -716,7 +734,10 @@ export function assertLiveOutputAccounting(stats: LiveOutputStats): void {
     );
   }
 
-  if (stats.windowsSkippedStale !== stats.receiptsSkippedStale + stats.windowsSkippedStaleAtDequeue) {
+  if (
+    stats.windowsSkippedStale !==
+    stats.receiptsSkippedStale + stats.windowsSkippedStaleAtDequeue
+  ) {
     throw new Error(
       `live output skip roll-up imbalance: windowsSkippedStale ${stats.windowsSkippedStale} != ` +
         `receipts ${stats.receiptsSkippedStale} + dequeue ${stats.windowsSkippedStaleAtDequeue}`,

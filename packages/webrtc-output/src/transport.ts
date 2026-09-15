@@ -50,7 +50,12 @@ import {
   type Watermark,
 } from "@sporta/contracts";
 import { BoundedChannel, ChannelClosedError, ResourceLimitError } from "@sporta/transport";
-import { createLogger, type CorrelationContext, type Logger, type MetricsRegistry } from "@sporta/observability";
+import {
+  createLogger,
+  type CorrelationContext,
+  type Logger,
+  type MetricsRegistry,
+} from "@sporta/observability";
 import {
   LiveOutputIntegrityError,
   LiveOutputNegotiationError,
@@ -58,7 +63,6 @@ import {
   LiveOutputProtocolError,
 } from "./errors";
 import {
-  answerLiveOutputOffer,
   assertLiveDeliveryRights,
   buildLiveOutputOffer,
   parseLiveOutputAnswer,
@@ -67,29 +71,31 @@ import { LiveSessionPhaseMachine, type LiveSessionPhase } from "./state";
 import type { LiveWindowTimingRecord } from "./telemetry";
 import {
   LIVE_OUTPUT_METRIC_NAMES,
-  LIVE_OUTPUT_PROTOCOL_VERSION,
   LiveFrameWindow,
   assertLiveOutputAccounting,
   emptyLiveStats,
   type LiveBackpressurePolicy,
   type LiveDeliveryEvent,
-  type LiveDeliveryTiming,
   type LiveFrameWindowEnvelope,
   type LiveOutputClock,
   type LiveOutputEmission,
   type LiveOutputFailureClass,
   type LiveOutputLimits,
   type LiveOutputOffer,
-  type LiveOutputPayload,
   type LiveOutputStats,
   type LiveSessionResult,
   type LiveSendRefusalDetails,
   type LiveWindowSendReceipt,
 } from "./types";
 import { DEFAULT_LIVE_OUTPUT_LIMITS } from "./types";
-import { buildLiveFrameWindow, frameWindowId, validateLiveOutputPayload, verifyFrameWindowIntegrity } from "./window";
+import {
+  buildLiveFrameWindow,
+  frameWindowId,
+  validateLiveOutputPayload,
+  verifyFrameWindowIntegrity,
+} from "./window";
 import { createEndpoint } from "./viewer";
-import type { LiveOutputEndpoint, LiveViewerSession } from "./viewer";
+import type { LiveOutputEndpoint } from "./viewer";
 
 /** The link message: the W104 `StageMessage` shape carrying one envelope. */
 export interface LiveLinkMessage {
@@ -112,7 +118,8 @@ interface OrdinalEntry {
   byteSize: number;
   /** The internal receipt key of this admission's timing record. */
   timingKey: number;
-  disposition: "in-flight" | "delivered" | "skipped-stale" | "dropped-by-policy" | "abandoned" | "failed";
+  disposition:
+    "in-flight" | "delivered" | "skipped-stale" | "dropped-by-policy" | "abandoned" | "failed";
 }
 
 /** The internals surface handed to the viewer session (in-process wiring). */
@@ -125,7 +132,10 @@ export interface LiveViewerTransportBinding {
   latestObservedWatermark(): Watermark | null;
   phase(): LiveSessionPhase;
   degradationReasons(): readonly string[];
-  terminal(): { outcome: "completed" | "stopped" | "failed"; failureClass?: LiveOutputFailureClass } | null;
+  terminal(): {
+    outcome: "completed" | "stopped" | "failed";
+    failureClass?: LiveOutputFailureClass;
+  } | null;
   liveStats(): LiveOutputStats;
   clock(): LiveOutputClock;
 }
@@ -258,7 +268,11 @@ export class LoopbackLiveOutputTransport {
     this.metrics = options.observability?.metrics;
     this.correlation =
       options.observability?.correlation ??
-      ({ sessionId: this.sessionId, correlationId: `corr-${this.streamId}`, traceId: `trace-${this.streamId}` } as const);
+      ({
+        sessionId: this.sessionId,
+        correlationId: `corr-${this.streamId}`,
+        traceId: `trace-${this.streamId}`,
+      } as const);
     this.phaseMachine = new LiveSessionPhaseMachine(
       this.accounting,
       this.logger,
@@ -365,10 +379,11 @@ export class LoopbackLiveOutputTransport {
     const answer = parsed.value;
     if (answer.kind === "reject") {
       this.failTerminal("negotiation-failed", `the viewer rejected the offer: ${answer.reason}`);
-      throw new LiveOutputNegotiationError(
-        `live output negotiation rejected: ${answer.reason}`,
-        { streamId: this.streamId, failureClass: "negotiation-failed", reason: answer.reason },
-      );
+      throw new LiveOutputNegotiationError(`live output negotiation rejected: ${answer.reason}`, {
+        streamId: this.streamId,
+        failureClass: "negotiation-failed",
+        reason: answer.reason,
+      });
     }
     this.phaseMachine.transition("established", { viewerId: answer.viewerId });
     this.logger.info("live output session established", {
@@ -441,7 +456,14 @@ export class LoopbackLiveOutputTransport {
   ): Promise<LiveWindowSendReceipt> {
     // --- state + rights + budget gates (typed outcomes, never silent) ---
     if (this.terminalState !== null || this.closingMode !== null || this.linkClosed) {
-      this.recordReceipt("refused", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+      this.recordReceipt(
+        "refused",
+        context.windowId,
+        null,
+        context,
+        undefined,
+        emission.provenance.sourceWatermark,
+      );
       this.accounting.refusalsByClass["session-closed"] += 1;
       this.logger.warn("live output send refused: session closed", {
         streamId: this.streamId,
@@ -461,7 +483,14 @@ export class LoopbackLiveOutputTransport {
       new Date(this.clock.now()),
     );
     if (!capabilities.canDeliverLive) {
-      this.recordReceipt("refused", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+      this.recordReceipt(
+        "refused",
+        context.windowId,
+        null,
+        context,
+        undefined,
+        emission.provenance.sourceWatermark,
+      );
       this.accounting.refusalsByClass["rights"] += 1;
       this.logger.warn("live output send refused: rights lapsed", {
         streamId: this.streamId,
@@ -471,7 +500,14 @@ export class LoopbackLiveOutputTransport {
       return this.refusedReceipt(context.windowId, "rights", undefined);
     }
     if (this.accounting.windowsIn >= this.limits.maxWindowsInSession) {
-      this.recordReceipt("refused", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+      this.recordReceipt(
+        "refused",
+        context.windowId,
+        null,
+        context,
+        undefined,
+        emission.provenance.sourceWatermark,
+      );
       this.accounting.refusalsByClass["session-limit"] += 1;
       this.logger.warn("live output send refused: session window budget exhausted", {
         streamId: this.streamId,
@@ -490,7 +526,9 @@ export class LoopbackLiveOutputTransport {
         windowId: context.windowId,
         reason: payloadCheck.reason,
       });
-      this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsIn, { outcome: "rejected-invalid" }).inc();
+      this.metrics
+        ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsIn, { outcome: "rejected-invalid" })
+        .inc();
       throw new LiveOutputProtocolError(`malformed emission: ${payloadCheck.reason}`, {
         streamId: this.streamId,
         failureClass: "protocol-violation",
@@ -533,7 +571,9 @@ export class LoopbackLiveOutputTransport {
         watermark: emission.provenance.sourceWatermark,
         head: skipStale.head,
       });
-      this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsSkippedStale, { at: "admission" }).inc();
+      this.metrics
+        ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsSkippedStale, { at: "admission" })
+        .inc();
       return {
         kind: "skipped-stale",
         windowId: context.windowId,
@@ -567,7 +607,14 @@ export class LoopbackLiveOutputTransport {
     //     fit is refused or dropped-with-accounting, never buffered) ---
     if (this.limits.maxLinkBytes !== null && window.byteSize > this.limits.maxLinkBytes) {
       if (this.backpressure === "drop-oldest") {
-        this.recordReceipt("dropped", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+        this.recordReceipt(
+          "dropped",
+          context.windowId,
+          null,
+          context,
+          undefined,
+          emission.provenance.sourceWatermark,
+        );
         this.accounting.windowsDroppedByPolicy += 1;
         this.enterDegradation("link-eviction");
         this.logger.warn("live output incoming window dropped: exceeds byte budget", {
@@ -576,10 +623,19 @@ export class LoopbackLiveOutputTransport {
           byteSize: window.byteSize,
           maxLinkBytes: this.limits.maxLinkBytes,
         });
-        this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy, { at: "incoming" }).inc();
+        this.metrics
+          ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy, { at: "incoming" })
+          .inc();
         return { kind: "dropped", windowId: context.windowId, reason: "exceeds-byte-budget" };
       }
-      this.recordReceipt("refused", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+      this.recordReceipt(
+        "refused",
+        context.windowId,
+        null,
+        context,
+        undefined,
+        emission.provenance.sourceWatermark,
+      );
       this.accounting.refusalsByClass["resource-limit"] += 1;
       this.logger.warn("live output send refused: window exceeds byte budget", {
         streamId: this.streamId,
@@ -611,7 +667,14 @@ export class LoopbackLiveOutputTransport {
       await this.channel.send(message);
     } catch (error) {
       if (error instanceof ResourceLimitError) {
-        this.recordReceipt("refused", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+        this.recordReceipt(
+          "refused",
+          context.windowId,
+          null,
+          context,
+          undefined,
+          emission.provenance.sourceWatermark,
+        );
         this.accounting.refusalsByClass["resource-limit"] += 1;
         this.logger.warn("live output send refused: link at capacity", {
           streamId: this.streamId,
@@ -629,12 +692,21 @@ export class LoopbackLiveOutputTransport {
         });
       }
       if (error instanceof ChannelClosedError) {
-        this.recordReceipt("abandoned", context.windowId, null, context, undefined, emission.provenance.sourceWatermark);
+        this.recordReceipt(
+          "abandoned",
+          context.windowId,
+          null,
+          context,
+          undefined,
+          emission.provenance.sourceWatermark,
+        );
         this.logger.warn("live output parked send abandoned: closed under", {
           streamId: this.streamId,
           windowId: context.windowId,
         });
-        this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsAbandoned, { reason: "closed-under" }).inc();
+        this.metrics
+          ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsAbandoned, { reason: "closed-under" })
+          .inc();
         return { kind: "abandoned", windowId: context.windowId, reason: "closed-under" };
       }
       throw error;
@@ -707,6 +779,14 @@ export class LoopbackLiveOutputTransport {
     options: { mode?: "drain" | "cancel"; reason?: "stream-complete" | "host-stop" } = {},
   ): Promise<LiveSessionResult> {
     if (this.terminalState !== null) {
+      // The session already settled (a terminal failure, or a concurrent
+      // close minted the result). The same rule as the drain path applies:
+      // wait for every send already on the chain to resolve BEFORE minting —
+      // a send parked under `block` when the terminal failure fired is
+      // rejected by the channel close and resolves as an ACCOUNTED abandoned
+      // receipt on a microtask; minting without the wait would snapshot the
+      // ledger before that receipt lands (never a receipt after the mint).
+      await this.sendChain;
       return this.mintResult();
     }
     if (this.closingMode !== null) {
@@ -830,7 +910,12 @@ export class LoopbackLiveOutputTransport {
       terminal: () =>
         this.terminalState === null
           ? null
-          : { outcome: this.terminalState.outcome, ...(this.terminalState.failureClass === undefined ? {} : { failureClass: this.terminalState.failureClass }) },
+          : {
+              outcome: this.terminalState.outcome,
+              ...(this.terminalState.failureClass === undefined
+                ? {}
+                : { failureClass: this.terminalState.failureClass }),
+            },
       liveStats: () => this.accounting,
       clock: () => this.clock,
     };
@@ -1091,7 +1176,9 @@ export class LoopbackLiveOutputTransport {
     );
     this.metrics?.histogram(LIVE_OUTPUT_METRIC_NAMES.transitLagMs).observe(transitLag);
     this.metrics?.histogram(LIVE_OUTPUT_METRIC_NAMES.deliveryLagMs).observe(deliveryLag);
-    this.metrics?.histogram(LIVE_OUTPUT_METRIC_NAMES.watermarkLagAtDeliveryMs).observe(watermarkLag);
+    this.metrics
+      ?.histogram(LIVE_OUTPUT_METRIC_NAMES.watermarkLagAtDeliveryMs)
+      .observe(watermarkLag);
     this.metrics?.histogram(LIVE_OUTPUT_METRIC_NAMES.linkDepth).observe(this.channel.size);
     this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsDelivered).inc();
     this.logger.info("live output window delivered", {
@@ -1168,7 +1255,8 @@ export class LoopbackLiveOutputTransport {
       (envelope) => envelope.window.ordinal >= resumeFromOrdinal,
     );
     let gapSkipped = 0;
-    const retentionHead = this.retention.length > 0 ? this.retention[0]!.window.ordinal : this.lastDeliveredOrdinal + 1;
+    const retentionHead =
+      this.retention.length > 0 ? this.retention[0]!.window.ordinal : this.lastDeliveredOrdinal + 1;
     let gapEvent: LiveDeliveryEvent | null = null;
     if (resumeFromOrdinal < retentionHead) {
       gapSkipped = retentionHead - resumeFromOrdinal;
@@ -1301,7 +1389,14 @@ export class LoopbackLiveOutputTransport {
       windowId,
       refusalClass,
       ...(details === undefined
-        ? { details: { policy: this.backpressure, capacity: this.limits.linkCapacity, size: this.channel.size, byteSize: this.channel.byteSize } }
+        ? {
+            details: {
+              policy: this.backpressure,
+              capacity: this.limits.linkCapacity,
+              size: this.channel.size,
+              byteSize: this.channel.byteSize,
+            },
+          }
         : { details }),
     };
   }
@@ -1314,7 +1409,11 @@ export class LoopbackLiveOutputTransport {
   }
 
   /** The measured stale-skip decision for one watermark (pure measurement). */
-  private staleDecisionOn(watermark: Watermark): { stale: boolean; lagMs: number; head: Watermark } {
+  private staleDecisionOn(watermark: Watermark): {
+    stale: boolean;
+    lagMs: number;
+    head: Watermark;
+  } {
     const head = this.latestHead ?? watermark;
     const lagMs = head.watermarkMs - watermark.watermarkMs;
     const stale = this.limits.maxWatermarkLagMs !== null && lagMs > this.limits.maxWatermarkLagMs;
@@ -1354,7 +1453,9 @@ export class LoopbackLiveOutputTransport {
         watermark: entry.watermark,
         channelDropped: this.channel.dropped,
       });
-      this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy, { at: "eviction" }).inc();
+      this.metrics
+        ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsDroppedByPolicy, { at: "eviction" })
+        .inc();
     }
   }
 
@@ -1393,7 +1494,9 @@ export class LoopbackLiveOutputTransport {
   private recoverIfCaughtUp(watermarkLagMs: number): void {
     if (this.phase() !== "degraded") return;
     const caughtUp =
-      this.limits.maxWatermarkLagMs === null ? true : watermarkLagMs <= this.limits.maxWatermarkLagMs;
+      this.limits.maxWatermarkLagMs === null
+        ? true
+        : watermarkLagMs <= this.limits.maxWatermarkLagMs;
     if (caughtUp) {
       this.degradationReasons = [];
       this.phaseMachine.transition("established", { recovery: true });
@@ -1402,7 +1505,9 @@ export class LoopbackLiveOutputTransport {
 
   /** `true` when the link is drained (queue + staged events all resolved). */
   private isLinkDrained(): boolean {
-    return this.channel.size === 0 && this.pendingEmissions.length === 0 && this.linkLedger.length === 0;
+    return (
+      this.channel.size === 0 && this.pendingEmissions.length === 0 && this.linkLedger.length === 0
+    );
   }
 
   /** Cancels everything unresolved: link residents + staged windows. */
@@ -1444,7 +1549,9 @@ export class LoopbackLiveOutputTransport {
         reason,
         abandoned: drained,
       });
-      this.metrics?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsAbandoned, { reason: "cancel" }).inc(drained);
+      this.metrics
+        ?.counter(LIVE_OUTPUT_METRIC_NAMES.windowsAbandoned, { reason: "cancel" })
+        .inc(drained);
     }
     this.reconcileEvictions();
   }

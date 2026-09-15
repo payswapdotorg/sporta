@@ -21,12 +21,7 @@ import { LIVE_OUTPUT_METRIC_NAMES } from "./types";
 import type { Logger, MetricsRegistry } from "@sporta/observability";
 
 /** The session phase vocabulary (the protocol state machine). */
-export const LIVE_SESSION_PHASES = [
-  "negotiating",
-  "established",
-  "degraded",
-  "closed",
-] as const;
+export const LIVE_SESSION_PHASES = ["negotiating", "established", "degraded", "closed"] as const;
 export type LiveSessionPhase = (typeof LIVE_SESSION_PHASES)[number];
 
 /** Why the session entered the degraded phase (machine reasons). */
@@ -74,10 +69,12 @@ export class LiveSessionPhaseMachine {
     const from = this.phase;
     const allowed = TRANSITIONS[from];
     if (!allowed.includes(to)) {
-      throw new LiveOutputProtocolError(
-        `illegal live output session transition ${from} -> ${to}`,
-        { streamId: this.streamId, failureClass: "protocol-violation", from, to },
-      );
+      throw new LiveOutputProtocolError(`illegal live output session transition ${from} -> ${to}`, {
+        streamId: this.streamId,
+        failureClass: "protocol-violation",
+        from,
+        to,
+      });
     }
     this.phase = to;
     const key = `${from}->${to}`;
