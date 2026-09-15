@@ -123,6 +123,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/compute-adapter": {
+      "name": "@sporta/compute-adapter",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/gpu-worker": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/render-orchestration": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/contracts": {
       "name": "@sporta/contracts",
       "version": "0.1.0",
@@ -641,6 +656,8 @@
     "@sporta/commentary-segmentation": ["@sporta/commentary-segmentation@workspace:packages/commentary-segmentation"],
 
     "@sporta/commentary-understanding": ["@sporta/commentary-understanding@workspace:packages/commentary-understanding"],
+
+    "@sporta/compute-adapter": ["@sporta/compute-adapter@workspace:packages/compute-adapter"],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
 
