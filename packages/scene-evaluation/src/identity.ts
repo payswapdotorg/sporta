@@ -19,16 +19,7 @@
  *   exchanging styles), even when each is internally "stable";
  * - **Kind/style-kind stability**: an entity's recorded kind and style kind
  *   never change (an entity entry never becomes a different entity);
- * - **Sanctioned restyle accounting**: the ONLY sanctioned restyle moment
- *   is a rendererVersion change (which changes the style key) — and within
- *   one render output the rendererVersion is immutable, so
- *   `sanctionedRestyleCount` is 0 BY CONSTRUCTION and any divergence is a
- *   defect. A genuine restyle is a NEW output under a bumped version,
- *   evaluated separately (the 0.2.0 bump is exercised by the renderer's
- *   own test suite; this field keeps the accounting explicit and computed,
- *   never asserted).
  */
-import { OFFICIAL_STYLE } from "@sporta/renderer-3d";
 import type { AvatarStyle, Render3dStyleKind } from "@sporta/renderer-3d";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import type { FrameExpectation } from "./expected";
@@ -65,9 +56,22 @@ export interface IdentityMetrics {
 /**
  * Measures player identity continuity over the whole rundown. Pure.
  *
- * The `official-fixed` and `ball-fixed` styles are constants (not hashed)
- * and are checked for constancy the same way (their expectation is the
- * renderer's exported constant / absence-of-token respectively).
+ * The `official-fixed` and `ball-fixed` styles are CONSTANTS (not hashed)
+ * and carry NO `style` token in the renderer's manifest (officials dress
+ * uniformly — `scene.ts` records only the styleKind, never a token) — so
+ * the token checks apply to `identity`-styled entities ONLY; the fixed
+ * kinds' continuity is the kind/style-kind stability plus the scene-state
+ * dimension's full-entry comparison (a forged token on a fixed-kind entity
+ * is caught there as a `style` field mismatch).
+ *
+ * **Sanctioned restyle accounting**: the ONLY sanctioned restyle moment is
+ * a rendererVersion change (which re-keys the style function) — and within
+ * one render output the rendererVersion is immutable, so
+ * `sanctionedRestyleCount` is 0 BY CONSTRUCTION and any divergence is a
+ * defect. A genuine restyle is a NEW output under a bumped version,
+ * evaluated separately (the 0.2.0 bump is exercised by the renderer's own
+ * test suite; this field keeps the accounting explicit and computed,
+ * never asserted).
  */
 export function measureIdentity(options: {
   input: ValidatedSceneEvaluationInput;
@@ -146,11 +150,12 @@ export function measureIdentity(options: {
       const expectedKind = sceneEntity === undefined ? undefined : expectedStyleKind(sceneEntity);
       if (expectedKind !== undefined && expectedKind !== recordedStyleKind) {
         // A style-kind disagreement with the authoritative scene is a
-        // scene-state defect (measured there); identity measures continuity.
+        // scene-state defect (measured there — a full-entry field compare);
+        // identity measures continuity, not per-frame scene agreement.
         continue;
       }
-      if (recordedStyleKind !== "identity" && recordedStyleKind !== "official-fixed") {
-        continue; // ball-fixed carries no token; "none" has none to check.
+      if (recordedStyleKind !== "identity") {
+        continue; // fixed styles are constants with NO token (see module docblock); "none" has none.
       }
       tokenFrameCount += 1;
       const recordedToken = entity.style;
@@ -162,11 +167,7 @@ export function measureIdentity(options: {
             metric: "identity.styleTokenDivergenceCount",
             entityId,
             path: `$.output.manifest.frames[${frame.frameIndex}].entry.entities[${entityId}].style`,
-            expected: describeValue(
-              recordedStyleKind === "official-fixed"
-                ? OFFICIAL_STYLE
-                : expectedStyleToken(styleKey, entityId),
-            ),
+            expected: describeValue(expectedStyleToken(styleKey, entityId)),
             actual: describeValue(undefined),
           }),
         );
@@ -174,10 +175,7 @@ export function measureIdentity(options: {
       }
       // Token correctness: the recomputed expectation (the renderer's own
       // pure function over the output's own renderer identity).
-      const expectedToken =
-        recordedStyleKind === "official-fixed"
-          ? OFFICIAL_STYLE
-          : expectedStyleToken(styleKey, entityId);
+      const expectedToken = expectedStyleToken(styleKey, entityId);
       if (!tokensEqual(recordedToken, expectedToken)) {
         styleTokenDivergenceCount += 1;
         findings.push(
@@ -219,9 +217,9 @@ export function measureIdentity(options: {
 
   // Identity swaps: a token that matches another entity's expectation
   // while not matching its own (a two-entity exchange is internally
-  // "stable" per entity — only the cross-match exposes it). Officials
-  // dress uniformly (a fixed constant) and cannot be swap parties — their
-  // continuity is the divergence check against OFFICIAL_STYLE.
+  // "stable" per entity — only the cross-match exposes it). Fixed-style
+  // entities carry no token and cannot be swap parties — their continuity
+  // is the kind/style-kind stability + the scene-state full-entry compare.
   const styledIds: string[] = [];
   for (const [entityId, styleKind] of firstStyleKind) {
     if (styleKind === "identity") styledIds.push(entityId);
@@ -230,7 +228,7 @@ export function measureIdentity(options: {
     const frame = frames[i]!;
     const styleKeyFrame = expectations[i]!.styleKey;
     for (const entity of frame.entry.entities) {
-      if (entity.style === undefined || entity.styleKind === "official-fixed") continue;
+      if (entity.style === undefined || entity.styleKind !== "identity") continue;
       const own = expectedStyleToken(styleKeyFrame, entity.entityId);
       if (tokensEqual(entity.style, own)) continue;
       for (const otherId of styledIds) {

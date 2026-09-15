@@ -30,7 +30,7 @@
  * through the window base to the recorded atMs values (the pair is real).
  */
 import { resolve3dFrame } from "@sporta/renderer-3d";
-import type { Render3dEntityEntry } from "@sporta/renderer-3d";
+import type { MatchEntityProvenanceEntry, Render3dEntityEntry } from "@sporta/renderer-3d";
 import type { DirectedRenderManifest } from "@sporta/camera-director";
 import type { EvalFrame, ValidatedSceneEvaluationInput } from "./validate";
 import type { FrameExpectation } from "./expected";
@@ -90,10 +90,16 @@ function windowBaseStepIndex(input: ValidatedSceneEvaluationInput, frame: EvalFr
   return base;
 }
 
-/** Applies the expected provenance to the expected manifest entries (the renderer's own rule). */
+/**
+ * Applies the expected provenance to the expected manifest entries — the
+ * renderer's own overlay rule (`render.ts` `applyEntityProvenance`,
+ * replicated here because it is module-private): the motion model's
+ * per-entity decision over `resolve3dFrame`'s entries. The parameter is the
+ * REAL renderer type, so a provenance-shape drift fails typecheck.
+ */
 function applyExpectedProvenance(
   entries: readonly Render3dEntityEntry[],
-  provenance: readonly { entityId: string; provenance: { positionProvenance: string; heldReason?: string } }[] | undefined,
+  provenance: readonly MatchEntityProvenanceEntry[] | undefined,
 ): Render3dEntityEntry[] {
   if (provenance === undefined) return [...entries];
   const byId = new Map(provenance.map((entry) => [entry.entityId, entry.provenance] as const));
@@ -102,20 +108,37 @@ function applyExpectedProvenance(
     if (mark === undefined) return entry;
     return {
       ...entry,
-      positionProvenance: mark.positionProvenance as Render3dEntityEntry["positionProvenance"],
+      positionProvenance: mark.positionProvenance,
       ...(mark.positionProvenance === "held" ? { heldReason: mark.heldReason } : {}),
     };
   });
 }
 
-/** The field classes compared for the named sub-counts (the full-entry check covers all fields). */
+/**
+ * EVERY field of {@link Render3dEntityEntry}, in fixed documented order — a
+ * rendered entry that drifts from the expectation in ANY field is a
+ * measured defect (the module docblock's contract; the named sub-counts
+ * below classify the field classes a defect falls into).
+ */
 const ENTITY_FIELDS: readonly (keyof Render3dEntityEntry)[] = [
+  "entityId",
+  "kind",
+  "version",
+  "lastEventTimeMs",
   "sceneDisposition",
   "renderDisposition",
   "positionMeters",
   "positionProvenance",
   "heldReason",
+  "screenPosition",
+  "depthMeters",
   "heightCarried",
+  "headingCarried",
+  "headingRadians",
+  "positionStatus",
+  "positionConfidence",
+  "style",
+  "styleKind",
 ];
 
 /**
@@ -261,6 +284,16 @@ export function measureSceneState(options: {
           }
           if (field === "positionMeters") {
             positionMismatchCount += 1;
+            // The ball's z specifically (its carried height — the only
+            // entity whose z is ever more than a frame constant): a z-only
+            // drift is a height-accounting defect even when x/y match.
+            if (
+              actual.kind === "ball" &&
+              !deepEqualJson(expected.positionMeters?.z, actual.positionMeters?.z)
+            ) {
+              ballHeightMismatchCount += 1;
+              mismatchedFields.push("positionMeters.z");
+            }
           }
           if (field === "positionProvenance" || field === "heldReason") {
             provenanceMismatchCount += 1;
@@ -269,16 +302,6 @@ export function measureSceneState(options: {
             ballHeightMismatchCount += 1;
           }
         }
-      }
-      const ballZCarried =
-        actual.kind === "ball" &&
-        !deepEqualJson(
-          expected.positionMeters === undefined ? undefined : expected.positionMeters.z,
-          actual.positionMeters === undefined ? undefined : actual.positionMeters.z,
-        );
-      if (ballZCarried) {
-        mismatchedFields.push("positionMeters.z");
-        ballHeightMismatchCount += 1;
       }
       if (mismatchedFields.length > 0) {
         frameEntityStateMismatchCount += 1;
@@ -289,10 +312,20 @@ export function measureSceneState(options: {
             entityId: actual.entityId,
             path: `${framePath}.entry.entities[${e}]`,
             expected: describeValue(
-              Object.fromEntries(mismatchedFields.map((field) => [field, (expected as Record<string, unknown>)[field]])),
+              Object.fromEntries(
+                mismatchedFields.map((field) => [
+                  field,
+                  (expected as unknown as Record<string, unknown>)[field],
+                ]),
+              ),
             ),
             actual: describeValue(
-              Object.fromEntries(mismatchedFields.map((field) => [field, (actual as Record<string, unknown>)[field]])),
+              Object.fromEntries(
+                mismatchedFields.map((field) => [
+                  field,
+                  (actual as unknown as Record<string, unknown>)[field],
+                ]),
+              ),
             ),
           }),
         );

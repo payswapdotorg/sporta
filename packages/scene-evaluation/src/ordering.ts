@@ -79,6 +79,8 @@ export interface OrderingMetrics {
 interface OrderingWindow {
   /** The rundown label for findings (the window index, or `"match"`). */
   label: string;
+  /** The numeric window id for cross-window accounting (0 in match mode). */
+  id: number;
   /** The window's step run (the steps whose atMs lie in the closed source range). */
   runSteps: readonly ValidatedSceneEvaluationInput["steps"][number][];
   /** The window's kept frames, rundown order. */
@@ -101,6 +103,7 @@ function orderingWindows(input: ValidatedSceneEvaluationInput): OrderingWindow[]
     return [
       {
         label: "match",
+        id: 0,
         runSteps: input.steps,
         frames: input.frames,
         source: { startMs: input.steps[0]!.atMs, endMs: last.atMs },
@@ -129,6 +132,7 @@ function orderingWindows(input: ValidatedSceneEvaluationInput): OrderingWindow[]
     );
     windows.push({
       label: `window ${window.index}`,
+      id: window.index,
       runSteps,
       frames: input.frames.filter((frame) => frame.windowIndex === window.index),
       source: { startMs: window.source.startMs, endMs: window.source.endMs },
@@ -461,12 +465,17 @@ export function measureOrdering(options: {
       }
     }
   }
+  // The live-presentation index: sequence -> the set of LIVE window ids
+  // whose kept frames carry a marker entry for it (a marker entry in a
+  // frame IS a presentation — the `displayed` flag is only the chip cap;
+  // the renderer applies each sequence at exactly one timeline position).
+  const liveDisplayBySequence = new Map<number, Set<number>>();
   for (const window of windows) {
     for (const frame of window.frames) {
       for (const marker of frame.entry.markers as Render3dMarkerEntry[]) {
         if (window.kind === "live" || window.kind === "match") {
           const set = liveDisplayBySequence.get(marker.sequence) ?? new Set<number>();
-          set.add(window.kind === "match" ? 0 : Number(window.label.slice("window ".length)));
+          set.add(window.id);
           liveDisplayBySequence.set(marker.sequence, set);
         }
       }

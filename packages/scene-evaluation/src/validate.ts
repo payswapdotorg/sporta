@@ -455,8 +455,12 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
   if (!isRecord(source)) {
     throw new SceneEvaluationError("frame-malformed", `${path}.source`, "must be an object");
   }
-  requireInteger(source.watermark?.sequence, `${path}.source.watermark.sequence`, 0);
-  requireFiniteNumber(source.watermark?.watermarkMs, `${path}.source.watermark.watermarkMs`, 0);
+  const watermark = source.watermark;
+  if (!isRecord(watermark)) {
+    throw new SceneEvaluationError("frame-malformed", `${path}.source.watermark`, "must be an object");
+  }
+  requireInteger(watermark.sequence, `${path}.source.watermark.sequence`, 0);
+  requireFiniteNumber(watermark.watermarkMs, `${path}.source.watermark.watermarkMs`, 0);
   requireFiniteNumber(source.generatedAtMs, `${path}.source.generatedAtMs`, 0);
   if (typeof source.footballState !== "boolean") {
     throw new SceneEvaluationError(
@@ -611,7 +615,10 @@ function validateFrameEntry(entry: unknown, path: string): Render3dFrameEntry {
     }
     requireEnum(entity.styleKind, STYLE_KINDS, `${path}.entities[${e}].styleKind`);
   }
-  return entry as Render3dFrameEntry;
+  // The entry is structurally validated field-by-field above; the cast
+  // only restores its static type (the runtime shape was checked — the
+  // W602 grep-lesson applied: never trust a bare cast, trust the checks).
+  return entry as unknown as Render3dFrameEntry;
 }
 
 /** Validates the manifest envelope shared by both modes. */
@@ -634,7 +641,9 @@ function validateManifestEnvelope(
       "must be a non-empty array",
     );
   }
-  return manifest as AvatarField3dManifest | DirectedRenderManifest;
+  // Structurally validated above (renderer identity + non-empty frames);
+  // the cast restores the static type over the checked runtime shape.
+  return manifest as unknown as AvatarField3dManifest | DirectedRenderManifest;
 }
 
 /** Whether the manifest is a W604 directed rundown manifest. */
@@ -703,6 +712,16 @@ export function validateEvaluationInput(input: {
   }
 
   const directed = isDirectedManifest(manifest);
+  if (!directed) {
+    const camera = (manifest as AvatarField3dManifest).camera;
+    if (!isRecord(camera)) {
+      throw new SceneEvaluationError(
+        "output-malformed",
+        "$.output.manifest.camera",
+        "must be a camera block object",
+      );
+    }
+  }
   const matchCameraSlotId = directed
     ? null
     : requireString(
@@ -784,7 +803,14 @@ export function validateEvaluationInput(input: {
     }
     previousOutputTimestamp = frames[i]!.outputTimestampMs;
     const interpolation = frames[i]!.entry.interpolation!;
-    const fromStepIndex = stepIndexByAtMs.get(interpolation.fromAtMs)!;
+    const fromStepIndex = stepIndexByAtMs.get(interpolation.fromAtMs);
+    if (fromStepIndex === undefined) {
+      throw new SceneEvaluationError(
+        "alignment-malformed",
+        `${path}.entry.interpolation.fromAtMs`,
+        `${interpolation.fromAtMs} is not any step's atMs — every frame's authority step must resolve against the steps`,
+      );
+    }
     // Slot resolvability (the expectation precondition): the slot in force
     // for this frame must be CARRIED by the frame's from-step's scene — the
     // renderer refuses an uncarried slot, so a manifest claiming one is a
@@ -833,6 +859,18 @@ export function validateEvaluationInput(input: {
           "window-malformed",
           `${path}.source`,
           `endMs (${endMs}) must be > startMs (${startMs})`,
+        );
+      }
+      // Window boundaries are snapshot boundaries (the W604 composition
+      // contract: every directed run starts and ends on a step's atMs — the
+      // selfcheck's boundaries-respected rule). The evaluator's run-relative
+      // index resolution depends on it, so it fails loud here, never as a
+      // bare Error mid-measurement.
+      if (!stepIndexByAtMs.has(startMs) || !stepIndexByAtMs.has(endMs)) {
+        throw new SceneEvaluationError(
+          "window-malformed",
+          `${path}.source`,
+          `boundaries [${startMs}, ${endMs}] must be step atMs values (snapshot boundaries)`,
         );
       }
       const profileCheck = OutputProfile.safeParse(window.outputProfile);

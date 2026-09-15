@@ -98,7 +98,6 @@ export function measureDirection(options: {
     const framePath = `$.output.manifest.frames[${frame.frameIndex}]`;
 
     if (input.mode === "directed") {
-      const directed = frame as EvalFrame & { entry: typeof frame.entry };
       const ownSlot = (input.manifest as DirectedRenderManifest).frames.find(
         (candidate) => candidate.frameIndex === frame.frameIndex,
       )?.cameraSlotId;
@@ -114,7 +113,6 @@ export function measureDirection(options: {
           }),
         );
       }
-      void directed;
     }
 
     if (frame.entry.hud.cameraLabel !== expectation.expectedCameraLabel) {
@@ -221,6 +219,8 @@ export function measureDirection(options: {
     const provenanceDrift =
       director.directorVersion !== plan.directorVersion ||
       !deepEqualJson(director.policy, plan.policy) ||
+      !deepEqualJson(director.timeline, plan.timeline) ||
+      !deepEqualJson(director.reviewOutputProfile, REVIEW_OUTPUT_PROFILE) ||
       director.windowCount !== plan.summary.windowCount ||
       director.liveWindowCount !== plan.summary.liveWindowCount ||
       director.reviewWindowCount !== plan.summary.reviewWindowCount ||
@@ -236,11 +236,15 @@ export function measureDirection(options: {
         expected: describeValue({
           directorVersion: plan.directorVersion,
           policy: plan.policy,
+          timeline: plan.timeline,
+          reviewOutputProfile: REVIEW_OUTPUT_PROFILE,
           summary: plan.summary,
         }),
         actual: describeValue({
           directorVersion: director.directorVersion,
           policy: director.policy,
+          timeline: director.timeline,
+          reviewOutputProfile: director.reviewOutputProfile,
           summary: {
             windowCount: director.windowCount,
             liveWindowCount: director.liveWindowCount,
