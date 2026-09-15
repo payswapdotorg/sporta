@@ -115,7 +115,7 @@ The key test is: every visible UI state must be explainable by a real operationa
 
 ## Provider strategy
 
-Use Cloudflare Pages/Workers + R2, Neon, Upstash and an isolated compute adapter as the public-beta default. Apify is optional for bounded managed jobs. Vercel may be used for previews/personal deployments but is not the public commercial target on the Hobby plan because its current terms restrict Hobby to personal/non-commercial use.
+Use **Vercel Hobby as the initial web deployment target** for personal/non-commercial beta validation, with Cloudflare Workers + R2, Neon, Upstash and an isolated compute adapter for the supporting control/data plane. Apify is optional for bounded managed jobs. Vercel's current terms restrict Hobby to personal/non-commercial use, so the tech lead must keep a clear deployment boundary: use Hobby for the initial non-commercial beta, and upgrade to a commercially permitted Vercel plan or migrate `apps/web` before commercial operation. citeturn918436search0turn918436search1
 
 Free-tier is a deployment target, not a promise of unlimited free video/GPU processing. Enforce quotas and surface degradation explicitly.
 
