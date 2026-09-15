@@ -1,0 +1,21 @@
+{
+  "name": "@sporta/capability",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "regen-fixtures": "bun run scripts/regen-fixtures.ts"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

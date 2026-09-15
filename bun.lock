@@ -113,6 +113,17 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/capability": {
+      "name": "@sporta/capability",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/commentary-segmentation": {
       "name": "@sporta/commentary-segmentation",
       "version": "0.1.0",
@@ -251,6 +262,19 @@
         "zod": "^4.0.0",
       },
       "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/identity": {
+      "name": "@sporta/identity",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/capability": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/control-api": "workspace:*",
         "@types/bun": "^1.2.0",
       },
     },
@@ -728,6 +752,8 @@
 
     "@sporta/camera-director": ["@sporta/camera-director@workspace:packages/camera-director"],
 
+    "@sporta/capability": ["@sporta/capability@workspace:packages/capability"],
+
     "@sporta/commentary-segmentation": ["@sporta/commentary-segmentation@workspace:packages/commentary-segmentation"],
 
     "@sporta/commentary-understanding": ["@sporta/commentary-understanding@workspace:packages/commentary-understanding"],
@@ -749,6 +775,8 @@
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/health": ["@sporta/health@workspace:packages/health"],
+
+    "@sporta/identity": ["@sporta/identity@workspace:packages/identity"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
 

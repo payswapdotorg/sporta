@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0",
+  "requestContext": { "requestId": "req-partial-008" },
+  "auth": {
+    "state": "authenticated",
+    "sessionValid": true,
+    "activeRole": "analyst",
+    "activeRoleContextNote": "The active role is workspace presentation context only: it never changes account grants, rights, or authorization, and every protected action is reauthorized server-side."
+  },
+  "account": {
+    "authenticated": true,
+    "userId": "u-14",
+    "roles": ["viewer", "analyst"],
+    "rolesAreGrantsNote": "Account roles are grants, not authority: they describe the workspaces the account may be offered; authorization is enforced server-side per action and never derived client-side from this list."
+  },
+  "renderers": [
+    {
+      "rendererId": "sporta.testcard",
+      "rendererVersion": "0.1.0",
+      "rendererClass": "tactical",
+      "availability": "available",
+      "reasonCode": "ok",
+      "requiresSourceFrames": false,
+      "rightsAwareness": "rights-not-relevant"
+    },
+    {
+      "rendererId": "broadcast-enhanced.prototype",
+      "rendererVersion": "0.1.0",
+      "rendererClass": "stylized-video",
+      "availability": "unavailable",
+      "reasonCode": "renderer-not-registered",
+      "requiresSourceFrames": true,
+      "rightsAwareness": "rights-evaluated"
+    },
+    {
+      "rendererId": "avatar-field.prototype",
+      "rendererVersion": "0.2.0",
+      "rendererClass": "procedural-3d",
+      "availability": "degraded",
+      "reasonCode": "renderer-registry-degraded",
+      "requiresSourceFrames": false,
+      "rightsAwareness": "rights-not-relevant"
+    }
+  ],
+  "modes": {
+    "live": {
+      "availability": "unavailable",
+      "reasonCode": "live-transport-not-configured",
+      "transportKind": "none"
+    },
+    "batch": { "availability": "available", "reasonCode": "ok" }
+  },
+  "quotas": [
+    {
+      "quotaId": "user.daily-renders",
+      "scope": "user",
+      "used": 3,
+      "limit": 10,
+      "remaining": 7,
+      "exhausted": false,
+      "reasonCode": "ok"
+    }
+  ],
+  "providers": [
+    { "kind": "control-plane", "health": "ok", "reasonCode": "ok" },
+    { "kind": "storage", "health": "ok", "reasonCode": "ok" },
+    { "kind": "queue-cache", "health": "ok", "reasonCode": "ok" },
+    { "kind": "compute", "health": "ok", "reasonCode": "ok" }
+  ],
+  "content": {
+    "catalogSurfaces": [
+      { "surfaceId": "home", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "live", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "explore", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "watch", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "library", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "create-studio", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "jobs", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "match-lab", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "clips", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "notes", "visibility": "visible", "reasonCode": "surface-visible" },
+      { "surfaceId": "rights-center", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "catalog", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "audit", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "operations", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "health", "visibility": "hidden", "reasonCode": "role-not-granted" },
+      { "surfaceId": "providers", "visibility": "hidden", "reasonCode": "role-not-granted" }
+    ]
+  },
+  "overall": {
+    "state": "degraded",
+    "reasonCodes": ["renderer-not-registered", "renderer-registry-degraded"]
+  }
+}
