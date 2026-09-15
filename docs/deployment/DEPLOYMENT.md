@@ -130,12 +130,15 @@ curl -s -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
   -d '{"value":"<new-marker>","type":"encrypted","target":["production"]}'
 ```
 
-Recorded deploy evidence (2026-09-16, commit dd4c36e / code state 63e4e60):
+Recorded deploy evidence (2026-09-16, code state 63e4e60 + 614ebcd):
 
 - Deploy 1: `https://sporta-j4swv6nom-ekonplacidegmailcoms-projects.vercel.app`
   (`dpl_5uarPfq8aStZt1gKWDaZRnn1wGKs`, marker `w910-prod-1`) — 31s, Ready.
 - Deploy 2: `https://sporta-malycyv3s-ekonplacidegmailcoms-projects.vercel.app`
   (`dpl_5uGQBDinxmoFPhtKKhvLcDR6Vc8R`, marker `w910-prod-2`).
+- Deploy 3 (final, exactly commit `614ebcd`):
+  `https://sporta-jh45r45py-ekonplacidegmailcoms-projects.vercel.app`
+  (marker `w910-614ebcd`) — the deployment the production alias currently serves.
 
 ## 4) Verify
 
@@ -162,7 +165,7 @@ Actual W910 verification lines:
 /manifest.webmanifest → 200 application/manifest+json; charset=utf-8
 /sw.js             → 200 application/javascript; charset=utf-8
 shell HTML contains: Sporta, skip-link, manifest.webmanifest link
-/api/platform/health → {"env":"beta-personal","deployMarker":"w910-prod-2",...,
+/api/platform/health → {"env":"beta-personal","deployMarker":"w910-614ebcd",...,
                         providers: identity/artifacts/transientState = in-memory, unconfigured}
 ```
 
@@ -178,6 +181,9 @@ bunx vercel promote <deployment-url> --yes --token "$VERCEL_TOKEN"
 bunx vercel ls sporta --token "$VERCEL_TOKEN"
 ```
 
+(The three prod deployments above make good rollback candidates: deploy 1 =
+marker `w910-prod-1`, deploy 2 = `w910-prod-2`, deploy 3 = `w910-614ebcd`.)
+
 Rollback switches the production alias to the chosen deployment **instantly**
 (no rebuild — the old immutable deployment is still warm). Recorded W910
 evidence (markers are curl-visible via `/api/platform/health`):
@@ -189,7 +195,17 @@ vercel rollback deploy-1:   Success! sporta was rolled back to
 alias → deploy 1:           health deployMarker = "w910-prod-1"; / , /manifest.webmanifest, /sw.js all 200
 vercel promote deploy-2:    Success! sporta was promoted to
                             sporta-malycyv3s-…vercel.app (dpl_5uGQBDinxmoFPhtKKhvLcDR6Vc8R) [2s]
-alias → deploy 2 (current): health deployMarker = "w910-prod-2"
+alias → deploy 2 (then 3): health deployMarker = "w910-prod-2" (then "w910-614ebcd")
+```
+
+Current production state (verified 2026-09-16):
+
+```
+https://sporta-flame.vercel.app/                   → 200 (39847 B; Sporta + skip-link in HTML)
+https://sporta-flame.vercel.app/manifest.webmanifest → 200 application/manifest+json; charset=utf-8
+https://sporta-flame.vercel.app/sw.js              → 200 application/javascript; charset=utf-8
+/api/platform/health → env "beta-personal", deployMarker "w910-614ebcd",
+                       providers identity/artifacts/transientState = in-memory, unconfigured
 ```
 
 ## Honest limitations (W910 state)
