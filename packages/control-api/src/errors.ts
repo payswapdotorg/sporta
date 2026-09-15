@@ -25,7 +25,13 @@ import { RightsDeniedError } from "@sporta/session";
 
 /** Failure classification for control-plane rejections. */
 export type ControlFailureClass =
-  TerminalFailureClass | "validation" | "unknown-session" | "unknown-render" | "unknown-segment";
+  | TerminalFailureClass
+  | "validation"
+  | "unknown-session"
+  | "unknown-render"
+  | "unknown-segment"
+  | "compute-unavailable"
+  | "unknown-compute-job";
 
 /**
  * The canonical typed-error → HTTP status mapping. Mirrors the W701 brief:
@@ -41,6 +47,11 @@ export const CONTROL_HTTP_STATUS: Readonly<Record<ControlFailureClass, number>> 
   "unknown-session": 404,
   "unknown-render": 404,
   "unknown-segment": 404,
+  // W914 (ADDITIVE): the async compute surface's classes — a control plane
+  // with no compute adapter configured is not a caller-input problem, so
+  // the unavailability answers 503 (Service Unavailable), never 500.
+  "compute-unavailable": 503,
+  "unknown-compute-job": 404,
 };
 
 /** Structured, JSON-safe details carried on every control error. */
@@ -164,6 +175,40 @@ export class ControlUnknownSegmentError extends ControlApiError {
   }
 }
 
+/**
+ * W914 (ADDITIVE): the async compute surface was called but no compute
+ * adapter is configured on this control plane (`COMPUTE_PROVIDER=none`, or
+ * a composition without `computeAdapter`). Fail-closed and explicit — the
+ * synchronous render surface is unaffected.
+ */
+export class ControlComputeUnavailableError extends ControlApiError {
+  constructor(message: string, details: ControlErrorDetails = {}) {
+    super("compute-unavailable", message, details);
+    this.name = "ControlComputeUnavailableError";
+  }
+}
+
+/**
+ * W914 (ADDITIVE): 404-style — no compute job with the given id was ever
+ * dispatched through THIS control plane for THIS session (the check is
+ * session-scoped, so one session can never probe another's job ids).
+ */
+export class ControlUnknownComputeJobError extends ControlApiError {
+  readonly sessionId: string;
+  readonly jobId: string;
+
+  constructor(sessionId: string, jobId: string) {
+    super(
+      "unknown-compute-job",
+      `compute job '${jobId}' was not found for session '${sessionId}'`,
+      { sessionId, jobId },
+    );
+    this.name = "ControlUnknownComputeJobError";
+    this.sessionId = sessionId;
+    this.jobId = jobId;
+  }
+}
+
 /** Union of the typed control-API errors. */
 export type ControlError =
   | ControlApiError
@@ -174,7 +219,9 @@ export type ControlError =
   | ControlInternalError
   | ControlUnknownSessionError
   | ControlUnknownRenderError
-  | ControlUnknownSegmentError;
+  | ControlUnknownSegmentError
+  | ControlComputeUnavailableError
+  | ControlUnknownComputeJobError;
 
 /** Type guard: `true` when `value` is a typed control-API error. */
 export function isControlApiError(value: unknown): value is ControlApiError {

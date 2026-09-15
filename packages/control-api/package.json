@@ -11,6 +11,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@sporta/compute-adapter": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/observability": "workspace:*",
     "@sporta/renderer-contract": "workspace:*",

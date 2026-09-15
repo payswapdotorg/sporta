@@ -96,6 +96,31 @@ export interface RenderOutputStore {
   listSegments(input: RenderOutputListQuery): RenderOutputSegmentSummary[];
 }
 
+/**
+ * W914 (ADDITIVE): the WRITE side of the render-output store — a structural
+ * port satisfied by `@sporta/output-pipeline`'s `RenderSegmentStore`
+ * (`storeSegment`). The async compute surface stores the artifacts of a
+ * completed job's render through this port under the control plane's own
+ * render id; absent by default (the sync path never writes, and without a
+ * writer the async path's renders are observable but their outputs are not
+ * playback-served — exactly like an unconfigured reader store).
+ */
+export interface RenderOutputWriter {
+  /** Stores one encoded segment under `(sessionId, renderId, segmentId)`. */
+  storeSegment(input: {
+    sessionId: string;
+    renderId: string;
+    segment: {
+      segmentId: string;
+      contentType: string;
+      content: string;
+      byteLength: number;
+      contentHash: string;
+      manifest: unknown;
+    };
+  }): unknown;
+}
+
 /** Result of {@link ControlApp.getRenderOutput}. */
 export interface RenderOutputDocument {
   sessionId: string;

@@ -25,6 +25,12 @@
  * - `GET /v1/sessions/:id/renders/:renderId/outputs/:segmentId` — get one
  *   stored render output segment: bytes + content type + manifest (gate;
  *   W504)
+ * - `POST /v1/sessions/:id/renders/async` — dispatch a render asynchronously
+ *   through the compute adapter (W914, additive; 503 when no adapter is
+ *   configured)
+ * - `GET /v1/sessions/:id/compute-jobs/:jobId` — observe one compute job:
+ *   lifecycle state, decision trail, terminal completion with accounting +
+ *   usage, the render id once ingested (W914, additive)
  *
  * Status mapping: success → 200 with the payload; rights-denied → 403;
  * media-invalid/validation → 400; resource-limit → 413; internal → 500;
@@ -43,6 +49,7 @@ import type {
   ControlAppOptions,
   ControlCallContext,
   ControlRoute,
+  CreateRenderAsyncInput,
   CreateRenderInput,
   CreateSessionInput,
 } from "./app";
@@ -100,6 +107,17 @@ const ROUTES: readonly RouteSpec[] = [
     method: "GET",
     segments: ["v1", "sessions", ":id", "renders", ":renderId", "outputs", ":segmentId"],
     name: "get_render_output",
+  },
+  // W914 (ADDITIVE): the async compute-dispatch surface (G2-approved).
+  {
+    method: "POST",
+    segments: ["v1", "sessions", ":id", "renders", "async"],
+    name: "create_render_async",
+  },
+  {
+    method: "GET",
+    segments: ["v1", "sessions", ":id", "compute-jobs", ":jobId"],
+    name: "get_compute_job",
   },
 ];
 
@@ -330,6 +348,23 @@ export function createControlServer(options: ControlServerOptions = {}): Control
             params.segmentId ?? "",
             ctx,
           );
+          return respond(200, payload, requestId);
+        }
+        case "create_render_async": {
+          const body = await readJsonBody(request);
+          if (!body.ok) {
+            return transportFailure("validation", body.message, requestId, spec.name);
+          }
+          // The app re-validates the untrusted body (see create_render).
+          const payload = await app.createRenderAsync(
+            params.id ?? "",
+            body.value as CreateRenderAsyncInput,
+            ctx,
+          );
+          return respond(200, payload, requestId);
+        }
+        case "get_compute_job": {
+          const payload = await app.getComputeJob(params.id ?? "", params.jobId ?? "", ctx);
           return respond(200, payload, requestId);
         }
       }

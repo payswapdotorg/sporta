@@ -617,6 +617,11 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       sessionId: record.job.sessionId,
       status: status as "succeeded" | "failed" | "cancelled",
       terminalDisposition: disposition,
+      // The renderer's own result document rides the completion verbatim
+      // (validated by the control plane against @sporta/contracts).
+      ...(payload !== undefined && "renderResult" in payload && payload.renderResult !== undefined
+        ? { renderResult: structuredClone(payload.renderResult) }
+        : {}),
       ...(failure !== undefined
         ? {
             failure: {

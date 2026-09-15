@@ -193,6 +193,7 @@
       "name": "@sporta/control-api",
       "version": "0.1.0",
       "dependencies": {
+        "@sporta/compute-adapter": "workspace:*",
         "@sporta/contracts": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
