@@ -30,7 +30,7 @@ export function AuthForms() {
     setNotice(null);
     try {
       if (mode === "signin") {
-        const account = await loginAccount({ username, password });
+        await loginAccount({ username, password });
         await refresh();
         router.push(ROUTES.library);
       } else {
@@ -120,8 +120,8 @@ export function AuthForms() {
               </label>
             ))}
             <p className="field-hint">
-              Rights Holder and Operator grants are assigned by operators — self-registration
-              cannot mint them.
+              Rights Holder and Operator grants are assigned by operators — self-registration cannot
+              mint them.
             </p>
           </fieldset>
         )}

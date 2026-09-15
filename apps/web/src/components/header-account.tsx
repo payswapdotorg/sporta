@@ -20,7 +20,11 @@ export function HeaderAccount() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (phase === "loading") {
-    return <span className="header-account" aria-busy="true">Checking session…</span>;
+    return (
+      <span className="header-account" aria-busy="true">
+        Checking session…
+      </span>
+    );
   }
 
   if (account === null) {
@@ -97,7 +101,12 @@ export function HeaderAccount() {
               {switchError}
             </p>
           )}
-          <button type="button" role="menuitem" className="signout-button" onClick={() => void onSignOut()}>
+          <button
+            type="button"
+            role="menuitem"
+            className="signout-button"
+            onClick={() => void onSignOut()}
+          >
             Sign out
           </button>
         </div>

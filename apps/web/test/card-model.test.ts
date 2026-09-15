@@ -85,7 +85,6 @@ describe("the dev seed (honesty absolute)", () => {
       engines: new Map(),
       storyIndex: new Map(),
       entropy: { randomBytes: (n: number) => new Uint8Array(n) },
-      passwordHasher: createDeterministicTestHasher(),
     });
     expect(summary.seedAccountUsername).toBe("sporta-dev-seed");
     expect(summary.sessions).toHaveLength(3);
@@ -220,7 +219,10 @@ describe("mapOutputToViewModel over a REAL stored output", () => {
 
 describe("the capability service over the real composition", () => {
   test("the catalog surfaces an anonymous user may see (matrix projection)", async () => {
-    const response = await capabilityForRequest(server, new Request("http://sporta.test/api/capability"));
+    const response = await capabilityForRequest(
+      server,
+      new Request("http://sporta.test/api/capability"),
+    );
     expect(response.auth).toMatchObject({ state: "anonymous" });
     const home = response.content.catalogSurfaces.find((entry) => entry.surfaceId === "home");
     const library = response.content.catalogSurfaces.find((entry) => entry.surfaceId === "library");

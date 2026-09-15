@@ -162,9 +162,6 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       engines,
       storyIndex,
       entropy,
-      ...(options.passwordHasher !== undefined
-        ? { passwordHasher: options.passwordHasher }
-        : {}),
     }).then(() => undefined);
   }
   return server;

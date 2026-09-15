@@ -64,9 +64,7 @@ export interface WatchModel {
   renders: WatchRenderModel[] | null;
   /** The dev-seed story (transcript + extracted events), when one exists. */
   story:
-    | (SeedStoryMeta & {
-        /** Where to watch: the render+segment pairs that have stored outputs. */
-      })
+    | (SeedStoryMeta & {/** Where to watch: the render+segment pairs that have stored outputs. */})
     | null;
 }
 
@@ -116,7 +114,10 @@ async function buildCard(
       playback: { state: "denied", reasonCode: "rights-denied" },
       renders: null,
       outputCount: null,
-      story: story === null ? null : { source: "dev-seed", storyKey: story.storyKey, eventCount: story.events.length },
+      story:
+        story === null
+          ? null
+          : { source: "dev-seed", storyKey: story.storyKey, eventCount: story.events.length },
     };
   }
 
@@ -141,12 +142,18 @@ async function buildCard(
     playback: { state: "authorized", reasonCode: "ok" },
     renders: renderModels,
     outputCount,
-    story: story === null ? null : { source: "dev-seed", storyKey: story.storyKey, eventCount: story.events.length },
+    story:
+      story === null
+        ? null
+        : { source: "dev-seed", storyKey: story.storyKey, eventCount: story.events.length },
   };
 }
 
 /** Builds one session's watch model (the playback-session acquisition). */
-export async function buildWatchModel(server: SportaServer, sessionId: string): Promise<WatchModel> {
+export async function buildWatchModel(
+  server: SportaServer,
+  sessionId: string,
+): Promise<WatchModel> {
   const { session, rightsCapabilities } = await server.control.getSession(sessionId);
   const { sessions } = await server.control.listSessions();
   const summary = sessions.find((entry) => entry.id === sessionId);

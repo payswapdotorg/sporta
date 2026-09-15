@@ -1,9 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { createDeterministicTestHasher } from "@sporta/identity";
-import {
-  createSportaServer,
-  installSportaServerForTests,
-} from "../src/server/composition";
+import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
 import { SPORTA_SESSION_COOKIE } from "../src/server/auth-service";
 import { POST as registerRoute } from "../src/app/api/auth/register/route";
@@ -53,7 +50,11 @@ beforeAll(async () => {
     for (const render of renders) {
       const outputs = await server.control.listRenderOutputs(sessionId, render.renderId);
       if (outputs.segments.length > 0 && seededOutput === null) {
-        seededOutput = { sessionId, renderId: render.renderId, segmentId: outputs.segments[0]!.segmentId };
+        seededOutput = {
+          sessionId,
+          renderId: render.renderId,
+          segmentId: outputs.segments[0]!.segmentId,
+        };
       }
     }
   }
@@ -163,7 +164,11 @@ describe("the auth round-trip", () => {
       jsonRequest("/api/auth/register", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username: "w904-route-user", password: "route-test-password-1", roles: ["viewer", "creator"] }),
+        body: JSON.stringify({
+          username: "w904-route-user",
+          password: "route-test-password-1",
+          roles: ["viewer", "creator"],
+        }),
       }),
     );
     expect(registerResponse.status).toBe(200);
@@ -208,14 +213,21 @@ describe("the auth round-trip", () => {
     expect(cookie).toContain(`${SPORTA_SESSION_COOKIE}=`);
     expect(cookie).toContain("HttpOnly");
     expect(cookie).toContain("SameSite=Lax");
-    const loginBody = (await bodyOf(login)) as { token: string; account: { username: string; activeRole: string | null } };
+    const loginBody = (await bodyOf(login)) as {
+      token: string;
+      account: { username: string; activeRole: string | null };
+    };
     expect(typeof loginBody.token).toBe("string");
     expect(loginBody.account.username).toBe("w904-route-user");
 
     // 5. me with the cookie answers the account view.
     const me = await meRoute(withCookie("/api/auth/me", cookie!));
     expect(me.status).toBe(200);
-    const meBody = (await bodyOf(me)) as { username: string; roles: string[]; activeRole: string | null };
+    const meBody = (await bodyOf(me)) as {
+      username: string;
+      roles: string[];
+      activeRole: string | null;
+    };
     expect(meBody.username).toBe("w904-route-user");
     expect(meBody.activeRole).toBeNull();
 
@@ -252,7 +264,9 @@ describe("the auth round-trip", () => {
     expect(logout.headers.get("set-cookie")).toContain("Max-Age=0");
     const meAfter = await meRoute(withCookie("/api/auth/me", cookie!));
     expect(meAfter.status).toBe(401);
-    const logoutAgain = await logoutRoute(withCookie("/api/auth/logout", cookie!, { method: "POST" }));
+    const logoutAgain = await logoutRoute(
+      withCookie("/api/auth/logout", cookie!, { method: "POST" }),
+    );
     expect(logoutAgain.status).toBe(200);
   });
 });

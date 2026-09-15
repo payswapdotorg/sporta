@@ -72,13 +72,12 @@ export function deriveSurfaceVisibility(
   capability: CapabilityLike,
   surfaceId: string,
 ): SurfaceVerdict {
-  const surface = capability.content.catalogSurfaces.find(
-    (entry) => entry.surfaceId === surfaceId,
-  );
+  const surface = capability.content.catalogSurfaces.find((entry) => entry.surfaceId === surfaceId);
   if (surface === undefined) {
     return { state: "unavailable", reason: "this surface is not part of the capability response" };
   }
-  if (surface.visibility === "visible") return { state: "ready", reason: "visible to this account" };
+  if (surface.visibility === "visible")
+    return { state: "ready", reason: "visible to this account" };
   if (surface.reasonCode === "authentication-required") {
     return { state: "denied", reason: "signing in is required for this surface" };
   }
@@ -88,7 +87,10 @@ export function deriveSurfaceVisibility(
       reason: "your account does not hold a role grant that opens this surface",
     };
   }
-  return { state: "unavailable", reason: `the surface request was invalid (${surface.reasonCode})` };
+  return {
+    state: "unavailable",
+    reason: `the surface request was invalid (${surface.reasonCode})`,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -255,10 +257,7 @@ export function deriveLibraryState(
 
 /** Why a reality option is not ready (closed vocabulary, surfaced to users). */
 export type RealityUnavailableReason =
-  | "renderer-unavailable"
-  | "rights-denied"
-  | "requires-render"
-  | "no-stored-output";
+  "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
 
 /** One Reality Switcher option. */
 export interface RealityOption {
@@ -290,7 +289,9 @@ export function deriveRealityOptions(
   return capability.renderers.map((renderer) => {
     const base = {
       rendererId: renderer.rendererId,
-      ...(renderer.rendererVersion !== undefined ? { rendererVersion: renderer.rendererVersion } : {}),
+      ...(renderer.rendererVersion !== undefined
+        ? { rendererVersion: renderer.rendererVersion }
+        : {}),
       ...(renderer.rendererClass !== undefined ? { rendererClass: renderer.rendererClass } : {}),
     };
     if (renderer.availability !== "available") {
@@ -307,7 +308,9 @@ export function deriveRealityOptions(
         reason: "this content's rights do not permit stored playback",
       };
     }
-    const renders = (watch.renders ?? []).filter((render) => render.rendererId === renderer.rendererId);
+    const renders = (watch.renders ?? []).filter(
+      (render) => render.rendererId === renderer.rendererId,
+    );
     if (renders.length === 0) {
       return {
         ...base,
@@ -422,13 +425,20 @@ export function mapOutputToViewModel(output: {
       clockText: frame.captions.clockText,
       statusLine: frame.captions.statusLine,
       scoreText:
-        frame.captions.score !== null && frame.captions.score.displayed && frame.captions.score.text !== undefined
+        frame.captions.score !== null &&
+        frame.captions.score.displayed &&
+        frame.captions.score.text !== undefined
           ? frame.captions.score.text
           : null,
       marker:
         caption === undefined
           ? null
-          : { atMs: frame.windowMs.startMs, phrase: caption.phrase, sequence: caption.sequence, eventId: caption.eventId },
+          : {
+              atMs: frame.windowMs.startMs,
+              phrase: caption.phrase,
+              sequence: caption.sequence,
+              eventId: caption.eventId,
+            },
       entities: frame.entities.map((entity) => ({
         entityId: entity.entityId,
         kind: entity.kind,

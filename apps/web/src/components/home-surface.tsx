@@ -5,11 +5,7 @@ import Link from "next/link";
 import type { CapabilityLike, SessionCardLike } from "@/lib/api-types";
 import type { FetchState } from "@/lib/client-api";
 import { fetchCapability, fetchCatalog } from "@/lib/client-api";
-import {
-  collectRealityCards,
-  deriveHomeShelves,
-  isWatchable,
-} from "@/lib/surface-state";
+import { collectRealityCards, deriveHomeShelves, isWatchable } from "@/lib/surface-state";
 import { SessionCard } from "@/components/session-card";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
 import { ROUTES } from "@/lib/navigation";
@@ -55,7 +51,9 @@ export function HomeSurface() {
     <div className="surface-stack">
       <section className="home-shelf" aria-labelledby="shelf-live" data-shelf="live">
         <header className="section-head">
-          <h2 className="section-title" id="shelf-live">Live and upcoming</h2>
+          <h2 className="section-title" id="shelf-live">
+            Live and upcoming
+          </h2>
           <StateChip state={shelves.live.state === "ready" ? "ready" : "not-live"}>
             {shelves.live.state === "ready" ? "live" : "not live"}
           </StateChip>
@@ -65,7 +63,9 @@ export function HomeSurface() {
 
       <section className="home-shelf" aria-labelledby="shelf-watch" data-shelf="watch-now">
         <header className="section-head">
-          <h2 className="section-title" id="shelf-watch">Sports people are watching</h2>
+          <h2 className="section-title" id="shelf-watch">
+            Sports people are watching
+          </h2>
           <StateChip state={shelves.watchNow.state}>{shelves.watchNow.state}</StateChip>
         </header>
         {watchable.length > 0 ? (
@@ -83,7 +83,9 @@ export function HomeSurface() {
 
       <section className="home-shelf" aria-labelledby="shelf-realities" data-shelf="realities">
         <header className="section-head">
-          <h2 className="section-title" id="shelf-realities">Alternate realities of those matches</h2>
+          <h2 className="section-title" id="shelf-realities">
+            Alternate realities of those matches
+          </h2>
           <StateChip state={shelves.realities.state}>{shelves.realities.state}</StateChip>
         </header>
         {realities.length > 0 ? (

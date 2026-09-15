@@ -76,7 +76,8 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
     route: "/following",
     state: "unavailable",
     title: "Following",
-    summary: "Activity from the creators, events and realities you follow will stream into this feed.",
+    summary:
+      "Activity from the creators, events and realities you follow will stream into this feed.",
     detail:
       "Accounts exist now (you can sign in), but there is no follow graph yet — no creator, event or reality can be followed, so no activity is simulated.",
     plannedWorkOrder: "W916",

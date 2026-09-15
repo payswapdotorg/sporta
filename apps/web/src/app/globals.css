@@ -1073,7 +1073,11 @@ svg {
   padding: 16px 18px;
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   border-radius: var(--radius-md);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent
+  );
   color: var(--text);
   text-decoration: none;
 }

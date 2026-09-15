@@ -1,12 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import type {
-  CapabilityLike,
-  RenderOutputLike,
-  WatchModelLike,
-} from "@/lib/api-types";
+import type { CapabilityLike, RenderOutputLike, WatchModelLike } from "@/lib/api-types";
 import { ApiError } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
 import { fetchCapability, fetchRenderOutput, fetchWatchModel } from "@/lib/client-api";
@@ -57,7 +53,12 @@ export function WatchExperience({
     setWatch({ phase: "loading" });
     void fetchWatchModel(sessionId).then(
       (data) => setWatch({ phase: "ready", data }),
-      (error) => setWatch({ phase: "failed", error: String(error), status: error instanceof ApiError ? error.status : undefined }),
+      (error) =>
+        setWatch({
+          phase: "failed",
+          error: String(error),
+          status: error instanceof ApiError ? error.status : undefined,
+        }),
     );
   }, [sessionId]);
 
@@ -92,13 +93,7 @@ export function WatchExperience({
         />
       );
     }
-    return (
-      <StatePanel
-        state="failed"
-        title="The match could not be read"
-        reason={watch.error}
-      />
-    );
+    return <StatePanel state="failed" title="The match could not be read" reason={watch.error} />;
   }
 
   const options = deriveRealityOptions(capability.data, watch.data);
@@ -133,10 +128,7 @@ export function WatchExperience({
           selected={effectiveSelection}
           onSelect={(rendererId) => setSelectedRenderer(rendererId)}
         />
-        <RendererControls
-          capability={capability.data}
-          rendererId={effectiveSelection}
-        />
+        <RendererControls capability={capability.data} rendererId={effectiveSelection} />
         <StatsSection watch={watch.data} />
       </aside>
     </div>
@@ -144,7 +136,13 @@ export function WatchExperience({
 }
 
 /** The match header: real session identity + the playback verdict. */
-function MatchHeader({ watch, verdict }: { watch: WatchModelLike; verdict: { state: string; reason: string } }) {
+function MatchHeader({
+  watch,
+  verdict,
+}: {
+  watch: WatchModelLike;
+  verdict: { state: string; reason: string };
+}) {
   return (
     <header className="match-header">
       <p className="page-kicker">Match session {watch.sessionId}</p>
@@ -181,10 +179,18 @@ function PlayerSurface({
   option,
 }: {
   sessionId: string;
-  option: { rendererId: string; state: string; reason: string; renderId?: string; segmentId?: string };
+  option: {
+    rendererId: string;
+    state: string;
+    reason: string;
+    renderId?: string;
+    segmentId?: string;
+  };
 }) {
   const [output, setOutput] = useState<
-    FetchState<RenderOutputLike> | { phase: "denied"; reason: string } | { phase: "nothing"; reason: string }
+    | FetchState<RenderOutputLike>
+    | { phase: "denied"; reason: string }
+    | { phase: "nothing"; reason: string }
   >({ phase: "loading" });
   const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
   const [replayKey, setReplayKey] = useState(0);
@@ -204,9 +210,16 @@ function PlayerSurface({
       (error) => {
         if (cancelled) return;
         if (error instanceof ApiError && error.status === 403) {
-          setOutput({ phase: "denied", reason: "the playback gate denied this read before any byte was exposed" });
+          setOutput({
+            phase: "denied",
+            reason: "the playback gate denied this read before any byte was exposed",
+          });
         } else {
-          setOutput({ phase: "failed", error: String(error), status: error instanceof ApiError ? error.status : undefined });
+          setOutput({
+            phase: "failed",
+            error: String(error),
+            status: error instanceof ApiError ? error.status : undefined,
+          });
         }
       },
     );
@@ -246,7 +259,11 @@ function PlayerSurface({
   if (output.phase === "nothing") {
     return (
       <section className="player-surface">
-        <StatePanel state="unavailable" title={`The ${option.rendererId} reality has no output`} reason={output.reason} />
+        <StatePanel
+          state="unavailable"
+          title={`The ${option.rendererId} reality has no output`}
+          reason={output.reason}
+        />
       </section>
     );
   }
@@ -282,8 +299,8 @@ function PlayerSurface({
         </button>
         <p className="review-format-note" role="note">
           Rendered output — review format: this is the real stored artifact (a self-contained
-          animated SVG segment). Sporta&rsquo;s renderers emit SVG review outputs this wave; there is no
-          video codec to fake here.
+          animated SVG segment). Sporta&rsquo;s renderers emit SVG review outputs this wave; there
+          is no video codec to fake here.
         </p>
       </div>
       <TimelineSection view={view} />
@@ -297,7 +314,11 @@ function TimelineSection({ view }: { view: ReturnType<typeof mapOutputToViewMode
   return (
     <section className="timeline-section" aria-label="Match timeline">
       <h2 className="section-title">Timeline and events</h2>
-      <div className="timeline-track" role="img" aria-label={`A ${view.totalDurationMs / 1000} second timeline with ${view.markers.length} event markers`}>
+      <div
+        className="timeline-track"
+        role="img"
+        aria-label={`A ${view.totalDurationMs / 1000} second timeline with ${view.markers.length} event markers`}
+      >
         {view.frames.map((frame) => (
           <span
             key={frame.frameIndex}
@@ -323,7 +344,9 @@ function TimelineSection({ view }: { view: ReturnType<typeof mapOutputToViewMode
           <li key={marker.sequence}>
             <span className="marker-time">{formatTimelineMs(marker.atMs)}</span>
             <span className="marker-phrase">{marker.phrase}</span>
-            <span className="marker-meta">event {marker.eventId} · sequence {marker.sequence}</span>
+            <span className="marker-meta">
+              event {marker.eventId} · sequence {marker.sequence}
+            </span>
           </li>
         ))}
       </ol>
@@ -473,7 +496,15 @@ function RendererControls({
           <div className="fact">
             <dt>Availability</dt>
             <dd>
-              <StateChip state={renderer.availability === "available" ? "ready" : renderer.availability === "degraded" ? "degraded" : "unavailable"}>
+              <StateChip
+                state={
+                  renderer.availability === "available"
+                    ? "ready"
+                    : renderer.availability === "degraded"
+                      ? "degraded"
+                      : "unavailable"
+                }
+              >
                 {renderer.availability}
               </StateChip>
             </dd>
@@ -506,9 +537,7 @@ function CommentarySection({ watch }: { watch: WatchModelLike }) {
               {formatTimelineMs(unit.startMs)}–{formatTimelineMs(unit.endMs)}
             </span>
             <blockquote className="commentary-line">{unit.text}</blockquote>
-            <span className="marker-meta">
-              asr confidence {unit.asrConfidence.toFixed(2)}
-            </span>
+            <span className="marker-meta">asr confidence {unit.asrConfidence.toFixed(2)}</span>
           </li>
         ))}
       </ul>
@@ -556,16 +585,17 @@ function StatsSection({ watch }: { watch: WatchModelLike }) {
               <code>{render.renderId}</code> watermark
             </dt>
             <dd>
-              seq {render.watermarkAfter.sequence} @ {formatTimelineMs(render.watermarkAfter.watermarkMs)} ·
-              snapshot v{render.provenance.snapshotVersion} · last event {render.provenance.lastEventSequence}
+              seq {render.watermarkAfter.sequence} @{" "}
+              {formatTimelineMs(render.watermarkAfter.watermarkMs)} · snapshot v
+              {render.provenance.snapshotVersion} · last event {render.provenance.lastEventSequence}
             </dd>
           </div>
         ))}
       </dl>
       {renders.length === 0 && (
         <p className="section-lede">
-          This session&rsquo;s rights deny stored playback, so its render state is not revealed
-          here either.{" "}
+          This session&rsquo;s rights deny stored playback, so its render state is not revealed here
+          either.{" "}
           <Link href={ROUTES.explore} className="text-link">
             Back to Explore
           </Link>

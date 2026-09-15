@@ -29,16 +29,13 @@ export function jsonResponse(status: number, payload: unknown): Response {
 /** Maps any thrown value onto the API's error-response conventions. */
 export async function errorResponse(err: unknown): Promise<Response> {
   if (err instanceof AuthFlowError) {
-    return jsonResponse(
-      err.status,
-      {
-        error: {
-          failureClass: err.failureClass,
-          message: err.message,
-          ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
-        },
-      } satisfies ApiErrorBody,
-    );
+    return jsonResponse(err.status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
   }
   const { CONTROL_HTTP_STATUS, isControlApiError } = await import("@sporta/control-api");
   if (isControlApiError(err)) {
@@ -46,16 +43,13 @@ export async function errorResponse(err: unknown): Promise<Response> {
     // CONTROL_HTTP_STATUS mapping: rights-denied → 403, validation → 400,
     // unknown-session/render/segment → 404, resource-limit → 413, internal → 500).
     const status = err.httpStatus ?? CONTROL_HTTP_STATUS[err.failureClass];
-    return jsonResponse(
-      status,
-      {
-        error: {
-          failureClass: err.failureClass,
-          message: err.message,
-          ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
-        },
-      } satisfies ApiErrorBody,
-    );
+    return jsonResponse(status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
   }
   return jsonResponse(500, {
     error: { failureClass: "internal", message: "unexpected server failure" },

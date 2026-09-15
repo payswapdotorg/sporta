@@ -18,7 +18,9 @@ import { ROUTES } from "@/lib/navigation";
  */
 export function LibrarySurface() {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
-  const [sessions, setSessions] = useState<FetchState<SessionCardLike[] | null>>({ phase: "loading" });
+  const [sessions, setSessions] = useState<FetchState<SessionCardLike[] | null>>({
+    phase: "loading",
+  });
 
   useEffect(() => {
     void fetchCapability().then(

@@ -37,7 +37,8 @@ const PROVIDER_FEEDS = [
   {
     kind: "compute" as const,
     health: "ok" as const,
-    detail: "in-process renderer execution through the real registry (hosted compute adapter is W914)",
+    detail:
+      "in-process renderer execution through the real registry (hosted compute adapter is W914)",
   },
   // queue-cache deliberately omitted: no queue/cache exists this wave →
   // unknown / health-feed-missing in the response (fail-closed).
@@ -54,7 +55,12 @@ export async function capabilityForRequest(
 ): Promise<CapabilityResponse> {
   // 1. Resolve the presented session (fail-closed presentation state).
   const token = tokenFromRequest(request);
-  let session: { authenticated: boolean; valid: boolean; userId?: string; activeRole?: string | null };
+  let session: {
+    authenticated: boolean;
+    valid: boolean;
+    userId?: string;
+    activeRole?: string | null;
+  };
   if (token.length === 0) {
     session = { authenticated: false, valid: false };
   } else {

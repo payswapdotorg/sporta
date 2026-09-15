@@ -42,9 +42,9 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="hero-note">
-            This deployment runs a real in-process control plane with dev-seed content — every
-            card, state and output below is real engine output, and live is honestly absent until a
-            real live transport exists.
+            This deployment runs a real in-process control plane with dev-seed content — every card,
+            state and output below is real engine output, and live is honestly absent until a real
+            live transport exists.
           </p>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { getSportaServer } from "@/server/runtime";
 import { clearedSessionCookie, tokenFromRequest } from "@/server/auth-service";
 import { AuthFlowError } from "@/server/auth-service";
-import { errorResponse, jsonResponse } from "@/server/http-errors";
+import { errorResponse } from "@/server/http-errors";
 
 export const dynamic = "force-dynamic";
 

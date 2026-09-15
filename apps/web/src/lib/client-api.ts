@@ -79,7 +79,10 @@ export function registerAccount(input: {
 }
 
 /** POST /api/auth/login (sets the HttpOnly session cookie). */
-export function loginAccount(input: { username: string; password: string }): Promise<AccountViewLike> {
+export function loginAccount(input: {
+  username: string;
+  password: string;
+}): Promise<AccountViewLike> {
   return postJson<{ token: string; account: AccountViewLike }>("/api/auth/login", input).then(
     (result) => result.account,
   );

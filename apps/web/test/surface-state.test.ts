@@ -106,7 +106,12 @@ describe("deriveExploreState over the W901 fixtures", () => {
   });
 
   test("degraded platforms degrade the surface but keep the listings real", () => {
-    for (const name of ["partial-availability", "provider-degraded", "quota-exhausted", "rights-denied-renderer"] as const) {
+    for (const name of [
+      "partial-availability",
+      "provider-degraded",
+      "quota-exhausted",
+      "rights-denied-renderer",
+    ] as const) {
       const capability = fixtures.get(name)!;
       expect(capability.overall.state).toBe("degraded");
       const verdict = deriveExploreState(capability, [watchableCard()]);
@@ -152,7 +157,9 @@ describe("deriveLibraryState over the W901 fixtures", () => {
 
   test("a role-not-granted library answer is denied with the role words", () => {
     const capability = fixtures.get("authenticated-no-roles")!;
-    const surface = capability.content.catalogSurfaces.find((entry) => entry.surfaceId === "library");
+    const surface = capability.content.catalogSurfaces.find(
+      (entry) => entry.surfaceId === "library",
+    );
     expect(surface?.reasonCode).toBe("role-not-granted");
     const verdict = deriveLibraryState(capability, []);
     expect(verdict.state).toBe("denied");
@@ -255,7 +262,12 @@ describe("deriveCardPlayback / isWatchable (card-model mapping)", () => {
       ...watchableCard(),
       outputCount: 0,
       renders: [
-        { renderId: "r-1", rendererId: "sporta.testcard", segmentCount: 1, hasStoredOutputs: false },
+        {
+          renderId: "r-1",
+          rendererId: "sporta.testcard",
+          segmentCount: 1,
+          hasStoredOutputs: false,
+        },
       ],
     };
     const verdict = deriveCardPlayback(card);
@@ -383,7 +395,15 @@ describe("mapOutputToViewModel (the stored artifact → player data)", () => {
 
 describe("the UX state vocabulary", () => {
   test("isUxState accepts exactly the seven canonical states", () => {
-    for (const state of ["loading", "ready", "processing", "degraded", "denied", "unavailable", "failed"]) {
+    for (const state of [
+      "loading",
+      "ready",
+      "processing",
+      "degraded",
+      "denied",
+      "unavailable",
+      "failed",
+    ]) {
       expect(isUxState(state)).toBe(true);
     }
     expect(isUxState("live")).toBe(false);
@@ -440,13 +460,27 @@ function watchModelWithOutput(): WatchModelLike {
         provenance: { snapshotVersion: 6, lastEventSequence: 6 },
         rendererHealth: { lagMs: 0, degraded: false },
         segmentCount: 1,
-        outputs: [{ segmentId: "seg-1", contentType: "image/svg+xml", byteLength: 2048, contentHash: "sha256-abc" }],
+        outputs: [
+          {
+            segmentId: "seg-1",
+            contentType: "image/svg+xml",
+            byteLength: 2048,
+            contentHash: "sha256-abc",
+          },
+        ],
       },
     ],
     story: {
       source: "dev-seed",
       storyKey: "derby",
-      transcript: [{ startMs: 500, endMs: 1_000, text: "And we kick off here at the stadium.", asrConfidence: 0.95 }],
+      transcript: [
+        {
+          startMs: 500,
+          endMs: 1_000,
+          text: "And we kick off here at the stadium.",
+          asrConfidence: 0.95,
+        },
+      ],
       events: [{ sequence: 1, timeMs: 500, type: "kickoff", phrase: "kick off", confidence: 0.9 }],
       waveCount: 6,
     },
@@ -466,7 +500,11 @@ function realOutputDocument(): { contentType: string; manifest: RenderOutputLike
         { frameIndex: 1, outputTimestampMs: 1_000, beginMs: 1_000, durMs: 1_000 },
       ],
       sourceManifest: {
-        renderer: { rendererId: "anime.prototype", rendererVersion: "0.1.0", styleId: "dev-seed-derby" },
+        renderer: {
+          rendererId: "anime.prototype",
+          rendererVersion: "0.1.0",
+          styleId: "dev-seed-derby",
+        },
         output: { startMs: 0, frameIntervalMs: 1_000, durationMs: 2_000 },
         frames: [
           {
@@ -478,7 +516,9 @@ function realOutputDocument(): { contentType: string; manifest: RenderOutputLike
               statusLine: "First half — underway",
               score: { displayed: true, status: "ok", text: "LIV 0 - 0 MCI" },
               clockText: "00:34",
-              events: [{ sequence: 1, eventId: "evt-1", phrase: "And we kick off here at the stadium." }],
+              events: [
+                { sequence: 1, eventId: "evt-1", phrase: "And we kick off here at the stadium." },
+              ],
               uncaptionedEvents: [],
             },
             possession: { status: "unknown", displayed: false },
@@ -498,7 +538,13 @@ function realOutputDocument(): { contentType: string; manifest: RenderOutputLike
             outputTimestampMs: 1_000,
             windowMs: { startMs: 1_000, endMs: 2_000 },
             appliedEventSequences: [],
-            captions: { statusLine: null, score: null, clockText: "00:35", events: [], uncaptionedEvents: [] },
+            captions: {
+              statusLine: null,
+              score: null,
+              clockText: "00:35",
+              events: [],
+              uncaptionedEvents: [],
+            },
             possession: null,
             entities: [],
           },

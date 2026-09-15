@@ -23,7 +23,5 @@ export default async function WatchPage({
   const initialRenderer =
     typeof rendererParam === "string" && rendererParam.length > 0 ? rendererParam : null;
 
-  return (
-    <WatchExperience sessionId={sessionId} initialRenderer={initialRenderer} />
-  );
+  return <WatchExperience sessionId={sessionId} initialRenderer={initialRenderer} />;
 }

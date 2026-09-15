@@ -45,10 +45,14 @@ export function ExploreSurface() {
 
   return (
     <div className="surface-stack">
-      {verdict.state !== "ready" && <StatePanel state={verdict.state} title="Explore" reason={verdict.reason} />}
+      {verdict.state !== "ready" && (
+        <StatePanel state={verdict.state} title="Explore" reason={verdict.reason} />
+      )}
       <section className="explore-catalog" aria-labelledby="explore-all">
         <header className="section-head">
-          <h2 className="section-title" id="explore-all">The full catalog</h2>
+          <h2 className="section-title" id="explore-all">
+            The full catalog
+          </h2>
           <StateChip state={verdict.state}>{verdict.state}</StateChip>
         </header>
         <p className="section-lede">

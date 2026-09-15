@@ -20,10 +20,14 @@
  * Users register their own accounts; their Library lists their own sessions.
  */
 import { SCHEMA_VERSION, deriveRightsCapabilities } from "@sporta/contracts";
-import { ANIME_OUTPUT_PROFILE, ANIME_RENDERER_ID, ANIME_RENDERER_VERSION, renderAnimeClip } from "@sporta/renderer-anime";
+import {
+  ANIME_OUTPUT_PROFILE,
+  ANIME_RENDERER_ID,
+  ANIME_RENDERER_VERSION,
+  renderAnimeClip,
+} from "@sporta/renderer-anime";
 import type { AnimeRenderOutput } from "@sporta/renderer-anime";
-import type { EntropySource, PasswordHasher } from "@sporta/identity";
-import { argon2PasswordHasher } from "@sporta/identity";
+import type { EntropySource } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import { drawSeedPassword } from "./auth-service";
 import type { SportaServer } from "./composition";
@@ -61,7 +65,6 @@ export interface SeedOptions {
   /** The story metadata index the watch model reads. */
   storyIndex: Map<string, SeedStoryMeta>;
   entropy: EntropySource;
-  passwordHasher?: PasswordHasher;
 }
 
 /** One seeded session: which story, which renders to run. */
@@ -88,7 +91,12 @@ const SEED_PLAN: readonly SeedPlan[] = [
     testcard: true,
     anime: false,
   },
-  { story: TRAINING_STORY, label: "Training ground — fixture story C", testcard: false, anime: true },
+  {
+    story: TRAINING_STORY,
+    label: "Training ground — fixture story C",
+    testcard: false,
+    anime: true,
+  },
 ];
 
 /** The dev-seed account (roles: the creator + viewer baseline). */
@@ -101,10 +109,14 @@ const SEED_ACCOUNT_USERNAME = "sporta-dev-seed";
  */
 export async function seedDevContent(options: SeedOptions): Promise<{
   seedAccountUsername: string;
-  sessions: { sessionId: string; storyKey: string; renderIds: string[]; storedSegmentIds: string[] }[];
+  sessions: {
+    sessionId: string;
+    storyKey: string;
+    renderIds: string[];
+    storedSegmentIds: string[];
+  }[];
 }> {
   const { server, engines, storyIndex, entropy } = options;
-  const hasher = options.passwordHasher ?? argon2PasswordHasher;
 
   // 1. The labeled platform seed account — created through the real store
   //    with a real hashed password drawn from real entropy and discarded.

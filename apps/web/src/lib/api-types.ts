@@ -41,7 +41,11 @@ export interface CapabilityLike {
     rightsAwareness: string;
   }[];
   modes: {
-    live: { availability: "available" | "degraded" | "unavailable"; reasonCode: string; transportKind: string };
+    live: {
+      availability: "available" | "degraded" | "unavailable";
+      reasonCode: string;
+      transportKind: string;
+    };
     batch: { availability: "available" | "degraded" | "unavailable"; reasonCode: string };
   };
   quotas: unknown[];
@@ -93,7 +97,13 @@ export interface WatchModelLike {
     source: "dev-seed";
     storyKey: string;
     transcript: { startMs: number; endMs: number; text: string; asrConfidence: number }[];
-    events: { sequence: number; timeMs: number; type: string; phrase: string; confidence: number }[];
+    events: {
+      sequence: number;
+      timeMs: number;
+      type: string;
+      phrase: string;
+      confidence: number;
+    }[];
     waveCount: number;
   } | null;
 }
@@ -127,7 +137,12 @@ export interface RenderOutputLike {
           events: { sequence: number; eventId: string; phrase: string }[];
           uncaptionedEvents: { sequence: number; eventId: string; eventTypeRef: string }[];
         };
-        possession: { status: string; entityId?: string; confidence?: number; displayed: boolean } | null;
+        possession: {
+          status: string;
+          entityId?: string;
+          confidence?: number;
+          displayed: boolean;
+        } | null;
         entities: {
           entityId: string;
           kind: string;

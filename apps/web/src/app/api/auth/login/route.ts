@@ -1,6 +1,6 @@
 import { getSportaServer } from "@/server/runtime";
 import { sessionCookie } from "@/server/auth-service";
-import { errorResponse, jsonResponse, readJsonBody } from "@/server/http-errors";
+import { errorResponse, readJsonBody } from "@/server/http-errors";
 
 export const dynamic = "force-dynamic";
 

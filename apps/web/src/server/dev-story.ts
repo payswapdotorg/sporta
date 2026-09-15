@@ -69,7 +69,9 @@ const FRAME_WIDTH = 160;
 const FRAME_HEIGHT = 90;
 
 /** The 6-step timeline: one step per second, 1000..6000 ms. */
-export const STORY_WAVE_BOUNDARIES_MS: readonly number[] = [1_000, 2_000, 3_000, 4_000, 5_000, 6_000];
+export const STORY_WAVE_BOUNDARIES_MS: readonly number[] = [
+  1_000, 2_000, 3_000, 4_000, 5_000, 6_000,
+];
 
 /**
  * Four fixture objects on linear, non-crossing lanes (the m3 lane geometry —

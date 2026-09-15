@@ -52,7 +52,9 @@ export function SessionCard({
         {card.story !== null && (
           <div className="fact">
             <dt>Source</dt>
-            <dd>{card.story.source} · {card.story.storyKey} · {card.story.eventCount} events</dd>
+            <dd>
+              {card.story.source} · {card.story.storyKey} · {card.story.eventCount} events
+            </dd>
           </div>
         )}
       </dl>
@@ -78,7 +80,10 @@ export function SessionCard({
         </p>
       )}
       {watchable ? (
-        <Link className="button-primary card-action" href={`${ROUTES.watch}?session=${encodeURIComponent(card.sessionId)}`}>
+        <Link
+          className="button-primary card-action"
+          href={`${ROUTES.watch}?session=${encodeURIComponent(card.sessionId)}`}
+        >
           Watch
         </Link>
       ) : (

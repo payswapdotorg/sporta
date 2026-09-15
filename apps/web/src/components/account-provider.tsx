@@ -36,7 +36,10 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
     void refresh();
   }, [refresh]);
 
-  const value = useMemo<AccountContextValue>(() => ({ phase, account, refresh }), [phase, account, refresh]);
+  const value = useMemo<AccountContextValue>(
+    () => ({ phase, account, refresh }),
+    [phase, account, refresh],
+  );
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
 }
 
