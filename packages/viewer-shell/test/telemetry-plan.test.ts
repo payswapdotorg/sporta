@@ -106,7 +106,19 @@ describe("telemetryAffordance — the pure W706 decision layer", () => {
       vmOf({
         playback: null,
         status: "session-detail",
-        live: { ...liveView.live, player: null, state: "idle" },
+        live: {
+          available: true,
+          state: "idle",
+          sessionId: "sess-1",
+          streamId: "live-sess-1",
+          offer: null,
+          viewerId: "viewer-shell",
+          player: null,
+          accounting: null,
+          degradationReasons: [],
+          reconnect: null,
+          outcome: null,
+        },
       }),
     );
     expect(idleLive.visible).toBe(false);

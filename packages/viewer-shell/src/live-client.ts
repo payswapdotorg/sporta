@@ -200,7 +200,23 @@ function streamHandleOf(session: LiveViewerSession): LiveStreamHandle {
         // Not consumable: terminally closed, or disconnected awaiting a
         // reconnect (the core knows which from the events it applied — this
         // is the typed "not consumable now" answer, never a silent skip).
-        if (session.terminated || !session.connected) return null;
+        if (session.terminated || !session.connected) {
+          // COMPLETE a suspended pull stream before answering null: an
+          // async generator suspended at its `yield` keeps W305's
+          // one-active-pull guard engaged until it is resumed. Leaving it
+          // suspended would make the FIRST post-reconnect pull resume the
+          // DYING stream (it only returns) — the restarted consumption loop
+          // would exit immediately and the live presentation would freeze
+          // silently. `return()` runs the generator's `finally` (releasing
+          // the pull guard) so the next `events()` starts a FRESH stream
+          // that actually delivers the replay + new windows.
+          if (iterator !== null) {
+            const finish = iterator.return;
+            if (finish !== undefined) await finish.call(iterator);
+            iterator = null;
+          }
+          return null;
+        }
         if (iterator === null) iterator = session.events()[Symbol.asyncIterator]();
         const next = await iterator.next();
         if (next.done) {

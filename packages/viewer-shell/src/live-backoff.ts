@@ -21,9 +21,13 @@
  *   `liveReconnectDelayMs` never reads time. The caller (the viewer core)
  *   adds the delay to its own injected clock reading and drives the attempt
  *   from its host-driven `tick` — no timers anywhere.
- * - **Bounded**: at most {@link LIVE_RECONNECT_MAX_ATTEMPTS} attempts per
- *   connection loss; the attempt AFTER the cap is a terminal outcome (never
- *   a retry storm).
+ * - **Bounded**: at most {@link LIVE_RECONNECT_MAX_ATTEMPTS} reconnect
+ *   attempts fire per ATTACHED live stream (one `openLive`), CUMULATIVELY
+ *   across separate connection losses — a stream that drops repeatedly
+ *   stops honestly once its total reconnect budget is spent (a fresh
+ *   `openLive` starts a fresh budget). A loss arriving when the budget is
+ *   already spent is a terminal outcome, never a 5th attempt and never an
+ *   infinite reconnect cycle (the cap is the retry-storm guard).
  *
  * WHICH failures reconnect (the retryability table, W305's verbatim classes
  * plus the classless connection loss): ONLY `connection-lost` (the viewer's
@@ -66,7 +70,7 @@ export const LIVE_RECONNECT_BASE_DELAY_MS = 500;
 /** The delay ceiling of the schedule (ms, injected-clock domain). */
 export const LIVE_RECONNECT_MAX_DELAY_MS = 4_000;
 
-/** The total attempt cap per connection loss (a 5th loss is terminal). */
+/** The cumulative attempt cap per ATTACHED stream (a loss past the spent budget is terminal). */
 export const LIVE_RECONNECT_MAX_ATTEMPTS = 4;
 
 /**
@@ -124,7 +128,9 @@ export type LiveReconnectDecision =
     };
 
 /**
- * The pure reconnect decision over `(failureClass, attemptsSoFar)`:
+ * The pure reconnect decision over `(failureClass, attemptsSoFar)` where
+ * `attemptsSoFar` counts the attempts ALREADY FIRED for this attached
+ * stream (cumulative across losses — see the module docs):
  *
  * - a retryable class with attempts remaining → the next attempt + its
  *   scheduled delay;

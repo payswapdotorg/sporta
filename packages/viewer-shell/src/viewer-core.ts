@@ -382,7 +382,7 @@ export interface ViewerCoreOptions {
    * Injected time source in milliseconds (default: deterministic
    * `VIEWER_DEFAULT_EPOCH_MS + ticks` counter — a LOCAL mirror of the
    * testing epoch; see `./default-clock.ts`). The browser bootstrap injects
-   * `performance.now()`; production must never rely on the default.
+   * the `performance.now` clock; production must never rely on the default.
    */
   nowMs?: () => number;
   /** Frame player factory (default: {@link createFramePlayer}). */
@@ -791,7 +791,14 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         new ViewerControlError(
           "network",
           `live output stopped: ${decision.reason} after ${String(attemptsSoFar)} reconnect attempt${attemptsSoFar === 1 ? "" : "s"}`,
-          { liveFailureClass: "transport-failed", attempts: attemptsSoFar },
+          {
+            // The W305-family class standing in for the classless
+            // connection loss (the retryable family), the class that
+            // actually triggered this window, and the fired count.
+            liveFailureClass: "transport-failed",
+            triggeringFailureClass: failureClass,
+            attempts: attemptsSoFar,
+          },
         ),
       );
       return;
@@ -1331,7 +1338,19 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
             liveReconnect = null;
             liveOutcome = null;
           },
-          operation: () => liveClient.requestLive(sessionId),
+          operation: async () => {
+            try {
+              return await liveClient.requestLive(sessionId);
+            } catch (err) {
+              // The open FAILED (rights denial, typed reject, transport
+              // death…): the connecting section never existed — reset it,
+              // or the live pane would keep claiming "Requesting the live
+              // offer…" forever (a dishonest state after a terminal
+              // failure). The error itself lands in `run`'s `fail` path.
+              teardownLive();
+              throw err;
+            }
+          },
           onSuccess: (attached) => {
             liveStream = attached.stream;
             liveOffer = attached.offer;

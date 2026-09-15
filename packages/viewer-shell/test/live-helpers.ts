@@ -11,7 +11,11 @@
  */
 import type { AuthorizationPolicy, OutputProfile, Watermark } from "@sporta/contracts";
 import { ManualLiveClock, LoopbackLiveOutputTransport } from "@sporta/webrtc-output";
-import type { LiveOutputEmission, LiveOutputPayload } from "@sporta/webrtc-output";
+import type {
+  LiveOutputEmission,
+  LiveOutputLimits,
+  LiveOutputPayload,
+} from "@sporta/webrtc-output";
 import type { LiveOutputEndpoint, LiveViewerSession } from "@sporta/webrtc-output";
 
 /** The deterministic output profile every live fixture negotiates (SVG). */
@@ -110,12 +114,15 @@ export function liveEmission(options: {
 
 /**
  * Builds a REAL W305 loopback transport for one live session: the SVG
- * profile, the manual protocol clock, and the caller's rights policy.
+ * profile, the manual protocol clock, the caller's rights policy, and the
+ * caller's limits overrides (e.g. a small `maxWatermarkLagMs` to exercise
+ * the honest skip-stale accounting).
  */
 export function makeLiveTransport(options: {
   sessionId: string;
   policy?: AuthorizationPolicy;
   clock?: ManualLiveClock;
+  limits?: Partial<LiveOutputLimits>;
 }): { transport: LoopbackLiveOutputTransport; clock: ManualLiveClock } {
   const clock = options.clock ?? new ManualLiveClock(0);
   const transport = new LoopbackLiveOutputTransport({
@@ -123,6 +130,7 @@ export function makeLiveTransport(options: {
     clock,
     outputProfile: LIVE_PROFILE,
     rightsPolicy: options.policy ?? liveDeliveryPolicy(),
+    ...(options.limits === undefined ? {} : { limits: options.limits }),
   });
   return { transport, clock };
 }
@@ -152,6 +160,7 @@ export function captureSessionTransport(options: {
   sessionId: string;
   policy?: AuthorizationPolicy;
   clock?: ManualLiveClock;
+  limits?: Partial<LiveOutputLimits>;
 }): CapturedLiveTransport {
   const { transport: real, clock } = makeLiveTransport(options);
   let session: LiveViewerSession | null = null;

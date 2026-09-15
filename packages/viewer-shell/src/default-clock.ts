@@ -4,7 +4,8 @@
  * The deterministic default time source for {@link createViewerCore} when no
  * `nowMs` is injected: a per-core `EPOCH + ticks` counter, so unseeded runs
  * are reproducible (docs/testing/HARNESS.md). Production/browser callers
- * MUST inject a real clock (the bootstrap injects `performance.now()`).
+ * MUST inject a real clock (the bootstrap injects the browser
+ * `performance.now` clock).
  *
  * Why this module exists (and why the constant is LOCAL rather than imported
  * from `@sporta/testing`): `viewer-core.ts` is part of the browser ES-module

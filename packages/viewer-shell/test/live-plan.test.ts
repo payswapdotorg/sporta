@@ -9,7 +9,8 @@
 import { describe, expect, test } from "bun:test";
 import { liveStatusPlan } from "../src/live-plan.ts";
 import { LIVE_UNAVAILABLE_NOTE } from "../src/viewer-core.ts";
-import type { LivePlayerViewModel, LiveView } from "../src/viewer-core.ts";
+import type { LiveView } from "../src/viewer-core.ts";
+import type { LivePlayerViewModel } from "../src/live-player.ts";
 import { LIVE_RECONNECT_MAX_ATTEMPTS } from "../src/live-backoff.ts";
 
 const LIVE_PLAYER: LivePlayerViewModel = {

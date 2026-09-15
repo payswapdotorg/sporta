@@ -16,7 +16,7 @@
  * (`sess-<n>`) when a session is open — the same id family the control
  * client's `x-request-id`/session conventions already use. Timestamps
  * (`atMs`) live in the viewer's INJECTED clock domain (the deterministic
- * epoch counter in tests, `performance.now()` in the browser) — never a
+ * epoch counter in tests, the browser `performance.now` clock) — never a
  * wall-clock read.
  *
  * W804 BOUNDARY (documented decision): W804 "product analytics" is the LATER
