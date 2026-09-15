@@ -1,0 +1,86 @@
+{
+  "policyId": "broadcast-classic",
+  "policyVersion": "camera-director.policy@1",
+  "possessionFollow": {
+    "enabled": true,
+    "zones": [
+      {
+        "xMin": 0,
+        "xMax": 17.5,
+        "slotId": "behind-goal-x0"
+      },
+      {
+        "xMin": 87.5,
+        "xMax": 105,
+        "slotId": "behind-goal-x105"
+      },
+      {
+        "xMin": 17.5,
+        "xMax": 87.5,
+        "slotId": "main-touchline"
+      }
+    ],
+    "fallbackSlotId": "main-touchline",
+    "hysteresisMs": 3000
+  },
+  "eventRules": [
+    {
+      "eventType": "goal",
+      "minConfidence": 0.5,
+      "focusSlotSelector": "nearest-goal",
+      "holdMs": 4000,
+      "replay": {
+        "replaySlotSelector": "nearest-goal",
+        "leadMs": 2000,
+        "trailMs": 2000
+      }
+    },
+    {
+      "eventType": "save",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "nearest-goal",
+      "holdMs": 2500,
+      "replay": {
+        "replaySlotSelector": "nearest-goal",
+        "leadMs": 1500,
+        "trailMs": 1500
+      }
+    },
+    {
+      "eventType": "shot",
+      "minConfidence": 0.65,
+      "focusSlotSelector": "nearest-goal",
+      "holdMs": 2000
+    },
+    {
+      "eventType": "free-kick",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "nearest-goal",
+      "holdMs": 3000
+    },
+    {
+      "eventType": "card",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "main-touchline",
+      "holdMs": 3000
+    },
+    {
+      "eventType": "corner",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "nearest-goal",
+      "holdMs": 2500
+    },
+    {
+      "eventType": "kickoff",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "main-touchline",
+      "holdMs": 3000
+    },
+    {
+      "eventType": "fulltime",
+      "minConfidence": 0.6,
+      "focusSlotSelector": "aerial-tactical",
+      "holdMs": 5000
+    }
+  ]
+}

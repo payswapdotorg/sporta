@@ -67,6 +67,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/camera-director": {
+      "name": "@sporta/camera-director",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/commentary-understanding": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/commentary-segmentation": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/commentary-segmentation": {
       "name": "@sporta/commentary-segmentation",
       "version": "0.1.0",
@@ -529,6 +544,8 @@
     "@sporta/ball-state": ["@sporta/ball-state@workspace:packages/ball-state"],
 
     "@sporta/ball-tracking": ["@sporta/ball-tracking@workspace:packages/ball-tracking"],
+
+    "@sporta/camera-director": ["@sporta/camera-director@workspace:packages/camera-director"],
 
     "@sporta/commentary-segmentation": ["@sporta/commentary-segmentation@workspace:packages/commentary-segmentation"],
 
