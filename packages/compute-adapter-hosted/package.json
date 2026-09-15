@@ -1,0 +1,26 @@
+{
+  "name": "@sporta/compute-adapter-hosted",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/compute-adapter": "workspace:*",
+    "@sporta/contracts": "workspace:*",
+    "@sporta/output-pipeline": "workspace:*",
+    "@sporta/renderer-anime": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@sporta/observability": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}
