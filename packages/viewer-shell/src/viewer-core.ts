@@ -706,7 +706,13 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         if (livePlayer === null) return;
         const result = livePlayer.applyWindow(event.window, event.payload);
         if (!result.ok) {
-          liveFail(new ViewerControlError(result.error.failureClass, result.error.message, result.error.details));
+          liveFail(
+            new ViewerControlError(
+              result.error.failureClass,
+              result.error.message,
+              result.error.details,
+            ),
+          );
           return;
         }
         refreshLiveAccounting();
@@ -732,10 +738,14 @@ export function createViewerCore(options: ViewerCoreOptions): ViewerCore {
         if (outcome === "failed") {
           const w305Class: LiveOutputFailureClass = event.failureClass ?? "protocol-violation";
           liveFail(
-            new ViewerControlError(LIVE_FAILURE_CLASS_MAP[w305Class], `live output session failed: ${w305Class}`, {
-              liveFailureClass: w305Class,
-              outcome,
-            }),
+            new ViewerControlError(
+              LIVE_FAILURE_CLASS_MAP[w305Class],
+              `live output session failed: ${w305Class}`,
+              {
+                liveFailureClass: w305Class,
+                outcome,
+              },
+            ),
           );
           return;
         }

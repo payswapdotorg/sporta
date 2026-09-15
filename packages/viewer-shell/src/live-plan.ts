@@ -122,7 +122,10 @@ function liveAccountingText(accounting: LiveAccountingView | null): string | nul
 }
 
 /** The reconnect countdown (or null outside a reconnect window). */
-function liveReconnectHint(live: Extract<LiveView, { available: true }>, nowMs: number): string | null {
+function liveReconnectHint(
+  live: Extract<LiveView, { available: true }>,
+  nowMs: number,
+): string | null {
   if (live.state !== "reconnecting" || live.reconnect === null) return null;
   if (live.reconnect.nextAttemptAtMs === null) return null;
   const remainingMs = live.reconnect.nextAttemptAtMs - nowMs;

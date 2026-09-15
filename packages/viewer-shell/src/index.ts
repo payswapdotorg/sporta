@@ -222,9 +222,7 @@ export type {
 export { liveStatusPlan } from "./live-plan.ts";
 export type { LiveStatusPlan } from "./live-plan.ts";
 export { checkOfferExactKeys, createInProcessLiveClient, mapLiveError } from "./live-client.ts";
-export type {
-  InProcessLiveClientOptions,
-} from "./live-client.ts";
+export type { InProcessLiveClientOptions } from "./live-client.ts";
 export { playerViewToDomPlan, segmentViewToDomPlan, liveViewToDomPlan } from "./dom-plan.ts";
 export type { LiveDomPlan, PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
 export { detailModeOf, detailPanePlan } from "./detail-plan.ts";

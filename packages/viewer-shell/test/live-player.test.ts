@@ -90,7 +90,10 @@ describe("live player — structural validation (fail-loud, never buffers garbag
     const second = realWindow({ ordinal: 2, watermarkMs: 4_000, startMs: 3_000 });
     const retimed: LiveOutputPayload = {
       ...second.payload,
-      manifest: { ...second.payload.manifest, output: { ...second.payload.manifest.output, frameIntervalMs: 2_000 } },
+      manifest: {
+        ...second.payload.manifest,
+        output: { ...second.payload.manifest.output, frameIntervalMs: 2_000 },
+      },
     };
     const result = player.applyWindow(second.window, retimed);
     expect(result.ok).toBe(false);
@@ -99,7 +102,6 @@ describe("live player — structural validation (fail-loud, never buffers garbag
 
   test("a malformed payload frame is a classified reject (each field named)", () => {
     const player = createLivePlayer({ clock: fakeClock().now });
-    const base = realWindow({ ordinal: 1, watermarkMs: 2_000, frameCount: 2 });
     for (const mutate of [
       (frames: LiveOutputPayload["frames"]): void => {
         frames[0] = { ...frames[0]!, frameIndex: -1 };
@@ -263,7 +265,12 @@ describe("live player — the latency seam (injected domain, newest window's emi
     clock.advance(250);
     expect(player.view().latencyMs).toBe(1_250);
     // A NEWER window re-bases the latency on ITS emission time.
-    const second = realWindow({ ordinal: 2, watermarkMs: 4_000, startMs: 3_000, emittedAtMs: 10_000 });
+    const second = realWindow({
+      ordinal: 2,
+      watermarkMs: 4_000,
+      startMs: 3_000,
+      emittedAtMs: 10_000,
+    });
     expect(player.applyWindow(second.window, second.payload).ok).toBe(true);
     expect(player.view().latencyMs).toBe(250); // 10_250 − 10_000
   });
@@ -278,7 +285,12 @@ describe("live player — the latency seam (injected domain, newest window's emi
     // latency on ITS emission time — the in-order delivery contract makes
     // the last-applied window the newest one. A duplicate re-delivery of the
     // OLD window id is suppressed (the idempotency test pins that).
-    const second = realWindow({ ordinal: 2, watermarkMs: 4_000, startMs: 3_000, emittedAtMs: 9_500 });
+    const second = realWindow({
+      ordinal: 2,
+      watermarkMs: 4_000,
+      startMs: 3_000,
+      emittedAtMs: 9_500,
+    });
     expect(player.applyWindow(second.window, second.payload).ok).toBe(true);
     expect(player.view().latencyMs).toBe(500); // 10_000 − 9_500
   });
@@ -296,7 +308,12 @@ describe("live player — determinism (deep-equal view traces over the same scri
       clock.advance(700);
       player.tick();
       trace.push(JSON.stringify(player.view()));
-      const second = realWindow({ ordinal: 2, watermarkMs: 4_000, startMs: 3_000, emittedAtMs: 700 });
+      const second = realWindow({
+        ordinal: 2,
+        watermarkMs: 4_000,
+        startMs: 3_000,
+        emittedAtMs: 700,
+      });
       player.applyWindow(second.window, second.payload);
       trace.push(JSON.stringify(player.view()));
       clock.advance(2_500);

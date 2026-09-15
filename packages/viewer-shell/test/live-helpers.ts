@@ -189,10 +189,3 @@ export function captureSessionTransport(options: {
     endpoint: () => endpoint,
   };
 }
-
-/** Flushes the microtask queue enough for the pull/send chains to settle. */
-export async function settleLive(rounds = 6): Promise<void> {
-  for (let i = 0; i < rounds; i += 1) {
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
-  }
-}

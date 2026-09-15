@@ -18,14 +18,21 @@ import {
   LiveOutputRightsError,
 } from "@sporta/webrtc-output";
 import type { LiveOutputFailureClass, LoopbackLiveOutputTransport } from "@sporta/webrtc-output";
-import { ViewerControlError, isViewerControlError } from "../src/errors.ts";
+import { isViewerControlError } from "../src/errors.ts";
 import type { ViewerFailureClass } from "../src/errors.ts";
 import { LIVE_FAILURE_CLASS_MAP } from "../src/live-ports.ts";
-import { checkOfferExactKeys, createInProcessLiveClient, mapLiveError } from "../src/live-client.ts";
-import { LIVE_PROFILE, makeLiveTransport, noLiveDeliveryPolicy } from "./live-helpers.ts";
+import {
+  checkOfferExactKeys,
+  createInProcessLiveClient,
+  mapLiveError,
+} from "../src/live-client.ts";
+import { makeLiveTransport, noLiveDeliveryPolicy } from "./live-helpers.ts";
 
 /** A fresh client over a fresh REAL transport (the per-open lifetime rule). */
-function freshClient(sessionId: string, policy?: Parameters<typeof makeLiveTransport>[0]["policy"]) {
+function freshClient(
+  sessionId: string,
+  policy?: Parameters<typeof makeLiveTransport>[0]["policy"],
+) {
   const made = makeLiveTransport({ sessionId, ...(policy === undefined ? {} : { policy }) });
   return {
     ...made,
@@ -148,7 +155,9 @@ describe("live client — the exact-key offer check (unknown fields are typed re
     [
       "profile",
       (offer: Record<string, unknown>) => {
-        ((offer.tracks as Array<Record<string, unknown>>)[0]!.profile as Record<string, unknown>).extraProfile = true;
+        (
+          (offer.tracks as Array<Record<string, unknown>>)[0]!.profile as Record<string, unknown>
+        ).extraProfile = true;
       },
     ],
     [

@@ -66,7 +66,10 @@ describe("live-backoff — the documented schedule (test-pinned table)", () => {
 
 describe("live-backoff — the retryability table (every W305 class pinned)", () => {
   test("exactly connection-lost and transport-failed reconnect", () => {
-    expect([...LIVE_RETRYABLE_FAILURE_CLASSES].sort()).toEqual(["connection-lost", "transport-failed"]);
+    expect([...LIVE_RETRYABLE_FAILURE_CLASSES].sort()).toEqual([
+      "connection-lost",
+      "transport-failed",
+    ]);
   });
 
   test("every W305 class has a pinned verdict (the table is total over the vocabulary)", () => {
@@ -141,9 +144,10 @@ describe("live-backoff — the reconnect decision (pure over class × attempts)"
       "protocol-violation",
     ] as const) {
       for (const attemptsSoFar of [0, 1, 3]) {
-        expect(liveReconnectDecision(failureClass, attemptsSoFar), `${failureClass}@${attemptsSoFar}`).toEqual(
-          { action: "terminal", reason: "non-retryable" },
-        );
+        expect(
+          liveReconnectDecision(failureClass, attemptsSoFar),
+          `${failureClass}@${attemptsSoFar}`,
+        ).toEqual({ action: "terminal", reason: "non-retryable" });
       }
     }
   });
@@ -165,7 +169,11 @@ describe("live-backoff — the reconnect decision (pure over class × attempts)"
     for (const failureClass of ["connection-lost", "transport-failed", "rights-denied"] as const) {
       for (let attempts = 0; attempts <= 5; attempts += 1) {
         const decision = liveReconnectDecision(failureClass, attempts);
-        if (decision.action === "reconnect" || decision.reason === "non-retryable" || decision.reason === "attempts-exhausted") {
+        if (
+          decision.action === "reconnect" ||
+          decision.reason === "non-retryable" ||
+          decision.reason === "attempts-exhausted"
+        ) {
           expect(liveReconnectDecision(failureClass, attempts)).toEqual(decision);
         }
       }

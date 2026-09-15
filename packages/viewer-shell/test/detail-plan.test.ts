@@ -168,15 +168,40 @@ describe("detailPanePlan — the mounted section is never orphaned", () => {
       mounted: DetailPaneMounted;
       expected: DetailPaneAction;
     }> = [
-      { status: "ready", mounted: { playback: false, live: false }, expected: { kind: "mount-playback" } },
-      { status: "ready", mounted: { playback: true, live: false }, expected: { kind: "update-playback" } },
-      { status: "playing", mounted: { playback: true, live: false }, expected: { kind: "update-playback" } },
-      { status: "paused", mounted: { playback: true, live: false }, expected: { kind: "update-playback" } },
-      { status: "ended", mounted: { playback: true, live: false }, expected: { kind: "update-playback" } },
+      {
+        status: "ready",
+        mounted: { playback: false, live: false },
+        expected: { kind: "mount-playback" },
+      },
+      {
+        status: "ready",
+        mounted: { playback: true, live: false },
+        expected: { kind: "update-playback" },
+      },
+      {
+        status: "playing",
+        mounted: { playback: true, live: false },
+        expected: { kind: "update-playback" },
+      },
+      {
+        status: "paused",
+        mounted: { playback: true, live: false },
+        expected: { kind: "update-playback" },
+      },
+      {
+        status: "ended",
+        mounted: { playback: true, live: false },
+        expected: { kind: "update-playback" },
+      },
       {
         status: "session-detail",
         mounted: { playback: true, live: false },
-        expected: { kind: "render-static", mode: "session", teardownPlayback: true, teardownLive: false },
+        expected: {
+          kind: "render-static",
+          mode: "session",
+          teardownPlayback: true,
+          teardownLive: false,
+        },
       },
       {
         status: "browsing-sessions",
@@ -203,15 +228,40 @@ describe("detailPanePlan — the mounted section is never orphaned", () => {
       mounted: DetailPaneMounted;
       expected: DetailPaneAction;
     }> = [
-      { status: "live-connecting", mounted: { playback: false, live: false }, expected: { kind: "mount-live" } },
-      { status: "live-playing", mounted: { playback: false, live: true }, expected: { kind: "update-live" } },
-      { status: "live-reconnecting", mounted: { playback: false, live: true }, expected: { kind: "update-live" } },
-      { status: "live-playing", mounted: { playback: false, live: true }, expected: { kind: "update-live" } },
-      { status: "live-ended", mounted: { playback: false, live: true }, expected: { kind: "update-live" } },
+      {
+        status: "live-connecting",
+        mounted: { playback: false, live: false },
+        expected: { kind: "mount-live" },
+      },
+      {
+        status: "live-playing",
+        mounted: { playback: false, live: true },
+        expected: { kind: "update-live" },
+      },
+      {
+        status: "live-reconnecting",
+        mounted: { playback: false, live: true },
+        expected: { kind: "update-live" },
+      },
+      {
+        status: "live-playing",
+        mounted: { playback: false, live: true },
+        expected: { kind: "update-live" },
+      },
+      {
+        status: "live-ended",
+        mounted: { playback: false, live: true },
+        expected: { kind: "update-live" },
+      },
       {
         status: "session-detail",
         mounted: { playback: false, live: true },
-        expected: { kind: "render-static", mode: "session", teardownPlayback: false, teardownLive: true },
+        expected: {
+          kind: "render-static",
+          mode: "session",
+          teardownPlayback: false,
+          teardownLive: true,
+        },
       },
       {
         status: "browsing-sessions",

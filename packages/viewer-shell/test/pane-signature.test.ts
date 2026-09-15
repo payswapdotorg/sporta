@@ -183,16 +183,8 @@ describe("sessionsPaneSignature — invariant across playback-only changes (the 
       latencyMs: 2_500,
       lastDisplayedFrame: 8,
     };
-    expect(
-      sessionsPaneSignature(
-        vmOf({ live: liveOf({ player: playerA }) }),
-      ),
-    ).toBe(base);
-    expect(
-      sessionsPaneSignature(
-        vmOf({ live: liveOf({ player: playerB }) }),
-      ),
-    ).toBe(base);
+    expect(sessionsPaneSignature(vmOf({ live: liveOf({ player: playerA }) }))).toBe(base);
+    expect(sessionsPaneSignature(vmOf({ live: liveOf({ player: playerB }) }))).toBe(base);
     // The coarse state IS a rendered field — each transition flips it.
     for (const state of ["idle", "connecting", "reconnecting", "ended"] as const) {
       expect(sessionsPaneSignature(vmOf({ live: liveOf({ state }) }))).not.toBe(base);

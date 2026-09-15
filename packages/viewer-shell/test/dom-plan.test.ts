@@ -253,8 +253,9 @@ describe("liveViewToDomPlan — the W704 live presentation decisions", () => {
     const view = liveVmOf({});
     expect(liveViewToDomPlan(view, null).swapSvg).toBe("<svg>live-1</svg>");
     expect(liveViewToDomPlan(view, "<svg>live-1</svg>").swapSvg).toBe(null);
-    expect(liveViewToDomPlan(liveVmOf({ frameSvg: "<svg>live-2</svg>" }), "<svg>live-1</svg>").swapSvg)
-      .toBe("<svg>live-2</svg>");
+    expect(
+      liveViewToDomPlan(liveVmOf({ frameSvg: "<svg>live-2</svg>" }), "<svg>live-1</svg>").swapSvg,
+    ).toBe("<svg>live-2</svg>");
   });
 
   test("before the first applied window: no frame, no overlay, the honest waiting line", () => {
@@ -281,7 +282,11 @@ describe("liveViewToDomPlan — the W704 live presentation decisions", () => {
     const plan = liveViewToDomPlan(liveVmOf({}), null);
     expect(plan.showBuffering).toBe(false);
     const stalled = liveViewToDomPlan(
-      liveVmOf({ buffering: true, bufferedAhead: 0, frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 } }),
+      liveVmOf({
+        buffering: true,
+        bufferedAhead: 0,
+        frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      }),
       "<svg>live-1</svg>",
     );
     expect(stalled.showBuffering).toBe(true);
@@ -305,10 +310,9 @@ describe("liveViewToDomPlan — the W704 live presentation decisions", () => {
 
   test("purity: the same inputs yield the deep-equal plan (deep-equal rerun)", () => {
     const view = liveVmOf({});
-    expect(liveViewToDomPlan(view, null)).toEqual(liveViewToDomPlan(
-      JSON.parse(JSON.stringify(view)) as LivePlayerViewModel,
-      null,
-    ));
+    expect(liveViewToDomPlan(view, null)).toEqual(
+      liveViewToDomPlan(JSON.parse(JSON.stringify(view)) as LivePlayerViewModel, null),
+    );
     expect(liveViewToDomPlan(view, "<svg>live-1</svg>")).toEqual(
       liveViewToDomPlan(view, "<svg>live-1</svg>"),
     );

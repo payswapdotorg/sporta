@@ -68,9 +68,6 @@ import type {
   LiveStreamStatusView,
 } from "./live-ports.ts";
 
-/** The W305 → viewer failure-class table (re-exported from `./live-ports.ts`, the browser-safe map). */
-export { LIVE_FAILURE_CLASS_MAP };
-
 /** Maps a thrown W305/live failure onto the viewer error model (verbatim evidence). */
 export function mapLiveError(value: unknown): ViewerControlError {
   if (value instanceof LiveOutputError) {
@@ -113,11 +110,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * Rejects any key outside `allowed` (fail-loud, naming the exact field) —
  * the "unknown fields stay rejects" rule. Returns `null` when exact.
  */
-function exactKeys(
-  value: unknown,
-  allowed: readonly string[],
-  path: string,
-): string | null {
+function exactKeys(value: unknown, allowed: readonly string[], path: string): string | null {
   if (!isPlainObject(value)) return `${path} must be an object`;
   for (const key of Object.keys(value)) {
     if (!(allowed as readonly string[]).includes(key)) {
@@ -310,9 +303,7 @@ export interface InProcessLiveClientOptions {
  * Creates the in-process live client (see the module docs for the full open
  * dance and the honest node-side boundary).
  */
-export function createInProcessLiveClient(
-  options: InProcessLiveClientOptions,
-): LiveClient {
+export function createInProcessLiveClient(options: InProcessLiveClientOptions): LiveClient {
   const createTransport = options.createTransport;
   const viewerId = options.viewerId ?? "viewer-shell";
   const supportedCodecs = options.supportedCodecs ?? ["svg"];

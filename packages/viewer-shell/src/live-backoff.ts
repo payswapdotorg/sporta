@@ -58,9 +58,7 @@ export const LIVE_RETRYABLE_FAILURE_CLASSES: ReadonlySet<LiveRetryableFailureCla
 ]);
 
 /** `true` when a reconnect may be attempted for this failure class. */
-export function isLiveRetryableFailureClass(
-  value: string,
-): value is LiveRetryableFailureClass {
+export function isLiveRetryableFailureClass(value: string): value is LiveRetryableFailureClass {
   return LIVE_RETRYABLE_FAILURE_CLASSES.has(value as LiveRetryableFailureClass);
 }
 
@@ -109,7 +107,7 @@ export function liveReconnectDelayMs(attempt: number): number {
 /** The terminal outcomes of {@link liveReconnectDecision} (machine reasons). */
 export type LiveReconnectTerminalReason =
   /** The failure class is not in the retryability table. */
-  "non-retryable"
+  | "non-retryable"
   /** The attempt cap was reached — the live stream stops honestly. */
   | "attempts-exhausted";
 

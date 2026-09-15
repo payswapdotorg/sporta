@@ -18,12 +18,12 @@
  *    edge that owns the real-clock injection). Comment mentions without
  *    call syntax are fine; the regexes match the call forms.
  * 3. **The browser-module-graph rule at the source level** (W702, extended
- *    by W704): the browser-reachable live modules (`live-ports`,
- *    `live-player`, `live-backoff`, `live-plan`) import
- *    `@sporta/webrtc-output` TYPE-ONLY (erased at transpile — the runtime
- *    import lives in the node-side `live-client.ts`, deliberately outside
- *    the browser graph; `test/serve.test.ts` pins the transpiled output,
- *    this pin catches the breach before it ever reaches the transpiler).
+ *    by W704): browser-reachable src modules (everything except the
+ *    node-side `live-client.ts` adapter) import `@sporta/webrtc-output`
+ *    TYPE-ONLY (erased at transpile — the runtime import lives in
+ *    `live-client.ts`, deliberately outside the browser graph;
+ *    `test/serve.test.ts` pins the transpiled output, this pin catches the
+ *    breach before it ever reaches the transpiler).
  *
  * All scans walk `src` dynamically (a NEW src module is scanned
  * automatically), and each has a teeth test proving it is not vacuous.
@@ -48,14 +48,6 @@ const ALLOWED_SPECIFIERS: readonly string[] = [
 
 /** The modules allowed to import node builtins (the node-only surface). */
 const NODE_ONLY_MODULES: readonly string[] = ["serve.ts", "telemetry-file-sink.ts"];
-
-/** The browser-reachable live modules (the serve.ts BROWSER graph members). */
-const BROWSER_LIVE_MODULES: readonly string[] = [
-  "live-ports.ts",
-  "live-player.ts",
-  "live-backoff.ts",
-  "live-plan.ts",
-];
 
 /** Every import specifier (static or dynamic) in one module's source. */
 function importSpecifiersOf(source: string): string[] {
@@ -152,20 +144,38 @@ describe("constitution — zero wall-clock / RNG calls in src (injected clocks o
   });
 });
 
-describe("browser-graph live modules import W305 TYPE-ONLY (the W702 rule at the source level)", () => {
-  test("every @sporta/webrtc-output import in the browser-reachable live modules is `import type` (erased at transpile)", () => {
-    for (const moduleName of BROWSER_LIVE_MODULES) {
-      const source = sourceOf(moduleName);
-      // Every import/export-from STATEMENT naming the package must be
-      // type-only. The regexes match the full statement (multi-line
-      // import bodies included — `[^}]*` spans newlines), so docblock
-      // mentions are never mistaken for statements.
-      const statements = [
-        ...source.matchAll(/import\s+(type\s+)?\{[^}]*\}\s*from\s*"@sporta\/webrtc-output"/g),
-        ...source.matchAll(/export\s+(type\s+)?\{[^}]*\}\s*from\s*"@sporta\/webrtc-output"/g),
-      ];
-      expect(statements.length, `src/${moduleName} never imports @sporta/webrtc-output?`).toBeGreaterThan(0);
-      for (const statement of statements) {
+/** The node-only adapter allowed to import W305 at RUNTIME (the composition). */
+const RUNTIME_W305_IMPORTERS: readonly string[] = ["live-client.ts"];
+
+describe("browser-graph modules import W305 TYPE-ONLY (the W702 rule at the source level)", () => {
+  /**
+   * The statements naming `@sporta/webrtc-output` in one module's source
+   * (imports and re-exports; the regexes match the full statement —
+   * `[^}]*` spans newlines — so docblock mentions are never mistaken for
+   * statements).
+   */
+  function w305StatementsOf(source: string): RegExpMatchArray[] {
+    return [
+      ...source.matchAll(/import\s+(type\s+)?\{[^}]*\}\s*from\s*"@sporta\/webrtc-output"/g),
+      ...source.matchAll(/export\s+(type\s+)?\{[^}]*\}\s*from\s*"@sporta\/webrtc-output"/g),
+    ];
+  }
+
+  test("every @sporta/webrtc-output import in EVERY browser-reachable src module is `import type` (erased at transpile)", () => {
+    // The rule is per-IMPORT, not per-module: a browser-reachable module
+    // MAY import `@sporta/webrtc-output` TYPE-ONLY (the W305 vocabulary is
+    // part of the port contracts) and may equally well import nothing from
+    // it (`live-plan.ts` deliberately derives from the local view types —
+    // its reconnect `lastFailureClass` also carries the classless
+    // `connection-lost`, which is a DELIVERY-EVENT kind, not a W305
+    // failure class, so typing it against W305 would be wrong). What the
+    // browser graph forbids is the VALUE import: the browser cannot
+    // resolve bare `@sporta/*` specifiers (W702, test-enforced in
+    // serve.test.ts); this pin catches the breach at the source level,
+    // before it ever reaches the transpiler.
+    for (const moduleName of srcModuleNames()) {
+      if (RUNTIME_W305_IMPORTERS.includes(moduleName)) continue;
+      for (const statement of w305StatementsOf(sourceOf(moduleName))) {
         expect(
           statement[1] !== undefined,
           `src/${moduleName} statement "${statement[0].replace(/\s+/g, " ")}" — browser-reachable modules may import @sporta/webrtc-output TYPE-ONLY (the runtime import belongs to the node-side live-client.ts; the browser cannot resolve bare @sporta/* specifiers — W702, test-enforced in serve.test.ts)`,
@@ -174,17 +184,51 @@ describe("browser-graph live modules import W305 TYPE-ONLY (the W702 rule at the
     }
   });
 
+  test("the pin has teeth: the live modules that DO type against W305 carry type-only imports (the scan is not vacuous)", () => {
+    for (const moduleName of ["live-ports.ts", "live-player.ts", "live-backoff.ts"]) {
+      const statements = w305StatementsOf(sourceOf(moduleName));
+      expect(
+        statements.length,
+        `src/${moduleName} should carry a type-only @sporta/webrtc-output import — the browser-graph pin rots without one`,
+      ).toBeGreaterThan(0);
+      for (const statement of statements) {
+        expect(statement[1]).toBe("type ");
+      }
+    }
+    // And `live-plan.ts` is the documented counter-example: NO W305 import
+    // at all (pure over the local views) — still browser-safe, pinned above.
+    expect(w305StatementsOf(sourceOf("live-plan.ts"))).toHaveLength(0);
+  });
+
   test("the node-side adapter exists and DOES import the package at runtime (the composition, not a re-invention)", () => {
     const source = sourceOf("live-client.ts");
     expect(source).toMatch(/import \{ LiveOutputError \} from "@sporta\/webrtc-output";/);
     expect(source).toMatch(/LoopbackLiveOutputTransport/);
+    // The runtime-importing module list stays exact (a new runtime importer
+    // must be a deliberate, documented addition).
+    for (const moduleName of srcModuleNames()) {
+      const isRuntimeImporter = /import\s+\{[^}]*\}\s*from\s*"@sporta\/webrtc-output"/.test(
+        sourceOf(moduleName),
+      );
+      if (isRuntimeImporter) {
+        expect(RUNTIME_W305_IMPORTERS).toContain(moduleName);
+      }
+    }
   });
 
   test("the scan has teeth: a value import of the package in a browser module would fail it", () => {
     const breach = `import { LiveOutputError } from "@sporta/webrtc-output";`;
-    const lines = breach.split("\n");
-    for (const line of lines) {
-      expect(/^\s*(import type|export type)\b/.test(line)).toBe(false);
-    }
+    const statements = w305StatementsOf(breach);
+    expect(statements.length).toBe(1);
+    expect(statements[0]?.[1]).toBeUndefined(); // NOT type-only — the pin fails it
+    const compliant = `import type { LiveOutputError } from "@sporta/webrtc-output";`;
+    const ok = w305StatementsOf(compliant);
+    expect(ok.length).toBe(1);
+    expect(ok[0]?.[1]).toBe("type ");
+    // A re-export breaches the same way unless type-only.
+    const reexportBreach = w305StatementsOf(
+      `export { LiveOutputError } from "@sporta/webrtc-output";`,
+    );
+    expect(reexportBreach[0]?.[1]).toBeUndefined();
   });
 });

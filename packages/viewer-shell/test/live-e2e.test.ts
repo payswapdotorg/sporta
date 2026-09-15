@@ -188,7 +188,7 @@ describe("W704 live e2e — golden walk: open, attach, present, telemetry", () =
     const view0 = await openLiveWalk(harness);
 
     // The offer is in the view VERBATIM (the validated document's summary).
-    const { live: live0 } = livePlayerOf(view0);
+    const { live: live0, player: player0 } = livePlayerOf(view0);
     expect(live0.sessionId).toBe("sess-1");
     expect(live0.streamId).toBe("live-sess-1");
     expect(live0.viewerId).toBe("viewer-shell");
@@ -211,9 +211,9 @@ describe("W704 live e2e — golden walk: open, attach, present, telemetry", () =
       },
     });
     // Absent metrics stay absent before the first window.
-    expect(live0.player.frame).toBe(null);
-    expect(live0.player.latencyMs).toBe(null);
-    expect(live0.player.frameCount).toBe(0);
+    expect(player0.frame).toBe(null);
+    expect(player0.latencyMs).toBe(null);
+    expect(player0.frameCount).toBe(0);
     expect(live0.accounting).toBe(null);
 
     // The host sends window 0 (2 frames @ the 1 fps cadence, watermark 1000).
@@ -360,7 +360,11 @@ describe("W704 live e2e — reconnect safely (drop → schedule → attempt → 
     expect(after.state).toBe("playing");
     expect(after.reconnect?.attempts).toBe(1);
     expect(after.reconnect?.nextAttemptAtMs).toBe(null);
-    expect(after.reconnect?.lastReport).toEqual({ resumeFromOrdinal: 1, replayCount: 0, gapSkipped: 0 });
+    expect(after.reconnect?.lastReport).toEqual({
+      resumeFromOrdinal: 1,
+      replayCount: 0,
+      gapSkipped: 0,
+    });
 
     // NEW windows sent after the drop APPLY — THE PIN (the inherited bug
     // froze the presentation here: the restarted pull died on the first
@@ -467,11 +471,12 @@ describe("W704 live e2e — the attempt cap: 4 fired attempts, then the honest t
     // The schedule's delays (500/1000/2000/4000): fire all 4 attempts.
     const delays = [500, 1_000, 2_000, 4_000];
     for (let index = 0; index < delays.length; index += 1) {
+      const delay = delays[index]!;
       host.session()!.disconnect();
       const reconnecting = await settleUntil(harness.core, (v) => v.status === "live-reconnecting");
       const { live: rv } = livePlayerOf(reconnecting);
-      expect(rv.reconnect?.nextAttemptAtMs).toBe(harness.clock.now() + delays[index]);
-      harness.clock.advance(delays[index]);
+      expect(rv.reconnect?.nextAttemptAtMs).toBe(harness.clock.now() + delay);
+      harness.clock.advance(delay);
       harness.core.dispatch({ type: "tick" });
       const resumed = await settleUntil(harness.core, (v) => v.status === "live-playing");
       const { live: after } = livePlayerOf(resumed);
@@ -489,6 +494,15 @@ describe("W704 live e2e — the attempt cap: 4 fired attempts, then the honest t
     expect(error.message).toContain("attempts-exhausted");
     expect(error.message).toContain("4 reconnect attempts");
     expect(error.retryable).toBe(true); // a user-initiated fresh open, never a storm
+    // The structured evidence of the terminal state: the retryable-family
+    // W305 class standing in for the CLASSLESS connection loss, the class
+    // that actually triggered the window, and the fired count (the
+    // honest-evidence completion — pinned).
+    expect(error.details).toEqual({
+      liveFailureClass: "transport-failed",
+      triggeringFailureClass: "connection-lost",
+      attempts: 4,
+    });
     // The live section is torn down honestly (idle, no player, no window).
     const live = terminal.live;
     if (!live.available) throw new Error("unreachable");

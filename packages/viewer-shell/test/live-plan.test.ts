@@ -130,7 +130,9 @@ describe("liveStatusPlan — every section state (headline + status line)", () =
 
   test("playing: the status line carries the REAL seams (frame, buffered ahead, delivery latency)", () => {
     const plan = liveStatusPlan(liveOf({ state: "playing" }), 0);
-    expect(plan.statusText).toBe("Live · frame 1 @ 4.0s · 3 frames buffered ahead · delivery latency 0.1s");
+    expect(plan.statusText).toBe(
+      "Live · frame 1 @ 4.0s · 3 frames buffered ahead · delivery latency 0.1s",
+    );
     // Latency absent → the term is absent (never a faked 0.0s).
     const noLatency = liveStatusPlan(
       liveOf({ state: "playing", player: { ...LIVE_PLAYER, latencyMs: null } }),
@@ -142,7 +144,9 @@ describe("liveStatusPlan — every section state (headline + status line)", () =
       liveOf({ state: "playing", player: { ...LIVE_PLAYER, buffering: true, bufferedAhead: 1 } }),
       0,
     );
-    expect(buffering.statusText).toBe("Buffering · frame 1 @ 4.0s · 1 frame buffered ahead · delivery latency 0.1s");
+    expect(buffering.statusText).toBe(
+      "Buffering · frame 1 @ 4.0s · 1 frame buffered ahead · delivery latency 0.1s",
+    );
   });
 });
 
@@ -234,16 +238,16 @@ describe("liveStatusPlan — the terminal outcome line", () => {
   });
 
   test("verbatim outcome + failureClass when the session ended", () => {
-    expect(
-      liveStatusPlan(liveOf({ outcome: { outcome: "completed" } }), 0).outcomeText,
-    ).toBe("Live stream ended (completed)");
+    expect(liveStatusPlan(liveOf({ outcome: { outcome: "completed" } }), 0).outcomeText).toBe(
+      "Live stream ended (completed)",
+    );
     expect(
       liveStatusPlan(liveOf({ outcome: { outcome: "failed", failureClass: "rights-lapsed" } }), 0)
         .outcomeText,
     ).toBe("Live stream ended (failed — rights-lapsed)");
-    expect(
-      liveStatusPlan(liveOf({ outcome: { outcome: "stopped" } }), 0).outcomeText,
-    ).toBe("Live stream ended (stopped)");
+    expect(liveStatusPlan(liveOf({ outcome: { outcome: "stopped" } }), 0).outcomeText).toBe(
+      "Live stream ended (stopped)",
+    );
   });
 });
 

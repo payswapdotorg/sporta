@@ -146,8 +146,7 @@ export function createLivePlayer(options: LivePlayerOptions): LivePlayer {
       windowsApplied: appliedWindowIds.size,
       frameIntervalMs,
       liveEdgeMs,
-      latencyMs:
-        newestWindow === null ? null : clock() - newestWindow.emittedAtMs,
+      latencyMs: newestWindow === null ? null : clock() - newestWindow.emittedAtMs,
       lastDisplayedFrame: displayed,
     };
   }
@@ -213,7 +212,9 @@ export function createLivePlayer(options: LivePlayerOptions): LivePlayer {
       for (let index = 0; index < payload.frames.length; index += 1) {
         const frame = payload.frames[index];
         if (frame === undefined) {
-          return invalid(`live window ${window.windowId} payload frame ${String(index)} is missing`);
+          return invalid(
+            `live window ${window.windowId} payload frame ${String(index)} is missing`,
+          );
         }
         if (
           !Number.isInteger(frame.frameIndex) ||

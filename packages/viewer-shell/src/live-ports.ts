@@ -67,17 +67,16 @@ export type {
  * may recover); the negotiation/protocol/integrity verdicts to the honest
  * non-transient classes.
  */
-export const LIVE_FAILURE_CLASS_MAP: Readonly<
-  Record<LiveOutputFailureClass, ViewerFailureClass>
-> = Object.freeze({
-  "rights-denied": "rights-denied",
-  "rights-lapsed": "rights-denied",
-  "transport-failed": "network",
-  "negotiation-failed": "unsupported-output",
-  "negotiation-violation": "media-invalid",
-  "integrity-violation": "media-invalid",
-  "protocol-violation": "media-invalid",
-});
+export const LIVE_FAILURE_CLASS_MAP: Readonly<Record<LiveOutputFailureClass, ViewerFailureClass>> =
+  Object.freeze({
+    "rights-denied": "rights-denied",
+    "rights-lapsed": "rights-denied",
+    "transport-failed": "network",
+    "negotiation-failed": "unsupported-output",
+    "negotiation-violation": "media-invalid",
+    "integrity-violation": "media-invalid",
+    "protocol-violation": "media-invalid",
+  });
 
 // ---------------------------------------------------------------------------
 // Views (in-package, JSON-safe — what the core + plan layers consume)
