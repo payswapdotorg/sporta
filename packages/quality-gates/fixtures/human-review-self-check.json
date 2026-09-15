@@ -1,0 +1,29 @@
+{
+  "schemaTag": "sporta/quality-gates/human-review@1",
+  "recordKind": "automated-pipeline-self-check",
+  "checklistId": "w803-self-check-checklist@1",
+  "reviewer": {
+    "name": "sporta quality-gates pipeline",
+    "role": "automated pipeline self-check"
+  },
+  "date": "2026-09-16",
+  "checklistResults": [
+    {
+      "itemId": "temporal-clip-rendered",
+      "result": "pass"
+    },
+    {
+      "itemId": "scene-match-rendered",
+      "result": "pass"
+    },
+    {
+      "itemId": "scene-directed-rendered",
+      "result": "pass"
+    },
+    {
+      "itemId": "gate-report-read",
+      "result": "pass"
+    }
+  ],
+  "notes": "Automated pipeline self-check record for the fixture-based demo run: every renderer path rendered its real fixture and the machine gate report was produced and read back. This is NOT a human attestation - no person visually inspected rendered output. A production release requires a human-review record (docs/REVIEW.md, docs/GATES.md boundaries)."
+}

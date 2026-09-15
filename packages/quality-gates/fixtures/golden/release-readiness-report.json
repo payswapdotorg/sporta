@@ -1,0 +1,1263 @@
+{
+  "schemaTag": "sporta/quality-gates/w803@1",
+  "policyId": "w803-gate-policy@1",
+  "gates": [
+    {
+      "gateId": "temporal-stability",
+      "name": "Temporal stability",
+      "sourcePackage": "@sporta/renderer-evaluation",
+      "role": "machine",
+      "blocking": true,
+      "verdict": "PASS",
+      "reason": null,
+      "runs": [
+        {
+          "fixture": "w503-clean-clip",
+          "reportSchemaTag": "sporta/renderer-evaluation/w503@1",
+          "sourceVerdictPass": true,
+          "sourceInput": {
+            "rendererId": "anime.prototype",
+            "rendererVersion": "0.1.0",
+            "styleId": "style-anime-test",
+            "sessionId": "sess-anime-clip",
+            "snapshotVersion": 1,
+            "frameCount": 6,
+            "frameIntervalMs": 1000,
+            "svgFramesMeasured": true
+          },
+          "checks": [
+            {
+              "metric": "identity.unexplainedAbsenceCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.flickerCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleStabilityRatio",
+              "operator": "min",
+              "threshold": 1,
+              "measured": 1,
+              "pass": true
+            },
+            {
+              "metric": "geometry.jumpCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "geometry.maxJumpRatio",
+              "operator": "max",
+              "threshold": 1,
+              "measured": 0.06394884092725854,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.windowOverlapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.invertedWindowCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.windowTimestampMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.captionDuplicateCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.captionUnappliedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.appliedDuplicateCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.appliedUnsortedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.appliedGapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.appliedUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.watermarkSequenceRegressionCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.watermarkTimeRegressionCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.watermarkBelowEventsCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.dispositionFlapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.kindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "artifacts.possessionDisplayMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "styleBytes.stabilityRatio",
+              "operator": "min",
+              "threshold": 1,
+              "measured": 1,
+              "pass": true
+            }
+          ],
+          "failingChecks": []
+        }
+      ]
+    },
+    {
+      "gateId": "scene-correctness",
+      "name": "Scene correctness",
+      "sourcePackage": "@sporta/scene-evaluation",
+      "role": "machine",
+      "blocking": true,
+      "verdict": "PASS",
+      "reason": null,
+      "runs": [
+        {
+          "fixture": "w605-clean-match",
+          "reportSchemaTag": "sporta/scene-evaluation/w605@1",
+          "sourceVerdictPass": true,
+          "sourceInput": {
+            "mode": "match",
+            "rendererId": "avatar-field.prototype",
+            "rendererVersion": "0.2.0",
+            "styleId": "style-3d-scene-eval",
+            "sessionId": "sess-w605-clean",
+            "stepCount": 4,
+            "frameCount": 16,
+            "windowCount": 0,
+            "markerCount": 3,
+            "planSupplied": false
+          },
+          "checks": [
+            {
+              "metric": "sourceTruth.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepPossessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepSceneBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.midSegmentClaimChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenDivergenceCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenInstabilityCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityIdentitySwapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityStyleKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.sanctionedRestyleCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.stepMarkerLogOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.frameMarkerOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerFieldMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerWindowContainmentViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDuplicateDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerCrossWindowDuplicateCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.boundaryTransferUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.reviewNovelMarkerCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerNotInUnionDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDisplayAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerSkipAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameInterpolationMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.interpolationIndexMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntitySetMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.dispositionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.positionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.provenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.ballHeightMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.possessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameSlotMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameCameraLabelMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowSlotNotCarriedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowCameraBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.reviewProfileMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planWindowMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planProvenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            }
+          ],
+          "failingChecks": []
+        },
+        {
+          "fixture": "w605-corrections-match",
+          "reportSchemaTag": "sporta/scene-evaluation/w605@1",
+          "sourceVerdictPass": true,
+          "sourceInput": {
+            "mode": "match",
+            "rendererId": "avatar-field.prototype",
+            "rendererVersion": "0.2.0",
+            "styleId": "style-3d-scene-eval",
+            "sessionId": "sess-w605-corr",
+            "stepCount": 8,
+            "frameCount": 36,
+            "windowCount": 0,
+            "markerCount": 9,
+            "planSupplied": false
+          },
+          "checks": [
+            {
+              "metric": "sourceTruth.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepPossessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepSceneBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.midSegmentClaimChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenDivergenceCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenInstabilityCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityIdentitySwapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityStyleKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.sanctionedRestyleCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.stepMarkerLogOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.frameMarkerOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerFieldMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerWindowContainmentViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDuplicateDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerCrossWindowDuplicateCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.boundaryTransferUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.reviewNovelMarkerCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerNotInUnionDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDisplayAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerSkipAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameInterpolationMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.interpolationIndexMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntitySetMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.dispositionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.positionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.provenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.ballHeightMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.possessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameSlotMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameCameraLabelMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowSlotNotCarriedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowCameraBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.reviewProfileMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planWindowMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planProvenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            }
+          ],
+          "failingChecks": []
+        },
+        {
+          "fixture": "w605-directed-review",
+          "reportSchemaTag": "sporta/scene-evaluation/w605@1",
+          "sourceVerdictPass": true,
+          "sourceInput": {
+            "mode": "directed",
+            "rendererId": "avatar-field.prototype",
+            "rendererVersion": "0.2.0",
+            "styleId": "style-3d-scene-eval",
+            "sessionId": "sess-w605-corr",
+            "stepCount": 8,
+            "frameCount": 62,
+            "windowCount": 4,
+            "markerCount": 9,
+            "planSupplied": true
+          },
+          "checks": [
+            {
+              "metric": "sourceTruth.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepPossessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sourceTruth.stepSceneBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "score.stepScoreMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.frameClaimMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.stepClockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "clock.midSegmentClaimChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenDivergenceCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.styleTokenInstabilityCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityIdentitySwapCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.entityStyleKindChangeCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "identity.sanctionedRestyleCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.stepMarkerLogOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.frameMarkerOrderViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerFieldMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerWindowContainmentViolationCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDuplicateDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerCrossWindowDuplicateCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.boundaryTransferUnaccountedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.reviewNovelMarkerCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerNotInUnionDisplayCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerDisplayAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "ordering.markerSkipAccountingMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameInterpolationMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.interpolationIndexMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntitySetMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.frameEntityStateMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.dispositionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.positionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.provenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.ballHeightMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "sceneState.possessionMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameSlotMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.frameCameraLabelMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowSlotNotCarriedCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.windowCameraBlockMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.reviewProfileMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planWindowMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            },
+            {
+              "metric": "direction.planProvenanceMismatchCount",
+              "operator": "max",
+              "threshold": 0,
+              "measured": 0,
+              "pass": true
+            }
+          ],
+          "failingChecks": []
+        }
+      ]
+    },
+    {
+      "gateId": "human-quality-checks",
+      "name": "Human quality checks",
+      "sourcePackage": "@sporta/quality-gates",
+      "role": "human",
+      "blocking": true,
+      "verdict": "PASS",
+      "reason": null
+    },
+    {
+      "gateId": "accounting",
+      "name": "Accounting",
+      "sourcePackage": "@sporta/quality-gates",
+      "role": "accounting",
+      "blocking": true,
+      "verdict": "PASS",
+      "reason": null
+    }
+  ],
+  "humanReview": {
+    "gateVerdict": "PASS",
+    "failureClass": null,
+    "problem": null,
+    "missingItems": [],
+    "extraItems": [],
+    "recordKind": "automated-pipeline-self-check",
+    "checklistId": "w803-self-check-checklist@1",
+    "reviewer": {
+      "name": "sporta quality-gates pipeline",
+      "role": "automated pipeline self-check"
+    },
+    "date": "2026-09-16",
+    "results": [
+      {
+        "itemId": "temporal-clip-rendered",
+        "result": "pass"
+      },
+      {
+        "itemId": "scene-match-rendered",
+        "result": "pass"
+      },
+      {
+        "itemId": "scene-directed-rendered",
+        "result": "pass"
+      },
+      {
+        "itemId": "gate-report-read",
+        "result": "pass"
+      }
+    ],
+    "failingItems": [],
+    "notes": "Automated pipeline self-check record for the fixture-based demo run: every renderer path rendered its real fixture and the machine gate report was produced and read back. This is NOT a human attestation - no person visually inspected rendered output. A production release requires a human-review record (docs/REVIEW.md, docs/GATES.md boundaries)."
+  },
+  "accounting": {
+    "gateVerdict": "PASS",
+    "totalGates": 4,
+    "rowCount": 4,
+    "counts": {
+      "pass": 4,
+      "fail": 0,
+      "notRunnable": 0
+    },
+    "checks": [
+      {
+        "checkId": "row-count",
+        "pass": true,
+        "detail": "3 subject rows for 3 expected subject gates (4 policy gates including accounting)"
+      },
+      {
+        "checkId": "gate-set",
+        "pass": true,
+        "detail": "row gate ids [temporal-stability, scene-correctness, human-quality-checks] vs policy gate ids [temporal-stability, scene-correctness, human-quality-checks]"
+      },
+      {
+        "checkId": "verdict-vocabulary",
+        "pass": true,
+        "detail": "every row verdict is from the closed vocabulary (PASS | FAIL | NOT_RUNNABLE)"
+      },
+      {
+        "checkId": "count-reconciliation",
+        "pass": true,
+        "detail": "3 subject rows = 3 pass + 0 fail + 0 not-runnable"
+      }
+    ],
+    "reconciles": true
+  },
+  "verdict": "PASS"
+}
