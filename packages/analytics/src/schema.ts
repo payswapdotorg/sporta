@@ -16,7 +16,7 @@
  * could even be represented.
  */
 import { z } from "zod";
-import { USER_FEEDBACK_KINDS, VIEWER_FAILURE_CLASSES } from "@sporta/viewer-shell";
+import { VIEWER_FAILURE_CLASSES } from "@sporta/viewer-shell";
 import type { TimedOperation, UserFeedbackKind, ViewerOperation } from "@sporta/viewer-shell";
 import { AnalyticsReportValidationError } from "./errors.ts";
 import { FUNNEL_STAGE_IDS } from "./funnel.ts";
@@ -49,7 +49,6 @@ const nonEmptyString = z.string().min(1);
 
 const failureClassSchema = z.enum(VIEWER_FAILURE_CLASSES);
 const stageIdSchema = z.enum(FUNNEL_STAGE_IDS);
-const feedbackKindSchema = z.enum(USER_FEEDBACK_KINDS);
 
 /** The named (non-error) attribution categories (closed set, from `./funnel.ts`). */
 const NAMED_ATTRIBUTION_KINDS = [

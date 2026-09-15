@@ -45,11 +45,7 @@ export type {
   ProductAnalyticsReport,
   SessionOutcomeRow,
 } from "./report.ts";
-export {
-  parseRecordedEvents,
-  parseRecordedJsonl,
-  validateRecordedEvent,
-} from "./input.ts";
+export { parseRecordedEvents, parseRecordedJsonl, validateRecordedEvent } from "./input.ts";
 export {
   AnalyticsAccountingError,
   AnalyticsInputError,
@@ -80,7 +76,4 @@ export {
   ProductAnalyticsReportSchema,
   parseAnalyticsReport,
 } from "./schema.ts";
-export {
-  deserializeAnalyticsReport,
-  serializeAnalyticsReport,
-} from "./canonical.ts";
+export { deserializeAnalyticsReport, serializeAnalyticsReport } from "./canonical.ts";

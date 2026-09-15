@@ -58,10 +58,7 @@ import type {
   SessionOutcomeKind,
 } from "./funnel.ts";
 import { parseAnalyticsReport } from "./schema.ts";
-import {
-  ANALYTICS_REPORT_SCHEMA_TAG,
-  ANALYTICS_REPORT_SCHEMA_VERSION,
-} from "./schema.ts";
+import { ANALYTICS_REPORT_SCHEMA_TAG, ANALYTICS_REPORT_SCHEMA_VERSION } from "./schema.ts";
 
 export { ANALYTICS_REPORT_SCHEMA_TAG, ANALYTICS_REPORT_SCHEMA_VERSION };
 
@@ -223,8 +220,13 @@ interface Cohort {
   readonly stages: Set<FunnelStageId>;
   established: boolean;
   readonly errors: CohortError[];
-  /** Index of the event that FIRST evidenced the cohort's most recent NEW stage. */
-  lastAdvanceIndex: number;
+  /**
+   * Index of the LAST stage-evidencing transition (new OR repeated — a
+   * recovery that re-reaches a previously-seen stage is still observed
+   * recovery motion, so it must clear an earlier error; see the
+   * `error-terminal` rule in `../FUNNEL.md` §6). `-1` when none.
+   */
+  lastStageEvidenceIndex: number;
   outputsPendingObserved: boolean;
   loadingOutputObserved: boolean;
   selectionCancelled: boolean;
@@ -240,7 +242,7 @@ function newCohort(sessionId: string): Cohort {
     stages: new Set<FunnelStageId>(),
     established: false,
     errors: [],
-    lastAdvanceIndex: -1,
+    lastStageEvidenceIndex: -1,
     outputsPendingObserved: false,
     loadingOutputObserved: false,
     selectionCancelled: false,
@@ -353,10 +355,11 @@ export function computeProductAnalytics(
     }
     const cohort = cohortOf(event.sessionId);
     if (stage !== null) {
-      if (!cohort.stages.has(stage)) {
-        cohort.stages.add(stage);
-        cohort.lastAdvanceIndex = index; // first evidence of a NEW stage
-      }
+      // ANY stage-evidencing transition moves the marker (a recovery that
+      // re-reaches a previously-seen stage is observed recovery motion — the
+      // `error-terminal` rule in `../FUNNEL.md` §6 compares against THIS).
+      cohort.lastStageEvidenceIndex = index;
+      cohort.stages.add(stage);
     } else {
       // Non-stage signals used by attribution (FUNNEL.md §4).
       if (event.to === "outputs-pending") cohort.outputsPendingObserved = true;
@@ -501,9 +504,12 @@ export function computeProductAnalytics(
       continue;
     }
     const lastError = cohort.errors[cohort.errors.length - 1];
-    // An error followed by a stage advance was recovered; only an error with
-    // NO subsequent advance is the session's terminal failure.
-    if (lastError !== undefined && lastError.index > cohort.lastAdvanceIndex) {
+    // An error followed by ANY stage-evidencing transition (new OR repeated)
+    // was recovered — the session moved on (retried, dismissed back to the
+    // session view, took the other path…). Only an error with NO subsequent
+    // stage evidence is the session's terminal failure: the error was the
+    // cohort's last observed funnel-relevant fact.
+    if (lastError !== undefined && lastError.index > cohort.lastStageEvidenceIndex) {
       countOutcome(`error-terminal:${lastError.event.failureClass}`);
       continue;
     }
@@ -716,9 +722,7 @@ export function computeProductAnalytics(
     timings: {
       connect: timingSamples.connect.length > 0 ? timingStats(timingSamples.connect) : null,
       "load-output":
-        timingSamples["load-output"].length > 0
-          ? timingStats(timingSamples["load-output"])
-          : null,
+        timingSamples["load-output"].length > 0 ? timingStats(timingSamples["load-output"]) : null,
       openLive: timingSamples.openLive.length > 0 ? timingStats(timingSamples.openLive) : null,
     },
     accounting: {
