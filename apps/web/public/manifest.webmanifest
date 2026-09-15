@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "Sporta — One event. Every reality.",
+  "short_name": "Sporta",
+  "description": "Sporta reimagines how you watch sport: the same event, rendered as Original, Anime, 3D and Tactical realities.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0e18",
+  "theme_color": "#0a0e18",
+  "categories": ["sports", "entertainment"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
