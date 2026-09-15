@@ -1,16 +1,19 @@
 /**
- * DOM plan tests (W702 + W705): the PURE decision layer between the player
- * view-model and the DOM adapter — svg swaps only on change, buffering
+ * DOM plan tests (W702 + W705 + W704): the PURE decision layer between the
+ * player view-model and the DOM adapter — svg swaps only on change, buffering
  * overlay derivation, and deterministic status text (the W702 frame plan),
  * plus the W705 SEGMENT plan (the ONE self-animating document's mount
- * decision and the smil sync instruction the DOM edge consumes). This is
- * the headless stand-in for DOM testing (the adapter itself is
+ * decision and the smil sync instruction the DOM edge consumes), and the
+ * W704 LIVE plan (the live frame swap + the honest re-buffer overlay + the
+ * status line; no SMIL timeline exists for a live stream). This is the
+ * headless stand-in for DOM testing (the adapter itself is
  * thin/browser-only; see `src/dom-adapter.ts`).
  */
 import { describe, expect, test } from "bun:test";
-import { playerViewToDomPlan, segmentViewToDomPlan } from "../src/dom-plan.ts";
+import { playerViewToDomPlan, segmentViewToDomPlan, liveViewToDomPlan } from "../src/dom-plan.ts";
 import type { PlayerViewModel } from "../src/player.ts";
 import type { SegmentPlayerViewModel } from "../src/segment-player.ts";
+import type { LivePlayerViewModel } from "../src/live-player.ts";
 import { buildHandOutput, buildHandSegment, fakeClock } from "./helpers.ts";
 import { createFramePlayer } from "../src/player.ts";
 import { createSegmentPlayer } from "../src/segment-player.ts";
@@ -220,5 +223,98 @@ describe("segmentViewToDomPlan — the W705 SMIL segment decisions", () => {
     player.pause();
     plan = segmentViewToDomPlan(player.view(), segment.content);
     expect(plan.smil).toEqual({ paused: true, seekMs: 1_500 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The W704 live plan (liveViewToDomPlan)
+// ---------------------------------------------------------------------------
+
+describe("liveViewToDomPlan — the W704 live presentation decisions", () => {
+  function liveVmOf(overrides: Partial<LivePlayerViewModel>): LivePlayerViewModel {
+    return {
+      kind: "live",
+      buffering: false,
+      playheadMs: 4_000,
+      frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      frameSvg: "<svg>live-1</svg>",
+      frameCount: 8,
+      bufferedAhead: 3,
+      windowsApplied: 4,
+      frameIntervalMs: 1_000,
+      liveEdgeMs: 7_000,
+      latencyMs: 120,
+      lastDisplayedFrame: 7,
+      ...overrides,
+    };
+  }
+
+  test("swaps the frame svg only when it differs from the displayed one", () => {
+    const view = liveVmOf({});
+    expect(liveViewToDomPlan(view, null).swapSvg).toBe("<svg>live-1</svg>");
+    expect(liveViewToDomPlan(view, "<svg>live-1</svg>").swapSvg).toBe(null);
+    expect(
+      liveViewToDomPlan(liveVmOf({ frameSvg: "<svg>live-2</svg>" }), "<svg>live-1</svg>").swapSvg,
+    ).toBe("<svg>live-2</svg>");
+  });
+
+  test("before the first applied window: no frame, no overlay, the honest waiting line", () => {
+    const view = liveVmOf({
+      frame: null,
+      frameSvg: null,
+      playheadMs: null,
+      frameCount: 0,
+      bufferedAhead: 0,
+      windowsApplied: 0,
+      frameIntervalMs: null,
+      liveEdgeMs: null,
+      latencyMs: null,
+      lastDisplayedFrame: null,
+    });
+    const plan = liveViewToDomPlan(view, null);
+    expect(plan.swapSvg).toBe(null);
+    expect(plan.showBuffering).toBe(false);
+    expect(plan.bufferingText).toBe(null);
+    expect(plan.statusText).toBe("Live — waiting for the stream…");
+  });
+
+  test("the buffering overlay shows exactly while re-buffering, with the honest evidence line", () => {
+    const plan = liveViewToDomPlan(liveVmOf({}), null);
+    expect(plan.showBuffering).toBe(false);
+    const stalled = liveViewToDomPlan(
+      liveVmOf({
+        buffering: true,
+        bufferedAhead: 0,
+        frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      }),
+      "<svg>live-1</svg>",
+    );
+    expect(stalled.showBuffering).toBe(true);
+    expect(stalled.bufferingText).toContain("Buffering");
+    expect(stalled.bufferingText).toContain("0 frames buffered ahead");
+    expect(stalled.swapSvg).toBe(null); // the stalled frame stays presented
+  });
+
+  test("the status line carries the real seams: frame, buffered ahead, and the delivery latency only when present", () => {
+    const plan = liveViewToDomPlan(liveVmOf({}), null);
+    expect(plan.statusText).toBe(
+      "Live — frame 1 @ 4000 ms — 3 frames buffered ahead — delivery latency 0.1s",
+    );
+    // Absent latency stays absent (never a faked 0.0s).
+    const noLatency = liveViewToDomPlan(liveVmOf({ latencyMs: null }), null);
+    expect(noLatency.statusText).toBe("Live — frame 1 @ 4000 ms — 3 frames buffered ahead");
+    // Singular grammar.
+    const singular = liveViewToDomPlan(liveVmOf({ bufferedAhead: 1 }), null);
+    expect(singular.statusText).toContain("1 frame buffered ahead");
+  });
+
+  test("purity: the same inputs yield the deep-equal plan (deep-equal rerun)", () => {
+    const view = liveVmOf({});
+    expect(liveViewToDomPlan(view, null)).toEqual(
+      liveViewToDomPlan(JSON.parse(JSON.stringify(view)) as LivePlayerViewModel, null),
+    );
+    expect(liveViewToDomPlan(view, "<svg>live-1</svg>")).toEqual(
+      liveViewToDomPlan(view, "<svg>live-1</svg>"),
+    );
   });
 });

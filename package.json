@@ -24,6 +24,7 @@
     "@sporta/commentary-understanding": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/field-mapping": "workspace:*",
+    "@sporta/health": "workspace:*",
     "@sporta/observability": "workspace:*",
     "@sporta/observation": "workspace:*",
     "@sporta/perception-tracking": "workspace:*",

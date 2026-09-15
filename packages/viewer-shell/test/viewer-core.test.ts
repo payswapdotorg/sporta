@@ -587,11 +587,18 @@ describe("ViewerCore — pending/dropped commands and live honesty", () => {
     expect(client.calls.map((call) => call.method)).toEqual(["listSessions"]);
   });
 
-  test("the live section is constant and honest (W704/W705 pending)", () => {
+  test("without a live client the live section is the honest unavailable note (W704: the seam is the boundary)", () => {
     const { core } = makeCore(happyScript());
     const view = core.view();
     expect(view.live.available).toBe(false);
-    expect(view.live.note).toContain("W704");
+    // Narrowing the union is the test's own job — the note exists only on
+    // the unavailable branch.
+    if (!view.live.available) {
+      expect(view.live.note).toContain("W704");
+      expect(view.live.note).toContain("no real RTCPeerConnection");
+    } else {
+      throw new Error("live must be unavailable without an injected live client");
+    }
   });
 
   test("createRender passes styleId + OPAQUE config through verbatim (W703 boundary: no renderer-specific keys in the core)", async () => {

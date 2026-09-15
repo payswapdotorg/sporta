@@ -27,9 +27,9 @@ principle: observability must never take the product down).
 | Fact | Where it comes from |
 | --- | --- |
 | State-machine transitions (`from`/`to`) | the viewer core's actual status changes |
-| Startup timings (`connect`, `load-output`) | measured on the INJECTED clock (deterministic epoch in tests, `performance.now` in the browser) — never a wall-clock read |
+| Startup timings (`connect`, `load-output`, `openLive`) | measured on the INJECTED clock (deterministic epoch in tests, `performance.now` in the browser) — never a wall-clock read |
 | Error occurrences (failure class, operation, message, remediation hint) | the typed error model (`src/errors.ts`), VERBATIM class/message; the hint from the viewer-owned table |
-| Playback health: rebuffer-stall episodes (frame index/count/available) | the frame player's honest buffering seam (it stalls, never drops) |
+| Playback health: rebuffer-stall episodes (frame index/count/available) | the frame player's honest buffering seam (it stalls, never drops); since W704 also the live player's stall seam (same fields, the live presentation's own counts) |
 | Playback health: integrity-verified (byte length, frame count) | the real W504 playback provider's client-side sha-256 + byte-length check |
 | Structured user feedback (closed kinds) | the explicit `sendFeedback` command |
 | Event identity (`sequence`, `atMs`, `sessionId`) | a deterministic 1-based counter; the injected clock; the OPAQUE control-plane session id |
@@ -64,9 +64,9 @@ timezone or date is ever derived from it.
 | Kind | Fields (beyond the envelope) | Emitted when |
 | --- | --- | --- |
 | `state-transition` | `from`, `to` | every ACTUAL viewer status change (no-op status writes emit nothing) |
-| `operation-timing` | `operation` (`connect` \| `load-output`), `durationMs` | the timed operations' SUCCESS path (failures emit `error-occurred` instead) |
+| `operation-timing` | `operation` (`connect` \| `load-output` \| `openLive`), `durationMs` | the timed operations' SUCCESS path (failures emit `error-occurred` instead) |
 | `error-occurred` | `operation` (closed set), `failureClass`, `message`, `remediationHint` | every `fail()` transition — the typed error model, verbatim |
-| `rebuffer-stall` | `frameIndex`, `frameCount`, `availableFrames` | exactly once per (playing && buffering) episode of the frame player |
+| `rebuffer-stall` | `frameIndex`, `frameCount`, `availableFrames` | exactly once per (playing && buffering) episode of the frame player, and of the live player's own stall seam (W704 — the live analog: the last displayed frame, the applied count) |
 | `integrity-verified` | `byteLength`, `frameCount` | a verified animated-segment arrival on the real W504 path (a failed check is a `media-invalid` error event) |
 | `user-feedback` | `feedback` (`playback-good` \| `playback-stalled` \| `playback-poor`) | the explicit `sendFeedback` command (fire-and-forget) |
 
@@ -148,12 +148,14 @@ flushed per event, so browser-path events were already on disk).
   integrity-verified fact (the real W504 playback provider's client-side
   sha-256 + byte-length check). A future seam extends the vocabulary with a
   schema bump.
-- **No dropped-frame signal exists**: both players are honest about it —
+- **No dropped-frame signal exists**: every player is honest about it —
   the frame player STALLS at a missing frame and re-syncs on arrival; the
-  SMIL segment player's document is complete at load. No dropped-frame fact
-  is invented; the rebuffer-stall episode is the honest equivalent.
-- **Rebuffer-stall is frame-player-only**: the segment path has no
-  buffering by construction, so no stall events exist there.
+  SMIL segment player's document is complete at load; the live player
+  consumes W305's ACCOUNTED stream (the transport itself counts every
+  skip as a receipt or stream event — see `LIVE.md`). No dropped-frame
+  fact is invented; the rebuffer-stall episode is the honest equivalent.
+- **Rebuffer-stall covers the frame and live players**: the segment path
+  has no buffering by construction, so no stall events exist there.
 - **File line order vs sequence order**: the file sink's line order equals
   its record order; across the HTTP bridge, arrival order is guaranteed by
   the sink's ordered dispatch chain in practice but `sequence` is the

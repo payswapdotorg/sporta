@@ -8,9 +8,10 @@
  * The affordance (the W706 accept-criterion "quality feedback is
  * observable" leg's user-facing surface):
  *
- * - the structured FEEDBACK buttons appear exactly while a playback is
- *   mounted (the user has something to rate) — offering the CLOSED
- *   vocabulary kinds with their human labels, in fixed order;
+ * - the structured FEEDBACK buttons appear exactly while a PRESENTATION
+ *   is mounted — a batch playback OR the W704 live stream (the user has
+ *   something to rate) — offering the CLOSED vocabulary kinds with their
+ *   human labels, in fixed order;
  * - the PRIVACY NOTE is a constant disclosure rendered alongside the
  *   buttons: what telemetry collects and what it can never carry;
  * - `status` mirrors whether a sink is wired (`not-configured` when the
@@ -41,7 +42,7 @@ const FEEDBACK_LABELS: Readonly<Record<UserFeedbackKind, string>> = {
 
 /** The telemetry affordance the bootstrap renders (see the module docs). */
 export interface TelemetryAffordance {
-  /** Whether the feedback row is visible (a playback is mounted AND a sink is wired). */
+  /** Whether the feedback row is visible (a presentation is mounted AND a sink is wired). */
   visible: boolean;
   /** The offered feedback kinds + labels (fixed order; empty iff not visible). */
   feedbackChoices: FeedbackChoice[];
@@ -51,13 +52,22 @@ export interface TelemetryAffordance {
   privacyNote: string;
 }
 
+/** A presentation the feedback row may rate: a batch playback, or a live stream. */
+function presentationMounted(view: ViewerViewModel): boolean {
+  // The batch players own `view.playback`; the live player owns the live
+  // section's `player` view-model (W704). Either one means the user is
+  // watching something rateable.
+  if (view.playback !== null) return true;
+  return view.live.available && view.live.player !== null;
+}
+
 /**
  * Derives the telemetry affordance. Deterministic pure function — the same
  * view-model yields a deep-equal affordance (pinned by tests).
  */
 export function telemetryAffordance(view: ViewerViewModel): TelemetryAffordance {
   const enabled = view.telemetry.enabled;
-  const visible = enabled && view.playback !== null;
+  const visible = enabled && presentationMounted(view);
   return {
     visible,
     feedbackChoices: visible

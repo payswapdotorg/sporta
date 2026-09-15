@@ -26,20 +26,21 @@
  * data path through the real provider/player is exercised headlessly
  * end-to-end in `test/playback-e2e.test.ts`.
  */
-import { playerViewToDomPlan, segmentViewToDomPlan } from "./dom-plan.ts";
-import type { PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
+import { playerViewToDomPlan, segmentViewToDomPlan, liveViewToDomPlan } from "./dom-plan.ts";
+import type { LiveDomPlan, PlayerDomPlan, SegmentDomPlan } from "./dom-plan.ts";
 import type { PlayerViewModel } from "./player.ts";
 import type { SegmentPlayerViewModel } from "./segment-player.ts";
+import type { LivePlayerViewModel } from "./live-player.ts";
 
 /** The union of playback view-models the adapter can present. */
-export type PlaybackViewModel = PlayerViewModel | SegmentPlayerViewModel;
+export type PlaybackViewModel = PlayerViewModel | SegmentPlayerViewModel | LivePlayerViewModel;
 
 /** The mounted player DOM handle. */
 export interface PlayerDom {
   /** Applies one view-model snapshot (computes the plan, then writes). */
   update(view: PlaybackViewModel): void;
   /** Reads back the last applied plan (test/debug convenience). */
-  lastPlan(): PlayerDomPlan | SegmentDomPlan | null;
+  lastPlan(): PlayerDomPlan | SegmentDomPlan | LiveDomPlan | null;
   /** Removes everything this adapter created from the container. */
   unmount(): void;
 }
@@ -66,7 +67,7 @@ export function mountPlayer(container: HTMLElement): PlayerDom {
   container.append(stage, overlay, statusLine);
 
   let currentSvg: string | null = null;
-  let lastPlan: PlayerDomPlan | SegmentDomPlan | null = null;
+  let lastPlan: PlayerDomPlan | SegmentDomPlan | LiveDomPlan | null = null;
   let lastPaused: boolean | null = null;
 
   /**
@@ -102,6 +103,25 @@ export function mountPlayer(container: HTMLElement): PlayerDom {
 
   return {
     update(view: PlaybackViewModel): void {
+      if (view.kind === "live") {
+        // W704: the live presentation plan — swap the applied frame's SVG
+        // when it changes, toggle the honest re-buffer overlay, set the
+        // status line. No SMIL timeline exists for a live stream (it grows
+        // as windows arrive); nothing is faked here.
+        const plan = liveViewToDomPlan(view, currentSvg);
+        lastPlan = plan;
+        if (plan.swapSvg !== null) {
+          stage.innerHTML = plan.swapSvg;
+          currentSvg = plan.swapSvg;
+          lastPaused = null;
+        }
+        overlay.hidden = !plan.showBuffering;
+        if (plan.showBuffering && plan.bufferingText !== null) {
+          overlay.textContent = plan.bufferingText;
+        }
+        statusLine.textContent = plan.statusText;
+        return;
+      }
       if (view.kind === "segment") {
         const plan = segmentViewToDomPlan(view, currentSvg);
         lastPlan = plan;
@@ -124,7 +144,7 @@ export function mountPlayer(container: HTMLElement): PlayerDom {
       }
       statusLine.textContent = plan.statusText;
     },
-    lastPlan(): PlayerDomPlan | SegmentDomPlan | null {
+    lastPlan(): PlayerDomPlan | SegmentDomPlan | LiveDomPlan | null {
       return lastPlan;
     },
     unmount(): void {

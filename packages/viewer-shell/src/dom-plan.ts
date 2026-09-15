@@ -10,6 +10,7 @@
  */
 import type { PlayerViewModel } from "./player.ts";
 import type { SegmentPlayerViewModel } from "./segment-player.ts";
+import type { LivePlayerViewModel } from "./live-player.ts";
 
 /** What the DOM adapter should do for one view-model snapshot. */
 export interface PlayerDomPlan {
@@ -58,6 +59,61 @@ export function playerViewToDomPlan(
       ? `Buffering frame ${String(view.frameIndex + 1)} of ${String(view.frameCount)} (${String(view.availableFrames)} available)`
       : null,
     statusText: `${playbackLabel} — ${frameLabel} — ${timeLabel}${view.loop ? " — loop" : ""}`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The live presentation plan (W704)
+// ---------------------------------------------------------------------------
+
+/**
+ * What the DOM adapter should do for one LIVE view-model snapshot: swap the
+ * displayed frame when it differs, toggle the buffering overlay (the live
+ * player's honest stall seam — content overdue by more than one declared
+ * interval), and the status line. The richer live status surface (headline,
+ * accounting, reconnect countdown) is the PURE `./live-plan.ts` plan.
+ */
+export interface LiveDomPlan {
+  /** The SVG to render when it differs from the displayed one; else `null`. */
+  swapSvg: string | null;
+  /** Whether the buffering overlay must be visible. */
+  showBuffering: boolean;
+  /** The overlay text (defined iff `showBuffering`). */
+  bufferingText: string | null;
+  /** The status line (always defined; deterministic from the view-model). */
+  statusText: string;
+}
+
+/**
+ * Derives the live DOM plan. Deterministic pure function — the same inputs
+ * yield the same plan (deep-equal pinned by tests).
+ */
+export function liveViewToDomPlan(
+  view: LivePlayerViewModel,
+  previousSvg: string | null,
+): LiveDomPlan {
+  const buffering = view.buffering;
+  const swapSvg = view.frameSvg !== null && view.frameSvg !== previousSvg ? view.frameSvg : null;
+  if (view.frame === null) {
+    return {
+      swapSvg,
+      showBuffering: false,
+      bufferingText: null,
+      statusText: "Live — waiting for the stream…",
+    };
+  }
+  const latencyLabel =
+    view.latencyMs === null ? "" : ` — delivery latency ${(view.latencyMs / 1000).toFixed(1)}s`;
+  return {
+    swapSvg,
+    showBuffering: buffering,
+    bufferingText: buffering
+      ? `Buffering — the live edge is overdue (last frame @ ${String(view.frame.timestampMs)} ms, ${String(view.bufferedAhead)} frame${view.bufferedAhead === 1 ? "" : "s"} buffered ahead)`
+      : null,
+    statusText:
+      `Live — frame ${String(view.frame.frameIndex)} @ ${String(view.frame.timestampMs)} ms` +
+      ` — ${String(view.bufferedAhead)} frame${view.bufferedAhead === 1 ? "" : "s"} buffered ahead` +
+      latencyLabel,
   };
 }
 
