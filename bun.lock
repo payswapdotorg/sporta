@@ -337,6 +337,15 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/quality-gates": {
+      "name": "@sporta/quality-gates",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/renderer-evaluation": "workspace:*",
+        "@sporta/scene-evaluation": "workspace:*",
+        "zod": "^3.24.0",
+      },
+    },
     "packages/render-orchestration": {
       "name": "@sporta/render-orchestration",
       "version": "0.1.0",
@@ -667,6 +676,8 @@
 
     "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
 
+    "@sporta/quality-gates": ["@sporta/quality-gates@workspace:packages/quality-gates"],
+
     "@sporta/render-orchestration": ["@sporta/render-orchestration@workspace:packages/render-orchestration"],
 
     "@sporta/renderer-3d": ["@sporta/renderer-3d@workspace:packages/renderer-3d"],
@@ -894,6 +905,8 @@
     "zod": ["zod@4.6.4", "", {}, "sha512-AXSD6hvGdvRjajG/l1cC+d6IrhH+sjmPKtYeQdJIK8MFJl3LyClzS+o/YsVC+zQZPupAaeH5skwwm8YqYH7BqA=="],
 
     "@eslint-community/eslint-utils/eslint-visitor-keys": ["eslint-visitor-keys@3.4.3", "", {}, "sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag=="],
+
+    "@sporta/quality-gates/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@typescript-eslint/eslint-plugin/ignore": ["ignore@7.0.9", "", {}, "sha512-brTTsvFRt5C1gGHtPst/281UjPD5t9fBqbgoMPlVWy11ZLTPfu7HxK4ZYqO9H7o/yC9rSTCI85EaQ4OoY12qYw=="],
 
