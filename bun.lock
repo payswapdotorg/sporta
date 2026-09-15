@@ -497,6 +497,7 @@
         "@sporta/renderer-anime": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
         "@sporta/testing": "workspace:*",
+        "@sporta/webrtc-output": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",

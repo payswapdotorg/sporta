@@ -8,7 +8,8 @@
  */
 import { describe, expect, test } from "bun:test";
 import { errorBannerSignature, sessionsPaneSignature } from "../src/pane-signature.ts";
-import type { ViewerViewModel } from "../src/viewer-core.ts";
+import type { LiveView, ViewerViewModel } from "../src/viewer-core.ts";
+import type { LivePlayerViewModel } from "../src/live-player.ts";
 
 /** A deterministic base view-model (the fields under test are overridden). */
 function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
@@ -39,6 +40,24 @@ function vmOf(overrides: Partial<ViewerViewModel>): ViewerViewModel {
     telemetry: { enabled: true },
     error: null,
     connectedAtMs: 1,
+    ...overrides,
+  };
+}
+
+/** A deterministic AVAILABLE live section (fields overridden per test; W704). */
+function liveOf(overrides: Partial<Extract<LiveView, { available: true }>>): LiveView {
+  return {
+    available: true,
+    state: "playing",
+    sessionId: "sess-1",
+    streamId: "live-sess-1",
+    offer: null,
+    viewerId: "viewer-shell",
+    player: null,
+    accounting: null,
+    degradationReasons: [],
+    reconnect: null,
+    outcome: null,
     ...overrides,
   };
 }
@@ -128,6 +147,51 @@ describe("sessionsPaneSignature — invariant across playback-only changes (the 
     // The live note (constant today; the signature stays total over the pane).
     expect(
       sessionsPaneSignature(vmOf({ live: { available: false, note: "different note" } })),
+    ).not.toBe(base);
+  });
+
+  test("W704: the live line — per-tick live PLAYER changes keep the signature; live SECTION state changes flip it", () => {
+    // The pane renders the live section's COARSE state only; the per-tick
+    // player facts (frame, latency, buffering) live in the detail pane's
+    // live section (updated in place) — the sessions pane must NOT re-render
+    // while a live stream plays (the form keeps its focus).
+    const liveBase = liveOf({});
+    const base = sessionsPaneSignature(vmOf({ live: liveBase }));
+    // Two different player snapshots under the SAME coarse state:
+    const playerA: LivePlayerViewModel = {
+      kind: "live",
+      buffering: false,
+      playheadMs: 4_000,
+      frame: { windowOrdinal: 3, frameIndex: 1, timestampMs: 4_000 },
+      frameSvg: "<svg>live-1</svg>",
+      frameCount: 8,
+      bufferedAhead: 3,
+      windowsApplied: 4,
+      frameIntervalMs: 1_000,
+      liveEdgeMs: 7_000,
+      latencyMs: 120,
+      lastDisplayedFrame: 7,
+    };
+    const playerB: LivePlayerViewModel = {
+      ...playerA,
+      buffering: true,
+      playheadMs: 9_999,
+      frame: { windowOrdinal: 4, frameIndex: 0, timestampMs: 9_000 },
+      frameSvg: "<svg>live-2</svg>",
+      frameCount: 9,
+      bufferedAhead: 0,
+      latencyMs: 2_500,
+      lastDisplayedFrame: 8,
+    };
+    expect(sessionsPaneSignature(vmOf({ live: liveOf({ player: playerA }) }))).toBe(base);
+    expect(sessionsPaneSignature(vmOf({ live: liveOf({ player: playerB }) }))).toBe(base);
+    // The coarse state IS a rendered field — each transition flips it.
+    for (const state of ["idle", "connecting", "reconnecting", "ended"] as const) {
+      expect(sessionsPaneSignature(vmOf({ live: liveOf({ state }) }))).not.toBe(base);
+    }
+    // And the available/unavailable boundary flips it (note vs state).
+    expect(
+      sessionsPaneSignature(vmOf({ live: { available: false, note: "live note constant" } })),
     ).not.toBe(base);
   });
 

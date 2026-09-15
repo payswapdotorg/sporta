@@ -32,6 +32,20 @@
  *   fatal) feeds `createViewerCore`'s `telemetrySink`, and the playback
  *   section renders the pure `./src/telemetry-plan.ts` affordance (the
  *   structured feedback buttons + the privacy disclosure note).
+ * - the W704 LIVE SURFACE: the live section renders the PURE
+ *   `./src/live-plan.ts` status plan (headline, status line, W305 delivery
+ *   accounting, degradation reasons, the reconnect countdown, the terminal
+ *   outcome — every number from a real seam, absent metrics absent) plus
+ *   the live stage through `mountPlayer` (`./src/dom-adapter.ts` presents
+ *   the live view-model like the batch players). HONEST BOUNDARY: this
+ *   BROWSER build wires NO live client — W305's live output is an
+ *   in-process contract (no real RTCPeerConnection exists in this
+ *   monorepo), and the dev server does not bridge the offer dance over
+ *   HTTP (inventing a wire protocol is out of scope — see `LIVE.md`), so
+ *   the machine's `live` section stays honestly unavailable HERE while
+ *   the full live path is exercised headlessly over the REAL W305
+ *   transport in `test/live-e2e.test.ts`. The glue below is complete so a
+ *   future bridge needs no bootstrap surgery.
  *
  * Honest testing boundary: this module is DOM glue — it is compile-checked
  * but not unit-tested (no DOM-testing dependency by constitution); the
@@ -49,6 +63,8 @@ import { mountPlayer } from "../src/dom-adapter.ts";
 import type { PlayerDom } from "../src/dom-adapter.ts";
 import { detailPanePlan } from "../src/detail-plan.ts";
 import type { DetailMode } from "../src/detail-plan.ts";
+import { liveStatusPlan } from "../src/live-plan.ts";
+import type { LiveStatusPlan } from "../src/live-plan.ts";
 import { selectionRequestOf } from "../src/selection-plan.ts";
 import { createHttpTelemetrySink } from "../src/telemetry-http-sink.ts";
 import { telemetryAffordance } from "../src/telemetry-plan.ts";
@@ -270,7 +286,14 @@ function renderSessionsPane(view: ViewerViewModel): void {
   parts.push(actions);
 
   const liveHeading = heading("Live output");
-  const liveNote = text("p", "muted", view.live.note);
+  // The live line is honest both ways: without a live client the constant
+  // note explains exactly why (the W305 in-process seam); with one wired,
+  // the coarse section state (the presentation lives in the detail pane).
+  const liveNote = text(
+    "p",
+    "muted",
+    view.live.available ? `Live path available — ${view.live.state}.` : view.live.note,
+  );
   parts.push(liveHeading, liveNote);
 
   sessionsPaneEl.replaceChildren(...parts);
@@ -344,11 +367,16 @@ function renderDetailPane(view: ViewerViewModel): void {
   // status, the plan is ALWAYS `update-playback` — the mounted section (with
   // the live player stage, seek input, and listeners) is reused in place,
   // never replaced by a fresh node (a re-render must never detach the
-  // player).
-  const plan = detailPanePlan(view.status, playbackSectionEl !== null);
+  // player). The same invariant holds for the LIVE section while the status
+  // stays a live status (the stage and status lines update in place).
+  const plan = detailPanePlan(view.status, {
+    playback: playbackSectionEl !== null,
+    live: liveSectionEl !== null,
+  });
   switch (plan.kind) {
     case "mount-playback": {
       teardownPlaybackDom();
+      teardownLiveDom();
       playbackSectionEl = buildPlaybackSection(view);
       detailPaneEl.replaceChildren(playbackSectionEl);
       return;
@@ -359,8 +387,22 @@ function renderDetailPane(view: ViewerViewModel): void {
       if (mounted !== null) detailPaneEl.replaceChildren(mounted);
       return;
     }
+    case "mount-live": {
+      teardownPlaybackDom();
+      teardownLiveDom();
+      liveSectionEl = buildLiveSection(view);
+      detailPaneEl.replaceChildren(liveSectionEl);
+      return;
+    }
+    case "update-live": {
+      updateLiveSection(view);
+      const mounted = liveSectionEl;
+      if (mounted !== null) detailPaneEl.replaceChildren(mounted);
+      return;
+    }
     case "render-static": {
       if (plan.teardownPlayback) teardownPlaybackDom();
+      if (plan.teardownLive) teardownLiveDom();
       detailPaneEl.replaceChildren(renderStaticSection(plan.mode, view));
       return;
     }
@@ -492,6 +534,105 @@ function teardownPlaybackDom(): void {
   provenanceEl = null;
 }
 
+// --- stable live DOM (kept across renders; only values update) ----------
+
+/** The mounted live section (null while no live section is mounted). */
+let liveSectionEl: HTMLElement | null = null;
+let livePlayerDom: PlayerDom | null = null;
+let liveStageEl: HTMLElement | null = null;
+let liveHeadlineEl: HTMLElement | null = null;
+let liveStatusLineEl: HTMLElement | null = null;
+let liveAccountingEl: HTMLElement | null = null;
+let liveDegradationEl: HTMLElement | null = null;
+let liveReconnectEl: HTMLElement | null = null;
+let liveOutcomeEl: HTMLElement | null = null;
+
+/**
+ * Builds the live section ONCE (W704): the stage through `mountPlayer` (the
+ * same adapter as the batch players — it presents the live view-model), the
+ * status surface from the PURE `liveStatusPlan`, and the close affordance.
+ * Subsequent renders only update it (never a fresh node — the presented SVG
+ * and the listeners survive every per-tick emission).
+ */
+function buildLiveSection(view: ViewerViewModel): HTMLElement {
+  const section = document.createElement("div");
+  liveHeadlineEl = text("h2", undefined, "Live output");
+  section.append(liveHeadlineEl);
+
+  liveStageEl = document.createElement("div");
+  liveStageEl.className = "player-wrap";
+  livePlayerDom = mountPlayer(liveStageEl);
+  section.append(liveStageEl);
+
+  liveStatusLineEl = text("p", undefined);
+  liveAccountingEl = text("p", "muted");
+  liveDegradationEl = text("p", "failure-class");
+  liveReconnectEl = text("p", undefined);
+  liveOutcomeEl = text("p", undefined);
+  section.append(
+    liveStatusLineEl,
+    liveAccountingEl,
+    liveDegradationEl,
+    liveReconnectEl,
+    liveOutcomeEl,
+  );
+
+  const closeRow = text("div");
+  closeRow.style.marginTop = "10px";
+  closeRow.append(
+    button("Back to session", () => core.dispatch({ type: "closeLive" })),
+    " ",
+    button("Open the live stream", () => core.dispatch({ type: "openLive" })),
+  );
+  section.append(closeRow);
+
+  updateLiveSection(view);
+  return section;
+}
+
+/**
+ * Updates the stable live section in place: the stage via the adapter (the
+ * player's own view-model), every line from the PURE `liveStatusPlan`
+ * recomputed on the view (the plan is the only text source — this function
+ * renders, it decides nothing).
+ */
+function updateLiveSection(view: ViewerViewModel): void {
+  if (!view.live.available) return; // the section only exists with a client
+  const plan: LiveStatusPlan = liveStatusPlan(view.live, performance.now());
+  if (livePlayerDom !== null && view.live.player !== null) livePlayerDom.update(view.live.player);
+  if (liveHeadlineEl !== null) liveHeadlineEl.textContent = plan.headline;
+  if (liveStatusLineEl !== null) liveStatusLineEl.textContent = plan.statusText;
+  if (liveAccountingEl !== null) {
+    liveAccountingEl.textContent = plan.accountingText ?? "";
+    liveAccountingEl.style.display = plan.accountingText === null ? "none" : "block";
+  }
+  if (liveDegradationEl !== null) {
+    liveDegradationEl.textContent = plan.degradationText ?? "";
+    liveDegradationEl.style.display = plan.degradationText === null ? "none" : "block";
+  }
+  if (liveReconnectEl !== null) {
+    liveReconnectEl.textContent = plan.reconnectHint ?? "";
+    liveReconnectEl.style.display = plan.reconnectHint === null ? "none" : "block";
+  }
+  if (liveOutcomeEl !== null) {
+    liveOutcomeEl.textContent = plan.outcomeText ?? "";
+    liveOutcomeEl.style.display = plan.outcomeText === null ? "none" : "block";
+  }
+}
+
+function teardownLiveDom(): void {
+  liveSectionEl = null;
+  livePlayerDom?.unmount();
+  livePlayerDom = null;
+  liveStageEl = null;
+  liveHeadlineEl = null;
+  liveStatusLineEl = null;
+  liveAccountingEl = null;
+  liveDegradationEl = null;
+  liveReconnectEl = null;
+  liveOutcomeEl = null;
+}
+
 function renderSessionSection(view: ViewerViewModel): HTMLElement {
   const section = document.createElement("div");
   const session = view.session;
@@ -549,6 +690,15 @@ function renderSessionSection(view: ViewerViewModel): HTMLElement {
     " ",
     button("Back to list", () => core.dispatch({ type: "closeSession" })),
   );
+  // W704: the live affordance — offered exactly when a live client is wired
+  // (the machine fail-closes on rights before any request leaves; the
+  // honest unavailable note explains the rest).
+  if (view.live.available) {
+    actions.append(
+      " ",
+      button("Open live", () => core.dispatch({ type: "openLive" }), { disabled: busy }),
+    );
+  }
   section.append(actions);
   return section;
 }
