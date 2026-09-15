@@ -135,18 +135,6 @@ export function isEstablishmentEvidence(from: ViewerStatus, to: ViewerStatus): b
   return from === "browsing-sessions" && to === "session-detail";
 }
 
-/** The non-stage transitions used as attribution signals (documented rules). */
-export const ATTRIBUTION_SIGNAL_TARGETS = {
-  /** The W705 processing state: the render exists, its output is not stored yet. */
-  outputsPending: "outputs-pending",
-  /** The output load started (transient; a landing usually follows). */
-  loadingOutput: "loading-output",
-  /** A live stream completed/stopped honestly after playing (enrichment). */
-  liveEnded: "live-ended",
-  /** A batch clip played through to its end (enrichment). */
-  batchEnded: "ended",
-} as const;
-
 /** One drop-off attribution category (see FUNNEL.md §4 for the rules). */
 export type DropOffAttributionKind =
   /** A terminal failure class at the boundary's operations (verbatim class). */
@@ -212,7 +200,11 @@ export const BOUNDARIES: readonly FunnelBoundary[] = [
     toStage: "renderer-selection",
     scope: "session",
     boundaryOperations: ["beginRender"],
-    namedAttributions: ["live-path-taken", "no-error-observed"],
+    // `batch-path-taken` covers the selectRender ENTRY POINT on a session
+    // with pre-existing renders (session-detail → loading-output → ready):
+    // the session took the batch path without ever entering the selection
+    // screen — a skip, not a drop-off in intent.
+    namedAttributions: ["live-path-taken", "batch-path-taken", "no-error-observed"],
   },
   {
     id: "renderer-selection→render-requested",
