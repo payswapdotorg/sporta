@@ -14,6 +14,7 @@ reruns (same binary, honestly scoped).
 | `w403-replay-comparability` | `@sporta/evaluation` (W403) | Cross-run world-model comparability over the frozen fixture + golden, through the field-classified tolerance comparator. The evaluator's method spawns its own bun subprocesses (cross-RUN means cross-process there); the harness calls its public API in-process. |
 | `w503-temporal-consistency` | `@sporta/renderer-evaluation` (W503) | Identity flicker, style (token + byte) stability, geometry drift, temporal artifacts over the clean W502-rendered clip — plus the detection proof (nine injected defects, each must flip the verdict). |
 | `w601-scene-conformance` | `@sporta/scene-projection` (W601) | Scene-projection conformance S1–S8 in FULL-EVIDENCE mode (snapshot + events + camera slots supplied; identity/verbatim/byte-identity checks all enabled) over the checked-in scene fixture. |
+| `w306-latency-benchmark` | `@sporta/latency-benchmark` (W306) | End-to-end latency (p50/p95 per stage and end-to-end, nearest-rank) of the REAL W304 streaming pipeline on the checked-in live-stream fixture — the suite's live-stream case (the W801 known limitation W306 owns). The case runs the benchmark's own byte-reproducible subprocess entry, parses its versioned report, and checks the measured stages against the SLO candidate table. ALL timings are the benchmark's injected-clock domain (see its README/SLOs.md for the honest boundary). |
 
 ## Layout
 
@@ -27,7 +28,7 @@ scripts/regen-golden.ts                   explicit, reviewed golden regeneration
 scripts/generate-w601-fixture.ts          explicit, reviewed W601 fixture regeneration (--confirm)
 src/suite-config.ts                       declarative config + strict validation (no defaults)
 src/runner.ts                             runSuite: executors, crash containment, conjunction
-src/cases/w403.ts · w503.ts · w601.ts     the three case executors (real evaluators)
+src/cases/w403.ts · w503.ts · w601.ts · w306.ts   the four case executors (real evaluators)
 src/report.ts · src/validate.ts           the versioned report shape + fail-loud self-check
 src/environment.ts                        honest deterministic environment facts
 src/clock.ts                              the injected-clock seam
@@ -64,7 +65,7 @@ types, duplicate names all FAIL LOUD before anything runs):
 {
   "suiteKind": "sporta/eval-harness/suite-config@1",  // versioned shape tag
   "suiteId": "sporta-eval-harness-default",
-  "suiteVersion": 1,
+  "suiteVersion": 2,
   "cases": [
     {
       "caseName": "w403-replay-comparability",        // caller-chosen, unique
@@ -78,7 +79,10 @@ types, duplicate names all FAIL LOUD before anything runs):
       "policy": { "detectionProof": true } },
     { "caseName": "w601-scene-conformance", "caseKind": "w601-scene-conformance",
       "fixture": { "sceneFixturePath": "./w601-scene-fixture.json" },
-      "policy": { "evidence": "full" } }
+      "policy": { "evidence": "full" } },
+    { "caseName": "w306-latency-benchmark", "caseKind": "w306-latency-benchmark",
+      "fixture": { "benchmark": "w306-live-fixture" },  // the benchmark's checked-in profile
+      "policy": { "checkSloCandidates": true } }        // check stages vs the candidate table
   ]
 }
 ```
@@ -171,6 +175,18 @@ Per-case `measured` (what "verbatim" means for each kind):
   `detected` + its failing metrics).
 - **W601** — the evaluator's `SceneConformanceReport` (every check with its
   verdict + detail), verbatim.
+- **W306** — the benchmark's parsed report **except** the per-frame/per-batch
+  `trace` rows, which are dropped (the W403 projection precedent): the raw
+  evidence is 200+ KB, byte-reproducible from the benchmark's own pinned
+  fixture (same fixture + clock + pipeline → byte-identical bytes, pinned by
+  the benchmark's determinism suite, in-process and across subprocesses). Kept
+  verbatim: the benchmark identity + configuration (clock domain, percentile
+  method, fixture, pipeline, driver), the full stage tables (batch, frame, and
+  the authored-labeled source model), the accounting blocks, and the stage
+  definitions; plus the subprocess run record (exit code, stderr, stdout byte
+  count) and the SLO-candidate verdicts (iff `policy.checkSloCandidates`). A
+  test pins the projection: `measured` deep-equals a hand-trimmed copy of a
+  separate subprocess run's parsed report, so nothing else is altered.
 
 Per-case `thresholds` (the applied policy, verbatim from the evaluator's
 exports — the report's shape check RE-VERIFIES them against the live
@@ -182,6 +198,10 @@ constants, so a threshold drift forces a report regeneration):
   THRESHOLDS.md).
 - W601: rule-based conformance has no numeric thresholds — the applied rule
   ids (`checkIds`), which must equal the measured checks' ids.
+- W306: the benchmark package's SLO candidate table (`SLO_CANDIDATES`, profile
+  `w306-candidate-v1`) — the measured stages are checked against it when
+  `policy.checkSloCandidates` is true; every breach is a machine-readable
+  case failure.
 
 ### Canonical serialization
 
@@ -284,18 +304,22 @@ act).
 ## Package boundary
 
 Runtime dependencies are `@sporta/*` only — `evaluation`,
-`renderer-evaluation`, `scene-projection`, `world-model`, `testing`,
-`contracts` (all consumed through their public APIs). No external deps; the
-canonical serializer is imported from `@sporta/evaluation`, not duplicated.
-No `Math.random`, no `Date.now`, no `new Date()`, no `performance.now`
-anywhere in the harness; every time value is an explicit constant or an
-injected-clock read.
+`renderer-evaluation`, `scene-projection`, `latency-benchmark`, `world-model`,
+`testing`, `contracts` (all consumed through their public APIs). No external
+deps; the canonical serializer is imported from `@sporta/evaluation`, not
+duplicated. No `Math.random`, no `Date.now`, no `new Date()`, no
+`performance.now` anywhere in the harness; every time value is an explicit
+constant or an injected-clock read.
 
 ## Honest limitations
 
 - **Timings are injected-clock ordinals, not durations** (see above) — the
-  harness makes no latency claim. Real performance measurement is W802's
-  (Latency SLOs) subject, not this harness's.
+  harness itself makes no latency claim; the W306 case carries the LATENCY
+  BENCHMARK's own injected-clock measurements verbatim (whose honest
+  boundary — algorithmic latency structure on a controlled fixture, never
+  wall-clock/real-network SLOs — is documented in
+  `packages/latency-benchmark/README.md` and SLOs.md). Formalizing SLOs and
+  alerting from that evidence is W802's subject, not this harness's.
 - **Same-binary repeatability only** — cross-binary/cross-machine
   byte-identity is not claimed (see above).
 - **Failure reports may embed resolved absolute paths**: the underlying
@@ -309,8 +333,8 @@ injected-clock read.
 - **W601 evidence modes**: this harness implements `evidence: "full"` only;
   the conformance harness's standalone (no-evidence) mode is available from
   `@sporta/scene-projection` directly. New modes are conscious extensions.
-- **The suite's case universe is the three shipped evaluators** (W806 is the
-  final consumer of this aggregate). W802/W803-style evaluators (latency,
-  3D-output correctness) will extend the case vocabulary when they land —
-  each extension is a conscious act: executor + config vocabulary + report
-  shape check + docs + golden regeneration.
+- **The suite's case universe is the four shipped cases** (W806 is the final
+  consumer of this aggregate). W803-style evaluators (3D-output correctness)
+  will extend the case vocabulary when they land — each extension is a
+  conscious act: executor + config vocabulary + report shape check + docs +
+  golden regeneration (the W306 case's addition was exactly this act).

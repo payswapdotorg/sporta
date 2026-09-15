@@ -35,6 +35,7 @@ import { assertSuiteReportShape } from "./validate";
 import { runW403Case } from "./cases/w403";
 import { runW503Case } from "./cases/w503";
 import { runW601Case } from "./cases/w601";
+import { runW306Case } from "./cases/w306";
 import type { CaseVerdict } from "./cases/types";
 
 /** Options for {@link runSuite}. */
@@ -98,6 +99,17 @@ function crashedCaseResult(
         failureReasons: [reason],
         error,
       };
+    case "w306-latency-benchmark":
+      return {
+        caseKind: caseConfig.caseKind,
+        caseName: caseConfig.caseName,
+        verdict: "FAIL",
+        fixture: caseConfig.fixture,
+        policy: caseConfig.policy,
+        clock: clockReads,
+        failureReasons: [reason],
+        error,
+      };
   }
 }
 
@@ -141,6 +153,20 @@ function runOneCase(
       }
       case "w601-scene-conformance": {
         const outcome = runW601Case(caseConfig, context);
+        return {
+          caseKind: caseConfig.caseKind,
+          caseName: caseConfig.caseName,
+          verdict: outcome.verdict,
+          fixture: caseConfig.fixture,
+          policy: caseConfig.policy,
+          clock: { startMs, endMs: clock.now() },
+          thresholds: outcome.thresholds,
+          measured: outcome.measured,
+          failureReasons: [...outcome.failureReasons],
+        };
+      }
+      case "w306-latency-benchmark": {
+        const outcome = runW306Case(caseConfig);
         return {
           caseKind: caseConfig.caseKind,
           caseName: caseConfig.caseName,

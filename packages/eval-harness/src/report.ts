@@ -19,10 +19,17 @@
  * nothing is ever swallowed.
  */
 import type { CaseVerdict } from "./cases/types";
-import type { W403CaseConfig, W503CaseConfig, W601CaseConfig, SuiteConfig } from "./suite-config";
+import type {
+  W403CaseConfig,
+  W503CaseConfig,
+  W601CaseConfig,
+  W306CaseConfig,
+  SuiteConfig,
+} from "./suite-config";
 import type { W403CaseMeasured, W403CaseThresholds } from "./cases/w403";
 import type { W503CaseMeasured, W503CaseThresholds } from "./cases/w503";
 import type { W601CaseMeasured, W601CaseThresholds } from "./cases/w601";
+import type { W306CaseMeasured, W306CaseThresholds } from "./cases/w306";
 
 /** Canonical suite-report schema tag (bump on any report shape change). */
 export const REPORT_SCHEMA_TAG = "sporta/eval-harness/suite-report@1";
@@ -91,8 +98,22 @@ export interface W601CaseResult {
   readonly error?: CaseError;
 }
 
+/** The W306 case's report result. */
+export interface W306CaseResult {
+  readonly caseKind: "w306-latency-benchmark";
+  readonly caseName: string;
+  readonly verdict: CaseVerdict;
+  readonly fixture: W306CaseConfig["fixture"];
+  readonly policy: W306CaseConfig["policy"];
+  readonly clock: CaseClockReads;
+  readonly thresholds?: W306CaseThresholds;
+  readonly measured?: W306CaseMeasured;
+  readonly failureReasons: readonly string[];
+  readonly error?: CaseError;
+}
+
 /** One case's result (discriminated on `caseKind`). */
-export type SuiteCaseResult = W403CaseResult | W503CaseResult | W601CaseResult;
+export type SuiteCaseResult = W403CaseResult | W503CaseResult | W601CaseResult | W306CaseResult;
 
 /** The conjunctive aggregate. */
 export interface SuiteAggregate {

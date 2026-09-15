@@ -135,6 +135,7 @@
       "dependencies": {
         "@sporta/contracts": "workspace:*",
         "@sporta/evaluation": "workspace:*",
+        "@sporta/latency-benchmark": "workspace:*",
         "@sporta/renderer-evaluation": "workspace:*",
         "@sporta/scene-projection": "workspace:*",
         "@sporta/testing": "workspace:*",
@@ -206,6 +207,23 @@
       },
       "devDependencies": {
         "@sporta/testing": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/latency-benchmark": {
+      "name": "@sporta/latency-benchmark",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/gpu-worker": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/render-orchestration": "workspace:*",
+        "@sporta/temporal": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
         "@types/bun": "^1.2.0",
       },
     },
@@ -551,6 +569,8 @@
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/ingestion": ["@sporta/ingestion@workspace:packages/ingestion"],
+
+    "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 

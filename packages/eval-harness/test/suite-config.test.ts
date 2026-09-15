@@ -37,11 +37,12 @@ describe("suite config: the checked-in default suite loads and validates", () =>
     const loaded = loadSuiteConfig();
     expect(loaded.config.suiteKind).toBe(SUITE_CONFIG_SCHEMA_TAG);
     expect(loaded.config.suiteId).toBe("sporta-eval-harness-default");
-    expect(loaded.config.suiteVersion).toBe(1);
+    expect(loaded.config.suiteVersion).toBe(2);
     expect(loaded.config.cases.map((c) => c.caseName)).toEqual([
       "w403-replay-comparability",
       "w503-temporal-consistency",
       "w601-scene-conformance",
+      "w306-latency-benchmark",
     ]);
     for (const caseConfig of loaded.config.cases) {
       // caseKind is a controlled union; caseName is the caller-chosen echo of
@@ -223,6 +224,47 @@ describe("suite config: fail-loud validation (no defaults, no unknown anything)"
         }),
       ),
     ).toThrow(/sceneFixturePath/);
+  });
+
+  test("W306 fixture: an unknown benchmark fails (the controlled vocabulary)", () => {
+    expect(() =>
+      validateSuiteConfig(
+        mutated((c) => {
+          const cases = c.cases as Record<string, unknown>[];
+          (cases[3]!.fixture as Record<string, unknown>).benchmark = "some-other-fixture";
+        }),
+      ),
+    ).toThrow(/w306-live-fixture/);
+  });
+
+  test("W306 policy: checkSloCandidates must be a boolean (no defaults)", () => {
+    expect(() =>
+      validateSuiteConfig(
+        mutated((c) => {
+          const cases = c.cases as Record<string, unknown>[];
+          (cases[3]!.policy as Record<string, unknown>).checkSloCandidates = "yes";
+        }),
+      ),
+    ).toThrow(/checkSloCandidates/);
+    expect(() =>
+      validateSuiteConfig(
+        mutated((c) => {
+          const cases = c.cases as Record<string, unknown>[];
+          delete (cases[3]!.policy as Record<string, unknown>).checkSloCandidates;
+        }),
+      ),
+    ).toThrow(/missing required key "checkSloCandidates"/);
+  });
+
+  test("W306 fixture: an unknown fixture key fails", () => {
+    expect(() =>
+      validateSuiteConfig(
+        mutated((c) => {
+          const cases = c.cases as Record<string, unknown>[];
+          (cases[3]!.fixture as Record<string, unknown>).fixturePath = "./somewhere.json";
+        }),
+      ),
+    ).toThrow(/unknown key "fixturePath"/);
   });
 });
 

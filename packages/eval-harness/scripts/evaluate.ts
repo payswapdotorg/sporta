@@ -117,6 +117,33 @@ function renderCase(caseResult: SuiteCaseResult): string[] {
           `${String(report.input?.frameCount)} frames, ${checks} threshold checks ` +
           `(${failing} failing), detection proof: ${proofText}`,
       );
+    } else if (caseResult.caseKind === "w306-latency-benchmark") {
+      const stages = measured.stages as {
+        batch?: Record<string, { count?: number; p50Ms?: number; p95Ms?: number }>;
+      };
+      const endToEnd = stages.batch?.["end-to-end"];
+      const verdicts = measured.sloVerdicts as { pass?: boolean }[] | null;
+      const sloText =
+        verdicts === null || verdicts === undefined
+          ? "disabled"
+          : `${verdicts.filter((v) => v.pass).length}/${verdicts.length} candidate checks met`;
+      const frames = (
+        measured.accounting as {
+          frames?: {
+            framesIn?: number;
+            framesEmitted?: number;
+            framesDropped?: number;
+            framesSkippedStale?: number;
+          };
+        }
+      ).frames;
+      lines.push(
+        `    end-to-end p50 ${String(endToEnd?.p50Ms)}ms / p95 ${String(endToEnd?.p95Ms)}ms ` +
+          `(n=${String(endToEnd?.count)}), injected-clock domain; frames ` +
+          `${String(frames?.framesIn)} in = ${String(frames?.framesEmitted)} emitted ` +
+          `(${String((frames?.framesSkippedStale ?? 0) + (frames?.framesDropped ?? 0))} lost); ` +
+          `SLO candidates: ${sloText}`,
+      );
     } else {
       const checks = measured.checks as { checkId?: string }[] | undefined;
       lines.push(
