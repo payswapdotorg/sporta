@@ -8,6 +8,7 @@ import { GET as operationsRoute } from "../src/app/api/operations/route";
 import { GET as pendingWorkRoute } from "../src/app/api/workspaces/pending-work/route";
 import { GET as jobsRoute } from "../src/app/api/workspaces/jobs/route";
 import { POST as createSessionRoute } from "../src/app/api/create/sessions/route";
+import { countFailed, countInFlight } from "../src/server/workspace-service";
 
 /**
  * W907 — the role-workspace API routes, driven as real functions over real
@@ -401,5 +402,35 @@ describe("W907 GET /api/workspaces/pending-work — the switcher's badges", () =
     expect(mine.jobs[0]!.completion!.status).toBe("succeeded");
     expect(mine.jobs[0]!.completion!.executionMs).toBeGreaterThanOrEqual(0);
     expect(mine.jobs[0]!.completion!.usage.length).toBeGreaterThan(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The pending-work classifiers (pure, but load-bearing for the badges)
+// ---------------------------------------------------------------------------
+
+describe("W907 pending-work classifiers — which states mean work", () => {
+  test("the non-terminal states count as in-flight work", () => {
+    const rows = ["admitted", "dispatched", "queued", "in-flight"].map((state) => ({ state }));
+    expect(countInFlight(rows)).toBe(4);
+  });
+
+  test("settled states never count as in-flight (a settled job is done work)", () => {
+    const rows = ["succeeded", "failed", "cancelled", "dead-lettered"].map((state) => ({
+      state,
+    }));
+    expect(countInFlight(rows)).toBe(0);
+  });
+
+  test("only real failures count as failed work — cancelled is not a failure", () => {
+    const rows = ["failed", "dead-lettered", "cancelled", "succeeded"].map((state) => ({
+      state,
+    }));
+    expect(countFailed(rows)).toBe(2);
+  });
+
+  test("an unknown future state counts as neither (fail-closed against vocabulary growth)", () => {
+    expect(countInFlight([{ state: "paused" }])).toBe(0);
+    expect(countFailed([{ state: "paused" }])).toBe(0);
   });
 });

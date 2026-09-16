@@ -24,6 +24,7 @@
  */
 import type { Role } from "@sporta/capability";
 import type { Account } from "@sporta/identity";
+import { formatPendingWork } from "../lib/role-workspaces";
 import type { SportaServer } from "./composition";
 import type { StudioJobRow, StudioSessionJobs } from "./create-studio-service";
 import { AuthFlowError } from "./auth-service";
@@ -247,10 +248,11 @@ export async function buildPendingWork(
     for (const sessionId of sessionIds) {
       rows.push(...(await server.studio.sessionJobs(token, sessionId)).jobs);
     }
-    const count = countInFlight(rows);
-    if (count > 0) {
-      roles.creator = { label: `${count} job${count === 1 ? "" : "s"} in flight`, count };
-    }
+    // The badge the switcher renders is the lib's OWN formatPendingWork —
+    // one formatting rule, so the server's badge and the client's model
+    // can never drift apart.
+    const badge = formatPendingWork("creator-jobs", countInFlight(rows));
+    if (badge !== null) roles.creator = badge;
   }
 
   if (holds(account, "operator")) {
@@ -259,10 +261,8 @@ export async function buildPendingWork(
     for (const sessionId of sessionIds) {
       rows.push(...(await server.studio.sessionJobs(token, sessionId)).jobs);
     }
-    const count = countFailed(rows);
-    if (count > 0) {
-      roles.operator = { label: `${count} failed job${count === 1 ? "" : "s"}`, count };
-    }
+    const badge = formatPendingWork("operator-failures", countFailed(rows));
+    if (badge !== null) roles.operator = badge;
   }
 
   return { roles };
