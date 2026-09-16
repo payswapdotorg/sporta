@@ -36,6 +36,9 @@ import type { Account } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import type { SportaServer } from "./composition";
 import type { SeedStoryMeta } from "./dev-seed";
+import { RENDER_REQUESTS_QUOTA } from "./platform/upstash/hosted";
+import type { PlatformQuotaState } from "./platform/upstash/quotas";
+import { QueueFullError, RateLimitedError, retryAfterSeconds } from "./platform/upstash/guards";
 import { DERBY_STORY, FRIENDLY_STORY, TRAINING_STORY, runFixtureStory } from "./dev-story";
 import type { FixtureStorySpec, StoryRun } from "./dev-story";
 import type { SessionVisibility } from "./publication";
@@ -136,6 +139,11 @@ export interface StudioOptions {
   upload: { available: false; reason: string };
   /** The compute plane the async renders dispatch through (or null). */
   compute: { provider: string; adapterId: string } | null;
+  /**
+   * The caller's live render-request quota state (W913 — the studio's honest
+   * degraded-state input; `null` when the caller is not authenticated).
+   */
+  renderQuota: PlatformQuotaState | null;
 }
 
 /** A caller's rights declaration (pre-attestation — the gate re-attests). */
@@ -297,6 +305,10 @@ export class CreateStudioService {
   private readonly nowMs: () => number;
   /** The REAL job ids this studio dispatched, per session (in-memory). */
   private readonly jobsBySession = new Map<string, string[]>();
+  /** Dispatched job id → its queue admission id (the slot released on settle). */
+  private readonly admissionByJob = new Map<string, string>();
+  /** Job ids whose admission was already released (idempotence guard). */
+  private readonly releasedJobs = new Set<string>();
   private policySeq = 0;
 
   constructor(options: CreateStudioServiceOptions) {
@@ -311,9 +323,28 @@ export class CreateStudioService {
   // Options (the guided flow's opening document)
   // -----------------------------------------------------------------------
 
-  /** The studio's options: sources, renderers, rights vocabulary, honesty. */
-  async listOptions(): Promise<StudioOptions> {
+  /**
+   * The studio's options: sources, renderers, rights vocabulary, honesty,
+   * and the caller's live render quota (W913 — the degraded-state input).
+   * `token` is optional (the route authenticates; the quota is `null`
+   * without a resolvable caller).
+   */
+  async listOptions(token?: string): Promise<StudioOptions> {
     const server = this.getServer();
+    let renderQuota: PlatformQuotaState | null = null;
+    if (token !== undefined && token.length > 0) {
+      try {
+        const account = await server.auth.resolve(token);
+        if (account !== null) {
+          renderQuota = await server.transientState.quotas.peek(
+            RENDER_REQUESTS_QUOTA,
+            account.account.userId,
+          );
+        }
+      } catch {
+        renderQuota = null;
+      }
+    }
     const { renderers } = await server.control.listRenderers();
     const views: StudioRendererView[] = [];
     for (const capability of renderers) {
@@ -374,6 +405,7 @@ export class CreateStudioService {
         server.compute === null
           ? null
           : { provider: server.compute.provider, adapterId: server.compute.adapterId },
+      renderQuota,
     };
   }
 
@@ -599,6 +631,16 @@ export class CreateStudioService {
    * surface (the W914 seam): the compute adapter executes the render job
    * (real renderer plugin, real W504 encode + store) and the control plane
    * ingests the artifacts into its playback store when the job settles.
+   *
+   * W913 admission ladder (fail-closed, Simulation E — new expensive jobs
+   * stop admitting BEFORE the provider is asked to run them):
+   * 1. the caller's per-user render-request quota is consumed — exhausted
+   *    → 429 with the W901 QuotaState (admission refused);
+   * 2. the job is admitted to the BOUNDED queue — at its hard depth bound
+   *    → 503 (platform capacity; never silently dropped, never unbounded);
+   * 3. only then does `createRenderAsync` run. The admission slot is
+   *    released when the job poll observes a terminal state (or by the
+   *    queue's admission lease if the client stops polling).
    */
   async dispatchRender(input: {
     token: string;
@@ -609,7 +651,41 @@ export class CreateStudioService {
     outputProfile?: StudioOutputProfile;
   }): Promise<StudioDispatchView> {
     const server = this.getServer();
-    await this.requireSessionAccess(input.token, input.sessionId);
+    const account = await this.requireSessionAccess(input.token, input.sessionId);
+
+    // 1. The per-user render quota (fail-closed: an unreadable counter refuses too).
+    const quotaAttempt = await server.transientState.quotas.consume(
+      RENDER_REQUESTS_QUOTA,
+      account.userId,
+    );
+    if (!quotaAttempt.allowed) {
+      throw new RateLimitedError(
+        quotaAttempt.state,
+        retryAfterSeconds(this.nowMs(), RENDER_REQUESTS_QUOTA.windowSeconds ?? 3600),
+      );
+    }
+
+    // 2. The bounded queue admission (fail-closed at the hard depth bound).
+    this.policySeq += 1;
+    const admissionId = `adm-${this.nowMs().toString(36)}-${this.policySeq.toString(36)}`;
+    const offered = await server.transientState.queue.offer({
+      jobId: admissionId,
+      userId: account.userId,
+      kind: "render",
+      payloadJson: JSON.stringify({
+        sessionId: input.sessionId,
+        rendererId: input.rendererId,
+        ...(input.rendererVersion !== undefined
+          ? { rendererVersion: input.rendererVersion }
+          : {}),
+        ...(input.styleId !== undefined ? { styleId: input.styleId } : {}),
+      }),
+    });
+    if (!offered.accepted) {
+      throw new QueueFullError(offered.depth, offered.maxDepth, 60);
+    }
+
+    // 3. The real dispatch (only past both guards).
     const dispatch = await server.control.createRenderAsync(input.sessionId, {
       rendererId: input.rendererId,
       ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
@@ -634,6 +710,7 @@ export class CreateStudioService {
     const jobs = this.jobsBySession.get(input.sessionId) ?? [];
     if (!jobs.includes(dispatch.jobId)) jobs.push(dispatch.jobId);
     this.jobsBySession.set(input.sessionId, jobs);
+    this.admissionByJob.set(dispatch.jobId, admissionId);
     return {
       disposition: dispatch.disposition,
       jobId: dispatch.jobId,
@@ -648,6 +725,23 @@ export class CreateStudioService {
   async jobState(token: string, sessionId: string, jobId: string): Promise<StudioJobView> {
     await this.requireSessionAccess(token, sessionId);
     const job = await this.getServer().control.getComputeJob(sessionId, jobId);
+    // W913: a TERMINAL observation releases the job's bounded-queue admission
+    // slot (the render is no longer outstanding). Once-only per job; a client
+    // that never polls is covered by the queue's admission lease instead.
+    if (
+      (job.state === "succeeded" ||
+        job.state === "failed" ||
+        job.state === "cancelled" ||
+        job.state === "dead-lettered") &&
+      !this.releasedJobs.has(jobId)
+    ) {
+      const admissionId = this.admissionByJob.get(jobId);
+      if (admissionId !== undefined) {
+        this.releasedJobs.add(jobId);
+        this.admissionByJob.delete(jobId);
+        await this.getServer().transientState.queue.release(admissionId);
+      }
+    }
     const view: StudioJobView = {
       jobId: job.jobId,
       sessionId: job.sessionId,

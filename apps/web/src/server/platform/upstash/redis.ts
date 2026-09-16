@@ -1,12 +1,13 @@
 /**
  * The Redis port + Upstash REST client + in-memory fallback (W913).
  *
- * DISCOVERY RECORD (2026-09-15, this sandbox — see DEPLOYMENT.md for the
- * full note): the provisioned `UPSTASH_REDIS_REST_TOKEN` is a 36-character
- * UUID-shaped token with NO companion `UPSTASH_REDIS_REST_URL`. Probed:
+ * DISCOVERY RECORD (2026-09-15 + re-probed this flight): the provisioned
+ * `UPSTASH_REDIS_REST_TOKEN` is a 36-character UUID-shaped token with NO
+ * companion `UPSTASH_REDIS_REST_URL`. Probed (both flights):
  * - Upstash management API `https://api.upstash.com/v2/redis/databases` —
- *   rejects the token as `Authorization: Bearer` and as both Basic-auth
- *   halves (401 in every shape) → it is NOT a management API key;
+ *   rejects the token as `Authorization: Bearer` (401, "token contains an
+ *   invalid number of segments" — management keys are JWT-shaped), and as
+ *   both Basic-auth halves (401) → it is NOT a management API key;
  * - it is a database-scoped REST token, which is only usable against the
  *   REST URL of the database it belongs to — and that URL is not
  *   provisioned anywhere reachable from this environment.
@@ -28,7 +29,8 @@ export interface RedisLike {
   del(key: string): Promise<number>;
   incr(key: string): Promise<number>;
   expire(key: string, seconds: number): Promise<number>;
-  lpush(key: string, value: string): Promise<number>;
+  rpush(key: string, value: string): Promise<number>;
+  lrem(key: string, count: number, value: string): Promise<number>;
   ltrim(key: string, start: number, stop: number): Promise<"OK" | null>;
   lrange(key: string, start: number, stop: number): Promise<string[]>;
   llen(key: string): Promise<number>;
@@ -93,8 +95,12 @@ export class UpstashRestRedis implements RedisLike {
     return this.#command<number>(["EXPIRE", key, seconds]);
   }
 
-  async lpush(key: string, value: string): Promise<number> {
-    return this.#command<number>(["LPUSH", key, value]);
+  async rpush(key: string, value: string): Promise<number> {
+    return this.#command<number>(["RPUSH", key, value]);
+  }
+
+  async lrem(key: string, count: number, value: string): Promise<number> {
+    return this.#command<number>(["LREM", key, count, value]);
   }
 
   async ltrim(key: string, start: number, stop: number): Promise<"OK" | null> {
@@ -170,11 +176,51 @@ export class InMemoryRedis implements RedisLike {
     return 1;
   }
 
-  async lpush(key: string, value: string): Promise<number> {
+  async rpush(key: string, value: string): Promise<number> {
     const list = this.#lists.get(key) ?? [];
-    list.unshift(value);
+    list.push(value);
     this.#lists.set(key, list);
     return list.length;
+  }
+
+  async lrem(key: string, count: number, value: string): Promise<number> {
+    const list = this.#lists.get(key);
+    if (list === undefined) return 0;
+    let removed = 0;
+    if (count === 0) {
+      // Remove EVERY occurrence (Redis semantics).
+      const kept = list.filter((entry) => {
+        if (entry === value) {
+          removed += 1;
+          return false;
+        }
+        return true;
+      });
+      this.#lists.set(key, kept);
+    } else {
+      // count > 0: from head; count < 0: from tail (Redis semantics).
+      const from = count > 0;
+      const max = Math.abs(count);
+      const kept = [...list];
+      if (from) {
+        for (let i = 0; i < kept.length && removed < max; i += 1) {
+          if (kept[i] === value) {
+            kept.splice(i, 1);
+            removed += 1;
+            i -= 1;
+          }
+        }
+      } else {
+        for (let i = kept.length - 1; i >= 0 && removed < max; i -= 1) {
+          if (kept[i] === value) {
+            kept.splice(i, 1);
+            removed += 1;
+          }
+        }
+      }
+      this.#lists.set(key, kept);
+    }
+    return removed;
   }
 
   async ltrim(key: string, start: number, stop: number): Promise<"OK" | null> {

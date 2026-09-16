@@ -23,11 +23,14 @@ import {
 } from "../api-utils";
 import { getHostedIdentity, identityReady } from "./hosted";
 import {
-  LOGIN_QUOTA,
-  REGISTRATION_QUOTA,
+  LOGIN_ATTEMPTS_ACCOUNT_QUOTA,
+  LOGIN_ATTEMPTS_IP_QUOTA,
+  REGISTER_ATTEMPTS_ACCOUNT_QUOTA,
+  REGISTER_ATTEMPTS_IP_QUOTA,
   getHostedQuotaGuard,
   requestSubject,
 } from "../upstash/hosted";
+import { attemptSubject, retryAfterSeconds } from "../upstash/guards";
 import { sessionCookieDomain } from "../env";
 
 /** Self-selectable registration grants (identity http.ts rule). */
@@ -92,16 +95,31 @@ export async function registerHandler(request: Request): Promise<Response> {
         issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
       });
     }
-    const admission = await getHostedQuotaGuard().consume(
-      REGISTRATION_QUOTA,
-      requestSubject(request),
+    const ip = requestSubject(request);
+    const handle = attemptSubject(parsed.data.username);
+    const ipAdmission = await getHostedQuotaGuard().consume(
+      REGISTER_ATTEMPTS_IP_QUOTA,
+      `ip:${ip}`,
     );
-    if (!admission.allowed) {
+    if (!ipAdmission.allowed) {
       return apiError(
         "resource-limit",
         "registration quota exhausted for this subject — retry later",
         requestId,
-        { quota: admission.state },
+        { quota: ipAdmission.state, retryAfterSeconds: retryAfterSeconds(Date.now(), 3600) },
+        429,
+      );
+    }
+    const accountAdmission = await getHostedQuotaGuard().consume(
+      REGISTER_ATTEMPTS_ACCOUNT_QUOTA,
+      `acct:${handle}`,
+    );
+    if (!accountAdmission.allowed) {
+      return apiError(
+        "resource-limit",
+        "registration quota exhausted for this subject — retry later",
+        requestId,
+        { quota: accountAdmission.state, retryAfterSeconds: retryAfterSeconds(Date.now(), 3600) },
         429,
       );
     }
@@ -146,13 +164,31 @@ export async function loginHandler(request: Request): Promise<Response> {
         issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
       });
     }
-    const admission = await getHostedQuotaGuard().consume(LOGIN_QUOTA, requestSubject(request));
-    if (!admission.allowed) {
+    const ip = requestSubject(request);
+    const handle = attemptSubject(parsed.data.username);
+    const ipAdmission = await getHostedQuotaGuard().consume(
+      LOGIN_ATTEMPTS_IP_QUOTA,
+      `ip:${ip}`,
+    );
+    if (!ipAdmission.allowed) {
       return apiError(
         "resource-limit",
         "login quota exhausted for this subject — retry later",
         requestId,
-        { quota: admission.state },
+        { quota: ipAdmission.state, retryAfterSeconds: retryAfterSeconds(Date.now(), 3600) },
+        429,
+      );
+    }
+    const accountAdmission = await getHostedQuotaGuard().consume(
+      LOGIN_ATTEMPTS_ACCOUNT_QUOTA,
+      `acct:${handle}`,
+    );
+    if (!accountAdmission.allowed) {
+      return apiError(
+        "resource-limit",
+        "login quota exhausted for this subject — retry later",
+        requestId,
+        { quota: accountAdmission.state, retryAfterSeconds: retryAfterSeconds(Date.now(), 3600) },
         429,
       );
     }
