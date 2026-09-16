@@ -161,6 +161,10 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     })) as { session: { sessionId: string } };
     const sessionId = created.session.sessionId;
 
+    // W916: the gate attests the policy as the VERIFIED seed account —
+    // record that attestation (the rights-holder policy scope's data).
+    server.attestations.record(sessionId, seedAccount.userId);
+
     // The seeded sessions are the platform's PUBLIC preview content — the
     // publication flag is explicit (the store's default is public too, but
     // the seed says so rather than implying it).

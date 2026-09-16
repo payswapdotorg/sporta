@@ -69,7 +69,7 @@ import type { LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
-import { PublicationStore } from "./publication";
+import { PublicationStore, PolicyAttestationIndex } from "./publication";
 
 /** Options for {@link createSportaServer} (every seam injectable; defaults are the REAL ones). */
 export interface SportaServerOptions {
@@ -138,6 +138,14 @@ export interface SportaServer {
   studio: CreateStudioService;
   /** The publication store (the real publish/private visibility flag). */
   publication: PublicationStore;
+  /**
+   * The rights-attestation index (W916): which account attested each
+   * session's rights policy at its real creation event — the data behind the
+   * rights-holder POLICY SCOPE (a rights holder discovers sessions whose
+   * rights they attested). Sessions created outside the recording paths are
+   * unrecorded, hence outside every policy scope (fail-closed).
+   */
+  attestations: PolicyAttestationIndex;
   /**
    * The compute plane the control plane's async render surface dispatches
    * through (W914): the env-selected provider + the REAL adapter id, or null
@@ -268,13 +276,16 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     back from R2 through a short-lived presigned URL.
   const artifacts = options.artifacts ?? null;
 
-  // 7. The Create Studio (W906) + the publication store (the visibility flag).
+  // 7. The Create Studio (W906) + the content model (W916: the visibility
+  //    store + the rights-attestation index).
   const publication = new PublicationStore();
+  const attestations = new PolicyAttestationIndex();
   const studio = new CreateStudioService({
     getServer: () => server,
     engines,
     storyIndex,
     publication,
+    attestations,
     nowMs,
   });
 
@@ -291,6 +302,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     engines,
     studio,
     publication,
+    attestations,
     compute,
     live,
     nowMs,

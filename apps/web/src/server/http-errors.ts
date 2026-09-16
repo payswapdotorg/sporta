@@ -12,6 +12,7 @@
  * needed on the error path, after a request has actually arrived.
  */
 import { AuthFlowError } from "./auth-service";
+import { CatalogQueryError } from "./catalog-service";
 import { IdentityApiError } from "@sporta/identity";
 
 /** The JSON error body every non-2xx API answer uses. */
@@ -43,6 +44,16 @@ export async function errorResponse(err: unknown): Promise<Response> {
         failureClass: err.failureClass,
         message: err.message,
         ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
+  if (err instanceof CatalogQueryError) {
+    // W916: a malformed catalog query (unknown closed-vocabulary filter,
+    // empty search) answers the typed 400 — never a silent empty answer.
+    return jsonResponse(err.status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
       },
     } satisfies ApiErrorBody);
   }

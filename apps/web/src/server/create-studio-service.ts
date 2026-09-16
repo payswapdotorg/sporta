@@ -284,6 +284,12 @@ export interface CreateStudioServiceOptions {
     set(id: string, v: SessionVisibility): void;
     visibilityOf(id: string): SessionVisibility;
   };
+  /**
+   * The rights-attestation index (W916): the studio records which account
+   * attested each session it creates — the gate itself attests as the
+   * verified caller, so this is the gate's own decision, re-recorded.
+   */
+  attestations: { record(id: string, attestedByUserId: string): void };
   /** Wall clock (rights expiry is evaluated against it). */
   nowMs: () => number;
 }
@@ -294,6 +300,7 @@ export class CreateStudioService {
   private readonly engines: CreateStudioServiceOptions["engines"];
   private readonly storyIndex: Map<string, SeedStoryMeta>;
   private readonly publication: CreateStudioServiceOptions["publication"];
+  private readonly attestations: CreateStudioServiceOptions["attestations"];
   private readonly nowMs: () => number;
   /** The REAL job ids this studio dispatched, per session (in-memory). */
   private readonly jobsBySession = new Map<string, string[]>();
@@ -304,6 +311,7 @@ export class CreateStudioService {
     this.engines = options.engines;
     this.storyIndex = options.storyIndex;
     this.publication = options.publication;
+    this.attestations = options.attestations;
     this.nowMs = options.nowMs;
   }
 
@@ -508,6 +516,13 @@ export class CreateStudioService {
       sourceLabel: input.label ?? source.label,
     })) as { session: { sessionId: string }; rightsCapabilities: RightsCapabilities };
     const sessionId = created.session.sessionId;
+
+    // W916: the gate attested the policy as the VERIFIED calling account —
+    // record that attestation (the rights-holder policy scope's data).
+    const attester = await server.auth.resolve(input.token);
+    if (attester !== null) {
+      this.attestations.record(sessionId, attester.account.userId);
+    }
 
     // The REAL M1→M3 chain for the selected source, registered before any
     // render (the control plane's world-model factory picks it up).
