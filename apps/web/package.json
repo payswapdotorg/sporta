@@ -5,6 +5,7 @@
   "description": "Sporta product frontend — data-driven product surfaces over the real control plane (W903 shell + W904/W905), the hosted platform composition root (W910-W913), and the hosted compute worker route (W914).",
   "scripts": {
     "dev": "next dev",
+    "e2e": "bun run e2e/run.ts",
     "build": "next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
