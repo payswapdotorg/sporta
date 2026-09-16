@@ -298,6 +298,13 @@ export interface CreateStudioServiceOptions {
    * verified caller, so this is the gate's own decision, re-recorded.
    */
   attestations: { record(id: string, attestedByUserId: string): void };
+  /**
+   * The operations console seam (W918): where the studio's dispatch path
+   * reports bounded-queue admission refusals so the console's queue panel
+   * counts them at the seam they actually happen (never a parallel
+   * fabrication).
+   */
+  operations: { noteAdmissionRefusal(depth: number, maxDepth: number): void };
   /** Wall clock (rights expiry is evaluated against it). */
   nowMs: () => number;
 }
@@ -309,6 +316,7 @@ export class CreateStudioService {
   private readonly storyIndex: Map<string, SeedStoryMeta>;
   private readonly publication: CreateStudioServiceOptions["publication"];
   private readonly attestations: CreateStudioServiceOptions["attestations"];
+  private readonly operations: CreateStudioServiceOptions["operations"];
   private readonly nowMs: () => number;
   /** The REAL job ids this studio dispatched, per session (in-memory). */
   private readonly jobsBySession = new Map<string, string[]>();
@@ -316,6 +324,21 @@ export class CreateStudioService {
   private readonly admissionByJob = new Map<string, string>();
   /** Job ids whose admission was already released (idempotence guard). */
   private readonly releasedJobs = new Set<string>();
+  /**
+   * Dispatched job id → its recorded dispatch parameters + actor (W918: the
+   * operations console's retry re-dispatches from this REAL record — the
+   * parameters of what was actually dispatched, never reconstructed).
+   */
+  private readonly dispatchesByJob = new Map<
+    string,
+    {
+      rendererId: string;
+      rendererVersion?: string;
+      styleId?: string;
+      dispatchedByUserId: string | null;
+      dispatchedAtMs: number;
+    }
+  >();
   private policySeq = 0;
 
   constructor(options: CreateStudioServiceOptions) {
@@ -324,6 +347,7 @@ export class CreateStudioService {
     this.storyIndex = options.storyIndex;
     this.publication = options.publication;
     this.attestations = options.attestations;
+    this.operations = options.operations;
     this.nowMs = options.nowMs;
   }
 
@@ -695,6 +719,9 @@ export class CreateStudioService {
       }),
     });
     if (!offered.accepted) {
+      // W918: the console's queue panel counts refusals at this seam — the
+      // only app path that offers jobs to the bounded queue.
+      this.operations.noteAdmissionRefusal(offered.depth, offered.maxDepth);
       throw new QueueFullError(offered.depth, offered.maxDepth, 60);
     }
 
@@ -724,6 +751,13 @@ export class CreateStudioService {
     if (!jobs.includes(dispatch.jobId)) jobs.push(dispatch.jobId);
     this.jobsBySession.set(input.sessionId, jobs);
     this.admissionByJob.set(dispatch.jobId, admissionId);
+    this.dispatchesByJob.set(dispatch.jobId, {
+      rendererId: input.rendererId,
+      ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
+      ...(input.styleId !== undefined ? { styleId: input.styleId } : {}),
+      dispatchedByUserId: account.userId,
+      dispatchedAtMs: this.nowMs(),
+    });
     return {
       disposition: dispatch.disposition,
       jobId: dispatch.jobId,
@@ -816,6 +850,61 @@ export class CreateStudioService {
     await this.getServer().control.getSession(input.sessionId);
     this.publication.set(input.sessionId, input.visibility);
     return { sessionId: input.sessionId, visibility: input.visibility };
+  }
+
+  // -----------------------------------------------------------------------
+  // The operations console seams (W918 — read by the operator console only)
+  // -----------------------------------------------------------------------
+
+  /**
+   * The studio's REAL job ledger index (W918): every async job this studio
+   * dispatched, with its session, its recorded dispatch parameters (the
+   * retry source) and whether its bounded-queue admission slot is still
+   * held. The console enriches each row with the control plane's live job
+   * projection — this method never fabricates job STATE, only the index.
+   */
+  jobLedger(): {
+    jobId: string;
+    sessionId: string;
+    dispatch:
+      | {
+          rendererId: string;
+          rendererVersion?: string;
+          styleId?: string;
+          dispatchedByUserId: string | null;
+          dispatchedAtMs: number;
+        }
+      | null;
+    /** The held admission id (null once released/settled). */
+    admissionId: string | null;
+  }[] {
+    const rows: ReturnType<CreateStudioService["jobLedger"]> = [];
+    for (const [sessionId, jobIds] of this.jobsBySession) {
+      for (const jobId of jobIds) {
+        rows.push({
+          jobId,
+          sessionId,
+          dispatch: this.dispatchesByJob.get(jobId) ?? null,
+          admissionId: this.admissionByJob.get(jobId) ?? null,
+        });
+      }
+    }
+    return rows;
+  }
+
+  /**
+   * Releases one job's bounded-queue admission slot NOW (W918: the console's
+   * cancel remediation) — the same guarded, once-only release the terminal
+   * job poll performs. Returns whether a held slot was released.
+   */
+  async releaseAdmissionOf(jobId: string): Promise<boolean> {
+    const admissionId = this.admissionByJob.get(jobId);
+    if (admissionId === undefined || this.releasedJobs.has(jobId)) {
+      return false;
+    }
+    this.releasedJobs.add(jobId);
+    this.admissionByJob.delete(jobId);
+    return await this.getServer().transientState.queue.release(admissionId);
   }
 
   /** One source's view (shared by options + creation answers). */
