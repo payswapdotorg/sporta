@@ -271,6 +271,25 @@ export async function seedDevContent(options: SeedOptions): Promise<{
       waveCount: run.waveCount,
     });
 
+    // 2f. W915: a session whose policy authorizes LIVE delivery is
+    //     registered as a LIVE SOURCE — its real story timeline (the
+    //     per-wave engine outputs) + its identity-attested policy become
+    //     the SSE transport's inputs. The transport itself only serves
+    //     while env-active (SPORTA_LIVE_TRANSPORT=sse); the registration
+    //     is data, the serving is state.
+    const liveRights = deriveRightsCapabilities(policy, new Date(server.nowMs()));
+    if (liveRights.canDeliverLive) {
+      server.live.registerSource({
+        sessionId,
+        label: plan.label,
+        storyKey: plan.story.key,
+        steps: run.steps,
+        policy,
+        snapshotVersion: run.engine.snapshotVersion,
+        watermarkSequence: run.engine.snapshot().watermark.sequence,
+      });
+    }
+
     summary.push({ sessionId, storyKey: plan.story.key, renderIds, storedSegmentIds });
   }
 

@@ -64,6 +64,8 @@ import { getHostedRenderOutputStore } from "./platform/r2/hosted";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
+import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
+import type { LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
@@ -89,6 +91,12 @@ export interface SportaServerOptions {
    * own renderer registry; `none` disables the async surface).
    */
   computeAdapter?: ComputeAdapterPort;
+  /**
+   * The live network transport (W915). Default: env-gated — ACTIVE only
+   * when `SPORTA_LIVE_TRANSPORT=sse` (see ./live/env.ts); tests inject a
+   * deterministic one through this seam.
+   */
+  liveTransport?: LiveTransport;
   /**
    * The hosted R2 artifact store (W912: the private-bucket render-output
    * store when the environment configures it; default: none — the seeded
@@ -136,6 +144,12 @@ export interface SportaServer {
    * when the async surface is disabled (`COMPUTE_PROVIDER=none`).
    */
   compute: { provider: ComputeProviderSelection; adapterId: string } | null;
+  /**
+   * The live network transport (W915): real SSE frame streaming over HTTP,
+   * env-gated — `state()` is `active` only when it is genuinely serving
+   * (SPORTA_LIVE_TRANSPORT=sse); the capability response is wired to it.
+   */
+  live: LiveTransport;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -235,6 +249,18 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
   const gate = createIdentityControlGate({ accounts, sessions: auth.sessions, control, ownership });
 
+  // 5b. The live network transport (W915): env-gated — active only when
+  //     SPORTA_LIVE_TRANSPORT=sse; the dev seed registers the
+  //     live-authorized sessions' story timelines as its live sources. The
+  //     composition root is the ONLY env reader (the documented convention).
+  const live =
+    options.liveTransport ??
+    createSseLiveTransport({
+      active: liveTransportActive(),
+      nowMs,
+      cadenceMs: liveCadenceMs(),
+    });
+
   // 6b. The hosted artifact store (W912): the R2-backed render-output store
   //     when configured. The dev seed MIRRORS every stored output into it
   //     (fail-closed — a configured R2 that rejects the mirror fails the
@@ -266,6 +292,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     studio,
     publication,
     compute,
+    live,
     nowMs,
     ready: Promise.resolve(),
   };

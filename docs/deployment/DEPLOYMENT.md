@@ -561,3 +561,76 @@ delivery expiry is 5 minutes (browser) / 60 seconds (server-side fetch).
 - Bucket location is APAC (R2 default jurisdiction); the Vercel functions run
   in iad1 — each server-side fetch pays the intercontinental hop (~100–300 ms
   per round-trip; visible in the integration-test timings).
+
+## W915 — Real network live transport (SSE)
+
+The live transport is a REAL network path: HTTP Server-Sent-Events streaming
+really-generated SVG frames (`hello` → `frame`×N → `close`, with a `: keepalive`
+comment every 15 s of silence). One real renderer execution per tick
+(`renderAnimeClip` over the dev-seed story timeline; rights re-derived every
+tick from the identity-attested policy), bounded per-subscriber drop-oldest
+buffers with counted loss, and a MEASURED end-to-end latency (the frame's
+server generation timestamp → the consumer's receipt clock; unsynchronized
+clocks — documented at every surface that shows the number).
+
+### Environment variables
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `SPORTA_LIVE_TRANSPORT` | `sse` → the live transport is ACTIVE (`/api/live/*` serves real streams; `modes.live` reports `live-network`). Anything else/absent → honestly unavailable everywhere (Simulation F holds). | unset (unavailable) |
+| `SPORTA_LIVE_CADENCE_MS` | The real emission cadence, clamped to 100–5000 ms. One real render per tick. | 500 |
+
+### DEPLOYMENT BOUNDARY (honest — read before setting the flag)
+
+The hosted **Vercel Hobby deployment does NOT enable this transport**:
+serverless request-duration caps (Hobby: 60 s) would cut every live stream
+mid-flight. The env flag is deliberately NOT set on the Vercel project and is
+never set just to light the UI up. The transport serves long-lived streams on
+any real HTTP host (local, bare-metal, an edge worker with a later work order).
+Deployed-live validation therefore waits for a suitable host — the acceptance
+for W915 is met by the LOCAL real-HTTP evidence below plus the browser player
+(`EventSource`) shipped on the Live page.
+
+### Local real-HTTP evidence (2026-09-16, worktree w914-hosted-compute)
+
+Production build (`next start -p 3115`, env `SPORTA_LIVE_TRANSPORT=sse`,
+`SPORTA_LIVE_CADENCE_MS=500`, `DATABASE_URL` unset — the in-memory dev
+composition; server started and killed within one session, `ps` verified):
+
+```
+GET /api/live                → {"available":true,"transportKind":"live-network",
+                                "detail":"SSE live transport — real HTTP streaming at 500ms cadence
+                                (bounded 8-frame subscriber buffers, drop-oldest counted)",
+                                "sources":[{"sessionId":"sess-1","label":"Derby night at Kings Park — fixture story A","storyKey":"derby"}]}
+GET /api/live/sess-1         (anonymous)     → 401 {"failureClass":"auth-required",…} content-type application/json
+GET /api/live/no-such-session (auth'd)       → 404 {"failureClass":"unknown-session",…} content-type application/json
+GET /api/capability (auth'd)                 → "live":{"availability":"available","reasonCode":"ok","transportKind":"live-network"}
+curl -N (auth'd) /api/live/sess-1 | bun scripts/live-sse-evidence.ts:
+[hello] session=sess-1 story=derby cadenceMs=500 bufferDepth=8 openedAtMs=1789527550186
+[frame] ordinal=1 storyStep=0 svgBytes=3384 renderMs=1 latencyMs=1
+[frame] ordinal=2 storyStep=1 svgBytes=3225 renderMs=1 latencyMs=1 gapMs=499
+[frame] ordinal=3 storyStep=2 svgBytes=3364 renderMs=1 latencyMs=1 gapMs=501
+…  21 frames over ~10.5 s (story timeline 0..5 cycling; distinct SVG per step)
+[frame] ordinal=21 storyStep=2 svgBytes=3364 renderMs=1 latencyMs=1 gapMs=501
+SUMMARY frames=21 bytes=82911
+CADENCE client-observed gaps n=20 p50=501ms p95=502ms max=537ms (server cadence 500ms)
+LATENCY measured end-to-end n=21 last=1ms p50=1ms p95=2ms max=2ms (server generation clock → client receipt clock, unsynchronized; real measurement, never a promise)
+```
+
+Loopback honesty: the measured p50=1 ms is same-host loopback transport
+latency (real, not simulated — but not a network-distance claim). The evidence
+script (`apps/web/scripts/live-sse-evidence.ts`) parses the stream with the
+same shared grammar the browser's `EventSource` consumes.
+
+### Deployed state at the time of this section (honest boundary)
+
+- `https://sporta-flame.vercel.app` currently serves the **W903-era shell**
+  (its own footer states the pre-data-plane state); `/api/live` answers the
+  shell's HTML 404 — the W915 routes are not deployed there.
+- The W911/W912-evidence direct deployment URLs (`sporta-o5wou4xml`,
+  `sporta-2m0a61jbj`, …) no longer serve (404) — those CLI deployments were
+  superseded.
+- Next redeploy after the W915 merge: `/api/live` will answer the sources list
+  (JSON 200), and `GET /api/live/[sessionId]` will answer the typed **503
+  `live-transport-not-configured`** while the env flag stays unset — the
+  honest unavailable state, never a faked live badge.

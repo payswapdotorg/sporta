@@ -232,3 +232,16 @@ export function setStudioPublication(
     { visibility },
   );
 }
+
+/** The /api/live sources answer (structural — the transport's real state). */
+export interface LiveSourcesLike {
+  available: boolean;
+  transportKind: string;
+  detail: string;
+  sources: { sessionId: string; label: string; storyKey: string }[];
+}
+
+/** GET /api/live — the live sources the transport is really serving (W915). */
+export function fetchLiveSources(): Promise<LiveSourcesLike> {
+  return getJson<LiveSourcesLike>("/api/live");
+}

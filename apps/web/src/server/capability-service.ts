@@ -5,20 +5,28 @@
  * Every input is real: the identity session comes from the presented cookie
  * token (fail-closed — a presented-but-unusable token is `invalid-session`,
  * never silently anonymous), the renderer registry snapshot comes from the
- * REAL control plane, the live transport is reported as what it is
- * (`in-process` — Simulation F: the control plane runs in this process, so
- * live is honestly unavailable), and the provider health feeds describe the
- * REAL in-process backing. The queue-cache provider has NO feed this wave —
- * it surfaces `unknown`/`health-feed-missing` (fail-closed, never invented).
+ * REAL control plane, the live transport is reported as what it is (W915:
+ * `live-network` ONLY while the SSE transport is env-active and genuinely
+ * serving over real HTTP — otherwise the honest in-process/unavailable
+ * state, Simulation F), and the provider health feeds describe the REAL
+ * in-process backing. The queue-cache provider feed exists ONLY while the
+ * live transport is active (the transport's real bounded frame buffers);
+ * without it the queue-cache kind surfaces `unknown`/`health-feed-missing`
+ * (fail-closed, never invented).
  *
  * There is no account-scoped rights decision in this wave (rights are
  * per-session policies in the control plane), so `rights` is omitted — the
- * frozen contracts rule: a missing decision denies. No registered renderer
- * requires source frames this wave, so nothing visible changes; the day one
- * does, it answers `rights-denied` honestly.
+ * frozen contracts rule: a missing decision denies. W915 EXCEPTS exactly
+ * one case, documented: while the live transport is ACTIVE, the live mode's
+ * rights evidence is the AUTHORIZED LIVE SOURCE's policy-derived
+ * capabilities (the real identity-attested policy the transport serves —
+ * `canDeliverLive` from a real policy, derived with the real clock). The
+ * per-viewer authorization happens at the stream open (the route's
+ * fail-closed 401/403/404 — before any byte), never in this response.
  */
 import { buildCapabilityResponse } from "@sporta/capability";
 import type { CapabilityResponse } from "@sporta/capability";
+import { deriveRightsCapabilities } from "@sporta/contracts";
 import type { SportaServer } from "./composition";
 import { tokenFromRequest } from "./auth-service";
 
@@ -40,9 +48,16 @@ const PROVIDER_FEEDS = [
     detail:
       "in-process renderer execution through the real registry (hosted compute adapter is W914)",
   },
-  // queue-cache deliberately omitted: no queue/cache exists this wave →
-  // unknown / health-feed-missing in the response (fail-closed).
+  // queue-cache deliberately omitted when live is INACTIVE: no live queue
+  // exists then → unknown / health-feed-missing in the response
+  // (fail-closed). While the SSE transport is ACTIVE, the feed below is
+  // real: the transport's bounded per-subscriber frame buffers.
 ];
+
+/** The live transport's real queue-cache provider feed (active state only). */
+function liveQueueCacheFeed(detail: string) {
+  return { kind: "queue-cache" as const, health: "ok" as const, detail };
+}
 
 /**
  * Builds the capability response for one request. `requestId` (the caller's
@@ -88,7 +103,30 @@ export async function capabilityForRequest(
     registryStatus: "registered" as const,
   }));
 
-  // 3. Compose (the pure W901 builder validates its own output).
+  // 3. The live transport evidence (W915): `live-network` ONLY while the SSE
+  //    transport is env-active and genuinely serving; otherwise the honest
+  //    in-process state (Simulation F). The rights evidence in the active
+  //    case is the authorized live source's REAL policy-derived capability
+  //    (see the module docs — the per-viewer gate is the stream open).
+  const live = server.live;
+  const liveActive = live.state() === "active";
+  const liveSource = liveActive ? live.listSources()[0] : undefined;
+  if (liveActive && liveSource === undefined) {
+    // Active but no registered source: honest unavailable (nothing to
+    // serve) — never a claimed live-network mode with no source behind it.
+    return buildCapabilityResponse({
+      ...(requestId !== undefined && requestId.length > 0 ? { requestContext: { requestId } } : {}),
+      session,
+      ...(session.authenticated && session.valid && session.userId !== undefined
+        ? { account: { userId: session.userId, roles: await rolesOf(server, session.userId) } }
+        : {}),
+      renderers,
+      liveTransport: { kind: "none" },
+      providers: [...PROVIDER_FEEDS, liveQueueCacheFeed(live.detail())],
+    });
+  }
+
+  // 4. Compose (the pure W901 builder validates its own output).
   return buildCapabilityResponse({
     ...(requestId !== undefined && requestId.length > 0 ? { requestContext: { requestId } } : {}),
     session,
@@ -96,8 +134,13 @@ export async function capabilityForRequest(
       ? { account: { userId: session.userId, roles: await rolesOf(server, session.userId) } }
       : {}),
     renderers,
-    liveTransport: { kind: "in-process" },
-    providers: PROVIDER_FEEDS,
+    ...(liveActive && liveSource !== undefined
+      ? {
+          liveTransport: { kind: "live-network" as const },
+          rights: deriveRightsCapabilities(liveSource.policy, new Date(server.nowMs())),
+        }
+      : { liveTransport: { kind: "in-process" as const } }),
+    providers: liveActive ? [...PROVIDER_FEEDS, liveQueueCacheFeed(live.detail())] : PROVIDER_FEEDS,
   });
 }
 
