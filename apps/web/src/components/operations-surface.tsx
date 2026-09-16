@@ -84,11 +84,7 @@ export function OperationsSurface() {
 
   return (
     <div className="surface-stack">
-      <section
-        className="studio-section"
-        id="health"
-        data-surface="operations-health"
-      >
+      <section className="studio-section" id="health" data-surface="operations-health">
         <h2 className="section-title">Health</h2>
         <p className="field-note">
           The same honest snapshot <code>/api/platform/health</code> serves — one shared
@@ -112,11 +108,7 @@ export function OperationsSurface() {
         </table>
       </section>
 
-      <section
-        className="studio-section"
-        id="providers"
-        data-surface="operations-providers"
-      >
+      <section className="studio-section" id="providers" data-surface="operations-providers">
         <h2 className="section-title">Providers</h2>
         <table className="data-table">
           <thead>

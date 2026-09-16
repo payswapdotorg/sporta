@@ -29,13 +29,7 @@ export const UX_STATES = [
 export type UxState = (typeof UX_STATES)[number];
 
 /** Route a deferred surface belongs to. */
-export type SurfaceRoute =
-  | "/"
-  | "/search"
-  | "/following"
-  | "/audit"
-  | "/clips"
-  | "/notes";
+export type SurfaceRoute = "/" | "/search" | "/following" | "/audit" | "/clips" | "/notes";
 
 /** Key of a deferred surface (referenced by pages). */
 export type SurfaceKey = "home-create" | "search" | "following" | "audit" | "clips" | "notes";
@@ -105,8 +99,7 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
     route: "/clips",
     state: "unavailable",
     title: "Clips",
-    summary:
-      "Saved analysis clips — moments you cut from the timeline while working in Match Lab.",
+    summary: "Saved analysis clips — moments you cut from the timeline while working in Match Lab.",
     detail:
       "There is no clips data plane yet: no clip can be cut, stored or listed, so none is simulated. Saved, role-scoped content arrives with the catalog/content model (W916).",
     plannedWorkOrder: "W916",
@@ -116,8 +109,7 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
     route: "/notes",
     state: "unavailable",
     title: "Notes",
-    summary:
-      "Analysis notes — your annotations on matches, events and commentary windows.",
+    summary: "Analysis notes — your annotations on matches, events and commentary windows.",
     detail:
       "There is no notes data plane yet: no note can be written, stored or listed, so none is simulated. Personal analysis content arrives with the catalog/content model (W916).",
     plannedWorkOrder: "W916",

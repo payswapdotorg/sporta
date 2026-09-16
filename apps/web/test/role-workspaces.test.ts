@@ -84,7 +84,7 @@ describe("W907 role workspaces — the matrix's product surface map", () => {
     for (const role of ROLES) {
       for (const surface of ROLE_WORKSPACES[role]) {
         const path = surface.href.split("#", 1)[0]!;
-        expect(routes.has(path as (typeof routes) extends Set<infer T> ? T : never)).toBe(true);
+        expect(routes.has(path as typeof routes extends Set<infer T> ? T : never)).toBe(true);
       }
     }
   });
@@ -112,11 +112,9 @@ describe("W907 role switcher model — grants-only, context-only", () => {
   });
 
   test("switchable roles are exactly the grants, in canonical order, never deduplicated away", () => {
-    expect(switchableRoles({ roles: ["operator", "analyst", "viewer"], activeRole: null })).toEqual([
-      "viewer",
-      "analyst",
-      "operator",
-    ]);
+    expect(switchableRoles({ roles: ["operator", "analyst", "viewer"], activeRole: null })).toEqual(
+      ["viewer", "analyst", "operator"],
+    );
   });
 
   test("roles the account does NOT hold are never offered (grants-only rule)", () => {
@@ -132,9 +130,9 @@ describe("W907 role switcher model — grants-only, context-only", () => {
   });
 
   test("unknown wire strings are never offered (fail-closed against version skew)", () => {
-    expect(
-      switchableRoles({ roles: ["viewer", "superuser", ""], activeRole: null }),
-    ).toEqual(["viewer"]);
+    expect(switchableRoles({ roles: ["viewer", "superuser", ""], activeRole: null })).toEqual([
+      "viewer",
+    ]);
     expect(switchableRoles({ roles: ["admin"], activeRole: null })).toEqual([]);
   });
 

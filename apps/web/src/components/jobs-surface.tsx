@@ -66,11 +66,7 @@ export function JobsSurface() {
       );
     }
     return (
-      <StatePanel
-        state="failed"
-        title="The job state could not be read"
-        reason={state.error}
-      />
+      <StatePanel state="failed" title="The job state could not be read" reason={state.error} />
     );
   }
 
@@ -84,9 +80,8 @@ export function JobsSurface() {
           {scope === "operator" ? "All sessions' jobs (operator)" : "Your sessions' jobs"}
         </h2>
         <p className="field-note">
-          {withJobs.length} session{withJobs.length === 1 ? "" : "s"} with dispatched jobs ·
-          every row is the compute plane&apos;s real state, re-read through the
-          owner/operator rule.
+          {withJobs.length} session{withJobs.length === 1 ? "" : "s"} with dispatched jobs · every
+          row is the compute plane&apos;s real state, re-read through the owner/operator rule.
         </p>
       </section>
 
@@ -98,11 +93,7 @@ export function JobsSurface() {
         />
       ) : (
         withJobs.map((entry) => (
-          <section
-            key={entry.sessionId}
-            className="studio-section"
-            data-surface="jobs-session"
-          >
+          <section key={entry.sessionId} className="studio-section" data-surface="jobs-session">
             <h2 className="section-title">{entry.label}</h2>
             <p className="field-note">
               session <code>{entry.sessionId}</code> · status {entry.status} ·{" "}

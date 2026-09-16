@@ -328,14 +328,18 @@ describe("W907 GET /api/workspaces/pending-work — the switcher's badges", () =
   });
 
   test("a viewer carries NO badge (no pending-work data plane — honest absence)", async () => {
-    const response = await pendingWorkRoute(withCookie(viewerToken, "/api/workspaces/pending-work"));
+    const response = await pendingWorkRoute(
+      withCookie(viewerToken, "/api/workspaces/pending-work"),
+    );
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as { roles: Record<string, unknown> };
     expect(Object.keys(body.roles)).toEqual([]);
   });
 
   test("an operator with no failed jobs carries no badge either (zero is null, never 0)", async () => {
-    const response = await pendingWorkRoute(withCookie(operatorToken, "/api/workspaces/pending-work"));
+    const response = await pendingWorkRoute(
+      withCookie(operatorToken, "/api/workspaces/pending-work"),
+    );
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as { roles: Record<string, unknown> };
     expect(body.roles.operator).toBeUndefined();
@@ -376,7 +380,9 @@ describe("W907 GET /api/workspaces/pending-work — the switcher's badges", () =
 
     // The pending-work badge for creator is the REAL in-flight count: zero
     // (the only job settled) — carried as honest absence.
-    const response = await pendingWorkRoute(withCookie(creatorToken, "/api/workspaces/pending-work"));
+    const response = await pendingWorkRoute(
+      withCookie(creatorToken, "/api/workspaces/pending-work"),
+    );
     expect(response.status).toBe(200);
     const pending = (await bodyOf(response)) as { roles: Record<string, unknown> };
     expect(pending.roles.creator).toBeUndefined();

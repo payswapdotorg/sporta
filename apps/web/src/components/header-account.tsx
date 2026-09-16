@@ -130,12 +130,15 @@ export function HeaderAccount() {
       {menuOpen && (
         <div className="account-menu" role="menu" aria-label="Account">
           <p className="account-menu-heading">
-            Active role (workspace only){account.activeRole !== null ? ` — ${ROLE_LABELS[account.activeRole as keyof typeof ROLE_LABELS] ?? account.activeRole}` : " — none"}
+            Active role (workspace only)
+            {account.activeRole !== null
+              ? ` — ${ROLE_LABELS[account.activeRole as keyof typeof ROLE_LABELS] ?? account.activeRole}`
+              : " — none"}
           </p>
           {offered.length === 0 ? (
             <p className="role-note">
-              This account holds no role grants yet — every surface stays read-only until a
-              grant is assigned.
+              This account holds no role grants yet — every surface stays read-only until a grant is
+              assigned.
             </p>
           ) : (
             <ul className="role-switcher" aria-label="Switch active role">
@@ -153,9 +156,7 @@ export function HeaderAccount() {
                     >
                       <span className="role-option-name">
                         {ROLE_LABELS[role]}
-                        {account.activeRole === role && (
-                          <span className="sr-only"> (current)</span>
-                        )}
+                        {account.activeRole === role && <span className="sr-only"> (current)</span>}
                       </span>
                       {pendingBadge !== undefined && (
                         <span className="role-badge">{pendingBadge.label}</span>
@@ -167,9 +168,8 @@ export function HeaderAccount() {
             </ul>
           )}
           <p className="role-note">
-            Switching changes your workspace, never your authority — every action is
-            reauthorized server-side against your grants, and your previous workspace stays
-            one switch away.
+            Switching changes your workspace, never your authority — every action is reauthorized
+            server-side against your grants, and your previous workspace stays one switch away.
           </p>
           {switchError !== null && (
             <p className="role-error" role="alert">

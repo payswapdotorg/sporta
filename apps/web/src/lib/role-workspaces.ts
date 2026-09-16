@@ -50,37 +50,175 @@ export interface WorkspaceSurface {
  */
 export const ROLE_WORKSPACES: Readonly<Record<Role, readonly WorkspaceSurface[]>> = {
   viewer: [
-    { id: "home", label: "Home", href: ROUTES.home, icon: "home", description: "Live matches, alternate realities and things to create" },
-    { id: "live", label: "Live", href: ROUTES.live, icon: "live", description: "Real live network streaming when the transport is enabled" },
-    { id: "explore", label: "Explore", href: ROUTES.explore, icon: "explore", description: "Browse the Sporta catalog of events and realities" },
-    { id: "watch", label: "Watch", href: ROUTES.watch, icon: "watch", description: "One match, many realities" },
-    { id: "library", label: "Library", href: ROUTES.library, icon: "library", description: "Your saved matches, realities and clips" },
+    {
+      id: "home",
+      label: "Home",
+      href: ROUTES.home,
+      icon: "home",
+      description: "Live matches, alternate realities and things to create",
+    },
+    {
+      id: "live",
+      label: "Live",
+      href: ROUTES.live,
+      icon: "live",
+      description: "Real live network streaming when the transport is enabled",
+    },
+    {
+      id: "explore",
+      label: "Explore",
+      href: ROUTES.explore,
+      icon: "explore",
+      description: "Browse the Sporta catalog of events and realities",
+    },
+    {
+      id: "watch",
+      label: "Watch",
+      href: ROUTES.watch,
+      icon: "watch",
+      description: "One match, many realities",
+    },
+    {
+      id: "library",
+      label: "Library",
+      href: ROUTES.library,
+      icon: "library",
+      description: "Your saved matches, realities and clips",
+    },
   ],
   creator: [
-    { id: "home", label: "Home", href: ROUTES.home, icon: "home", description: "Live matches, alternate realities and things to create" },
-    { id: "create", label: "Create Studio", href: ROUTES.create, icon: "create", description: "Turn authorized footage into new viewing experiences" },
-    { id: "jobs", label: "Jobs", href: ROUTES.jobs, icon: "jobs", description: "Your render jobs and their real progress" },
-    { id: "library", label: "Library", href: ROUTES.library, icon: "library", description: "Your saved matches, realities and clips" },
+    {
+      id: "home",
+      label: "Home",
+      href: ROUTES.home,
+      icon: "home",
+      description: "Live matches, alternate realities and things to create",
+    },
+    {
+      id: "create",
+      label: "Create Studio",
+      href: ROUTES.create,
+      icon: "create",
+      description: "Turn authorized footage into new viewing experiences",
+    },
+    {
+      id: "jobs",
+      label: "Jobs",
+      href: ROUTES.jobs,
+      icon: "jobs",
+      description: "Your render jobs and their real progress",
+    },
+    {
+      id: "library",
+      label: "Library",
+      href: ROUTES.library,
+      icon: "library",
+      description: "Your saved matches, realities and clips",
+    },
   ],
   analyst: [
-    { id: "home", label: "Home", href: ROUTES.home, icon: "home", description: "Live matches, alternate realities and things to create" },
-    { id: "watch", label: "Watch", href: ROUTES.watch, icon: "watch", description: "One match, many realities" },
-    { id: "matchlab", label: "Match Lab", href: ROUTES.matchlab, icon: "matchlab", description: "Timeline, commentary, events and SWM evidence inspection" },
-    { id: "clips", label: "Clips", href: ROUTES.clips, icon: "clips", description: "Saved analysis clips" },
-    { id: "notes", label: "Notes", href: ROUTES.notes, icon: "notes", description: "Analysis notes" },
+    {
+      id: "home",
+      label: "Home",
+      href: ROUTES.home,
+      icon: "home",
+      description: "Live matches, alternate realities and things to create",
+    },
+    {
+      id: "watch",
+      label: "Watch",
+      href: ROUTES.watch,
+      icon: "watch",
+      description: "One match, many realities",
+    },
+    {
+      id: "matchlab",
+      label: "Match Lab",
+      href: ROUTES.matchlab,
+      icon: "matchlab",
+      description: "Timeline, commentary, events and SWM evidence inspection",
+    },
+    {
+      id: "clips",
+      label: "Clips",
+      href: ROUTES.clips,
+      icon: "clips",
+      description: "Saved analysis clips",
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      href: ROUTES.notes,
+      icon: "notes",
+      description: "Analysis notes",
+    },
   ],
   "rights-holder": [
-    { id: "home", label: "Home", href: ROUTES.home, icon: "home", description: "Live matches, alternate realities and things to create" },
-    { id: "rights", label: "Rights Center", href: ROUTES.rights, icon: "rights", description: "The rights policies on the sessions you own or control" },
-    { id: "catalog", label: "Catalog", href: ROUTES.explore, icon: "explore", description: "Browse the Sporta catalog of events and realities" },
-    { id: "audit", label: "Audit", href: ROUTES.audit, icon: "audit", description: "Audit state for your rights scope" },
+    {
+      id: "home",
+      label: "Home",
+      href: ROUTES.home,
+      icon: "home",
+      description: "Live matches, alternate realities and things to create",
+    },
+    {
+      id: "rights",
+      label: "Rights Center",
+      href: ROUTES.rights,
+      icon: "rights",
+      description: "The rights policies on the sessions you own or control",
+    },
+    {
+      id: "catalog",
+      label: "Catalog",
+      href: ROUTES.explore,
+      icon: "explore",
+      description: "Browse the Sporta catalog of events and realities",
+    },
+    {
+      id: "audit",
+      label: "Audit",
+      href: ROUTES.audit,
+      icon: "audit",
+      description: "Audit state for your rights scope",
+    },
   ],
   operator: [
-    { id: "operations", label: "Operations", href: ROUTES.operations, icon: "operations", description: "Platform health, queues, providers and failed jobs" },
-    { id: "jobs", label: "Jobs", href: ROUTES.jobs, icon: "jobs", description: "Render jobs across the platform" },
-    { id: "health", label: "Health", href: `${ROUTES.operations}#health`, icon: "live", description: "Provider reachability and environment" },
-    { id: "providers", label: "Providers", href: `${ROUTES.operations}#providers`, icon: "explore", description: "Which provider each seam is bound to" },
-    { id: "audit", label: "Audit", href: ROUTES.audit, icon: "audit", description: "System-scope audit state" },
+    {
+      id: "operations",
+      label: "Operations",
+      href: ROUTES.operations,
+      icon: "operations",
+      description: "Platform health, queues, providers and failed jobs",
+    },
+    {
+      id: "jobs",
+      label: "Jobs",
+      href: ROUTES.jobs,
+      icon: "jobs",
+      description: "Render jobs across the platform",
+    },
+    {
+      id: "health",
+      label: "Health",
+      href: `${ROUTES.operations}#health`,
+      icon: "live",
+      description: "Provider reachability and environment",
+    },
+    {
+      id: "providers",
+      label: "Providers",
+      href: `${ROUTES.operations}#providers`,
+      icon: "explore",
+      description: "Which provider each seam is bound to",
+    },
+    {
+      id: "audit",
+      label: "Audit",
+      href: ROUTES.audit,
+      icon: "audit",
+      description: "System-scope audit state",
+    },
   ],
 };
 
@@ -172,10 +310,16 @@ export interface PendingWork {
 export type PendingWorkByRole = Partial<Record<Role, PendingWork>>;
 
 /** Formats a pending-work badge, or null when there is nothing pending. */
-export function formatPendingWork(kind: "creator-jobs" | "operator-failures", count: number): PendingWork | null {
+export function formatPendingWork(
+  kind: "creator-jobs" | "operator-failures",
+  count: number,
+): PendingWork | null {
   if (!Number.isInteger(count) || count <= 0) return null;
   return {
-    label: kind === "creator-jobs" ? `${count} job${count === 1 ? "" : "s"} in flight` : `${count} failed job${count === 1 ? "" : "s"}`,
+    label:
+      kind === "creator-jobs"
+        ? `${count} job${count === 1 ? "" : "s"} in flight`
+        : `${count} failed job${count === 1 ? "" : "s"}`,
     count,
   };
 }

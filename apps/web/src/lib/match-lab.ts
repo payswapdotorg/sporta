@@ -96,13 +96,15 @@ export function mapCommentary(
 
 /** Maps the renders' real watermarks + provenance to SWM-evidence rows. */
 export function mapEvidence(
-  renders: readonly {
-    renderId: string;
-    rendererId: string;
-    watermarkAfter: { watermarkMs: number; sequence: number };
-    provenance: { snapshotVersion: number; lastEventSequence: number };
-    rendererHealth: { lagMs: number; degraded: boolean; degradationReason?: string };
-  }[] | null,
+  renders:
+    | readonly {
+        renderId: string;
+        rendererId: string;
+        watermarkAfter: { watermarkMs: number; sequence: number };
+        provenance: { snapshotVersion: number; lastEventSequence: number };
+        rendererHealth: { lagMs: number; degraded: boolean; degradationReason?: string };
+      }[]
+    | null,
 ): readonly EvidenceRow[] | null {
   if (renders === null) return null;
   return renders.map((render) => ({
@@ -133,8 +135,7 @@ export function buildMatchLabModel(watch: WatchModelLike): MatchLabModel {
     label: watch.label,
     status: watch.status,
     timeline: denied || watch.eventTail === null ? null : mapTimeline(watch.eventTail),
-    commentary:
-      denied || watch.story === null ? null : mapCommentary(watch.story.transcript),
+    commentary: denied || watch.story === null ? null : mapCommentary(watch.story.transcript),
     evidence: denied ? null : mapEvidence(watch.renders),
     waveCount: denied || watch.story === null ? null : watch.story.waveCount,
     storySource: denied || watch.story === null ? null : watch.story.source,

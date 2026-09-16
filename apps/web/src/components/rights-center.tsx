@@ -86,8 +86,8 @@ export function RightsCenter() {
         </h2>
         <p className="field-note">{note}</p>
         <p className="field-note">
-          {entries.length} record{entries.length === 1 ? "" : "s"} — each read through the
-          identity control gate (owner/operator rule, deny-before-existence).
+          {entries.length} record{entries.length === 1 ? "" : "s"} — each read through the identity
+          control gate (owner/operator rule, deny-before-existence).
         </p>
       </section>
 
@@ -99,16 +99,11 @@ export function RightsCenter() {
         />
       ) : (
         entries.map((entry) => (
-          <section
-            key={entry.sessionId}
-            className="studio-section"
-            data-surface="rights-entry"
-          >
+          <section key={entry.sessionId} className="studio-section" data-surface="rights-entry">
             <h2 className="section-title">{entry.label}</h2>
             <p className="field-note">
               session <code>{entry.sessionId}</code> · status {entry.status} ·{" "}
-              {entry.access === "owned" ? "owned by you" : "operator control"} ·{" "}
-              {entry.visibility}
+              {entry.access === "owned" ? "owned by you" : "operator control"} · {entry.visibility}
             </p>
             <table className="data-table">
               <tbody>
@@ -120,7 +115,9 @@ export function RightsCenter() {
                 </tr>
                 <tr>
                   <th scope="row">Reference source frames</th>
-                  <td>{entry.rightsCapabilities.canReferenceSourceFrames ? "allowed" : "denied"}</td>
+                  <td>
+                    {entry.rightsCapabilities.canReferenceSourceFrames ? "allowed" : "denied"}
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Live delivery</th>

@@ -4,11 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { SessionCardLike, WatchModelLike } from "@/lib/api-types";
 import { ApiError, fetchCatalog, fetchWatchModel } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
-import {
-  buildMatchLabModel,
-  formatMatchTime,
-  type MatchLabModel,
-} from "@/lib/match-lab";
+import { buildMatchLabModel, formatMatchTime, type MatchLabModel } from "@/lib/match-lab";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
 
 /**
@@ -64,11 +60,7 @@ export function MatchLab({ sessionId }: { sessionId: string | null }) {
   }
   if (catalog.phase === "failed") {
     return (
-      <StatePanel
-        state="failed"
-        title="The catalog could not be read"
-        reason={catalog.error}
-      />
+      <StatePanel state="failed" title="The catalog could not be read" reason={catalog.error} />
     );
   }
 
@@ -97,9 +89,9 @@ export function MatchLab({ sessionId }: { sessionId: string | null }) {
           ))}
         </select>
         <p className="field-note">
-          {playable.length} published session{playable.length === 1 ? "" : "s"} in the real
-          catalog. The lab is read-only: it inspects the same authorized watch document the
-          Watch surface serves.
+          {playable.length} published session{playable.length === 1 ? "" : "s"} in the real catalog.
+          The lab is read-only: it inspects the same authorized watch document the Watch surface
+          serves.
         </p>
       </section>
 
@@ -111,13 +103,11 @@ export function MatchLab({ sessionId }: { sessionId: string | null }) {
         />
       )}
 
-      {selected.length > 0 && watch.phase === "loading" && <LoadingPanel label="Reading the match" />}
+      {selected.length > 0 && watch.phase === "loading" && (
+        <LoadingPanel label="Reading the match" />
+      )}
       {selected.length > 0 && watch.phase === "failed" && (
-        <StatePanel
-          state="failed"
-          title="The match could not be read"
-          reason={watch.error}
-        />
+        <StatePanel state="failed" title="The match could not be read" reason={watch.error} />
       )}
 
       {model !== null && (
@@ -166,9 +156,7 @@ export function MatchLab({ sessionId }: { sessionId: string | null }) {
                         <span className="field-note">({marker.eventId})</span>
                       </td>
                       <td>
-                        {marker.confidence === undefined
-                          ? "—"
-                          : marker.confidence.toFixed(2)}
+                        {marker.confidence === undefined ? "—" : marker.confidence.toFixed(2)}
                       </td>
                     </tr>
                   ))}
