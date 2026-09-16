@@ -304,13 +304,26 @@ export class GuardrailsService {
   /**
    * Evaluates every ledger limit against its measured usage (never
    * fabricating: unmeasured seams report `unmeasured`), observing the alarm
-   * transitions the evaluations imply. `userId` additionally evaluates the
-   * per-user compute quotas for that user (the capability path).
+   * transitions the evaluations imply.
+   *
+   * Compute-limit scope (documented): the per-user daily quotas are evaluated
+   * WITH a `userId` against THAT user's metered counters (the per-user view
+   * — the capability `quotas[]` path reads the same counters through
+   * {@link userQuotaStates}). WITHOUT a `userId` (the operations console and
+   * the capability provider feeds) the compute rows carry the ADAPTER's
+   * daily plane totals — the real whole-plane metered quantity for today —
+   * so the console's provider view and its window-scoped alarms observe one
+   * consistent plane-scoped state (never a mix of per-user and plane writes
+   * on the same alarm key). The plane total is a conservative aggregate: any
+   * single user's usage is at most the plane total, so a plane state of
+   * `under` proves no user can be over, and a crossed plane state is a real
+   * spend signal for the day (the meterNote says which scope is shown).
    */
   async evaluateLimits(userId?: string): Promise<GuardrailsEvaluation> {
     const nowMs = this.#nowMs();
     const limits: LimitEvaluation[] = [];
     const alarms: AlarmEvaluation[] = [];
+    let planeTotals: { unitId: string; quantity: number }[] | null | undefined;
 
     for (const limit of this.#ledger.limits) {
       let used: number | null = null;
@@ -328,12 +341,18 @@ export class GuardrailsService {
             used = await this.#neonStorageBytes();
             if (used === null) noteOverride = "the postgres seam is not configured (or reported no size)";
           } else if (limit.provider === "compute") {
-            // Per-user quotas: evaluated for the requesting user only
-            // (absent counter = zero usage so far).
-            if (userId !== undefined) {
-              const unitId = this.#unitOf(limit.limitId);
-              if (unitId !== null) {
-                used = (await readUserDailyUsage(this.#redis, unitId, userId, nowMs)) ?? 0;
+            const unitId = this.#unitOf(limit.limitId);
+            if (unitId !== null && userId !== undefined) {
+              // The per-user view: absent counter = zero usage so far.
+              used = (await readUserDailyUsage(this.#redis, unitId, userId, nowMs)) ?? 0;
+            } else if (unitId !== null) {
+              // The provider-plane view: the adapter's real daily totals.
+              planeTotals ??= await this.computeUsageTotals();
+              const quantity = planeTotals?.find((total) => total.unitId === unitId)?.quantity;
+              if (quantity !== undefined) {
+                used = quantity;
+                noteOverride =
+                  "today's whole-plane metered total across all users (the admission quota itself is per-user)";
               }
             }
           }

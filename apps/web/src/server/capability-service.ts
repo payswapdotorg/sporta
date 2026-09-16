@@ -360,9 +360,13 @@ export async function capabilityForRequest(
       usageQuotas = [];
     }
   }
-  const evaluation = await server.guardrails.evaluateLimits(
-    session.valid ? session.userId : undefined,
-  );
+  // The provider feeds need only the GLOBAL limit states (storage + command
+  // budget), and the compute rows must stay plane-scoped here: the per-user
+  // quota surfacing rides `userQuotaStates` above (the W901 `quotas[]`
+  // vocabulary), so evaluating WITHOUT a user keeps the shared window alarm
+  // key written by one consistent writer class (the plane view) — the
+  // per-user exhaustion signal reaches the caller through their quotas[].
+  const evaluation = await server.guardrails.evaluateLimits();
   const providers = await providerFeedsOf(server, evaluation);
 
   const quotaInputs = [

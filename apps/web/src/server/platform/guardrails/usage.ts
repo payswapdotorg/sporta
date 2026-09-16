@@ -229,6 +229,12 @@ export class CommandCounter {
     monthKey: string,
     nowMs: number,
   ): Promise<{ total: number; flushed: number } | null> {
+    // Snapshot the flushed portion BEFORE the read: the flush's own GET (the
+    // read below) + SET (the write below) are counted by the MeteredRedis
+    // wrapper into the REMAINING buffer (the next flush persists them — each
+    // flush adds exactly its own snapshot, so the total converges with no
+    // runaway inflation).
+    const flushed = this.#buffered;
     const key = monthlyCommandsKey(monthKey);
     let current: number | null;
     try {
@@ -240,11 +246,6 @@ export class CommandCounter {
     }
     // An absent key is a legitimate zero (no commands persisted yet).
     const total = current ?? 0;
-    // Snapshot the flushed portion BEFORE the read: the flush's own GET+SET
-    // are counted by the MeteredRedis wrapper into the REMAINING buffer (the
-    // next flush persists them — each flush adds exactly its own commands, so
-    // the total converges with no runaway inflation).
-    const flushed = this.#buffered;
     if (flushed === 0) {
       return { total, flushed: 0 };
     }

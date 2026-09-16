@@ -662,8 +662,8 @@ describe("W919 route evidence (default ledger, real seams)", () => {
       overall: { state: string; reasonCodes: string[] };
     };
     const byId = new Map(body.quotas.map((quota) => [quota.quotaId, quota]));
-    expect(byId.get("compute.cpu-ms-day")!.used).toBe(units.get("cpu-ms"));
-    expect(byId.get("compute.artifact-bytes-day")!.used).toBe(units.get("artifact-bytes"));
+    expect(byId.get("compute.cpu-ms-day")!.used).toBe(units.get("cpu-ms")!);
+    expect(byId.get("compute.artifact-bytes-day")!.used).toBe(units.get("artifact-bytes")!);
     expect(byId.get("compute.cpu-ms-day")!.reasonCode).toBe("ok");
     expect(body.overall.state).toBe("ready");
   });
@@ -712,6 +712,8 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
   let creatorUserId = "";
   let sessionId = "";
   let playbackScope: { sessionId: string; renderId: string; segmentId: string };
+  /** The seeded playback document BEFORE any limit is crossed (byte-proof). */
+  let playbackBefore: string | null = null;
 
   beforeAll(async () => {
     // The ledger's documented configurability: the cpu-ms admission quota at
@@ -758,6 +760,17 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
   });
 
   test("one real render's metered usage crosses the threshold → the capability degrades (Simulation E)", async () => {
+    // The seeded playback is available BEFORE the limit is crossed (its
+    // bytes are captured for the after-refusal byte-identity proof).
+    const before = await watchOutputRoute(
+      new Request(
+        `http://sporta.test/api/watch/${playbackScope.sessionId}/renders/${playbackScope.renderId}/outputs/${playbackScope.segmentId}`,
+      ),
+      { params: Promise.resolve(playbackScope) },
+    );
+    expect(before.status).toBe(200);
+    playbackBefore = await before.text();
+
     const dispatch = await dispatchRoute(
       withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({
         rendererId: "anime.prototype",
@@ -842,6 +855,9 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
   });
 
   test("existing authorized playback REMAINS AVAILABLE after the admission refusal (Simulation E's last rule)", async () => {
+    // Playback serves the REAL segment document (the W504/W902 contract: a
+    // 200 JSON document with the artifact-source header — the honest in-memory
+    // backing here, R2-presigned bytes when configured).
     const response = await watchOutputRoute(
       new Request(
         `http://sporta.test/api/watch/${playbackScope.sessionId}/renders/${playbackScope.renderId}/outputs/${playbackScope.segmentId}`,
@@ -849,9 +865,12 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
       { params: Promise.resolve(playbackScope) },
     );
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("video/");
-    const bytes = await response.arrayBuffer();
-    expect(bytes.byteLength).toBeGreaterThan(0);
+    expect(response.headers.get("x-sporta-artifact-source")).toBe("in-memory");
+    const playbackAfter = await response.text();
+    expect(playbackAfter.length).toBeGreaterThan(0);
+    // BYTE-IDENTICAL to the pre-limit playback: the guardrails refuse new
+    // expensive work but never touch an authorized read.
+    expect(playbackAfter).toBe(playbackBefore!);
   });
 
   test("the console's alarm view shows the crossed limit (reached/exceeded, window-scoped)", async () => {
