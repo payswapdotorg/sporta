@@ -127,6 +127,17 @@ describe("W909 E2E recorder — assertion + outcome accounting", () => {
     expect(dirty.exitCode).toBe(1);
   });
 
+  test("an aborted flow with zero recorded assertions is FAILED (never a vacuous pass)", () => {
+    // The real run hit exactly this: a browser crash before the first
+    // assertion must not count as passed via `[].every() === true`.
+    const recorder = new FlowRecorder("a", "A");
+    recorder.note("FLOW ABORTED: browser error");
+    const outcome = recorder.outcome();
+    expect(outcome.assertions).toHaveLength(0);
+    expect(outcome.status).toBe("failed");
+    expect(summarizeRun([outcome]).exitCode).toBe(1);
+  });
+
   test("notes and screenshots ride along in the outcome", () => {
     const recorder = new FlowRecorder("a", "A");
     recorder.note("a note");

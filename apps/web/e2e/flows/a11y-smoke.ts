@@ -29,12 +29,12 @@ const COLOR_PAIR_JS = `(function () {
                       '.account-name', '.page-header .lede', '.section-lede', '.state-panel p'];
   const pairs = [];
   for (const sel of selectors) {
-    for (const el of document.querySelectorAll(sel).slice(0, 1)) {
-      const style = getComputedStyle(el);
-      if ((el.textContent || '').trim().length === 0) continue;
-      pairs.push({ selector: sel, text: (el.textContent || '').trim().slice(0, 40),
-                   fg: style.color, bg: effectiveBg(el) });
-    }
+    const el = document.querySelector(sel); // first match (NodeList has no .slice)
+    if (el === null) continue;
+    const style = getComputedStyle(el);
+    if ((el.textContent || '').trim().length === 0) continue;
+    pairs.push({ selector: sel, text: (el.textContent || '').trim().slice(0, 40),
+                 fg: style.color, bg: effectiveBg(el) });
   }
   return pairs;
 })()`;

@@ -70,12 +70,18 @@ export async function watchFlow(ctx: FlowContext): Promise<void> {
     `note="${reviewNote.slice(0, 80)}…"`,
   );
 
-  // The session's provenance panel (real counts from the watch model).
+  // The session's provenance panel (real renderer identity + byte accounting).
+  const activeRenderer = browser.attr(".player-surface", "data-renderer");
   const provenance = browser.text("section[aria-label='Output provenance']");
   assert(
-    "the provenance panel renders real render metadata",
-    provenance.length > 0 && provenance.includes("sporta."),
-    `panel text starts="${provenance.slice(0, 60)}"`,
+    "the provenance panel renders the active renderer's real identity",
+    provenance.includes(activeRenderer) && provenance.includes("@"),
+    `data-renderer=${activeRenderer}; panel starts="${provenance.slice(0, 60)}"`,
+  );
+  assert(
+    "the provenance panel renders the real byte + hash accounting",
+    provenance.includes("Stored bytes") && / B · /.test(provenance),
+    `bytes line present=${provenance.includes("Stored bytes")}`,
   );
 
   browser.screenshot(`${ctx.evidenceDir}/watch-seeded-session.png`);

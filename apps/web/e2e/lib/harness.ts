@@ -45,17 +45,22 @@ export class FlowRecorder {
     readonly title: string,
   ) {}
 
-  /** Records a hard assertion; throws when it fails (flow aborts). */
-  assert(name: string, condition: boolean, evidence: string): void {
+  /**
+   * Records a hard assertion; throws when it fails (flow aborts).
+   *
+   * Arrow-function fields on purpose: the flows destructure
+   * (`const { assert } = recorder`) — plain methods would lose `this`.
+   */
+  assert = (name: string, condition: boolean, evidence: string): void => {
     this.assertions.push({ name, pass: condition, evidence });
     if (!condition) throw new E2EAssertionError(this.assertions[this.assertions.length - 1]!);
-  }
+  };
 
   /** Records a soft check (failure recorded, flow continues). */
-  check(name: string, condition: boolean, evidence: string): boolean {
+  check = (name: string, condition: boolean, evidence: string): boolean => {
     this.assertions.push({ name, pass: condition, evidence });
     return condition;
-  }
+  };
 
   /** A recorded observation (never fails; context for the report). */
   note(text: string): void {
@@ -66,7 +71,11 @@ export class FlowRecorder {
     return {
       id: this.id,
       title: this.title,
-      status: this.assertions.every((a) => a.pass) ? "passed" : "failed",
+      // A flow that recorded NOTHING did not run to a verdict — an aborted
+      // flow (browser error, crash before the first assertion) must never
+      // count as passed just because an empty array `every()`s to true.
+      status:
+        this.assertions.length > 0 && this.assertions.every((a) => a.pass) ? "passed" : "failed",
       assertions: this.assertions,
       notes: this.notes,
       screenshots: this.screenshots,

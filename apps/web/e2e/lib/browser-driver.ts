@@ -85,7 +85,35 @@ export class BrowserDriver {
   }
 
   clickText(text: string): void {
-    this.run(["find", "text", JSON.stringify(text), "click"]);
+    // RAW text (no quotes): args bypass the shell, so JSON.stringify would
+    // make the quotes part of the searched string (verified against the CLI).
+    this.run(["find", "text", text, "click"]);
+  }
+
+  /**
+   * Clicks the elements of `selector` for which `predicateJs` (a JS
+   * EXPRESSION, evaluated with `this` = the element) is truthy: the page
+   * marks the exact targets with `data-e2e-target`, agent-browser clicks
+   * them, the marks are cleared. Deterministic where text search would be
+   * ambiguous.
+   */
+  clickWhere(selector: string, predicateJs: string): number {
+    const marked = this.eval<number>(`(function () {
+      let n = 0;
+      for (const el of document.querySelectorAll(${JSON.stringify(selector)})) {
+        if (Function('return () => (' + ${JSON.stringify(predicateJs)} + ')').call(el)()) {
+          el.setAttribute('data-e2e-target', '1');
+          n += 1;
+        }
+      }
+      return n;
+    })()`);
+    if (marked === 0) return 0;
+    this.click("[data-e2e-target]");
+    this.eval(
+      `(function () { document.querySelectorAll('[data-e2e-target]').forEach(el => el.removeAttribute('data-e2e-target')); return 'cleared'; })()`,
+    );
+    return marked;
   }
 
   fill(selector: string, text: string): void {

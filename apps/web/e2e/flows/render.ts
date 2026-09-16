@@ -24,7 +24,17 @@ export async function renderFlow(ctx: FlowContext): Promise<void> {
   browser.clickText("Create an account");
   browser.fill("#auth-username", username);
   browser.fill("#auth-password", password);
-  browser.clickText("creator"); // the creator grant checkbox (viewer stays checked too)
+  // The creator grant checkbox (viewer stays checked too) — clicked by its
+  // own label so the text search cannot hit some other "creator" string.
+  const creatorPicked = browser.clickWhere(
+    "label.role-picker-option",
+    `(this.textContent || '').trim() === 'creator'`,
+  );
+  assert(
+    "the creator role checkbox was picked",
+    creatorPicked === 1,
+    `role-picker options matching creator: ${creatorPicked}`,
+  );
   browser.click("form.auth-form button[type='submit']");
   assert(
     "the creator account registers and signs in",

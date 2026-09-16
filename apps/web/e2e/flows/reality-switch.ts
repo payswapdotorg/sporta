@@ -77,7 +77,17 @@ export async function realitySwitchFlow(ctx: FlowContext): Promise<void> {
   browser.eval(`window.__sportaE2eMarker = ${JSON.stringify(marker)}; 'set'`);
   const switchNoticeBefore = browser.count(".switcher-notice");
 
-  browser.clickText(target);
+  // Click the exact switcher option (renderer ids appear elsewhere on the
+  // page too — provenance, tabs — so the text search would be ambiguous).
+  const clicked = browser.clickWhere(
+    ".switcher-option",
+    `(this.querySelector('.switcher-name') || {textContent: ''}).textContent.trim() === ${JSON.stringify(target)}`,
+  );
+  assert(
+    "the target renderer's switcher option was clicked",
+    clicked === 1,
+    `switcher options matching ${target}: ${clicked}`,
+  );
   const switched = await browser.waitForSelector(
     `.player-surface[data-renderer='${target}']`,
     20_000,

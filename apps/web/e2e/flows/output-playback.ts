@@ -74,7 +74,18 @@ export async function outputPlaybackFlow(ctx: FlowContext): Promise<void> {
   const beforeSeek = browser.attr("#player-seek", "aria-valuetext");
   const markerCount = browser.count(".marker-jump");
   assert("event markers offer frame jumps", markerCount >= 1, `marker-jump count=${markerCount}`);
-  browser.click(".marker-jump");
+  // Jump to a marker that targets a DIFFERENT frame than the playhead's —
+  // the first marker may well sit on the current frame (both frame 1).
+  const currentFrame = Number.parseInt(beforeSeek.match(/frame (\d+) of/)?.[1] ?? "0", 10);
+  const jumped = browser.clickWhere(
+    ".marker-jump",
+    `!this.textContent.includes(${JSON.stringify(`frame ${currentFrame} ·`)})`,
+  );
+  assert(
+    "a marker targeting a different frame exists to jump to",
+    jumped >= 1,
+    `markers off frame ${currentFrame}: ${jumped}`,
+  );
   const moved = await browser.waitForJs(
     `(function(){const el=document.querySelector('#player-seek');const stage=document.querySelector('.player-stage[role=img]');return el !== null && stage !== null && el.getAttribute('aria-valuetext') !== ${JSON.stringify(beforeSeek)} && stage.getAttribute('aria-label') !== ${JSON.stringify(before)};})()`,
     10_000,

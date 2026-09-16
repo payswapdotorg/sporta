@@ -27,6 +27,14 @@ async function openAccountMenu(ctx: FlowContext): Promise<string[]> {
   );
 }
 
+/** Clicks one role option in the open account menu (exact label match). */
+function clickRoleOption(ctx: FlowContext, label: string): number {
+  return ctx.browser.clickWhere(
+    ".role-option",
+    `(this.querySelector('.role-option-name') || {textContent: ''}).textContent.replace(/\\s*\\(current\\)\\s*$/, '').trim() === ${JSON.stringify(label)}`,
+  );
+}
+
 export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
   const { recorder, browser, baseUrl } = ctx;
   const { assert } = recorder;
@@ -50,7 +58,12 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
   );
 
   // Switch to Creator → the nav narrows to the creator workspace.
-  browser.clickText("Creator");
+  const creatorClicked = clickRoleOption(ctx, "Creator");
+  assert(
+    "the Creator role option was clicked (exactly one)",
+    creatorClicked === 1,
+    `role options matching Creator: ${creatorClicked}`,
+  );
   const roleLine = await browser.waitForJs(
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Creator');})()`,
     15_000,
@@ -83,7 +96,7 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
 
   // Switch to Viewer → the nav narrows to the viewer workspace.
   await openAccountMenu(ctx);
-  browser.clickText("Viewer");
+  clickRoleOption(ctx, "Viewer");
   const viewerLine = await browser.waitForJs(
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Viewer');})()`,
     15_000,
@@ -131,7 +144,7 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
   );
 
   // Switch to Operator → the operator workspace nav + a REAL console page.
-  browser.clickText("Operator / Admin");
+  clickRoleOption(ctx, "Operator / Admin");
   const operatorLine = await browser.waitForJs(
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Operator');})()`,
     15_000,
@@ -160,7 +173,7 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
 
   // Switch to Rights Holder → the rights workspace nav.
   await openAccountMenu(ctx);
-  browser.clickText("Rights Holder");
+  clickRoleOption(ctx, "Rights Holder");
   const rightsLine = await browser.waitForJs(
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Rights');})()`,
     15_000,
