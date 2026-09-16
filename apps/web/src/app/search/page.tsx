@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { SearchSurface } from "@/components/search-surface";
 
 export const metadata: Metadata = {
   title: "Search",
 };
 
 /**
- * Search (W903). The query in the URL is the user's own input, so echoing
- * it is honest; results themselves wait for the catalog (W904).
+ * Search (W903 shell → W908 REAL): the query in the URL is the user's own
+ * input; W908 wires it to the real W916 catalog search
+ * (GET /api/catalog/search) with the honest state derivations — the zero-match
+ * answer is a result, a degraded listing stays degraded, and nothing is
+ * suggested or auto-completed (no recommendation plane exists).
  */
 export default async function SearchPage({
   searchParams,
@@ -38,7 +41,7 @@ export default async function SearchPage({
         </p>
       ) : null}
       <div className="surface-stack">
-        <DeferredSurface surface="search" />
+        <SearchSurface query={hasQuery ? query : null} />
       </div>
     </>
   );

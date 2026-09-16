@@ -188,7 +188,14 @@ export interface StudioSessionState {
     hasStoredOutputs: boolean;
     rendererHealth: { lagMs: number; degraded: boolean; degradationReason?: string };
   }[];
-  jobs: { jobId: string }[];
+  /**
+   * The session's studio-dispatched compute jobs, each with its LIVE state and
+   * the renderer the dispatch named (recorded at dispatch; `null` when the
+   * dispatch record is gone — never invented). W908: this is the watch
+   * surface's `processing` source. A state of `unreadable` means the compute
+   * read refused — the honest boundary, never a guessed state.
+   */
+  jobs: { jobId: string; state: string; rendererId: string | null }[];
 }
 
 /** The dispatch answer (POST /api/create/sessions/[sessionId]/renders). */
@@ -687,8 +694,30 @@ export class CreateStudioService {
       rightsCapabilities,
       visibility: this.publication.visibilityOf(sessionId),
       renders: renderViews,
-      jobs: (this.jobsBySession.get(sessionId) ?? []).map((jobId) => ({ jobId })),
+      jobs: await Promise.all(
+        (this.jobsBySession.get(sessionId) ?? []).map(async (jobId) => ({
+          jobId,
+          state: await this.jobComputeStateOf(sessionId, jobId),
+          rendererId: this.dispatchesByJob.get(jobId)?.rendererId ?? null,
+        })),
+      ),
     };
+  }
+
+  /**
+   * One studio job's live compute state for the session-state view — the
+   * control plane's own projection. An unreadable job (unknown to the compute
+   * plane, or the compute read refused) reports the honest `unreadable`
+   * marker instead of a guessed state; the watch surface treats `unreadable`
+   * as NOT in flight (fail-closed: processing is claimed only on evidence).
+   */
+  private async jobComputeStateOf(sessionId: string, jobId: string): Promise<string> {
+    try {
+      const job = await this.getServer().control.getComputeJob(sessionId, jobId);
+      return job.state;
+    } catch {
+      return "unreadable";
+    }
   }
 
   /**

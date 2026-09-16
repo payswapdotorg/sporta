@@ -49,7 +49,14 @@ export interface CapabilityLike {
     batch: { availability: "available" | "degraded" | "unavailable"; reasonCode: string };
   };
   quotas: unknown[];
-  providers: { kind: string; health: string; reasonCode: string; detail?: string }[];
+  providers: {
+    kind: string;
+    health: string;
+    reasonCode: string;
+    detail?: string;
+    /** What the provider's degraded state means for viewers (W901 fixture shape). */
+    degradedMeaning?: string;
+  }[];
   content: {
     catalogSurfaces: {
       surfaceId: string;
@@ -102,6 +109,19 @@ export interface CatalogViewerLike {
   state: "anonymous" | "authenticated";
   userId: string | null;
   grants: readonly string[];
+}
+
+/** One search result: the card plus which real fields matched (W916). */
+export type SearchMatchLike = SessionCardLike & { matchedOn: readonly string[] };
+
+/** The /api/catalog/search answer (W916 — the Search surface's data layer). */
+export interface SearchResponseLike {
+  catalogSchemaVersion: string;
+  viewer: CatalogViewerLike;
+  query: { q?: string; status?: string; renderer?: string; rights?: string };
+  matches: SearchMatchLike[];
+  /** The honest degraded report when the listing skipped terminated sessions. */
+  degraded?: { reasonCode: string; skippedSessions: number } | null;
 }
 
 /** One match entry in the reality-grouped catalog view (/api/catalog/realities). */
@@ -328,7 +348,14 @@ export interface StudioSessionStateLike {
     hasStoredOutputs: boolean;
     rendererHealth: { lagMs: number; degraded: boolean; degradationReason?: string };
   }[];
-  jobs: { jobId: string }[];
+  /**
+   * The session's studio-dispatched compute jobs with their LIVE state and
+   * the renderer the dispatch named (recorded at dispatch). This is the
+   * W908 processing source: an in-flight job means the watch surface shows
+   * `processing` for that renderer — never a spinner pretending nothing is
+   * happening.
+   */
+  jobs: { jobId: string; state: string; rendererId: string | null }[];
 }
 
 /** The dispatch answer (POST /api/create/sessions/[sessionId]/renders). */

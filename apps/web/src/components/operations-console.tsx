@@ -23,6 +23,7 @@ import {
   retryOperationsJob,
 } from "@/lib/client-api";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
+import { deriveReauthState } from "@/lib/surface-state";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -50,29 +51,36 @@ export function OperationsConsole() {
   const [actionPending, setActionPending] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
+    // Every failure records its HTTP status so a mid-session 401 (W908) can
+    // render the honest re-auth state instead of a generic failure.
+    const failOf =
+      (set: (state: { phase: "failed"; error: string; status?: number }) => void) =>
+      (error: unknown) =>
+        set({
+          phase: "failed",
+          error: String(error),
+          status: error instanceof ApiError ? error.status : undefined,
+        });
     void fetchCapability().then(
       (data) => setCapability({ phase: "ready", data }),
-      (error) => setCapability({ phase: "failed", error: String(error) }),
+      failOf(setCapability),
     );
     void fetchOperationsHealth().then(
       (data) => setHealth({ phase: "ready", data }),
-      (error) => setHealth({ phase: "failed", error: String(error) }),
+      failOf(setHealth),
     );
     void fetchOperationsQueues().then(
       (data) => setQueues({ phase: "ready", data }),
-      (error) => setQueues({ phase: "failed", error: String(error) }),
+      failOf(setQueues),
     );
     void fetchOperationsProviders().then(
       (data) => setProviders({ phase: "ready", data }),
-      (error) => setProviders({ phase: "failed", error: String(error) }),
+      failOf(setProviders),
     );
-    void fetchOperationsJobs().then(
-      (data) => setJobs({ phase: "ready", data }),
-      (error) => setJobs({ phase: "failed", error: String(error) }),
-    );
+    void fetchOperationsJobs().then((data) => setJobs({ phase: "ready", data }), failOf(setJobs));
     void fetchOperationsAudit().then(
       (data) => setAudit({ phase: "ready", data }),
-      (error) => setAudit({ phase: "failed", error: String(error) }),
+      failOf(setAudit),
     );
   }, []);
 
@@ -600,7 +608,23 @@ function AuditPanel({ state }: { state: FetchState<OperationsAuditLike> }) {
   );
 }
 
-function failedPanel(title: string, state: { phase: "failed"; error: string }) {
+function failedPanel(title: string, state: { phase: "failed"; error: string; status?: number }) {
+  // A 401 after the session was established = the session expired or was
+  // revoked mid-session (W908): the honest state is denied + re-auth with the
+  // sign-in action — never a generic failure page, never a retry loop.
+  if (state.status === 401) {
+    const verdict = deriveReauthState(state.error);
+    return (
+      <div className="surface-stack">
+        <StatePanel state={verdict.state} title="Your session ended" reason={verdict.reason} />
+        <p className="library-signin-hint">
+          <Link className="button-primary" href={ROUTES.signin}>
+            Sign in again
+          </Link>
+        </p>
+      </div>
+    );
+  }
   // The error string carries the typed failure (an operator-gate refusal
   // includes the real permission-denied class from the API body).
   return <StatePanel state="failed" title={title} reason={state.error} />;
