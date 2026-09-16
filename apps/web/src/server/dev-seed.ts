@@ -30,6 +30,7 @@ import {
 import type { AnimeRenderOutput } from "@sporta/renderer-anime";
 import { AccountConflictError } from "@sporta/identity";
 import type { Account, EntropySource } from "@sporta/identity";
+import type { Role } from "@sporta/capability";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import { drawSeedPassword } from "./auth-service";
 import type { SportaServer } from "./composition";
@@ -101,8 +102,67 @@ const SEED_PLAN: readonly SeedPlan[] = [
   },
 ];
 
-/** The dev-seed account (roles: the creator + viewer baseline). */
+/** The dev-seed account (roles: the full grant set — see SEED_ACCOUNT_ROLES). */
 const SEED_ACCOUNT_USERNAME = "sporta-dev-seed";
+
+/**
+ * The dev-seed account's grants (W907): the full five-role set, granted
+ * through the REAL store — the platform's own content owner may hold every
+ * workspace. Roles are grants, never authority: each action is still decided
+ * per request by the identity policy (the seed creates with its creator
+ * grant, reads its sessions as their owner, and would pass operator checks
+ * only because it holds the operator grant).
+ */
+const SEED_ACCOUNT_ROLES: readonly Role[] = [
+  "viewer",
+  "creator",
+  "analyst",
+  "rights-holder",
+  "operator",
+];
+
+/** The W907 multi-role demo account — ONE identity, all five workspaces. */
+const DEMO_ACCOUNT_USERNAME = "sporta-demo";
+
+/**
+ * The demo account's sign-in path. By default the password is drawn from
+ * REAL entropy and discarded — the account exists (its grants are real
+ * store records) but is NOT signable-into. When an operator consciously
+ * sets `SPORTA_DEMO_ACCOUNT_PASSWORD` (local testing / a labeled dev
+ * preview), that exact password is used instead — the operator-granted
+ * provisioning path the W906 audit identified: operators are minted via
+ * the store, never self-registration.
+ */
+function demoPassword(entropy: EntropySource): string {
+  const configured = process.env.SPORTA_DEMO_ACCOUNT_PASSWORD;
+  if (configured !== undefined && configured.length >= 10) return configured;
+  return drawSeedPassword(entropy);
+}
+
+/** Creates (or re-grants) a seeded account with EXACTLY the given roles. */
+async function ensureSeededAccount(
+  server: SportaServer,
+  username: string,
+  password: string,
+  roles: readonly Role[],
+): Promise<Account> {
+  try {
+    return await server.auth.createSeedAccount({ username, password, roles });
+  } catch (err) {
+    if (!(err instanceof AccountConflictError)) throw err;
+    const existing = await server.accounts.findByUsername(username);
+    if (existing === null) throw err;
+    // A persisted re-seed (W911) reconciles the grants through the REAL
+    // store's update path — grants may change, the credentials never do.
+    const wanted = [...new Set(roles)].sort().join(",");
+    const current = [...new Set(existing.roles)].sort().join(",");
+    if (wanted !== current) {
+      await server.accounts.update({ ...existing, roles: [...new Set(roles)] });
+      return { ...existing, roles: [...new Set(roles)] };
+    }
+    return existing;
+  }
+}
 
 /**
  * Runs the dev seed. Every session is created through the REAL gate, every
@@ -111,6 +171,7 @@ const SEED_ACCOUNT_USERNAME = "sporta-dev-seed";
  */
 export async function seedDevContent(options: SeedOptions): Promise<{
   seedAccountUsername: string;
+  demoAccountUsername: string;
   sessions: {
     sessionId: string;
     storyKey: string;
@@ -125,20 +186,26 @@ export async function seedDevContent(options: SeedOptions): Promise<{
   //    W911: with the Neon-backed account store the username PERSISTS, so a
   //    later cold start re-seeding the same deployment reuses the existing
   //    row (its password is random each run and never signable-into anyway —
-  //    the dev content stays owned by the platform's seed account).
-  let seedAccount: Account;
-  try {
-    seedAccount = await server.auth.createSeedAccount({
-      username: SEED_ACCOUNT_USERNAME,
-      password: drawSeedPassword(entropy),
-      roles: ["creator", "viewer"],
-    });
-  } catch (err) {
-    if (!(err instanceof AccountConflictError)) throw err;
-    const existing = await server.accounts.findByUsername(SEED_ACCOUNT_USERNAME);
-    if (existing === null) throw err;
-    seedAccount = existing;
-  }
+  //    the dev content stays owned by the platform's seed account). W907:
+  //    the seed account holds the FULL grant set (see SEED_ACCOUNT_ROLES),
+  //    reconciled through the store's update path on re-seed.
+  const seedAccount = await ensureSeededAccount(
+    server,
+    SEED_ACCOUNT_USERNAME,
+    drawSeedPassword(entropy),
+    SEED_ACCOUNT_ROLES,
+  );
+
+  // 1b. The W907 multi-role demo account — ONE identity holding all five
+  //     grants (the role workspaces are coherent and switchable from it),
+  //     minted through the REAL store. Not signable-into unless an operator
+  //     consciously sets SPORTA_DEMO_ACCOUNT_PASSWORD (see demoPassword).
+  await ensureSeededAccount(
+    server,
+    DEMO_ACCOUNT_USERNAME,
+    demoPassword(entropy),
+    SEED_ACCOUNT_ROLES,
+  );
 
   // 2. A session token for the gate (the seed acts as its verified identity).
   const login = await server.auth.issueSession({ userId: seedAccount.userId });
@@ -297,5 +364,9 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     summary.push({ sessionId, storyKey: plan.story.key, renderIds, storedSegmentIds });
   }
 
-  return { seedAccountUsername: SEED_ACCOUNT_USERNAME, sessions: summary };
+  return {
+    seedAccountUsername: SEED_ACCOUNT_USERNAME,
+    demoAccountUsername: DEMO_ACCOUNT_USERNAME,
+    sessions: summary,
+  };
 }

@@ -387,3 +387,84 @@ export interface StudioPublicationLike {
   sessionId: string;
   visibility: "public" | "private";
 }
+
+// ---------------------------------------------------------------------------
+// W907 — the role-workspace documents
+// ---------------------------------------------------------------------------
+
+/** One rights-policy record in the Rights Center (/api/rights/center). */
+export interface RightsCenterEntryLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  policyId: string;
+  rightsCapabilities: {
+    canReferenceSourceFrames: boolean;
+    canDeliverLive: boolean;
+    canStoreDerivatives: boolean;
+    canShare: boolean;
+  };
+  visibility: "public" | "private";
+  access: "owned" | "operator";
+}
+
+/** The Rights Center document (/api/rights/center answer). */
+export interface RightsCenterLike {
+  scope: "owned" | "operator";
+  entries: RightsCenterEntryLike[];
+  note: string;
+}
+
+/** One job row in the Jobs workspace (/api/workspaces/jobs). */
+export interface WorkspaceJobRowLike {
+  sessionId: string;
+  jobId: string;
+  state: string;
+  progressFraction?: number;
+  ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
+  completion?: {
+    status: "succeeded" | "failed" | "cancelled";
+    failureMessage?: string;
+    executionMs: number;
+    usage: { unitId: string; quantity: number }[];
+  };
+}
+
+/** One session's job group in the Jobs workspace. */
+export interface WorkspaceJobsSessionLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  jobs: WorkspaceJobRowLike[];
+}
+
+/** The Jobs workspace document (/api/workspaces/jobs answer). */
+export interface JobsOverviewLike {
+  scope: "owned" | "operator";
+  sessions: WorkspaceJobsSessionLike[];
+}
+
+/** The pending-work document (/api/workspaces/pending-work answer). */
+export interface PendingWorkLike {
+  /** Only roles the account holds — absent roles carry no badge (honest). */
+  roles: Partial<Record<string, { label: string; count: number }>>;
+}
+
+/** The Operations document (/api/operations answer, operator-only). */
+export interface OperationsLike {
+  health: {
+    env: string;
+    deployMarker: string | null;
+    providers: Record<
+      string,
+      { provider: string; configured: boolean; check: { state: string; detail?: string } }
+    >;
+    usageGuardrails: { note: string; storeLimits: Record<string, number> };
+    renderQueue: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
+  };
+  compute: { provider: string; adapterId: string } | null;
+  queues: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
+  live: { state: "unavailable" | "active"; detail: string; servingSources: number };
+  failedJobs: { sessionId: string; jobId: string; state: string; failureMessage?: string }[];
+}

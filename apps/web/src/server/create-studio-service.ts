@@ -250,6 +250,31 @@ export interface StudioPublicationView {
   visibility: SessionVisibility;
 }
 
+/** One job row for the Jobs workspace surfaces (W907). */
+export interface StudioJobRow {
+  sessionId: string;
+  jobId: string;
+  /** The job's REAL compute state (admitted/dispatched/queued/in-flight/…). */
+  state: string;
+  /** The last real progress fraction on the event trail, when one exists. */
+  progressFraction?: number;
+  ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
+  completion?: {
+    status: "succeeded" | "failed" | "cancelled";
+    failureMessage?: string;
+    executionMs: number;
+    usage: { unitId: string; quantity: number }[];
+  };
+}
+
+/** One session's jobs with its header (the Jobs workspace row group). */
+export interface StudioSessionJobs {
+  sessionId: string;
+  label: string;
+  status: string;
+  jobs: StudioJobRow[];
+}
+
 // ---------------------------------------------------------------------------
 // The service
 // ---------------------------------------------------------------------------
@@ -803,6 +828,53 @@ export class CreateStudioService {
       };
     }
     return view;
+  }
+
+  /**
+   * Lists the session's dispatched jobs with their REAL compute state
+   * (W907 — the Jobs workspace surfaces). Owner/operator gated through the
+   * same identity policy as every studio read: a non-owner's denial is
+   * uniform whether or not the session exists.
+   */
+  async sessionJobs(token: string, sessionId: string): Promise<StudioSessionJobs> {
+    const server = this.getServer();
+    await this.requireSessionAccess(token, sessionId);
+    const { session } = await server.control.getSession(sessionId);
+    const { sessions } = await server.control.listSessions();
+    const label = sessions.find((entry) => entry.id === sessionId)?.sourceLabel ?? sessionId;
+    const rows: StudioJobRow[] = [];
+    for (const jobId of this.jobsBySession.get(sessionId) ?? []) {
+      const job = await server.control.getComputeJob(sessionId, jobId);
+      let progressFraction: number | undefined;
+      for (const event of job.events) {
+        if (event.type === "progress" && event.fraction !== undefined) {
+          progressFraction = event.fraction;
+        }
+      }
+      rows.push({
+        sessionId,
+        jobId: job.jobId,
+        state: job.state,
+        ...(progressFraction !== undefined ? { progressFraction } : {}),
+        ingest: job.ingest,
+        ...(job.completion !== undefined
+          ? {
+              completion: {
+                status: job.completion.status,
+                ...(job.completion.failure !== undefined
+                  ? { failureMessage: job.completion.failure.message }
+                  : {}),
+                executionMs: job.completion.timing.executionMs,
+                usage: job.completion.usage.costUnits.map((unit) => ({
+                  unitId: unit.unitId,
+                  quantity: unit.quantity,
+                })),
+              },
+            }
+          : {}),
+      });
+    }
+    return { sessionId, label, status: session.status, jobs: rows };
   }
 
   /** Publishes or privatizes a session (the real visibility flag). */

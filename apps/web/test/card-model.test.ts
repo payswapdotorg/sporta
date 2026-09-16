@@ -68,8 +68,20 @@ describe("the dev seed (honesty absolute)", () => {
   test("the seed account is not signable-into (password drawn + discarded)", async () => {
     const account = await server.accounts.findByUsername("sporta-dev-seed");
     expect(account).not.toBeNull();
-    // The seed account holds creator + viewer grants only.
-    expect([...account!.roles].sort()).toEqual(["creator", "viewer"]);
+    // W907: the seed account holds the FULL grant set (the platform's own
+    // content owner may hold every workspace — roles are grants, not
+    // authority; its password is still entropy-drawn and discarded).
+    expect([...account!.roles].sort()).toEqual([
+      "analyst",
+      "creator",
+      "operator",
+      "rights-holder",
+      "viewer",
+    ]);
+    // The W907 multi-role demo account exists with the same real grants.
+    const demo = await server.accounts.findByUsername("sporta-demo");
+    expect(demo).not.toBeNull();
+    expect([...demo!.roles].sort()).toEqual([...account!.roles].sort());
   });
 
   test("seedDevContent returns the real summary it produced", async () => {
@@ -87,6 +99,7 @@ describe("the dev seed (honesty absolute)", () => {
       entropy: { randomBytes: (n: number) => new Uint8Array(n) },
     });
     expect(summary.seedAccountUsername).toBe("sporta-dev-seed");
+    expect(summary.demoAccountUsername).toBe("sporta-demo");
     expect(summary.sessions).toHaveLength(3);
     expect(summary.sessions.map((entry) => entry.storyKey).sort()).toEqual([
       "derby",

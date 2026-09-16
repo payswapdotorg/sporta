@@ -8,7 +8,7 @@
  * role/profile area`).
  */
 
-/** Every route the product shell owns at W903. */
+/** Every route the product shell owns (W903 + the W907 role workspaces). */
 export const ROUTES = {
   home: "/",
   live: "/live",
@@ -18,6 +18,13 @@ export const ROUTES = {
   following: "/following",
   create: "/create",
   watch: "/watch",
+  matchlab: "/matchlab",
+  clips: "/clips",
+  notes: "/notes",
+  rights: "/rights",
+  operations: "/operations",
+  jobs: "/jobs",
+  audit: "/audit",
   signin: "/auth/signin",
   offline: "/offline",
 } as const;
@@ -35,7 +42,22 @@ export function isRoutePath(path: string): path is RoutePath {
 
 /** Icon vocabulary — one glyph per destination, rendered by <NavIcon />. */
 export type NavIcon =
-  "home" | "live" | "explore" | "library" | "following" | "create" | "search" | "watch" | "signin";
+  | "home"
+  | "live"
+  | "explore"
+  | "library"
+  | "following"
+  | "create"
+  | "search"
+  | "watch"
+  | "signin"
+  | "matchlab"
+  | "clips"
+  | "notes"
+  | "rights"
+  | "operations"
+  | "jobs"
+  | "audit";
 
 /** One primary navigation destination. */
 export type NavItem = {
