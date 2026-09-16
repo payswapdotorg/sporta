@@ -85,6 +85,18 @@ export interface WatchRenderLike {
   outputs: { segmentId: string; contentType: string; byteLength: number; contentHash: string }[];
 }
 
+/** One entry of the session's real SWM event tail (world-model events). */
+export interface WatchEventTailLike {
+  sequence: number;
+  eventId: string;
+  /** The event's real time on the session (match) timeline. */
+  eventTimeMs: number;
+  /** The taxonomy reference (e.g. `football/v1/pass`). */
+  eventTypeRef: string;
+  /** The event's real confidence, when the envelope carries one. */
+  confidence?: number;
+}
+
 /** The watch model (the /api/watch/[sessionId] answer). */
 export interface WatchModelLike {
   sessionId: string;
@@ -93,6 +105,8 @@ export interface WatchModelLike {
   createdAtIso: string;
   playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
   renders: WatchRenderLike[] | null;
+  /** The session's real SWM event tail (`null` when playback is denied). */
+  eventTail: WatchEventTailLike[] | null;
   story: {
     source: "dev-seed";
     storyKey: string;
@@ -166,6 +180,22 @@ export interface AccountViewLike {
   roles: string[];
   createdAtIso: string;
   activeRole: string | null;
+}
+
+/** The Reality Switcher surface (/api/watch/[sessionId]/realities answer). */
+export interface RealityOptionsLike {
+  /** The match session (constant across every switch — Simulation G). */
+  sessionId: string;
+  /** The per-renderer availability for THIS session, with real reasons. */
+  options: {
+    rendererId: string;
+    rendererVersion?: string;
+    rendererClass?: string;
+    state: "ready" | "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
+    reason: string;
+    renderId?: string;
+    segmentId?: string;
+  }[];
 }
 
 /** The API error body. */

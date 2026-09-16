@@ -84,6 +84,8 @@ export interface SportaServer {
   accounts: AccountStore;
   /** Dev-seed story metadata by session id (the honest "story" data). */
   storyIndex: ReadonlyMap<string, SeedStoryMeta>;
+  /** The session-scoped SWM engines the control plane's factory hands out. */
+  engines: ReadonlyMap<string, WorldModelEngineInstance>;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -150,6 +152,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     ownership,
     accounts,
     storyIndex,
+    engines,
     nowMs,
     ready: Promise.resolve(),
   };

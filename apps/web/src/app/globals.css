@@ -1680,6 +1680,169 @@ svg {
 }
 
 /* ------------------------------------------------------------------ */
+/* W905 — the watch frame player + tabs                                 */
+/* ------------------------------------------------------------------ */
+
+.player-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
+}
+
+.player-toggle {
+  min-width: 88px;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 800;
+}
+
+.player-clock {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-clock-time {
+  font-weight: 700;
+}
+
+.player-clock-frame {
+  color: var(--text-faint);
+  font-size: 0.82rem;
+}
+
+.player-rate {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--bg-inset);
+}
+
+.player-rate-option {
+  border: 0;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
+.player-rate-option.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.player-scrub {
+  display: grid;
+  gap: 8px;
+}
+
+.player-seek {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.player-track .timeline-frame.current {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.player-markers {
+  display: grid;
+  gap: 6px;
+}
+
+.marker-jump {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 4px 10px;
+  text-align: left;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.marker-jump:hover {
+  border-color: var(--accent);
+}
+
+.marker-unplaced {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--radius-sm);
+  opacity: 0.8;
+}
+
+.player-frame-facts {
+  margin: 0;
+}
+
+.frame-entities {
+  display: grid;
+  gap: 8px;
+}
+
+.provenance-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.switcher-notice {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-size: 0.85rem;
+}
+
+.watch-tabs {
+  display: grid;
+  gap: 0;
+}
+
+.watch-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 2px solid var(--surface-border);
+}
+
+.watch-tab {
+  border: 0;
+  background: transparent;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: var(--text-faint);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.watch-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.watch-tabpanel {
+  padding: 18px 4px 4px;
+  display: grid;
+  gap: 12px;
+}
+
+
+/* ------------------------------------------------------------------ */
 /* Breakpoints                                                          */
 /* ------------------------------------------------------------------ */
 

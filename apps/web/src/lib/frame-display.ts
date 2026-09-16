@@ -25,6 +25,8 @@
  *   (`appliedEventSequences` — the render's own provenance record).
  */
 
+import type { WatchEventTailLike } from "./api-types";
+
 /** One real frame window on the artifact's document timeline. */
 export interface FrameWindow {
   frameIndex: number;
@@ -41,14 +43,7 @@ export interface FramePlayerModel {
 }
 
 /** One entry of the session's real SWM event tail (world-model events). */
-export interface EventTailEntry {
-  sequence: number;
-  eventId: string;
-  /** The event's real time on the SESSION (match) timeline. */
-  eventTimeMs: number;
-  eventTypeRef: string;
-  confidence: number;
-}
+export type EventTailEntry = WatchEventTailLike;
 
 /** The player's state (playhead + transport). */
 export interface FramePlayerState {
@@ -241,7 +236,7 @@ export interface EventMarker {
   eventId: string;
   eventTimeMs: number;
   eventTypeRef: string;
-  confidence: number;
+  confidence?: number;
   /** The frame the render applied this event to (`null` when none did). */
   frameIndex: number | null;
   /** Marker position on the document timeline (the applied frame's begin). */
