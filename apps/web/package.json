@@ -16,6 +16,7 @@
     "@sporta/capability": "workspace:*",
     "@sporta/commentary-segmentation": "workspace:*",
     "@sporta/commentary-understanding": "workspace:*",
+    "@sporta/compute-adapter": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/control-api": "workspace:*",
     "@sporta/field-mapping": "workspace:*",

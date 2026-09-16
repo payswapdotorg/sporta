@@ -10,7 +10,15 @@ import type {
   CapabilityLike,
   RealityOptionsLike,
   RenderOutputLike,
+  RightsPreviewLike,
   SessionCardLike,
+  StudioDispatchLike,
+  StudioJobLike,
+  StudioOptionsLike,
+  StudioOutputProfileLike,
+  StudioPublicationLike,
+  StudioSessionLike,
+  StudioSessionStateLike,
   WatchModelLike,
 } from "./api-types";
 
@@ -144,5 +152,83 @@ export function fetchRenderOutput(
 ): Promise<RenderOutputLike> {
   return getJson<RenderOutputLike>(
     `/api/watch/${encodeURIComponent(sessionId)}/renders/${encodeURIComponent(renderId)}/outputs/${encodeURIComponent(segmentId)}`,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// W906 — the Create Studio (/api/create/*)
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /api/create/options — null when unauthenticated (401 is the
+ * authentication-required state, not a failure; the UI shows sign-in).
+ */
+export async function fetchCreateOptions(): Promise<StudioOptionsLike | null> {
+  try {
+    return await getJson<StudioOptionsLike>("/api/create/options");
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) return null;
+    throw err;
+  }
+}
+
+/** POST /api/create/rights-preview — what a declaration really permits. */
+export function previewRights(declaration: {
+  operations: string[];
+  expiresAtIso?: string;
+  storageDurationDays?: number;
+  sharingScope?: string;
+}): Promise<RightsPreviewLike> {
+  return postJson<RightsPreviewLike>("/api/create/rights-preview", declaration);
+}
+
+/** POST /api/create/sessions — create a session under the declaration. */
+export function createStudioSession(input: {
+  sourceKey: string;
+  operations: string[];
+  expiresAtIso?: string;
+  storageDurationDays?: number;
+  sharingScope?: string;
+  label?: string;
+}): Promise<StudioSessionLike> {
+  return postJson<StudioSessionLike>("/api/create/sessions", input);
+}
+
+/** GET /api/create/sessions/[sessionId] — the studio session state. */
+export function fetchStudioSession(sessionId: string): Promise<StudioSessionStateLike> {
+  return getJson<StudioSessionStateLike>(`/api/create/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+/** POST /api/create/sessions/[sessionId]/renders — dispatch a real render. */
+export function dispatchStudioRender(
+  sessionId: string,
+  input: {
+    rendererId: string;
+    rendererVersion?: string;
+    styleId?: string;
+    outputProfile?: StudioOutputProfileLike;
+  },
+): Promise<StudioDispatchLike> {
+  return postJson<StudioDispatchLike>(
+    `/api/create/sessions/${encodeURIComponent(sessionId)}/renders`,
+    input,
+  );
+}
+
+/** GET /api/create/sessions/[sessionId]/jobs/[jobId] — poll job progress. */
+export function fetchStudioJob(sessionId: string, jobId: string): Promise<StudioJobLike> {
+  return getJson<StudioJobLike>(
+    `/api/create/sessions/${encodeURIComponent(sessionId)}/jobs/${encodeURIComponent(jobId)}`,
+  );
+}
+
+/** POST /api/create/sessions/[sessionId]/publication — publish or privatize. */
+export function setStudioPublication(
+  sessionId: string,
+  visibility: "public" | "private",
+): Promise<StudioPublicationLike> {
+  return postJson<StudioPublicationLike>(
+    `/api/create/sessions/${encodeURIComponent(sessionId)}/publication`,
+    { visibility },
   );
 }

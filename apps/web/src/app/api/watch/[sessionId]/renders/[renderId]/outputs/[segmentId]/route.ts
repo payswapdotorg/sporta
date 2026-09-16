@@ -1,4 +1,5 @@
 import { getSportaServer } from "@/server/runtime";
+import { assertWatchable } from "@/server/catalog-service";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
 import {
   fetchSegmentDocumentViaPresignedUrl,
@@ -31,7 +32,7 @@ export const dynamic = "force-dynamic";
  * would claim R2 persistence while serving other bytes.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   context: {
     params: Promise<{ sessionId: string; renderId: string; segmentId: string }>;
   },
@@ -40,6 +41,7 @@ export async function GET(
     const server = await getSportaServer();
     await server.ready;
     const { sessionId, renderId, segmentId } = await context.params;
+    await assertWatchable(server, request, sessionId);
     const document = await server.control.getRenderOutput(sessionId, renderId, segmentId);
     if (server.artifacts !== null) {
       try {

@@ -37,6 +37,7 @@
         "@sporta/capability": "workspace:*",
         "@sporta/commentary-segmentation": "workspace:*",
         "@sporta/commentary-understanding": "workspace:*",
+        "@sporta/compute-adapter": "workspace:*",
         "@sporta/compute-adapter-hosted": "workspace:*",
         "@sporta/contracts": "workspace:*",
         "@sporta/control-api": "workspace:*",

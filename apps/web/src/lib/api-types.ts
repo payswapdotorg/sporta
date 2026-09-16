@@ -204,3 +204,144 @@ export interface RealityOptionsLike {
 export interface ApiErrorBodyLike {
   error: { failureClass: string; message: string; details?: Record<string, unknown> };
 }
+
+// ---------------------------------------------------------------------------
+// W906 — the Create Studio (/api/create/* answers)
+// ---------------------------------------------------------------------------
+
+/** One authorized source (a real fixture story the engine chain runs). */
+export interface StudioSourceLike {
+  key: string;
+  label: string;
+  description: string;
+  camera: { pan: number; zoom: number; jitter: number };
+  commentary: { startMs: number; endMs: number; text: string }[];
+  lexicon: { players: string[]; teams: string[] };
+}
+
+/** One real output profile a renderer supports. */
+export interface StudioOutputProfileLike {
+  resolution: { w: number; h: number };
+  frameRate: number;
+  codec: string;
+  container: string;
+  latencyClass: "offline" | "near-live" | "live";
+}
+
+/** One selectable renderer (from the real registry, honestly annotated). */
+export interface StudioRendererLike {
+  rendererId: string;
+  rendererVersion: string;
+  rendererClass: string;
+  requiresSourceFrames: boolean;
+  supportedOutputProfiles: StudioOutputProfileLike[];
+  artifactHandoff: { supported: boolean; reason: string };
+}
+
+/** The studio's opening document (GET /api/create/options). */
+export interface StudioOptionsLike {
+  sources: StudioSourceLike[];
+  renderers: StudioRendererLike[];
+  rights: {
+    operations: { id: string; label: string; description: string }[];
+    sharingScopes: { id: "private" | "operator-authorized"; label: string }[];
+  };
+  upload: { available: false; reason: string };
+  compute: { provider: string; adapterId: string } | null;
+}
+
+/** What a rights declaration really permits (POST /api/create/rights-preview). */
+export interface RightsPreviewLike {
+  capabilities: {
+    canReferenceSourceFrames: boolean;
+    canDeliverLive: boolean;
+    canStoreDerivatives: boolean;
+    canShare: boolean;
+  };
+  sessionCreation: { allowed: boolean; reason: string };
+  effects: { capability: string; allowed: boolean; effect: string }[];
+}
+
+/** The created studio session (POST /api/create/sessions). */
+export interface StudioSessionLike {
+  sessionId: string;
+  source: StudioSourceLike;
+  rightsCapabilities: RightsPreviewLike["capabilities"];
+  visibility: "public" | "private";
+  story: { eventCount: number; waveCount: number };
+}
+
+/** The studio's session state (GET /api/create/sessions/[sessionId]). */
+export interface StudioSessionStateLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  rightsCapabilities: RightsPreviewLike["capabilities"];
+  visibility: "public" | "private";
+  renders: {
+    renderId: string;
+    rendererId: string;
+    segmentCount: number;
+    hasStoredOutputs: boolean;
+    rendererHealth: { lagMs: number; degraded: boolean; degradationReason?: string };
+  }[];
+  jobs: { jobId: string }[];
+}
+
+/** The dispatch answer (POST /api/create/sessions/[sessionId]/renders). */
+export interface StudioDispatchLike {
+  disposition: "admitted" | "duplicate";
+  jobId: string;
+  idempotencyKey: string;
+  sessionId: string;
+  adapterId: string;
+  jobState: string;
+}
+
+/** The job progress view (GET /api/create/sessions/[sessionId]/jobs/[jobId]). */
+export interface StudioJobLike {
+  jobId: string;
+  sessionId: string;
+  state: string;
+  events: {
+    atMs: number;
+    type: string;
+    fraction?: number;
+    stage?: string;
+    details?: Record<string, unknown>;
+  }[];
+  renderId?: string;
+  ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
+  completion?: {
+    status: "succeeded" | "failed" | "cancelled";
+    failure?: { errorClass: string; message: string; terminal: string };
+    outputs: {
+      artifactId: string;
+      contentType: string;
+      byteLength: number;
+      frameCount?: number;
+      totalDurationMs?: number;
+    }[];
+    attempts: number;
+    claims: number;
+    timing: {
+      submittedAtMs: number;
+      startedAtMs?: number;
+      finishedAtMs: number;
+      queueWaitMs?: number;
+      executionMs: number;
+    };
+    accounting: {
+      consumedInputIds: string[];
+      unconsumedInputs: { inputId: string; reason: string }[];
+    };
+    usage: { unitId: string; quantity: number }[];
+  };
+}
+
+/** The publication answer (POST /api/create/sessions/[sessionId]/publication). */
+export interface StudioPublicationLike {
+  sessionId: string;
+  visibility: "public" | "private";
+}
