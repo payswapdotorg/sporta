@@ -391,7 +391,7 @@ describe("POST /api/create/sessions", () => {
 
   test("the created session is private: absent from the catalog, present in the owner's library", async () => {
     const sessionId = await createStudioSession();
-    const catalog = (await bodyOf(await catalogRoute(jsonRequest("/api/catalog/sessions")))) as {
+    const catalog = (await bodyOf(await catalogRoute())) as {
       sessions: { sessionId: string }[];
     };
     expect(catalog.sessions.find((entry) => entry.sessionId === sessionId)).toBeUndefined();
@@ -431,8 +431,21 @@ describe("POST /api/create/sessions/[sessionId]/renders", () => {
     expect(body.error).toMatchObject({ failureClass: "permission-denied" });
   });
 
-  test("an unknown session answers 404 without creating anything", async () => {
-    const response = await dispatchRoute(
+  test("an unknown session answers the uniform denial (deny-before-existence, no oracle)", async () => {
+    // The W902 pattern the service follows: a caller who is neither the
+    // owner nor an operator is denied 403 whether or not the session
+    // exists — byte-identical, so session ids cannot be probed. Prove BOTH
+    // sides of the property in one test (existing-but-not-mine vs unknown).
+    const mine = await createStudioSession();
+    const existingNotMine = await dispatchRoute(
+      withCookie(
+        viewerToken,
+        `/api/create/sessions/${mine}/renders`,
+        post(`/api/create/sessions/${mine}/renders`, { rendererId: "anime.prototype" }),
+      ),
+      { params: Promise.resolve({ sessionId: mine }) },
+    );
+    const unknown = await dispatchRoute(
       withCookie(
         creatorToken,
         "/api/create/sessions/ms-does-not-exist/renders",
@@ -440,7 +453,39 @@ describe("POST /api/create/sessions/[sessionId]/renders", () => {
       ),
       { params: Promise.resolve({ sessionId: "ms-does-not-exist" }) },
     );
+    expect(existingNotMine.status).toBe(403);
+    expect(unknown.status).toBe(403);
+    expect(await existingNotMine.json()).toEqual(await unknown.json());
+    // And nothing was created: the creator's own session carries no renders.
+    const state = (await bodyOf(
+      await sessionStateRoute(withCookie(creatorToken, `/api/create/sessions/${mine}`), {
+        params: Promise.resolve({ sessionId: mine }),
+      }),
+    )) as { renders: unknown[] };
+    expect(state.renders).toEqual([]);
+  });
+
+  test("an operator reaches the control plane, so an unknown session answers its honest 404", async () => {
+    // Self-registration cannot mint the operator grant (operator-assigned);
+    // create the account directly in the store, exactly as provisioning would.
+    const operator = await server.accounts.create({
+      username: "studio-operator",
+      email: undefined,
+      passwordHash: "not-a-login-path",
+      roles: ["operator", "viewer"],
+      createdAtIso: new Date(NOW_MS).toISOString(),
+    });
+    const operatorToken = (await server.auth.issueSession({ userId: operator.userId })).token;
+    const response = await dispatchRoute(
+      withCookie(
+        operatorToken,
+        "/api/create/sessions/ms-does-not-exist/renders",
+        post("/api/create/sessions/ms-does-not-exist/renders", { rendererId: "anime.prototype" }),
+      ),
+      { params: Promise.resolve({ sessionId: "ms-does-not-exist" }) },
+    );
     expect(response.status).toBe(404);
+    expect((await bodyOf(response)).error).toMatchObject({ failureClass: "unknown-session" });
   });
 
   test("dispatching an anime render runs a REAL job to a stored, playable output", async () => {
@@ -492,7 +537,15 @@ describe("POST /api/create/sessions/[sessionId]/renders", () => {
     expect(job.completion.accounting.consumedInputIds).toContain("swm-events");
     expect(job.completion.accounting.unconsumedInputs).toEqual([]);
     expect(job.completion.usage.length).toBeGreaterThan(0);
-    expect(job.completion.usage[0]!.quantity).toBeGreaterThan(0);
+    // The REAL metered record in the descriptor's declared units: the
+    // frozen test clock makes cpu-ms honestly 0 — the count and byte units
+    // are what actually moved. (Never a fabricated quantity.)
+    const units = Object.fromEntries(
+      job.completion.usage.map((unit) => [unit.unitId, unit.quantity]),
+    ) as Record<string, number>;
+    expect(units["render-requests"]).toBeGreaterThanOrEqual(1);
+    expect(units["artifact-bytes"]).toBeGreaterThan(0);
+    expect(units["cpu-ms"]).toBeGreaterThanOrEqual(0);
     expect(job.completion.timing.executionMs).toBeGreaterThanOrEqual(0);
 
     // The stored output is REALLY readable through the playback gate.
@@ -588,6 +641,7 @@ describe("GET /api/create/sessions/[sessionId]", () => {
         `/api/create/sessions/${sessionId}/renders`,
         post(`/api/create/sessions/${sessionId}/renders`, { rendererId: "anime.prototype" }),
       ),
+      { params: Promise.resolve({ sessionId }) },
     );
     const dispatch = (await bodyOf(dispatchResponse)) as { jobId: string };
     await pollToTerminal(sessionId, dispatch.jobId);
@@ -635,7 +689,7 @@ describe("POST /api/create/sessions/[sessionId]/publication", () => {
     const sessionId = await createStudioSession();
     // Before: private — no catalog entry, anonymous watch answers the
     // uniform unknown-session 404 (no existence oracle).
-    const beforeCatalog = (await bodyOf(await catalogRoute(jsonRequest("/api/catalog/sessions")))) as {
+    const beforeCatalog = (await bodyOf(await catalogRoute())) as {
       sessions: { sessionId: string }[];
     };
     expect(beforeCatalog.sessions.find((entry) => entry.sessionId === sessionId)).toBeUndefined();
@@ -661,7 +715,7 @@ describe("POST /api/create/sessions/[sessionId]/publication", () => {
     expect(((await bodyOf(publishResponse)) as { visibility: string }).visibility).toBe("public");
 
     // After: catalog entry + anonymous watch allowed.
-    const afterCatalog = (await bodyOf(await catalogRoute(jsonRequest("/api/catalog/sessions")))) as {
+    const afterCatalog = (await bodyOf(await catalogRoute())) as {
       sessions: { sessionId: string }[];
     };
     expect(afterCatalog.sessions.find((entry) => entry.sessionId === sessionId)).toBeDefined();
@@ -690,7 +744,7 @@ describe("POST /api/create/sessions/[sessionId]/publication", () => {
       { params: Promise.resolve({ sessionId }) },
     );
     expect(privatizeResponse.status).toBe(200);
-    const catalog = (await bodyOf(await catalogRoute(jsonRequest("/api/catalog/sessions")))) as {
+    const catalog = (await bodyOf(await catalogRoute())) as {
       sessions: { sessionId: string }[];
     };
     expect(catalog.sessions.find((entry) => entry.sessionId === sessionId)).toBeUndefined();
@@ -724,8 +778,10 @@ describe("POST /api/create/sessions/[sessionId]/publication", () => {
     expect(body.error).toMatchObject({ failureClass: "validation" });
   });
 
-  test("publication on an unknown session answers 404 for the owner too", async () => {
-    const response = await publicationRoute(
+  test("publication on an unknown session answers the uniform denial for the owner of other sessions too", async () => {
+    // Same no-oracle property as the dispatch route: a non-owner/non-operator
+    // caller's 403 is byte-identical whether or not the session exists.
+    const unknown = await publicationRoute(
       withCookie(
         creatorToken,
         "/api/create/sessions/ms-does-not-exist/publication",
@@ -733,7 +789,8 @@ describe("POST /api/create/sessions/[sessionId]/publication", () => {
       ),
       { params: Promise.resolve({ sessionId: "ms-does-not-exist" }) },
     );
-    expect(response.status).toBe(404);
+    expect(unknown.status).toBe(403);
+    expect((await bodyOf(unknown)).error).toMatchObject({ failureClass: "permission-denied" });
   });
 });
 
