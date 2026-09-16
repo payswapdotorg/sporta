@@ -59,10 +59,7 @@ export async function renderFlow(ctx: FlowContext): Promise<void> {
     await browser.waitForSelector(".studio-stepper", 20_000),
     "selector .studio-stepper",
   );
-  const options = await browser.waitForSelector(
-    ".studio-source input[type='radio']",
-    20_000,
-  );
+  const options = await browser.waitForSelector(".studio-source input[type='radio']", 20_000);
   assert("the authorized source list offers real fixtures", options, "radio inputs present");
 
   // Step 1 — source.
@@ -165,7 +162,8 @@ export async function renderFlow(ctx: FlowContext): Promise<void> {
   );
   assert(
     "the 'Open in Watch' hand-off targets the new session",
-    watchHref.includes("/watch?session=") && watchHref.includes(encodeURIComponent(dispatchedSession.trim())),
+    watchHref.includes("/watch?session=") &&
+      watchHref.includes(encodeURIComponent(dispatchedSession.trim())),
     `href=${watchHref}`,
   );
 

@@ -53,7 +53,7 @@ export async function outputPlaybackFlow(ctx: FlowContext): Promise<void> {
     };
   })()`);
   recorder.note(
-    `output document ${outputUrl.replace(baseUrl, '')} → ${doc.status} ${doc.contentType} (source=${doc.artifactSource}, frames=${doc.frameCount})`,
+    `output document ${outputUrl.replace(baseUrl, "")} → ${doc.status} ${doc.contentType} (source=${doc.artifactSource}, frames=${doc.frameCount})`,
   );
   assert(
     "the real output document loads (200 JSON segment document)",

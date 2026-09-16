@@ -104,7 +104,9 @@ export class BrowserDriver {
 
   /** Runs a command, returning its stdout without the CLI's status lines. */
   private clean(args: readonly string[]): string {
-    return this.run(args).replace(/^[✓✗]\s*/gm, "").trim();
+    return this.run(args)
+      .replace(/^[✓✗]\s*/gm, "")
+      .trim();
   }
 
   // ------------------------------------------------------------- navigation

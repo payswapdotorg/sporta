@@ -49,9 +49,17 @@ export async function a11ySmokeFlow(ctx: FlowContext): Promise<void> {
   assert("home page renders", homeReady, `title=${browser.title()}`);
 
   // Skip link: present, focusable, and it moves focus into main.
-  assert("skip link is present", browser.count(".skip-link") === 1, `count=${browser.count(".skip-link")}`);
+  assert(
+    "skip link is present",
+    browser.count(".skip-link") === 1,
+    `count=${browser.count(".skip-link")}`,
+  );
   const skipText = browser.text(".skip-link");
-  assert("skip link is named for screen readers", skipText.toLowerCase().includes("skip to main"), `text="${skipText}"`);
+  assert(
+    "skip link is named for screen readers",
+    skipText.toLowerCase().includes("skip to main"),
+    `text="${skipText}"`,
+  );
   browser.press("Tab");
   const firstFocus = browser.eval<{ cls: string; id: string }>(
     `(function(){const el=document.activeElement;return {cls: el ? el.className : '', id: el ? el.id : ''};})()`,
@@ -183,7 +191,7 @@ export async function a11ySmokeFlow(ctx: FlowContext): Promise<void> {
     `${images.img.total} imgs, ${images.img.missingAlt} missing`,
   );
   assert(
-    "every role=\"img\" (the SVG frame stages) has an aria-label",
+    'every role="img" (the SVG frame stages) has an aria-label',
     images.roleImg.total >= 1 && images.roleImg.missingLabel === 0,
     `${images.roleImg.total} role=img, ${images.roleImg.missingLabel} missing`,
   );

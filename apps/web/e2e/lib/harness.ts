@@ -17,9 +17,7 @@ export interface AssertionRecord {
 
 /** Thrown by {@link FlowRecorder.assert} — aborts the flow. */
 export class E2EAssertionError extends Error {
-  constructor(
-    public readonly record: AssertionRecord,
-  ) {
+  constructor(public readonly record: AssertionRecord) {
     super(`${record.name} — ${record.evidence}`);
     this.name = "E2EAssertionError";
   }

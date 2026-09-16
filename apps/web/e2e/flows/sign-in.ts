@@ -16,14 +16,26 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
   const password = `e2e-password-${runId}-10chars`;
 
   browser.open(`${baseUrl}/auth/signin`);
-  assert("auth surface renders", await browser.waitForSelector("#auth-username", 15_000), "selector #auth-username");
+  assert(
+    "auth surface renders",
+    await browser.waitForSelector("#auth-username", 15_000),
+    "selector #auth-username",
+  );
   const authMode = browser.attr("section.auth-surface", "data-auth-mode");
-  assert("auth surface starts in sign-in mode", authMode === "signin", `data-auth-mode=${authMode}`);
+  assert(
+    "auth surface starts in sign-in mode",
+    authMode === "signin",
+    `data-auth-mode=${authMode}`,
+  );
 
   // ------------------------------------------------------------- register
   browser.clickText("Create an account");
   const registerMode = browser.attr("section.auth-surface", "data-auth-mode");
-  assert("register tab switches the form", registerMode === "register", `data-auth-mode=${registerMode}`);
+  assert(
+    "register tab switches the form",
+    registerMode === "register",
+    `data-auth-mode=${registerMode}`,
+  );
 
   browser.fill("#auth-username", username);
   browser.fill("#auth-password", password);

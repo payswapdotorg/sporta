@@ -19,7 +19,9 @@ const OPERATOR_DATA_MARKERS = ["sporta.compute.hosted", "renderQueue", "policySc
 
 /** The rendered page text (used for the no-bytes proof). */
 function pageText(ctx: FlowContext): string {
-  return ctx.browser.eval<string>(`(document.body && document.body.innerText || '').slice(0, 12000)`);
+  return ctx.browser.eval<string>(
+    `(document.body && document.body.innerText || '').slice(0, 12000)`,
+  );
 }
 
 export async function rightsDenialFlow(ctx: FlowContext): Promise<void> {
@@ -55,7 +57,10 @@ export async function rightsDenialFlow(ctx: FlowContext): Promise<void> {
 
   // --------------------------------------------- viewer → /rights (real 403)
   browser.open(`${baseUrl}/rights`);
-  const rightsDenied = await browser.waitForSelector(".state-panel[data-surface-state='denied']", 20_000);
+  const rightsDenied = await browser.waitForSelector(
+    ".state-panel[data-surface-state='denied']",
+    20_000,
+  );
   const viewerRightsText = pageText(ctx);
   assert(
     "viewer on /rights sees the rights-holder-grant denial",
@@ -76,7 +81,10 @@ export async function rightsDenialFlow(ctx: FlowContext): Promise<void> {
   browser.click(".account-button");
   await browser.waitForSelector(".signout-button", 10_000);
   browser.click(".signout-button");
-  await browser.waitForJs(`(function(){return document.querySelector('.account-button') === null;})()`, 15_000);
+  await browser.waitForJs(
+    `(function(){return document.querySelector('.account-button') === null;})()`,
+    15_000,
+  );
   browser.open(`${baseUrl}/operations`);
   const anonOpsDenied = await browser.waitForSelector(".state-panel[data-surface-state]", 20_000);
   const anonOpsText = pageText(ctx);
@@ -94,7 +102,10 @@ export async function rightsDenialFlow(ctx: FlowContext): Promise<void> {
 
   // -------------------------------------- anonymous → /rights (sign-in gate)
   browser.open(`${baseUrl}/rights`);
-  const anonRightsDenied = await browser.waitForSelector(".state-panel[data-surface-state='denied']", 20_000);
+  const anonRightsDenied = await browser.waitForSelector(
+    ".state-panel[data-surface-state='denied']",
+    20_000,
+  );
   const anonRightsText = pageText(ctx);
   assert(
     "anonymous on /rights sees the sign-in denial",

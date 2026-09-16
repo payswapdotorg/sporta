@@ -101,7 +101,11 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Viewer');})()`,
     15_000,
   );
-  assert("switching back to Viewer updates the chip", viewerLine, `.account-role="${browser.text(".account-role")}"`);
+  assert(
+    "switching back to Viewer updates the chip",
+    viewerLine,
+    `.account-role="${browser.text(".account-role")}"`,
+  );
   nav = navHrefs(ctx);
   recorder.note(`viewer workspace nav: ${nav.join(" | ")}`);
   assert(
@@ -119,7 +123,10 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
   browser.click(".account-button");
   await browser.waitForSelector(".signout-button", 10_000);
   browser.click(".signout-button");
-  await browser.waitForJs(`(function(){return document.querySelector('.account-button') === null;})()`, 15_000);
+  await browser.waitForJs(
+    `(function(){return document.querySelector('.account-button') === null;})()`,
+    15_000,
+  );
 
   browser.open(`${baseUrl}/auth/signin`);
   await browser.waitForSelector("#auth-username", 15_000);
@@ -152,7 +159,11 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Operator');})()`,
     15_000,
   );
-  assert("switching to Operator updates the chip", operatorLine, `.account-role="${browser.text(".account-role")}"`);
+  assert(
+    "switching to Operator updates the chip",
+    operatorLine,
+    `.account-role="${browser.text(".account-role")}"`,
+  );
   nav = navHrefs(ctx);
   recorder.note(`operator workspace nav: ${nav.join(" | ")}`);
   assert(
@@ -181,7 +192,11 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
     `(function(){const el=document.querySelector('.account-role');return el !== null && el.textContent.includes('Rights');})()`,
     15_000,
   );
-  assert("switching to Rights Holder updates the chip", rightsLine, `.account-role="${browser.text(".account-role")}"`);
+  assert(
+    "switching to Rights Holder updates the chip",
+    rightsLine,
+    `.account-role="${browser.text(".account-role")}"`,
+  );
   nav = navHrefs(ctx);
   assert(
     "the Rights Holder workspace nav lists the Rights Center",

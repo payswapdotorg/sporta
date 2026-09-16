@@ -48,9 +48,9 @@ describe("W909 E2E inventory — the acceptance coverage model", () => {
   });
 
   test("the route availability model fails closed on an unknown route", () => {
-    expect(unknownInventoryRoutes([{ id: "sign-in", title: "t", covers: "W909: x", routes: ["/nope"] }])).toEqual([
-      "sign-in: /nope",
-    ]);
+    expect(
+      unknownInventoryRoutes([{ id: "sign-in", title: "t", covers: "W909: x", routes: ["/nope"] }]),
+    ).toEqual(["sign-in: /nope"]);
     expect(unknownInventoryRoutes(E2E_FLOW_INVENTORY, ROUTE_PATHS)).toEqual([]);
     expect(unknownInventoryRoutes(E2E_FLOW_INVENTORY, ["/"])).not.toEqual([]);
   });
@@ -77,8 +77,18 @@ describe("W909 E2E inventory — the acceptance coverage model", () => {
   });
 
   test("the inventory covers every W909 acceptance keyword the work order names", () => {
-    const allCovers = E2E_FLOW_INVENTORY.map((flow) => flow.covers).join(" ").toLowerCase();
-    for (const keyword of ["sign-in", "watch", "render", "denial", "switch", "playback", "accessibility"]) {
+    const allCovers = E2E_FLOW_INVENTORY.map((flow) => flow.covers)
+      .join(" ")
+      .toLowerCase();
+    for (const keyword of [
+      "sign-in",
+      "watch",
+      "render",
+      "denial",
+      "switch",
+      "playback",
+      "accessibility",
+    ]) {
       expect(allCovers).toContain(keyword);
     }
   });
@@ -195,9 +205,7 @@ describe("W909 driver click machinery — the covered-click settle math", () => 
   });
 
   test("coveringNudgeDelta shrinks toward zero as the target clears the cover", () => {
-    expect(coveringNudgeDelta({ top: 200 }, { bottom: 60 })).toBe(
-      200 - 60 - COVERING_NUDGE_MARGIN,
-    );
+    expect(coveringNudgeDelta({ top: 200 }, { bottom: 60 })).toBe(200 - 60 - COVERING_NUDGE_MARGIN);
     // A custom margin is honored (the driver's page-side twin uses the same constant).
     expect(coveringNudgeDelta({ top: 40 }, { bottom: 60 }, 4)).toBe(-24);
   });

@@ -39,11 +39,7 @@ export async function realitySwitchFlow(ctx: FlowContext): Promise<void> {
   recorder.note(
     `switcher options: ${options.map((o) => `${o.rendererId}=${o.state}${o.disabled ? " (disabled)" : ""}`).join(", ")}`,
   );
-  assert(
-    "the switcher lists renderer options",
-    options.length >= 2,
-    `${options.length} options`,
-  );
+  assert("the switcher lists renderer options", options.length >= 2, `${options.length} options`);
 
   const storedRendererIds = session.storedRenders.map((r) => r.rendererId);
   for (const rendererId of storedRendererIds) {
@@ -67,9 +63,14 @@ export async function realitySwitchFlow(ctx: FlowContext): Promise<void> {
   // race a still-loading player.
   const surfaceReady = await browser.waitForSelector(".player-surface[data-renderer]", 20_000);
   const currentRenderer = surfaceReady ? browser.attr(".player-surface", "data-renderer") : "";
-  assert("the current player surface names its renderer", currentRenderer.length > 0, `data-renderer=${currentRenderer}`);
+  assert(
+    "the current player surface names its renderer",
+    currentRenderer.length > 0,
+    `data-renderer=${currentRenderer}`,
+  );
 
-  const target = storedRendererIds.find((id) => id !== currentRenderer) ?? storedRendererIds[0] ?? "";
+  const target =
+    storedRendererIds.find((id) => id !== currentRenderer) ?? storedRendererIds[0] ?? "";
   assert(
     "a switch target with a stored output exists",
     target.length > 0,
@@ -130,7 +131,8 @@ export async function realitySwitchFlow(ctx: FlowContext): Promise<void> {
   assert("the switched surface carries SVG frames", svgAfter >= 1, `svg elements=${svgAfter}`);
   assert(
     "the switch reported itself (aria-live notice)",
-    browser.count(".switcher-notice") > switchNoticeBefore || browser.text(".switcher-notice").length > 0,
+    browser.count(".switcher-notice") > switchNoticeBefore ||
+      browser.text(".switcher-notice").length > 0,
     `notice="${browser.text(".switcher-notice").slice(0, 90)}"`,
   );
 

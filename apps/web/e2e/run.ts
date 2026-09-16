@@ -20,6 +20,7 @@
  */
 import { copyFileSync, mkdirSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { format as prettierFormat } from "prettier";
 import {
   flowSpecOf,
   isE2EFlowId,
@@ -28,7 +29,13 @@ import {
   type E2EFlowId,
 } from "./lib/inventory";
 import { BrowserDriver } from "./lib/browser-driver";
-import { FlowRecorder, summarizeRun, type FlowContext, type FlowOutcome, type Discovery } from "./lib/harness";
+import {
+  FlowRecorder,
+  summarizeRun,
+  type FlowContext,
+  type FlowOutcome,
+  type Discovery,
+} from "./lib/harness";
 import { a11ySmokeFlow } from "./flows/a11y-smoke";
 import { signInFlow } from "./flows/sign-in";
 import { rightsDenialFlow } from "./flows/rights-denial";
@@ -247,9 +254,7 @@ interface CatalogCard {
 }
 
 interface WatchModel {
-  renders:
-    | { renderId: string; rendererId: string; outputs: { segmentId: string }[] }[]
-    | null;
+  renders: { renderId: string; rendererId: string; outputs: { segmentId: string }[] }[] | null;
 }
 
 async function discoverSeededContent(): Promise<Discovery> {
@@ -288,7 +293,7 @@ async function discoverSeededContent(): Promise<Discovery> {
 
 // -------------------------------------------------------------------- report
 
-function writeReport(outcomes: readonly FlowOutcome[]): void {
+async function writeReport(outcomes: readonly FlowOutcome[]): Promise<void> {
   const summary = summarizeRun(outcomes);
   const report = {
     runId,
@@ -297,10 +302,15 @@ function writeReport(outcomes: readonly FlowOutcome[]): void {
     flows: outcomes,
     summary,
   };
-  writeFileSync(
-    join(evidenceDir, "e2e-report.json"),
-    `${JSON.stringify(report, null, 2)}\n`,
-  );
+  // The report is RUNNER-GENERATED and stays exactly what this code writes —
+  // the JSON goes through the repo's own prettier (a devDependency) so the
+  // committed evidence passes `bun run format:check` without any hand
+  // formatting (the evidence is never edited by hand, only re-written by a
+  // new run).
+  const reportJson = await prettierFormat(`${JSON.stringify(report, null, 2)}\n`, {
+    parser: "json",
+  });
+  writeFileSync(join(evidenceDir, "e2e-report.json"), reportJson);
 
   const lines: string[] = [
     `# W909 browser E2E — run ${runId}`,
@@ -323,9 +333,7 @@ function writeReport(outcomes: readonly FlowOutcome[]): void {
   for (const outcome of outcomes) {
     lines.push(`## ${outcome.title}`, "");
     for (const assertion of outcome.assertions) {
-      lines.push(
-        `- ${assertion.pass ? "✅" : "❌"} **${assertion.name}** — ${assertion.evidence}`,
-      );
+      lines.push(`- ${assertion.pass ? "✅" : "❌"} **${assertion.name}** — ${assertion.evidence}`);
     }
     for (const note of outcome.notes) lines.push(`- 📝 ${note}`);
     lines.push("");
@@ -334,10 +342,7 @@ function writeReport(outcomes: readonly FlowOutcome[]): void {
 
   // The committed acceptance evidence is the latest run's report + shots.
   writeFileSync(join(EVIDENCE_ROOT, "e2e-report.md"), `${lines.join("\n")}\n`);
-  writeFileSync(
-    join(EVIDENCE_ROOT, "e2e-report.json"),
-    `${JSON.stringify(report, null, 2)}\n`,
-  );
+  writeFileSync(join(EVIDENCE_ROOT, "e2e-report.json"), reportJson);
   for (const file of readdirSync(evidenceDir)) {
     if (file.endsWith(".png")) copyFileSync(join(evidenceDir, file), join(EVIDENCE_ROOT, file));
   }

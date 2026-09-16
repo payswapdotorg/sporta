@@ -33,7 +33,11 @@ export async function watchFlow(ctx: FlowContext): Promise<void> {
   const svgCount = browser.eval<number>(
     `(function(){return document.querySelectorAll('.player-stage svg').length + document.querySelectorAll('.player-stage svg[src], .player-stage img').length;})()`,
   );
-  assert("the real output renders SVG frames", svgCount >= 1, `svg/frame elements in stage=${svgCount}`);
+  assert(
+    "the real output renders SVG frames",
+    svgCount >= 1,
+    `svg/frame elements in stage=${svgCount}`,
+  );
 
   const totalFrames = Number.parseInt(stageLabel.match(/frame \d+ of (\d+)/)?.[1] ?? "0", 10);
   assert(
@@ -52,7 +56,11 @@ export async function watchFlow(ctx: FlowContext): Promise<void> {
 
   // Timeline + event markers (placed at frames the provenance applied).
   const timelineFrames = browser.count(".timeline-track .timeline-frame");
-  assert("the timeline renders the manifest's frame windows", timelineFrames === totalFrames, `windows=${timelineFrames}`);
+  assert(
+    "the timeline renders the manifest's frame windows",
+    timelineFrames === totalFrames,
+    `windows=${timelineFrames}`,
+  );
   const markers = browser.count(".timeline-track .timeline-marker");
   const markerButtons = browser.count(".marker-jump");
   assert(

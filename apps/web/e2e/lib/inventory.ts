@@ -51,31 +51,36 @@ export const E2E_FLOW_INVENTORY: readonly E2EFlowSpec[] = [
   {
     id: "watch",
     title: "Watch — the real output renders (SVG frames) + timeline/event markers",
-    covers: "W909: watch (open /watch?session=<seeded> → the real output renders → markers visible)",
+    covers:
+      "W909: watch (open /watch?session=<seeded> → the real output renders → markers visible)",
     routes: ["/watch"],
   },
   {
     id: "reality-switch",
     title: "Reality Switcher — real availabilities, switch without page reload",
-    covers: "W909: reality switcher (real renderer availabilities → switch updates the player surface, no reload)",
+    covers:
+      "W909: reality switcher (real renderer availabilities → switch updates the player surface, no reload)",
     routes: ["/watch"],
   },
   {
     id: "render",
     title: "Render — guided flow → dispatch → progress → succeeded → output exists",
-    covers: "W909: render (/create → the guided flow → dispatch → progress → succeeded → the output exists)",
+    covers:
+      "W909: render (/create → the guided flow → dispatch → progress → succeeded → the output exists)",
     routes: ["/auth/signin", "/create"],
   },
   {
     id: "rights-denial",
     title: "Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes",
-    covers: "W909: rights denial (a viewer/anonymous hitting a denied route → the real 403/404 state rendered, no bytes)",
+    covers:
+      "W909: rights denial (a viewer/anonymous hitting a denied route → the real 403/404 state rendered, no bytes)",
     routes: ["/operations", "/rights"],
   },
   {
     id: "role-switch",
     title: "Role switch — grants-only offers; switching changes the workspace nav",
-    covers: "W909: role switch (the profile switcher → grants-only roles → switching changes the workspace nav, context-only)",
+    covers:
+      "W909: role switch (the profile switcher → grants-only roles → switching changes the workspace nav, context-only)",
     routes: ["/auth/signin", "/operations", "/rights"],
   },
   {
@@ -87,7 +92,8 @@ export const E2E_FLOW_INVENTORY: readonly E2EFlowSpec[] = [
   {
     id: "a11y-smoke",
     title: "Accessibility smoke — skip link, landmarks, alt text, contrast, keyboard",
-    covers: "W909: accessibility smoke (skip-link + landmarks + images alt + contrast spot-check + keyboard nav)",
+    covers:
+      "W909: accessibility smoke (skip-link + landmarks + images alt + contrast spot-check + keyboard nav)",
     routes: ["/", "/watch"],
   },
 ];
