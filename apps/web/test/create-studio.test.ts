@@ -13,9 +13,7 @@ import { POST as publicationRoute } from "../src/app/api/create/sessions/[sessio
 import { GET as catalogRoute } from "../src/app/api/catalog/sessions/route";
 import { GET as libraryRoute } from "../src/app/api/catalog/library/route";
 import { GET as watchRoute } from "../src/app/api/watch/[sessionId]/route";
-import {
-  GET as outputRoute,
-} from "../src/app/api/watch/[sessionId]/renders/[renderId]/outputs/[segmentId]/route";
+import { GET as outputRoute } from "../src/app/api/watch/[sessionId]/renders/[renderId]/outputs/[segmentId]/route";
 
 /**
  * CREATE STUDIO ROUTE TESTS (W906): the /api/create/* handlers driven as
@@ -59,11 +57,7 @@ function jsonRequest(path: string, init: RequestInit = {}): Request {
   return new Request(`http://sporta.test${path}`, init);
 }
 
-function withCookie(
-  token: string | null,
-  path: string,
-  init: RequestInit = {},
-): Request {
+function withCookie(token: string | null, path: string, init: RequestInit = {}): Request {
   return new Request(`http://sporta.test${path}`, {
     ...init,
     headers: {
@@ -110,10 +104,7 @@ async function createStudioSession(operations: string[] = FULL_OPERATIONS): Prom
 }
 
 /** Polls the job route until terminal (bounded — never a silent hang). */
-async function pollToTerminal(
-  sessionId: string,
-  jobId: string,
-): Promise<Record<string, unknown>> {
+async function pollToTerminal(sessionId: string, jobId: string): Promise<Record<string, unknown>> {
   for (let attempt = 0; attempt < 200; attempt += 1) {
     const response = await jobRoute(
       withCookie(creatorToken, `/api/create/sessions/${sessionId}/jobs/${jobId}`),
@@ -148,16 +139,12 @@ describe("GET /api/create/options", () => {
   });
 
   test("an invalid session token is still the uniform 401", async () => {
-    const response = await optionsRoute(
-      withCookie("not-a-real-token", "/api/create/options"),
-    );
+    const response = await optionsRoute(withCookie("not-a-real-token", "/api/create/options"));
     expect(response.status).toBe(401);
   });
 
   test("lists the real fixture sources with their real inputs", async () => {
-    const response = await optionsRoute(
-      withCookie(creatorToken, "/api/create/options"),
-    );
+    const response = await optionsRoute(withCookie(creatorToken, "/api/create/options"));
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       sources: {
@@ -180,9 +167,7 @@ describe("GET /api/create/options", () => {
   });
 
   test("lists the real renderers with the honest artifact-handoff answer", async () => {
-    const response = await optionsRoute(
-      withCookie(viewerToken, "/api/create/options"),
-    );
+    const response = await optionsRoute(withCookie(viewerToken, "/api/create/options"));
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       renderers: {
@@ -205,19 +190,17 @@ describe("GET /api/create/options", () => {
   });
 
   test("says upload is unavailable honestly (never a fake upload)", async () => {
-    const response = await optionsRoute(
-      withCookie(creatorToken, "/api/create/options"),
-    );
+    const response = await optionsRoute(withCookie(creatorToken, "/api/create/options"));
     const body = (await bodyOf(response)) as { upload: { available: boolean; reason: string } };
     expect(body.upload.available).toBe(false);
     expect(body.upload.reason).toContain("not available yet");
   });
 
   test("reports the real compute plane (in-process adapter, real id)", async () => {
-    const response = await optionsRoute(
-      withCookie(creatorToken, "/api/create/options"),
-    );
-    const body = (await bodyOf(response)) as { compute: { provider: string; adapterId: string } | null };
+    const response = await optionsRoute(withCookie(creatorToken, "/api/create/options"));
+    const body = (await bodyOf(response)) as {
+      compute: { provider: string; adapterId: string } | null;
+    };
     expect(body.compute).not.toBeNull();
     expect(body.compute!.provider).toBe("in-process");
     expect(body.compute!.adapterId.length).toBeGreaterThan(0);
@@ -231,7 +214,10 @@ describe("GET /api/create/options", () => {
 describe("POST /api/create/rights-preview", () => {
   test("derives every capability for the full declaration", async () => {
     const response = await rightsPreviewRoute(
-      jsonRequest("/api/create/rights-preview", post("/api/create/rights-preview", { operations: FULL_OPERATIONS })),
+      jsonRequest(
+        "/api/create/rights-preview",
+        post("/api/create/rights-preview", { operations: FULL_OPERATIONS }),
+      ),
     );
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
@@ -249,7 +235,10 @@ describe("POST /api/create/rights-preview", () => {
 
   test("transformation alone derives source-frame reference only", async () => {
     const response = await rightsPreviewRoute(
-      jsonRequest("/api/create/rights-preview", post("/api/create/rights-preview", { operations: ["transformation"] })),
+      jsonRequest(
+        "/api/create/rights-preview",
+        post("/api/create/rights-preview", { operations: ["transformation"] }),
+      ),
     );
     const body = (await bodyOf(response)) as { capabilities: Record<string, boolean> };
     expect(body.capabilities).toEqual({
@@ -264,7 +253,9 @@ describe("POST /api/create/rights-preview", () => {
     const response = await rightsPreviewRoute(
       jsonRequest(
         "/api/create/rights-preview",
-        post("/api/create/rights-preview", { operations: ["transformation", "derivativeGeneration"] }),
+        post("/api/create/rights-preview", {
+          operations: ["transformation", "derivativeGeneration"],
+        }),
       ),
     );
     const body = (await bodyOf(response)) as { capabilities: Record<string, boolean> };
@@ -298,7 +289,10 @@ describe("POST /api/create/rights-preview", () => {
 
   test("an unknown operation id is a 400 validation error", async () => {
     const response = await rightsPreviewRoute(
-      jsonRequest("/api/create/rights-preview", post("/api/create/rights-preview", { operations: ["teleportation"] })),
+      jsonRequest(
+        "/api/create/rights-preview",
+        post("/api/create/rights-preview", { operations: ["teleportation"] }),
+      ),
     );
     expect(response.status).toBe(400);
     const body = await bodyOf(response);
@@ -307,7 +301,10 @@ describe("POST /api/create/rights-preview", () => {
 
   test("an empty declaration is a 400 (a policy must assert something)", async () => {
     const response = await rightsPreviewRoute(
-      jsonRequest("/api/create/rights-preview", post("/api/create/rights-preview", { operations: [] })),
+      jsonRequest(
+        "/api/create/rights-preview",
+        post("/api/create/rights-preview", { operations: [] }),
+      ),
     );
     expect(response.status).toBe(400);
   });
@@ -320,7 +317,10 @@ describe("POST /api/create/rights-preview", () => {
 describe("POST /api/create/sessions", () => {
   test("anonymous callers receive 401", async () => {
     const response = await createSessionRoute(
-      jsonRequest("/api/create/sessions", post("/api/create/sessions", { sourceKey: "derby", operations: FULL_OPERATIONS })),
+      jsonRequest(
+        "/api/create/sessions",
+        post("/api/create/sessions", { sourceKey: "derby", operations: FULL_OPERATIONS }),
+      ),
     );
     expect(response.status).toBe(401);
   });
@@ -343,7 +343,11 @@ describe("POST /api/create/sessions", () => {
       withCookie(
         creatorToken,
         "/api/create/sessions",
-        post("/api/create/sessions", { sourceKey: "derby", operations: FULL_OPERATIONS, label: "My derby reality" }),
+        post("/api/create/sessions", {
+          sourceKey: "derby",
+          operations: FULL_OPERATIONS,
+          label: "My derby reality",
+        }),
       ),
     );
     expect(response.status).toBe(201);
@@ -410,7 +414,10 @@ describe("POST /api/create/sessions/[sessionId]/renders", () => {
   test("anonymous callers receive 401", async () => {
     const sessionId = await createStudioSession();
     const response = await dispatchRoute(
-      jsonRequest(`/api/create/sessions/${sessionId}/renders`, post(`/api/create/sessions/${sessionId}/renders`, { rendererId: "anime.prototype" })),
+      jsonRequest(
+        `/api/create/sessions/${sessionId}/renders`,
+        post(`/api/create/sessions/${sessionId}/renders`, { rendererId: "anime.prototype" }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(response.status).toBe(401);

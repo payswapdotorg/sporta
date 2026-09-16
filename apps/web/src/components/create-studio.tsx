@@ -69,19 +69,28 @@ interface SubmissionState {
 
 export function CreateStudio() {
   const [options, setOptions] = useState<
-    { phase: "loading" } | { phase: "ready"; data: StudioOptionsLike | null } | { phase: "failed"; error: string }
+    | { phase: "loading" }
+    | { phase: "ready"; data: StudioOptionsLike | null }
+    | { phase: "failed"; error: string }
   >({ phase: "loading" });
   const [step, setStep] = useState<CreateStep>("source");
   const [draft, setDraft] = useState<CreateDraft>(emptyDraft);
   const [preview, setPreview] = useState<
-    { phase: "idle" } | { phase: "loading" } | { phase: "ready"; data: RightsPreviewLike } | { phase: "failed"; error: string }
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: RightsPreviewLike }
+    | { phase: "failed"; error: string }
   >({ phase: "idle" });
   const [submission, setSubmission] = useState<SubmissionState | null>(null);
   const [job, setJob] = useState<StudioJobLike | null>(null);
   const [jobError, setJobError] = useState<string | null>(null);
   const [sessionState, setSessionState] = useState<StudioSessionStateLike | null>(null);
   const [output, setOutput] = useState<
-    { phase: "idle" } | { phase: "loading" } | { phase: "ready"; data: RenderOutputLike } | { phase: "denied"; reason: string } | { phase: "failed"; error: string }
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: RenderOutputLike }
+    | { phase: "denied"; reason: string }
+    | { phase: "failed"; error: string }
   >({ phase: "idle" });
   const [watch, setWatch] = useState<WatchModelLike | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -132,7 +141,6 @@ export function CreateStudio() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [declarationKey]);
 
   // -------------------------------------------------------------------
@@ -225,15 +233,19 @@ export function CreateStudio() {
   // -------------------------------------------------------------------
   // Flow actions
   // -------------------------------------------------------------------
-  const source = options.phase === "ready" ? options.data?.sources.find((entry) => entry.key === draft.sourceKey) ?? null : null;
+  const source =
+    options.phase === "ready"
+      ? (options.data?.sources.find((entry) => entry.key === draft.sourceKey) ?? null)
+      : null;
   const renderer =
     options.phase === "ready"
-      ? options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null
+      ? (options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null)
       : null;
   const previewReady = preview.phase === "ready" ? preview.data : null;
   const verdict = previewReady !== null ? submissionVerdictOf(previewReady) : null;
 
-  const canAdvance = stepSatisfied(step, draft) && (step !== "rights" || verdict?.state === "ready");
+  const canAdvance =
+    stepSatisfied(step, draft) && (step !== "rights" || verdict?.state === "ready");
 
   const submit = useCallback(async () => {
     if (source === null || renderer === null || previewReady === null) return;
@@ -435,9 +447,9 @@ function SourceStep({
         Choose an authorized source
       </h2>
       <p className="section-lede">
-        This wave&apos;s authorized sources are the checked-in fixture library the engine runs
-        (real vision lanes + a real commentary transcript). Every downstream number — positions,
-        events, confidences — is computed by the real chain.
+        This wave&apos;s authorized sources are the checked-in fixture library the engine runs (real
+        vision lanes + a real commentary transcript). Every downstream number — positions, events,
+        confidences — is computed by the real chain.
       </p>
       <p className="form-notice" role="note">
         Upload: {options.upload.reason}.
@@ -445,7 +457,9 @@ function SourceStep({
       <ul className="card-grid studio-source-grid">
         {options.sources.map((entry) => (
           <li key={entry.key}>
-            <label className={`session-card studio-source${draft.sourceKey === entry.key ? " current" : ""}`}>
+            <label
+              className={`session-card studio-source${draft.sourceKey === entry.key ? " current" : ""}`}
+            >
               <input
                 type="radio"
                 name="studio-source"
@@ -467,9 +481,7 @@ function SourceStep({
                 </div>
                 <div className="fact">
                   <dt>Known entities</dt>
-                  <dd>
-                    {[...entry.lexicon.players, ...entry.lexicon.teams].join(", ") || "none"}
-                  </dd>
+                  <dd>{[...entry.lexicon.players, ...entry.lexicon.teams].join(", ") || "none"}</dd>
                 </div>
               </dl>
               <span className="commentary-list">
@@ -516,9 +528,9 @@ function RightsStep({
         Declare your rights
       </h2>
       <p className="section-lede">
-        Your declaration is re-attested to your verified identity and the control plane derives
-        what it permits — fail-closed. Nothing below is a product promise; it is the policy the
-        control plane will enforce.
+        Your declaration is re-attested to your verified identity and the control plane derives what
+        it permits — fail-closed. Nothing below is a product promise; it is the policy the control
+        plane will enforce.
       </p>
       <fieldset className="form-field">
         <legend>Allowed operations</legend>
@@ -597,13 +609,7 @@ function RightsPreviewPanel({
     return <LoadingPanel label="Deriving what this policy permits" />;
   }
   if (preview.phase === "failed") {
-    return (
-      <StatePanel
-        state="failed"
-        title="The derivation failed"
-        reason={preview.error}
-      />
-    );
+    return <StatePanel state="failed" title="The derivation failed" reason={preview.error} />;
   }
   const data = preview.data;
   const lines = capabilityLineOf(data.capabilities);
@@ -622,7 +628,11 @@ function RightsPreviewPanel({
         ))}
       </ul>
       {verdict.state === "denied" ? (
-        <StatePanel state="denied" title="Session creation would be denied" reason={verdict.warning ?? data.sessionCreation.reason} />
+        <StatePanel
+          state="denied"
+          title="Session creation would be denied"
+          reason={verdict.warning ?? data.sessionCreation.reason}
+        />
       ) : verdict.warning !== null ? (
         <p className="form-notice" role="status">
           {verdict.warning}
@@ -654,8 +664,8 @@ function RendererStep({
       </h2>
       <p className="section-lede">
         Only renderers actually registered on the control plane are offered — the product never
-        invents one. Camera, commentary and tactical renderers are not registered this wave, so
-        they are not offered.
+        invents one. Camera, commentary and tactical renderers are not registered this wave, so they
+        are not offered.
       </p>
       <ul className="card-grid studio-source-grid">
         {options.renderers.map((entry) => {
@@ -736,9 +746,9 @@ function RecipeStep({
       </h2>
       <p className="section-lede">
         The recipe carries your style label and one of the renderer&apos;s real output profiles.
-        Commentary, camera behavior and tactics come from the source fixture itself (the real
-        engine inputs below) — there is no separate commentary/camera/tactical renderer to configure
-        this wave.
+        Commentary, camera behavior and tactics come from the source fixture itself (the real engine
+        inputs below) — there is no separate commentary/camera/tactical renderer to configure this
+        wave.
       </p>
       <div className="form-field">
         <label htmlFor="studio-style">Style label</label>
@@ -853,7 +863,11 @@ function ReviewStep({
         </div>
       </dl>
       {preview !== null && <RightsPreviewPanel preview={{ phase: "ready", data: preview }} />}
-      {flowError !== null && <p className="form-error" role="alert">{flowError}</p>}
+      {flowError !== null && (
+        <p className="form-error" role="alert">
+          {flowError}
+        </p>
+      )}
       <div className="studio-nav">
         <button
           type="button"
@@ -956,7 +970,9 @@ function RenderStep({
               </span>
             )}
             {fraction === null && !progress.terminal && (
-              <span className="field-hint">no metered fraction yet — the ledger&apos;s events are the truth</span>
+              <span className="field-hint">
+                no metered fraction yet — the ledger&apos;s events are the truth
+              </span>
             )}
           </div>
           <ol className="studio-event-trail">
@@ -1010,7 +1026,9 @@ function RenderStep({
                           .map(
                             (artifact) =>
                               `${artifact.contentType} · ${artifact.byteLength}B${
-                                artifact.frameCount !== undefined ? ` · ${artifact.frameCount} frames` : ""
+                                artifact.frameCount !== undefined
+                                  ? ` · ${artifact.frameCount} frames`
+                                  : ""
                               }`,
                           )
                           .join("; ")}
@@ -1045,7 +1063,11 @@ function RenderStep({
           )}
           {output.phase === "loading" && <LoadingPanel label="Fetching the stored output" />}
           {output.phase === "denied" && (
-            <StatePanel state="denied" title="The stored output is not readable" reason={output.reason} />
+            <StatePanel
+              state="denied"
+              title="The stored output is not readable"
+              reason={output.reason}
+            />
           )}
           {output.phase === "failed" && (
             <StatePanel state="failed" title="The output could not be read" reason={output.error} />

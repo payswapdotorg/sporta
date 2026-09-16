@@ -339,9 +339,7 @@ async function buildSingleton(): Promise<SportaServer> {
   // LIVE from the configured worker (never locally invented).
   const computeProvider = computeProviderSelectionOf(process.env);
   const httpCompute =
-    computeProvider === "http"
-      ? await resolveComputeAdapterFromEnv({ nowMs: Date.now })
-      : null;
+    computeProvider === "http" ? await resolveComputeAdapterFromEnv({ nowMs: Date.now }) : null;
   const artifacts = r2Configured() ? getHostedRenderOutputStore() : null;
   if (!neonConfigured()) {
     return createSportaServer({

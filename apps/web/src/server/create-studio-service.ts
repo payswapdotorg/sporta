@@ -27,7 +27,11 @@
 import { deriveRightsCapabilities } from "@sporta/contracts";
 import type { AuthorizationPolicy, RightsCapabilities } from "@sporta/contracts";
 import type { AllowedOperation, SharingScope } from "@sporta/contracts";
-import { IdentityPermissionDeniedError, IdentityValidationError, authorize } from "@sporta/identity";
+import {
+  IdentityPermissionDeniedError,
+  IdentityValidationError,
+  authorize,
+} from "@sporta/identity";
 import type { Account } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import type { SportaServer } from "./composition";
@@ -247,17 +251,20 @@ const SOURCES: readonly { spec: FixtureStorySpec; label: string; description: st
   {
     spec: DERBY_STORY,
     label: "Derby night at Kings Park",
-    description: "A full kickoff-to-goal fixture: 4 tracked objects, 6 fusion waves, 3 commentary windows.",
+    description:
+      "A full kickoff-to-goal fixture: 4 tracked objects, 6 fusion waves, 3 commentary windows.",
   },
   {
     spec: FRIENDLY_STORY,
     label: "Friendly under the lights",
-    description: "A shorter evening fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
+    description:
+      "A shorter evening fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
   },
   {
     spec: TRAINING_STORY,
     label: "Training ground drill",
-    description: "A training-session fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
+    description:
+      "A training-session fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
   },
 ];
 
@@ -273,7 +280,10 @@ export interface CreateStudioServiceOptions {
   /** The story metadata index the watch model reads. */
   storyIndex: Map<string, SeedStoryMeta>;
   /** The publication store (the real visibility flag). */
-  publication: { set(id: string, v: SessionVisibility): void; visibilityOf(id: string): SessionVisibility };
+  publication: {
+    set(id: string, v: SessionVisibility): void;
+    visibilityOf(id: string): SessionVisibility;
+  };
   /** Wall clock (rights expiry is evaluated against it). */
   nowMs: () => number;
 }
@@ -383,9 +393,14 @@ export class CreateStudioService {
       known.push(found.id);
     }
     if (known.length === 0) {
-      throw new IdentityValidationError("a rights declaration needs at least one allowed operation");
+      throw new IdentityValidationError(
+        "a rights declaration needs at least one allowed operation",
+      );
     }
-    if (declaration.expiresAtIso !== undefined && Number.isNaN(Date.parse(declaration.expiresAtIso))) {
+    if (
+      declaration.expiresAtIso !== undefined &&
+      Number.isNaN(Date.parse(declaration.expiresAtIso))
+    ) {
       throw new IdentityValidationError("expiresAtIso must be an ISO-8601 timestamp");
     }
     if (
@@ -540,10 +555,9 @@ export class CreateStudioService {
     const ownerId = (await server.ownership.ownerIdOf(sessionId)) ?? NOT_OWNED;
     const decision = authorize(account, "media-session.read", { ownerId });
     if (!decision.allowed) {
-      throw new IdentityPermissionDeniedError(
-        "media access is not authorized for this account",
-        { action: "media-session.read" },
-      );
+      throw new IdentityPermissionDeniedError("media access is not authorized for this account", {
+        action: "media-session.read",
+      });
     }
     return account;
   }
@@ -605,7 +619,10 @@ export class CreateStudioService {
       ...(input.outputProfile !== undefined
         ? {
             outputProfile: {
-              resolution: { w: input.outputProfile.resolution.w, h: input.outputProfile.resolution.h },
+              resolution: {
+                w: input.outputProfile.resolution.w,
+                h: input.outputProfile.resolution.h,
+              },
               frameRate: input.outputProfile.frameRate,
               codec: input.outputProfile.codec,
               container: input.outputProfile.container,
@@ -695,7 +712,11 @@ export class CreateStudioService {
   }
 
   /** One source's view (shared by options + creation answers). */
-  private sourceView(source: { spec: FixtureStorySpec; label: string; description: string }): StudioSourceView {
+  private sourceView(source: {
+    spec: FixtureStorySpec;
+    label: string;
+    description: string;
+  }): StudioSourceView {
     return {
       key: source.spec.key,
       label: source.label,

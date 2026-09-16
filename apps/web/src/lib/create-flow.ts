@@ -9,25 +9,14 @@
  * ledger; progress fractions come from the real progress events only —
  * when nothing was metered, the answer is `null`, never an invented number.
  */
-import type {
-  RightsPreviewLike,
-  StudioJobLike,
-  StudioOptionsLike,
-} from "./api-types";
+import type { RightsPreviewLike, StudioJobLike, StudioOptionsLike } from "./api-types";
 
 // ---------------------------------------------------------------------------
 // The guided-flow state
 // ---------------------------------------------------------------------------
 
 /** The guided steps, in order (ux-architecture: source → … → publish). */
-export const CREATE_STEPS = [
-  "source",
-  "rights",
-  "renderer",
-  "recipe",
-  "review",
-  "render",
-] as const;
+export const CREATE_STEPS = ["source", "rights", "renderer", "recipe", "review", "render"] as const;
 export type CreateStep = (typeof CREATE_STEPS)[number];
 
 // ---------------------------------------------------------------------------
@@ -35,9 +24,7 @@ export type CreateStep = (typeof CREATE_STEPS)[number];
 // ---------------------------------------------------------------------------
 
 /** Whether a derived-capability set allows NOTHING (creation will deny). */
-export function creationDeniedOf(
-  capabilities: RightsPreviewLike["capabilities"],
-): boolean {
+export function creationDeniedOf(capabilities: RightsPreviewLike["capabilities"]): boolean {
   return (
     !capabilities.canReferenceSourceFrames &&
     !capabilities.canDeliverLive &&
@@ -77,9 +64,10 @@ export function capabilityLineOf(
  * derivatives submits with an honest warning: the render executes, but
  * playback/preview will be denied.
  */
-export function submissionVerdictOf(
-  preview: RightsPreviewLike,
-): { state: "ready" | "denied"; warning: string | null } {
+export function submissionVerdictOf(preview: RightsPreviewLike): {
+  state: "ready" | "denied";
+  warning: string | null;
+} {
   if (creationDeniedOf(preview.capabilities)) {
     return { state: "denied", warning: preview.sessionCreation.reason };
   }
@@ -146,9 +134,10 @@ export function meteredFractionOf(job: Pick<StudioJobLike, "events">): number | 
 }
 
 /** Whether a renderer can produce a stored output through the compute path. */
-export function rendererDispatchabilityOf(
-  renderer: StudioOptionsLike["renderers"][number],
-): { state: "ready" | "unavailable"; reason: string } {
+export function rendererDispatchabilityOf(renderer: StudioOptionsLike["renderers"][number]): {
+  state: "ready" | "unavailable";
+  reason: string;
+} {
   if (!renderer.artifactHandoff.supported) {
     return { state: "unavailable", reason: renderer.artifactHandoff.reason };
   }

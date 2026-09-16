@@ -19,7 +19,9 @@ import type { RightsPreviewLike, StudioJobLike } from "../src/lib/api-types";
  * invent rights or progress semantics; they map what the routes answered.
  */
 
-function capabilitiesOf(overrides: Partial<RightsPreviewLike["capabilities"]>): RightsPreviewLike["capabilities"] {
+function capabilitiesOf(
+  overrides: Partial<RightsPreviewLike["capabilities"]>,
+): RightsPreviewLike["capabilities"] {
   return {
     canReferenceSourceFrames: false,
     canDeliverLive: false,
@@ -29,9 +31,7 @@ function capabilitiesOf(overrides: Partial<RightsPreviewLike["capabilities"]>): 
   };
 }
 
-function previewOf(
-  capabilities: RightsPreviewLike["capabilities"],
-): RightsPreviewLike {
+function previewOf(capabilities: RightsPreviewLike["capabilities"]): RightsPreviewLike {
   return {
     capabilities,
     sessionCreation: {
@@ -97,9 +97,7 @@ describe("jobProgressOf (the real compute states → the studio's presentation)"
 describe("meteredFractionOf (real progress events only)", () => {
   test("no metered events answer null — never an invented number", () => {
     expect(meteredFractionOf(jobOf([]))).toBeNull();
-    expect(
-      meteredFractionOf(jobOf([{ atMs: 1, type: "submitted" }])),
-    ).toBeNull();
+    expect(meteredFractionOf(jobOf([{ atMs: 1, type: "submitted" }]))).toBeNull();
   });
 
   test("the LAST metered fraction wins", () => {

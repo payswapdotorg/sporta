@@ -195,12 +195,8 @@ export function createStudioSession(input: {
 }
 
 /** GET /api/create/sessions/[sessionId] — the studio session state. */
-export function fetchStudioSession(
-  sessionId: string,
-): Promise<StudioSessionStateLike> {
-  return getJson<StudioSessionStateLike>(
-    `/api/create/sessions/${encodeURIComponent(sessionId)}`,
-  );
+export function fetchStudioSession(sessionId: string): Promise<StudioSessionStateLike> {
+  return getJson<StudioSessionStateLike>(`/api/create/sessions/${encodeURIComponent(sessionId)}`);
 }
 
 /** POST /api/create/sessions/[sessionId]/renders — dispatch a real render. */

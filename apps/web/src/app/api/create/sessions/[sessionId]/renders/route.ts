@@ -78,9 +78,7 @@ export async function POST(
 }
 
 /** Structural check for one real output profile handed back by /options. */
-function isOutputProfileShape(
-  value: unknown,
-): value is {
+function isOutputProfileShape(value: unknown): value is {
   resolution: { w: number; h: number };
   frameRate: number;
   codec: string;
