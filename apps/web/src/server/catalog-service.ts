@@ -54,6 +54,18 @@ export interface WatchRenderModel {
   outputs: { segmentId: string; contentType: string; byteLength: number; contentHash: string }[];
 }
 
+/** One entry of the session's real SWM event tail (world-model events). */
+export interface WatchEventTailModel {
+  sequence: number;
+  eventId: string;
+  /** The event's real time on the session (match) timeline. */
+  eventTimeMs: number;
+  /** The taxonomy reference (e.g. `football/v1/pass`). */
+  eventTypeRef: string;
+  /** The event's real confidence, when the envelope carries one. */
+  confidence?: number;
+}
+
 /** The watch model (the playback-session acquisition document). */
 export interface WatchModel {
   sessionId: string;
@@ -62,6 +74,12 @@ export interface WatchModel {
   createdAtIso: string;
   playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
   renders: WatchRenderModel[] | null;
+  /**
+   * The session's REAL SWM event tail (`engine.eventsSince(0)` — the
+   * world-model events the control plane's snapshot consumed), `null` when
+   * playback is denied (fail-closed: session internals are not revealed).
+   */
+  eventTail: WatchEventTailModel[] | null;
   /** The dev-seed story (transcript + extracted events), when one exists. */
   story:
     | (SeedStoryMeta & {/** Where to watch: the render+segment pairs that have stored outputs. */})
@@ -149,6 +167,24 @@ async function buildCard(
   };
 }
 
+/**
+ * Reads the session's REAL SWM event tail from its world-model engine —
+ * the world events the control plane's render snapshot consumed, verbatim
+ * (sequence, identity, real times, taxonomy). No engine → the honest empty
+ * tail (nothing has fed the session's world model yet — the W701 posture).
+ */
+function buildEventTail(server: SportaServer, sessionId: string): WatchEventTailModel[] {
+  const engine = server.engines.get(sessionId);
+  if (engine === undefined) return [];
+  return engine.eventsSince(0).map((entry) => ({
+    sequence: entry.sequence,
+    eventId: entry.event.eventId,
+    eventTimeMs: entry.event.eventTimeMs,
+    eventTypeRef: entry.event.eventTypeRef,
+    ...(entry.event.confidence !== undefined ? { confidence: entry.event.confidence } : {}),
+  }));
+}
+
 /** Builds one session's watch model (the playback-session acquisition). */
 export async function buildWatchModel(
   server: SportaServer,
@@ -169,6 +205,7 @@ export async function buildWatchModel(
       createdAtIso: session.createdAtIso,
       playback: { state: "denied", reasonCode: "rights-denied" },
       renders: null,
+      eventTail: null,
       story,
     };
   }
@@ -201,6 +238,7 @@ export async function buildWatchModel(
     createdAtIso: session.createdAtIso,
     playback: { state: "authorized", reasonCode: "ok" },
     renders: renderModels,
+    eventTail: buildEventTail(server, sessionId),
     story,
   };
 }

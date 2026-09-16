@@ -8,6 +8,7 @@ import type {
   AccountViewLike,
   ApiErrorBodyLike,
   CapabilityLike,
+  RealityOptionsLike,
   RenderOutputLike,
   SessionCardLike,
   WatchModelLike,
@@ -120,6 +121,15 @@ export async function fetchLibrary(): Promise<SessionCardLike[] | null> {
 /** GET /api/watch/[sessionId] (the playback-session acquisition). */
 export function fetchWatchModel(sessionId: string): Promise<WatchModelLike> {
   return getJson<WatchModelLike>(`/api/watch/${encodeURIComponent(sessionId)}`);
+}
+
+/**
+ * GET /api/watch/[sessionId]/realities — the Reality Switcher surface: the
+ * per-renderer availability for the SAME session (Simulation G — the
+ * session is the constant; switching never re-acquires the match).
+ */
+export function fetchRealityOptions(sessionId: string): Promise<RealityOptionsLike> {
+  return getJson<RealityOptionsLike>(`/api/watch/${encodeURIComponent(sessionId)}/realities`);
 }
 
 /**

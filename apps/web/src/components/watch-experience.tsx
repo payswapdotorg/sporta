@@ -1,16 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { CapabilityLike, RenderOutputLike, WatchModelLike } from "@/lib/api-types";
 import { ApiError } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
 import { fetchCapability, fetchRenderOutput, fetchWatchModel } from "@/lib/client-api";
 import {
+  advanceFramePlayer,
+  deriveFrameRateProfile,
+  formatDisplayMs,
+  frameIndexAtMs,
+  framePlayerModel,
+  initialFramePlayer,
+  pauseFramePlayer,
+  placeEventMarkers,
+  playFramePlayer,
+  seekFramePlayer,
+  setDisplayRate,
+  type EventMarker,
+  type FramePlayerModel,
+  type FramePlayerState,
+} from "@/lib/frame-display";
+import { prepareFrameForDisplay } from "@/lib/frame-svg";
+import {
+  createRealityMachine,
+  switchReality,
+  type RealityMachineState,
+} from "@/lib/reality-machine";
+import {
   deriveRealityOptions,
   deriveWatchState,
   formatTimelineMs,
-  mapOutputToViewModel,
+  type RealityOption,
 } from "@/lib/surface-state";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
 import { ROUTES } from "@/lib/navigation";
@@ -19,17 +41,36 @@ import { ROUTES } from "@/lib/navigation";
  * THE WATCH EXPERIENCE (W905): one match, many realities.
  *
  * - The MATCH SESSION is constant for the page's life; the Reality Switcher
- *   swaps only the selected renderer (client state) and fetches that
- *   renderer's output for the SAME session — no navigation, no reload of the
- *   match context (Simulation G).
- * - The primary player consumes a REAL stored output through the control
- *   plane's playback gate. Render outputs are animated-SVG review artifacts
- *   (the W504 delivery format) — displayed faithfully as such, never
- *   presented as video.
+ *   swaps only the selected renderer (client state — the pure
+ *   `reality-machine`) and fetches that renderer's output for the SAME
+ *   session. No navigation, no match reload (Simulation G).
+ * - The primary player plays the REAL stored output frame by frame on the
+ *   artifact's OWN manifest clock: play/pause, a timeline scrubber that
+ *   SNAPS to the nearest real frame (frames are discrete — the player never
+ *   interpolates a frame that does not exist), and event markers placed at
+ *   the frames the render's own provenance says applied each real SWM
+ *   event. Render outputs are animated-SVG review artifacts — honestly
+ *   labeled as such, never presented as video.
  * - Availability is capability-driven + rights-aware: an option with no
  *   output for this session shows WHY (requires render / no stored output /
  *   rights / renderer unavailable) — never a fake "coming soon".
+ * - Panels without real data show honest unavailable states (the
+ *   deferred-surfaces posture): Camera needs live production (W915),
+ *   Highlights have no real data this wave.
  */
+
+/** The watch page's tab set (ux-architecture: Renderer | Camera | Commentary | Tactics | Stats | Highlights). */
+const WATCH_TABS = [
+  { id: "renderer", label: "Renderer" },
+  { id: "camera", label: "Camera" },
+  { id: "commentary", label: "Commentary" },
+  { id: "tactics", label: "Tactics" },
+  { id: "stats", label: "Stats" },
+  { id: "highlights", label: "Highlights" },
+] as const;
+
+type WatchTabId = (typeof WATCH_TABS)[number]["id"];
+
 export function WatchExperience({
   sessionId,
   initialRenderer,
@@ -39,7 +80,9 @@ export function WatchExperience({
 }) {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
   const [watch, setWatch] = useState<FetchState<WatchModelLike>>({ phase: "loading" });
-  const [selectedRenderer, setSelectedRenderer] = useState<string | null>(initialRenderer);
+  const [tab, setTab] = useState<WatchTabId>("renderer");
+  const [machine, setMachine] = useState<RealityMachineState | null>(null);
+  const [switchNotice, setSwitchNotice] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchCapability().then(
@@ -61,6 +104,21 @@ export function WatchExperience({
         }),
     );
   }, [sessionId]);
+
+  const options = useMemo(
+    () =>
+      capability.phase === "ready" && watch.phase === "ready"
+        ? deriveRealityOptions(capability.data, watch.data)
+        : null,
+    [capability, watch],
+  );
+
+  // The Reality Switcher's machine: created ONCE per session when the
+  // options arrive — the session is frozen into it for the page's life.
+  useEffect(() => {
+    if (options === null || sessionId === null) return;
+    setMachine((current) => current ?? createRealityMachine(sessionId, options, initialRenderer));
+  }, [options, sessionId, initialRenderer]);
 
   if (sessionId === null) {
     return (
@@ -96,40 +154,61 @@ export function WatchExperience({
     return <StatePanel state="failed" title="The match could not be read" reason={watch.error} />;
   }
 
-  const options = deriveRealityOptions(capability.data, watch.data);
+  const currentOptions = options ?? [];
   const verdict = deriveWatchState(capability.data, watch.data);
-  // The default selection: the query's renderer, else the first ready option.
-  const effectiveSelection =
-    selectedRenderer !== null && options.some((option) => option.rendererId === selectedRenderer)
-      ? selectedRenderer
-      : (options.find((option) => option.state === "ready")?.rendererId ?? null);
+  const effectiveMachine =
+    machine ?? createRealityMachine(sessionId, currentOptions, initialRenderer);
+  const selectedOption =
+    effectiveMachine.selectedRendererId === null
+      ? null
+      : (currentOptions.find(
+          (option) => option.rendererId === effectiveMachine.selectedRendererId,
+        ) ?? null);
+
+  /** One reality switch: same session, new renderer (Simulation G). */
+  const onSwitch = (rendererId: string) => {
+    const transition = switchReality(effectiveMachine, currentOptions, rendererId);
+    if (transition.status === "switched") {
+      setMachine(transition.state);
+      setSwitchNotice(null);
+      return;
+    }
+    setSwitchNotice(`${rendererId}: ${transition.reason}`);
+  };
 
   return (
     <div className="watch-layout">
       <div className="watch-main">
         <MatchHeader watch={watch.data} verdict={verdict} />
-        {effectiveSelection === null ? (
+        {selectedOption === null ? (
           <StatePanel
             state={verdict.state === "denied" ? "denied" : "unavailable"}
             title="Nothing to play for this match"
             reason={verdict.reason}
           />
         ) : (
-          <PlayerSurface
+          <PlayerSection
             sessionId={sessionId}
-            option={options.find((option) => option.rendererId === effectiveSelection)!}
+            option={selectedOption}
+            eventTail={watch.data.eventTail}
           />
         )}
-        {watch.data.story !== null && <CommentarySection watch={watch.data} />}
+        <WatchTabsPanel
+          tab={tab}
+          onTab={setTab}
+          capability={capability.data}
+          watch={watch.data}
+          option={selectedOption}
+        />
       </div>
       <aside className="watch-side">
         <RealitySwitcher
-          options={options}
-          selected={effectiveSelection}
-          onSelect={(rendererId) => setSelectedRenderer(rendererId)}
+          options={currentOptions}
+          selected={effectiveMachine.selectedRendererId}
+          notice={switchNotice}
+          onSelect={onSwitch}
         />
-        <RendererControls capability={capability.data} rendererId={effectiveSelection} />
-        <StatsSection watch={watch.data} />
+        <SessionFactsSection watch={watch.data} />
       </aside>
     </div>
   );
@@ -170,33 +249,38 @@ function MatchHeader({
   );
 }
 
+// ---------------------------------------------------------------------------
+// The primary player surface (plays the REAL stored output)
+// ---------------------------------------------------------------------------
+
+type OutputState =
+  | { phase: "loading" }
+  | { phase: "ready"; data: RenderOutputLike }
+  | { phase: "denied"; reason: string }
+  | { phase: "nothing"; reason: string }
+  | { phase: "failed"; error: string };
+
 /**
- * The primary playback surface: a REAL stored output fetched through the
- * playback gate, rendered as the animated-SVG review artifact it is.
+ * The primary player: acquires the selected reality's stored output through
+ * the playback gate, then plays it frame by frame on the artifact's own
+ * manifest clock.
  */
-function PlayerSurface({
+function PlayerSection({
   sessionId,
   option,
+  eventTail,
 }: {
   sessionId: string;
-  option: {
-    rendererId: string;
-    state: string;
-    reason: string;
-    renderId?: string;
-    segmentId?: string;
-  };
+  option: RealityOption;
+  eventTail: WatchModelLike["eventTail"];
 }) {
-  const [output, setOutput] = useState<
-    | FetchState<RenderOutputLike>
-    | { phase: "denied"; reason: string }
-    | { phase: "nothing"; reason: string }
-  >({ phase: "loading" });
-  const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
-  const [replayKey, setReplayKey] = useState(0);
+  const [output, setOutput] = useState<OutputState>({ phase: "loading" });
+  const [player, setPlayer] = useState<FramePlayerState | null>(null);
 
+  // The Simulation G fetch: the SAME session, the newly-selected renderer's
+  // output — the only I/O a switch performs (the page never reloads).
   useEffect(() => {
-    if (option.segmentId === undefined || option.renderId === undefined) {
+    if (option.renderId === undefined || option.segmentId === undefined) {
       setOutput({ phase: "nothing", reason: option.reason });
       return;
     }
@@ -215,11 +299,7 @@ function PlayerSurface({
             reason: "the playback gate denied this read before any byte was exposed",
           });
         } else {
-          setOutput({
-            phase: "failed",
-            error: String(error),
-            status: error instanceof ApiError ? error.status : undefined,
-          });
+          setOutput({ phase: "failed", error: String(error) });
         }
       },
     );
@@ -228,19 +308,43 @@ function PlayerSurface({
     };
   }, [sessionId, option.renderId, option.segmentId, option.reason]);
 
-  // The artifact is displayed as a Blob URL in an <img> — animations play,
-  // scripts cannot run, and the bytes are only the authorized document's.
+  const model = useMemo(
+    () => (output.phase === "ready" ? framePlayerModel(output.data.manifest) : null),
+    [output],
+  );
+
+  // A new artifact (or a new reality) resets the transport to its first frame.
   useEffect(() => {
-    if (output.phase !== "ready") {
-      setArtifactUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(
-      new Blob([output.data.content], { type: output.data.contentType }),
-    );
-    setArtifactUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [output]);
+    setPlayer(model === null ? null : initialFramePlayer(model));
+  }, [model]);
+
+  const markers = useMemo(
+    () =>
+      model === null || output.phase !== "ready"
+        ? []
+        : placeEventMarkers(model, eventTail ?? [], output.data.manifest.sourceManifest),
+    [model, eventTail, output],
+  );
+  const profile = useMemo(() => (model === null ? null : deriveFrameRateProfile(model)), [model]);
+  const playing = player?.playing ?? false;
+
+  // The play loop: real elapsed time advances the playhead on the
+  // manifest's document timeline (scaled by the explicit display rate).
+  useEffect(() => {
+    if (player === null || model === null || !playing) return;
+    let frame = 0;
+    let last = performance.now();
+    const step = (now: number) => {
+      const delta = now - last;
+      last = now;
+      setPlayer((current) =>
+        current === null ? current : advanceFramePlayer(current, model, delta),
+      );
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [playing, model, player === null]);
 
   if (output.phase === "loading") {
     return (
@@ -274,205 +378,401 @@ function PlayerSurface({
       </section>
     );
   }
-
-  const view = mapOutputToViewModel(output.data);
+  if (model === null || player === null) {
+    return (
+      <section className="player-surface" aria-busy="true">
+        <LoadingPanel label="Preparing the player" />
+      </section>
+    );
+  }
 
   return (
-    <section className="player-surface" data-renderer={option.rendererId}>
-      <div className="player-stage">
-        {artifactUrl !== null && (
-          <img
-            key={replayKey}
-            src={artifactUrl}
-            alt={`The ${view.rendererId} rendering of match session ${output.data.sessionId}: ${view.frameCount} frames over ${(view.totalDurationMs / 1000).toFixed(0)} seconds`}
-            className="player-artifact"
+    <FramePlayerView
+      output={output.data}
+      model={model}
+      player={player}
+      markers={markers}
+      profile={profile}
+      onPlayer={setPlayer}
+      rendererId={option.rendererId}
+    />
+  );
+}
+
+/** The rendered frame player: stage + transport + scrub timeline + markers. */
+function FramePlayerView({
+  output,
+  model,
+  player,
+  markers,
+  profile,
+  onPlayer,
+  rendererId,
+}: {
+  output: RenderOutputLike;
+  model: FramePlayerModel;
+  player: FramePlayerState;
+  markers: EventMarker[];
+  profile: ReturnType<typeof deriveFrameRateProfile> | null;
+  onPlayer: (next: FramePlayerState) => void;
+  rendererId: string;
+}) {
+  const frameIndex = frameIndexAtMs(model, player.playheadMs);
+  const sourceFrame =
+    output.manifest.sourceManifest.frames.find((frame) => frame.frameIndex === frameIndex) ?? null;
+  const totalFrames = model.windows.length;
+
+  // The display document: the REAL stored artifact with the selected frame's
+  // group shown (the transform is pure + fail-closed — see frame-svg.ts).
+  const prepared = useMemo(() => {
+    if (frameIndex < 0) {
+      return { ok: false as const, error: "this artifact carries no frames" };
+    }
+    try {
+      return { ok: true as const, svg: prepareFrameForDisplay(output.content, frameIndex) };
+    } catch (err) {
+      return { ok: false as const, error: err instanceof Error ? err.message : String(err) };
+    }
+  }, [output.content, frameIndex]);
+
+  return (
+    <section className="player-surface" data-renderer={rendererId}>
+      {prepared.ok ? (
+        <div
+          className="player-stage"
+          // The stored output is the deterministic W504 encoder's own SVG
+          // (no scripts, no external resources — verified per frame by the
+          // fail-closed prepare step above).
+          role="img"
+          aria-label={`The ${rendererId} rendering of match session ${output.sessionId}, frame ${frameIndex + 1} of ${totalFrames}`}
+          dangerouslySetInnerHTML={{ __html: prepared.svg }}
+        />
+      ) : (
+        <div className="player-stage">
+          <StatePanel
+            state="failed"
+            title="The frame could not be displayed"
+            reason={prepared.error}
           />
-        )}
-      </div>
+        </div>
+      )}
+
       <div className="player-bar">
         <button
           type="button"
-          className="button-ghost player-replay"
-          onClick={() => setReplayKey((key) => key + 1)}
+          className="button-ghost player-toggle"
+          onClick={() =>
+            onPlayer(
+              player.ended
+                ? playFramePlayer(player, model)
+                : player.playing
+                  ? pauseFramePlayer(player)
+                  : playFramePlayer(player, model),
+            )
+          }
         >
-          Replay
+          {player.playing ? "Pause" : player.ended ? "Replay" : "Play"}
         </button>
+        <p className="player-clock" aria-live="off">
+          <span className="player-clock-time">
+            {formatDisplayMs(player.playheadMs)} / {formatDisplayMs(model.totalDurationMs)}
+          </span>
+          <span className="player-clock-frame">
+            frame {frameIndex >= 0 ? frameIndex + 1 : 0} of {totalFrames}
+          </span>
+        </p>
+        {profile !== null && profile.supported && (
+          <div className="player-rate" role="group" aria-label="Display cadence">
+            {profile.rates.map((rate) => (
+              <button
+                key={rate}
+                type="button"
+                className={`player-rate-option ${player.rate === rate ? "active" : ""}`}
+                aria-pressed={player.rate === rate}
+                onClick={() => onPlayer(setDisplayRate(player, rate))}
+              >
+                {rate === 1 ? "1×" : rate === 0.5 ? "½×" : `${rate}×`}
+              </button>
+            ))}
+          </div>
+        )}
         <p className="review-format-note" role="note">
           Rendered output — review format: this is the real stored artifact (a self-contained
-          animated SVG segment). Sporta&rsquo;s renderers emit SVG review outputs this wave; there
-          is no video codec to fake here.
+          animated-SVG segment), displayed frame by frame on its own manifest clock. Sporta&rsquo;s
+          renderers emit SVG review outputs this wave; there is no video codec to fake here.
         </p>
       </div>
-      <TimelineSection view={view} />
-      <TacticsSection view={view} />
-    </section>
-  );
-}
 
-/** The timeline: real frame windows + captioned event markers. */
-function TimelineSection({ view }: { view: ReturnType<typeof mapOutputToViewModel> }) {
-  return (
-    <section className="timeline-section" aria-label="Match timeline">
-      <h2 className="section-title">Timeline and events</h2>
-      <div
-        className="timeline-track"
-        role="img"
-        aria-label={`A ${view.totalDurationMs / 1000} second timeline with ${view.markers.length} event markers`}
-      >
-        {view.frames.map((frame) => (
-          <span
-            key={frame.frameIndex}
-            className={`timeline-frame ${frame.marker !== null ? "has-marker" : ""}`}
-            style={{ flexGrow: Math.max(1, frame.endMs - frame.atMs) }}
-            title={`${formatTimelineMs(frame.atMs)}–${formatTimelineMs(frame.endMs)}${frame.clockText !== null ? ` · ${frame.clockText}` : ""}`}
-          />
-        ))}
-        {view.markers.map((marker) => (
-          <span
-            key={marker.sequence}
-            className="timeline-marker"
-            style={{ left: `${(marker.atMs / Math.max(1, view.totalDurationMs)) * 100}%` }}
-            title={`${formatTimelineMs(marker.atMs)} — ${marker.phrase}`}
-          >
-            <span className="timeline-marker-dot" aria-hidden="true" />
-            <span className="sr-only">{`${formatTimelineMs(marker.atMs)} — ${marker.phrase}`}</span>
-          </span>
-        ))}
+      <div className="player-scrub">
+        <label className="sr-only" htmlFor="player-seek">
+          Seek the rendered output
+        </label>
+        <input
+          id="player-seek"
+          className="player-seek"
+          type="range"
+          min={0}
+          max={Math.max(1, model.totalDurationMs)}
+          step={1}
+          value={Math.min(player.playheadMs, model.totalDurationMs)}
+          aria-valuetext={`${formatDisplayMs(player.playheadMs)}, frame ${frameIndex >= 0 ? frameIndex + 1 : 0} of ${totalFrames}`}
+          aria-disabled={model.windows.length === 0}
+          onChange={(event) => onPlayer(seekFramePlayer(player, model, Number(event.target.value)))}
+        />
+        <div className="timeline-track player-track" aria-hidden="true">
+          {model.windows.map((window) => (
+            <span
+              key={window.frameIndex}
+              className={`timeline-frame ${window.frameIndex === frameIndex ? "current" : ""}`}
+              style={{ flexGrow: Math.max(1, window.endMs - window.beginMs) }}
+            />
+          ))}
+          {markers
+            .filter((marker) => marker.markerMs !== null)
+            .map((marker) => (
+              <span
+                key={marker.sequence}
+                className="timeline-marker"
+                style={{
+                  left: `${(marker.markerMs! / Math.max(1, model.totalDurationMs)) * 100}%`,
+                }}
+              >
+                <span className="timeline-marker-dot" />
+              </span>
+            ))}
+        </div>
+        <ul className="marker-list player-markers">
+          {markers.map((marker) => (
+            <li key={marker.sequence}>
+              {marker.frameIndex !== null ? (
+                <button
+                  type="button"
+                  className="marker-jump"
+                  onClick={() => onPlayer(seekFramePlayer(player, model, marker.markerMs ?? 0))}
+                >
+                  <span className="marker-time">{formatDisplayMs(marker.markerMs ?? 0)}</span>
+                  <span className="marker-phrase">{marker.eventTypeRef}</span>
+                  <span className="marker-meta">
+                    frame {marker.frameIndex + 1} · seek snaps to the nearest real frame
+                  </span>
+                </button>
+              ) : (
+                <span className="marker-unplaced">
+                  <span className="marker-phrase">{marker.eventTypeRef}</span>
+                  <span className="marker-meta">{marker.reason}</span>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
-      <ol className="marker-list">
-        {view.markers.map((marker) => (
-          <li key={marker.sequence}>
-            <span className="marker-time">{formatTimelineMs(marker.atMs)}</span>
-            <span className="marker-phrase">{marker.phrase}</span>
-            <span className="marker-meta">
-              event {marker.eventId} · sequence {marker.sequence}
-            </span>
-          </li>
-        ))}
-      </ol>
+
+      <dl className="session-card-facts player-frame-facts">
+        <div className="fact">
+          <dt>Match clock</dt>
+          <dd>{sourceFrame?.captions.clockText ?? "—"}</dd>
+        </div>
+        <div className="fact">
+          <dt>Status</dt>
+          <dd>{sourceFrame?.captions.statusLine ?? "—"}</dd>
+        </div>
+        <div className="fact">
+          <dt>Score</dt>
+          <dd>
+            {sourceFrame !== null &&
+            sourceFrame.captions.score !== null &&
+            sourceFrame.captions.score.displayed
+              ? (sourceFrame.captions.score.text ?? sourceFrame.captions.score.status)
+              : "—"}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Event on frame</dt>
+          <dd>
+            {sourceFrame !== null && sourceFrame.captions.events.length > 0
+              ? sourceFrame.captions.events.map((event) => event.phrase).join("; ")
+              : "—"}
+          </dd>
+        </div>
+      </dl>
+
+      <div className="frame-entities">
+        <h3 className="section-subtitle">
+          Entities on frame {frameIndex + 1} — real manifest accounting
+        </h3>
+        {sourceFrame === null || sourceFrame.entities.length === 0 ? (
+          <p className="section-lede">This frame&rsquo;s manifest records no entities.</p>
+        ) : (
+          <table className="tactics-table">
+            <caption className="sr-only">{`Entity dispositions at the displayed frame${sourceFrame.captions.clockText !== null ? ` (clock ${sourceFrame.captions.clockText})` : ""}`}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Entity</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Position (m)</th>
+                <th scope="col">Confidence</th>
+                <th scope="col">Disposition</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sourceFrame.entities.map((entity) => (
+                <tr key={entity.entityId}>
+                  <td>
+                    <code>{entity.entityId}</code>
+                  </td>
+                  <td>{entity.kind}</td>
+                  <td>
+                    {entity.positionMeters !== undefined
+                      ? `${entity.positionMeters.x.toFixed(1)}, ${entity.positionMeters.y.toFixed(1)}`
+                      : "—"}
+                  </td>
+                  <td>{entity.confidence !== undefined ? entity.confidence.toFixed(2) : "—"}</td>
+                  <td>{entity.disposition}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <ProvenancePanel output={output} profile={profile} />
     </section>
   );
 }
 
-/** Tactics: the real per-frame entity positions from the artifact manifest. */
-function TacticsSection({ view }: { view: ReturnType<typeof mapOutputToViewModel> }) {
-  const [frameIndex, setFrameIndex] = useState(view.frames.length - 1);
-  const frame = view.frames[Math.min(frameIndex, view.frames.length - 1)] ?? view.frames[0];
+/** The artifact's provenance: real hashes, sizes, renderer identity, degradation. */
+function ProvenancePanel({
+  output,
+  profile,
+}: {
+  output: RenderOutputLike;
+  profile: ReturnType<typeof deriveFrameRateProfile> | null;
+}) {
+  const source = output.manifest.sourceManifest;
   return (
-    <section className="tactics-section" aria-label="Tactical positions">
-      <h2 className="section-title">Tactics — real positions from the render manifest</h2>
-      <div className="frame-picker" role="group" aria-label="Frame">
-        {view.frames.map((entry) => (
+    <section className="provenance-panel" aria-label="Output provenance">
+      <h2 className="section-title">Provenance — the real artifact</h2>
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Renderer</dt>
+          <dd>
+            <code>{source.renderer.rendererId}</code>@{source.renderer.rendererVersion}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Style</dt>
+          <dd>{source.renderer.styleId}</dd>
+        </div>
+        <div className="fact">
+          <dt>Stored bytes</dt>
+          <dd>
+            {output.byteLength} B · <code>{output.contentHash.slice(0, 12)}…</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Frames</dt>
+          <dd>
+            {output.manifest.frameCount} over {output.manifest.totalDurationMs} ms (document clock)
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Output window</dt>
+          <dd>
+            session {formatTimelineMs(source.output.startMs)}–
+            {formatTimelineMs(source.output.startMs + source.output.durationMs)} · frame interval{" "}
+            {source.output.frameIntervalMs} ms
+          </dd>
+        </div>
+        {profile !== null && profile.baseFrameMs !== null && (
+          <div className="fact">
+            <dt>Display cadence</dt>
+            <dd>{profile.reason}</dd>
+          </div>
+        )}
+        <div className="fact">
+          <dt>Degradation</dt>
+          <dd>
+            <StateChip state={source.degradation.degraded ? "degraded" : "ready"}>
+              {source.degradation.degraded
+                ? source.degradation.reasons.join(", ") || "degraded"
+                : "not degraded"}
+            </StateChip>
+          </dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The tabs (Renderer | Camera | Commentary | Tactics | Stats | Highlights)
+// ---------------------------------------------------------------------------
+
+function WatchTabsPanel({
+  tab,
+  onTab,
+  capability,
+  watch,
+  option,
+}: {
+  tab: WatchTabId;
+  onTab: (tab: WatchTabId) => void;
+  capability: CapabilityLike;
+  watch: WatchModelLike;
+  option: RealityOption | null;
+}) {
+  return (
+    <section className="watch-tabs" aria-label="Match detail panels">
+      <div className="watch-tablist" role="tablist" aria-label="Match detail">
+        {WATCH_TABS.map((entry) => (
           <button
-            key={entry.frameIndex}
+            key={entry.id}
             type="button"
-            className={`frame-picker-option ${entry.frameIndex === frame?.frameIndex ? "active" : ""}`}
-            aria-pressed={entry.frameIndex === frame?.frameIndex}
-            onClick={() => setFrameIndex(entry.frameIndex)}
+            role="tab"
+            id={`watch-tab-${entry.id}`}
+            aria-selected={tab === entry.id}
+            aria-controls={`watch-panel-${entry.id}`}
+            className={`watch-tab ${tab === entry.id ? "active" : ""}`}
+            onClick={() => onTab(entry.id)}
           >
-            {formatTimelineMs(entry.atMs)}
+            {entry.label}
           </button>
         ))}
       </div>
-      {frame === undefined ? (
-        <p className="section-lede">No frame data in this artifact.</p>
-      ) : (
-        <table className="tactics-table">
-          <caption className="sr-only">{`Entity positions at ${formatTimelineMs(frame.atMs)}${frame.clockText !== null ? ` (clock ${frame.clockText})` : ""}`}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Entity</th>
-              <th scope="col">Kind</th>
-              <th scope="col">Position (m)</th>
-              <th scope="col">Confidence</th>
-              <th scope="col">Disposition</th>
-            </tr>
-          </thead>
-          <tbody>
-            {frame.entities.map((entity) => (
-              <tr key={entity.entityId}>
-                <td>
-                  <code>{entity.entityId}</code>
-                </td>
-                <td>{entity.kind}</td>
-                <td>
-                  {entity.positionMeters !== undefined
-                    ? `${entity.positionMeters.x.toFixed(1)}, ${entity.positionMeters.y.toFixed(1)}`
-                    : "—"}
-                </td>
-                <td>{entity.confidence !== undefined ? entity.confidence.toFixed(2) : "—"}</td>
-                <td>{entity.disposition}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div
+        role="tabpanel"
+        id={`watch-panel-${tab}`}
+        aria-labelledby={`watch-tab-${tab}`}
+        className="watch-tabpanel"
+      >
+        {tab === "renderer" && <RendererPanel capability={capability} option={option} />}
+        {tab === "camera" && <CameraPanel />}
+        {tab === "commentary" && <CommentaryPanel watch={watch} />}
+        {tab === "tactics" && <TacticsPanel watch={watch} option={option} />}
+        {tab === "stats" && <StatsPanel watch={watch} />}
+        {tab === "highlights" && <HighlightsPanel watch={watch} />}
+      </div>
     </section>
   );
 }
 
-/**
- * THE REALITY SWITCHER (Simulation G): the renderer options for THIS match
- * session, capability-driven and rights-aware, with the real reason for
- * every option that is not ready.
- */
-function RealitySwitcher({
-  options,
-  selected,
-  onSelect,
-}: {
-  options: ReturnType<typeof deriveRealityOptions>;
-  selected: string | null;
-  onSelect: (rendererId: string) => void;
-}) {
-  return (
-    <section className="reality-switcher" aria-label="Reality Switcher">
-      <h2 className="section-title">Reality Switcher</h2>
-      <p className="section-lede">
-        Same match, different realities. Switching stays on this page — the match session never
-        reloads.
-      </p>
-      <ul className="switcher-options">
-        {options.map((option) => {
-          const isSelected = option.rendererId === selected;
-          return (
-            <li key={option.rendererId}>
-              <button
-                type="button"
-                className={`switcher-option ${isSelected ? "selected" : ""} state-${option.state}`}
-                aria-pressed={isSelected}
-                disabled={option.state !== "ready"}
-                onClick={() => onSelect(option.rendererId)}
-              >
-                <span className="switcher-name">{option.rendererId}</span>
-                <span className={`switcher-state state-${option.state}`}>{option.state}</span>
-                <span className="switcher-reason">{option.reason}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-/** The renderer controls panel: the real capability entry for the selection. */
-function RendererControls({
+/** The Renderer tab: the real capability entry + the renderer-scoped controls. */
+function RendererPanel({
   capability,
-  rendererId,
+  option,
 }: {
   capability: CapabilityLike;
-  rendererId: string | null;
+  option: RealityOption | null;
 }) {
   const renderer =
-    rendererId === null
+    option === null
       ? null
-      : (capability.renderers.find((entry) => entry.rendererId === rendererId) ?? null);
+      : (capability.renderers.find((entry) => entry.rendererId === option.rendererId) ?? null);
   return (
-    <section className="renderer-controls" aria-label="Renderer controls">
+    <div>
       <h2 className="section-title">Renderer</h2>
       {renderer === null ? (
-        <p className="section-lede">No renderer selected.</p>
+        <p className="section-lede">No renderer is selected for this match.</p>
       ) : (
         <dl className="session-card-facts">
           <div className="fact">
@@ -515,16 +815,44 @@ function RendererControls({
           </div>
         </dl>
       )}
-    </section>
+      <p className="section-lede">
+        Renderer-specific controls stay scoped to the selected renderer: the player&rsquo;s
+        display-cadence choices apply only while this reality&rsquo;s artifact is showing, and a
+        renderer whose output carries no frame manifest gets no cadence control at all.
+      </p>
+    </div>
   );
 }
 
-/** The commentary section: the labeled dev-seed story data (real chain I/O). */
-function CommentarySection({ watch }: { watch: WatchModelLike }) {
-  const story = watch.story;
-  if (story === null) return null;
+/** The Camera tab: honest unavailable (live production is W915). */
+function CameraPanel() {
   return (
-    <section className="commentary-section" aria-label="Commentary and highlights">
+    <div>
+      <StatePanel
+        state="unavailable"
+        title="Camera control is not available for stored renders"
+        reason="Camera direction is a live-production capability (real network live transport — W915). A stored review render carries one fixed view per frame — exactly the frame the player shows; there is no camera data to fake here."
+      />
+    </div>
+  );
+}
+
+/** The Commentary tab: the labeled dev-seed story data (real chain I/O). */
+function CommentaryPanel({ watch }: { watch: WatchModelLike }) {
+  const story = watch.story;
+  if (story === null) {
+    return (
+      <div>
+        <StatePanel
+          state="unavailable"
+          title="No commentary data for this session"
+          reason="This session carries no commentary transcript — nothing is invented to fill the panel."
+        />
+      </div>
+    );
+  }
+  return (
+    <div>
       <h2 className="section-title">Commentary</h2>
       <p className="section-lede">
         The fixture transcript this session&rsquo;s world model was really built from (dev seed —
@@ -553,12 +881,56 @@ function CommentarySection({ watch }: { watch: WatchModelLike }) {
           </li>
         ))}
       </ol>
-    </section>
+    </div>
   );
 }
 
-/** The stats section: real render/watermark/provenance numbers. */
-function StatsSection({ watch }: { watch: WatchModelLike }) {
+/** The Tactics tab: the real per-frame entity positions from the artifact. */
+function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: RealityOption | null }) {
+  if (watch.renders === null || watch.renders.length === 0) {
+    return (
+      <div>
+        <StatePanel
+          state="unavailable"
+          title="No tactical data for this session"
+          reason="Tactical positions come from stored render manifests; this session has none to read."
+        />
+      </div>
+    );
+  }
+  return (
+    <div>
+      <h2 className="section-title">Tactics — per-render provenance</h2>
+      <p className="section-lede">
+        Position data lives in each stored artifact&rsquo;s manifest (the player&rsquo;s Provenance
+        panel links the same numbers).{" "}
+        {option !== null ? `Currently showing the ${option.rendererId} reality.` : ""}
+      </p>
+      <ol className="marker-list">
+        {watch.renders.map((render) => (
+          <li key={render.renderId}>
+            <span className="marker-phrase">
+              <code>{render.renderId}</code> ({render.rendererId})
+            </span>
+            <span className="marker-meta">
+              watermark seq {render.watermarkAfter.sequence} @{" "}
+              {formatTimelineMs(render.watermarkAfter.watermarkMs)} · snapshot v
+              {render.provenance.snapshotVersion} · last event {render.provenance.lastEventSequence}{" "}
+              · {render.outputs.length} stored segment(s)
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="section-lede">
+        The live per-frame entity table renders beside the player for any frame you seek — every row
+        is the manifest&rsquo;s own accounting (kind, disposition, position, confidence).
+      </p>
+    </div>
+  );
+}
+
+/** The Stats tab: real render/watermark/provenance numbers. */
+function StatsPanel({ watch }: { watch: WatchModelLike }) {
   const renders = watch.renders ?? [];
   const totals = renders.reduce(
     (acc, render) => ({
@@ -567,8 +939,9 @@ function StatsSection({ watch }: { watch: WatchModelLike }) {
     }),
     { segments: 0, outputs: 0 },
   );
+  const eventTail = watch.eventTail ?? null;
   return (
-    <section className="stats-section" aria-label="Session statistics">
+    <div>
       <h2 className="section-title">Session</h2>
       <dl className="session-card-facts">
         <div className="fact">
@@ -579,18 +952,28 @@ function StatsSection({ watch }: { watch: WatchModelLike }) {
           <dt>Output segments</dt>
           <dd>{renders.length === 0 ? "not revealed (rights)" : totals.outputs}</dd>
         </div>
-        {renders.map((render) => (
-          <div className="fact" key={render.renderId}>
-            <dt>
-              <code>{render.renderId}</code> watermark
-            </dt>
-            <dd>
-              seq {render.watermarkAfter.sequence} @{" "}
-              {formatTimelineMs(render.watermarkAfter.watermarkMs)} · snapshot v
-              {render.provenance.snapshotVersion} · last event {render.provenance.lastEventSequence}
-            </dd>
-          </div>
-        ))}
+        <div className="fact">
+          <dt>SWM events</dt>
+          <dd>
+            {eventTail === null
+              ? "not revealed (rights)"
+              : `${eventTail.length} in the world-model event tail`}
+          </dd>
+        </div>
+        {eventTail !== null &&
+          eventTail.map((event) => (
+            <div className="fact" key={event.sequence}>
+              <dt>
+                event {event.sequence} · <code>{event.eventTypeRef}</code>
+              </dt>
+              <dd>
+                session time {formatTimelineMs(event.eventTimeMs)}
+                {event.confidence !== undefined
+                  ? ` · confidence ${event.confidence.toFixed(2)}`
+                  : ""}
+              </dd>
+            </div>
+          ))}
       </dl>
       {renders.length === 0 && (
         <p className="section-lede">
@@ -601,6 +984,121 @@ function StatsSection({ watch }: { watch: WatchModelLike }) {
           </Link>
         </p>
       )}
+    </div>
+  );
+}
+
+/** The Highlights tab: honest unavailable (no real highlight data this wave). */
+function HighlightsPanel({ watch }: { watch: WatchModelLike }) {
+  const eventTail = watch.eventTail;
+  if (eventTail === null || eventTail.length === 0) {
+    return (
+      <div>
+        <StatePanel
+          state="unavailable"
+          title="No highlight reel data exists"
+          reason="Highlights would be derived selections of stored outputs; no such data exists for this session this wave. The real event list is on the Timeline and in Stats."
+        />
+      </div>
+    );
+  }
+  return (
+    <div>
+      <h2 className="section-title">Highlights</h2>
+      <p className="section-lede">
+        No highlight reel has been produced for this match yet — the real events below are the world
+        model&rsquo;s own event tail (the Timeline places them on the artifact).
+      </p>
+      <ol className="marker-list">
+        {eventTail.map((event) => (
+          <li key={event.sequence}>
+            <span className="marker-time">{formatTimelineMs(event.eventTimeMs)}</span>
+            <span className="marker-phrase">{event.eventTypeRef}</span>
+            <span className="marker-meta">event {event.eventId}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// THE REALITY SWITCHER (Simulation G — the session stays constant)
+// ---------------------------------------------------------------------------
+
+function RealitySwitcher({
+  options,
+  selected,
+  notice,
+  onSelect,
+}: {
+  options: ReturnType<typeof deriveRealityOptions>;
+  selected: string | null;
+  notice: string | null;
+  onSelect: (rendererId: string) => void;
+}) {
+  return (
+    <section className="reality-switcher" aria-label="Reality Switcher">
+      <h2 className="section-title">Reality Switcher</h2>
+      <p className="section-lede">
+        Same match, different realities. Switching stays on this page — the match session never
+        reloads.
+      </p>
+      <ul className="switcher-options">
+        {options.map((option) => {
+          const isSelected = option.rendererId === selected;
+          return (
+            <li key={option.rendererId}>
+              <button
+                type="button"
+                className={`switcher-option ${isSelected ? "selected" : ""} state-${option.state}`}
+                aria-pressed={isSelected}
+                disabled={option.state !== "ready"}
+                onClick={() => onSelect(option.rendererId)}
+              >
+                <span className="switcher-name">{option.rendererId}</span>
+                <span className={`switcher-state state-${option.state}`}>{option.state}</span>
+                <span className="switcher-reason">{option.reason}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {notice !== null && (
+        <p className="switcher-notice" role="status">
+          {notice}
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** The side rail's session facts (real counts; rights-aware). */
+function SessionFactsSection({ watch }: { watch: WatchModelLike }) {
+  const renders = watch.renders ?? [];
+  return (
+    <section className="stats-section" aria-label="Session facts">
+      <h2 className="section-title">Session facts</h2>
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Session</dt>
+          <dd>
+            <code>{watch.sessionId}</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Renders</dt>
+          <dd>{watch.renders === null ? "not revealed (rights)" : renders.length}</dd>
+        </div>
+        <div className="fact">
+          <dt>Story</dt>
+          <dd>
+            {watch.story === null
+              ? "none"
+              : `${watch.story.storyKey} (${watch.story.events.length} events, dev seed)`}
+          </dd>
+        </div>
+      </dl>
     </section>
   );
 }
