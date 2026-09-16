@@ -11,7 +11,8 @@ export function SiteSidebar() {
       <NavLinks variant="sidebar" />
       <div className="sidebar-foot">
         <p className="sidebar-note">
-          The shell is live; surfaces fill in as the Sporta capability and data planes land.
+          Every card, state and output on these surfaces reflects real engine data — never
+          simulated.
         </p>
       </div>
     </nav>
