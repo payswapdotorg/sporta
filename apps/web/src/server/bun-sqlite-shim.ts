@@ -14,7 +14,7 @@
  * the in-memory control plane (W912/W914 bring the hosted replacements).
  */
 export class Database {
-  constructor(_filename?: string) {
+  constructor() {
     throw new Error(
       "bun:sqlite is available only under the Bun runtime — this deployment uses the in-process stores (hosted: W912/W914)",
     );
