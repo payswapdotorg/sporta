@@ -76,18 +76,15 @@ const PASSWORD = "neon-integration-password";
 /** A hosted-faithful auth service over FRESH postgres-backed stores. */
 function pgAuth(ttlMs?: number): { auth: AuthService; sql: PostgresSql } {
   const sql = createPostgresClient(DATABASE_URL!);
-  const sessions =
-    ttlMs === undefined
-      ? undefined
-      : new SessionService({
-          store: new PgSessionStore(sql),
-          nowMs: Date.now,
-          entropy: defaultEntropySource,
-          ttlMs,
-        });
+  const sessions = new SessionService({
+    store: new PgSessionStore(sql),
+    nowMs: Date.now,
+    entropy: defaultEntropySource,
+    ...(ttlMs !== undefined ? { ttlMs } : {}),
+  });
   const auth = new AuthService({
     accounts: new PgAccountStore(sql),
-    ...(sessions !== undefined ? { sessions } : {}),
+    sessions,
     passwordHasher: nodeScryptPasswordHasher,
     nowMs: Date.now,
   });
@@ -112,6 +109,11 @@ function trackClient(sql: PostgresSql): PostgresSql {
     await applyPlatformMigrations(sql);
   });
 
+  // Per-test timeout: these hit the REAL Neon endpoint over the WAN (TLS
+  // handshakes + cross-region RTT can exceed bun's 5s default by a wide
+  // margin — e.g. a sandbox in Asia-Pacific against a us-east-1 database).
+  const WAN_TIMEOUT_MS = 30_000;
+
   test("register → persist → login from a FRESH store (simulated restart)", async () => {
     const first = pgAuth();
     trackClient(first.sql);
@@ -133,7 +135,7 @@ function trackClient(sql: PostgresSql): PostgresSql {
     expect(login.account.userId).toBe(view.userId);
     expect(login.tokenKind).toBe("bearer");
     expect(login.token.length).toBeGreaterThan(0);
-  });
+  }, WAN_TIMEOUT_MS);
 
   test("session survives store recreation (fresh client resolves the token)", async () => {
     const issuer = pgAuth();
@@ -146,7 +148,7 @@ function trackClient(sql: PostgresSql): PostgresSql {
     expect(resolved).not.toBeNull();
     expect(resolved!.account.userId).toBe(aliceUserId);
     expect(resolved!.account.username).toBe(USERNAME_A);
-  });
+  }, WAN_TIMEOUT_MS);
 
   test("tokens are stored HASHED — the opaque token never reaches the table", async () => {
     const issuer = pgAuth();
@@ -177,7 +179,7 @@ function trackClient(sql: PostgresSql): PostgresSql {
     expect(passwordHash).not.toBe(PASSWORD);
     expect(passwordHash).not.toContain(PASSWORD);
     expect(isNodeScryptHash(passwordHash)).toBe(true);
-  });
+  }, WAN_TIMEOUT_MS);
 
   test("expired sessions are rejected (fail-closed)", async () => {
     const short = pgAuth(1); // 1 ms TTL
@@ -193,7 +195,7 @@ function trackClient(sql: PostgresSql): PostgresSql {
     await new Promise((resolve) => setTimeout(resolve, 50)); // real clock passes expiry
     const resolved = await short.auth.resolve(login.token);
     expect(resolved).toBeNull();
-  });
+  }, WAN_TIMEOUT_MS);
 
   test("revocation persists across store recreation (logout survives restarts)", async () => {
     const issuer = pgAuth();
@@ -210,7 +212,7 @@ function trackClient(sql: PostgresSql): PostgresSql {
     trackClient(fresh.sql);
     const resolved = await fresh.auth.resolve(login.token);
     expect(resolved).toBeNull();
-  });
+  }, WAN_TIMEOUT_MS);
 
   afterAll(async () => {
     // Best-effort cleanup of THIS run's rows (the database is shared state).

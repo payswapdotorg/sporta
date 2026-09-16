@@ -32,7 +32,9 @@ export function isNodeScryptHash(hash: string): boolean {
 function scryptAsync(password: string, salt: Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     scrypt(password, salt, KEY_LENGTH, { N: SCRYPT_N, r: SCRYPT_R, p: SCRYPT_P }, (err, key) => {
-      if (err !== null) reject(err);
+      // Falsy check (not `!== null`): Node passes `err = null` on success but
+      // Bun passes `err = undefined` — only a truthy error is a failure.
+      if (err) reject(err);
       else resolve(key);
     });
   });
@@ -80,7 +82,8 @@ export const nodeScryptPasswordHasher: PasswordHasher = {
     if (salt.length === 0 || expected.length === 0) return false;
     const actual = await new Promise<Buffer>((resolve, reject) => {
       scrypt(password, salt, expected.length, { N: n, r, p }, (err, key) => {
-        if (err !== null) reject(err);
+        // Same falsy check — see scryptAsync (Node: null, Bun: undefined).
+        if (err) reject(err);
         else resolve(key);
       });
     }).catch(() => null);
