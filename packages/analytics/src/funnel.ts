@@ -282,6 +282,12 @@ export const OWNER_NOTES: Readonly<Record<ViewerFailureClass, string>> = {
     "Owner: render lifecycle (W701). The render no longer exists — refresh the session detail and select an existing render.",
   "unknown-segment":
     "Owner: playback store (W504). A stored output segment vanished mid-playback — reload the render; check the store's retention.",
+  // W914 async-compute classes (additive, mirrors the control plane's own
+  // 503/404 semantics — see viewer-shell errors.ts).
+  "compute-unavailable":
+    "Owner: platform compute backend (W914). No compute adapter is configured on the control plane — the operator must wire one; retry cannot fix it.",
+  "unknown-compute-job":
+    "Owner: compute job lifecycle (W914). The compute job no longer exists — refresh the job state and act on a job that exists.",
   "unknown-route":
     "Owner: viewer/server version skew. The viewer requested a route this server does not serve — reload the viewer.",
   "method-not-allowed":
