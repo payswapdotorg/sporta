@@ -192,7 +192,8 @@ export interface RealityOptionsLike {
     rendererId: string;
     rendererVersion?: string;
     rendererClass?: string;
-    state: "ready" | "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
+    state:
+      "ready" | "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
     reason: string;
     renderId?: string;
     segmentId?: string;

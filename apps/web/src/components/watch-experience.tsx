@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type {
-  CapabilityLike,
-  RenderOutputLike,
-  WatchModelLike,
-} from "@/lib/api-types";
+import type { CapabilityLike, RenderOutputLike, WatchModelLike } from "@/lib/api-types";
 import { ApiError } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
 import { fetchCapability, fetchRenderOutput, fetchWatchModel } from "@/lib/client-api";
@@ -161,13 +157,13 @@ export function WatchExperience({
   const currentOptions = options ?? [];
   const verdict = deriveWatchState(capability.data, watch.data);
   const effectiveMachine =
-    machine ??
-    createRealityMachine(sessionId, currentOptions, initialRenderer);
+    machine ?? createRealityMachine(sessionId, currentOptions, initialRenderer);
   const selectedOption =
     effectiveMachine.selectedRendererId === null
       ? null
-      : (currentOptions.find((option) => option.rendererId === effectiveMachine.selectedRendererId) ??
-        null);
+      : (currentOptions.find(
+          (option) => option.rendererId === effectiveMachine.selectedRendererId,
+        ) ?? null);
 
   /** One reality switch: same session, new renderer (Simulation G). */
   const onSwitch = (rendererId: string) => {
@@ -465,7 +461,15 @@ function FramePlayerView({
         <button
           type="button"
           className="button-ghost player-toggle"
-          onClick={() => onPlayer(player.ended ? playFramePlayer(player, model) : player.playing ? pauseFramePlayer(player) : playFramePlayer(player, model))}
+          onClick={() =>
+            onPlayer(
+              player.ended
+                ? playFramePlayer(player, model)
+                : player.playing
+                  ? pauseFramePlayer(player)
+                  : playFramePlayer(player, model),
+            )
+          }
         >
           {player.playing ? "Pause" : player.ended ? "Replay" : "Play"}
         </button>
@@ -529,7 +533,9 @@ function FramePlayerView({
               <span
                 key={marker.sequence}
                 className="timeline-marker"
-                style={{ left: `${(marker.markerMs! / Math.max(1, model.totalDurationMs)) * 100}%` }}
+                style={{
+                  left: `${(marker.markerMs! / Math.max(1, model.totalDurationMs)) * 100}%`,
+                }}
               >
                 <span className="timeline-marker-dot" />
               </span>
@@ -688,7 +694,7 @@ function ProvenancePanel({
           <dd>
             <StateChip state={source.degradation.degraded ? "degraded" : "ready"}>
               {source.degradation.degraded
-                ? (source.degradation.reasons.join(", ") || "degraded")
+                ? source.degradation.reasons.join(", ") || "degraded"
                 : "not degraded"}
             </StateChip>
           </dd>
@@ -897,7 +903,8 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
       <h2 className="section-title">Tactics — per-render provenance</h2>
       <p className="section-lede">
         Position data lives in each stored artifact&rsquo;s manifest (the player&rsquo;s Provenance
-        panel links the same numbers). {option !== null ? `Currently showing the ${option.rendererId} reality.` : ""}
+        panel links the same numbers).{" "}
+        {option !== null ? `Currently showing the ${option.rendererId} reality.` : ""}
       </p>
       <ol className="marker-list">
         {watch.renders.map((render) => (
@@ -915,8 +922,8 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
         ))}
       </ol>
       <p className="section-lede">
-        The live per-frame entity table renders beside the player for any frame you seek — every
-        row is the manifest&rsquo;s own accounting (kind, disposition, position, confidence).
+        The live per-frame entity table renders beside the player for any frame you seek — every row
+        is the manifest&rsquo;s own accounting (kind, disposition, position, confidence).
       </p>
     </div>
   );
@@ -999,8 +1006,8 @@ function HighlightsPanel({ watch }: { watch: WatchModelLike }) {
     <div>
       <h2 className="section-title">Highlights</h2>
       <p className="section-lede">
-        No highlight reel has been produced for this match yet — the real events below are the
-        world model&rsquo;s own event tail (the Timeline places them on the artifact).
+        No highlight reel has been produced for this match yet — the real events below are the world
+        model&rsquo;s own event tail (the Timeline places them on the artifact).
       </p>
       <ol className="marker-list">
         {eventTail.map((event) => (

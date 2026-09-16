@@ -128,12 +128,8 @@ export function fetchWatchModel(sessionId: string): Promise<WatchModelLike> {
  * per-renderer availability for the SAME session (Simulation G — the
  * session is the constant; switching never re-acquires the match).
  */
-export function fetchRealityOptions(
-  sessionId: string,
-): Promise<RealityOptionsLike> {
-  return getJson<RealityOptionsLike>(
-    `/api/watch/${encodeURIComponent(sessionId)}/realities`,
-  );
+export function fetchRealityOptions(sessionId: string): Promise<RealityOptionsLike> {
+  return getJson<RealityOptionsLike>(`/api/watch/${encodeURIComponent(sessionId)}/realities`);
 }
 
 /**
