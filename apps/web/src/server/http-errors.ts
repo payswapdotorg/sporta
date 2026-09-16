@@ -130,12 +130,19 @@ export async function errorResponse(err: unknown): Promise<Response> {
       },
     } satisfies ApiErrorBody);
   }
-  const { CONTROL_HTTP_STATUS, isControlApiError } = await import("@sporta/control-api");
-  if (isControlApiError(err)) {
+  let controlApi: typeof import("@sporta/control-api") | null = null;
+  try {
+    controlApi = await import("@sporta/control-api");
+  } catch (importErr) {
+    // Observability: the error-class import itself failing must be visible —
+    // and must not mask the ORIGINAL error with the fallback 500.
+    console.error("[api] control-api error classes unavailable:", importErr);
+  }
+  if (controlApi !== null && controlApi.isControlApiError(err)) {
     // The control plane's typed errors carry their own httpStatus (the
     // CONTROL_HTTP_STATUS mapping: rights-denied → 403, validation → 400,
     // unknown-session/render/segment → 404, resource-limit → 413, internal → 500).
-    const status = err.httpStatus ?? CONTROL_HTTP_STATUS[err.failureClass];
+    const status = err.httpStatus ?? controlApi.CONTROL_HTTP_STATUS[err.failureClass];
     return jsonResponse(status, {
       error: {
         failureClass: err.failureClass,
@@ -144,8 +151,22 @@ export async function errorResponse(err: unknown): Promise<Response> {
       },
     } satisfies ApiErrorBody);
   }
+  // Observability (the W920 final-gate finding): an unknown failure is LOGGED
+  // with its real cause — name, message, stack — before the secret-free
+  // generic 500 answers. A silent 500 hid the exact class of intermittent
+  // deployed defect (≈25-30% of watch reads under a cold parallel burst) from
+  // the runtime logs entirely; the honest-degradation contract requires the
+  // cause visible server-side even when the client answer stays generic. The
+  // random errorId rides in both the log line and the response body so a
+  // reported failure can be correlated with its log entry.
+  const errorId = crypto.randomUUID();
+  console.error(`[api] unhandled error (${errorId}):`, err);
   return jsonResponse(500, {
-    error: { failureClass: "internal", message: "unexpected server failure" },
+    error: {
+      failureClass: "internal",
+      message: "unexpected server failure",
+      details: { errorId },
+    },
   } satisfies ApiErrorBody);
 }
 
