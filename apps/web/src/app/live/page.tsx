@@ -19,7 +19,7 @@ export default function LivePage() {
       <PageHeader
         kicker="Watch"
         title="Live"
-        description="Matches streaming now over real live delivery. Sporta never marks anything live without a real live transport behind it."
+        description="Real live network streaming when the SSE transport is enabled — never simulated. The state below is the transport's own verdict."
       />
       <LiveSurface />
     </>

@@ -59,7 +59,7 @@ export const PRIMARY_NAV: readonly NavItem[] = [
   {
     href: ROUTES.live,
     label: "Live",
-    description: "Matches streaming now over real live delivery",
+    description: "Real live network streaming when the transport is enabled",
     icon: "live",
   },
   {
