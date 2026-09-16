@@ -1,0 +1,224 @@
+import { describe, expect, test } from "bun:test";
+import { ROLES } from "@sporta/capability";
+import {
+  ROLE_LABELS,
+  ROLE_WORKSPACES,
+  formatPendingWork,
+  isRouteInWorkspace,
+  navForRole,
+  switchableRoles,
+  workspaceDefaultPath,
+} from "../src/lib/role-workspaces";
+import { PRIMARY_NAV, ROUTES } from "../src/lib/navigation";
+
+/**
+ * W907 — the role → workspace model (docs/architecture/role-experience-matrix.md
+ * "Product surface map" + "Role semantics"), made executable:
+ *
+ * - every role's workspace is EXACTLY the matrix's surface list;
+ * - the switcher offers EXACTLY the account's grants (never all five);
+ * - the active role is presentation context only (nav/workspace), and a
+ *   no-active-role account falls back to the shared navigation;
+ * - safe return: the workspace's default path + membership check never
+ *   strand a switched account on a foreign surface;
+ * - pending work formats honestly (zero/invalid pending is null, never 0).
+ */
+
+describe("W907 role workspaces — the matrix's product surface map", () => {
+  test("every role has a workspace with at least one surface", () => {
+    for (const role of ROLES) {
+      expect(ROLE_WORKSPACES[role].length).toBeGreaterThan(0);
+    }
+  });
+
+  test("Viewer: Home, Live, Explore, Watch, Library — exactly", () => {
+    expect(ROLE_WORKSPACES.viewer.map((s) => s.label)).toEqual([
+      "Home",
+      "Live",
+      "Explore",
+      "Watch",
+      "Library",
+    ]);
+  });
+
+  test("Creator: Home, Create Studio, Jobs, Library — exactly", () => {
+    expect(ROLE_WORKSPACES.creator.map((s) => s.label)).toEqual([
+      "Home",
+      "Create Studio",
+      "Jobs",
+      "Library",
+    ]);
+  });
+
+  test("Analyst: Home, Watch, Match Lab, Clips, Notes — exactly", () => {
+    expect(ROLE_WORKSPACES.analyst.map((s) => s.label)).toEqual([
+      "Home",
+      "Watch",
+      "Match Lab",
+      "Clips",
+      "Notes",
+    ]);
+  });
+
+  test("Rights Holder: Home, Rights Center, Catalog, Audit — exactly", () => {
+    expect(ROLE_WORKSPACES["rights-holder"].map((s) => s.label)).toEqual([
+      "Home",
+      "Rights Center",
+      "Catalog",
+      "Audit",
+    ]);
+  });
+
+  test("Operator: Operations, Jobs, Health, Providers, Audit — exactly", () => {
+    expect(ROLE_WORKSPACES.operator.map((s) => s.label)).toEqual([
+      "Operations",
+      "Jobs",
+      "Health",
+      "Providers",
+      "Audit",
+    ]);
+  });
+
+  test("every surface destination is a real shell route (anchors address sections)", () => {
+    const routes = new Set(Object.values(ROUTES));
+    for (const role of ROLES) {
+      for (const surface of ROLE_WORKSPACES[role]) {
+        const path = surface.href.split("#", 1)[0]!;
+        expect(routes.has(path as (typeof routes) extends Set<infer T> ? T : never)).toBe(true);
+      }
+    }
+  });
+
+  test("the matrix's catalog surface is the real Explore catalog route", () => {
+    const catalog = ROLE_WORKSPACES["rights-holder"].find((s) => s.id === "catalog")!;
+    expect(catalog.href).toBe(ROUTES.explore);
+  });
+
+  test("operator Health and Providers surface sections of the real operations page", () => {
+    const health = ROLE_WORKSPACES.operator.find((s) => s.id === "health")!;
+    const providers = ROLE_WORKSPACES.operator.find((s) => s.id === "providers")!;
+    expect(health.href).toBe(`${ROUTES.operations}#health`);
+    expect(providers.href).toBe(`${ROUTES.operations}#providers`);
+  });
+});
+
+describe("W907 role switcher model — grants-only, context-only", () => {
+  test("a grant-less account can switch to nothing (honest empty list)", () => {
+    expect(switchableRoles({ roles: [], activeRole: null })).toEqual([]);
+  });
+
+  test("a viewer-only account may switch to viewer only", () => {
+    expect(switchableRoles({ roles: ["viewer"], activeRole: "viewer" })).toEqual(["viewer"]);
+  });
+
+  test("switchable roles are exactly the grants, in canonical order, never deduplicated away", () => {
+    expect(switchableRoles({ roles: ["operator", "analyst", "viewer"], activeRole: null })).toEqual([
+      "viewer",
+      "analyst",
+      "operator",
+    ]);
+  });
+
+  test("roles the account does NOT hold are never offered (grants-only rule)", () => {
+    const offered = switchableRoles({ roles: ["viewer", "creator"], activeRole: "viewer" });
+    expect(offered).not.toContain("rights-holder");
+    expect(offered).not.toContain("analyst");
+    expect(offered).not.toContain("operator");
+    expect(offered).toEqual(["viewer", "creator"]);
+  });
+
+  test("duplicate grants collapse (a store must never expand the offered set)", () => {
+    expect(switchableRoles({ roles: ["viewer", "viewer"], activeRole: null })).toEqual(["viewer"]);
+  });
+
+  test("every role has a human-facing label (the matrix's column headers)", () => {
+    expect(ROLE_LABELS.viewer).toBe("Viewer");
+    expect(ROLE_LABELS["rights-holder"]).toBe("Rights Holder");
+    for (const role of ROLES) {
+      expect(ROLE_LABELS[role].length).toBeGreaterThan(3);
+    }
+  });
+});
+
+describe("W907 workspace navigation — presentation context only", () => {
+  test("no active role falls back to the shared navigation (never a fabricated workspace)", () => {
+    expect(navForRole(null)).toBe(PRIMARY_NAV);
+    expect(navForRole(undefined)).toBe(PRIMARY_NAV);
+  });
+
+  test("the active role narrows navigation to its workspace surfaces, in order", () => {
+    const nav = navForRole("rights-holder");
+    expect(nav.map((item) => item.label)).toEqual(["Home", "Rights Center", "Catalog", "Audit"]);
+    expect(nav.map((item) => item.href)).toEqual([
+      ROUTES.home,
+      ROUTES.rights,
+      ROUTES.explore,
+      ROUTES.audit,
+    ]);
+  });
+
+  test("every workspace's first surface is its entry point (safe return target)", () => {
+    expect(workspaceDefaultPath("viewer")).toBe(ROUTES.home);
+    expect(workspaceDefaultPath("creator")).toBe(ROUTES.home);
+    expect(workspaceDefaultPath("analyst")).toBe(ROUTES.home);
+    expect(workspaceDefaultPath("rights-holder")).toBe(ROUTES.home);
+    expect(workspaceDefaultPath("operator")).toBe(ROUTES.operations);
+  });
+
+  test("workspace membership ignores anchors and query strings", () => {
+    expect(isRouteInWorkspace("operator", "/operations#health")).toBe(true);
+    expect(isRouteInWorkspace("operator", "/operations?tab=1")).toBe(true);
+  });
+
+  test("the root path belongs to every workspace that lists Home, and only those", () => {
+    expect(isRouteInWorkspace("viewer", "/")).toBe(true);
+    expect(isRouteInWorkspace("operator", "/")).toBe(false);
+  });
+
+  test("sub-paths of a workspace surface stay inside the workspace", () => {
+    expect(isRouteInWorkspace("viewer", "/watch/abc")).toBe(true);
+    expect(isRouteInWorkspace("creator", "/create")).toBe(true);
+    expect(isRouteInWorkspace("analyst", "/matchlab")).toBe(true);
+  });
+
+  test("a foreign surface is NOT in the workspace (the safe-return redirect case)", () => {
+    // A viewer's workspace has no rights center, operations or jobs surfaces.
+    expect(isRouteInWorkspace("viewer", "/rights")).toBe(false);
+    expect(isRouteInWorkspace("viewer", "/operations")).toBe(false);
+    expect(isRouteInWorkspace("viewer", "/jobs")).toBe(false);
+    // An operator's workspace has no Live surface.
+    expect(isRouteInWorkspace("operator", "/live")).toBe(false);
+  });
+
+  test("near-miss prefixes never match (no /livestream-style false positives)", () => {
+    expect(isRouteInWorkspace("viewer", "/livestream")).toBe(false);
+    expect(isRouteInWorkspace("analyst", "/matchlabx")).toBe(false);
+  });
+});
+
+describe("W907 pending work — honest formatting", () => {
+  test("zero pending is null (no fabricated 0 badges)", () => {
+    expect(formatPendingWork("creator-jobs", 0)).toBeNull();
+  });
+
+  test("negative and non-integer counts are null (fail-closed formatting)", () => {
+    expect(formatPendingWork("creator-jobs", -1)).toBeNull();
+    expect(formatPendingWork("operator-failures", 1.5)).toBeNull();
+    expect(formatPendingWork("creator-jobs", Number.NaN)).toBeNull();
+  });
+
+  test("one pending job formats singular", () => {
+    expect(formatPendingWork("creator-jobs", 1)).toEqual({ label: "1 job in flight", count: 1 });
+  });
+
+  test("several pending jobs format plural", () => {
+    expect(formatPendingWork("creator-jobs", 3)).toEqual({
+      label: "3 jobs in flight",
+      count: 3,
+    });
+    expect(formatPendingWork("operator-failures", 2)).toEqual({
+      label: "2 failed jobs",
+      count: 2,
+    });
+  });
+});

@@ -67,6 +67,54 @@ const GLYPHS: Record<NavIcon, ReactNode> = {
       <path d="M5.6 19.6c1-3.7 3.4-5.4 6.4-5.4s5.4 1.7 6.4 5.4" />
     </>
   ),
+  matchlab: (
+    <>
+      <circle cx="12" cy="12" r="8.2" />
+      <path d="M12 3.8v16.4M3.8 12h16.4" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  clips: (
+    <>
+      <rect x="4" y="5.5" width="16" height="13" rx="3" />
+      <path d="M9.4 9.6l5 2.4-5 2.4z" fill="currentColor" stroke="none" />
+    </>
+  ),
+  notes: (
+    <>
+      <path d="M6 3.8h9.2L19 7.6V20a.9.9 0 0 1-.9.9H6a.9.9 0 0 1-.9-.9V4.7a.9.9 0 0 1 .9-.9z" />
+      <path d="M8.2 11h7.6M8.2 14.6h5.2" />
+    </>
+  ),
+  rights: (
+    <>
+      <path d="M12 3.4v17.2" />
+      <path d="M16.8 6.6c-2-1.7-7.4-2.2-8.4.8-1.3 3.9 8.9 3.2 7.9 7.5-.8 3.4-6.1 3.3-8.9 1.2" />
+    </>
+  ),
+  operations: (
+    <>
+      <rect x="3.6" y="4.6" width="6.6" height="5.2" rx="1.6" />
+      <rect x="13.8" y="4.6" width="6.6" height="5.2" rx="1.6" />
+      <rect x="3.6" y="14.2" width="6.6" height="5.2" rx="1.6" />
+      <rect x="13.8" y="14.2" width="6.6" height="5.2" rx="1.6" />
+      <path d="M6.9 9.8v4.4M17.1 9.8v4.4" />
+    </>
+  ),
+  jobs: (
+    <>
+      <rect x="5" y="6.4" width="14" height="12.6" rx="2.6" />
+      <path d="M8.8 6.4V4.9a1.4 1.4 0 0 1 1.4-1.4h3.6a1.4 1.4 0 0 1 1.4 1.4v1.5" />
+      <path d="M8.6 12.2h6.8" />
+    </>
+  ),
+  audit: (
+    <>
+      <path d="M5.2 20.2 8 11l4.6-3.2 3 4.6 3.2-1.6" />
+      <path d="M8 11l2.4 3" />
+      <circle cx="17.2" cy="7.2" r="2.4" />
+    </>
+  ),
 };
 
 export function NavIcon({ name }: { name: NavIcon }) {
