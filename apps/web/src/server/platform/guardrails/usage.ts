@@ -240,16 +240,17 @@ export class CommandCounter {
     }
     // An absent key is a legitimate zero (no commands persisted yet).
     const total = current ?? 0;
-    if (this.#buffered === 0) {
+    // Snapshot the flushed portion BEFORE the read: the flush's own GET+SET
+    // are counted by the MeteredRedis wrapper into the REMAINING buffer (the
+    // next flush persists them — each flush adds exactly its own commands, so
+    // the total converges with no runaway inflation).
+    const flushed = this.#buffered;
+    if (flushed === 0) {
       return { total, flushed: 0 };
     }
-    const flushed = this.#buffered;
-    // The two commands this flush issues (GET above + SET below) are counted
-    // by the MeteredRedis wrapper into the NEXT buffer — each flush adds
-    // exactly its own commands, so the total converges (no runaway).
     const next = total + flushed;
     await writeCounter(redis, key, next, MONTHLY_COUNTER_TTL_SECONDS);
-    this.#buffered = 0;
+    this.#buffered -= flushed;
     this.#lastFlushedTotal = next;
     return { total: next, flushed };
   }

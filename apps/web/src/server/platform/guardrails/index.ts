@@ -445,6 +445,7 @@ export {
   readCounter,
   readUserDailyUsage,
   recordUserDailyUsage,
+  userDailyUsageKey,
 } from "./usage";
 export type { MeteredCostUnit } from "./usage";
 export { observeAlarm, alarmKey, alarmTtlSeconds } from "./alarms";
