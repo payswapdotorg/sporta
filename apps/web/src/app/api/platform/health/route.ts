@@ -17,6 +17,7 @@ import { deployMarker, platformEnv, providerAvailability } from "@/server/platfo
 import { neonClient } from "@/server/platform/db/pg";
 import { getHostedRenderOutputStore } from "@/server/platform/r2/hosted";
 import { getHostedTransientState } from "@/server/platform/upstash/redis";
+import { getHostedJobQueue } from "@/server/platform/upstash/hosted";
 import { jsonRespond, newRequestId } from "@/server/platform/api-utils";
 import { HOSTED_STORE_DEFAULT_LIMITS } from "@/server/platform/r2/r2-store";
 
@@ -68,9 +69,45 @@ async function checkUpstash(): Promise<ProviderCheck> {
   }
 }
 
+/**
+ * The W913 render queue's live observation (depth vs the hard bound). The
+ * production composition runs over the SAME process-wide transient backing
+ * this reads (see composition.ts buildSingleton), so the numbers are the
+ * deployment's real queue, never a parallel one. On a read failure the
+ * depth is reported `null` — fail-closed, never invented.
+ */
+async function queueObservation(): Promise<{
+  key: string;
+  maxDepth: number;
+  admissionLeaseMs: number;
+  depth: number | null;
+}> {
+  const queue = getHostedJobQueue();
+  try {
+    return {
+      key: "sporta:jobs:render",
+      maxDepth: queue.maxDepth,
+      admissionLeaseMs: queue.admissionLeaseMs,
+      depth: await queue.depth(),
+    };
+  } catch {
+    return {
+      key: "sporta:jobs:render",
+      maxDepth: queue.maxDepth,
+      admissionLeaseMs: queue.admissionLeaseMs,
+      depth: null,
+    };
+  }
+}
+
 export async function GET(): Promise<Response> {
   const requestId = newRequestId();
-  const [neon, r2, upstash] = await Promise.all([checkNeon(), checkR2(), checkUpstash()]);
+  const [neon, r2, upstash, renderQueue] = await Promise.all([
+    checkNeon(),
+    checkR2(),
+    checkUpstash(),
+    queueObservation(),
+  ]);
   return jsonRespond(
     200,
     {
@@ -81,8 +118,9 @@ export async function GET(): Promise<Response> {
         artifacts: { ...providerAvailability().artifacts, check: r2 },
         transientState: { ...providerAvailability().transientState, check: upstash },
       },
+      renderQueue,
       usageGuardrails: {
-        note: "R2 free-tier limits (10 GB-month storage, 1M Class A, 10M Class B ops) are enforced via the W504 store bounds; provider usage counters are W919 scope.",
+        note: "R2 free-tier limits (10 GB-month storage, 1M Class A, 10M Class B ops) are enforced via the W504 store bounds; Upstash free-tier limits (256 MB data, 500K commands/month) are enforced via the W913 bounded queue + quota windows; provider usage counters are W919 scope.",
         storeLimits: { ...HOSTED_STORE_DEFAULT_LIMITS },
       },
     },

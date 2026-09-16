@@ -57,11 +57,22 @@ import type {
   SessionService,
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
-import { neonConfigured, r2Configured } from "./platform/env";
+import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
+import { InMemoryRedis, getHostedTransientState } from "./platform/upstash/redis";
+import type { RedisLike } from "./platform/upstash/redis";
+import { BoundedJobQueue } from "./platform/upstash/queue";
+import { QuotaGuard } from "./platform/upstash/quotas";
+import { TtlCache } from "./platform/upstash/cache";
+import {
+  HOSTED_ADMISSION_LEASE_MS,
+  HOSTED_CACHE_TTL_SECONDS,
+  HOSTED_QUEUE_KEY,
+  HOSTED_QUEUE_MAX_DEPTH,
+} from "./platform/upstash/hosted";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
@@ -104,6 +115,16 @@ export interface SportaServerOptions {
    * `artifacts: in-memory`).
    */
   artifacts?: R2RenderOutputStore | null;
+  /**
+   * The transient-state backing for THIS composition (W913): when injected,
+   * the queue/quota/cache objects are built over the given `RedisLike`
+   * (tests inject an `InMemoryRedis` with a pinned clock). Default: the REAL
+   * hosted transient state — shared Upstash REST when both bindings exist,
+   * a per-composition in-memory fallback otherwise (the honest per-instance
+   * boundary; the production singleton passes the process-wide backing in
+   * so `/api/platform/health` observes the same state).
+   */
+  transient?: { redis: RedisLike; provider: "upstash" | "in-memory" };
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
 }
@@ -158,6 +179,19 @@ export interface SportaServer {
    * (SPORTA_LIVE_TRANSPORT=sse); the capability response is wired to it.
    */
   live: LiveTransport;
+  /**
+   * The hosted transient state (W913): the bounded render job queue, the
+   * quota/rate-limit counters, and the small TTL cache, over the REAL
+   * Upstash REST backing when configured (shared across instances) or the
+   * honest in-memory fallback (per-instance — health reports it).
+   */
+  transientState: {
+    provider: "upstash" | "in-memory";
+    redis: RedisLike;
+    queue: BoundedJobQueue;
+    quotas: QuotaGuard;
+    cache: TtlCache;
+  };
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -269,6 +303,32 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       cadenceMs: liveCadenceMs(),
     });
 
+  // 6a. The transient state (W913): the bounded render queue, the quota
+  //     counters, and the small TTL cache. Injected for tests; otherwise the
+  //     REAL hosted backing — shared Upstash REST when configured, an
+  //     in-memory per-composition fallback (honestly per-instance) when not.
+  const transientBacking = options.transient ?? {
+    redis: upstashConfigured() ? getHostedTransientState().redis : new InMemoryRedis(),
+    provider: (upstashConfigured() ? "upstash" : "in-memory") as "upstash" | "in-memory",
+  };
+  const transientState: SportaServer["transientState"] = {
+    provider: transientBacking.provider,
+    redis: transientBacking.redis,
+    queue: new BoundedJobQueue({
+      redis: transientBacking.redis,
+      key: HOSTED_QUEUE_KEY,
+      maxDepth: HOSTED_QUEUE_MAX_DEPTH,
+      admissionLeaseMs: HOSTED_ADMISSION_LEASE_MS,
+      nowMs,
+    }),
+    quotas: new QuotaGuard({ redis: transientBacking.redis, nowMs }),
+    cache: new TtlCache({
+      redis: transientBacking.redis,
+      namespace: "sporta:cache",
+      ttlSeconds: HOSTED_CACHE_TTL_SECONDS,
+    }),
+  };
+
   // 6b. The hosted artifact store (W912): the R2-backed render-output store
   //     when configured. The dev seed MIRRORS every stored output into it
   //     (fail-closed — a configured R2 that rejects the mirror fails the
@@ -305,6 +365,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     attestations,
     compute,
     live,
+    transientState,
     nowMs,
     ready: Promise.resolve(),
   };
@@ -380,11 +441,17 @@ async function buildSingleton(): Promise<SportaServer> {
   const httpCompute =
     computeProvider === "http" ? await resolveComputeAdapterFromEnv({ nowMs: Date.now }) : null;
   const artifacts = r2Configured() ? getHostedRenderOutputStore() : null;
+  // The PROCESS-WIDE transient backing (W913): the shared Upstash REST client
+  // when both bindings exist, the shared in-memory fallback otherwise — the
+  // SAME instance `/api/platform/health` probes, so the health route's
+  // queue/quota observations match what this composition actually uses.
+  const transient = getHostedTransientState();
   if (!neonConfigured()) {
     return createSportaServer({
       nowMs: Date.now,
       passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
       ...(artifacts !== null ? { artifacts } : {}),
+      transient,
       seed,
       ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
         ? { computeAdapter: httpCompute.adapter }
@@ -400,6 +467,7 @@ async function buildSingleton(): Promise<SportaServer> {
     ownership: hosted.ownership,
     passwordHasher: hosted.hasher,
     ...(artifacts !== null ? { artifacts } : {}),
+    transient,
     seed,
     ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
       ? { computeAdapter: httpCompute.adapter }
