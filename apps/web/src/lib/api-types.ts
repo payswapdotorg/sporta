@@ -387,3 +387,129 @@ export interface StudioPublicationLike {
   sessionId: string;
   visibility: "public" | "private";
 }
+
+// ---------------------------------------------------------------------------
+// Operations console (W918) — the operator workspace's client-safe model
+// ---------------------------------------------------------------------------
+
+/** The health board's snapshot (GET /api/operations/health). */
+export interface OperationsHealthLike {
+  env: { tier: string };
+  deployMarker: string | null;
+  overall: "ok" | "degraded" | "error";
+  providers: {
+    identity: { provider: string; configured: boolean; state: string; detail: string };
+    artifacts: { provider: string; configured: boolean; state: string; detail: string };
+    transientState: { provider: string; configured: boolean; state: string; detail: string };
+  };
+  compute: { configured: boolean; provider: string | null; adapterId: string | null };
+  liveTransport: { state: string; note: string };
+  renderQueue: {
+    key: string;
+    maxDepth: number;
+    admissionLeaseMs: number;
+    depth: number | null;
+  };
+}
+
+/** The queue panel's snapshot (GET /api/operations/queues). */
+export interface OperationsQueuesLike {
+  provider: "upstash" | "in-memory";
+  queue: {
+    key: string;
+    maxDepth: number;
+    admissionLeaseMs: number;
+    depth: number | null;
+    utilization: number | null;
+    entries: {
+      jobId: string;
+      userId: string | null;
+      kind: string;
+      enqueuedAtMs: number;
+      ageMs: number;
+    }[];
+  };
+  admissionRefusals: {
+    count: number;
+    last: { atMs: number; depth: number; maxDepth: number } | null;
+    note: string;
+  };
+}
+
+/** The provider panel's snapshot (GET /api/operations/providers). */
+export interface OperationsProvidersLike {
+  providers: {
+    provider: string;
+    usage: "measured" | "unknown";
+    counters: { name: string; value: number }[];
+    limits: { name: string; value: number | string }[];
+    note: string;
+  }[];
+  notes: string[];
+}
+
+/** One job row in the console's jobs table (GET /api/operations/jobs). */
+export interface OperationsJobLike {
+  jobId: string;
+  sessionId: string;
+  state: string;
+  rendererId: string | null;
+  dispatchedByUserId: string | null;
+  dispatchedAtMs: number;
+  admission: { released: boolean; admissionId: string | null };
+  renderId: string | null;
+  completion: {
+    status: string;
+    failure: { errorClass: string; message: string; terminal: string } | null;
+    outputs: number;
+    accounting: {
+      consumedInputs: number;
+      unconsumedInputs: { inputId: string; reason: string }[];
+    } | null;
+    usage: { unitId: string; quantity: number }[];
+  } | null;
+  unavailableReason: string | null;
+}
+
+/** The jobs panel's snapshot (GET /api/operations/jobs). */
+export interface OperationsJobsLike {
+  jobs: OperationsJobLike[];
+  totals: {
+    all: number;
+    failed: number;
+    inFlight: number;
+    cancelled: number;
+    succeeded: number;
+  };
+  computeUnavailable: boolean;
+}
+
+/** The audit panel's snapshot (GET /api/operations/audit). */
+export interface OperationsAuditLike {
+  records: {
+    atMs: number;
+    actorUserId: string;
+    actorUsername: string;
+    action: string;
+    targetJobId: string;
+    sessionId: string | null;
+    outcome: "succeeded" | "refused";
+    detail: string;
+  }[];
+  note: string;
+}
+
+/** The retry action's result (POST /api/operations/jobs/[jobId]/retry). */
+export interface OperationsRetryLike {
+  originalJobId: string;
+  newJobId: string;
+  disposition: string;
+  note: string;
+}
+
+/** The cancel action's result (POST /api/operations/jobs/[jobId]/cancel). */
+export interface OperationsCancelLike {
+  jobId: string;
+  cancelled: boolean;
+  alreadyTerminal: string | null;
+}
