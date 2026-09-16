@@ -27,7 +27,8 @@ import {
   renderAnimeClip,
 } from "@sporta/renderer-anime";
 import type { AnimeRenderOutput } from "@sporta/renderer-anime";
-import type { EntropySource } from "@sporta/identity";
+import { AccountConflictError } from "@sporta/identity";
+import type { Account, EntropySource } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import { drawSeedPassword } from "./auth-service";
 import type { SportaServer } from "./composition";
@@ -120,11 +121,23 @@ export async function seedDevContent(options: SeedOptions): Promise<{
 
   // 1. The labeled platform seed account — created through the real store
   //    with a real hashed password drawn from real entropy and discarded.
-  const seedAccount = await server.auth.createSeedAccount({
-    username: SEED_ACCOUNT_USERNAME,
-    password: drawSeedPassword(entropy),
-    roles: ["creator", "viewer"],
-  });
+  //    W911: with the Neon-backed account store the username PERSISTS, so a
+  //    later cold start re-seeding the same deployment reuses the existing
+  //    row (its password is random each run and never signable-into anyway —
+  //    the dev content stays owned by the platform's seed account).
+  let seedAccount: Account;
+  try {
+    seedAccount = await server.auth.createSeedAccount({
+      username: SEED_ACCOUNT_USERNAME,
+      password: drawSeedPassword(entropy),
+      roles: ["creator", "viewer"],
+    });
+  } catch (err) {
+    if (!(err instanceof AccountConflictError)) throw err;
+    const existing = await server.accounts.findByUsername(SEED_ACCOUNT_USERNAME);
+    if (existing === null) throw err;
+    seedAccount = existing;
+  }
 
   // 2. A session token for the gate (the seed acts as its verified identity).
   const login = await server.auth.issueSession({ userId: seedAccount.userId });

@@ -114,6 +114,11 @@ export class AuthFlowError extends Error {
 /** Everything the auth flows need (all injectable; defaults are the REAL ones). */
 export interface AuthServiceOptions {
   accounts?: AccountStore;
+  /**
+   * A pre-built session service (W911: the hosted Neon-backed one). Default:
+   * a fresh in-memory session store inside a fresh `SessionService`.
+   */
+  sessions?: SessionService;
   passwordHasher?: PasswordHasher;
   entropy?: EntropySource;
   nowMs: () => number;
@@ -137,12 +142,14 @@ export class AuthService {
 
   constructor(options: AuthServiceOptions) {
     this.accounts = options.accounts ?? new InMemoryAccountStore();
-    this.sessions = new SessionService({
-      store: new InMemorySessionStore(),
-      nowMs: options.nowMs,
-      entropy: options.entropy ?? defaultEntropySource,
-      ...(options.sessionTtlMs !== undefined ? { ttlMs: options.sessionTtlMs } : {}),
-    });
+    this.sessions =
+      options.sessions ??
+      new SessionService({
+        store: new InMemorySessionStore(),
+        nowMs: options.nowMs,
+        entropy: options.entropy ?? defaultEntropySource,
+        ...(options.sessionTtlMs !== undefined ? { ttlMs: options.sessionTtlMs } : {}),
+      });
     this.passwordHasher = options.passwordHasher ?? argon2PasswordHasher;
     this.nowMs = options.nowMs;
   }
