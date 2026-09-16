@@ -93,8 +93,8 @@ function isOperator(requester: CatalogRequester): boolean {
 
 /** A malformed catalog query (400 `validation` — never a silent empty answer). */
 export class CatalogQueryError extends Error {
-  readonly status: 400 = 400;
-  readonly failureClass: "validation" = "validation";
+  readonly status = 400 as const;
+  readonly failureClass = "validation" as const;
 
   constructor(message: string) {
     super(message);
@@ -141,7 +141,10 @@ export function sessionDiscoverableBy(
   if (requester.state !== "authenticated") return false;
   if (isOperator(requester)) return true;
   if (requester.userId !== null && facts.ownerId === requester.userId) return true;
-  if (record.kind === "role-scoped" && requester.grants.some((role) => record.roles.includes(role))) {
+  if (
+    record.kind === "role-scoped" &&
+    requester.grants.some((role) => record.roles.includes(role))
+  ) {
     return true;
   }
   if (
@@ -211,7 +214,10 @@ export interface SessionCardModel {
    * (`null` for everyone else; `kind: "unknown"` is the honest broken-store
    * state owners/operators can see and act on).
    */
-  visibility: { kind: "public" | "private" | "unlisted" | "role-scoped" | "unknown"; roles: readonly string[] } | null;
+  visibility: {
+    kind: "public" | "private" | "unlisted" | "role-scoped" | "unknown";
+    roles: readonly string[];
+  } | null;
   /**
    * Operator-only operational fields (`null` for everyone else). Honest by
    * construction: render/output counts obey the same rights gates everyone
@@ -279,7 +285,11 @@ interface CardViewer {
 }
 
 /** Gathers one session's real access facts (ownership, attestation, visibility). */
-async function accessFactsOf(server: SportaServer, sessionId: string, label: string): Promise<SessionAccessFacts> {
+async function accessFactsOf(
+  server: SportaServer,
+  sessionId: string,
+  label: string,
+): Promise<SessionAccessFacts> {
   const ownerId = await server.ownership.ownerIdOf(sessionId);
   await server.control.getSession(sessionId); // presence check (denies unknown ids here)
   return {
@@ -297,9 +307,18 @@ async function registeredRendererIds(server: SportaServer): Promise<ReadonlySet<
   return new Set(renderers.map((renderer) => renderer.rendererId));
 }
 
-/** Maps one session's real renders onto its reality groups (fail-closed). */
-function realityGroupsOf(
-  renders: readonly { renderId: string; rendererId: string; hasStoredOutputs: boolean; segmentCount: number }[],
+/**
+ * Maps one session's real renders onto its reality groups (fail-closed).
+ * Exported for the route layer's tests (a pure mapping over real render
+ * data — the registry membership that decides `renderer-unavailable`).
+ */
+export function realityGroupsOf(
+  renders: readonly {
+    renderId: string;
+    rendererId: string;
+    hasStoredOutputs: boolean;
+    segmentCount: number;
+  }[],
   registered: ReadonlySet<string>,
 ): RealityGroupModel[] {
   return renders.map((render) => ({
@@ -430,7 +449,12 @@ export async function buildCatalogFor(
     const facts = await accessFactsOf(server, summary.id, summary.sourceLabel ?? summary.id);
     if (!sessionDiscoverableBy(requester, facts)) continue;
     try {
-      cards.push(await buildCard(server, summary.id, summary.sourceLabel, { requester, ownerId: facts.ownerId }));
+      cards.push(
+        await buildCard(server, summary.id, summary.sourceLabel, {
+          requester,
+          ownerId: facts.ownerId,
+        }),
+      );
     } catch (err) {
       // A session terminated between the listing and the card read is an
       // honest partial listing, not a server failure. Anything else throws.
@@ -469,7 +493,12 @@ export async function buildLibrary(
     const id = summary.id;
     const ownerId = await server.ownership.ownerIdOf(id);
     if (ownerId !== userId) continue;
-    cards.push(await buildCard(server, id, summary.sourceLabel, { requester: { state: "authenticated", userId, grants: [] }, ownerId }));
+    cards.push(
+      await buildCard(server, id, summary.sourceLabel, {
+        requester: { state: "authenticated", userId, grants: [] },
+        ownerId,
+      }),
+    );
   }
   return cards;
 }
@@ -575,7 +604,12 @@ export function parseSearchQuery(params: URLSearchParams): CatalogSearchQuery {
     }
     query.rights = raw.rights as SearchRightsFilter;
   }
-  if (query.q === null && query.status === null && query.renderer === null && query.rights === null) {
+  if (
+    query.q === null &&
+    query.status === null &&
+    query.renderer === null &&
+    query.rights === null
+  ) {
     throw new CatalogQueryError(
       "empty search: provide q (text), status, renderer, or rights — a search must search something",
     );
@@ -605,7 +639,10 @@ export async function searchCatalog(
     // Filters first (exact, typed), then the text match.
     if (query.status !== null && card.status !== query.status) continue;
     if (query.rights !== null && card.playback.state !== query.rights) continue;
-    if (query.renderer !== null && !(card.realities ?? []).some((reality) => reality.rendererId === query.renderer)) {
+    if (
+      query.renderer !== null &&
+      !(card.realities ?? []).some((reality) => reality.rendererId === query.renderer)
+    ) {
       continue;
     }
     if (needle === null) {
@@ -617,7 +654,9 @@ export async function searchCatalog(
     if (card.story !== null && card.story.storyKey.toLowerCase().includes(needle)) {
       matchedOn.push("story");
     }
-    if ((card.realities ?? []).some((reality) => reality.rendererId.toLowerCase().includes(needle))) {
+    if (
+      (card.realities ?? []).some((reality) => reality.rendererId.toLowerCase().includes(needle))
+    ) {
       matchedOn.push("renderer");
     }
     if (matchedOn.length === 0) continue;
@@ -736,7 +775,10 @@ export async function assertWatchable(
   if (token !== "") {
     try {
       const account = await server.gate.requireAccount(token);
-      if (record?.kind === "role-scoped" && account.roles.some((role) => record.roles.includes(role))) {
+      if (
+        record?.kind === "role-scoped" &&
+        account.roles.some((role) => record.roles.includes(role))
+      ) {
         return; // the scoped grant path (server-side grants, never activeRole)
       }
       const ownerId = (await server.ownership.ownerIdOf(sessionId)) ?? "\u0000not-a-user";

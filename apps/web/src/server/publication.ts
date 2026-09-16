@@ -109,7 +109,6 @@ export function parseContentVisibility(raw: unknown): ContentVisibilityRecord | 
   const kind = value.kind as ContentVisibilityKind;
   if (!CONTENT_VISIBILITY_KINDS.includes(kind)) return null;
 
-  const hasRoles = value.roles !== undefined;
   if (kind === "role-scoped") {
     // A role-scoped decision without a non-empty list of valid grants is
     // meaningless — fail closed rather than guessing a scope.

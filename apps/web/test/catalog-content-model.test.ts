@@ -47,7 +47,6 @@ let viewerToken = "";
 let creatorToken = "";
 let creatorUserId = "";
 let rightsHolderToken = "";
-let rightsHolderUserId = "";
 let operatorToken = "";
 
 /** Gate-created test sessions (owner: the creator), one per visibility kind. */
@@ -125,7 +124,6 @@ beforeAll(async () => {
   creatorUserId = creator.userId;
   const rightsHolder = await createAccount("w916-rights-holder", ["rights-holder", "viewer"]);
   rightsHolderToken = rightsHolder.token;
-  rightsHolderUserId = rightsHolder.userId;
   const operator = await createAccount("w916-operator", ["operator", "viewer"]);
   operatorToken = operator.token;
 
@@ -156,7 +154,10 @@ describe("the content visibility store", () => {
     });
     expect(parseContentVisibility("private")?.kind).toBe("private");
     expect(parseContentVisibility({ kind: "unlisted" })?.kind).toBe("unlisted");
-    const scoped = parseContentVisibility({ kind: "role-scoped", roles: ["rights-holder", "operator"] });
+    const scoped = parseContentVisibility({
+      kind: "role-scoped",
+      roles: ["rights-holder", "operator"],
+    });
     expect(scoped?.kind).toBe("role-scoped");
     expect(scoped?.roles).toEqual(["rights-holder", "operator"]);
   });
@@ -168,8 +169,9 @@ describe("the content visibility store", () => {
     expect(parseContentVisibility({})).toBeNull();
     expect(parseContentVisibility({ kind: "role-scoped", roles: [] })).toBeNull();
     expect(parseContentVisibility({ kind: "role-scoped", roles: ["superuser"] })).toBeNull();
-    expect(parseContentVisibility({ kind: "public", roles: "nope" as unknown as string[] })?.roles)
-      .toEqual([]);
+    expect(
+      parseContentVisibility({ kind: "public", roles: "nope" as unknown as string[] })?.roles,
+    ).toEqual([]);
   });
 
   test("set REFUSES invalid decisions loudly (never stores an undefined visibility)", () => {
@@ -212,7 +214,11 @@ describe("sessionDiscoverableBy (the fail-closed decision matrix)", () => {
       partial === null ? null : { kind: partial.kind, roles: partial.roles, ...partial },
     );
 
-  function factsFor(visibility: ContentVisibilityRecord | null, ownerId: string | null, attestedBy: string | null = null) {
+  function factsFor(
+    visibility: ContentVisibilityRecord | null,
+    ownerId: string | null,
+    attestedBy: string | null = null,
+  ) {
     return {
       sessionId: "s-test",
       label: "s",
@@ -223,7 +229,9 @@ describe("sessionDiscoverableBy (the fail-closed decision matrix)", () => {
   }
 
   test("public content is discoverable by everyone, anonymous included", () => {
-    expect(sessionDiscoverableBy(requester(null, []), factsFor(record({ kind: "public" }), null))).toBe(true);
+    expect(
+      sessionDiscoverableBy(requester(null, []), factsFor(record({ kind: "public" }), null)),
+    ).toBe(true);
   });
 
   test("private content: owner and operator only", () => {
@@ -245,8 +253,12 @@ describe("sessionDiscoverableBy (the fail-closed decision matrix)", () => {
   test("role-scoped content: the named grants + owner + operator", () => {
     const vis = record({ kind: "role-scoped", roles: ["rights-holder"] });
     expect(sessionDiscoverableBy(requester(null, []), factsFor(vis, "u-1"))).toBe(false);
-    expect(sessionDiscoverableBy(requester("u-2", ["viewer", "creator"]), factsFor(vis, "u-1"))).toBe(false);
-    expect(sessionDiscoverableBy(requester("u-2", ["rights-holder"]), factsFor(vis, "u-1"))).toBe(true);
+    expect(
+      sessionDiscoverableBy(requester("u-2", ["viewer", "creator"]), factsFor(vis, "u-1")),
+    ).toBe(false);
+    expect(sessionDiscoverableBy(requester("u-2", ["rights-holder"]), factsFor(vis, "u-1"))).toBe(
+      true,
+    );
     expect(sessionDiscoverableBy(requester("u-1", ["creator"]), factsFor(vis, "u-1"))).toBe(true);
     expect(sessionDiscoverableBy(requester("u-9", ["operator"]), factsFor(vis, "u-1"))).toBe(true);
   });
@@ -266,10 +278,15 @@ describe("sessionDiscoverableBy (the fail-closed decision matrix)", () => {
       sessionDiscoverableBy(requester("u-rh", ["rights-holder"]), factsFor(vis, "u-other", "u-rh")),
     ).toBe(true);
     expect(
-      sessionDiscoverableBy(requester("u-rh", ["rights-holder"]), factsFor(vis, "u-other", "u-someone-else")),
+      sessionDiscoverableBy(
+        requester("u-rh", ["rights-holder"]),
+        factsFor(vis, "u-other", "u-someone-else"),
+      ),
     ).toBe(false);
     // A non-rights-holder never gets the policy scope even when attested.
-    expect(sessionDiscoverableBy(requester("u-rh", ["viewer"]), factsFor(vis, "u-other", "u-rh"))).toBe(false);
+    expect(
+      sessionDiscoverableBy(requester("u-rh", ["viewer"]), factsFor(vis, "u-other", "u-rh")),
+    ).toBe(false);
   });
 });
 
@@ -353,9 +370,7 @@ describe("buildCatalogFor (role-differentiated listings)", () => {
         withCookie("/api/catalog/sessions", token),
       );
       const { sessions } = await buildCatalogFor(server, requester);
-      expect(
-        sessions.find((card) => card.sessionId === unknownSessionId),
-      ).toBeUndefined();
+      expect(sessions.find((card) => card.sessionId === unknownSessionId)).toBeUndefined();
     }
     const anonymous = await buildCatalogFor(server, ANONYMOUS_REQUESTER);
     expect(anonymous.sessions.find((card) => card.sessionId === unknownSessionId)).toBeUndefined();
@@ -422,15 +437,28 @@ describe("reality linkage", () => {
   });
 
   test("a render whose renderer left the registry reports renderer-unavailable (not ready)", async () => {
-    // The pure mapping over real render data: one stored-output render whose
-    // renderer is registered (ready), one without outputs whose renderer is
-    // registered (no-stored-output), one whose renderer is gone.
-    const states = (
-      await import("../src/server/catalog-service")
-    ).realityGroupsOf === undefined
-      ? null
-      : null;
-    expect(states).toBeNull(); // guard: realityGroupsOf stays internal; tested via route below
+    // The pure mapping the routes use, over real render shapes: a render
+    // whose renderer is no longer registered honestly reports
+    // renderer-unavailable — never an invented "ready".
+    const { realityGroupsOf } = await import("../src/server/catalog-service");
+    const states = realityGroupsOf(
+      [
+        { renderId: "r-1", rendererId: "sporta.testcard", hasStoredOutputs: true, segmentCount: 3 },
+        {
+          renderId: "r-2",
+          rendererId: "retired.renderer",
+          hasStoredOutputs: false,
+          segmentCount: 0,
+        },
+      ],
+      new Set(["sporta.testcard"]),
+    );
+    expect(states[0]).toMatchObject({ rendererId: "sporta.testcard", state: "ready" });
+    expect(states[1]).toMatchObject({
+      rendererId: "retired.renderer",
+      state: "renderer-unavailable",
+      hasStoredOutputs: false,
+    });
   });
 });
 
@@ -440,14 +468,22 @@ describe("reality linkage", () => {
 
 describe("searchCatalog (real fields, filters, fail-closed)", () => {
   test("text match on the label (case-insensitive) with matchedOn", async () => {
-    const result = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=KINGS+PARK")));
+    const result = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=KINGS+PARK")),
+    );
     expect(result.matches).toHaveLength(1);
     expect(result.matches[0]!.sessionId).toBe(derbyId);
     expect(result.matches[0]!.matchedOn).toEqual(["label"]);
   });
 
   test("text match on the story key (the labeled dev-seed metadata)", async () => {
-    const result = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=friendly")));
+    const result = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=friendly")),
+    );
     expect(result.matches).toHaveLength(1);
     expect(result.matches[0]!.sessionId).toBe(friendlyId);
     expect(result.matches[0]!.matchedOn).toEqual(["label", "story"]); // both fields really match
@@ -456,43 +492,92 @@ describe("searchCatalog (real fields, filters, fail-closed)", () => {
   test("text match on renderer ids — but NEVER for a playback-denied session", async () => {
     // The training session DID render through anime.prototype, but its
     // renders are not revealed — a renderer search must not leak that.
-    const result = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=testcard")));
-    expect(result.matches.map((match) => match.sessionId).sort()).toEqual([derbyId, friendlyId].sort());
+    const result = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=testcard")),
+    );
+    expect(result.matches.map((match) => match.sessionId).sort()).toEqual(
+      [derbyId, friendlyId].sort(),
+    );
     expect(result.matches[0]!.matchedOn).toEqual(["renderer"]);
-    const anime = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=anime.prototype")));
+    const anime = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=anime.prototype")),
+    );
     expect(anime.matches.map((match) => match.sessionId)).toEqual([derbyId]); // training is denied → not matched
   });
 
   test("no match answers an honest empty list", async () => {
-    const result = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=no-such-content-anywhere")));
+    const result = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=no-such-content-anywhere")),
+    );
     expect(result.matches).toEqual([]);
   });
 
   test("renderer filter: exact renderer ids over the session's real renders", async () => {
-    const anime = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("renderer=anime.prototype")));
+    const anime = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("renderer=anime.prototype")),
+    );
     expect(anime.matches.map((match) => match.sessionId)).toEqual([derbyId]); // training is denied → not matched
-    const testcard = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("renderer=sporta.testcard")));
-    expect(testcard.matches.map((match) => match.sessionId).sort()).toEqual([derbyId, friendlyId].sort());
+    const testcard = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("renderer=sporta.testcard")),
+    );
+    expect(testcard.matches.map((match) => match.sessionId).sort()).toEqual(
+      [derbyId, friendlyId].sort(),
+    );
   });
 
   test("rights + status filters: typed, exact, over the real card fields", async () => {
-    const denied = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("rights=denied")));
+    const denied = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("rights=denied")),
+    );
     expect(denied.matches.map((match) => match.sessionId)).toEqual([trainingId]);
-    const both = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("status=authorized&rights=authorized")));
-    expect(both.matches.map((match) => match.sessionId).sort()).toEqual([derbyId, friendlyId].sort());
+    const both = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("status=authorized&rights=authorized")),
+    );
+    expect(both.matches.map((match) => match.sessionId).sort()).toEqual(
+      [derbyId, friendlyId].sort(),
+    );
   });
 
   test("strict typing: unknown closed-vocabulary values and empty searches are typed 400s", () => {
-    expect(() => parseSearchQuery(new URLSearchParams("status=banana"))).toThrow(/unknown status filter/);
-    expect(() => parseSearchQuery(new URLSearchParams("rights=maybe"))).toThrow(/unknown rights filter/);
+    expect(() => parseSearchQuery(new URLSearchParams("status=banana"))).toThrow(
+      /unknown status filter/,
+    );
+    expect(() => parseSearchQuery(new URLSearchParams("rights=maybe"))).toThrow(
+      /unknown rights filter/,
+    );
     expect(() => parseSearchQuery(new URLSearchParams(""))).toThrow(/empty search/);
   });
 
   test("visibility-aware: a private session's label is searchable by its owner, invisible to everyone else", async () => {
-    const owner = await resolveCatalogRequester(server, withCookie("/api/catalog/search", creatorToken));
-    const mine = await searchCatalog(server, owner, parseSearchQuery(new URLSearchParams("q=W916+private+preview")));
+    const owner = await resolveCatalogRequester(
+      server,
+      withCookie("/api/catalog/search", creatorToken),
+    );
+    const mine = await searchCatalog(
+      server,
+      owner,
+      parseSearchQuery(new URLSearchParams("q=W916+private+preview")),
+    );
     expect(mine.matches.map((match) => match.sessionId)).toEqual([privateSessionId]);
-    const anonymous = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=W916+private+preview")));
+    const anonymous = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=W916+private+preview")),
+    );
     expect(anonymous.matches).toEqual([]); // filtered BEFORE matching — no oracle
   });
 
@@ -501,9 +586,17 @@ describe("searchCatalog (real fields, filters, fail-closed)", () => {
       server,
       withCookie("/api/catalog/search", rightsHolderToken),
     );
-    const found = await searchCatalog(rightsHolder === null ? server : server, rightsHolder, parseSearchQuery(new URLSearchParams("q=briefing")));
+    const found = await searchCatalog(
+      rightsHolder === null ? server : server,
+      rightsHolder,
+      parseSearchQuery(new URLSearchParams("q=briefing")),
+    );
     expect(found.matches.map((match) => match.sessionId)).toEqual([roleScopedSessionId]);
-    const anonymous = await searchCatalog(server, ANONYMOUS_REQUESTER, parseSearchQuery(new URLSearchParams("q=briefing")));
+    const anonymous = await searchCatalog(
+      server,
+      ANONYMOUS_REQUESTER,
+      parseSearchQuery(new URLSearchParams("q=briefing")),
+    );
     expect(anonymous.matches).toEqual([]);
   });
 });
@@ -532,12 +625,12 @@ describe("assertWatchable through the watch route (no existence oracle)", () => 
     expect(normalize(privateText, privateSessionId)).toBe(
       normalize(unknownText, "no-such-session"),
     );
-    expect((JSON.parse(privateText) as { error: { failureClass: string } }).error.failureClass).toBe(
-      "unknown-session",
-    );
-    expect((JSON.parse(unknownText) as { error: { failureClass: string } }).error.failureClass).toBe(
-      "unknown-session",
-    );
+    expect(
+      (JSON.parse(privateText) as { error: { failureClass: string } }).error.failureClass,
+    ).toBe("unknown-session");
+    expect(
+      (JSON.parse(unknownText) as { error: { failureClass: string } }).error.failureClass,
+    ).toBe("unknown-session");
   });
 
   test("an unlisted session IS watchable by the link holder (the link is the capability)", async () => {
@@ -548,23 +641,41 @@ describe("assertWatchable through the watch route (no existence oracle)", () => 
   });
 
   test("a role-scoped session: non-holders get the uniform 404, holders watch", async () => {
-    const viewer = await watchResponse(roleScopedSessionId, withCookie(`/api/watch/${roleScopedSessionId}`, viewerToken));
-    const unknown = await watchResponse("no-such-session", withCookie("/api/watch/no-such-session", viewerToken));
+    const viewer = await watchResponse(
+      roleScopedSessionId,
+      withCookie(`/api/watch/${roleScopedSessionId}`, viewerToken),
+    );
+    const unknown = await watchResponse(
+      "no-such-session",
+      withCookie("/api/watch/no-such-session", viewerToken),
+    );
     expect(viewer.status).toBe(404);
     const normalize = (body: string, id: string) => body.split(id).join("<id>");
     expect(normalize(await viewer.text(), roleScopedSessionId)).toBe(
       normalize(await unknown.text(), "no-such-session"),
     );
-    const holder = await watchResponse(roleScopedSessionId, withCookie(`/api/watch/${roleScopedSessionId}`, rightsHolderToken));
+    const holder = await watchResponse(
+      roleScopedSessionId,
+      withCookie(`/api/watch/${roleScopedSessionId}`, rightsHolderToken),
+    );
     expect(holder.status).toBe(200);
   });
 
   test("the owner and an operator watch a private session; other accounts cannot", async () => {
-    const owner = await watchResponse(privateSessionId, withCookie(`/api/watch/${privateSessionId}`, creatorToken));
+    const owner = await watchResponse(
+      privateSessionId,
+      withCookie(`/api/watch/${privateSessionId}`, creatorToken),
+    );
     expect(owner.status).toBe(200);
-    const operator = await watchResponse(privateSessionId, withCookie(`/api/watch/${privateSessionId}`, operatorToken));
+    const operator = await watchResponse(
+      privateSessionId,
+      withCookie(`/api/watch/${privateSessionId}`, operatorToken),
+    );
     expect(operator.status).toBe(200);
-    const viewer = await watchResponse(privateSessionId, withCookie(`/api/watch/${privateSessionId}`, viewerToken));
+    const viewer = await watchResponse(
+      privateSessionId,
+      withCookie(`/api/watch/${privateSessionId}`, viewerToken),
+    );
     expect(viewer.status).toBe(404); // uniform, same as unknown
   });
 
@@ -579,10 +690,16 @@ describe("assertWatchable through the watch route (no existence oracle)", () => 
     // The recovery path: the owner can still watch their own session while
     // the flag is broken (documented — the watch gate fails toward the
     // W906 private rule, never toward anonymous access).
-    const owner = await watchResponse(unknownSessionId, withCookie(`/api/watch/${unknownSessionId}`, creatorToken));
+    const owner = await watchResponse(
+      unknownSessionId,
+      withCookie(`/api/watch/${unknownSessionId}`, creatorToken),
+    );
     expect(owner.status).toBe(200);
     // But the anonymous link-holder rule for UNLISTED does not apply here.
-    const viewer = await watchResponse(unknownSessionId, withCookie(`/api/watch/${unknownSessionId}`, viewerToken));
+    const viewer = await watchResponse(
+      unknownSessionId,
+      withCookie(`/api/watch/${unknownSessionId}`, viewerToken),
+    );
     expect(viewer.status).toBe(404); // uniform, same as unknown
   });
 });
@@ -597,7 +714,7 @@ describe("GET /api/catalog/sessions (requester-scoped, versioned shape)", () => 
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       catalogSchemaVersion: string;
-      viewer: { state: string; userId: string | null };
+      viewer: { state: string; userId: string | null; grants: string[] };
       sessions: { sessionId: string; realities: unknown }[];
       catalogSource: string;
     };
@@ -689,7 +806,9 @@ describe("GET /api/catalog/search (the route)", () => {
   test("the typed 400s reach the wire (validation failureClass, no silent empties)", async () => {
     const bad = await searchRoute(jsonRequest("/api/catalog/search?q=x&rights=maybe"));
     expect(bad.status).toBe(400);
-    expect(((await bodyOf(bad)) as { error: { failureClass: string } }).error.failureClass).toBe("validation");
+    expect(((await bodyOf(bad)) as { error: { failureClass: string } }).error.failureClass).toBe(
+      "validation",
+    );
     const empty = await searchRoute(jsonRequest("/api/catalog/search"));
     expect(empty.status).toBe(400);
     expect(((await bodyOf(empty)) as { error: { failureClass: string } }).error.failureClass).toBe(
