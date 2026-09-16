@@ -187,10 +187,12 @@ async function pollToTerminal(
 }
 
 /** Drives every console route with the given token (the gate matrix). */
-async function consoleRoutesWith(token: string | null): Promise<{
-  path: string;
-  response: Response;
-}[]> {
+async function consoleRoutesWith(token: string | null): Promise<
+  {
+    path: string;
+    response: Response;
+  }[]
+> {
   return [
     { path: "health", response: await healthRoute(withCookie(token, "/api/operations/health")) },
     { path: "queues", response: await queuesRoute(withCookie(token, "/api/operations/queues")) },
@@ -209,10 +211,9 @@ async function consoleRoutesWith(token: string | null): Promise<{
     },
     {
       path: "cancel",
-      response: await cancelRoute(
-        withCookie(token, "/api/operations/jobs/j", { method: "POST" }),
-        { params: Promise.resolve({ jobId: "j" }) },
-      ),
+      response: await cancelRoute(withCookie(token, "/api/operations/jobs/j", { method: "POST" }), {
+        params: Promise.resolve({ jobId: "j" }),
+      }),
     },
   ];
 }
@@ -283,7 +284,9 @@ describe("GET /api/operations/health", () => {
     expect(providerStates).toContain(health.providers.identity.state);
     expect(providerStates).toContain(health.providers.artifacts.state);
     expect(providerStates).toContain(health.providers.transientState.state);
-    expect(health.providers.identity.configured).toBe(health.providers.identity.state !== "unconfigured");
+    expect(health.providers.identity.configured).toBe(
+      health.providers.identity.state !== "unconfigured",
+    );
     expect(["ok", "degraded", "error"]).toContain(health.overall);
     expect(["local", "preview", "beta-personal"]).toContain(health.env);
     expect(health.compute.configured).toBe(true);
@@ -354,7 +357,7 @@ describe("GET /api/operations/queues", () => {
     expect(queues.admissionRefusals.last!.maxDepth).toBe(HOSTED_QUEUE_MAX_DEPTH);
 
     // Drain the real queue, then the same dispatch admits again.
-    for (let taken = 0; taken < HOSTED_QUEUE_MAX_DEPTH; ) {
+    for (let taken = 0; taken < HOSTED_QUEUE_MAX_DEPTH;) {
       const batch = await server.transientState.queue.take();
       taken += batch.length;
       if (batch.length === 0) break;
@@ -639,9 +642,7 @@ describe("POST /api/operations/jobs/[jobId]/cancel", () => {
         }
         const execution = await worker.execute({ job, inputs: materialized });
         if (execution.kind === "refused") {
-          throw new Error(
-            `${execution.reason.errorClass}: ${execution.reason.message}`,
-          );
+          throw new Error(`${execution.reason.errorClass}: ${execution.reason.message}`);
         }
         return execution.result;
       },
@@ -664,9 +665,11 @@ describe("POST /api/operations/jobs/[jobId]/cancel", () => {
       roles: ["operator", "viewer"],
       createdAtIso: new Date(NOW_MS).toISOString(),
     });
-    cancelOperatorToken = (await cancelServer.auth.issueSession({
-      userId: operator.userId,
-    })).token;
+    cancelOperatorToken = (
+      await cancelServer.auth.issueSession({
+        userId: operator.userId,
+      })
+    ).token;
     const creator = await cancelServer.auth.register({
       username: "cancel-creator",
       password: "a-real-studio-password",
@@ -706,10 +709,10 @@ describe("POST /api/operations/jobs/[jobId]/cancel", () => {
     // The job is LIVE (admitted, execution held) and its admission slot held.
     let response = await jobsRoute(withCookie(cancelOperatorToken, "/api/operations/jobs"));
     expect(response.status).toBe(200);
-    let jobs = (await bodyOf(response)) as {
+    const jobs = (await bodyOf(response)) as {
       jobs: { jobId: string; state: string; admission: { released: boolean } }[];
     };
-    let row = jobs.jobs.find((job) => job.jobId === jobId);
+    const row = jobs.jobs.find((job) => job.jobId === jobId);
     expect(row).toBeDefined();
     expect(row!.state).not.toBe("succeeded");
     expect(row!.state).not.toBe("failed");
@@ -782,8 +785,10 @@ describe("POST /api/operations/jobs/[jobId]/cancel", () => {
     const cancels = audit.records.filter((record) => record.action === "job.cancel");
     expect(cancels.length).toBe(2);
     expect(cancels.some((record) => record.outcome === "succeeded")).toBe(true);
-    expect(cancels.some((record) => record.outcome === "refused" && record.detail.includes("already-terminal"))).toBe(
-      true,
-    );
+    expect(
+      cancels.some(
+        (record) => record.outcome === "refused" && record.detail.includes("already-terminal"),
+      ),
+    ).toBe(true);
   });
 });

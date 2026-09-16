@@ -20,6 +20,7 @@ export const ROUTES = {
   watch: "/watch",
   signin: "/auth/signin",
   offline: "/offline",
+  operations: "/operations",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
