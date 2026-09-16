@@ -119,17 +119,24 @@ export function mapEvidence(
   }));
 }
 
-/** Builds the whole Match Lab view model from a REAL watch document. */
+/**
+ * Builds the whole Match Lab view model from a REAL watch document.
+ *
+ * A playback-DENIED session maps to honest nulls across the board — the
+ * analysis surface reveals nothing about a session the rights state denies
+ * (the same posture the Watch surface takes: denied means denied).
+ */
 export function buildMatchLabModel(watch: WatchModelLike): MatchLabModel {
+  const denied = watch.playback.state === "denied";
   return {
     sessionId: watch.sessionId,
     label: watch.label,
     status: watch.status,
-    timeline: watch.eventTail === null ? null : mapTimeline(watch.eventTail),
+    timeline: denied || watch.eventTail === null ? null : mapTimeline(watch.eventTail),
     commentary:
-      watch.story === null ? null : mapCommentary(watch.story.transcript),
-    evidence: mapEvidence(watch.renders),
-    waveCount: watch.story === null ? null : watch.story.waveCount,
-    storySource: watch.story === null ? null : watch.story.source,
+      denied || watch.story === null ? null : mapCommentary(watch.story.transcript),
+    evidence: denied ? null : mapEvidence(watch.renders),
+    waveCount: denied || watch.story === null ? null : watch.story.waveCount,
+    storySource: denied || watch.story === null ? null : watch.story.source,
   };
 }

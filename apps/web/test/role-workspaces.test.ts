@@ -131,6 +131,18 @@ describe("W907 role switcher model — grants-only, context-only", () => {
     expect(switchableRoles({ roles: ["viewer", "viewer"], activeRole: null })).toEqual(["viewer"]);
   });
 
+  test("unknown wire strings are never offered (fail-closed against version skew)", () => {
+    expect(
+      switchableRoles({ roles: ["viewer", "superuser", ""], activeRole: null }),
+    ).toEqual(["viewer"]);
+    expect(switchableRoles({ roles: ["admin"], activeRole: null })).toEqual([]);
+  });
+
+  test("an unknown active-role wire string falls back to the shared navigation (fail-closed)", () => {
+    expect(navForRole("superuser")).toBe(PRIMARY_NAV);
+    expect(navForRole("")).toBe(PRIMARY_NAV);
+  });
+
   test("every role has a human-facing label (the matrix's column headers)", () => {
     expect(ROLE_LABELS.viewer).toBe("Viewer");
     expect(ROLE_LABELS["rights-holder"]).toBe("Rights Holder");
