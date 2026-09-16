@@ -73,6 +73,12 @@ import {
   HOSTED_QUEUE_KEY,
   HOSTED_QUEUE_MAX_DEPTH,
 } from "./platform/upstash/hosted";
+import {
+  CommandCounter,
+  GuardrailsService,
+  MeteredRedis,
+  type MeteredJobUsageRecord,
+} from "./platform/guardrails";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
 import { RightsCenterService } from "./rights-center-service";
@@ -226,6 +232,12 @@ export interface SportaServer {
     quotas: QuotaGuard;
     cache: TtlCache;
   };
+  /**
+   * The cost/usage guardrails (W919): provider usage counters over the real
+   * seams, the free-tier limit ledger, spend alarms, and the fail-closed
+   * provider-capacity admission rung the studio's dispatch ladder runs.
+   */
+  guardrails: GuardrailsService;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -351,27 +363,62 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     counters, and the small TTL cache. Injected for tests; otherwise the
   //     REAL hosted backing — shared Upstash REST when configured, an
   //     in-memory per-composition fallback (honestly per-instance) when not.
+  //     W919: the backing is wrapped in the METERED redis — every command the
+  //     queue/quota/cache layers issue is counted toward the Upstash monthly
+  //     command allowance (the guardrails service persists the counters).
   const transientBacking = options.transient ?? {
     redis: upstashConfigured() ? getHostedTransientState().redis : new InMemoryRedis(),
     provider: (upstashConfigured() ? "upstash" : "in-memory") as "upstash" | "in-memory",
   };
+  const commandCounter = new CommandCounter();
+  const meteredRedis = new MeteredRedis(transientBacking.redis, () => commandCounter.note());
   const transientState: SportaServer["transientState"] = {
     provider: transientBacking.provider,
-    redis: transientBacking.redis,
+    redis: meteredRedis,
     queue: new BoundedJobQueue({
-      redis: transientBacking.redis,
+      redis: meteredRedis,
       key: HOSTED_QUEUE_KEY,
       maxDepth: HOSTED_QUEUE_MAX_DEPTH,
       admissionLeaseMs: HOSTED_ADMISSION_LEASE_MS,
       nowMs,
     }),
-    quotas: new QuotaGuard({ redis: transientBacking.redis, nowMs }),
+    quotas: new QuotaGuard({ redis: meteredRedis, nowMs }),
     cache: new TtlCache({
-      redis: transientBacking.redis,
+      redis: meteredRedis,
       namespace: "sporta:cache",
       ttlSeconds: HOSTED_CACHE_TTL_SECONDS,
     }),
   };
+
+  // 6a'. The cost/usage guardrails (W919) over the REAL seams: the metered
+  //      redis (command volume), the compute adapter's usage drain (per-job
+  //      cpu-ms/render-requests/artifact-bytes), and the composition's own
+  //      R2 artifact store (stored bytes — the live stock). The ledger is
+  //      env-overridable (SPORTA_LIMIT_* — fail-loud on invalid values).
+  const guardrails = new GuardrailsService({
+    redis: meteredRedis,
+    commands: commandCounter,
+    nowMs,
+    computeUsage: async () => {
+      if (computeAdapter === undefined) return null;
+      const records = await computeAdapter.usage();
+      return records.map(
+        (record): MeteredJobUsageRecord => ({
+          jobId: record.jobId,
+          meteredAtMs: record.meteredAtMs,
+          costUnits: record.costUnits.map((unit) => ({
+            unitId: unit.unitId,
+            quantity: unit.quantity,
+          })),
+        }),
+      );
+    },
+    r2Stats: async () => {
+      // The composition's OWN artifact store (options-injected or null).
+      const store = options.artifacts ?? null;
+      return store === null ? null : await store.stats();
+    },
+  });
 
   // 6b. The hosted artifact store (W912): the R2-backed render-output store
   //     when configured. The dev seed MIRRORS every stored output into it
@@ -423,6 +470,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     operations,
     live,
     transientState,
+    guardrails,
     nowMs,
     ready: Promise.resolve(),
   };

@@ -1,6 +1,6 @@
 /**
- * The capability service (W904 + W913) — builds the REAL W901 capability
- * response for one request from the composition's live state.
+ * The capability service (W904 + W913 + W919) — builds the REAL W901
+ * capability response for one request from the composition's live state.
  *
  * Every input is real: the identity session comes from the presented cookie
  * token (fail-closed — a presented-but-unusable token is `invalid-session`,
@@ -20,15 +20,28 @@
  * entry, and an exhausted one drives `overall.state: "degraded"` with the
  * `quota-exhausted` reason code).
  *
+ * W919 guardrail wiring: the caller's `quotas[]` ALSO carries their per-user
+ * daily metered-compute quotas (`compute.cpu-ms-day`,
+ * `compute.artifact-bytes-day` — the admission quotas the studio's ladder
+ * enforces; exhausted ones degrade the overall state through the same
+ * `quota-exhausted` reason code, Simulation E). The PROVIDER-side free-tier
+ * limits (R2 storage, the Upstash command budget) ride the `providers[]`
+ * feeds — the W901 provider vocabulary has no provider-scoped quota entry,
+ * so a REACHED global limit degrades its provider feed (`feed-reported-
+ * degraded` → `provider-degraded` in the overall reason codes, with the
+ * usage-vs-threshold detail + what the degraded state means) and an
+ * APPROACHING one carries the warning in the feed's detail line.
+ *
  * The small cache (W913, documented): ONLY the ANONYMOUS capability input
- * snapshot (renderer catalog + live-transport evidence + provider feeds) is
- * cached, 60s TTL, keyed by the live-source state. Session resolution and
+ * snapshot (renderer catalog + live-transport evidence + provider feeds)
+ * is cached, 60s TTL, keyed by the live-source state. Session resolution and
  * quota counters are NEVER cached (logout revocation and admission decisions
  * must be immediate; a cached rights/quota state could admit work the live
  * counter would refuse — the fail-closed posture forbids it). Anonymous
  * snapshots carry no identity, no rights decision, and no quota state, so
  * serving one is safe: the worst staleness is a minute-old renderer list or
- * provider-health line.
+ * provider-health line (the anonymous snapshot's provider-limit states are
+ * minute-fresh the same way).
  */
 import { buildCapabilityResponse } from "@sporta/capability";
 import type { CapabilityResponse } from "@sporta/capability";
@@ -37,18 +50,14 @@ import type { SportaServer } from "./composition";
 import { tokenFromRequest } from "./auth-service";
 import { RENDER_REQUESTS_QUOTA } from "./platform/upstash/hosted";
 import type { PlatformQuotaState } from "./platform/upstash/quotas";
+import type { LimitEvaluation } from "./platform/guardrails";
 
-/** The in-process backing's provider feeds (verbatim operational detail). */
-const PROVIDER_FEEDS = [
+/** The in-process control-plane + compute feeds (verbatim operational detail). */
+const STATIC_PROVIDER_FEEDS = [
   {
     kind: "control-plane" as const,
     health: "ok" as const,
     detail: "in-process control app (dev composition root; no hosted provider configured yet)",
-  },
-  {
-    kind: "storage" as const,
-    health: "ok" as const,
-    detail: "in-process W504 render-output store (segment + artifact stores)",
   },
   {
     kind: "compute" as const,
@@ -58,9 +67,49 @@ const PROVIDER_FEEDS = [
   },
 ] as const;
 
+/** The storage feed's honest backing line. */
+function storageBackingDetail(server: SportaServer): string {
+  return server.artifacts !== null
+    ? "R2-backed render-output store (private bucket, presigned delivery)"
+    : "in-process W504 render-output store (segment + artifact stores)";
+}
+
 /**
- * The transient state's REAL queue-cache provider feed (W913): the bounded
- * render queue + quota counters + TTL cache behind the transient-state port.
+ * The storage feed with the W919 R2 storage-limit state: a REACHED/EXCEEDED
+ * allowance degrades the feed with the usage-vs-threshold detail + what the
+ * degraded state means; APPROACHING carries the warning in the detail; an
+ * unmeasured/unconfigured allowance keeps the plain honest backing line.
+ */
+function storageFeed(server: SportaServer, evaluation: LimitEvaluation | undefined) {
+  const detail = storageBackingDetail(server);
+  if (
+    evaluation === undefined ||
+    evaluation.state === "unmeasured" ||
+    evaluation.state === "under" ||
+    evaluation.used === null
+  ) {
+    return { kind: "storage" as const, health: "ok" as const, detail };
+  }
+  if (evaluation.state === "reached" || evaluation.state === "exceeded") {
+    return {
+      kind: "storage" as const,
+      health: "degraded" as const,
+      detail: `${detail} — R2 storage ${evaluation.state}: ${evaluation.used} of ${evaluation.limit} bytes used (W919 ledger, ${evaluation.source})`,
+      degradedMeaning:
+        "new render admission is refused until stored bytes fall back under the free-tier allowance (Simulation E); existing playback stays available",
+    };
+  }
+  return {
+    kind: "storage" as const,
+    health: "ok" as const,
+    detail: `${detail} — R2 storage approaching the free-tier allowance (${evaluation.used} of ${evaluation.limit} bytes used)`,
+  };
+}
+
+/**
+ * The transient state's REAL queue-cache provider feed (W913 + W919): the
+ * bounded render queue + quota counters + TTL cache behind the transient-state
+ * port, with the W919 Upstash command-budget state.
  *
  * - in-memory backing: honest `ok` with the per-instance boundary in the
  *   detail (it works, per process — the same posture the other in-process
@@ -68,9 +117,41 @@ const PROVIDER_FEEDS = [
  * - Upstash backing: a LIVE `PING`, with the verdict cached 60s in the small
  *   cache (a capability read costs at most one probe command per minute).
  *   A failed probe is reported `down` with the fail-closed meaning spelled
- *   out — never `unknown` (that is the derived missing-feed state).
+ *   out — never `unknown` (that is the derived missing-feed state);
+ * - W919: a REACHED/EXCEEDED command budget degrades the feed (the shared
+ *   admission state is out of budget — admission refuses); APPROACHING
+ *   carries the warning in the detail line.
  */
-async function transientStateFeed(server: SportaServer) {
+async function transientStateFeed(
+  server: SportaServer,
+  commandsEvaluation: LimitEvaluation | undefined,
+) {
+  const base = await transientReachability(server);
+  if (
+    commandsEvaluation === undefined ||
+    commandsEvaluation.state === "unmeasured" ||
+    commandsEvaluation.state === "under" ||
+    commandsEvaluation.used === null
+  ) {
+    return base;
+  }
+  if (commandsEvaluation.state === "reached" || commandsEvaluation.state === "exceeded") {
+    return {
+      ...base,
+      health: "degraded" as const,
+      detail: `${base.detail} — the monthly command budget is ${commandsEvaluation.state} (${commandsEvaluation.used} of ${commandsEvaluation.limit} commands, W919 ledger)`,
+      degradedMeaning:
+        "new render admission is refused until the command window rolls over (Simulation E); existing playback stays available",
+    };
+  }
+  return {
+    ...base,
+    detail: `${base.detail} — the monthly command budget is approaching (${commandsEvaluation.used} of ${commandsEvaluation.limit} commands)`,
+  };
+}
+
+/** The W913 reachability verdict of the transient-state backing. */
+async function transientReachability(server: SportaServer) {
   const transient = server.transientState;
   if (transient.provider === "in-memory") {
     return {
@@ -105,6 +186,23 @@ async function transientStateFeed(server: SportaServer) {
         degradedMeaning:
           "render admission and rate limits refuse new work while the shared state is unreachable",
       };
+}
+
+/**
+ * The full provider-feeds array over the W919 ledger evaluation: the static
+ * control-plane/compute feeds, the storage feed with its R2 limit state, and
+ * the queue-cache feed with the command-budget state.
+ */
+async function providerFeedsOf(server: SportaServer, evaluation: {
+  limits: LimitEvaluation[];
+}): Promise<unknown[]> {
+  const storage = evaluation.limits.find((limit) => limit.limitId === "r2.storage-bytes");
+  const commands = evaluation.limits.find((limit) => limit.limitId === "upstash.commands");
+  return [
+    ...STATIC_PROVIDER_FEEDS,
+    storageFeed(server, storage),
+    await transientStateFeed(server, commands),
+  ];
 }
 
 /**
@@ -156,7 +254,10 @@ interface AnonymousCapabilityInput {
 /** Builds the anonymous input snapshot (the cached portion — see module docs). */
 async function buildAnonymousInput(server: SportaServer): Promise<AnonymousCapabilityInput> {
   const renderers = await rendererViewsOf(server);
-  const transientFeed = await transientStateFeed(server);
+  // W919: the ledger evaluation for the GLOBAL provider limits (no user
+  // scope for anonymous snapshots — no quota state is cached, ever).
+  const evaluation = await server.guardrails.evaluateLimits();
+  const providers = await providerFeedsOf(server, evaluation);
   const live = server.live;
   const liveActive = live.state() === "active";
   const liveSource = liveActive ? live.listSources()[0] : undefined;
@@ -167,7 +268,7 @@ async function buildAnonymousInput(server: SportaServer): Promise<AnonymousCapab
       session: { authenticated: false, valid: false },
       renderers,
       liveTransport: { kind: "none" },
-      providers: [...PROVIDER_FEEDS, transientFeed],
+      providers,
     };
   }
   return {
@@ -179,7 +280,7 @@ async function buildAnonymousInput(server: SportaServer): Promise<AnonymousCapab
           rights: deriveRightsCapabilities(liveSource.policy, new Date(server.nowMs())),
         }
       : { liveTransport: { kind: "in-process" as const } }),
-    providers: [...PROVIDER_FEEDS, transientFeed],
+    providers,
   };
 }
 
@@ -237,21 +338,37 @@ export async function capabilityForRequest(
   }
 
   // 3. Authenticated requests: live composition with the caller's LIVE quota
-  //    state (render-requests counter — the admission the studio enforces).
+  //    state (render-requests counter — the admission the studio enforces)
+  //    plus their W919 per-user daily metered-compute quotas, and the
+  //    provider feeds carrying the global limit states.
   const renderers = await rendererViewsOf(server);
-  const transientFeed = await transientStateFeed(server);
   const live = server.live;
   const liveActive = live.state() === "active";
   const liveSource = liveActive ? live.listSources()[0] : undefined;
 
   let renderQuota: PlatformQuotaState | null = null;
+  let usageQuotas: PlatformQuotaState[] = [];
   if (session.valid && session.userId !== undefined) {
     try {
       renderQuota = await server.transientState.quotas.peek(RENDER_REQUESTS_QUOTA, session.userId);
     } catch {
       renderQuota = null;
     }
+    try {
+      usageQuotas = await server.guardrails.userQuotaStates(session.userId);
+    } catch {
+      usageQuotas = [];
+    }
   }
+  const evaluation = await server.guardrails.evaluateLimits(
+    session.valid ? session.userId : undefined,
+  );
+  const providers = await providerFeedsOf(server, evaluation);
+
+  const quotaInputs = [
+    ...(renderQuota !== null ? [quotaCounterInput(renderQuota)] : []),
+    ...usageQuotas.map(quotaCounterInput),
+  ];
 
   return buildCapabilityResponse({
     ...(requestId !== undefined && requestId.length > 0 ? { requestContext: { requestId } } : {}),
@@ -266,8 +383,8 @@ export async function capabilityForRequest(
           rights: deriveRightsCapabilities(liveSource.policy, new Date(server.nowMs())),
         }
       : { liveTransport: { kind: "in-process" as const } }),
-    providers: [...PROVIDER_FEEDS, transientFeed],
-    ...(renderQuota !== null ? { quotas: [quotaCounterInput(renderQuota)] } : {}),
+    providers,
+    ...(quotaInputs.length > 0 ? { quotas: quotaInputs } : {}),
   });
 }
 
