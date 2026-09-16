@@ -394,7 +394,8 @@ export interface StudioPublicationLike {
 
 /** The health board's snapshot (GET /api/operations/health). */
 export interface OperationsHealthLike {
-  env: { tier: string };
+  /** The environment tier ("local" | "preview" | "beta-personal"). */
+  env: string;
   deployMarker: string | null;
   overall: "ok" | "degraded" | "error";
   providers: {

@@ -247,7 +247,7 @@ function HealthBoard({ state }: { state: FetchState<OperationsHealthLike> }) {
   return (
     <div className="surface-stack">
       <p className="status-chip" data-state={health.overall} role="status">
-        overall: {health.overall} · env {health.env.tier}
+        overall: {health.overall} · env {health.env}
         {health.deployMarker !== null ? ` · deploy ${health.deployMarker}` : ""}
       </p>
       <table className="tactics-table">
