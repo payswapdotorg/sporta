@@ -147,8 +147,8 @@ export function OperationsConsole() {
         </h2>
         <p className="section-lede">
           The W913 bounded queue: depth against the hard bound, the admitted jobs with their ages,
-          and the admission refusals counted at the dispatch seam (fail-closed — a full queue refuses
-          before the provider is asked).
+          and the admission refusals counted at the dispatch seam (fail-closed — a full queue
+          refuses before the provider is asked).
         </p>
         <QueuePanel state={queues} />
       </section>
@@ -308,7 +308,9 @@ function QueuePanel({ state }: { state: FetchState<OperationsQueuesLike> }) {
     <div className="surface-stack">
       <p className="status-chip" role="status">
         depth{" "}
-        {queues.queue.depth === null ? "unknown" : `${queues.queue.depth} / ${queues.queue.maxDepth}`}{" "}
+        {queues.queue.depth === null
+          ? "unknown"
+          : `${queues.queue.depth} / ${queues.queue.maxDepth}`}{" "}
         · backing {queues.provider} · admission refusals {queues.admissionRefusals.count}
       </p>
       {queues.queue.entries.length === 0 ? (
@@ -486,7 +488,8 @@ function ProviderPanel({ state }: { state: FetchState<OperationsProvidersLike> }
             <p className="section-lede">No measured counters over this seam.</p>
           )}
           <p className="section-lede">
-            {provider.note} · limits: {provider.limits.map((l) => `${l.name} = ${l.value}`).join("; ")}
+            {provider.note} · limits:{" "}
+            {provider.limits.map((l) => `${l.name} = ${l.value}`).join("; ")}
           </p>
         </div>
       ))}
@@ -502,11 +505,7 @@ function AuditPanel({ state }: { state: FetchState<OperationsAuditLike> }) {
   }
   const audit = state.data;
   if (audit.records.length === 0) {
-    return (
-      <p className="section-lede">
-        No remediation actions have been taken yet. {audit.note}
-      </p>
-    );
+    return <p className="section-lede">No remediation actions have been taken yet. {audit.note}</p>;
   }
   return (
     <div className="surface-stack">

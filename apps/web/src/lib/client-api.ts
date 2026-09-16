@@ -284,10 +284,16 @@ export function fetchOperationsAudit(): Promise<OperationsAuditLike> {
 
 /** POST /api/operations/jobs/[jobId]/retry — retry a FAILED job (new job id). */
 export function retryOperationsJob(jobId: string): Promise<OperationsRetryLike> {
-  return postJson<OperationsRetryLike>(`/api/operations/jobs/${encodeURIComponent(jobId)}/retry`, {});
+  return postJson<OperationsRetryLike>(
+    `/api/operations/jobs/${encodeURIComponent(jobId)}/retry`,
+    {},
+  );
 }
 
 /** POST /api/operations/jobs/[jobId]/cancel — cancel an admitted job. */
 export function cancelOperationsJob(jobId: string): Promise<OperationsCancelLike> {
-  return postJson<OperationsCancelLike>(`/api/operations/jobs/${encodeURIComponent(jobId)}/cancel`, {});
+  return postJson<OperationsCancelLike>(
+    `/api/operations/jobs/${encodeURIComponent(jobId)}/cancel`,
+    {},
+  );
 }

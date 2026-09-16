@@ -866,15 +866,13 @@ export class CreateStudioService {
   jobLedger(): {
     jobId: string;
     sessionId: string;
-    dispatch:
-      | {
-          rendererId: string;
-          rendererVersion?: string;
-          styleId?: string;
-          dispatchedByUserId: string | null;
-          dispatchedAtMs: number;
-        }
-      | null;
+    dispatch: {
+      rendererId: string;
+      rendererVersion?: string;
+      styleId?: string;
+      dispatchedByUserId: string | null;
+      dispatchedAtMs: number;
+    } | null;
     /** The held admission id (null once released/settled). */
     admissionId: string | null;
   }[] {

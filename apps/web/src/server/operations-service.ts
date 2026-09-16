@@ -240,10 +240,10 @@ export class OperationsService {
     const account = await this.getServer().gate.requireAccount(token);
     const decision = authorize(account, "provider-health.read");
     if (!decision.allowed) {
-      throw new IdentityPermissionDeniedError(
-        "the operations console requires an operator grant",
-        { action: "provider-health.read", reason: decision.reason },
-      );
+      throw new IdentityPermissionDeniedError("the operations console requires an operator grant", {
+        action: "provider-health.read",
+        reason: decision.reason,
+      });
     }
     return account;
   }
@@ -401,7 +401,8 @@ export class OperationsService {
             { name: "render-queue-depth", value: depth },
           ];
           upstashUsage = "measured";
-          upstashNote = "queue depth measured live; data/command usage needs INFO/SCAN the port does not expose";
+          upstashNote =
+            "queue depth measured live; data/command usage needs INFO/SCAN the port does not expose";
         } catch {
           upstashUsage = "unknown";
           upstashNote = "the Upstash REST client could not be reached";
@@ -592,7 +593,14 @@ export class OperationsService {
         return { jobId, cancelled: true, alreadyTerminal: null };
       }
       const disposition = `already-terminal (${outcome.terminalDisposition})`;
-      this.record(operator, "job.cancel", jobId, entry.sessionId, "refused", `no-op: ${disposition}`);
+      this.record(
+        operator,
+        "job.cancel",
+        jobId,
+        entry.sessionId,
+        "refused",
+        `no-op: ${disposition}`,
+      );
       return {
         jobId,
         cancelled: false,
@@ -670,7 +678,11 @@ export class OperationsService {
   private async projectionOf(
     sessionId: string,
     jobId: string,
-  ): Promise<{ state: string; projection: OperationsJobView["completion"]; renderId: string | null }> {
+  ): Promise<{
+    state: string;
+    projection: OperationsJobView["completion"];
+    renderId: string | null;
+  }> {
     const job = await this.getServer().control.getComputeJob(sessionId, jobId);
     return {
       state: job.state,
@@ -775,8 +787,6 @@ export class OperationsService {
 }
 
 /** Creates the operations console service. */
-export function createOperationsService(
-  options: OperationsServiceOptions,
-): OperationsService {
+export function createOperationsService(options: OperationsServiceOptions): OperationsService {
   return new OperationsService(options);
 }
