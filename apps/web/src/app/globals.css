@@ -1909,3 +1909,85 @@ svg {
     height: auto;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* W915 — the live SSE player                                           */
+/* ------------------------------------------------------------------ */
+
+.live-stage-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--bg-raised);
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+}
+
+.live-badge.is-live {
+  color: #fff;
+  background: var(--accent, #d43f2f);
+  border-color: transparent;
+}
+
+.live-badge.is-live::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.live-source-label {
+  font-weight: 700;
+}
+
+.live-source-note {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.live-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.live-frame {
+  width: 100%;
+}
+
+.live-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
+}
+
+.live-stats {
+  display: grid;
+  gap: 8px;
+}
+
+.live-latency-note,
+.live-terminal-note,
+.live-reconnect-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}

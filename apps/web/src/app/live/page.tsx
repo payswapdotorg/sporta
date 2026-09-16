@@ -7,10 +7,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Live (W904). Live is a capability verdict (Simulation F): with the
- * in-process control plane this deployment runs, the surface renders the
- * honest unavailable state — and shows the real transport evidence it
- * derived that from.
+ * Live (W904 → W915). Live is a capability verdict (Simulation F): the
+ * surface renders whatever the REAL transport state says — with the SSE
+ * live transport env-active (`SPORTA_LIVE_TRANSPORT=sse`), the player
+ * consumes a REAL network stream (frames + measured end-to-end latency);
+ * otherwise the honest unavailable state.
  */
 export default function LivePage() {
   return (

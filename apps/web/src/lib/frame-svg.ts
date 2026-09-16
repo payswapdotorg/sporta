@@ -104,3 +104,35 @@ export function frameIndicesOf(content: string): number[] {
   }
   return indices;
 }
+
+// ---------------------------------------------------------------------------
+// W915: standalone live frames (the live SSE transport's per-tick SVGs)
+// ---------------------------------------------------------------------------
+
+/**
+ * Prepares ONE STANDALONE live frame for inline display (W915). The live
+ * transport's frames are complete self-contained SVG documents (one per
+ * real tick — not the encoder's multi-frame clip), so there is no frame
+ * group or SMIL surgery to do; the SAME fail-closed refusals apply:
+ * scripts, event handlers, and non-fragment references never display.
+ *
+ * @throws {@link FrameSvgError} on executable/external content, or when
+ * the document is not an SVG root (the live frames always are).
+ */
+export function prepareLiveFrameForDisplay(content: string): string {
+  if (SCRIPT_ELEMENT.test(content)) {
+    throw new FrameSvgError("the live frame carries a script element — refusing to display");
+  }
+  if (EVENT_HANDLER.test(content)) {
+    throw new FrameSvgError("the live frame carries an event handler — refusing to display");
+  }
+  if (EXTERNAL_HREF.test(content)) {
+    throw new FrameSvgError(
+      "the live frame references an external resource — refusing to display",
+    );
+  }
+  if (!/^<svg\b/.test(content.trimStart())) {
+    throw new FrameSvgError("the live frame is not an SVG document — refusing to display");
+  }
+  return content;
+}

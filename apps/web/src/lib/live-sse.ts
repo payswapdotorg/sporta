@@ -142,7 +142,9 @@ export function createSseParser(): {
 
   return {
     write(chunk: string): SseEvent[] {
-      buffer += chunk;
+      // SSE line endings: CRLF, CR, or LF all terminate a line — normalize
+      // first so block boundaries (`\n\n`) are unambiguous.
+      buffer += chunk.replace(/\r\n?/g, "\n");
       const emitted: SseEvent[] = [];
       let boundary = buffer.indexOf("\n\n");
       while (boundary !== -1) {

@@ -140,28 +140,52 @@ const realScheduler: LiveScheduler = {
 // The bounded per-subscriber event queue
 // ---------------------------------------------------------------------------
 
-/** A bounded FIFO of wire-encoded events with counted drop-oldest overflow. */
+/**
+ * A bounded FIFO of wire-encoded events with counted drop-oldest overflow.
+ *
+ * TWO lanes (ordered): CONTROL events (hello/close) are unbounded — the
+ * stream's own framing and terminal accounting must always arrive; FRAME
+ * events are bounded (drop-oldest, counted) — the backpressure lane.
+ */
 class BoundedEventQueue {
-  private readonly items: string[] = [];
+  private readonly controls: string[] = [];
+  private readonly frames: string[] = [];
   private readonly waiters: ((value: string | null) => void)[] = [];
   private ended = false;
 
   constructor(private readonly capacity: number) {}
 
+  /** Pushes a CONTROL event (hello/close): unbounded, never dropped. */
+  pushControl(item: string): void {
+    if (this.ended) return;
+    this.controls.push(item);
+    this.wake();
+  }
+
+  /** Pushes a FRAME event: bounded, drop-oldest, counted. */
   push(item: string): void {
     if (this.ended) return;
-    const waiter = this.waiters.shift();
-    if (waiter !== undefined) {
-      waiter(item);
-      return;
-    }
-    if (this.items.length >= this.capacity) {
+    if (this.frames.length >= this.capacity && this.capacity > 0) {
       // Drop-oldest backpressure: the LOSS IS COUNTED by the channel (the
       // consumer sees the ordinal gap — never a silent skip).
-      this.onDrop();
-      this.items.shift();
+      this.dropHandler?.();
+      this.frames.shift();
     }
-    this.items.push(item);
+    this.frames.push(item);
+    this.wake();
+  }
+
+  /** Resolves the oldest waiting puller, if any. */
+  private wake(): void {
+    const waiter = this.waiters.shift();
+    if (waiter !== undefined) waiter(this.take() ?? null);
+  }
+
+  /** The next item in order (controls first, then frames). */
+  private take(): string | undefined {
+    const control = this.controls.shift();
+    if (control !== undefined) return control;
+    return this.frames.shift();
   }
 
   /** Ends the queue: pending pullers resolve `null`; further pushes no-op. */
@@ -172,7 +196,7 @@ class BoundedEventQueue {
   }
 
   async next(): Promise<string | null> {
-    const item = this.items.shift();
+    const item = this.take();
     if (item !== undefined) return item;
     if (this.ended) return null;
     return await new Promise<string | null>((resolve) => {
@@ -181,11 +205,7 @@ class BoundedEventQueue {
   }
 
   get depth(): number {
-    return this.items.length;
-  }
-
-  private onDrop(): void {
-    this.dropHandler?.();
+    return this.controls.length + this.frames.length;
   }
 
   /** Set by the owning subscriber (counted drops). */
@@ -242,7 +262,7 @@ class LiveChannel {
       bufferDepth: this.transport.bufferDepth,
       openedAtMs: this.transport.nowMs(),
     };
-    queue.push(encodeSseJson("hello", this.source.sessionId, hello));
+    queue.pushControl(encodeSseJson("hello", this.source.sessionId, hello));
 
     if (this.timer === undefined) {
       // The FIRST subscriber starts the real cadence loop.
@@ -289,7 +309,7 @@ class LiveChannel {
         deliveredFrames: this.framesEmitted,
         droppedFrames: this.droppedFrames,
       };
-      entry.queue.push(encodeSseJson("close", undefined, close));
+      entry.queue.pushControl(encodeSseJson("close", undefined, close));
       entry.queue.end();
     }
     this.subscribers.clear();
