@@ -1,6 +1,6 @@
 # Sporta Productization Status
 
-Status as of 2026-09-16 ~09:30 UTC: **IN PRODUCTIZATION — WAVE 7** (W901-W909 + W910-W919 complete; W920 TL final gate remains).
+Status as of 2026-09-16 ~18:00 UTC: **PRODUCTIZATION COMPLETE — PUBLIC BETA CLOSED (W901-W920 + the W921 gate defect)** — https://sporta-flame.vercel.app verified end-to-end from the public URL.
 
 ## Current truth
 
@@ -29,14 +29,15 @@ Productization:
 | W917 rights/publication center | COMPLETE | wave-5 merge (39 tests) |
 | W918 operational console | COMPLETE | merge 9a004bf — operator-gated /api/operations panels, safe-only remediations (15 tests) |
 | W919 cost/usage guardrails | COMPLETE | merge b6b2af4 — limit ledger + spend alarms → capability degraded + fail-closed admission (503 + retry-after), playback unaffected proven |
-| W920 public beta release | NEXT (TL) | final redeploy + golden-path verification from the public URL |
+| W920 public beta release | COMPLETE | TL final gate closed — the fresh-browser golden path verified from the public URL (sign-up→discover→watch→switch→render→view result→roles→honest degraded/denied states); two gate-caught defects fixed en route (W921 durable control plane; the R2 write-storm — duplicate mirrors now read-verify-only) |
+| W921 durable control-plane | COMPLETE | merge edd0953 — user sessions/renders/publication durable in Neon, cross-instance correct (the W920 gate defect); DEPLOYMENT.md §8 design record |
 
 ## The three questions
 
 | Question | Current answer | Required gate |
 |---|---|---|
-| Can a fresh user install and use Sporta? | PARTIAL — the deployed URL serves sign-up/watch/create/roles end-to-end; W909 proves the golden paths in a real browser; final public-URL verification is W920 | G9/G12/G14 |
-| Is Sporta deployed on the target low-cost stack? | YES — Vercel (web) + Neon (control plane) + R2 (artifacts) + Upstash (port, honest fallback) live; compute in-process per configuration | G11/G12 |
+| Can a fresh user install and use Sporta? | YES — verified from the public URL by a real browser walkthrough (W920): sign-up with role grants → discover → watch → reality switch → create + render (never-silent accounting) → VIEW THE RESULT cross-instance → role switch → accurate degraded/denied states | G9/G12/G14 |
+| Is Sporta deployed on the target low-cost stack? | YES — Vercel (web) + Neon (control plane, durable across instances) + R2 (artifacts, read-verify-only mirrors) + Upstash (port, honest fallback) live; compute in-process per configuration | G11/G12 |
 | Does Sporta have a YouTube-like interface? | YES — nine surfaces live: Home/Live/Explore/Search/Library/Following/Create/Watch/role workspaces, capability-driven, honest states throughout | G9/G10 |
 
 ## TL architecture decisions (Wave 2 dispatch)

@@ -21,8 +21,10 @@ export function SiteFooter() {
           </div>
           <p className="footer-tagline">{BRAND.tagline}</p>
           <p className="footer-note">
-            Pre-beta shell: this app is the Sporta product frontend before the data plane exists.
-            Surfaces populate as real capabilities land — nothing here is simulated.
+            Public beta: every surface runs the real engine — sessions, renders and stored outputs
+            are real control-plane state (durable across the deployed instances), playback serves
+            real stored artifacts, and states like live, degraded or denied appear only when the
+            underlying transport, provider or rights make them true. Nothing is simulated.
           </p>
         </div>
         <nav className="footer-nav" aria-label={A11Y.footerNavLabel}>
