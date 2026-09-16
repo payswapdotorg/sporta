@@ -766,6 +766,21 @@ export async function assertWatchable(
   request: Request,
   sessionId: string,
 ): Promise<void> {
+  // W921: ensure the session is live in-process BEFORE the publication
+  // record is read. Without this, a COLD instance's in-process publication
+  // store has no entry for a durable session — and the store's documented
+  // default for absence is PUBLIC, which would let a private studio session
+  // be watchable by anyone until its first reconstruction seeded the flag.
+  // Reconstruction seeds the recorded decision; a non-durable unknown
+  // session answers the control plane's own unknown-session 404 here
+  // (byte-identical to what the later getSession would have answered).
+  if (server.durable !== null) {
+    const live = await server.durable.ensureSessionLive(sessionId);
+    if (!live) {
+      const { ControlUnknownSessionError } = await import("@sporta/control-api");
+      throw new ControlUnknownSessionError(sessionId);
+    }
+  }
   const record = server.publication.contentOf(sessionId);
   if (record !== null && (record.kind === "public" || record.kind === "unlisted")) {
     return;

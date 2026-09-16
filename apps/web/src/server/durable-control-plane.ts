@@ -3,51 +3,79 @@
  * user-created media sessions (and their renders, publication state and
  * derived product state) correct across serverless instances.
  *
- * THE DEFECT (TL-verified on the live deployment): the control plane's
- * media-session/render state is IN-MEMORY PER COMPOSITION — on Vercel's
- * multiple warm instances a studio-created session exists only on the
- * instance that handled the create (other instances 404 unknown-session),
- * and the `sess-<seq>` allocation collides across instances. Identity was
- * already Neon-durable (W911) and artifacts R2-durable (W912); this layer
- * carries the remaining control-plane records (Neon, the frozen
- * deployment-architecture placement) via the
+ * THE DEFECT (TL-verified on the live deployment, S300-w920-gate-1): the
+ * control plane's media-session/render state is IN-MEMORY PER COMPOSITION —
+ * on Vercel's multiple warm instances a studio-created session exists only
+ * on the instance that handled the create (other instances 404
+ * unknown-session), and the `sess-<seq>` allocation collides across
+ * instances. Identity was already Neon-durable (W911) and artifacts
+ * R2-durable (W912); this layer carries the remaining control-plane records
+ * (Neon, the frozen deployment-architecture placement) via the
  * {@link ControlPlaneRecordStore} port.
  *
- * DESIGN (audited; deviations from the order's sketch are documented in
- * DEPLOYMENT.md §8):
- * - WRITE-THROUGH at the real seams: the studio records each created session
- *   (id/owner/source/rights/visibility/createdAt), each observed render (the
- *   render id + result document + stored segment ids + dispatch recipe), and
- *   every publication flip. Fail-loud: a configured store that rejects a
- *   write-through fails the request — never a silent undurable session.
+ * DESIGN (flight 8, audited; deviations from the order's sketch are
+ * documented in DEPLOYMENT.md §8):
+ *
+ * - WRITE-THROUGH at the real seams, fail-loud: the studio records each
+ *   created session (id/owner/source/rights/visibility/createdAt — the
+ *   record's createdAt comes from the control plane's own create answer,
+ *   never the studio clock), each render observed through the studio's
+ *   dispatch/poll path (render id + result document + stored segment ids +
+ *   the DISPATCH RECIPE — renderer version/style/profile — reconstruction
+ *   needs it verbatim), and every publication flip (studio + rights
+ *   center). A configured store that rejects a write-through fails the
+ *   request — never a silently undurable session.
+ *
  * - READ-RECONSTRUCTION on instance miss: when a session-scoped read misses
  *   in-process, the durable record is loaded and the session is REPLAYED
  *   through the REAL seams — `createSession` with the recorded id, rights
- *   declaration, label and RECORDED creation time (the new additive control-api
- *   seam), the deterministic fixture story re-run (the same engine/story data
- *   the dev seed produces), the publication flag and attestation re-seeded,
- *   and the stored outputs RE-MATERIALIZED through the REAL renderer's
- *   detailed surface + the REAL W504 encoder + the REAL pipeline store under
- *   the RECORDED render ids (content-addressed segment ids — asserted equal
- *   to the recorded ones, never trusted). Reconstruction is once per session
- *   per instance (in-flight deduped); its cost is the documented
- *   per-cold-instance-per-session boundary.
+ *   declaration, label and RECORDED creation time (the additive control-api
+ *   seam), the deterministic fixture story re-run (the same engine/story
+ *   data the creating instance produced — fixture-time-based content, the
+ *   W912-mirror-proven determinism), the publication flag and attestation
+ *   re-seeded, and the stored outputs RE-MATERIALIZED through the REAL
+ *   renderer's detailed surface + the REAL W504 encoder + the REAL pipeline
+ *   store under the RECORDED render id, mirroring the compute executor's
+ *   own RenderRequest construction exactly (minimal rights posture, the
+ *   engine's snapshot + event window, the recorded recipe). The
+ *   content-addressed segment id is ASSERTED equal to the recorded one —
+ *   determinism proven per reconstruction, never trusted. Reconstruction is
+ *   once per session per instance (in-flight deduped).
+ *
  * - RENDER IDS: the control plane's render-sequence counter is per-instance,
  *   so a through-the-seam replay on another instance cannot re-derive the
- *   creating instance's `r-<seq>` id. The AUDITED alternative: the durable
- *   record IS the source of truth for the render id and the render result
- *   document (served verbatim), while the deterministic OUTPUTS are
- *   re-materialized through the real renderer/pipeline seams. The replay
- *   restores the SAME ids — never presented as new work.
+ *   creating instance's `r-<seq>` id, and NEW renders dispatched from other
+ *   instances could collide with it (the exact W920 defect class, for
+ *   renders). The audited design: (1) the studio dispatches every render
+ *   with a collision-safe caller-supplied id (`r-u-<hex>` — the flight-8
+ *   additive control-api seam); (2) the durable record IS the source of
+ *   truth for the render id and the render-result document (served
+ *   verbatim) — the replay restores the SAME ids, never presented as new
+ *   work; (3) the decorated `listRenders` merges the in-process registry
+ *   with the record (deduped by id), and `getRender` falls through to the
+ *   record only on the raw app's typed unknown-render miss.
+ *
+ * - RECONSTRUCTION FAILURES ARE HONEST: a drift between the re-encoded
+ *   segment id and the recorded one, an unknown source key, or a store
+ *   failure propagates — the real reason, never stale or invented state.
+ *   The one carved-out class: a session whose recorded policy has EXPIRED
+ *   (or otherwise derives no capability) cannot be recreated — the control
+ *   plane's fail-closed admission refuses it — so `listSessions` SKIPS it
+ *   (counted, {@link reconstructionSkips}) the same way the catalog skips
+ *   terminated sessions, while direct session reads answer the honest
+ *   rights-denied error with the real reason.
  *
  * HONEST BOUNDARIES (documented in DEPLOYMENT.md §8): the compute ledger's
- * job records (live/terminal job projections) stay per-instance — a
- * reconstructed session's studio job index is empty on the reconstructing
- * instance (never invented); W917 rights-holder policy edits (overrides on
- * top of the creation-time record) stay per-instance; the dev-seed sessions
- * (sess-1/2/3) are NOT recorded (deterministic per-boot re-seed, unchanged).
+ * job records (live/terminal job projections, the studio's job index) stay
+ * per-instance — a reconstructed session's studio job list is empty on the
+ * reconstructing instance (never invented); W917 rights-holder policy
+ * EDITS/revocations (overrides on top of the creation-time record) stay
+ * per-instance; the dev-seed sessions (sess-1/2/3) are NOT recorded (they
+ * are deterministically re-created per boot by the seed itself — the
+ * unrecorded legacy `sess-<seq>` namespace).
  */
 import {
+  ControlRightsDeniedError,
   ControlUnknownRenderError,
   ControlUnknownSessionError,
 } from "@sporta/control-api";
@@ -77,7 +105,7 @@ import type { R2RenderOutputStore } from "./platform/r2/r2-store";
 
 /** What the durable layer needs from the composition (all REAL objects). */
 export interface DurableControlPlaneOptions {
-  /** The rights-governed control app (the layer the decorator fronts). */
+  /** The rights-governed control app (the layer this decorator fronts). */
   governed: ControlApp;
   /** The durable record store (Neon in production; the hermetic fake in tests). */
   records: ControlPlaneRecordStore;
@@ -95,9 +123,6 @@ export interface DurableControlPlaneOptions {
   pipeline: AnimeOutputPipeline;
   /** The hosted R2 artifact store when configured (idempotent mirrors). */
   artifacts: R2RenderOutputStore | null;
-  /** The seed's session ids (excluded from render reconciliation — their
-   *  namespace is deterministically re-created per boot and stays unrecorded). */
-  seedSessionIds: readonly string[];
   /** Wall clock. */
   nowMs: () => number;
 }
@@ -106,18 +131,32 @@ export interface DurableControlPlaneOptions {
 export interface DurableControlPlane {
   /** The decorated control app (the composition's `control`). */
   control: ControlApp;
-  /** Ensures a session is live in-process (reconstructing from the record). */
+  /**
+   * Ensures a session is live in-process (reconstructing from the record).
+   * `false` when the id is neither in-process nor durable — the honest 404.
+   */
   ensureSessionLive(sessionId: string): Promise<boolean>;
   /** The studio's session-creation write-through (fail-loud). */
   noteSessionCreated(record: ControlSessionRecord): Promise<void>;
   /** The studio/rights-center publication write-through (fail-loud). */
   noteVisibility(sessionId: string, visibility: ControlVisibilityRecord): Promise<void>;
-  /** The studio's render-observation write-through (fail-loud, idempotent). */
+  /**
+   * The render write-through (fail-loud, idempotent per render id). Called
+   * from the studio's dispatch/poll path with the DISPATCH RECIPE — the
+   * fields reconstruction must replay verbatim.
+   */
   noteRenderObserved(
     sessionId: string,
     renderId: string,
     recipe?: ControlRenderRecipe,
   ): Promise<void>;
+  /**
+   * Counted reconstruction skips of the rights-denied class (a recorded
+   * policy that has expired / derives no capability cannot be recreated —
+   * the control plane's fail-closed admission). Observable for the honest
+   * degraded-listing note; every other failure propagates.
+   */
+  reconstructionSkips(): number;
   /** The record store's provider name (health). */
   provider: "neon" | "in-memory";
 }
@@ -142,15 +181,26 @@ function hasRenderDetailed(
 export function createDurableControlPlane(
   options: DurableControlPlaneOptions,
 ): DurableControlPlane {
-  const { governed, records, registry, engines, storyIndex, publication, attestations, pipeline, artifacts, nowMs } =
-    options;
-  const seedSessionIds = new Set(options.seedSessionIds);
+  const {
+    governed,
+    records,
+    registry,
+    engines,
+    storyIndex,
+    publication,
+    attestations,
+    pipeline,
+    artifacts,
+    nowMs,
+  } = options;
 
   // Per-instance memos (positives only — a negative can become positive when
   // another instance creates the id later, so misses are always re-checked).
   const durableSessions = new Set<string>();
   const recordedRenders = new Set<string>();
   const reconstructionsInFlight = new Map<string, Promise<boolean>>();
+  const initedPlugins = new WeakSet<RendererPlugin>();
+  let reconstructionSkipCount = 0;
 
   // -----------------------------------------------------------------------
   // Reconstruction (deterministic replay through the REAL seams)
@@ -158,27 +208,44 @@ export function createDurableControlPlane(
 
   /**
    * Re-materializes one render's stored outputs through the REAL renderer
-   * detailed surface + the REAL W504 encoder + the REAL pipeline store, under
-   * the RECORDED render id — asserting the content-addressed segment ids are
-   * exactly the recorded ones (determinism proven, never trusted). Renders the
-   * current registry can no longer resolve are served from their record (the
-   * catalog's own honest `renderer-unavailable` state) — outputs for them
-   * simply do not re-materialize.
+   * detailed surface + the REAL W504 encoder + the REAL pipeline store,
+   * under the RECORDED render id — mirroring the compute executor's own
+   * RenderRequest construction (the minimal rights posture, the replayed
+   * engine's snapshot + event window, the recorded recipe) and ASSERTING
+   * the content-addressed segment id equals the recorded one (determinism
+   * proven, never trusted). Renders the current registry can no longer
+   * resolve, or that recorded no stored outputs, are served from their
+   * record with outputs honestly absent.
    */
   async function rematerializeOutputs(
     record: ControlRenderRecord,
     engine: WorldModelEngineInstance,
-    rightsDeclaration: ControlSessionRecord["rightsDeclaration"],
+    canReferenceSourceFrames: boolean,
   ): Promise<void> {
     const storedSegmentIds = record.storedSegmentIds ?? [];
     if (storedSegmentIds.length === 0) return; // nothing was stored originally
+    if (storedSegmentIds.length > 1) {
+      // The W504 clip path encodes ONE segment per render; a multi-segment
+      // record cannot be faithfully re-materialized — loud, never partial.
+      throw new Error(
+        `durable control plane: session '${record.sessionId}' render '${record.renderId}' ` +
+          `records ${storedSegmentIds.length} stored segments; reconstruction supports exactly one`,
+      );
+    }
     const plugin = registry.resolve(record.rendererId, record.recipe.rendererVersion);
+    if (!initedPlugins.has(plugin)) {
+      await plugin.init();
+      initedPlugins.add(plugin);
+    }
     if (!hasRenderDetailed(plugin)) return; // not encodable — honest no-outputs
     const capability = plugin.capability();
 
-    // The request mirrors the compute worker's construction: the recorded
-    // recipe (style + profile) over the replayed engine's snapshot.
+    // The request mirrors the compute executor's construction: the recorded
+    // recipe (style + profile) over the replayed engine's snapshot, with the
+    // executor's MINIMAL rights posture (the job carried
+    // canReferenceSourceFrames only — not the session's full capabilities).
     const snapshot = engine.snapshot();
+    const events = engine.eventsSince(snapshot.watermark.sequence);
     const request: RenderRequest = {
       sessionId: record.sessionId,
       schemaVersion: SCHEMA_VERSION,
@@ -194,10 +261,24 @@ export function createDurableControlPlane(
       outputProfile:
         (record.recipe.outputProfile as RenderRequest["outputProfile"] | undefined) ??
         capability.supportedOutputProfiles[0]!,
-      rightsCapabilities: deriveRightsCapabilities(rightsDeclaration, new Date(nowMs())),
+      rightsCapabilities: {
+        canReferenceSourceFrames,
+        canDeliverLive: false,
+        canStoreDerivatives: false,
+        canShare: false,
+      },
       sourceFrameRefs: [],
     };
-    const detailed = plugin.renderDetailed(request, { snapshot, events: [] });
+    const validation = plugin.validateRequest(request);
+    if (!validation.ok) {
+      throw new Error(
+        `durable control plane: reconstruction render request rejected for session ` +
+          `'${record.sessionId}' render '${record.renderId}': ${validation.reason}`,
+      );
+    }
+    const detailed = plugin.renderDetailed(request, { snapshot, events });
+    // The seed's own mirror posture: the deterministic encoder (the exact
+    // function `encodeAndStore` uses) proves the segment id BEFORE storing.
     const encoded = encodeAnimeClip({
       result: detailed.result,
       frames: detailed.frames as never,
@@ -212,16 +293,13 @@ export function createDurableControlPlane(
           `(re-encoded '${encoded.segmentId}' != recorded '${storedSegmentIds[0]}')`,
       );
     }
-    pipeline.segmentStore.storeSegment({
+    pipeline.encodeAndStore({
       sessionId: record.sessionId,
       renderId: record.renderId,
-      segment: {
-        segmentId: encoded.segmentId,
-        contentType: encoded.contentType,
-        content: encoded.content,
-        byteLength: encoded.byteLength,
-        contentHash: encoded.contentHash,
-        manifest: encoded.manifest,
+      output: {
+        result: detailed.result,
+        frames: detailed.frames as never,
+        manifest: detailed.manifest as never,
       },
     });
     if (artifacts !== null) {
@@ -270,6 +348,9 @@ export function createDurableControlPlane(
     });
     // 2. The deterministic story replay — the same engine + story metadata
     //    the creating instance registered (registered BEFORE any render).
+    //    The fixture story's content is fixture-time-based (the W912-mirror
+    //    determinism proof: re-runs across boots/clocks re-mirror the same
+    //    content-addressed ids).
     const run = runFixtureStory(record.sessionId, spec, nowMs);
     engines.set(record.sessionId, run.engine);
     storyIndex.set(record.sessionId, {
@@ -286,13 +367,23 @@ export function createDurableControlPlane(
       ...(record.visibility.roles.length > 0 ? { roles: [...record.visibility.roles] } : {}),
     });
     attestations.record(record.sessionId, record.ownerUserId);
-    // 4. The renders: records served by the decorator; outputs re-materialized.
+    // 4. The renders: results served from the record (the decorator's
+    //    fall-through); outputs re-materialized under the recorded ids with
+    //    the executor's own rights posture.
     const renders = await records.findRenders(record.sessionId);
     for (const render of renders) {
-      await rematerializeOutputs(render, run.engine, record.rightsDeclaration);
+      await rematerializeOutputs(render, run.engine, canReferenceSourceFramesOf(record));
     }
     durableSessions.add(record.sessionId);
     return true;
+  }
+
+  /** The recorded policy's dispatch-time source-frames posture (the executor's input). */
+  function canReferenceSourceFramesOf(record: ControlSessionRecord): boolean {
+    // The control plane derives the dispatch posture from the stored policy
+    // (createRenderAsyncImpl); re-derive it from the RECORDED declaration.
+    return deriveRightsCapabilities(record.rightsDeclaration, new Date(nowMs()))
+      .canReferenceSourceFrames;
   }
 
   /** Ensures a session is live in-process; `false` when no durable record. */
@@ -331,7 +422,6 @@ export function createDurableControlPlane(
     sessionId: string,
     visibility: ControlVisibilityRecord,
   ): Promise<void> {
-    if (seedSessionIds.has(sessionId)) return; // the seed namespace is unrecorded
     if (!durableSessions.has(sessionId)) {
       const record = await records.findSession(sessionId);
       if (record === null) return; // not a durable session — in-process only
@@ -345,7 +435,6 @@ export function createDurableControlPlane(
     renderId: string,
     recipe?: ControlRenderRecipe,
   ): Promise<void> {
-    if (seedSessionIds.has(sessionId)) return; // the seed namespace is unrecorded
     if (recordedRenders.has(renderId)) return; // already recorded (counted)
     if (!durableSessions.has(sessionId)) {
       const record = await records.findSession(sessionId);
@@ -393,6 +482,9 @@ export function createDurableControlPlane(
     observability: governed.observability,
 
     async createSession(input, ctx) {
+      // Pass-through: the studio (the only creator of durable sessions)
+      // performs its own write-through with the fields the control plane
+      // never sees (owner, source key).
       return governed.createSession(input, ctx);
     },
 
@@ -403,11 +495,24 @@ export function createDurableControlPlane(
     },
 
     async listSessions(ctx) {
-      // Seeded (in-process) ∪ durable: every durable record is reconstructed
-      // (once per instance) so the raw registry then lists it natively.
+      // Seeded (in-process) ∪ durable: every durable record is ensured live
+      // (reconstructed once per instance) so the raw registry then lists it
+      // natively. A recorded policy that has expired / derives no capability
+      // cannot be recreated (the control plane's fail-closed admission) —
+      // that session is SKIPPED and counted, exactly like the catalog's
+      // terminated-session skip. Every other failure propagates (the honest
+      // 500 with the real reason).
       const durable = await records.listSessions();
       for (const record of durable) {
-        await ensureSessionLive(record.sessionId).catch(() => undefined);
+        try {
+          await ensureSessionLive(record.sessionId);
+        } catch (err) {
+          if (err instanceof ControlRightsDeniedError) {
+            reconstructionSkipCount += 1;
+            continue;
+          }
+          throw err;
+        }
       }
       return governed.listSessions(ctx);
     },
@@ -421,22 +526,27 @@ export function createDurableControlPlane(
     },
 
     async createRender(sessionId, input, ctx) {
-      return governed.createRender(sessionId, input, ctx);
+      // Reconstruct first (the unknown-session 404 stays uniform), then the
+      // real dispatch, then the write-through with the dispatch recipe.
+      const live = await ensureSessionLive(sessionId);
+      if (!live) throw new ControlUnknownSessionError(sessionId);
+      const envelope = await governed.createRender(sessionId, input, ctx);
+      await noteRenderObserved(sessionId, envelope.renderId, recipeOfInput(input));
+      return envelope;
     },
 
     async getRender(sessionId, renderId, ctx) {
-      // The raw app's own ordering is preserved: its rights gate runs before
-      // existence is revealed; only its unknown-render miss falls through to
-      // the durable record.
+      // Ensure-live FIRST: a cold session must reconstruct before the raw
+      // app's unknown-session 404 can escape (the raw ordering — existence
+      // before render revelation — is preserved; the rights gate still runs
+      // inside the governed call for every read).
+      const live = await ensureSessionLive(sessionId);
+      if (!live) throw new ControlUnknownSessionError(sessionId);
       try {
-        const envelope = await governed.getRender(sessionId, renderId, ctx);
-        await noteRenderObserved(sessionId, renderId).catch(() => undefined);
-        return envelope;
+        return await governed.getRender(sessionId, renderId, ctx);
       } catch (err) {
         if (!(err instanceof ControlUnknownRenderError)) throw err;
       }
-      const live = await ensureSessionLive(sessionId);
-      if (!live) throw new ControlUnknownSessionError(sessionId);
       const recorded = (await records.findRenders(sessionId)).find(
         (entry) => entry.renderId === renderId,
       );
@@ -451,9 +561,6 @@ export function createDurableControlPlane(
       const live = await ensureSessionLive(sessionId);
       if (!live) throw new ControlUnknownSessionError(sessionId);
       const raw = await governed.listRenders(sessionId, ctx);
-      for (const render of raw.renders) {
-        await noteRenderObserved(sessionId, render.renderId).catch(() => undefined);
-      }
       const recorded = await records.findRenders(sessionId);
       const rawIds = new Set(raw.renders.map((render) => render.renderId));
       const merged: RenderSummary[] = [
@@ -476,7 +583,17 @@ export function createDurableControlPlane(
     },
 
     async createRenderAsync(sessionId, input, ctx) {
-      return governed.createRenderAsync(sessionId, input, ctx);
+      // Ensure-live first (a render for a cold durable session reconstructs
+      // it), then the real dispatch, then the write-through when the dispatch
+      // answer already carries the ingested render id (the duplicate path);
+      // the studio's poll observes the admitted path's ingest.
+      const live = await ensureSessionLive(sessionId);
+      if (!live) throw new ControlUnknownSessionError(sessionId);
+      const dispatch = await governed.createRenderAsync(sessionId, input, ctx);
+      if (dispatch.renderId !== undefined) {
+        await noteRenderObserved(sessionId, dispatch.renderId, recipeOfInput(input));
+      }
+      return dispatch;
     },
 
     async getComputeJob(sessionId, jobId, ctx) {
@@ -490,6 +607,31 @@ export function createDurableControlPlane(
     noteSessionCreated,
     noteVisibility,
     noteRenderObserved,
+    reconstructionSkips: () => reconstructionSkipCount,
     provider: "neon",
+  };
+}
+
+/** The dispatch recipe of a createRender/createRenderAsync input (audit shape). */
+function recipeOfInput(input: unknown): ControlRenderRecipe {
+  if (typeof input !== "object" || input === null) return {};
+  const value = input as {
+    rendererVersion?: unknown;
+    styleConfig?: { styleId?: unknown; config?: unknown };
+    outputProfile?: unknown;
+  };
+  return {
+    ...(typeof value.rendererVersion === "string" ? { rendererVersion: value.rendererVersion } : {}),
+    ...(value.styleConfig !== undefined
+      ? {
+          styleConfig: {
+            ...(typeof value.styleConfig.styleId === "string"
+              ? { styleId: value.styleConfig.styleId }
+              : {}),
+            ...(value.styleConfig.config !== undefined ? { config: value.styleConfig.config } : {}),
+          },
+        }
+      : {}),
+    ...(value.outputProfile !== undefined ? { outputProfile: value.outputProfile } : {}),
   };
 }

@@ -300,11 +300,24 @@ export interface CreateRenderInput {
     styleId?: string;
     config?: unknown;
   };
+  /**
+   * W921 flight 8 (ADDITIVE, the sessionId seam's G2 precedent): caller-
+   * supplied render id. The control plane's `r-<seq>` allocation is
+   * PER-INSTANCE, so renders of the SAME durable session dispatched from
+   * different serverless instances can collide on `r-<seq>` with divergent
+   * content — the exact defect class the W920 gate found for session ids.
+   * When provided, the render is stored under EXACTLY this id (fail-closed:
+   * non-empty, 1..128 chars, charset `[a-z0-9-]`, and unique in the render
+   * repository — a collision is a typed `validation` error, NEVER a silent
+   * renumbering). When absent, the historical `r-<seq>` allocation is
+   * byte-identical.
+   */
+  renderId?: string;
 }
 
 /** Result of {@link ControlApp.createRender} / {@link ControlApp.getRender}. */
 export interface RenderEnvelope {
-  /** The deterministic render id (`r-<seq>`). */
+  /** The render id (`r-<seq>`, or the W921 caller-supplied collision-safe id). */
   renderId: string;
   /** The stored render result document. */
   result: RenderResultDoc;
@@ -594,6 +607,7 @@ function validateCreateRenderInput(input: unknown): {
   rendererVersion: string | undefined;
   outputProfile: OutputProfileDoc | undefined;
   styleConfig: { styleId?: string; config: unknown } | undefined;
+  renderId: string | undefined;
 } {
   if (!isRecord(input)) {
     throw new ControlValidationError("request body must be a JSON object");
@@ -627,7 +641,20 @@ function validateCreateRenderInput(input: unknown): {
       config: input.styleConfig.config,
     };
   }
-  return { rendererId, rendererVersion, outputProfile, styleConfig };
+  // W921 flight 8 (fail-closed): a caller-supplied render id must be a sane,
+  // non-empty lowercase slug — anything else is a typed validation error,
+  // never coerced, never silently renumbered.
+  let renderId: string | undefined;
+  if (input.renderId !== undefined) {
+    renderId = requireNonEmptyString(input.renderId, "renderId", MAX_SESSION_ID_LENGTH);
+    if (!SESSION_ID_PATTERN.test(renderId)) {
+      throw new ControlValidationError(`renderId must match ${SESSION_ID_PATTERN.source} (got '${renderId}')`, {
+        renderId,
+        reason: "invalid-render-id",
+      });
+    }
+  }
+  return { rendererId, rendererVersion, outputProfile, styleConfig, renderId };
 }
 
 // ---------------------------------------------------------------------------
@@ -973,9 +1000,18 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       });
     }
 
-    // 6. Store the result, keyed by the deterministic render id `r-<seq>`.
+    // 6. Store the result, keyed by the deterministic render id `r-<seq>` —
+    //    or, W921 flight 8 (ADDITIVE), by the caller-supplied collision-safe
+    //    id when one was given (fail-closed above; a collision is the typed
+    //    duplicate error, never a renumbering).
+    if (parsed.renderId !== undefined && rendersById.has(parsed.renderId)) {
+      throw new ControlValidationError(
+        `renderId '${parsed.renderId}' is already in use (fail closed — never renumbered)`,
+        { renderId: parsed.renderId, reason: "duplicate-render-id" },
+      );
+    }
     renderSeq += 1;
-    const renderId = `r-${renderSeq}`;
+    const renderId = parsed.renderId ?? `r-${renderSeq}`;
     const record: StoredRender = {
       renderId,
       sessionId,
@@ -1173,6 +1209,8 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     jobId: string;
     sessionId: string;
     renderId: string | undefined;
+    /** W921 flight 8: the caller-supplied collision-safe render id at dispatch. */
+    callerRenderId: string | undefined;
     ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   }
 
@@ -1341,6 +1379,16 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       },
     };
 
+    // W921 flight 8 (fail-closed): a caller-supplied render id that is
+    // already taken fails the DISPATCH (before the job runs) — never a silent
+    // renumbering. (The ingest re-checks for the in-flight race.)
+    if (parsed.renderId !== undefined && rendersById.has(parsed.renderId)) {
+      throw new ControlValidationError(
+        `renderId '${parsed.renderId}' is already in use (fail closed — never renumbered)`,
+        { renderId: parsed.renderId, reason: "duplicate-render-id" },
+      );
+    }
+
     // 7. Dispatch through the ComputeAdapter port.
     let outcome: ComputeDispatchOutcome;
     try {
@@ -1355,6 +1403,7 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       jobId: outcomeJobId,
       sessionId,
       renderId: undefined,
+      callerRenderId: parsed.renderId,
       ingest: { status: "pending" },
     };
     const existing = computeJobs.get(outcomeJobId);
@@ -1432,8 +1481,18 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
           issues: issuesOf(resultCheck.error),
         });
       }
+      // W921 flight 8: the stored render id is the caller-supplied
+      // collision-safe id when one was dispatched, else the historical
+      // `r-<seq>` allocation. A caller id that collided in the in-flight
+      // race fails the ingest loudly (typed, never renumbered).
+      if (entry.callerRenderId !== undefined && rendersById.has(entry.callerRenderId)) {
+        throw new ControlValidationError(
+          `renderId '${entry.callerRenderId}' is already in use (fail closed — never renumbered)`,
+          { renderId: entry.callerRenderId, reason: "duplicate-render-id" },
+        );
+      }
       renderSeq += 1;
-      const renderId = `r-${renderSeq}`;
+      const renderId = entry.callerRenderId ?? `r-${renderSeq}`;
       const record: StoredRender = {
         renderId,
         sessionId: entry.sessionId,

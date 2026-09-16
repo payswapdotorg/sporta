@@ -312,6 +312,15 @@ export class RightsCenterService {
     const input = this.visibilityInputOf(visibility, account.userId);
     server.publication.set(sessionId, input);
     const to = server.publication.contentOf(sessionId);
+    // W921 write-through (fail-loud): the flip is durable so every instance
+    // reconstructs the SAME publication state (fail-closed to private when
+    // the parsed record is somehow invalid — never public).
+    if (server.durable !== null) {
+      await server.durable.noteVisibility(sessionId, {
+        kind: to?.kind ?? "private",
+        roles: [...(to?.roles ?? [])],
+      });
+    }
     this.appendAudit(server, account.userId, sessionId, "visibility", {
       summary: `set visibility to ${to?.kind ?? "unknown"}`,
       from,
@@ -365,6 +374,12 @@ export class RightsCenterService {
     const visibilityFrom = server.publication.contentOf(sessionId);
     server.rightsPolicies.setOverride(sessionId, revoked);
     server.publication.set(sessionId, { kind: "private", setBy: account.userId });
+    // W921 write-through (fail-loud): revocation's visibility half is durable
+    // (the policy override itself stays per-instance — the documented
+    // W921 boundary in DEPLOYMENT.md §8).
+    if (server.durable !== null) {
+      await server.durable.noteVisibility(sessionId, { kind: "private", roles: [] });
+    }
     const visibilityTo = server.publication.contentOf(sessionId);
     this.appendAudit(server, account.userId, sessionId, "revocation", {
       summary:

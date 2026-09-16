@@ -409,6 +409,79 @@ describe("createRenderAsync — the additive async surface (W914)", () => {
     }
   });
 
+  it("W921 flight 8: a caller-supplied renderId is honored through the async ingest (never renumbered)", async () => {
+    const harness = createComputeHarness();
+    try {
+      const sessionId = await newSession(harness.baseUrl, allowAll);
+      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
+        rendererId: ANIME_RENDERER_ID,
+        renderId: "r-u-2a7d41f0c9b8e356",
+      });
+      expect(dispatched.status).toBe(200);
+      const job = await pollJob(harness.baseUrl, sessionId, dispatched.body.jobId);
+      expect(job.body.state).toBe("succeeded");
+      expect(job.body.ingest).toEqual({ status: "stored" });
+      expect(job.body.renderId).toBe("r-u-2a7d41f0c9b8e356");
+
+      // The ingested artifact is playback-served under the caller's id.
+      const outputs = await getJson(
+        harness.baseUrl,
+        `/v1/sessions/${sessionId}/renders/r-u-2a7d41f0c9b8e356/outputs`,
+      );
+      expect(outputs.status).toBe(200);
+      expect(outputs.body.segments.length).toBeGreaterThan(0);
+      const renders = await getJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders`);
+      expect(renders.body.renders.map((r: { renderId: string }) => r.renderId)).toEqual([
+        "r-u-2a7d41f0c9b8e356",
+      ]);
+    } finally {
+      harness.server.stop(true);
+    }
+  });
+
+  it("W921 flight 8: a duplicate caller renderId fails the dispatch (typed 400, never renumbered)", async () => {
+    const harness = createComputeHarness();
+    try {
+      const sessionId = await newSession(harness.baseUrl, allowAll);
+      const taken = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders`, {
+        rendererId: ANIME_RENDERER_ID,
+        renderId: "r-u-conflict",
+      });
+      expect(taken.status).toBe(200);
+      expect(taken.body.renderId).toBe("r-u-conflict");
+      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
+        rendererId: ANIME_RENDERER_ID,
+        renderId: "r-u-conflict",
+      });
+      expect(dispatched.status).toBe(400);
+      expect(dispatched.body.error.failureClass).toBe("validation");
+      expect(dispatched.body.error.message).toContain("already in use");
+      // The original render is untouched and nothing was renumbered.
+      const renders = await getJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders`);
+      expect(renders.body.renders.map((r: { renderId: string }) => r.renderId)).toEqual([
+        "r-u-conflict",
+      ]);
+    } finally {
+      harness.server.stop(true);
+    }
+  });
+
+  it("W921 flight 8: an invalid caller renderId is a 400 before anything runs", async () => {
+    const harness = createComputeHarness();
+    try {
+      const sessionId = await newSession(harness.baseUrl, allowAll);
+      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
+        rendererId: ANIME_RENDERER_ID,
+        renderId: "r_u-bad",
+      });
+      expect(dispatched.status).toBe(400);
+      expect(dispatched.body.error.failureClass).toBe("validation");
+      expect(dispatched.body.error.message).toContain("renderId");
+    } finally {
+      harness.server.stop(true);
+    }
+  });
+
   it("the synchronous createRender path is UNAFFECTED (the additive proof)", async () => {
     const harness = createComputeHarness();
     try {
