@@ -52,6 +52,8 @@ import { neonConfigured } from "./platform/env";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { AuthService } from "./auth-service";
+import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
+import type { LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
@@ -70,6 +72,12 @@ export interface SportaServerOptions {
   sessions?: SessionService;
   /** Media-ownership store (default: a fresh in-memory store). */
   ownership?: MediaOwnershipStore;
+  /**
+   * The live network transport (W915). Default: env-gated — ACTIVE only
+   * when `SPORTA_LIVE_TRANSPORT=sse` (see ./live/env.ts); tests inject a
+   * deterministic one through this seam.
+   */
+  liveTransport?: LiveTransport;
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
 }
@@ -94,6 +102,12 @@ export interface SportaServer {
   storyIndex: ReadonlyMap<string, SeedStoryMeta>;
   /** The session-scoped SWM engines the control plane's factory hands out. */
   engines: ReadonlyMap<string, WorldModelEngineInstance>;
+  /**
+   * The live network transport (W915): real SSE frame streaming over HTTP,
+   * env-gated — `state()` is `active` only when it is genuinely serving
+   * (SPORTA_LIVE_TRANSPORT=sse); the capability response is wired to it.
+   */
+  live: LiveTransport;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -153,6 +167,18 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
   const gate = createIdentityControlGate({ accounts, sessions: auth.sessions, control, ownership });
 
+  // 5b. The live network transport (W915): env-gated — active only when
+  //     SPORTA_LIVE_TRANSPORT=sse; the dev seed registers the
+  //     live-authorized sessions' story timelines as its live sources. The
+  //     composition root is the ONLY env reader (the documented convention).
+  const live =
+    options.liveTransport ??
+    createSseLiveTransport({
+      active: liveTransportActive(),
+      nowMs,
+      cadenceMs: liveCadenceMs(),
+    });
+
   const server: SportaServer = {
     auth,
     control,
@@ -163,6 +189,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     accounts,
     storyIndex,
     engines,
+    live,
     nowMs,
     ready: Promise.resolve(),
   };

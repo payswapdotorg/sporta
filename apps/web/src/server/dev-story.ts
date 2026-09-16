@@ -210,7 +210,19 @@ export const SEED_POLICIES: Readonly<
 > = {
   derby: {
     policyId: "policy-dev-seed-derby",
-    allowedOperations: ["analysis", "transformation", "derivativeGeneration", "storage", "sharing"],
+    // W915: the derby (the fully-authorized story) also authorizes LIVE
+    // delivery — `liveDelivery` is the operation the derived
+    // `canDeliverLive` capability requires. This is the AUTHORIZED LIVE
+    // SOURCE the SSE transport serves (identity-attested here through the
+    // real gate, like every seeded policy).
+    allowedOperations: [
+      "analysis",
+      "transformation",
+      "liveDelivery",
+      "derivativeGeneration",
+      "storage",
+      "sharing",
+    ],
     assertedBy: "dev-seed",
     sharingScope: "operator-authorized",
   },
