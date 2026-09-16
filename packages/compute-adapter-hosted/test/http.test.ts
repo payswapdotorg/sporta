@@ -11,7 +11,7 @@ import {
 } from "../src/index";
 import type { ComputeWorker } from "../src/index";
 import { HostedJobExecution } from "../src/index";
-import { TEST_EPOCH_MS, buildDispatchRequest, createTestWorker, manualClock } from "./helpers";
+import { buildDispatchRequest, createTestWorker } from "./helpers";
 
 /** The handler over a REAL worker (fresh per group). */
 function handler(): {

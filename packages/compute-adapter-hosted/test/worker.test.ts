@@ -8,7 +8,6 @@ import {
   HOSTED_COMPUTE_ADAPTER_ID,
   HOSTED_COMPUTE_ADAPTER_VERSION,
   HOSTED_COMPUTE_COST_UNITS,
-  HOSTED_COMPUTE_PROVIDER_ID,
 } from "../src/index";
 import {
   ANIME_OUTPUT_PROFILE,
@@ -18,7 +17,6 @@ import {
   manualClock,
   workerRegistry,
 } from "./helpers";
-import type { RenderSegmentStore } from "@sporta/output-pipeline";
 
 describe("describe() — the honest descriptor", () => {
   it("derives from the REAL registry (nothing advertised that cannot resolve)", () => {

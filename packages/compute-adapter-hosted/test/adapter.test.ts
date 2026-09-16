@@ -209,12 +209,12 @@ describe("the decoupled handoff — outcomes", () => {
     const request = await buildDispatchRequest();
     await adapter.dispatch(request.job, request.inputs);
     // Wait for the handoff to claim, then cancel.
-    let snapshot = await adapter.getJobOrFail(request.job.jobId);
-    for (let i = 0; i < 20 && snapshot.state !== "in-flight"; i += 1) {
+    let current = await adapter.getJobOrFail(request.job.jobId);
+    for (let i = 0; i < 20 && current.state !== "in-flight"; i += 1) {
       await Bun.sleep(5);
-      snapshot = await adapter.getJobOrFail(request.job.jobId);
+      current = await adapter.getJobOrFail(request.job.jobId);
     }
-    expect(snapshot.state).toBe("in-flight");
+    expect(current.state).toBe("in-flight");
     const cancelled = await adapter.cancel(request.job.jobId);
     expect(cancelled.cancelled).toBe(true);
     expect((await adapter.getJobOrFail(request.job.jobId)).state).toBe("cancelled");
@@ -269,7 +269,7 @@ describe("deadline enforcement (poll/outcome-driven, no timers)", () => {
     await adapter.dispatch(request.job, request.inputs);
 
     // Poll until the poll-driven disposal fires (the clock outran 1s).
-    let snapshot = await adapter.getJobOrFail(request.job.jobId);
+    const snapshot = await adapter.getJobOrFail(request.job.jobId);
     expect(snapshot.state).toBe("failed");
     expect(snapshot.completion?.failure).toMatchObject({
       errorClass: "deadline-exceeded",

@@ -89,7 +89,6 @@ import type {
   ComputeDispatchOutcome,
   ComputeJobEvent as ComputeJobEventDoc,
   ComputeJobState as ComputeJobStateDoc,
-  ComputeJobSnapshot as ComputeJobSnapshotDoc,
   ComputeTerminalDisposition as ComputeTerminalDispositionDoc,
   ComputeUsageRecord as ComputeUsageRecordDoc,
 } from "@sporta/compute-adapter";

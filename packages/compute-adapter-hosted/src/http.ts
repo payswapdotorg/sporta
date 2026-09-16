@@ -24,8 +24,6 @@
  * this route in the hosted deployment — wire security is audit gap G8).
  */
 import { ComputeDispatchRequest } from "@sporta/compute-adapter";
-import type { ComputeDispatchRequest as ComputeDispatchRequestDoc } from "@sporta/compute-adapter";
-import type { HostedJobExecution as HostedJobExecutionDoc } from "./envelope";
 import type { ComputeWorker, ComputeWorkerExecution } from "./worker";
 import type { HostedExecuteFn } from "./adapter";
 import { HostedJobExecution } from "./envelope";

@@ -57,7 +57,7 @@ function workerComposition(): Promise<{ worker: ComputeWorker; handler: WorkerHa
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const { worker, handler } = await workerComposition();
+  const { worker } = await workerComposition();
   const url = new URL(request.url);
   if (url.searchParams.get("descriptor") === "1") {
     // The bare capability descriptor (the worker's own `GET /v1/adapter`

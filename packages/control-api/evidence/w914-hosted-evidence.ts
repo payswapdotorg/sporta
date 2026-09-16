@@ -276,7 +276,7 @@ async function partB(): Promise<void> {
 
     // 5. Poll to completion.
     const seen = new Set<string>();
-    let job: any;
+    let job: Record<string, any>;
     for (let i = 0; i < 100; i += 1) {
       const response = await fetch(
         `${controlBase}/v1/sessions/${session.session.sessionId}/compute-jobs/${dispatch.jobId}`,

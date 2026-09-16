@@ -29,7 +29,6 @@ import type {
 } from "@sporta/compute-adapter";
 import { RendererRegistry } from "@sporta/renderer-contract";
 import type { RenderSegmentStore } from "@sporta/output-pipeline";
-import { HostedJobExecution } from "./envelope";
 import type { HostedJobExecution as HostedJobExecutionDoc } from "./envelope";
 import { DEFAULT_HOSTED_COMPUTE_BUDGETS, resolveHostedComputeBudgets } from "./budgets";
 import type { HostedComputeBudgets } from "./budgets";
