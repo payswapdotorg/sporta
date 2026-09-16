@@ -77,10 +77,7 @@ export function OperationsConsole() {
       (data) => setProviders({ phase: "ready", data }),
       failOf(setProviders),
     );
-    void fetchOperationsJobs().then(
-      (data) => setJobs({ phase: "ready", data }),
-      failOf(setJobs),
-    );
+    void fetchOperationsJobs().then((data) => setJobs({ phase: "ready", data }), failOf(setJobs));
     void fetchOperationsAudit().then(
       (data) => setAudit({ phase: "ready", data }),
       failOf(setAudit),
@@ -550,10 +547,7 @@ function AuditPanel({ state }: { state: FetchState<OperationsAuditLike> }) {
   );
 }
 
-function failedPanel(
-  title: string,
-  state: { phase: "failed"; error: string; status?: number },
-) {
+function failedPanel(title: string, state: { phase: "failed"; error: string; status?: number }) {
   // A 401 after the session was established = the session expired or was
   // revoked mid-session (W908): the honest state is denied + re-auth with the
   // sign-in action — never a generic failure page, never a retry loop.

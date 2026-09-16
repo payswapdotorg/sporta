@@ -1,7 +1,12 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { parseCapabilityResponse } from "@sporta/capability";
 import type { CapabilityResponse } from "@sporta/capability";
-import type { SessionCardLike, WatchModelLike, RenderOutputLike, SearchResponseLike } from "../src/lib/api-types";
+import type {
+  SessionCardLike,
+  WatchModelLike,
+  RenderOutputLike,
+  SearchResponseLike,
+} from "../src/lib/api-types";
 import {
   collectRealityCards,
   deriveCardPlayback,
@@ -309,7 +314,9 @@ describe("deriveRealityOptions over the W901 fixtures", () => {
     const options = deriveRealityOptions(fixtures.get("anonymous")!, watchModelWithOutput());
     const anime = options.find((option) => option.rendererId === "anime.prototype")!;
     expect(anime.state).toBe("requires-render");
-    expect(anime.reason).toContain("no render for this match with this renderer has become available yet");
+    expect(anime.reason).toContain(
+      "no render for this match with this renderer has become available yet",
+    );
     expect(anime.reason).not.toContain("no render has been requested"); // W908: that claim could be a lie when a job is in flight
   });
 

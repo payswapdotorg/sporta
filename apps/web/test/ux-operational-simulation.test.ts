@@ -195,7 +195,14 @@ describe("Simulation B — creator flow (processing/degraded/denied/failed/ready
 describe("Simulation C — role switching changes the workspace only, never authority", () => {
   test("the surface-visibility verdicts are grant-derived: switching the active role cannot flip one", () => {
     const capability = fixtures.get("provider-degraded")!;
-    const surfaces = ["home", "explore", "watch", "library", "create-studio", "operations"] as const;
+    const surfaces = [
+      "home",
+      "explore",
+      "watch",
+      "library",
+      "create-studio",
+      "operations",
+    ] as const;
     const before = surfaces.map((id) => deriveSurfaceVisibility(capability, id).state);
     const switched = {
       ...capability,
@@ -339,7 +346,9 @@ describe("Simulation G — the same match session, constant across reality switc
     const transition = switchReality(machine, options, "anime.prototype");
     expect(transition.status).toBe("rejected");
     expect(transition.state.sessionId).toBe("ms-1"); // still the same match
-    expect(transition.reason.length).toBeGreaterThan(5);
+    if (transition.status === "rejected") {
+      expect(transition.reason.length).toBeGreaterThan(5);
+    }
   });
 
   test("renderer-specific controls stay scoped: the options carry no other session's data", () => {

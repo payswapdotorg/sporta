@@ -240,7 +240,7 @@ export function deriveReauthState(detail?: string): SurfaceVerdict {
       "your session is no longer valid — sign in again to continue" +
       (detail !== undefined && detail.length > 0 ? ` (${detail})` : ""),
   };
-}// ---------------------------------------------------------------------------
+} // ---------------------------------------------------------------------------
 // Surface visibility (the role-experience matrix, from the capability response)
 // ---------------------------------------------------------------------------
 
@@ -434,10 +434,7 @@ export function deriveLibraryState(
 
 /** Why a reality option is not ready (closed vocabulary, surfaced to users). */
 export type RealityUnavailableReason =
-  | "renderer-unavailable"
-  | "rights-denied"
-  | "requires-render"
-  | "no-stored-output";
+  "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
 
 /** One Reality Switcher option. */
 export interface RealityOption {

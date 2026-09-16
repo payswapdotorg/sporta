@@ -39,7 +39,6 @@ import {
   type RealityMachineState,
 } from "@/lib/reality-machine";
 import {
-  deriveProviderNotices,
   deriveRealityOptions,
   formatTimelineMs,
   watchVerdictOfOptions,
@@ -233,7 +232,9 @@ export function WatchExperience({
                   : "unavailable"
             }
             title={
-              verdict.state === "processing" ? "A render is being produced" : "Nothing to play for this match"
+              verdict.state === "processing"
+                ? "A render is being produced"
+                : "Nothing to play for this match"
             }
             reason={verdict.reason}
           />

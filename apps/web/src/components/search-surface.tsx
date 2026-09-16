@@ -115,7 +115,9 @@ export function SearchSurface({ query }: { query: string | null }) {
       <section className="studio-section" data-surface="search-verdict">
         <div className="session-card-head">
           <h2 className="section-title">
-            {result.data.matches.length === 0 ? "No matches" : `${result.data.matches.length} match(es)`}
+            {result.data.matches.length === 0
+              ? "No matches"
+              : `${result.data.matches.length} match(es)`}
           </h2>
           <StateChip state={verdict.state}>{verdict.state}</StateChip>
         </div>
@@ -140,11 +142,7 @@ export function SearchSurface({ query }: { query: string | null }) {
       ) : (
         <div className="card-grid">
           {result.data.matches.map((match) => (
-            <SessionCard
-              key={match.sessionId}
-              card={match}
-              capability={capability.data}
-            />
+            <SessionCard key={match.sessionId} card={match} capability={capability.data} />
           ))}
         </div>
       )}
