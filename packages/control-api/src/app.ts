@@ -72,6 +72,7 @@ import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world
 import {
   InMemorySessionRepository,
   RightsDeniedError,
+  SessionConflictError,
   SessionLifecycle,
   newSession,
 } from "@sporta/session";
@@ -152,6 +153,12 @@ const DEFAULT_STYLE_ID = "default";
 /** Max accepted length of caller-supplied ids and labels. */
 const MAX_LABEL_LENGTH = 200;
 
+/** W921: max accepted length of a caller-supplied session id. */
+const MAX_SESSION_ID_LENGTH = 128;
+
+/** W921: the closed charset of a caller-supplied session id (`[a-z0-9-]`). */
+const SESSION_ID_PATTERN = /^[a-z0-9-]+$/;
+
 /**
  * Call-scoped context. The HTTP transport passes the request id so it lands
  * in the correlation line; in-process callers may omit it.
@@ -225,6 +232,22 @@ export interface CreateSessionInput {
   authorizationPolicy: AuthorizationPolicyDoc;
   /** Human-readable label for the attached source (optional). */
   sourceLabel?: string;
+  /**
+   * W921 (ADDITIVE, G2 precedent): caller-supplied session id. When provided,
+   * the session is created under EXACTLY this id (fail-closed: non-empty,
+   * 1..128 chars, charset `[a-z0-9-]`, and unique in the session repository —
+   * a collision is a typed `validation` error, NEVER a silent renumbering).
+   * When absent, the historical `sess-<seq>` allocation is byte-identical.
+   */
+  sessionId?: string;
+  /**
+   * W921 (ADDITIVE): caller-supplied creation time (ISO-8601 UTC). When
+   * provided, the session document carries it verbatim instead of the app
+   * clock's `now` — the durable-reconstruction path restores a session with
+   * its RECORDED creation time, never the replay clock's. Absent → unchanged
+   * clock-derived behavior.
+   */
+  createdAtIso?: string;
 }
 
 /** A session document plus its fail-closed derived capabilities. */
@@ -524,6 +547,8 @@ function requireNonEmptyString(value: unknown, field: string, maxLength: number)
 function validateCreateSessionInput(input: unknown): {
   policy: AuthorizationPolicyDoc;
   sourceLabel: string | undefined;
+  sessionId: string | undefined;
+  createdAtIso: string | undefined;
 } {
   if (!isRecord(input)) {
     throw new ControlValidationError("request body must be a JSON object");
@@ -538,7 +563,30 @@ function validateCreateSessionInput(input: unknown): {
     input.sourceLabel === undefined
       ? undefined
       : requireNonEmptyString(input.sourceLabel, "sourceLabel", MAX_LABEL_LENGTH);
-  return { policy: policyResult.data, sourceLabel };
+  // W921 (fail-closed): a caller-supplied session id must be a sane, non-empty
+  // lowercase slug. Anything else is a typed validation error — never coerced,
+  // never silently renumbered.
+  let sessionId: string | undefined;
+  if (input.sessionId !== undefined) {
+    sessionId = requireNonEmptyString(input.sessionId, "sessionId", MAX_SESSION_ID_LENGTH);
+    if (!SESSION_ID_PATTERN.test(sessionId)) {
+      throw new ControlValidationError(
+        `sessionId must match ${SESSION_ID_PATTERN.source} (got '${sessionId}')`,
+        { sessionId, reason: "invalid-session-id" },
+      );
+    }
+  }
+  // W921 (fail-closed): a caller-supplied creation time must be ISO-8601.
+  let createdAtIso: string | undefined;
+  if (input.createdAtIso !== undefined) {
+    createdAtIso = requireNonEmptyString(input.createdAtIso, "createdAtIso", 64);
+    if (Number.isNaN(Date.parse(createdAtIso))) {
+      throw new ControlValidationError("createdAtIso must be an ISO-8601 timestamp", {
+        createdAtIso,
+      });
+    }
+  }
+  return { policy: policyResult.data, sourceLabel, sessionId, createdAtIso };
 }
 
 function validateCreateRenderInput(input: unknown): {
@@ -699,7 +747,8 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     scope: { sessionId?: string },
     input: unknown,
   ): Promise<CreateSessionResult> {
-    const { policy, sourceLabel } = validateCreateSessionInput(input);
+    const { policy, sourceLabel, sessionId: callerSessionId, createdAtIso } =
+      validateCreateSessionInput(input);
 
     // Fail-closed policy check FIRST: derive the capabilities; a policy from
     // which no capability can be derived denies creation (nothing is stored).
@@ -722,8 +771,12 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     // Create the media session and attach the authorized source. The source
     // is a declared placeholder (no streams) until ingestion (W10x) wires
     // real media; `declaredRightsPolicyId` references the presented policy.
+    // W921 (ADDITIVE): when the caller supplied a session id, the session is
+    // created under EXACTLY that id (fail-closed above; a repository conflict
+    // is the typed duplicate error, never a silent renumbering). Without it,
+    // the historical `sess-<seq>` allocation is byte-identical.
     sessionSeq += 1;
-    const sessionId = `sess-${sessionSeq}`;
+    const sessionId = callerSessionId ?? `sess-${sessionSeq}`;
     scope.sessionId = sessionId; // correlate the call's log line
     const source: SourceMedia = {
       sourceId: `src-${sessionSeq}`,
@@ -733,10 +786,28 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       declaredRightsPolicyId: policy.policyId,
     };
     let session = newSession(
-      { sessionId, authorizationPolicyId: policy.policyId, sources: [source] },
+      {
+        sessionId,
+        authorizationPolicyId: policy.policyId,
+        sources: [source],
+        ...(createdAtIso !== undefined ? { createdAtIso } : {}),
+      },
       new Date(nowMs()),
     );
-    session = sessionRepository.create(session);
+    try {
+      session = sessionRepository.create(session);
+    } catch (err) {
+      // W921 (fail-closed): a caller-supplied id that collides with an
+      // existing session is a typed validation rejection — the session is
+      // NEVER silently renumbered to a fresh `sess-<seq>`.
+      if (err instanceof SessionConflictError) {
+        throw new ControlValidationError(
+          `sessionId '${sessionId}' is already in use (fail closed — never renumbered)`,
+          { sessionId, reason: "duplicate-session-id" },
+        );
+      }
+      throw err;
+    }
     policies.set(sessionId, policy);
     if (sourceLabel !== undefined) {
       sourceLabels.set(sessionId, sourceLabel);
