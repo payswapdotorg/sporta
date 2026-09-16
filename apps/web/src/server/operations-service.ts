@@ -795,7 +795,6 @@ export function createOperationsService(options: OperationsServiceOptions): Oper
   return new OperationsService(options);
 }
 
-
 /** One failed job row (operator scope). */
 export interface FailedJobRow {
   sessionId: string;
