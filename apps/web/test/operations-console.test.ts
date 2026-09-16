@@ -279,7 +279,7 @@ describe("GET /api/operations/health", () => {
     // The provider checks use the CLOSED vocabulary and are consistent with
     // their configured flag (the sandbox may carry a DATABASE_URL the check
     // cannot reach — the honest `error` state, never a healthy claim).
-    const providerStates = ["unconfigured", "ok", "error"] as const;
+    const providerStates: string[] = ["unconfigured", "ok", "error"];
     expect(providerStates).toContain(health.providers.identity.state);
     expect(providerStates).toContain(health.providers.artifacts.state);
     expect(providerStates).toContain(health.providers.transientState.state);
@@ -502,7 +502,9 @@ describe("POST /api/operations/jobs/[jobId]/retry", () => {
     expect(response.status).toBe(400);
     const body = await bodyOf(response);
     expect(body.error).toMatchObject({ failureClass: "validation" });
-    expect(String(body.error.message)).toContain("only failed jobs can be retried");
+    expect(String((body.error as { message: string }).message)).toContain(
+      "only failed jobs can be retried",
+    );
   });
 
   test("refuses an unknown job id", async () => {
@@ -730,25 +732,30 @@ describe("POST /api/operations/jobs/[jobId]/cancel", () => {
     expect(cancelled.alreadyTerminal).toBeNull();
 
     // The admission slot returned to the bounded queue.
-    response = await queuesRoute(withCookie(cancelOperatorToken, "/api/operations/queues"));
-    const queues = (await bodyOf(response)) as { queue: { depth: number } };
+    const queueResponse = await queuesRoute(
+      withCookie(cancelOperatorToken, "/api/operations/queues"),
+    );
+    const queues = (await bodyOf(queueResponse)) as { queue: { depth: number } };
     expect(queues.queue.depth).toBe(0);
-    response = await jobsRoute(withCookie(cancelOperatorToken, "/api/operations/jobs"));
-    jobs = (await bodyOf(response)) as {
+    const releasedResponse = await jobsRoute(
+      withCookie(cancelOperatorToken, "/api/operations/jobs"),
+    );
+    const released = (await bodyOf(releasedResponse)) as {
       jobs: { jobId: string; admission: { released: boolean; admissionId: string | null } }[];
     };
-    row = jobs.jobs.find((job) => job.jobId === jobId);
-    expect(row!.admission.released).toBe(true);
-    expect(row!.admission.admissionId).toBeNull();
+    const releasedRow = released.jobs.find((job) => job.jobId === jobId);
+    expect(releasedRow!.admission.released).toBe(true);
+    expect(releasedRow!.admission.admissionId).toBeNull();
 
     // Now release the gate: the real execution runs and its LATE report is
     // superseded — the job STAYS cancelled (never a flip back).
     releaseExecution();
     await new Promise((resolve) => setTimeout(resolve, 50));
-    response = await jobsRoute(withCookie(cancelOperatorToken, "/api/operations/jobs"));
-    jobs = (await bodyOf(response)) as { jobs: { jobId: string; state: string }[] };
-    row = jobs.jobs.find((job) => job.jobId === jobId);
-    expect(row!.state).toBe("cancelled");
+    const settledResponse = await jobsRoute(
+      withCookie(cancelOperatorToken, "/api/operations/jobs"),
+    );
+    const settled = (await bodyOf(settledResponse)) as { jobs: { jobId: string; state: string }[] };
+    expect(settled.jobs.find((job) => job.jobId === jobId)!.state).toBe("cancelled");
 
     // A second cancel is the honest counted no-op with the disposition.
     response = await cancelRoute(
