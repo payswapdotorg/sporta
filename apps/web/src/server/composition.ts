@@ -75,6 +75,9 @@ import {
 } from "./platform/upstash/hosted";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
+import { RightsCenterService } from "./rights-center-service";
+import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
+import { createRightsGovernedControl } from "./rights-governed-control";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
 import type { LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
@@ -167,6 +170,23 @@ export interface SportaServer {
    * unrecorded, hence outside every policy scope (fail-closed).
    */
   attestations: PolicyAttestationIndex;
+  /**
+   * The W917 rights-policy registry: each session's creation-time policy
+   * record plus any rights-holder EDIT (the override the rights-governed
+   * control plane re-derives every rights read from, fail-closed).
+   */
+  rightsPolicies: EffectivePolicyStore;
+  /**
+   * The W917 append-only policy-change record (who/what/when — in-memory
+   * dev backing, documented at the store).
+   */
+  rightsAudit: PolicyAuditLog;
+  /**
+   * The Rights Center service (W917): policy inspection, policy editing,
+   * visibility editing and revocation for content the caller owns or
+   * controls — over the REAL contracts' semantics.
+   */
+  rights: RightsCenterService;
   /**
    * The compute plane the control plane's async render surface dispatches
    * through (W914): the env-selected provider + the REAL adapter id, or null
@@ -269,7 +289,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const engines = new Map<string, WorldModelEngineInstance>();
   const storyIndex = new Map<string, SeedStoryMeta>();
 
-  const control = createControlApp({
+  const rawControl = createControlApp({
     rendererRegistry: registry,
     renderOutputStore: pipeline,
     ...(computeAdapter !== undefined ? { computeAdapter } : {}),
@@ -286,6 +306,16 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       return engine;
     },
   });
+
+  // 5a. The W917 rights-policy layer: the registry (creation records +
+  //     rights-holder edits) + the append-only audit log, fronting the raw
+  //     control app so every rights-checking read re-derives from the
+  //     EFFECTIVE policy (fail-closed per read). The gate, the studio, the
+  //     catalog and every route below consume this GOVERNED control plane —
+  //     the raw app is never handed out.
+  const rightsPolicies = new EffectivePolicyStore();
+  const rightsAudit = new PolicyAuditLog();
+  const control = createRightsGovernedControl(rawControl, rightsPolicies, nowMs);
 
   // 6. The identity control gate (owner/operator reads, deny-before-existence).
   const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
@@ -348,6 +378,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     attestations,
     nowMs,
   });
+  const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
   const server: SportaServer = {
     auth,
@@ -363,6 +394,9 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     studio,
     publication,
     attestations,
+    rightsPolicies,
+    rightsAudit,
+    rights,
     compute,
     live,
     transientState,
