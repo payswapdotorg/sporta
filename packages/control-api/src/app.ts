@@ -1113,10 +1113,22 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
 
   /** Maps typed compute-adapter refusals onto the control error vocabulary. */
   function wrapComputeError(err: unknown): unknown {
-    if (err instanceof ComputeValidationError) return asControlError(new ControlValidationError(err.message, { ...(err.details as Record<string, unknown>) }));
-    if (err instanceof ComputeAdmissionError) return asControlError(new ControlMediaInvalidError(err.message, { ...(err.details as Record<string, unknown>) }));
-    if (err instanceof ComputeResourceLimitError) return asControlError(new ControlResourceLimitError(err.message, { ...(err.details as Record<string, unknown>) }));
-    if (err instanceof ComputeRightsError) return asControlError(new ControlRightsDeniedError(err.message, { ...(err.details as Record<string, unknown>) }));
+    if (err instanceof ComputeValidationError)
+      return asControlError(
+        new ControlValidationError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeAdmissionError)
+      return asControlError(
+        new ControlMediaInvalidError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeResourceLimitError)
+      return asControlError(
+        new ControlResourceLimitError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeRightsError)
+      return asControlError(
+        new ControlRightsDeniedError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
     return asControlError(err);
   }
 
@@ -1144,7 +1156,11 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
         : requireNonEmptyString(input.idempotencyKey, "idempotencyKey", MAX_LABEL_LENGTH);
     let deadlineMs = DEFAULT_COMPUTE_DEADLINE_MS;
     if (input.deadlineMs !== undefined) {
-      if (typeof input.deadlineMs !== "number" || !Number.isFinite(input.deadlineMs) || input.deadlineMs <= 0) {
+      if (
+        typeof input.deadlineMs !== "number" ||
+        !Number.isFinite(input.deadlineMs) ||
+        input.deadlineMs <= 0
+      ) {
         throw new ControlValidationError("deadlineMs must be a finite number > 0");
       }
       deadlineMs = input.deadlineMs;
@@ -1220,8 +1236,7 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     //    correlation, renderer+recipe, manifest, output profile, rights
     //    posture, and constraints.
     computeJobSeq += 1;
-    const jobId =
-      jobIdInput ?? `render-job-${sessionId}-${computeJobSeq}`; // the W304 derivation pattern
+    const jobId = jobIdInput ?? `render-job-${sessionId}-${computeJobSeq}`; // the W304 derivation pattern
     const idempotencyKey =
       idempotencyKeyInput ??
       `render-${sessionId}-wm-${snapshot.watermark.sequence}-seq-${computeJobSeq}`; // the W304 key
@@ -1262,8 +1277,7 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     } catch (err) {
       throw wrapComputeError(err);
     }
-    const outcomeJobId =
-      outcome.disposition === "admitted" ? outcome.handle.jobId : outcome.jobId;
+    const outcomeJobId = outcome.disposition === "admitted" ? outcome.handle.jobId : outcome.jobId;
     const outcomeKey =
       outcome.disposition === "admitted" ? outcome.handle.idempotencyKey : outcome.idempotencyKey;
     const entry: ComputeJobEntry = {
@@ -1342,10 +1356,10 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       // 1. The renderer's own result document (validated against contracts).
       const resultCheck = RenderResult.safeParse(completion.renderResult);
       if (!resultCheck.success) {
-        throw new ControlInternalError(
-          "compute job returned an invalid RenderResult",
-          { jobId, issues: issuesOf(resultCheck.error) },
-        );
+        throw new ControlInternalError("compute job returned an invalid RenderResult", {
+          jobId,
+          issues: issuesOf(resultCheck.error),
+        });
       }
       renderSeq += 1;
       const renderId = `r-${renderSeq}`;
@@ -1434,11 +1448,21 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
           contentType: artifact.contentType,
           byteLength: artifact.byteLength,
           metadata: {
-            ...(artifact.metadata.renderId !== undefined ? { renderId: artifact.metadata.renderId } : {}),
-            ...(artifact.metadata.segmentId !== undefined ? { segmentId: artifact.metadata.segmentId } : {}),
-            ...(artifact.metadata.snapshotVersion !== undefined ? { snapshotVersion: artifact.metadata.snapshotVersion } : {}),
-            ...(artifact.metadata.frameCount !== undefined ? { frameCount: artifact.metadata.frameCount } : {}),
-            ...(artifact.metadata.totalDurationMs !== undefined ? { totalDurationMs: artifact.metadata.totalDurationMs } : {}),
+            ...(artifact.metadata.renderId !== undefined
+              ? { renderId: artifact.metadata.renderId }
+              : {}),
+            ...(artifact.metadata.segmentId !== undefined
+              ? { segmentId: artifact.metadata.segmentId }
+              : {}),
+            ...(artifact.metadata.snapshotVersion !== undefined
+              ? { snapshotVersion: artifact.metadata.snapshotVersion }
+              : {}),
+            ...(artifact.metadata.frameCount !== undefined
+              ? { frameCount: artifact.metadata.frameCount }
+              : {}),
+            ...(artifact.metadata.totalDurationMs !== undefined
+              ? { totalDurationMs: artifact.metadata.totalDurationMs }
+              : {}),
           },
         })),
         attempts: completion.attempts,

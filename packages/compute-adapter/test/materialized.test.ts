@@ -45,7 +45,9 @@ describe("canonicalJsonOf — deterministic, order-independent, loud", () => {
     const a = { z: 1, a: { y: [1, 2, { b: 1, a: 2 }], x: "s" }, m: null, t: true };
     const b = { t: true, m: null, a: { x: "s", y: [1, 2, { a: 2, b: 1 }] }, z: 1 };
     expect(canonicalJsonOf(a)).toBe(canonicalJsonOf(b));
-    expect(canonicalJsonOf(a)).toBe('{"a":{"x":"s","y":[1,2,{"a":2,"b":1}]},"m":null,"t":true,"z":1}');
+    expect(canonicalJsonOf(a)).toBe(
+      '{"a":{"x":"s","y":[1,2,{"a":2,"b":1}]},"m":null,"t":true,"z":1}',
+    );
   });
 
   test("scalars, empty containers, and escaping", () => {
@@ -159,7 +161,9 @@ describe("ComputeDispatchRequest — exact manifest coverage with kind-shaped pa
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(
-        parsed.error.issues.some((issue) => issue.message.includes("'ghost' is not in the job's manifest")),
+        parsed.error.issues.some((issue) =>
+          issue.message.includes("'ghost' is not in the job's manifest"),
+        ),
       ).toBe(true);
     }
   });
@@ -175,7 +179,9 @@ describe("ComputeDispatchRequest — exact manifest coverage with kind-shaped pa
     if (!parsed.success) {
       expect(
         parsed.error.issues.some((issue) =>
-          issue.message.includes("kind 'swm-snapshot' but the manifest declares 'swm-event-window'"),
+          issue.message.includes(
+            "kind 'swm-snapshot' but the manifest declares 'swm-event-window'",
+          ),
         ),
       ).toBe(true);
     }
@@ -202,9 +208,7 @@ describe("ComputeDispatchRequest — exact manifest coverage with kind-shaped pa
   test("rejects an empty inputs array and source-media materialization this wave", () => {
     expect(ComputeDispatchRequest.safeParse(dispatch([])).success).toBe(false);
     const job: ComputeJobDescription = validJobDescription({
-      inputs: [
-        { inputId: "src", kind: "source-media", ref: "media:clip-1" },
-      ],
+      inputs: [{ inputId: "src", kind: "source-media", ref: "media:clip-1" }],
     });
     const parsed = ComputeDispatchRequest.safeParse({
       job,
@@ -239,13 +243,15 @@ describe("materializedInputIssues — the pure validator reports every defect", 
 
   test("clean inputs produce zero issues", () => {
     const job: ComputeJobDescription = validJobDescription({
-      inputs: [
-        { inputId: "swm-snapshot", kind: "swm-snapshot", ref: "swm-snapshot:s-1:v1:seq0" },
-      ],
+      inputs: [{ inputId: "swm-snapshot", kind: "swm-snapshot", ref: "swm-snapshot:s-1:v1:seq0" }],
     });
     expect(
       materializedInputIssues(job, [
-        { inputId: "swm-snapshot", kind: "swm-snapshot", payload: { snapshotVersion: 3, snapshot: {} } },
+        {
+          inputId: "swm-snapshot",
+          kind: "swm-snapshot",
+          payload: { snapshotVersion: 3, snapshot: {} },
+        },
       ]),
     ).toEqual([]);
   });
@@ -273,7 +279,11 @@ describe("the dispatch port extension stays Wave-1 compatible", () => {
     // (it ignores them — in-process ref resolution).
     const job = validJobDescription();
     const outcome = await adapter.dispatch(job, [
-      { inputId: job.inputs[0]!.inputId, kind: job.inputs[0]!.kind, payload: { snapshotVersion: 1, snapshot: {} } },
+      {
+        inputId: job.inputs[0]!.inputId,
+        kind: job.inputs[0]!.kind,
+        payload: { snapshotVersion: 1, snapshot: {} },
+      },
     ]);
     expect(outcome.disposition).toBe("admitted");
     const again = await adapter.dispatch(job);

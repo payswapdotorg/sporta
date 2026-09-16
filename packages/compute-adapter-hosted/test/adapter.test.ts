@@ -336,7 +336,7 @@ describe("accounting + metering totality", () => {
       s2 = await failing.getJobOrFail("bad-1");
     }
 
-    for (const [name, a] of [
+    for (const [, a] of [
       ["ok", adapter],
       ["bad", failing],
     ] as const) {

@@ -94,12 +94,16 @@ function createComputeHarness(options: { withAdapter?: boolean } = {}): ComputeH
   return { baseUrl: `http://127.0.0.1:${server.port}`, server, adapter };
 }
 
+/** A loose parsed-JSON document: the HTTP wire's answer, pinned field-by-field by the assertions below (a deliberate test seam, not a domain type). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type WireJson = any;
+
 /** JSON POST helper. */
 async function postJson(
   baseUrl: string,
   path: string,
   body: unknown,
-): Promise<{ status: number; body: any }> {
+): Promise<{ status: number; body: WireJson }> {
   const response = await fetch(`${baseUrl}${path}`, {
     method: "POST",
     body: JSON.stringify(body),
@@ -109,7 +113,7 @@ async function postJson(
 }
 
 /** JSON GET helper. */
-async function getJson(baseUrl: string, path: string): Promise<{ status: number; body: any }> {
+async function getJson(baseUrl: string, path: string): Promise<{ status: number; body: WireJson }> {
   const response = await fetch(`${baseUrl}${path}`);
   const text = await response.text();
   const parsed = response.headers.get("content-type")?.includes("application/json")
@@ -140,7 +144,7 @@ async function pollJob(
   baseUrl: string,
   sessionId: string,
   jobId: string,
-): Promise<{ status: number; body: any }> {
+): Promise<{ status: number; body: WireJson }> {
   let job = await getJson(baseUrl, `/v1/sessions/${sessionId}/compute-jobs/${jobId}`);
   for (let i = 0; i < 50 && job.status === 200 && !isTerminal(job.body.state); i += 1) {
     await Bun.sleep(5);
