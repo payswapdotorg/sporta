@@ -33,10 +33,6 @@ export function LiveSurface() {
     );
   }, []);
 
-  const liveVerdict =
-    capability.phase === "ready"
-      ? deriveLiveState(capability.data)
-      : { state: "loading" as const, reason: "reading the capability state" };
   const transportActive =
     capability.phase === "ready" &&
     capability.data.modes.live.availability === "available" &&

@@ -19,10 +19,18 @@ export interface ApiErrorBody {
 }
 
 /** JSON response helper (never cacheable). */
-export function jsonResponse(status: number, payload: unknown): Response {
+export function jsonResponse(
+  status: number,
+  payload: unknown,
+  extraHeaders?: Record<string, string>,
+): Response {
   return new Response(JSON.stringify(payload), {
     status,
-    headers: { "content-type": "application/json", "cache-control": "no-store" },
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+      ...(extraHeaders ?? {}),
+    },
   });
 }
 

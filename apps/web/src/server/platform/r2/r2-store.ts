@@ -33,6 +33,7 @@
  * independent writers to the SAME scope are outside this wave's composition
  * (see DEPLOYMENT.md "Known boundaries").
  */
+import { createHash } from "node:crypto";
 import { deriveRightsCapabilities, type AuthorizationPolicy } from "@sporta/contracts";
 import { presignGetUrl, signAwsRequest, type SigV4Credentials } from "./sigv4";
 
@@ -429,6 +430,16 @@ export class R2RenderOutputStore {
     return { provider: "r2", bucket: this.#bucket, endpoint: this.#endpoint };
   }
 
+  /**
+   * Fetches a URL through the store's own transport seam (the injected
+   * `fetchImpl` — the global fetch by default). The playback path uses this
+   * to retrieve presigned URLs, so a substituted transport is honored
+   * everywhere (tests/proxies) without touching globals.
+   */
+  async fetchViaTransport(url: string): Promise<Response> {
+    return this.#fetchImpl(url);
+  }
+
   async storeSegment(input: HostedStoreSegmentInput): Promise<HostedStoreSegmentOutcome> {
     const { sessionId, renderId } = input;
     const segment = input.segment;
@@ -659,9 +670,7 @@ export class R2RenderOutputStore {
         measured,
       });
     }
-    const digest = [...UTF8.encode(document.content)]
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
+    const digest = createHash("sha256").update(document.content, "utf8").digest("hex");
     if (document.contentHash !== digest) {
       throw new SegmentIntegrityError("stored document content hash drifted", {
         stored: document.contentHash,

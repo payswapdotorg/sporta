@@ -129,7 +129,7 @@ describe("the live channel", () => {
 
   test("each tick is a REAL render: complete SVG frames with real timestamps", async () => {
     const scheduler = manualScheduler();
-    let clock = 5_000;
+    const clock = 5_000;
     const transport = createSseLiveTransport({ active: true, nowMs: () => clock, scheduler });
     transport.registerSource(derbySource());
     const subscriber = transport.subscribe("sess-live-test")!;

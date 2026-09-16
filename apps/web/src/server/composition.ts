@@ -48,9 +48,11 @@ import type {
   SessionService,
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
-import { neonConfigured } from "./platform/env";
+import { neonConfigured, r2Configured } from "./platform/env";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
+import { getHostedRenderOutputStore } from "./platform/r2/hosted";
+import type { R2RenderOutputStore } from "./platform/r2/r2-store";
 import { AuthService } from "./auth-service";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
 import type { LiveTransport } from "./live";
@@ -78,6 +80,13 @@ export interface SportaServerOptions {
    * deterministic one through this seam.
    */
   liveTransport?: LiveTransport;
+  /**
+   * The hosted R2 artifact store (W912: the private-bucket render-output
+   * store when the environment configures it; default: none — the seeded
+   * outputs then live only in the in-process pipeline, and health reports
+   * `artifacts: in-memory`).
+   */
+  artifacts?: R2RenderOutputStore | null;
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
 }
@@ -96,6 +105,12 @@ export interface SportaServer {
   gate: IdentityControlGate;
   /** Media-session ownership (which account created which session). */
   ownership: MediaOwnershipStore;
+  /**
+   * The hosted R2 artifact store (W912) — `null` when unconfigured (the
+   * honest in-memory state health reports; seeded outputs are then NOT
+   * mirrored to R2 and the watch output route serves the in-process bytes).
+   */
+  artifacts: R2RenderOutputStore | null;
   /** Shared account store (also what the gate resolves against). */
   accounts: AccountStore;
   /** Dev-seed story metadata by session id (the honest "story" data). */
@@ -179,6 +194,13 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       cadenceMs: liveCadenceMs(),
     });
 
+  // 5c. The hosted artifact store (W912): the R2-backed render-output store
+  //     when configured. The dev seed MIRRORS every stored output into it
+  //     (fail-closed — a configured R2 that rejects the mirror fails the
+  //     seed loudly), and the watch output route then serves bytes fetched
+  //     back from R2 through a short-lived presigned URL.
+  const artifacts = options.artifacts ?? null;
+
   const server: SportaServer = {
     auth,
     control,
@@ -187,6 +209,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     gate,
     ownership,
     accounts,
+    artifacts,
     storyIndex,
     engines,
     live,
@@ -251,15 +274,19 @@ export function getSportaServer(): Promise<SportaServer> {
  *   instead of crashing on the missing `Bun` global). `/api/platform/health`
  *   reports this state honestly as `in-memory`.
  *
- * The control plane / render outputs stay in-process in BOTH modes (W912/W914
- * scope); only the identity lane is persisted this wave.
+ * The control plane's session/render REGISTRIES stay in-process in BOTH modes
+ * (W913 scope); the render-output BYTES mirror to R2 when configured (W912:
+ * `R2_*` bindings present — the seeded outputs persist in the private bucket
+ * and playback reads them back through short-lived presigned delivery).
  */
 async function buildSingleton(): Promise<SportaServer> {
   const seed = process.env.SPORTA_DISABLE_DEV_SEED !== "1";
+  const artifacts = r2Configured() ? getHostedRenderOutputStore() : null;
   if (!neonConfigured()) {
     return createSportaServer({
       nowMs: Date.now,
       passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
+      ...(artifacts !== null ? { artifacts } : {}),
       seed,
     });
   }
@@ -271,6 +298,7 @@ async function buildSingleton(): Promise<SportaServer> {
     sessions: hosted.sessions,
     ownership: hosted.ownership,
     passwordHasher: hosted.hasher,
+    ...(artifacts !== null ? { artifacts } : {}),
     seed,
   });
 }

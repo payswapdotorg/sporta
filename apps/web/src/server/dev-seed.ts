@@ -20,6 +20,7 @@
  * Users register their own accounts; their Library lists their own sessions.
  */
 import { SCHEMA_VERSION, deriveRightsCapabilities } from "@sporta/contracts";
+import { encodeAnimeClip } from "@sporta/output-pipeline";
 import {
   ANIME_OUTPUT_PROFILE,
   ANIME_RENDERER_ID,
@@ -215,6 +216,45 @@ export async function seedDevContent(options: SeedOptions): Promise<{
         output: clip,
       });
       storedSegmentIds.push(stored.segmentId);
+
+      // 2d-2 (W912): MIRROR the stored output into the hosted R2 artifact
+      // store when one is configured. Fail-closed by design — a deployment
+      // that configures R2 must actually get its artifacts persisted there;
+      // a mirror that silently no-ops (or silently swallows R2 failures)
+      // would make health lie. The store is idempotent (same content =
+      // COUNTED duplicate), so a cold-start re-seed is safe.
+      //
+      // The mirror re-runs the pipeline's OWN deterministic encoder
+      // (`encodeAnimeClip` — the exact function `encodeAndStore` uses) instead
+      // of reading the segment back through the rights-gated retrieval: the
+      // training story's policy deliberately denies derivative STORAGE, so a
+      // playback-gated read of its output denies (the honest W905 reality);
+      // the WRITE side (like the pipeline's own `storeSegment`) carries no
+      // rights gate. Deterministic encode ⇒ same segment id + hash as the
+      // pipeline's stored record (asserted, not trusted).
+      if (server.artifacts !== null) {
+        const encoded = encodeAnimeClip(clip);
+        if (encoded.segmentId !== stored.segmentId) {
+          // Unreachable barring a pipeline-contract violation — loud, never
+          // an in-memory-only deployment pretending R2 persistence.
+          throw new Error(
+            `dev seed mirror: encoder/pipeline segment id drift (` +
+              `${encoded.segmentId} != ${stored.segmentId})`,
+          );
+        }
+        await server.artifacts.storeSegment({
+          sessionId,
+          renderId: animeRenderId,
+          segment: {
+            segmentId: encoded.segmentId,
+            contentType: encoded.contentType,
+            content: encoded.content,
+            byteLength: encoded.byteLength,
+            contentHash: encoded.contentHash,
+            manifest: encoded.manifest,
+          },
+        });
+      }
     }
 
     // 2e. Record the story metadata the watch model exposes (labeled).

@@ -8,9 +8,12 @@ Neon binding is one `DATABASE_URL` project env var).
 ## What is deployed
 
 `apps/web` — the Sporta Next.js 16 product shell (W903) plus the hosted-platform
-composition root (W910–W913 seams; **W911 Neon identity persistence is LIVE** —
-accounts, sessions, and media-session ownership are in Neon PostgreSQL when
-`DATABASE_URL` is bound; artifacts/transientState stay in-memory until W912/W913).
+composition root (W910–W913 seams; **W911 Neon identity persistence and W912 R2
+artifact storage are LIVE** — accounts/sessions/ownership in Neon PostgreSQL when
+`DATABASE_URL` is bound; seeded render outputs mirrored to the private R2 bucket
+`sporta-beta-artifacts` when the `R2_*` bindings are present, with playback
+reading them back via short-lived presigned delivery; transientState stays
+in-memory until W913).
 The deployment is a **standard Next.js build**: repository-root `bun install`
 (monorepo workspaces), `next build` in `apps/web`, no exotic output modes.
 
@@ -83,14 +86,14 @@ for kv in \
 done
 ```
 
-W911's `DATABASE_URL` is **LIVE** (production target, set 2026-09-16 — see §6);
-W912–W913 provider bindings remain **documented placeholders only** until those
-flights run (add them the same way, production target):
+W911's `DATABASE_URL` and W912's `R2_*` bindings are **LIVE** (production
+target — see §6/§7); W913's Upstash bindings remain a **documented placeholder
+only** until that flight runs (add them the same way, production target):
 
 | Env var | Flight | Meaning |
 |---|---|---|
 | `DATABASE_URL` | W911 ✅ live | Neon PostgreSQL connection string (secret) |
-| `R2_S3_ENDPOINT` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` / `R2_BUCKET_REGION` | W912 | Cloudflare R2 S3-compatible bindings (keys secret; bucket name/region are not) |
+| `R2_S3_ENDPOINT` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` / `R2_BUCKET_REGION` | W912 ✅ live (endpoint+keys+bucket name set; region unset = `auto`) | Cloudflare R2 S3-compatible bindings (keys secret; bucket name/region are not) |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | W913 | Upstash Redis REST bindings (token secret) |
 | `SPORTA_SESSION_COOKIE_DOMAIN` | W911+ | Cookie domain override for named hosts (unset for `*.vercel.app`) |
 
@@ -163,8 +166,9 @@ curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" https://sporta-flame.v
 #   → 200 application/javascript; charset=utf-8
 curl -sS https://sporta-flame.vercel.app/api/platform/health
 #   → JSON: env "beta-personal", deployMarker <current marker>, identity
-#     neon/configured since W911; artifacts/transientState honestly
-#     "unconfigured" until W912–W913 wire real bindings
+#     neon/configured (W911), artifacts r2/configured with bucket detail
+#     "sporta-beta-artifacts" (W912), transientState honestly "unconfigured"
+#     until W913 wires the Upstash bindings
 ```
 
 Actual W910 verification lines:
@@ -207,15 +211,16 @@ vercel promote deploy-2:    Success! sporta was promoted to
 alias → deploy 2 (then 3): health deployMarker = "w910-prod-2" (then "w910-614ebcd")
 ```
 
-Current production state (verified 2026-09-16, after W911):
+Current production state (verified 2026-09-16, after W912):
 
 ```
-https://sporta-flame.vercel.app/                   → 200 (34692 B; Sporta + skip-link in HTML)
+https://sporta-flame.vercel.app/                   → 200 (Sporta + skip-link in HTML)
 https://sporta-flame.vercel.app/manifest.webmanifest → 200 application/manifest+json; charset=utf-8
 https://sporta-flame.vercel.app/sw.js              → 200 application/javascript; charset=utf-8
-/api/platform/health → env "beta-personal", deployMarker "w911-b",
+/api/platform/health → env "beta-personal", deployMarker "w912-b",
                        identity = neon / configured / check ok ("postgres"),
-                       artifacts + transientState = in-memory, unconfigured
+                       artifacts = r2 / configured / check ok ("sporta-beta-artifacts"),
+                       transientState = in-memory / unconfigured
 ```
 
 ## 6) W911 — Neon PostgreSQL identity persistence (LIVE)
@@ -355,6 +360,207 @@ That is the W911 acceptance: hosted auth/session state persists across
 - The registered probe account (`w911-persist-probe`) intentionally remains in
   the database as living persistence evidence; delete it (SQL or a future admin
   surface) if the beta database must be cleaned.
+
+## 7) W912 — Cloudflare R2 artifact storage (LIVE)
+
+Render-output artifacts persist in a **private** Cloudflare R2 bucket; the
+browser never receives an unsigned object URL — delivery is short-lived
+presigned GETs issued only behind the authorized playback path.
+
+### 7.1) Provision (once per account)
+
+The bucket was provisioned 2026-09-16T02:12:16Z via the Cloudflare REST API
+(`CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` from `~/.secrets/env.sh`;
+values never echoed):
+
+```bash
+. ~/.secrets/env.sh
+curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"sporta-beta-artifacts"}'
+# → {"success":true,...,"result":{"name":"sporta-beta-artifacts",
+#     "creation_date":"2026-09-16T02:12:16.632Z","location":"APAC",
+#     "storage_class":"Standard","jurisdiction":"default"}}
+
+curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"   # verify listing
+```
+
+The S3 API keys (`R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY`) and the endpoint
+(`R2_S3_ENDPOINT` = `https://<account>.r2.cloudflarestorage.com`) pre-existed in
+`~/.secrets/env.sh` from the W910 flight and are bucket-scoped credentials
+created in the Cloudflare dashboard (R2 → Manage API tokens). They are stored
+ONLY in the shell env + the Vercel project env — never echoed, never committed.
+
+The bucket stays **PRIVATE by construction**: no custom domain, no public
+bucket access, no managed public hostname is attached. Every read goes through
+SigV4 (header-signed or query-presigned).
+
+### 7.2) What talks to R2 (the implementation)
+
+- `apps/web/src/server/platform/r2/sigv4.ts` — hand-rolled AWS SigV4 over
+  `node:crypto` (~120 lines, no AWS SDK: the hosted app keeps the repo's
+  no-dep posture; the engine-side exception for infra clients was not
+  needed). Two forms: `signAwsRequest` (header-signed PUT/GET/DELETE) and
+  `presignGetUrl` (query-signed, `X-Amz-Expires`-bounded GET).
+- `apps/web/src/server/platform/r2/r2-store.ts` — `R2RenderOutputStore`, the
+  W504 render-output store semantics over S3 objects: idempotent stores with
+  COUNTED duplicates, fail-loud `SegmentConflictError` on same-key/different-
+  content, W504 bounds (1000 segments / 16 MiB per segment / 256 MiB total),
+  rights-gated retrieval (`canStoreDerivatives` re-derived fail-closed BEFORE
+  existence), read-side integrity re-verification (byte length + sha-256).
+  Object layout: `render-outputs/<sessionId>/<renderId>/<segmentId>.json` +
+  per-scope `index.json` + global `_stats.json`.
+- `apps/web/src/server/platform/r2/hosted.ts` — env-gated singleton (the W911
+  pattern): absent bindings → `null` → honest `in-memory` in health.
+- `apps/web/src/server/platform/r2/playback.ts` — the server-side presigned
+  fetch + verification against the playback-gated record.
+- `apps/web/src/server/dev-seed.ts` — when R2 is configured, every seeded
+  output is MIRRORED to the bucket (fail-closed: a configured R2 that rejects
+  the mirror fails the seed loudly; deterministic encode ⇒ same segment id
+  and hash as the pipeline's own record, asserted not trusted).
+
+### 7.3) Environment wiring (Vercel)
+
+Set 2026-09-16 via REST v10 (production target; ids `bTCtaGoATqdk26ee`
+endpoint, `2Nt9lOHxQQC45Kbn` access key, `cNrKIS3sGRZSuQer` secret key,
+`2sMoAOWd7FjtCrlk` bucket name):
+
+```bash
+for kv in \
+  "{\"key\":\"R2_S3_ENDPOINT\",\"value\":\"$R2_S3_ENDPOINT\",\"type\":\"encrypted\",\"target\":[\"production\"]}" \
+  "{\"key\":\"R2_ACCESS_KEY_ID\",\"value\":\"$R2_ACCESS_KEY_ID\",\"type\":\"encrypted\",\"target\":[\"production\"]}" \
+  "{\"key\":\"R2_SECRET_ACCESS_KEY\",\"value\":\"$R2_SECRET_ACCESS_KEY\",\"type\":\"encrypted\",\"target\":[\"production\"]}" \
+  "{\"key\":\"R2_BUCKET_NAME\",\"value\":\"sporta-beta-artifacts\",\"type\":\"encrypted\",\"target\":[\"production\"]}" ; do
+  curl -s -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+    "https://api.vercel.com/v10/projects/sporta/env?teamId=ekonplacidegmailcoms-projects" \
+    -H "Content-Type: application/json" -d "$kv"
+done
+# (R2_BUCKET_REGION is intentionally unset — the store signs region "auto",
+#  which is what R2 reports.)
+```
+
+Removing the bindings degrades honestly: the composition falls back to the
+in-process pipeline store and health reports `artifacts: in-memory,
+unconfigured` (the W911 pattern — verified pre-W912).
+
+### 7.4) Access-control flow (the core requirement)
+
+```
+ browser                watch route (/api/watch/…/outputs/[segmentId])
+    │ GET                          │
+    │─────────────────────────────▶│ 1. CONTROL-PLANE PLAYBACK GATE (W902/W701):
+    │                              │    control.getRenderOutput() re-derives the
+    │                              │    session's rights fail-closed; 403 BEFORE
+    │                              │    existence, unknown render → 404.
+    │                              │ 2. (R2 configured) presign a 60 s GET
+    │                              │    server-side; fetch; verify sha-256 +
+    │                              │    byte length against the GATED record.
+    │                              │    Unreachable → honest 503; tampered → 500.
+    │◀── 200 JSON + x-sporta-artifact-source: r2 ──┘   (never an object URL)
+    │
+    │ GET /api/platform/render-outputs/[sessionId]/[renderId]/[segmentId]
+    │─────────────────────────────▶ identity session (401) → valid rights
+    │                              │ policy header (403 before existence) →
+    │                              │ owner/operator when owned (uniform 403) →
+    │                              │ store rights gate (defense in depth) →
+    │                              │ 404 when absent → ONLY THEN a 5-minute
+    │                              │ presigned URL is issued (browser fetches
+    │                              │ the private object through it).
+    │
+    │ unsigned direct object URL ($R2_S3_ENDPOINT/sporta-beta-artifacts/…)
+    │─────────────────────────────▶ R2 refuses: 400 InvalidArgument
+    │                              │ (Authorization) — no bytes, ever.
+    │ expired/tampered presign ───▶ R2 refuses: 403 ExpiredRequest /
+    │                              │ SignatureDoesNotMatch — no bytes, ever.
+```
+
+### 7.5) Verification evidence (2026-09-16, real bucket + public URL)
+
+Real-bucket integration tests (WITH the R2 env; without it the suite SKIPs
+loudly and the root battery stays green):
+
+```
+. ~/.secrets/env.sh
+bun test apps/web/test/platform/r2-artifacts.test.ts
+  → 7 pass / 0 fail / 22 expect() calls / Ran 7 tests across 1 file [5.09s]
+     1. store → presigned GET round-trip returns byte-identical content
+     2. unsigned direct object URL is refused (400; body never contains the artifact)
+     3a. expired presign is refused (403 ExpiredRequest)
+     3b. tampered presign signature is refused (403)
+     4. listing + manifest reads (verbatim manifest, counted duplicates,
+        conflict fail-loud SegmentConflictError)
+     5. retrieval without derivative rights denies before existence
+     6. deletion removes the object (idempotent)
+```
+
+Composition tests (env-independent, in-process S3-compatible fake):
+
+```
+bun test apps/web/test/r2-playback.test.ts
+  → 5 pass / 0 fail / 18 expect() calls / Ran 5 tests across 1 file [0.35s]
+     (seed mirror, watch route serves R2-sourced byte-identical bytes,
+      outage → honest 503, tampering → honest 500, unconfigured → in-memory
+      honestly labeled)
+```
+
+Public URL (deployments w912-a = sporta-kdia19nor-… and w912-b =
+sporta-o5wou4xml-…; the alias serves w912-b):
+
+```
+/api/platform/health
+  → deployMarker "w912-a" → "w912-b";
+    artifacts.provider = "r2", configured = true,
+    artifacts.check = { state: "ok", detail: "sporta-beta-artifacts" }  ← live probe
+    (identity neon/ok unchanged; transientState in-memory/unconfigured — W913)
+
+GET /api/watch/sess-1/renders/r-2/outputs/anime-clip-c0f83b01
+  → HTTP/2 200, x-sporta-artifact-source: r2
+    byteLength 20317 (measured 20317), contentHash 63796d1f59720626…
+    sha256(served content) == contentHash → True   (bytes round-tripped R2)
+  → SAME after the w912-b REDEPLOY (fresh serverless instance, same hash —
+    the artifact persisted in the bucket across deployments)
+
+Access-control matrix on the presigned delivery route:
+  no identity session          → 401 unauthenticated ("a session is required…")
+  authenticated + valid policy
+   + NOT the session owner      → 403 permission-denied (uniform, existence-free)
+  policy without `storage`      → 403 permission-denied (rights before existence)
+  unparseable policy header     → 403 permission-denied
+  nonexistent session           → 404 not-found (no enumeration difference)
+```
+
+### 7.6) Usage guardrails (W919 seam, documented now)
+
+Cloudflare R2 free tier: **10 GB-month storage, 1M Class A operations
+(writes/lists), 10M Class B operations (reads)** per month. Today's enforced
+bounds are the W504 store magnitudes (`HOSTED_STORE_DEFAULT_LIMITS`: 1000
+segments, 16 MiB/segment, 256 MiB total) — well inside the storage allowance;
+the ops counters + alarms + quota entries in the capability feed are W919
+scope (the health route surfaces the store limits today). The presigned
+delivery expiry is 5 minutes (browser) / 60 seconds (server-side fetch).
+
+### Known boundaries (W912 state, honest)
+
+- The R2 store's index/stats objects are read-modify-write under a
+  SINGLE-WRITER assumption: hosted writes are serialized per scope by the
+  compute adapter (W914) today; the bounded job queue (W913) will serialize
+  them platform-wide. Concurrent independent writers to the SAME scope could
+  lose index updates (documents themselves are keyed immutably — no data
+  loss, only listing drift).
+- The W914 async-compute path's artifacts do NOT mirror to R2 yet (that
+  adapter composes its own in-memory W504 store; the seam is the
+  `RenderOutputWriter` port — documented as the follow-up).
+- The playback-gated watch route serves the document JSON (inline content)
+  with the R2 round-trip proven by the `x-sporta-artifact-source` header and
+  the hash verification; the browser-facing presigned-URL delivery route
+  exists and is access-controlled, but no product surface hands those URLs
+  to the page model yet (W905 watch page consumes the JSON route).
+- Integration-test residue: per-run `index.json`/`_stats.json` envelopes for
+  deleted scopes remain in the bucket (byte-scale; no public API removes them).
+- Bucket location is APAC (R2 default jurisdiction); the Vercel functions run
+  in iad1 — each server-side fetch pays the intercontinental hop (~100–300 ms
+  per round-trip; visible in the integration-test timings).
 
 ## W915 — Real network live transport (SSE)
 
