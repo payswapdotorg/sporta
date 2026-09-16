@@ -1,0 +1,665 @@
+{
+  "runId": "mu3velul",
+  "baseUrl": "http://127.0.0.1:3909",
+  "startedAtIso": "2026-09-16T09:00:28.317Z",
+  "flows": [
+    {
+      "id": "a11y-smoke",
+      "title": "Accessibility smoke — skip link, landmarks, alt text, contrast, keyboard",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "home page renders",
+          "pass": true,
+          "evidence": "title=Home"
+        },
+        {
+          "name": "skip link is present",
+          "pass": true,
+          "evidence": "count=1"
+        },
+        {
+          "name": "skip link is named for screen readers",
+          "pass": true,
+          "evidence": "text=\"Skip to main content\""
+        },
+        {
+          "name": "skip link is the first keyboard stop",
+          "pass": true,
+          "evidence": "first focus: class=\"skip-link\" id=\"\""
+        },
+        {
+          "name": "activating the skip link focuses the main landmark",
+          "pass": true,
+          "evidence": "activeElement=main-content|MAIN"
+        },
+        {
+          "name": "header landmark present",
+          "pass": true,
+          "evidence": "count=6"
+        },
+        {
+          "name": "nav landmarks present",
+          "pass": true,
+          "evidence": "count=3"
+        },
+        {
+          "name": "nav landmarks are labelled",
+          "pass": true,
+          "evidence": "labels=[\"Primary\",\"Footer\",\"Primary\"]"
+        },
+        {
+          "name": "main landmark present",
+          "pass": true,
+          "evidence": "count=1"
+        },
+        {
+          "name": "footer landmark present",
+          "pass": true,
+          "evidence": "count=1"
+        },
+        {
+          "name": "contrast spot-check has measurable pairs",
+          "pass": true,
+          "evidence": "4 measurable of 4 collected"
+        },
+        {
+          "name": "contrast AA for .skip-link",
+          "pass": true,
+          "evidence": "rgb(255, 255, 255) on rgb(0, 112, 62) → 6.20:1"
+        },
+        {
+          "name": "contrast AA for .brand",
+          "pass": true,
+          "evidence": "rgb(19, 26, 42) on rgb(242, 245, 250) → 15.90:1"
+        },
+        {
+          "name": "contrast AA for .session-card-title",
+          "pass": true,
+          "evidence": "rgb(19, 26, 42) on rgb(255, 255, 255) → 17.37:1"
+        },
+        {
+          "name": "contrast AA for .section-lede",
+          "pass": true,
+          "evidence": "rgb(70, 83, 107) on rgb(242, 245, 250) → 7.09:1"
+        },
+        {
+          "name": "keyboard navigation reaches into the main landmark",
+          "pass": true,
+          "evidence": "focus entered <main> during the 30-stop walk=true"
+        },
+        {
+          "name": "keyboard navigation moves through distinct interactive elements",
+          "pass": true,
+          "evidence": "12 distinct stops over 30 tabs"
+        },
+        {
+          "name": "watch page renders the player for the alt-text check",
+          "pass": true,
+          "evidence": "selector .player-stage[role='img']"
+        },
+        {
+          "name": "every <img> on the watch page has alt text",
+          "pass": true,
+          "evidence": "0 imgs, 0 missing"
+        },
+        {
+          "name": "every role=\"img\" (the SVG frame stages) has an aria-label",
+          "pass": true,
+          "evidence": "1 role=img, 0 missing"
+        }
+      ],
+      "notes": [
+        "contrast spot-check pairs: .skip-link=6.20, .brand=15.90, .session-card-title=17.37, .section-lede=7.09",
+        "tab stops (last 8): BODY → skip-link → brand → site-search-input → search-submit → signin-link → nav-link → nav-link",
+        "alt coverage: 0 <img> (0 missing alt), 1 role=\"img\" (0 missing aria-label)"
+      ],
+      "screenshots": ["a11y-smoke-watch.png"]
+    },
+    {
+      "id": "sign-in",
+      "title": "Sign-in — register → login → nav shows the account → sign out",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "auth surface renders",
+          "pass": true,
+          "evidence": "selector #auth-username"
+        },
+        {
+          "name": "auth surface starts in sign-in mode",
+          "pass": true,
+          "evidence": "data-auth-mode=signin"
+        },
+        {
+          "name": "register tab switches the form",
+          "pass": true,
+          "evidence": "data-auth-mode=register"
+        },
+        {
+          "name": "register signs the fresh account in",
+          "pass": true,
+          "evidence": "selector .account-button"
+        },
+        {
+          "name": "register lands on the Library (the signed-in home)",
+          "pass": true,
+          "evidence": "url=http://127.0.0.1:3909/library"
+        },
+        {
+          "name": "the nav shows the account",
+          "pass": true,
+          "evidence": ".account-name=\"e2e-viewer-mu3velul\""
+        },
+        {
+          "name": "the account chip shows no active role yet",
+          "pass": true,
+          "evidence": ".account-role=\"no active role\""
+        },
+        {
+          "name": "the account menu opens",
+          "pass": true,
+          "evidence": "selector .signout-button"
+        },
+        {
+          "name": "sign out clears the account",
+          "pass": true,
+          "evidence": ".account-button gone"
+        },
+        {
+          "name": "the header offers sign-in again",
+          "pass": true,
+          "evidence": "link text=\"Sign in\""
+        },
+        {
+          "name": "auth surface renders again",
+          "pass": true,
+          "evidence": "selector #auth-username"
+        },
+        {
+          "name": "a wrong password shows the API's real error (no sign-in)",
+          "pass": true,
+          "evidence": "form-error=\"invalid username or password\""
+        },
+        {
+          "name": "auth surface renders for the login",
+          "pass": true,
+          "evidence": "selector #auth-username"
+        },
+        {
+          "name": "login signs the existing account in",
+          "pass": true,
+          "evidence": "selector .account-button"
+        },
+        {
+          "name": "the nav shows the same account after login",
+          "pass": true,
+          "evidence": ".account-name=\"e2e-viewer-mu3velul\""
+        }
+      ],
+      "notes": [],
+      "screenshots": ["sign-in-registered.png", "sign-in-logged-in.png"]
+    },
+    {
+      "id": "rights-denial",
+      "title": "Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the viewer account is signed in for the denial checks",
+          "pass": true,
+          "evidence": ".account-button count=1"
+        },
+        {
+          "name": "the operations page renders a state panel",
+          "pass": true,
+          "evidence": "selector .state-panel"
+        },
+        {
+          "name": "viewer on /operations sees the operator-grant denial",
+          "pass": true,
+          "evidence": "panel title + reason present=true"
+        },
+        {
+          "name": "no operator bytes reach a denied viewer on /operations",
+          "pass": true,
+          "evidence": "markers found: none"
+        },
+        {
+          "name": "viewer on /rights sees the rights-holder-grant denial",
+          "pass": true,
+          "evidence": "denied panel=true; text present=true"
+        },
+        {
+          "name": "no policy-record bytes reach a denied viewer on /rights",
+          "pass": true,
+          "evidence": "policy markers present=false"
+        },
+        {
+          "name": "anonymous on /operations sees the sign-in requirement (the real 401 path)",
+          "pass": true,
+          "evidence": "panel present=true; text=true"
+        },
+        {
+          "name": "no operator bytes reach an anonymous visitor",
+          "pass": true,
+          "evidence": "markers found: none"
+        },
+        {
+          "name": "anonymous on /rights sees the sign-in denial",
+          "pass": true,
+          "evidence": "denied panel=true"
+        }
+      ],
+      "notes": [],
+      "screenshots": [
+        "rights-denial-operations-viewer.png",
+        "rights-denial-rights-viewer.png",
+        "rights-denial-anonymous.png"
+      ]
+    },
+    {
+      "id": "watch",
+      "title": "Watch — the real output renders (SVG frames) + timeline/event markers",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the watch page renders the player for the seeded session",
+          "pass": true,
+          "evidence": "session=sess-1; selector .player-stage[role='img']"
+        },
+        {
+          "name": "the output's frame stage is present and labelled",
+          "pass": true,
+          "evidence": "aria-label=\"The anime.prototype rendering of match session sess-1, frame 1 of 6\""
+        },
+        {
+          "name": "the real output renders SVG frames",
+          "pass": true,
+          "evidence": "svg/frame elements in stage=1"
+        },
+        {
+          "name": "the artifact's own manifest clock drives the frame count",
+          "pass": true,
+          "evidence": "aria-label says \"of 6\""
+        },
+        {
+          "name": "the player's frame clock matches the manifest",
+          "pass": true,
+          "evidence": ".player-clock-frame=\"frame 1 of 6\""
+        },
+        {
+          "name": "the timeline renders the manifest's frame windows",
+          "pass": true,
+          "evidence": "windows=6"
+        },
+        {
+          "name": "event markers are visible on the timeline",
+          "pass": true,
+          "evidence": "timeline-marker dots=3; marker-jump buttons=3"
+        },
+        {
+          "name": "the event marker list is rendered (real SWM events)",
+          "pass": true,
+          "evidence": "marker-jump buttons=3"
+        },
+        {
+          "name": "the output is honestly labeled a review artifact",
+          "pass": true,
+          "evidence": "note=\"Rendered output — review format: this is the real stored artifact (a self-contai…\""
+        },
+        {
+          "name": "the provenance panel renders the active renderer's real identity",
+          "pass": true,
+          "evidence": "data-renderer=anime.prototype; panel starts=\"Provenance — the real artifact\nRENDERER\nanime.prototype@0.1.\""
+        },
+        {
+          "name": "the provenance panel renders the real byte + hash accounting",
+          "pass": true,
+          "evidence": "bytes line present=true"
+        }
+      ],
+      "notes": [],
+      "screenshots": ["watch-seeded-session.png"]
+    },
+    {
+      "id": "reality-switch",
+      "title": "Reality Switcher — real availabilities, switch without page reload",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the watch page is still open on the seeded session",
+          "pass": true,
+          "evidence": "url=http://127.0.0.1:3909/watch?session=sess-1"
+        },
+        {
+          "name": "the switcher lists renderer options",
+          "pass": true,
+          "evidence": "2 options"
+        },
+        {
+          "name": "a stored-output renderer (anime.prototype) is offered ready",
+          "pass": true,
+          "evidence": "state=ready disabled=false"
+        },
+        {
+          "name": "non-ready options carry an honest reason (never a fake 'coming soon')",
+          "pass": true,
+          "evidence": "1 non-ready options, all disabled with reasons"
+        },
+        {
+          "name": "the current player surface names its renderer",
+          "pass": true,
+          "evidence": "data-renderer=anime.prototype"
+        },
+        {
+          "name": "a switch target with a stored output exists",
+          "pass": true,
+          "evidence": "target=anime.prototype"
+        },
+        {
+          "name": "the target renderer's switcher option was clicked",
+          "pass": true,
+          "evidence": "switcher options matching anime.prototype: 1"
+        },
+        {
+          "name": "switching updates the player surface to the target renderer",
+          "pass": true,
+          "evidence": "data-renderer now=anime.prototype"
+        },
+        {
+          "name": "the switch did NOT reload the page (window marker survives)",
+          "pass": true,
+          "evidence": "marker=\"e2e-alive-mu3velul\""
+        },
+        {
+          "name": "the match session is held constant (same watch URL)",
+          "pass": true,
+          "evidence": "url=http://127.0.0.1:3909/watch?session=sess-1"
+        },
+        {
+          "name": "the switched surface renders the target renderer's output",
+          "pass": true,
+          "evidence": "aria-label=\"The anime.prototype rendering of match session sess-1, frame 1 of 6\""
+        },
+        {
+          "name": "the switched surface carries SVG frames",
+          "pass": true,
+          "evidence": "svg elements=1"
+        },
+        {
+          "name": "the switch reported itself (aria-live notice)",
+          "pass": true,
+          "evidence": "notice=\"anime.prototype: this reality is already showing\""
+        }
+      ],
+      "notes": [
+        "switcher options: anime.prototype=ready, sporta.testcard=no-stored-output (disabled)"
+      ],
+      "screenshots": ["reality-switch-after.png"]
+    },
+    {
+      "id": "output-playback",
+      "title": "Output playback — the real output document loads and its frames render",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the watch page is open for the playback checks",
+          "pass": true,
+          "evidence": "selector .player-stage[role='img']"
+        },
+        {
+          "name": "the real output document loads (200 JSON segment document)",
+          "pass": true,
+          "evidence": "status=200 content-type=application/json"
+        },
+        {
+          "name": "the output document carries its artifact-source header",
+          "pass": true,
+          "evidence": "x-sporta-artifact-source=in-memory"
+        },
+        {
+          "name": "the output document's manifest counts real frames",
+          "pass": true,
+          "evidence": "manifest.frameCount=6"
+        },
+        {
+          "name": "event markers offer frame jumps",
+          "pass": true,
+          "evidence": "marker-jump count=3"
+        },
+        {
+          "name": "a marker targeting a different frame exists to jump to",
+          "pass": true,
+          "evidence": "markers off frame 1: 2"
+        },
+        {
+          "name": "an event-marker jump moves the playhead (snaps to a real frame)",
+          "pass": true,
+          "evidence": "seek: \"0:00, frame 1 of 6\" → \"0:02, frame 3 of 6\""
+        },
+        {
+          "name": "the play transport starts playback (Play → Pause)",
+          "pass": true,
+          "evidence": "toggle: \"Play\" → \"Pause\""
+        }
+      ],
+      "notes": [
+        "output document /api/watch/sess-1/renders/r-2/outputs/anime-clip-c0f83b01 → 200 application/json (source=in-memory, frames=6)"
+      ],
+      "screenshots": ["output-playback.png"]
+    },
+    {
+      "id": "render",
+      "title": "Render — guided flow → dispatch → progress → succeeded → output exists",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "auth surface renders for the creator registration",
+          "pass": true,
+          "evidence": "selector #auth-username"
+        },
+        {
+          "name": "the creator role checkbox was picked",
+          "pass": true,
+          "evidence": "role-picker options matching creator: 1"
+        },
+        {
+          "name": "the creator account registers and signs in",
+          "pass": true,
+          "evidence": "selector .account-button"
+        },
+        {
+          "name": "the Create Studio renders its guided flow",
+          "pass": true,
+          "evidence": "selector .studio-stepper"
+        },
+        {
+          "name": "the authorized source list offers real fixtures",
+          "pass": true,
+          "evidence": "radio inputs present"
+        },
+        {
+          "name": "step 2 (rights declaration) is reached",
+          "pass": true,
+          "evidence": "selector #studio-rights-heading"
+        },
+        {
+          "name": "the server-derived rights preview renders (fail-closed derivation)",
+          "pass": true,
+          "evidence": "selector .studio-rights-preview"
+        },
+        {
+          "name": "the preview lists derived capabilities",
+          "pass": true,
+          "evidence": "permit lines=4"
+        },
+        {
+          "name": "step 3 (renderer) is reached",
+          "pass": true,
+          "evidence": "selector #studio-renderer-heading"
+        },
+        {
+          "name": "at least one registered renderer is dispatchable",
+          "pass": true,
+          "evidence": "dispatchable renderer radios=1"
+        },
+        {
+          "name": "step 4 (recipe) is reached",
+          "pass": true,
+          "evidence": "selector #studio-recipe-heading"
+        },
+        {
+          "name": "step 5 (review) is reached",
+          "pass": true,
+          "evidence": "selector #studio-review-heading"
+        },
+        {
+          "name": "the render step renders (session + job dispatched)",
+          "pass": true,
+          "evidence": "selector #studio-render-heading"
+        },
+        {
+          "name": "the dispatched session id is shown",
+          "pass": true,
+          "evidence": "session code=\"sess-4\""
+        },
+        {
+          "name": "the job reaches succeeded and the output EXISTS (a real rendered frame preview)",
+          "pass": true,
+          "evidence": "selector .studio-preview [aria-label^='A real frame of the rendered output']"
+        },
+        {
+          "name": "the completion accounting is rendered (consumed inputs, usage, outputs)",
+          "pass": true,
+          "evidence": "completion fact rows=5"
+        },
+        {
+          "name": "the output preview renders SVG frames",
+          "pass": true,
+          "evidence": "svg elements=1"
+        },
+        {
+          "name": "the 'Open in Watch' hand-off targets the new session",
+          "pass": true,
+          "evidence": "href=/watch?session=sess-4"
+        }
+      ],
+      "notes": ["dispatched session sess-4"],
+      "screenshots": ["render-succeeded.png"]
+    },
+    {
+      "id": "role-switch",
+      "title": "Role switch — grants-only offers; switching changes the workspace nav",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the creator account is signed in",
+          "pass": true,
+          "evidence": ".account-button present"
+        },
+        {
+          "name": "the switcher offers EXACTLY the account's grants (grants-only)",
+          "pass": true,
+          "evidence": "offered=[Viewer, Creator]"
+        },
+        {
+          "name": "the Creator role option was clicked (exactly one)",
+          "pass": true,
+          "evidence": "role options matching Creator: 1"
+        },
+        {
+          "name": "switching to Creator updates the account chip",
+          "pass": true,
+          "evidence": ".account-role=\"Creator workspace\""
+        },
+        {
+          "name": "the Creator workspace nav lists the Create Studio",
+          "pass": true,
+          "evidence": "nav=[/, /create, /jobs, /library]"
+        },
+        {
+          "name": "the Creator workspace nav omits operator surfaces",
+          "pass": true,
+          "evidence": "nav=[/, /create, /jobs, /library]"
+        },
+        {
+          "name": "the switch safe-returns (no stranding navigation)",
+          "pass": true,
+          "evidence": "url=http://127.0.0.1:3909/create"
+        },
+        {
+          "name": "switching back to Viewer updates the chip",
+          "pass": true,
+          "evidence": ".account-role=\"Viewer workspace\""
+        },
+        {
+          "name": "the Viewer workspace nav lists the watching surfaces",
+          "pass": true,
+          "evidence": "nav=[/, /live, /explore, /watch, /library]"
+        },
+        {
+          "name": "the Viewer workspace nav omits the Create Studio",
+          "pass": true,
+          "evidence": "nav=[/, /live, /explore, /watch, /library]"
+        },
+        {
+          "name": "the demo account signs in (one identity, five grants)",
+          "pass": true,
+          "evidence": "selector .account-button"
+        },
+        {
+          "name": "the demo account's switcher offers all FIVE granted roles",
+          "pass": true,
+          "evidence": "offered=[Viewer, Creator, Analyst / Commentator, Rights Holder, Operator / Admin]"
+        },
+        {
+          "name": "switching to Operator updates the chip",
+          "pass": true,
+          "evidence": ".account-role=\"Operator / Admin workspace\""
+        },
+        {
+          "name": "the Operator workspace nav lists the operations console",
+          "pass": true,
+          "evidence": "nav=[/operations, /jobs, /operations#health, /operations#providers, /audit]"
+        },
+        {
+          "name": "the operator console renders real operational sections",
+          "pass": true,
+          "evidence": "sections=5"
+        },
+        {
+          "name": "switching to Rights Holder updates the chip",
+          "pass": true,
+          "evidence": ".account-role=\"Rights Holder workspace\""
+        },
+        {
+          "name": "the Rights Holder workspace nav lists the Rights Center",
+          "pass": true,
+          "evidence": "nav=[/, /rights, /explore, /audit]"
+        }
+      ],
+      "notes": [
+        "creator account's offered roles: Viewer, Creator",
+        "creator workspace nav: / | /create | /jobs | /library",
+        "viewer workspace nav: / | /live | /explore | /watch | /library",
+        "demo account's offered roles: Viewer, Creator, Analyst / Commentator, Rights Holder, Operator / Admin",
+        "operator workspace nav: /operations | /jobs | /operations#health | /operations#providers | /audit"
+      ],
+      "screenshots": [
+        "role-switch-creator.png",
+        "role-switch-operator-console.png",
+        "role-switch-rights-holder.png"
+      ]
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "assertions": {
+      "pass": 111,
+      "fail": 0
+    },
+    "exitCode": 0
+  }
+}
