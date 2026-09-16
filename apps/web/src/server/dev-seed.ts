@@ -215,6 +215,41 @@ export async function seedDevContent(options: SeedOptions): Promise<{
         output: clip,
       });
       storedSegmentIds.push(stored.segmentId);
+
+      // 2d-2 (W912): MIRROR the stored output into the hosted R2 artifact
+      // store when one is configured. Fail-closed by design — a deployment
+      // that configures R2 must actually get its artifacts persisted there;
+      // a mirror that silently no-ops (or silently swallows R2 failures)
+      // would make health lie. The store is idempotent (same content =
+      // COUNTED duplicate), so a cold-start re-seed is safe.
+      if (server.artifacts !== null) {
+        const record = server.pipeline.getSegment({
+          sessionId,
+          renderId: animeRenderId,
+          segmentId: stored.segmentId,
+          policy,
+          nowMs: server.nowMs(),
+        });
+        if (record === null) {
+          // Unreachable barring a pipeline-contract violation — loud, never
+          // an in-memory-only deployment pretending R2 persistence.
+          throw new Error(
+            `dev seed mirror: the pipeline lost segment '${stored.segmentId}' it just stored`,
+          );
+        }
+        await server.artifacts.storeSegment({
+          sessionId,
+          renderId: animeRenderId,
+          segment: {
+            segmentId: record.segmentId,
+            contentType: record.contentType,
+            content: record.content,
+            byteLength: record.byteLength,
+            contentHash: record.contentHash,
+            manifest: record.manifest,
+          },
+        });
+      }
     }
 
     // 2e. Record the story metadata the watch model exposes (labeled).
