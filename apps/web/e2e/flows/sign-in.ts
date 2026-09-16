@@ -71,9 +71,39 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
     `link text="${signinLink}"`,
   );
 
+  // --------------------- wrong-password honesty, BEFORE the real login
+  // (the API's own classified error, surfaced — and no sign-in happens).
+  // This runs while signed out, so the flow can then do the real LOGIN and
+  // END signed in — the inventory's contract for the rights-denial flow
+  // that follows ("sign-in ends SIGNED IN as the fresh viewer account").
+  browser.open(`${baseUrl}/auth/signin`);
+  assert(
+    "auth surface renders again",
+    await browser.waitForSelector("#auth-username", 15_000),
+    "selector #auth-username",
+  );
+  browser.fill("#auth-username", username);
+  browser.fill("#auth-password", "definitely-not-the-password");
+  browser.click("form.auth-form button[type='submit']");
+  const errorShown = await browser.waitForSelector("p.form-error", 15_000);
+  const errorText = browser.text("p.form-error");
+  assert(
+    "a wrong password shows the API's real error (no sign-in)",
+    errorShown &&
+      (await browser.waitForJs(
+        `(function(){return document.querySelector('.account-button') === null;})()`,
+        5_000,
+      )),
+    `form-error="${errorText.slice(0, 120)}"`,
+  );
+
   // ------------------------------------------- sign in AGAIN (the login path)
   browser.open(`${baseUrl}/auth/signin`);
-  assert("auth surface renders again", await browser.waitForSelector("#auth-username", 15_000), "selector #auth-username");
+  assert(
+    "auth surface renders for the login",
+    await browser.waitForSelector("#auth-username", 15_000),
+    "selector #auth-username",
+  );
   browser.fill("#auth-username", username);
   browser.fill("#auth-password", password);
   browser.click("form.auth-form button[type='submit']");
@@ -87,22 +117,4 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
   );
   browser.screenshot(`${ctx.evidenceDir}/sign-in-logged-in.png`);
   recorder.screenshots.push("sign-in-logged-in.png");
-
-  // Wrong-password honesty (the API's own classified error, surfaced).
-  browser.click(".account-button");
-  await browser.waitForSelector(".signout-button", 10_000);
-  browser.click(".signout-button");
-  await browser.waitForJs(`(function(){return document.querySelector('.account-button') === null;})()`, 15_000);
-  browser.open(`${baseUrl}/auth/signin`);
-  await browser.waitForSelector("#auth-username", 15_000);
-  browser.fill("#auth-username", username);
-  browser.fill("#auth-password", "definitely-not-the-password");
-  browser.click("form.auth-form button[type='submit']");
-  const errorShown = await browser.waitForSelector("p.form-error", 15_000);
-  const errorText = browser.text("p.form-error");
-  assert(
-    "a wrong password shows the API's real error (no sign-in)",
-    errorShown && (await browser.waitForJs(`(function(){return document.querySelector('.account-button') === null;})()`, 5_000)),
-    `form-error="${errorText.slice(0, 120)}"`,
-  );
 }

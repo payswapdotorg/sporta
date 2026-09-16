@@ -122,6 +122,10 @@ export async function a11ySmokeFlow(ctx: FlowContext): Promise<void> {
   browser.open(`${baseUrl}/`);
   await browser.waitForSelector("#main-content", 15_000);
   const stops: string[] = [];
+  // Track whether focus EVER enters <main> during the walk (flight 2 checked
+  // only the LAST stop — focus legitimately cycles out of main into the
+  // footer and wraps, so the final position proves nothing about the walk).
+  let everInMain = false;
   for (let i = 0; i < 30; i += 1) {
     browser.press("Tab");
     const stop = browser.eval<string>(
@@ -129,15 +133,17 @@ export async function a11ySmokeFlow(ctx: FlowContext): Promise<void> {
     );
     stops.push(stop);
     if (stop === "none") break;
+    everInMain =
+      everInMain ||
+      browser.eval<boolean>(
+        `(function(){const el=document.activeElement;return el !== null && el.closest('main') !== null;})()`,
+      );
   }
-  const reachedMain = browser.eval<boolean>(
-    `(function(){const el=document.activeElement;return el !== null && el.closest('main') !== null;})()`,
-  );
   recorder.note(`tab stops (last 8): ${stops.slice(-8).join(" → ")}`);
   assert(
     "keyboard navigation reaches into the main landmark",
-    reachedMain,
-    `${stops.length} tab stops walked; activeElement in main=${reachedMain}`,
+    everInMain,
+    `focus entered <main> during the ${stops.length}-stop walk=${everInMain}`,
   );
   const uniqueStops = new Set(stops);
   assert(

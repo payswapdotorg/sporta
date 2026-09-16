@@ -108,19 +108,45 @@ interface RunningServer {
   kill(): Promise<void>;
 }
 
+/** True when something already answers on the target port (a stale server). */
+async function portAlreadyServing(): Promise<boolean> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/platform/health`);
+    return response.status > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function startServer(): Promise<RunningServer> {
+  // PRE-FLIGHT: a stale server still holding the port would answer our
+  // readiness polls and we would silently run against ITS state (the exact
+  // failure that contaminated flight 2's evidence: EADDRINUSE raced, the
+  // orphan answered, the run never noticed). Refuse instead.
+  if (await portAlreadyServing()) {
+    console.error(
+      `[e2e] REFUSING to run: something already answers on ${BASE_URL} — a stale server would contaminate this run. Kill it (it is NOT the sandbox's port-3000 dev server) and re-run.`,
+    );
+    process.exit(2);
+  }
+
   console.log(`[e2e] starting the production server on port ${PORT} (bun --bun run start)…`);
   const env = cleanChildEnv();
   env.PORT = String(PORT);
   env.SPORTA_DEMO_ACCOUNT_PASSWORD = DEMO_PASSWORD;
   const logFile = join(evidenceDir, "server.log");
   const log = Bun.file(logFile).writer();
+  // detached: the server gets its OWN process group, so teardown can signal
+  // the whole tree (bun → next start → next-server) — killing only the direct
+  // child orphaned the next-server grandchild in flight 2 (the EADDRINUSE
+  // stale server the TL had to kill by hand).
   const proc = Bun.spawn({
     cmd: ["bun", "--bun", "run", "start", "--", "-p", String(PORT)],
     cwd: APP_DIR,
     env,
     stdout: "pipe",
     stderr: "pipe",
+    detached: true,
   });
   // Stream the server's stdout/stderr into the evidence log file.
   void (async () => {
@@ -156,19 +182,58 @@ async function startServer(): Promise<RunningServer> {
   if (!ready) {
     await log.end();
     console.error(`[e2e] server did not become ready on ${BASE_URL} — see ${logFile}`);
-    proc.kill();
+    process.kill(-proc.pid, "SIGKILL");
+    process.exit(1);
+  }
+  // LIVENESS RECHECK: if OUR server just died (e.g. EADDRINUSE because a
+  // stale server grabbed the port after the pre-flight check), a fast poll
+  // can race its exit. Verify the process we spawned is still alive before
+  // trusting the port's answer.
+  await Bun.sleep(1_500);
+  if (proc.exitCode !== null) {
+    await log.end();
+    console.error(
+      `[e2e] our server process died right after startup (code ${proc.exitCode}) — the port ${PORT} answer came from a STALE server. See ${logFile}`,
+    );
     process.exit(1);
   }
   console.log(`[e2e] server ready on ${BASE_URL} (pid ${proc.pid}).`);
   return {
     pid: proc.pid,
     kill: async () => {
-      proc.kill();
+      // Signal the whole process GROUP (bun → next start → next-server).
+      try {
+        process.kill(-proc.pid, "SIGTERM");
+      } catch {
+        proc.kill();
+      }
       const killDeadline = Date.now() + 10_000;
       while (proc.exitCode === null && Date.now() < killDeadline) await Bun.sleep(200);
-      if (proc.exitCode === null) proc.kill(9);
+      if (proc.exitCode === null) {
+        try {
+          process.kill(-proc.pid, "SIGKILL");
+        } catch {
+          proc.kill(9);
+        }
+      }
+      // The port must actually be FREED — an orphan still holding it would
+      // poison the next run (the pre-flight check would then refuse, but we
+      // fail loudly here first).
+      const freeDeadline = Date.now() + 15_000;
+      let freed = false;
+      while (Date.now() < freeDeadline) {
+        freed = !(await portAlreadyServing());
+        if (freed) break;
+        await Bun.sleep(500);
+      }
       await log.end();
-      console.log(`[e2e] server (pid ${proc.pid}) stopped.`);
+      if (!freed) {
+        console.error(
+          `[e2e] PORT ${PORT} STILL SERVES after teardown — a server process survived the group kill; kill it by hand before the next run.`,
+        );
+      } else {
+        console.log(`[e2e] server (pid ${proc.pid}, group) stopped; port ${PORT} freed.`);
+      }
     },
   };
 }

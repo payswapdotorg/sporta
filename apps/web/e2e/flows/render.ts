@@ -115,7 +115,9 @@ export async function renderFlow(ctx: FlowContext): Promise<void> {
     await browser.waitForSelector("#studio-render-heading", 20_000),
     "selector #studio-render-heading",
   );
-  const dispatchedSession = browser.text(".studio-render code");
+  // The render step's session id (the section is keyed by its heading — the
+  // flight-2 selector `.studio-render` matched nothing and aborted the flow).
+  const dispatchedSession = browser.text("section[aria-labelledby='studio-render-heading'] code");
   assert(
     "the dispatched session id is shown",
     /^sess-/.test(dispatchedSession.trim()),
