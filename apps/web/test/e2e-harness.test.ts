@@ -17,6 +17,11 @@ import {
 } from "../e2e/lib/inventory";
 import { FlowRecorder, summarizeRun, type FlowOutcome } from "../e2e/lib/harness";
 import {
+  COVERING_NUDGE_MARGIN,
+  coveringNudgeDelta,
+  isCoveredByRefusal,
+} from "../e2e/lib/browser-driver";
+import {
   WCAG_AA_NORMAL,
   contrastRatio,
   meetsWcagAaNormal,
@@ -131,11 +136,28 @@ describe("W909 E2E recorder — assertion + outcome accounting", () => {
     // The real run hit exactly this: a browser crash before the first
     // assertion must not count as passed via `[].every() === true`.
     const recorder = new FlowRecorder("a", "A");
-    recorder.note("FLOW ABORTED: browser error");
+    recorder.abort("browser error");
     const outcome = recorder.outcome();
     expect(outcome.assertions).toHaveLength(0);
     expect(outcome.status).toBe("failed");
     expect(summarizeRun([outcome]).exitCode).toBe(1);
+  });
+
+  test("an aborted flow with ALREADY-PASSING assertions is FAILED (no partial pass)", () => {
+    // The other real shape (run mu3v0hdl): a browser element-not-found
+    // error mid-flow after passing assertions must not count as passed
+    // just because every RECORDED assertion happened to pass — the flow
+    // never reached its verdict.
+    const recorder = new FlowRecorder("a", "A");
+    recorder.assert("passed before the crash", true, "e");
+    recorder.abort("agent-browser get attr … failed: Element not found");
+    const outcome = recorder.outcome();
+    expect(outcome.status).toBe("failed");
+    expect(outcome.assertions).toHaveLength(1);
+    expect(outcome.assertions[0]!.pass).toBe(true);
+    expect(outcome.notes.join(" ")).toContain("FLOW ABORTED");
+    expect(summarizeRun([outcome]).exitCode).toBe(1);
+    expect(summarizeRun([outcome]).failed).toBe(1);
   });
 
   test("notes and screenshots ride along in the outcome", () => {
@@ -145,6 +167,39 @@ describe("W909 E2E recorder — assertion + outcome accounting", () => {
     const outcome = recorder.outcome();
     expect(outcome.notes).toEqual(["a note"]);
     expect(outcome.screenshots).toEqual(["shot.png"]);
+  });
+});
+
+describe("W909 driver click machinery — the covered-click settle math", () => {
+  // The observed real failure: agent-browser REFUSED the .player-toggle
+  // click because the sticky .site-header-inner covered its click point
+  // while the page's CSS smooth-scroll was still settling.
+  test("isCoveredByRefusal matches the CLI's real refusal wording only", () => {
+    const real =
+      "agent-browser click .player-toggle failed: ✗ Element '.player-toggle' is covered by <div.site-header-inner> at its click point, so the input would land on that element instead.";
+    expect(isCoveredByRefusal(real)).toBe(true);
+    expect(isCoveredByRefusal("element is covered by something")).toBe(false);
+    expect(isCoveredByRefusal("Element '.x' not found")).toBe(false);
+    expect(isCoveredByRefusal("timeout waiting for selector")).toBe(false);
+  });
+
+  test("coveringNudgeDelta scrolls the target clear below a sticky top header", () => {
+    // Header occupies viewport [0..60]; the toggle's top is at 40 — under it.
+    // The nudge must be NEGATIVE (scroll up ⇒ the target moves down-screen)
+    // and large enough to clear the header's bottom edge + margin.
+    const delta = coveringNudgeDelta({ top: 40 }, { bottom: 60 });
+    expect(delta).toBe(40 - 60 - COVERING_NUDGE_MARGIN);
+    expect(delta).toBeLessThan(0);
+    // After scrollBy(delta): the target's top = 40 - delta = header bottom + margin.
+    expect(40 - delta).toBe(60 + COVERING_NUDGE_MARGIN);
+  });
+
+  test("coveringNudgeDelta shrinks toward zero as the target clears the cover", () => {
+    expect(coveringNudgeDelta({ top: 200 }, { bottom: 60 })).toBe(
+      200 - 60 - COVERING_NUDGE_MARGIN,
+    );
+    // A custom margin is honored (the driver's page-side twin uses the same constant).
+    expect(coveringNudgeDelta({ top: 40 }, { bottom: 60 }, 4)).toBe(-24);
   });
 });
 

@@ -62,7 +62,11 @@ export async function realitySwitchFlow(ctx: FlowContext): Promise<void> {
   );
 
   // ----------------------------------------- switch WITHOUT a page reload
-  const currentRenderer = browser.attr(".player-surface", "data-renderer");
+  // The READY surface (data-renderer exists only once the artifact loaded):
+  // the switcher itself is shell-level, but the surface read below must not
+  // race a still-loading player.
+  const surfaceReady = await browser.waitForSelector(".player-surface[data-renderer]", 20_000);
+  const currentRenderer = surfaceReady ? browser.attr(".player-surface", "data-renderer") : "";
   assert("the current player surface names its renderer", currentRenderer.length > 0, `data-renderer=${currentRenderer}`);
 
   const target = storedRendererIds.find((id) => id !== currentRenderer) ?? storedRendererIds[0] ?? "";

@@ -28,6 +28,53 @@ export class BrowserCommandError extends Error {
   }
 }
 
+/**
+ * True when an agent-browser click failure is the "covered by" refusal —
+ * the CLI REFUSES to dispatch when another element (e.g. a sticky header)
+ * overlaps the target's click point. The message shape (verified against
+ * the CLI): "Element '.x' is covered by <div.y> at its click point, …".
+ */
+export function isCoveredByRefusal(message: string): boolean {
+  return /is covered by .* at its click point/.test(message);
+}
+
+/** The breathing room (px) a covering-element nudge leaves around the cover. */
+export const COVERING_NUDGE_MARGIN = 16;
+
+/**
+ * The window.scrollBy `top` (px) that clears a covering element sitting
+ * ABOVE the target: scrolling by this delta moves the target's viewport
+ * top to just below the cover's bottom edge (+ margin). Negative = the
+ * page scrolls UP, so the target moves DOWN the viewport, out from under
+ * a sticky top header. Pure math, unit-tested; the driver applies it to the
+ * live rects the page reports.
+ */
+export function coveringNudgeDelta(
+  target: { readonly top: number },
+  cover: { readonly bottom: number },
+  margin = COVERING_NUDGE_MARGIN,
+): number {
+  return target.top - cover.bottom - margin;
+}
+
+/**
+ * Page-side twin of {@link coveringNudgeDelta}: measures the target and
+ * whatever element actually covers its click point, and scrolls the page
+ * so the target clears the cover (instantly — see `click`).
+ */
+function coveringNudgeJs(selector: string): string {
+  return `(function () {
+    const el = document.querySelector(${JSON.stringify(selector)});
+    if (el === null) return 'gone';
+    const r = el.getBoundingClientRect();
+    const probe = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (probe === null || probe === el || el.contains(probe) || probe.contains(el)) return 'clear';
+    const c = probe.getBoundingClientRect();
+    window.scrollBy({ top: ${COVERING_NUDGE_MARGIN} + c.bottom - r.top, left: 0, behavior: 'instant' });
+    return 'nudged';
+  })()`;
+}
+
 export class BrowserDriver {
   readonly session: string;
   /** The last N command records (kept small; the report cites counts). */
@@ -81,15 +128,39 @@ export class BrowserDriver {
   // ------------------------------------------------------------- interaction
 
   click(selector: string): void {
-    // Bring the first match into view FIRST: agent-browser dispatches the
-    // click at viewport coordinates computed from the element, and a target
-    // outside the viewport (e.g. after a marker jump scrolled the page down)
-    // would make the dispatch hit whatever scrolled under those coordinates
-    // instead — silently. Scrolling first is what a real user does.
+    // Bring the first match to the viewport center INSTANTLY, first: the
+    // app's CSS `scroll-behavior: smooth` (globals.css) makes a plain
+    // scrollIntoView animate asynchronously, and a click issued while that
+    // animation is in flight either lands on whatever scrolled under the
+    // stale coordinates (the silent "Play → Play" miss) or is REFUSED when
+    // the hit-test catches the target still under the sticky site header
+    // ("covered by <div.site-header-inner>"). `behavior:'instant'` bypasses
+    // the CSS smooth scrolling AND cancels any in-flight smooth scroll, so
+    // the geometry the click then measures is final. This is what a user's
+    // hand does — aim, let the page settle, click.
     this.eval(
-      `(function(){const el=document.querySelector(${JSON.stringify(selector)});if(el!==null)el.scrollIntoView({block:'center',inline:'nearest'});return el!==null;})()`,
+      `(function(){const el=document.querySelector(${JSON.stringify(selector)});if(el!==null)el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});return el!==null;})()`,
     );
-    this.run(["click", selector]);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        this.run(["click", selector]);
+        return;
+      } catch (error) {
+        // agent-browser REFUSES a covered click as a hard error (it never
+        // dispatches the input). Re-settle the geometry — nudge the page so
+        // the covering element no longer overlaps the target — and retry.
+        // A refusal that survives the retries is rethrown: the coverage is
+        // real and the flow must report it, never green over it.
+        if (
+          !(error instanceof BrowserCommandError) ||
+          !isCoveredByRefusal(error.message) ||
+          attempt === 2
+        ) {
+          throw error;
+        }
+        this.eval(coveringNudgeJs(selector));
+      }
+    }
   }
 
   /**
@@ -98,6 +169,7 @@ export class BrowserDriver {
    * moved the button between agent-browser's coordinate measure and its
    * event dispatch, so the click landed on empty page — scrolls the target
    * into view and clicks again. Returns whether the outcome finally held.
+   * (Covered-click REFUSALS are already settled+retried inside `click`.)
    */
   async clickForOutcome(
     selector: string,

@@ -395,7 +395,10 @@ async function main(): Promise<number> {
         );
       } catch (err) {
         const failure = err instanceof Error ? err.message : String(err);
-        recorder.note(`FLOW ABORTED: ${failure}`);
+        // abort() (not note()): the flow did not run to its verdict — its
+        // outcome is FAILED even when every assertion recorded before the
+        // crash passed (the vacuous-pass shape the recorder guards against).
+        recorder.abort(failure);
         browser.screenshot(`${evidenceDir}/${id}-failure.png`);
         recorder.screenshots.push(`${id}-failure.png`);
         outcomes.push(recorder.outcome());

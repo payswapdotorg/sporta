@@ -155,8 +155,15 @@ export async function a11ySmokeFlow(ctx: FlowContext): Promise<void> {
   // --------------------------------------------------- watch page (real SVG)
   const sessionId = ctx.discovery.primarySession.sessionId;
   browser.open(`${baseUrl}/watch?session=${encodeURIComponent(sessionId)}`);
-  const playerReady = await browser.waitForSelector(".player-surface", 20_000);
-  assert("watch page renders the player for the alt-text check", playerReady, "selector .player-surface");
+  // The READY stage, not the surface: the role="img" stage exists only
+  // once the real artifact loaded and prepared (the loading surface has
+  // no stage at all — counting role=img during it races the fetch).
+  const playerReady = await browser.waitForSelector(".player-stage[role='img']", 25_000);
+  assert(
+    "watch page renders the player for the alt-text check",
+    playerReady,
+    "selector .player-stage[role='img']",
+  );
 
   const images = browser.eval<{
     img: { total: number; missingAlt: number };

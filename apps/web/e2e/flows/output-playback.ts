@@ -19,11 +19,13 @@ export async function outputPlaybackFlow(ctx: FlowContext): Promise<void> {
   const segmentId = render.segmentIds[0]!;
   const outputUrl = `${baseUrl}/api/watch/${session.sessionId}/renders/${render.renderId}/outputs/${segmentId}`;
 
-  // The watch page is still open on this session (reality-switch flow).
+  // The watch page is still open on this session (reality-switch flow) —
+  // wait for its READY stage: the marker buttons and the transport below
+  // exist only once the artifact loaded (the loading surface has neither).
   assert(
     "the watch page is open for the playback checks",
-    (await browser.waitForSelector(".player-surface", 10_000)) !== false,
-    "selector .player-surface",
+    (await browser.waitForSelector(".player-stage[role='img']", 20_000)) !== false,
+    "selector .player-stage[role='img']",
   );
 
   // ------------------- the real output document, fetched by the BROWSER

@@ -1,0 +1,119 @@
+{
+  "runId": "mu3v06ma",
+  "baseUrl": "http://127.0.0.1:3909",
+  "startedAtIso": "2026-09-16T08:49:15.394Z",
+  "flows": [
+    {
+      "id": "render",
+      "title": "Render — guided flow → dispatch → progress → succeeded → output exists",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "auth surface renders for the creator registration",
+          "pass": true,
+          "evidence": "selector #auth-username"
+        },
+        {
+          "name": "the creator role checkbox was picked",
+          "pass": true,
+          "evidence": "role-picker options matching creator: 1"
+        },
+        {
+          "name": "the creator account registers and signs in",
+          "pass": true,
+          "evidence": "selector .account-button"
+        },
+        {
+          "name": "the Create Studio renders its guided flow",
+          "pass": true,
+          "evidence": "selector .studio-stepper"
+        },
+        {
+          "name": "the authorized source list offers real fixtures",
+          "pass": true,
+          "evidence": "radio inputs present"
+        },
+        {
+          "name": "step 2 (rights declaration) is reached",
+          "pass": true,
+          "evidence": "selector #studio-rights-heading"
+        },
+        {
+          "name": "the server-derived rights preview renders (fail-closed derivation)",
+          "pass": true,
+          "evidence": "selector .studio-rights-preview"
+        },
+        {
+          "name": "the preview lists derived capabilities",
+          "pass": true,
+          "evidence": "permit lines=4"
+        },
+        {
+          "name": "step 3 (renderer) is reached",
+          "pass": true,
+          "evidence": "selector #studio-renderer-heading"
+        },
+        {
+          "name": "at least one registered renderer is dispatchable",
+          "pass": true,
+          "evidence": "dispatchable renderer radios=1"
+        },
+        {
+          "name": "step 4 (recipe) is reached",
+          "pass": true,
+          "evidence": "selector #studio-recipe-heading"
+        },
+        {
+          "name": "step 5 (review) is reached",
+          "pass": true,
+          "evidence": "selector #studio-review-heading"
+        },
+        {
+          "name": "the render step renders (session + job dispatched)",
+          "pass": true,
+          "evidence": "selector #studio-render-heading"
+        },
+        {
+          "name": "the dispatched session id is shown",
+          "pass": true,
+          "evidence": "session code=\"sess-4\""
+        },
+        {
+          "name": "the job reaches succeeded and the output EXISTS (a real rendered frame preview)",
+          "pass": true,
+          "evidence": "selector .studio-preview [aria-label^='A real frame of the rendered output']"
+        },
+        {
+          "name": "the completion accounting is rendered (consumed inputs, usage, outputs)",
+          "pass": true,
+          "evidence": "completion fact rows=5"
+        },
+        {
+          "name": "the output preview renders SVG frames",
+          "pass": true,
+          "evidence": "svg elements=1"
+        },
+        {
+          "name": "the 'Open in Watch' hand-off targets the new session",
+          "pass": true,
+          "evidence": "href=/watch?session=sess-4"
+        }
+      ],
+      "notes": [
+        "dispatched session sess-4"
+      ],
+      "screenshots": [
+        "render-succeeded.png"
+      ]
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "assertions": {
+      "pass": 18,
+      "fail": 0
+    },
+    "exitCode": 0
+  }
+}

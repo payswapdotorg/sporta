@@ -39,6 +39,8 @@ export class FlowRecorder {
   readonly assertions: AssertionRecord[] = [];
   readonly notes: string[] = [];
   readonly screenshots: string[] = [];
+  /** Set when the flow ABORTED mid-run — its outcome is FAILED, always. */
+  private aborted = false;
 
   constructor(
     readonly id: string,
@@ -67,15 +69,30 @@ export class FlowRecorder {
     this.notes.push(text);
   }
 
+  /**
+   * Marks the flow as ABORTED (browser error, crash mid-run): the
+   * remaining steps never ran, so the outcome is FAILED no matter how
+   * many assertions passed before the abort. The reason rides along as
+   * the FLOW ABORTED note the report shows.
+   */
+  abort(reason: string): void {
+    this.aborted = true;
+    this.note(`FLOW ABORTED: ${reason}`);
+  }
+
   outcome(): FlowOutcome {
     return {
       id: this.id,
       title: this.title,
-      // A flow that recorded NOTHING did not run to a verdict — an aborted
-      // flow (browser error, crash before the first assertion) must never
-      // count as passed just because an empty array `every()`s to true.
+      // A flow that did not run to its verdict must never count as
+      // passed: an aborted flow (browser error, crash — at ANY point,
+      // including after already-passing assertions) is failed, and a
+      // flow that recorded NOTHING did not run at all — an empty array
+      // `every()`s to true, which is exactly the vacuous-pass shape.
       status:
-        this.assertions.length > 0 && this.assertions.every((a) => a.pass) ? "passed" : "failed",
+        !this.aborted && this.assertions.length > 0 && this.assertions.every((a) => a.pass)
+          ? "passed"
+          : "failed",
       assertions: this.assertions,
       notes: this.notes,
       screenshots: this.screenshots,

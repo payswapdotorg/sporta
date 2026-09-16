@@ -35,11 +35,21 @@ export async function renderFlow(ctx: FlowContext): Promise<void> {
     creatorPicked === 1,
     `role-picker options matching creator: ${creatorPicked}`,
   );
-  browser.click("form.auth-form button[type='submit']");
+  // clickForOutcome (the sign-in flow's fix): the auth page reflows seconds
+  // after load (web-font swap) and a click dispatched at the pre-reflow
+  // coordinates lands on empty page — a user re-clicks; so does the harness.
+  // The outcome is the account chip OR the form's own error surface — if the
+  // register POST genuinely fails, the error text is surfaced as evidence.
+  const registered = await browser.clickForOutcome(
+    "form.auth-form button[type='submit']",
+    `(function(){return document.querySelector('.account-button') !== null || document.querySelector('p.form-error') !== null;})()`,
+  );
   assert(
     "the creator account registers and signs in",
-    await browser.waitForSelector(".account-button", 20_000),
-    "selector .account-button",
+    registered && (await browser.waitForSelector(".account-button", 10_000)),
+    browser.count("p.form-error") > 0
+      ? `form-error="${browser.text("p.form-error").slice(0, 120)}"`
+      : "selector .account-button",
   );
 
   // ------------------------------------------------------- /create studio

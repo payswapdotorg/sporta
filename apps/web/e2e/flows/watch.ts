@@ -12,11 +12,15 @@ export async function watchFlow(ctx: FlowContext): Promise<void> {
   const session = discovery.primarySession;
 
   browser.open(`${baseUrl}/watch?session=${encodeURIComponent(session.sessionId)}`);
-  const playerReady = await browser.waitForSelector(".player-surface", 25_000);
+  // Wait for the READY stage (.player-stage[role='img']), not the surface:
+  // `.player-surface` exists while the artifact is still FETCHING (its
+  // loading branch) and reading the stage then races the load — the run's
+  // first watch load can still be in flight (a real, slow, first fetch).
+  const playerReady = await browser.waitForSelector(".player-stage[role='img']", 25_000);
   assert(
     "the watch page renders the player for the seeded session",
     playerReady,
-    `session=${session.sessionId}; selector .player-surface`,
+    `session=${session.sessionId}; selector .player-stage[role='img']`,
   );
 
   // The real output: the stage carries an inline SVG + a frame-counting label.
