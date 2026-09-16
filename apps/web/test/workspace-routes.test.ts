@@ -216,7 +216,12 @@ describe("W907 GET /api/operations — the Operator workspace", () => {
       health: {
         env: string;
         providers: Record<string, { provider: string; check: { state: string } }>;
-        renderQueue: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
+        renderQueue: {
+          key: string;
+          maxDepth: number;
+          admissionLeaseMs: number;
+          depth: number | null;
+        };
       };
       compute: { provider: string; adapterId: string } | null;
       queues: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };

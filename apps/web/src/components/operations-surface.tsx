@@ -165,8 +165,8 @@ export function OperationsSurface() {
             <span>unreadable — the honest null, never an invented number</span>
           ) : (
             <span>
-              {data.queues.depth} of the {data.queues.maxDepth}-job hard bound
-              (admission lease {Math.round(data.queues.admissionLeaseMs / 1000)}s)
+              {data.queues.depth} of the {data.queues.maxDepth}-job hard bound (admission lease{" "}
+              {Math.round(data.queues.admissionLeaseMs / 1000)}s)
             </span>
           )}
           .
