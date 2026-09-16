@@ -24,7 +24,7 @@ test("a JSON event encodes as the exact SSE block (event + id + data + blank lin
 
 test("an event without an id omits the id line", () => {
   const block = encodeSseEvent({ event: "close", data: "{}" });
-  expect(block).toBe('event: close\ndata: {}\n\n');
+  expect(block).toBe("event: close\ndata: {}\n\n");
 });
 
 test("multi-line payloads split into consecutive data lines (SSE spec)", () => {
@@ -55,7 +55,7 @@ test("a complete stream round-trips: hello + frames + close", () => {
     ordinal: 1,
     storyStepIndex: 0,
     storyAtMs: 1_000,
-    svg: "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+    svg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
     byteLength: 45,
     generatedAtMs: 1_250,
     renderDurationMs: 3,
@@ -63,7 +63,11 @@ test("a complete stream round-trips: hello + frames + close", () => {
   const wire =
     encodeSseJson("hello", "sess-x", hello) +
     encodeSseJson("frame", "1", frame) +
-    encodeSseJson("close", undefined, { reason: "transport-closed", deliveredFrames: 1, droppedFrames: 0 });
+    encodeSseJson("close", undefined, {
+      reason: "transport-closed",
+      deliveredFrames: 1,
+      droppedFrames: 0,
+    });
 
   const events = parser.write(wire);
   expect(events.map((event) => event.event)).toEqual(["hello", "frame", "close"]);

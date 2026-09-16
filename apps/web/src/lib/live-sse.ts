@@ -102,7 +102,11 @@ export function encodeSseEvent(event: SseEvent): string {
 }
 
 /** Encodes a JSON-payload event (the closed vocabulary this transport uses). */
-export function encodeSseJson(event: LiveSseEventName, id: string | undefined, payload: unknown): string {
+export function encodeSseJson(
+  event: LiveSseEventName,
+  id: string | undefined,
+  payload: unknown,
+): string {
   return encodeSseEvent({ event, id, data: JSON.stringify(payload) });
 }
 

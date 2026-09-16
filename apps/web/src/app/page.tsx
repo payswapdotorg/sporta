@@ -43,8 +43,8 @@ export default function HomePage() {
           </div>
           <p className="hero-note">
             This deployment runs a real in-process control plane with dev-seed content — every card,
-            state and output below is real engine output, and live is honestly absent until a real
-            live transport exists.
+            state and output below is real engine output, and live appears only when the real SSE
+            live network transport is enabled (SPORTA_LIVE_TRANSPORT=sse) — never simulated.
           </p>
         </div>
       </section>

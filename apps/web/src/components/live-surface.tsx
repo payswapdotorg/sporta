@@ -117,9 +117,9 @@ export function LiveSurface() {
         </dl>
         <p className="section-lede">
           Sporta labels something live only when a real live network transport backs it. The
-          transport is Server-Sent-Events over HTTP — a genuine network path with real-time
-          delivery and measured end-to-end latency. When it is not enabled on this deployment,
-          this page stays honestly unavailable.
+          transport is Server-Sent-Events over HTTP — a genuine network path with real-time delivery
+          and measured end-to-end latency. When it is not enabled on this deployment, this page
+          stays honestly unavailable.
         </p>
         {transportActive ? (
           <StateChip state="ready">live network transport active</StateChip>

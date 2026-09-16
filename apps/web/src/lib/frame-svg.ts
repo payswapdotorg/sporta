@@ -127,9 +127,7 @@ export function prepareLiveFrameForDisplay(content: string): string {
     throw new FrameSvgError("the live frame carries an event handler — refusing to display");
   }
   if (EXTERNAL_HREF.test(content)) {
-    throw new FrameSvgError(
-      "the live frame references an external resource — refusing to display",
-    );
+    throw new FrameSvgError("the live frame references an external resource — refusing to display");
   }
   if (!/^<svg\b/.test(content.trimStart())) {
     throw new FrameSvgError("the live frame is not an SVG document — refusing to display");

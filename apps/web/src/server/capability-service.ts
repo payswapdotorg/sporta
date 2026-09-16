@@ -140,9 +140,7 @@ export async function capabilityForRequest(
           rights: deriveRightsCapabilities(liveSource.policy, new Date(server.nowMs())),
         }
       : { liveTransport: { kind: "in-process" as const } }),
-    providers: liveActive
-      ? [...PROVIDER_FEEDS, liveQueueCacheFeed(live.detail())]
-      : PROVIDER_FEEDS,
+    providers: liveActive ? [...PROVIDER_FEEDS, liveQueueCacheFeed(live.detail())] : PROVIDER_FEEDS,
   });
 }
 

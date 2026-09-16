@@ -126,9 +126,12 @@ export function LivePlayer({ source }: { source: LiveSourceOption }) {
         const nextAttempt = attemptCount + 1;
         if (nextAttempt <= RECONNECT_BACKOFF_MS.length) {
           setAttempt(nextAttempt);
-          const timer = setTimeout(() => {
-            cleanup = connect(nextAttempt);
-          }, RECONNECT_BACKOFF_MS[nextAttempt - 1]);
+          const timer = setTimeout(
+            () => {
+              cleanup = connect(nextAttempt);
+            },
+            RECONNECT_BACKOFF_MS[nextAttempt - 1],
+          );
           pendingTimer = timer;
           return;
         }
@@ -212,9 +215,7 @@ export function LivePlayer({ source }: { source: LiveSourceOption }) {
           <div className="fact">
             <dt>p50 / p95 / max</dt>
             <dd>
-              {latency !== null
-                ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms`
-                : "—"}
+              {latency !== null ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms` : "—"}
             </dd>
           </div>
           <div className="fact">

@@ -229,7 +229,12 @@ class LiveChannel {
 
   constructor(
     private readonly source: LiveSourceRegistration,
-    private readonly transport: { nowMs: () => number; cadenceMs: number; bufferDepth: number; scheduler: LiveScheduler },
+    private readonly transport: {
+      nowMs: () => number;
+      cadenceMs: number;
+      bufferDepth: number;
+      scheduler: LiveScheduler;
+    },
   ) {
     this.producer = createStoryFrameProducer({
       sessionId: source.sessionId,
