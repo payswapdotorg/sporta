@@ -19,8 +19,7 @@
  * 5. REVOKED sessions stay revoked across store recreation (logout persists).
  */
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { defaultEntropySource, sha256Hex } from "@sporta/identity";
-import type { SessionService } from "@sporta/identity";
+import { SessionService, defaultEntropySource, sha256Hex } from "@sporta/identity";
 import { AuthService } from "../../src/server/auth-service";
 import { applyPlatformMigrations } from "../../src/server/platform/db/migrate";
 import { createPostgresClient } from "../../src/server/platform/db/pg";
