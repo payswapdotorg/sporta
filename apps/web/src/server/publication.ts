@@ -139,8 +139,16 @@ export function parseContentVisibility(raw: unknown): ContentVisibilityRecord | 
 /** Builds the validated record for a {@link PublicationStore.set} input (throws on invalid). */
 function recordOfInput(input: ContentVisibilityInput, nowIso: string): ContentVisibilityRecord {
   if (typeof input === "string") {
-    // Legacy strings are the two original decisions by definition — valid.
-    return { kind: input, roles: [], setBy: null, setAtIso: null };
+    // The W906 legacy strings — still validated (anything else is a bug, not
+    // a silent pass-through).
+    const legacy = parseContentVisibility(input);
+    if (legacy === null) {
+      throw new Error(
+        `invalid content visibility decision: ${JSON.stringify(input)} ` +
+          "(fail closed — the store never records an undefined visibility)",
+      );
+    }
+    return legacy;
   }
   const parsed = parseContentVisibility({
     kind: input.kind,
@@ -169,6 +177,12 @@ export class PublicationStore {
 
   /** The session's parsed visibility record; `null` when unknown/invalid (fail-closed). */
   contentOf(sessionId: string): ContentVisibilityRecord | null {
+    if (!this.bySession.has(sessionId)) {
+      // The documented W906 default: a session with NO recorded decision is
+      // public (the pre-W906 behavior, preserved). This is absence — not an
+      // unknown value; a STORED-but-unparseable value fails closed below.
+      return { kind: "public", roles: [], setBy: null, setAtIso: null };
+    }
     return parseContentVisibility(this.bySession.get(sessionId));
   }
 
