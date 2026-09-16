@@ -7,6 +7,7 @@ import { fetchCapability, fetchLiveSources } from "@/lib/client-api";
 import type { LiveSourcesLike } from "@/lib/client-api";
 import { deriveLiveState } from "@/lib/surface-state";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
+import { ProviderNotices } from "@/components/provider-notices";
 import { LivePlayer } from "@/components/live-player";
 import type { LiveSourceOption } from "@/components/live-player";
 
@@ -63,6 +64,7 @@ export function LiveSurface() {
 
   return (
     <div className="surface-stack">
+      <ProviderNotices capability={capability.data} />
       <StatePanel state={live.state} title="Live now" reason={live.reason} />
 
       {transportActive ? (

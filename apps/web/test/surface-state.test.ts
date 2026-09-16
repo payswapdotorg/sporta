@@ -1,20 +1,34 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { parseCapabilityResponse } from "@sporta/capability";
 import type { CapabilityResponse } from "@sporta/capability";
-import type { SessionCardLike, WatchModelLike, RenderOutputLike } from "../src/lib/api-types";
+import type {
+  SessionCardLike,
+  WatchModelLike,
+  RenderOutputLike,
+  SearchResponseLike,
+} from "../src/lib/api-types";
 import {
   collectRealityCards,
   deriveCardPlayback,
   deriveExploreState,
+  deriveFollowingState,
   deriveHomeShelves,
   deriveLibraryState,
   deriveLiveState,
+  deriveProviderNotices,
   deriveRealityOptions,
+  deriveReauthState,
+  deriveRendererJobState,
+  deriveSearchState,
   deriveSurfaceVisibility,
   deriveWatchState,
   isUxState,
   isWatchable,
+  jobInFlight,
   mapOutputToViewModel,
+  providerNoticeLine,
+  watchVerdictOfOptions,
+  withRendererJobStates,
 } from "../src/lib/surface-state";
 
 /**
@@ -300,7 +314,10 @@ describe("deriveRealityOptions over the W901 fixtures", () => {
     const options = deriveRealityOptions(fixtures.get("anonymous")!, watchModelWithOutput());
     const anime = options.find((option) => option.rendererId === "anime.prototype")!;
     expect(anime.state).toBe("requires-render");
-    expect(anime.reason).toContain("no render has been requested");
+    expect(anime.reason).toContain(
+      "no render for this match with this renderer has become available yet",
+    );
+    expect(anime.reason).not.toContain("no render has been requested"); // W908: that claim could be a lie when a job is in flight
   });
 
   test("a render with no stored output = no-stored-output with the render id", () => {
@@ -413,7 +430,271 @@ describe("the UX state vocabulary", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Shared card/watch shapes (inputs aligned with the /api routes' real answers)
+// Provider notices (Simulation E step 4 — the providers[] feed, made visible)
+// ---------------------------------------------------------------------------
+
+describe("deriveProviderNotices over the W901 fixtures (W908)", () => {
+  test("every fixture derives a defined notice set — non-ok providers only, never a crash", () => {
+    for (const name of FIXTURES) {
+      const capability = fixtures.get(name)!;
+      const notices = deriveProviderNotices(capability);
+      for (const notice of notices) {
+        expect(notice.health).not.toBe("ok");
+        expect(notice.kind.length).toBeGreaterThan(0);
+        expect(notice.reasonCode.length).toBeGreaterThan(0);
+        expect(providerNoticeLine(notice).length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  test("the provider-degraded fixture produces exactly the storage notice, with its actionable meaning", () => {
+    const notices = deriveProviderNotices(fixtures.get("provider-degraded")!);
+    expect(notices).toHaveLength(1);
+    expect(notices[0]!.kind).toBe("storage");
+    expect(notices[0]!.health).toBe("degraded");
+    expect(notices[0]!.reasonCode).toBe("feed-reported-degraded");
+    expect(notices[0]!.detail).toContain("R2 free-tier guardrail");
+    expect(notices[0]!.meaning).toContain("existing playback is unaffected");
+    const line = providerNoticeLine(notices[0]!);
+    expect(line).toContain("storage provider is degraded");
+    expect(line).toContain("New batch rendering is admitted more slowly");
+  });
+
+  test("the provider-down fixture surfaces the compute provider as down — never smoothed to ok", () => {
+    const notices = deriveProviderNotices(fixtures.get("provider-down")!);
+    expect(notices).toHaveLength(1);
+    expect(notices[0]!.kind).toBe("compute");
+    expect(notices[0]!.health).toBe("down");
+    expect(notices[0]!.reasonCode).toBe("feed-reported-down");
+  });
+
+  test("healthy deployments produce NO notices (no noise, no fake stability banner)", () => {
+    for (const name of [
+      "anonymous",
+      "authenticated-no-roles",
+      "live-unavailable",
+      "partial-availability",
+      "quota-exhausted",
+      "rights-denied-renderer",
+    ] as const) {
+      expect(deriveProviderNotices(fixtures.get(name)!)).toHaveLength(0);
+    }
+  });
+
+  test("quota exhaustion degrades the platform even with all providers ok (E: guards before providers fail)", () => {
+    const capability = fixtures.get("quota-exhausted")!;
+    expect(capability.overall.state).toBe("degraded");
+    expect(capability.overall.reasonCodes).toContain("quota-exhausted");
+    expect(deriveProviderNotices(capability)).toHaveLength(0);
+    expect(deriveExploreState(capability, [watchableCard()]).state).toBe("degraded");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Search (W908 — the W916 data plane, honest surface states)
+// ---------------------------------------------------------------------------
+
+describe("deriveSearchState (the W916 search answer → honest surface states)", () => {
+  test("a real answer with matches is ready", () => {
+    const verdict = deriveSearchState(searchResponse([watchableCard(), deniedCard("ms-2")]));
+    expect(verdict.state).toBe("ready");
+    expect(verdict.reason).toContain("2 match(es)");
+  });
+
+  test("the ZERO-match answer is ready — the search ran; nothing matched (never unavailable/failed)", () => {
+    const verdict = deriveSearchState(searchResponse([]));
+    expect(verdict.state).toBe("ready");
+    expect(verdict.reason).toContain("nothing matched");
+    expect(verdict.reason).not.toContain("unavailable");
+  });
+
+  test("a degraded listing stays degraded with the results still real (the Explore posture)", () => {
+    const verdict = deriveSearchState({
+      ...searchResponse([watchableCard()]),
+      degraded: { reasonCode: "session-terminated", skippedSessions: 1 },
+    });
+    expect(verdict.state).toBe("degraded");
+    expect(verdict.reason).toContain("1 match(es)");
+    expect(verdict.reason).toContain("skipped 1 terminated session(s)");
+    expect(verdict.reason).toContain("results remain real");
+  });
+
+  test("the viewer summary is carried — an anonymous search only ever saw public sessions", () => {
+    const anonymous = searchResponse([watchableCard()]);
+    expect(anonymous.viewer.state).toBe("anonymous");
+    expect(anonymous.viewer.grants).toEqual([]);
+    expect(deriveSearchState(anonymous).state).toBe("ready");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Following (the honest no-follow-graph state)
+// ---------------------------------------------------------------------------
+
+describe("deriveFollowingState (no follow graph exists — for anyone)", () => {
+  test("anonymous visitors are unavailable, and the reason never suggests signing in creates a feed", () => {
+    const verdict = deriveFollowingState("anonymous");
+    expect(verdict.state).toBe("unavailable");
+    expect(verdict.reason).toContain("signing in alone would not create one");
+  });
+
+  test("signed-in visitors are unavailable too — no follow graph exists to read", () => {
+    const verdict = deriveFollowingState("authenticated");
+    expect(verdict.state).toBe("unavailable");
+    expect(verdict.reason).toContain("no follow graph exists");
+  });
+
+  test("an invalid session is denied with the re-auth action (and still no feed promise)", () => {
+    const verdict = deriveFollowingState("invalid-session");
+    expect(verdict.state).toBe("denied");
+    expect(verdict.reason).toContain("sign in again");
+    expect(verdict.reason).toContain("does not exist yet");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Render-job progress on the watch surface (W906's create-job states, surfaced)
+// ---------------------------------------------------------------------------
+
+describe("deriveRendererJobState / withRendererJobStates (processing is evidence-backed)", () => {
+  test("an in-flight job for the renderer presents processing, with the job id and its real state", () => {
+    const verdict = deriveRendererJobState(
+      [{ jobId: "job-7", state: "in-flight", rendererId: "anime.prototype" }],
+      "anime.prototype",
+    );
+    expect(verdict).not.toBeNull();
+    expect(verdict!.state).toBe("processing");
+    expect(verdict!.reason).toContain("job-7");
+    expect(verdict!.reason).toContain("in-flight");
+  });
+
+  test("every admitted non-terminal job state counts as in flight", () => {
+    for (const state of ["admitted", "dispatched", "queued", "in-flight"]) {
+      expect(jobInFlight(state)).toBe(true);
+    }
+    for (const state of ["succeeded", "failed", "cancelled", "dead-lettered", "unreadable", ""]) {
+      expect(jobInFlight(state)).toBe(false);
+    }
+  });
+
+  test("a job for a DIFFERENT renderer never presents processing for this one", () => {
+    expect(
+      deriveRendererJobState(
+        [{ jobId: "job-7", state: "in-flight", rendererId: "sporta.testcard" }],
+        "anime.prototype",
+      ),
+    ).toBeNull();
+  });
+
+  test("terminal and unreadable jobs claim nothing (fail-closed: processing needs evidence)", () => {
+    for (const state of ["succeeded", "failed", "cancelled", "dead-lettered", "unreadable"]) {
+      expect(
+        deriveRendererJobState(
+          [{ jobId: "job-8", state, rendererId: "anime.prototype" }],
+          "anime.prototype",
+        ),
+      ).toBeNull();
+    }
+  });
+
+  test("withRendererJobStates upgrades requires-render/no-stored-output but never ready or renderer-unavailable", () => {
+    const base = deriveRealityOptions(fixtures.get("anonymous")!, watchModelWithOutput());
+    const upgraded = withRendererJobStates(base, [
+      { jobId: "job-9", state: "admitted", rendererId: "sporta.testcard" },
+      { jobId: "job-10", state: "in-flight", rendererId: "anime.prototype" },
+    ]);
+    // sporta.testcard had a stored output → stays ready (a job for it ran while
+    // its output exists; the playable artifact wins).
+    expect(upgraded.find((o) => o.rendererId === "sporta.testcard")!.state).toBe("ready");
+    // anime.prototype had no render → now processing (a real job is in flight).
+    const anime = upgraded.find((o) => o.rendererId === "anime.prototype")!;
+    expect(anime.state).toBe("processing");
+    expect(anime.reason).toContain("job-10");
+    // avatar-field.prototype was requires-render with no job → unchanged honest state.
+    const avatar = upgraded.find((o) => o.rendererId === "avatar-field.prototype")!;
+    expect(avatar.state).toBe("requires-render");
+  });
+
+  test("provider-down renderers stay renderer-unavailable even with a job in flight", () => {
+    const base = deriveRealityOptions(fixtures.get("provider-down")!, watchModelWithOutput());
+    const upgraded = withRendererJobStates(base, [
+      { jobId: "job-11", state: "in-flight", rendererId: "anime.prototype" },
+    ]);
+    for (const option of upgraded) {
+      expect(option.state).toBe("renderer-unavailable");
+    }
+  });
+});
+
+describe("watchVerdictOfOptions (processing beats unavailable on the watch page)", () => {
+  test("a processing option makes the match verdict processing, with the renderer named", () => {
+    // A match with NO stored output anywhere: without jobs the verdict is
+    // unavailable; with an in-flight job it must present processing.
+    const watch = watchModelWithOutput();
+    watch.renders = [];
+    const base = deriveRealityOptions(fixtures.get("anonymous")!, watch);
+    expect(watchVerdictOfOptions(base).state).toBe("unavailable");
+    const upgraded = withRendererJobStates(base, [
+      { jobId: "job-12", state: "in-flight", rendererId: "anime.prototype" },
+    ]);
+    const verdict = watchVerdictOfOptions(upgraded);
+    expect(verdict.state).toBe("processing");
+    expect(verdict.reason).toContain("anime.prototype");
+    expect(verdict.reason).toContain("job completes");
+  });
+
+  test("a ready option still wins over a concurrent processing job (play what exists)", () => {
+    const base = deriveRealityOptions(fixtures.get("anonymous")!, watchModelWithOutput());
+    const upgraded = withRendererJobStates(base, [
+      { jobId: "job-13", state: "in-flight", rendererId: "anime.prototype" },
+    ]);
+    // sporta.testcard is ready in the base options — the verdict stays ready.
+    expect(watchVerdictOfOptions(upgraded).state).toBe("ready");
+  });
+
+  test("no jobs → the derived unavailable verdicts are unchanged", () => {
+    const base = deriveRealityOptions(fixtures.get("anonymous")!, watchModelWithOutput());
+    expect(watchVerdictOfOptions(withRendererJobStates(base, [])).state).toBe("ready");
+    const watch = watchModelWithOutput();
+    watch.renders = [];
+    const empty = deriveRealityOptions(fixtures.get("anonymous")!, watch);
+    expect(watchVerdictOfOptions(withRendererJobStates(empty, [])).state).toBe("unavailable");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The auth-expired state (401 mid-session — re-auth, never a broken page)
+// ---------------------------------------------------------------------------
+
+describe("deriveReauthState (the expired-session verdict)", () => {
+  test("is denied with the sign-in-again action — never failed, never a retry loop", () => {
+    const verdict = deriveReauthState();
+    expect(verdict.state).toBe("denied");
+    expect(verdict.reason).toContain("sign in again");
+    expect(verdict.reason).not.toContain("retry");
+  });
+
+  test("carries the server's own detail when the API said more", () => {
+    expect(deriveReauthState("session not found").reason).toContain("(session not found)");
+  });
+
+  test("an invalid-session capability read is the same honest state on Library (the W901 fail-closed rule)", () => {
+    // The anonymous fixture is structurally the invalid-session shape when
+    // the auth state changes — the derivation must answer the re-auth words.
+    const capability = fixtures.get("anonymous")!;
+    const expired = {
+      ...capability,
+      auth: { ...capability.auth, state: "invalid-session" as const, sessionValid: false },
+    };
+    const verdict = deriveLibraryState(expired, null);
+    expect(verdict.state).toBe("denied");
+    expect(verdict.reason).toContain("no longer valid");
+    expect(verdict.reason).toContain("sign in again");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The shared card/watch shapes (inputs aligned with the /api routes' real answers)
 // ---------------------------------------------------------------------------
 
 function watchableCard(sessionId = "ms-1"): SessionCardLike {
@@ -442,6 +723,20 @@ function deniedCard(sessionId = "ms-denied"): SessionCardLike {
     renders: null,
     outputCount: null,
     story: { source: "dev-seed", storyKey: "training", eventCount: 2 },
+  };
+}
+
+/** A real-shaped /api/catalog/search answer (the W916 route's own shape). */
+function searchResponse(
+  matches: SessionCardLike[],
+  viewer: SearchResponseLike["viewer"] = { state: "anonymous", userId: null, grants: [] },
+): SearchResponseLike {
+  return {
+    catalogSchemaVersion: "1.1",
+    viewer,
+    query: { q: "derby" },
+    matches: matches.map((card) => ({ ...card, matchedOn: ["label"] })),
+    ...(matches.length === 0 ? {} : {}),
   };
 }
 

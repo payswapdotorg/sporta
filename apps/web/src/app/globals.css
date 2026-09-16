@@ -946,6 +946,54 @@ svg {
   color: var(--text-dim);
 }
 
+/* Provider-degradation notices (W908 — the capability providers[] feed, visible) */
+
+.provider-notices {
+  display: grid;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid color-mix(in srgb, var(--warning, #b8860b) 55%, transparent);
+  border-left-width: 4px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--warning, #b8860b) 8%, var(--bg-raised));
+}
+
+.provider-notices-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.provider-notices-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.provider-notice {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.provider-notice .status-chip {
+  flex: none;
+}
+
+.provider-notice-line {
+  max-width: 72ch;
+  color: var(--text-dim);
+}
+
+.provider-notices-note {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  max-width: 72ch;
+}
+
 /* Card grid + session cards */
 
 .card-grid {

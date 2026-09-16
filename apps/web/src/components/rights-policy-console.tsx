@@ -18,6 +18,7 @@ import {
   revokeRights,
 } from "@/lib/client-api";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
+import { deriveReauthState } from "@/lib/surface-state";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -123,12 +124,18 @@ export function RightsPolicyConsole() {
   }
   if (list.phase === "failed") {
     if (list.status === 401) {
+      // W908: distinguish the two honest 401s — never signed in (anonymous)
+      // vs the session that ended mid-session (expired/revoked).
+      const verdict = deriveReauthState(list.error);
       return (
-        <StatePanel
-          state="denied"
-          title="Sign in to inspect your rights policies"
-          reason="The Rights Center requires an authenticated session — anonymous callers never see any policy."
-        />
+        <div className="surface-stack">
+          <StatePanel state={verdict.state} title="Your session ended" reason={verdict.reason} />
+          <p className="library-signin-hint">
+            <Link className="button-primary" href={ROUTES.signin}>
+              Sign in again
+            </Link>
+          </p>
+        </div>
       );
     }
     return (

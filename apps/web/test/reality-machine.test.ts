@@ -50,7 +50,7 @@ const NO_OUTPUT = option(
 const REQUIRES_RENDER = option(
   "tactical.3d",
   "requires-render",
-  "no render has been requested for this match with this renderer yet",
+  "no render for this match with this renderer has become available yet — renders appear here once a dispatched render job completes (an in-flight job is presented as processing)",
 );
 const RIGHTS = option(
   "anime.prototype",

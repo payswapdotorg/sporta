@@ -21,6 +21,7 @@ import type {
   RealityOptionsLike,
   RenderOutputLike,
   RightsCenterLike,
+  SearchResponseLike,
   RightsAuditListLike,
   RightsCenterInspectLike,
   RightsCenterListLike,
@@ -136,6 +137,24 @@ export function switchActiveRole(role: string): Promise<AccountViewLike> {
 /** GET /api/catalog/sessions (the public catalog). */
 export function fetchCatalog(): Promise<SessionCardLike[]> {
   return getJson<{ sessions: SessionCardLike[] }>("/api/catalog/sessions").then((r) => r.sessions);
+}
+
+// ---------------------------------------------------------------------------
+// W908 — the Search surface (the W916 catalog search, wired)
+// ---------------------------------------------------------------------------
+
+/** GET /api/catalog/search — the real requester-scoped search (W916/W908). */
+export function fetchSearch(query: {
+  q?: string;
+  status?: string;
+  renderer?: string;
+  rights?: string;
+}): Promise<SearchResponseLike> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== "") params.set(key, value);
+  }
+  return getJson<SearchResponseLike>(`/api/catalog/search?${params.toString()}`);
 }
 
 /**

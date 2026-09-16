@@ -8,6 +8,7 @@ import { fetchCapability, fetchCatalog } from "@/lib/client-api";
 import { collectRealityCards, deriveHomeShelves, isWatchable } from "@/lib/surface-state";
 import { SessionCard } from "@/components/session-card";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
+import { ProviderNotices } from "@/components/provider-notices";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -49,6 +50,7 @@ export function HomeSurface() {
 
   return (
     <div className="surface-stack">
+      <ProviderNotices capability={capability.data} />
       <section className="home-shelf" aria-labelledby="shelf-live" data-shelf="live">
         <header className="section-head">
           <h2 className="section-title" id="shelf-live">
