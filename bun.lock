@@ -203,6 +203,9 @@
         "@sporta/world-model": "workspace:*",
       },
       "devDependencies": {
+        "@sporta/compute-adapter-hosted": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
         "@types/bun": "^1.2.0",
       },
     },
