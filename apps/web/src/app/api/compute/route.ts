@@ -76,5 +76,11 @@ export async function GET(request: Request): Promise<Response> {
 
 export async function POST(request: Request): Promise<Response> {
   const { handler } = await workerComposition();
-  return handler(request);
+  // The mounted namespace is `/api/compute`; the transport-free worker
+  // handler routes by its OWN path vocabulary (`/v1/jobs/execute` — the
+  // same code path `Bun.serve` mounts). Rewrite the URL onto the worker's
+  // execute path, forwarding the method/headers/body verbatim.
+  const url = new URL(request.url);
+  const workerUrl = new URL("/v1/jobs/execute", url.origin);
+  return handler(new Request(workerUrl, request));
 }
