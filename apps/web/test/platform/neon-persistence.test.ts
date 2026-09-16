@@ -217,9 +217,9 @@ function trackClient(sql: PostgresSql): PostgresSql {
     if (clients.length > 0) {
       const cleaner = clients[0]!;
       try {
-        if (createdUserIds.length > 0) {
-          await cleaner`DELETE FROM sporta_sessions WHERE user_id IN ${cleaner.list(createdUserIds)}`;
-          await cleaner`DELETE FROM sporta_accounts WHERE user_id IN ${cleaner.list(createdUserIds)}`;
+        for (const userId of createdUserIds) {
+          await cleaner`DELETE FROM sporta_sessions WHERE user_id = ${userId}`;
+          await cleaner`DELETE FROM sporta_accounts WHERE user_id = ${userId}`;
         }
       } catch {
         // Cleanup is best-effort; the assertions above already ran.

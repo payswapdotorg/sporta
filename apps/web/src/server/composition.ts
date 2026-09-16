@@ -50,6 +50,7 @@ import type {
 import { argon2PasswordHasher } from "@sporta/identity";
 import { neonConfigured } from "./platform/env";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
+import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { AuthService } from "./auth-service";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
@@ -185,11 +186,22 @@ const SERVER_GLOBAL = Symbol.for("sporta.web.server");
 
 type ServerCache = { [SERVER_GLOBAL]?: Promise<SportaServer> };
 
+/** Whether this process runs under the Bun runtime (vs Node on Vercel). */
+function runningUnderBun(): boolean {
+  return typeof process.versions.bun === "string";
+}
+
 /** The singleton getter — the ONLY thing route handlers call. */
 export function getSportaServer(): Promise<SportaServer> {
   const cache = globalThis as ServerCache;
-  cache[SERVER_GLOBAL] ??= buildSingleton();
-  return cache[SERVER_GLOBAL];
+  cache[SERVER_GLOBAL] ??= buildSingleton().catch((err) => {
+    // A failed build (e.g. a transient Neon outage during the first request's
+    // migrations) must not POISON the singleton: clear the cached promise so
+    // the next request retries instead of serving the same rejection forever.
+    delete cache[SERVER_GLOBAL];
+    throw err;
+  });
+  return cache[SERVER_GLOBAL]!;
 }
 
 /**
@@ -202,8 +214,12 @@ export function getSportaServer(): Promise<SportaServer> {
  *   default — the W902 `PasswordHasher` port exists for exactly this swap).
  *   Accounts, sessions (hashed tokens) and media ownership then persist
  *   across deploys and cold starts.
- * - Absent → the local dev composition (in-memory stores + Bun argon2id) —
- *   the honest state `/api/platform/health` reports as `in-memory`.
+ * - Absent → the local dev composition (in-memory stores + the runtime's
+ *   REAL KDF: Bun's argon2id when running under Bun, the Node `scrypt`
+ *   hasher on Node — the same W902 port, so an unconfigured Node runtime
+ *   (a Vercel preview without bindings) still serves working in-memory auth
+ *   instead of crashing on the missing `Bun` global). `/api/platform/health`
+ *   reports this state honestly as `in-memory`.
  *
  * The control plane / render outputs stay in-process in BOTH modes (W912/W914
  * scope); only the identity lane is persisted this wave.
@@ -213,7 +229,7 @@ async function buildSingleton(): Promise<SportaServer> {
   if (!neonConfigured()) {
     return createSportaServer({
       nowMs: Date.now,
-      passwordHasher: argon2PasswordHasher,
+      passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
       seed,
     });
   }
