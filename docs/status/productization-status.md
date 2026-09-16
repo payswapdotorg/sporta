@@ -1,6 +1,6 @@
 # Sporta Productization Status
 
-Status as of 2026-09-15 ~22:30 UTC: **IN PRODUCTIZATION — WAVE 2**.
+Status as of 2026-09-16 ~01:55 UTC: **IN PRODUCTIZATION — WAVE 3** (Wave 2 complete).
 
 ## Current truth
 
@@ -13,8 +13,14 @@ Productization:
 | W901 capability contract | COMPLETE | merge 33ad82b; @sporta/capability (105 tests) — TL contract-freeze sign-off recorded |
 | W902 identity + multi-role auth | COMPLETE | merge 33ad82b; @sporta/identity (89 tests, real HTTP round-trips, no-existence-oracle control gate) |
 | W903 web product shell | COMPLETE | merge 701d2f5; apps/web Next.js 16 shell (48 tests, build+HTTP verified, PWA code-verified) |
-| W914 compute adapter | Wave-1 COMPLETE (audit + provider-neutral contract); hosted implementation IN_FLIGHT | @sporta/compute-adapter (130 tests) + seam audit; G1/G2 TL decisions recorded |
-| W904-W908, W909-W913, W915-W920 | Wave 2+ | dispatching |
+| W905 watch + Reality Switcher | COMPLETE | merge 8ce7f68 wave — real SVG frame player, session-constant switcher, rights-denied-before-existence |
+| W911 Neon persistence | COMPLETE | Neon project sporta-beta (aws-us-east-1, PG17) live; register→redeploy→login proven on the public URL; health identity=neon/ok |
+| W912-W913 R2/Upstash | NEXT (Wave 3, Worker B) | R2 bucket + presigned delivery; Upstash queue/quota layer |
+| W914 compute adapter | COMPLETE | createRenderAsync + @sporta/compute-adapter-hosted + /api/compute; real-HTTP dispatch→artifact round-trip evidence |
+| W906-W908 Create/roles/states | NEXT (Wave 3, Worker A) | W906 Create Studio first |
+| W915 real-network live | Wave 3 (Worker C prep) | needs W912/W913 for hosted path |
+| W909 browser E2E | Wave 4 | after W906-W908 |
+| W907-W908, W909, W915-W920 | Wave 3+ | per dependency graph |
 
 ## The three questions
 
