@@ -1,13 +1,16 @@
 # Sporta Hosted Deployment Runbook (W910)
 
-Checked: 2026-09-16 (W910 flight 2). Status: **OPERATIONAL** — the app described
-below is deployed and serving from this repository configuration alone (plus a
-`VERCEL_TOKEN`).
+Checked: 2026-09-16 (W911 flight 5). Status: **OPERATIONAL** — the app
+and the Neon-backed identity persistence described below are deployed and
+serving from this repository configuration alone (plus a `VERCEL_TOKEN`; the
+Neon binding is one `DATABASE_URL` project env var).
 
 ## What is deployed
 
 `apps/web` — the Sporta Next.js 16 product shell (W903) plus the hosted-platform
-composition root scaffolding (W910–W913 seams, dormant until their flights land).
+composition root (W910–W913 seams; **W911 Neon identity persistence is LIVE** —
+accounts, sessions, and media-session ownership are in Neon PostgreSQL when
+`DATABASE_URL` is bound; artifacts/transientState stay in-memory until W912/W913).
 The deployment is a **standard Next.js build**: repository-root `bun install`
 (monorepo workspaces), `next build` in `apps/web`, no exotic output modes.
 
@@ -80,12 +83,13 @@ for kv in \
 done
 ```
 
-W911–W913 provider bindings are **documented placeholders only** until those
+W911's `DATABASE_URL` is **LIVE** (production target, set 2026-09-16 — see §6);
+W912–W913 provider bindings remain **documented placeholders only** until those
 flights run (add them the same way, production target):
 
 | Env var | Flight | Meaning |
 |---|---|---|
-| `DATABASE_URL` | W911 | Neon PostgreSQL connection string (secret) |
+| `DATABASE_URL` | W911 ✅ live | Neon PostgreSQL connection string (secret) |
 | `R2_S3_ENDPOINT` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` / `R2_BUCKET_REGION` | W912 | Cloudflare R2 S3-compatible bindings (keys secret; bucket name/region are not) |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | W913 | Upstash Redis REST bindings (token secret) |
 | `SPORTA_SESSION_COOKIE_DOMAIN` | W911+ | Cookie domain override for named hosts (unset for `*.vercel.app`) |
@@ -136,9 +140,13 @@ Recorded deploy evidence (2026-09-16, code state 63e4e60 + 614ebcd):
   (`dpl_5uarPfq8aStZt1gKWDaZRnn1wGKs`, marker `w910-prod-1`) — 31s, Ready.
 - Deploy 2: `https://sporta-malycyv3s-ekonplacidegmailcoms-projects.vercel.app`
   (`dpl_5uGQBDinxmoFPhtKKhvLcDR6Vc8R`, marker `w910-prod-2`).
-- Deploy 3 (final, exactly commit `614ebcd`):
-  `https://sporta-jh45r45py-ekonplacidegmailcoms-projects.vercel.app`
-  (marker `w910-614ebcd`) — the deployment the production alias currently serves.
+- Deploy 3: `https://sporta-jh45r45py-ekonplacidegmailcoms-projects.vercel.app`
+  (marker `w910-614ebcd`) — the W910 final.
+- W911 deploy 4 (marker `w911-a`, `DATABASE_URL` bound):
+  `https://sporta-qom12upz6-ekonplacidegmailcoms-projects.vercel.app`.
+- W911 deploy 5 (marker `w911-b`, **the deployment the production alias
+  currently serves**):
+  `https://sporta-2m0a61jbj-ekonplacidegmailcoms-projects.vercel.app`.
 
 ## 4) Verify
 
@@ -154,8 +162,9 @@ curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" https://sporta-flame.v
 curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" https://sporta-flame.vercel.app/sw.js
 #   → 200 application/javascript; charset=utf-8
 curl -sS https://sporta-flame.vercel.app/api/platform/health
-#   → JSON: env "beta-personal", deployMarker <current marker>, providers honestly
-#     "unconfigured" until W911–W913 wire real bindings
+#   → JSON: env "beta-personal", deployMarker <current marker>, identity
+#     neon/configured since W911; artifacts/transientState honestly
+#     "unconfigured" until W912–W913 wire real bindings
 ```
 
 Actual W910 verification lines:
@@ -198,24 +207,151 @@ vercel promote deploy-2:    Success! sporta was promoted to
 alias → deploy 2 (then 3): health deployMarker = "w910-prod-2" (then "w910-614ebcd")
 ```
 
-Current production state (verified 2026-09-16):
+Current production state (verified 2026-09-16, after W911):
 
 ```
-https://sporta-flame.vercel.app/                   → 200 (39847 B; Sporta + skip-link in HTML)
+https://sporta-flame.vercel.app/                   → 200 (34692 B; Sporta + skip-link in HTML)
 https://sporta-flame.vercel.app/manifest.webmanifest → 200 application/manifest+json; charset=utf-8
 https://sporta-flame.vercel.app/sw.js              → 200 application/javascript; charset=utf-8
-/api/platform/health → env "beta-personal", deployMarker "w910-614ebcd",
-                       providers identity/artifacts/transientState = in-memory, unconfigured
+/api/platform/health → env "beta-personal", deployMarker "w911-b",
+                       identity = neon / configured / check ok ("postgres"),
+                       artifacts + transientState = in-memory, unconfigured
 ```
 
-## Honest limitations (W910 state)
+## 6) W911 — Neon PostgreSQL identity persistence (LIVE)
 
-- The deployed app is the **data-free W903 shell** plus dormant platform seams:
-  identity/R2/Upstash are wired as fail-closed, in-memory fallbacks and health
-  reports every provider `unconfigured`. Real provider bindings + migrations +
-  the A-lane product surfaces land with W911–W913 and Worker A's wave — after
-  which a redeploy of this same runbook picks them up.
+Identity state (accounts, sessions, media-session ownership) persists in
+**Neon PostgreSQL** (free tier) — it survives deploys, cold starts, and browser
+restarts. Everything below is the reproducible procedure.
+
+### 6.1) Provision (once per project)
+
+The Neon REST v2 API is org-scoped: plain `GET /api/v2/projects` answers
+`org_id is required`. Discover the account's organizations first:
+
+```bash
+. ~/.secrets/env.sh   # exports NEON_API_KEY (never echoed/committed)
+curl -sS "https://console.neon.tech/api/v2/users/me/organizations" \
+  -H "Authorization: Bearer $NEON_API_KEY" \
+  -H "Origin: https://console.neon.tech"
+# → {"organizations":[{"id":"org-proud-truth-25823860","name":"webflix",...}, ...]}
+```
+
+Then create the project inside an org (or list existing ones with
+`GET /api/v2/projects?org_id=<org id>` — the free tier allows 10 per org):
+
+```bash
+curl -sS -X POST "https://console.neon.tech/api/v2/projects?org_id=<org id>" \
+  -H "Authorization: Bearer $NEON_API_KEY" \
+  -H "Origin: https://console.neon.tech" -H "Content-Type: application/json" \
+  -d '{"project":{"name":"sporta-beta","region_id":"aws-us-east-1","pg_version":"17"}}'
+```
+
+Recorded state: project **`sporta-beta`** (id `restless-dream-12397247`),
+org `webflix` (`org-proud-truth-25823860`), region `aws-us-east-1`, PostgreSQL 17,
+created 2026-09-16T00:21:41Z by the W911 flight 4 (it died before deploying).
+
+Fetch the connection string (the DSN is a **secret** — store it only in shell
+env / the Vercel project env; never print or commit it):
+
+```bash
+curl -sS "https://console.neon.tech/api/v2/projects/restless-dream-12397247/connection_uri?database_name=neondb&role_name=neondb_owner&pg_version=17" \
+  -H "Authorization: Bearer $NEON_API_KEY" \
+  -H "Origin: https://console.neon.tech"
+# → {"uri":"postgresql://<role>:<password>@ep-…-pooler.c-12.us-east-1.aws.neon.tech/neondb?…"}
+```
+
+(The host is the Neon **pooler** endpoint — correct for serverless connection
+counts. The `postgres` client caps its pool at `max: 3`.)
+
+### 6.2) Environment wiring (Vercel)
+
+```bash
+curl -sS -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+  "https://api.vercel.com/v10/projects/sporta/env?teamId=$TEAM" \
+  -H "Content-Type: application/json" \
+  -d '{"key":"DATABASE_URL","value":"<the DSN>","type":"encrypted","target":["production"]}'
+```
+
+Recorded: env id `sDD0xKHWe4sBlInJ`, production target, set 2026-09-16.
+`apps/web/src/server/platform/env.ts` is the ONLY reader; unbinding it degrades
+honestly to the in-memory stores and `/api/platform/health` reports
+`in-memory` / `unconfigured`.
+
+### 6.3) Migrations (the deployed procedure)
+
+```bash
+cd apps/web
+DATABASE_URL="<the DSN>" bun run platform:migrate
+```
+
+Output recorded on 2026-09-16: `no pending migrations (schema is current)`
+— migration `1: identity-accounts-sessions-ownership` had already been applied
+by flight 4 at 00:22:11Z (verified in the table: `sporta_accounts`,
+`sporta_sessions`, `sporta_media_ownership`, `sporta_schema_migrations`).
+The runner is idempotent, one transaction per migration, guarded by
+`pg_advisory_xact_lock` so concurrent serverless instances cannot race, and the
+runtime composition (`identityReady()`) re-ensures the schema once per instance —
+so a fresh project needs **no manual step at all**; the first request migrates it.
+
+### 6.4) Schema change / rollback policy (honest)
+
+- Migrations are **forward-only and additive by design** (`CREATE TABLE IF NOT
+  EXISTS`, `CREATE INDEX IF NOT EXISTS`, new columns/tables via new numbered
+  migrations). No `down` migrations exist: rolling back an APPLICATION deployment
+  never rolls back the database, and old code must keep running against the new
+  schema (that is what additive-only guarantees).
+- Un-applying a migration requires deleting data (e.g. `DROP TABLE` by hand
+  against the Neon console/SQL). For the `beta-personal` tier the honest answer
+  is: **do not do this** — the database is disposable dev/beta state; recreate
+  the project (§6.1) and re-run §6.2–6.3 if the schema must be reset.
+- Every migration's version is recorded in `sporta_schema_migrations`; the
+  registry (`PLATFORM_MIGRATIONS`) is version-sorted and pinned by test.
+
+### 6.5) Verification evidence (2026-09-16, public URL)
+
+```
+bun test apps/web/test/platform/neon-persistence.test.ts   # with DATABASE_URL
+  → 5 pass / 0 fail / 18 expect() calls / Ran 5 tests across 1 file [28.8s]
+   (register→fresh-login, session survives store recreation, tokens stored
+    HASHED (sha256; token never in the table), expired sessions fail closed,
+    revocation persists across store recreation; without DATABASE_URL the suite
+    SKIPs loudly — root battery stays green: 4520 pass / 0 fail / 7 skip)
+
+/api/platform/health (deployment w911-a, then w911-b):
+  identity.provider = "neon", configured = true,
+  identity.check = { state: "ok", detail: "postgres" }      ← live reachability
+
+register on w911-a:  POST /api/auth/register {"username":"w911-persist-probe",…}
+  → 200 {"userId":"u-ecef93eb1ada43b48474aae8c42a705f","username":"w911-persist-probe",…}
+login on w911-a:     POST /api/auth/login   → 200 + HttpOnly cookie
+me on w911-a:        GET  /api/auth/me      → 200 (same userId)
+REDEPLOY (w911-b — separate prod deployment, new marker):
+login SAME credentials on w911-b → 200, SAME userId u-ecef93eb1ada43b48474aae8c42a705f
+me with the w911-a SESSION COOKIE against w911-b → 200 (session survived the redeploy)
+duplicate register → 409 {"failureClass":"conflict",…}
+wrong password      → 401 {"failureClass":"auth-invalid","invalid username or password"}
+```
+
+That is the W911 acceptance: hosted auth/session state persists across
+**deploys** (two separate production deployments) and browser sessions
+(cookie-issued on one resolves on the other), backed by real PostgreSQL rows.
+
+## Honest limitations (W911 state)
+
+- Identity is Neon-backed, but ONLY identity: render outputs / control-plane
+  render records / catalog state are still **in-process dev-seed state**
+  (restart-wiped) until W912 (R2 artifacts) / W914 (hosted compute) / the
+  A-lane product-surface merges land and are redeployed. Health reports the
+  artifacts/transientState seams `in-memory` / `unconfigured` — honest.
+- The Neon project lives on the **free tier** (autosuspend + a shared compute
+  unit): the first query after a suspend pays a cold-start (~0.5–2 s). The
+  integration tests' WAN timeouts (30 s per test) exist for cross-region runs
+  (e.g. an Asia-Pacific sandbox against the us-east-1 database).
 - The production alias on the Hobby plan is personal/non-commercial (see host
   policy boundary above).
 - Deploys are CLI-driven (no Git integration connected yet — `vercel git
-  connect` is a later hardening step; CI/CD via GitHub is not required for W910).
+  connect` is a later hardening step; CI/CD via GitHub is not required).
+- The registered probe account (`w911-persist-probe`) intentionally remains in
+  the database as living persistence evidence; delete it (SQL or a future admin
+  surface) if the beta database must be cleaned.
