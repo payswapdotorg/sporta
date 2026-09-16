@@ -205,7 +205,7 @@ describe("GET /api/live/[sessionId] — the fail-closed ladder", () => {
     // Remove the derby registration (the transport stays active): the route
     // must answer the honest 404 instead of streaming or pretending.
     const [registration] = liveTransport.listSources();
-    expect(registration?.sessionId).toBe(derbySessionId);
+    expect(registration?.sessionId).toBe(derbySessionId!);
     liveTransport.removeSource(derbySessionId!);
     try {
       const response = await liveStreamRoute(
@@ -259,7 +259,7 @@ describe("GET /api/live/[sessionId] — the stream", () => {
     expect(names.slice(1)).toEqual(["frame", "frame"]);
 
     const hello = ssePayloadOf<LiveHelloDoc>(events[0]!);
-    expect(hello.sessionId).toBe(derbySessionId);
+    expect(hello.sessionId).toBe(derbySessionId!);
     expect(hello.schemaVersion).toBe("sporta.live-sse/1");
     expect(hello.cadenceMs).toBe(500); // the transport's real cadence (default)
     expect(hello.openedAtMs).toBe(NOW_MS); // the injected clock at stream open
@@ -269,7 +269,7 @@ describe("GET /api/live/[sessionId] — the stream", () => {
       expect(event.id).toBe(String(index + 1));
       const frame = ssePayloadOf<LiveFrameDoc>(event);
       expect(frame.ordinal).toBe(index + 1);
-      expect(frame.sessionId).toBe(derbySessionId);
+      expect(frame.sessionId).toBe(derbySessionId!);
       expect(frame.svg.trimStart().startsWith("<svg")).toBe(true);
       expect(frame.byteLength).toBe(frame.svg.length);
       // The honest server timestamps the transport's real (injected) clock.
@@ -292,7 +292,7 @@ describe("GET /api/live/[sessionId] — the stream", () => {
 
 describe("the active transport's wiring", () => {
   test("GET /api/live lists the real source with live-network evidence", async () => {
-    const response = await liveListRoute(jsonRequest("/api/live"));
+    const response = await liveListRoute();
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       available: boolean;
@@ -304,7 +304,7 @@ describe("the active transport's wiring", () => {
     expect(body.transportKind).toBe("live-network");
     expect(body.detail).toContain("SSE live transport");
     expect(body.sources).toHaveLength(1);
-    expect(body.sources[0]!.sessionId).toBe(derbySessionId);
+    expect(body.sources[0]!.sessionId).toBe(derbySessionId!);
     expect(body.sources[0]!.storyKey).toBe("derby");
   });
 
@@ -380,7 +380,7 @@ describe("an active transport with NO registered source", () => {
   });
 
   test("the sources list answers honestly unavailable (no source to serve)", async () => {
-    const response = await liveListRoute(jsonRequest("/api/live"));
+    const response = await liveListRoute();
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       available: boolean;
@@ -459,7 +459,7 @@ describe("an INACTIVE transport (the env gate absent — Simulation F)", () => {
   });
 
   test("the sources list answers unavailable with the honest detail", async () => {
-    const response = await liveListRoute(jsonRequest("/api/live"));
+    const response = await liveListRoute();
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       available: boolean;
