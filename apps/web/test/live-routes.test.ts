@@ -444,18 +444,20 @@ describe("an INACTIVE transport (the env gate absent — Simulation F)", () => {
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
       modes: { live: { availability: string; reasonCode: string; transportKind: string } };
-      providers: { kind: string; health: string; reasonCode: string }[];
+      providers: { kind: string; health: string; reasonCode: string; detail?: string }[];
     };
     expect(body.modes.live).toEqual({
       availability: "unavailable",
       reasonCode: "in-process-transport-not-live",
       transportKind: "in-process",
     });
-    // The queue-cache provider is honestly UNKNOWN while the transport is
-    // inactive (no live queue exists to report health for).
+    // W913: the queue-cache provider is REAL even while the live transport
+    // is inactive — it backs the bounded render queue + quota counters + TTL
+    // cache (per-instance in this composition; no shared redis configured).
     const queueCache = body.providers.find((provider) => provider.kind === "queue-cache");
-    expect(queueCache?.health).toBe("unknown");
-    expect(queueCache?.reasonCode).toBe("health-feed-missing");
+    expect(queueCache?.health).toBe("ok");
+    expect(queueCache?.reasonCode).toBe("ok");
+    expect(queueCache?.detail).toContain("in-memory transient state");
   });
 
   test("the sources list answers unavailable with the honest detail", async () => {
