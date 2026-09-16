@@ -45,8 +45,12 @@ import type {
   IdentityControlGate,
   MediaOwnershipStore,
   PasswordHasher,
+  SessionService,
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
+import { neonConfigured } from "./platform/env";
+import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
+import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { AuthService } from "./auth-service";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
@@ -62,6 +66,10 @@ export interface SportaServerOptions {
   entropy?: EntropySource;
   /** Shared account store (default: a fresh in-memory store). */
   accounts?: AccountStore;
+  /** Pre-built session service (W911: the hosted Neon-backed one; default: in-memory). */
+  sessions?: SessionService;
+  /** Media-ownership store (default: a fresh in-memory store). */
+  ownership?: MediaOwnershipStore;
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
 }
@@ -101,11 +109,13 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const entropy = options.entropy ?? defaultEntropySource;
   const accounts = options.accounts ?? new InMemoryAccountStore();
 
-  // 1. The real auth surface over shared stores.
+  // 1. The real auth surface over shared stores (W911: over the Neon-backed
+  //    stores when the environment configures them — see getSportaServer).
   const auth = new AuthService({
     accounts,
     nowMs,
     entropy,
+    ...(options.sessions !== undefined ? { sessions: options.sessions } : {}),
     ...(options.passwordHasher !== undefined ? { passwordHasher: options.passwordHasher } : {}),
   });
 
@@ -140,7 +150,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   });
 
   // 5. The identity control gate (owner/operator reads, deny-before-existence).
-  const ownership = new InMemoryMediaOwnershipStore();
+  const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
   const gate = createIdentityControlGate({ accounts, sessions: auth.sessions, control, ownership });
 
   const server: SportaServer = {
@@ -179,17 +189,63 @@ const SERVER_GLOBAL = Symbol.for("sporta.web.server");
 
 type ServerCache = { [SERVER_GLOBAL]?: Promise<SportaServer> };
 
+/** Whether this process runs under the Bun runtime (vs Node on Vercel). */
+function runningUnderBun(): boolean {
+  return typeof process.versions.bun === "string";
+}
+
 /** The singleton getter — the ONLY thing route handlers call. */
 export function getSportaServer(): Promise<SportaServer> {
   const cache = globalThis as ServerCache;
-  cache[SERVER_GLOBAL] ??= Promise.resolve(
-    createSportaServer({
+  cache[SERVER_GLOBAL] ??= buildSingleton().catch((err) => {
+    // A failed build (e.g. a transient Neon outage during the first request's
+    // migrations) must not POISON the singleton: clear the cached promise so
+    // the next request retries instead of serving the same rejection forever.
+    delete cache[SERVER_GLOBAL];
+    throw err;
+  });
+  return cache[SERVER_GLOBAL]!;
+}
+
+/**
+ * Builds the process singleton, env-gated (W911):
+ *
+ * - `DATABASE_URL` present → the HOSTED identity backing: the Neon PostgreSQL
+ *   stores (`Pg*Store` via `getHostedIdentity()`), migrations ensured first
+ *   (`identityReady()` — advisory-locked, once per runtime instance), and the
+ *   Node `scrypt` hasher (Vercel's Node runtime cannot run the Bun argon2id
+ *   default — the W902 `PasswordHasher` port exists for exactly this swap).
+ *   Accounts, sessions (hashed tokens) and media ownership then persist
+ *   across deploys and cold starts.
+ * - Absent → the local dev composition (in-memory stores + the runtime's
+ *   REAL KDF: Bun's argon2id when running under Bun, the Node `scrypt`
+ *   hasher on Node — the same W902 port, so an unconfigured Node runtime
+ *   (a Vercel preview without bindings) still serves working in-memory auth
+ *   instead of crashing on the missing `Bun` global). `/api/platform/health`
+ *   reports this state honestly as `in-memory`.
+ *
+ * The control plane / render outputs stay in-process in BOTH modes (W912/W914
+ * scope); only the identity lane is persisted this wave.
+ */
+async function buildSingleton(): Promise<SportaServer> {
+  const seed = process.env.SPORTA_DISABLE_DEV_SEED !== "1";
+  if (!neonConfigured()) {
+    return createSportaServer({
       nowMs: Date.now,
-      passwordHasher: argon2PasswordHasher,
-      seed: process.env.SPORTA_DISABLE_DEV_SEED !== "1",
-    }),
-  );
-  return cache[SERVER_GLOBAL];
+      passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
+      seed,
+    });
+  }
+  await identityReady();
+  const hosted = getHostedIdentity();
+  return createSportaServer({
+    nowMs: Date.now,
+    accounts: hosted.accounts,
+    sessions: hosted.sessions,
+    ownership: hosted.ownership,
+    passwordHasher: hosted.hasher,
+    seed,
+  });
 }
 
 /**
