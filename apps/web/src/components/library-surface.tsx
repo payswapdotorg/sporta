@@ -8,6 +8,7 @@ import { fetchCapability, fetchLibrary } from "@/lib/client-api";
 import { deriveLibraryState } from "@/lib/surface-state";
 import { SessionCard } from "@/components/session-card";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
+import { ProviderNotices } from "@/components/provider-notices";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -66,6 +67,7 @@ export function LibrarySurface() {
 
   return (
     <div className="surface-stack">
+      <ProviderNotices capability={capability.data} />
       <p className="section-lede">{verdict.reason}</p>
       {sessions.data !== null && sessions.data.length > 0 && (
         <ul className="card-grid">

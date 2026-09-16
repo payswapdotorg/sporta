@@ -7,6 +7,7 @@ import { fetchCapability, fetchCatalog } from "@/lib/client-api";
 import { deriveExploreState } from "@/lib/surface-state";
 import { SessionCard } from "@/components/session-card";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
+import { ProviderNotices } from "@/components/provider-notices";
 
 /**
  * The Explore data surface (W904): the real catalog, every card carrying its
@@ -45,6 +46,7 @@ export function ExploreSurface() {
 
   return (
     <div className="surface-stack">
+      <ProviderNotices capability={capability.data} />
       {verdict.state !== "ready" && (
         <StatePanel state={verdict.state} title="Explore" reason={verdict.reason} />
       )}

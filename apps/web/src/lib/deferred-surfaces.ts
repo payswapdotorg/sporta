@@ -3,11 +3,13 @@
  *
  * W904/W905 made Home, Live, Explore, Library, Watch and the sign-in surface
  * REAL (capability-driven, over the real control plane). W906 made Create
- * real; W907 made Match Lab, Rights Center, Operations and Jobs real. This
- * module now covers ONLY the surfaces that are still genuinely deferred —
- * each one says what will live there and which work order delivers it. As
- * surfaces became real, their entries were REMOVED (not repurposed): this
- * list can never grow back a surface that has a real implementation.
+ * real; W907 made Match Lab, Rights Center, Operations and Jobs real; W908
+ * made Search real over the W916 catalog search. This module now covers ONLY
+ * the surfaces that are still genuinely deferred — each one says what will
+ * live there and which work order delivers it (or honestly, that none is
+ * scheduled). As surfaces became real, their entries were REMOVED (not
+ * repurposed): this list can never grow back a surface that has a real
+ * implementation.
  *
  * The UX state vocabulary is the one pinned by
  * docs/architecture/ux-architecture.md:
@@ -29,10 +31,10 @@ export const UX_STATES = [
 export type UxState = (typeof UX_STATES)[number];
 
 /** Route a deferred surface belongs to. */
-export type SurfaceRoute = "/" | "/search" | "/following" | "/audit" | "/clips" | "/notes";
+export type SurfaceRoute = "/" | "/following" | "/audit" | "/clips" | "/notes";
 
 /** Key of a deferred surface (referenced by pages). */
-export type SurfaceKey = "home-create" | "search" | "following" | "audit" | "clips" | "notes";
+export type SurfaceKey = "home-create" | "following" | "audit" | "clips" | "notes";
 
 /** One honest deferred surface. */
 export type DeferredSurfaceSpec = {
@@ -61,17 +63,6 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
       "The Create Studio itself is real (Create in the navigation) — what does not exist yet is a personalized ideas shelf: there is no recommendation or template plane, so nothing is suggested or simulated here.",
     plannedWorkOrder: "W916",
   },
-  search: {
-    id: "search",
-    route: "/search",
-    state: "unavailable",
-    title: "Search results",
-    summary:
-      "Search will look across matches, realities, creators and events you are authorized to access.",
-    detail:
-      "Search needs the real catalog/content model (W916) before it can return anything real. Your query is not stored or executed anywhere at this stage.",
-    plannedWorkOrder: "W916",
-  },
   following: {
     id: "following",
     route: "/following",
@@ -80,8 +71,8 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
     summary:
       "Activity from the creators, events and realities you follow will stream into this feed.",
     detail:
-      "Accounts exist now (you can sign in), but there is no follow graph yet — no creator, event or reality can be followed, so no activity is simulated.",
-    plannedWorkOrder: "W916",
+      "The W916 catalog/content model landed (role-scoped discoverability, reality linkage, search), but it does not include a follow graph: no creator, event or reality can be followed yet, so no activity is simulated — and signing in alone would not create a feed.",
+    plannedWorkOrder: "none yet (no follow-graph work order is scheduled)",
   },
   audit: {
     id: "audit",
@@ -118,7 +109,7 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
 
 export const DEFERRED_SURFACE_KEYS = Object.keys(DEFERRED_SURFACES) as readonly SurfaceKey[];
 
-/** The page routes that are REAL (W904/W905/W906/W907) — no deferred panel any more. */
+/** The page routes that are REAL (W904-W908) — no deferred panel any more. */
 export const REAL_SURFACE_ROUTES: readonly string[] = [
   "/",
   "/live",
@@ -131,6 +122,7 @@ export const REAL_SURFACE_ROUTES: readonly string[] = [
   "/rights",
   "/operations",
   "/jobs",
+  "/search",
 ];
 
 /** Look up a surface spec (unknown keys fail loudly in tests and code). */

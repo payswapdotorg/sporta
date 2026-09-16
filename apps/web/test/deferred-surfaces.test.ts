@@ -38,11 +38,16 @@ describe("deferred-surface state machine (post-W904/W905)", () => {
       expect(surface.title.trim().length).toBeGreaterThan(3);
       expect(surface.summary.trim().length).toBeGreaterThan(20);
       expect(surface.detail.trim().length).toBeGreaterThan(30);
-      expect(surface.plannedWorkOrder).toMatch(/^W9(0[1-9]|1\d|20)$/);
+      // A work order id, or the explicit honest "none yet" marker (W908:
+      // following has no scheduled work order and must not pretend one exists).
+      expect(
+        /^W9(0[1-9]|1\d|20)$/.test(surface.plannedWorkOrder) ||
+          surface.plannedWorkOrder.startsWith("none yet"),
+      ).toBe(true);
     }
   });
 
-  test("exactly the W904-W907-real routes are marked real — no more, no fewer", () => {
+  test("exactly the W904-W908-real routes are marked real — no more, no fewer", () => {
     expect([...REAL_SURFACE_ROUTES].sort()).toEqual([
       "/",
       "/auth/signin",
@@ -54,6 +59,7 @@ describe("deferred-surface state machine (post-W904/W905)", () => {
       "/matchlab",
       "/operations",
       "/rights",
+      "/search",
       "/watch",
     ]);
   });
@@ -69,11 +75,11 @@ describe("deferred-surface state machine (post-W904/W905)", () => {
     }
   });
 
-  test("the still-deferred pages are search, following, audit, clips and notes (W916-W918)", () => {
+  test("the still-deferred pages are following, audit, clips and notes (search became real in W908)", () => {
     const routes = DEFERRED_SURFACE_KEYS.map((key) => DEFERRED_SURFACES[key].route).sort();
-    expect(routes).toEqual(["/", "/audit", "/clips", "/following", "/notes", "/search"]);
-    expect(DEFERRED_SURFACES.search.plannedWorkOrder).toBe("W916");
-    expect(DEFERRED_SURFACES.following.plannedWorkOrder).toBe("W916");
+    expect(routes).toEqual(["/", "/audit", "/clips", "/following", "/notes"]);
+    expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("search")).toBe(false);
+    expect(DEFERRED_SURFACES.following.plannedWorkOrder.startsWith("none yet")).toBe(true);
     expect(DEFERRED_SURFACES.clips.plannedWorkOrder).toBe("W916");
     expect(DEFERRED_SURFACES.notes.plannedWorkOrder).toBe("W916");
     expect(DEFERRED_SURFACES.audit.plannedWorkOrder).toBe("W918");

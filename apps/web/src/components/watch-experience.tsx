@@ -2,10 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { CapabilityLike, RenderOutputLike, WatchModelLike } from "@/lib/api-types";
+import type {
+  CapabilityLike,
+  RenderOutputLike,
+  StudioSessionStateLike,
+  WatchModelLike,
+} from "@/lib/api-types";
 import { ApiError } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
-import { fetchCapability, fetchRenderOutput, fetchWatchModel } from "@/lib/client-api";
+import {
+  fetchCapability,
+  fetchRenderOutput,
+  fetchStudioSession,
+  fetchWatchModel,
+} from "@/lib/client-api";
 import {
   advanceFramePlayer,
   deriveFrameRateProfile,
@@ -29,12 +39,15 @@ import {
   type RealityMachineState,
 } from "@/lib/reality-machine";
 import {
+  deriveProviderNotices,
   deriveRealityOptions,
-  deriveWatchState,
   formatTimelineMs,
+  watchVerdictOfOptions,
+  withRendererJobStates,
   type RealityOption,
 } from "@/lib/surface-state";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
+import { ProviderNotices } from "@/components/provider-notices";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -80,6 +93,11 @@ export function WatchExperience({
 }) {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
   const [watch, setWatch] = useState<FetchState<WatchModelLike>>({ phase: "loading" });
+  // The owner/operator view of this session's studio state (W908): the REAL
+  // per-renderer render-job states. A 401/403/404 is the honest boundary —
+  // a viewer who is not the owner simply has no job data (null), and the
+  // reality options fall back to their own honest derivations.
+  const [studio, setStudio] = useState<StudioSessionStateLike | null>(null);
   const [tab, setTab] = useState<WatchTabId>("renderer");
   const [machine, setMachine] = useState<RealityMachineState | null>(null);
   const [switchNotice, setSwitchNotice] = useState<string | null>(null);
@@ -105,12 +123,36 @@ export function WatchExperience({
     );
   }, [sessionId]);
 
+  // The opportunistic studio read (owner/operator only): the session's real
+  // render-job states, used to present `processing` while a render is in
+  // flight (W908). Any refusal (401 anonymous / 403 not the owner / 404) is
+  // the honest viewer boundary — no job data, no processing claim.
+  useEffect(() => {
+    if (sessionId === null) return;
+    let cancelled = false;
+    setStudio(null);
+    void fetchStudioSession(sessionId).then(
+      (data) => {
+        if (!cancelled) setStudio(data);
+      },
+      () => {
+        if (!cancelled) setStudio(null);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
   const options = useMemo(
     () =>
       capability.phase === "ready" && watch.phase === "ready"
-        ? deriveRealityOptions(capability.data, watch.data)
+        ? withRendererJobStates(
+            deriveRealityOptions(capability.data, watch.data),
+            studio?.jobs ?? [],
+          )
         : null,
-    [capability, watch],
+    [capability, watch, studio],
   );
 
   // The Reality Switcher's machine: created ONCE per session when the
@@ -155,7 +197,7 @@ export function WatchExperience({
   }
 
   const currentOptions = options ?? [];
-  const verdict = deriveWatchState(capability.data, watch.data);
+  const verdict = watchVerdictOfOptions(currentOptions);
   const effectiveMachine =
     machine ?? createRealityMachine(sessionId, currentOptions, initialRenderer);
   const selectedOption =
@@ -179,11 +221,20 @@ export function WatchExperience({
   return (
     <div className="watch-layout">
       <div className="watch-main">
+        <ProviderNotices capability={capability.data} />
         <MatchHeader watch={watch.data} verdict={verdict} />
         {selectedOption === null ? (
           <StatePanel
-            state={verdict.state === "denied" ? "denied" : "unavailable"}
-            title="Nothing to play for this match"
+            state={
+              verdict.state === "denied"
+                ? "denied"
+                : verdict.state === "processing"
+                  ? "processing"
+                  : "unavailable"
+            }
+            title={
+              verdict.state === "processing" ? "A render is being produced" : "Nothing to play for this match"
+            }
             reason={verdict.reason}
           />
         ) : (
@@ -364,8 +415,12 @@ function PlayerSection({
     return (
       <section className="player-surface">
         <StatePanel
-          state="unavailable"
-          title={`The ${option.rendererId} reality has no output`}
+          state={option.state === "processing" ? "processing" : "unavailable"}
+          title={
+            option.state === "processing"
+              ? `The ${option.rendererId} reality is being rendered`
+              : `The ${option.rendererId} reality has no output`
+          }
           reason={output.reason}
         />
       </section>

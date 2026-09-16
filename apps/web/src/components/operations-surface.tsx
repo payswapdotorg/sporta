@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAccount } from "@/components/account-provider";
 import { ApiError, fetchOperations } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
 import type { OperationsLike } from "@/lib/api-types";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
+import { deriveReauthState } from "@/lib/surface-state";
+import { ROUTES } from "@/lib/navigation";
 
 /**
  * OPERATIONS (W907) — the Operator workspace's real-data console:
@@ -61,6 +64,21 @@ export function OperationsSurface() {
     return <LoadingPanel label="Reading the platform state" />;
   }
   if (state.phase === "failed") {
+    // A 401 after the session was established = the session expired or was
+    // revoked mid-session (W908): denied + re-auth, never a broken page.
+    if (state.status === 401) {
+      const verdict = deriveReauthState(state.error);
+      return (
+        <div className="surface-stack">
+          <StatePanel state={verdict.state} title="Your session ended" reason={verdict.reason} />
+          <p className="library-signin-hint">
+            <Link className="button-primary" href={ROUTES.signin}>
+              Sign in again
+            </Link>
+          </p>
+        </div>
+      );
+    }
     if (state.status === 403) {
       return (
         <StatePanel

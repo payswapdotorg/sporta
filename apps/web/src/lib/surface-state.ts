@@ -19,6 +19,7 @@
 import type {
   CapabilityLike,
   RenderOutputLike,
+  SearchResponseLike,
   SessionCardLike,
   UxState,
   WatchModelLike,
@@ -64,6 +65,182 @@ export function deriveLiveState(capability: CapabilityLike): SurfaceVerdict {
 }
 
 // ---------------------------------------------------------------------------
+// Global provider notices (Simulation E — the providers[] feed, made visible)
+// ---------------------------------------------------------------------------
+
+/** One visible provider-degradation notice (from the capability's providers[]). */
+export interface ProviderNotice {
+  kind: string;
+  health: string;
+  reasonCode: string;
+  /** The provider's own operational detail, when the feed carries one. */
+  detail?: string;
+  /** What the degradation means for the viewer, when the feed says. */
+  meaning?: string;
+}
+
+/**
+ * Derives the visible degradation notices from the capability response's
+ * `providers[]` feed (Simulation E step 4: "UI changes to `degraded` with an
+ * actionable explanation"). Only providers whose REAL health is not `ok`
+ * produce a notice — a healthy deployment produces none (no noise).
+ */
+export function deriveProviderNotices(capability: CapabilityLike): ProviderNotice[] {
+  const notices: ProviderNotice[] = [];
+  for (const provider of capability.providers) {
+    if (provider.health === "ok") continue;
+    notices.push({
+      kind: provider.kind,
+      health: provider.health,
+      reasonCode: provider.reasonCode,
+      ...(provider.detail !== undefined ? { detail: provider.detail } : {}),
+      ...(provider.degradedMeaning !== undefined ? { meaning: provider.degradedMeaning } : {}),
+    });
+  }
+  return notices;
+}
+
+/** A human sentence for one provider notice (the actionable explanation). */
+export function providerNoticeLine(notice: ProviderNotice): string {
+  const base = `the ${notice.kind} provider is ${notice.health} (${notice.reasonCode})`;
+  const detail = notice.detail !== undefined ? ` — ${notice.detail}` : "";
+  const meaning = notice.meaning !== undefined ? ` ${notice.meaning}` : "";
+  return `${base}${detail}${meaning}`;
+}
+
+// ---------------------------------------------------------------------------
+// Search (W916 data plane → W908 honest surface states)
+// ---------------------------------------------------------------------------
+
+/**
+ * The Search surface's verdict from a REAL /api/catalog/search answer. An
+ * empty result set is the honest `ready` answer ("the search ran; nothing
+ * matched") — never a spinner, never a fake failure, never unavailable (the
+ * plane served the query). A degraded listing stays `degraded` with the
+ * matches still real (the Explore posture).
+ */
+export function deriveSearchState(response: SearchResponseLike): SurfaceVerdict {
+  const count = response.matches.length;
+  if (response.degraded != null) {
+    return {
+      state: "degraded",
+      reason: `${count} match(es); the listing skipped ${response.degraded.skippedSessions} terminated session(s) (${response.degraded.reasonCode}) — results remain real`,
+    };
+  }
+  if (count > 0) {
+    return {
+      state: "ready",
+      reason: `${count} match(es) across the catalog you are authorized to see`,
+    };
+  }
+  return {
+    state: "ready",
+    reason: "the search ran over the sessions you are authorized to see and nothing matched",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Following (the honest no-follow-graph state)
+// ---------------------------------------------------------------------------
+
+/**
+ * The Following surface's verdict. There is NO follow graph anywhere in the
+ * control plane (no creator, event or reality can be followed), so the honest
+ * state is `unavailable` for every account — including anonymous visitors,
+ * for whom the reason must NOT suggest that signing in would produce a feed.
+ */
+export function deriveFollowingState(
+  authState: "anonymous" | "authenticated" | "invalid-session",
+): SurfaceVerdict {
+  if (authState === "anonymous") {
+    return {
+      state: "unavailable",
+      reason:
+        "no follow graph exists yet — signing in alone would not create one, so no activity is shown or simulated",
+    };
+  }
+  if (authState === "invalid-session") {
+    return {
+      state: "denied",
+      reason:
+        "your session is no longer valid — sign in again (the follow feed itself does not exist yet either)",
+    };
+  }
+  return {
+    state: "unavailable",
+    reason:
+      "you are signed in, but no follow graph exists yet — no creator, event or reality can be followed, so no activity is simulated",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Render-job progress on the watch surface (W906's create-job states, surfaced)
+// ---------------------------------------------------------------------------
+
+/** Whether a compute job state is still in flight (non-terminal). */
+export function jobInFlight(state: string): boolean {
+  return (
+    state === "admitted" || state === "dispatched" || state === "queued" || state === "in-flight"
+  );
+}
+
+/**
+ * The watch surface's per-renderer processing verdict (W908): when a REAL
+ * studio-dispatched job for THIS session and THIS renderer is in flight, the
+ * renderer's reality is `processing` — a render IS being produced, and the
+ * surface must say so instead of a spinner-lie or a flat "requires render".
+ * `null` when no in-flight job exists for that renderer (the caller keeps the
+ * derived reality option's own verdict).
+ */
+export function deriveRendererJobState(
+  jobs: readonly { jobId: string; state: string; rendererId: string | null }[],
+  rendererId: string,
+): SurfaceVerdict | null {
+  for (const job of jobs) {
+    if (job.rendererId !== rendererId || !jobInFlight(job.state)) continue;
+    return {
+      state: "processing",
+      reason: `a render job (${job.jobId}) is ${job.state} on the compute plane — its output appears here when it completes`,
+    };
+  }
+  return null;
+}
+
+/**
+ * Upgrades reality options with the REAL in-flight job state: an option that
+ * would present `requires-render` / `no-stored-output` presents `processing`
+ * while a job for that renderer is genuinely in flight. The session stays
+ * constant (Simulation G); only the presented state changes.
+ */
+export function withRendererJobStates(
+  options: readonly RealityOption[],
+  jobs: readonly { jobId: string; state: string; rendererId: string | null }[],
+): RealityOption[] {
+  return options.map((option) => {
+    if (option.state === "ready" || option.state === "renderer-unavailable") return option;
+    const job = deriveRendererJobState(jobs, option.rendererId);
+    return job === null ? option : { ...option, state: "processing" as const, reason: job.reason };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// The auth-expired state (401 mid-session — honest re-auth, never a broken page)
+// ---------------------------------------------------------------------------
+
+/**
+ * The verdict for a control-plane answer that came back 401 AFTER the page had
+ * loaded (the session expired or was revoked mid-session). This is `denied`
+ * with the re-auth action — never `failed` (the request did not fail; the
+ * session did), never a retry loop, never a broken page.
+ */
+export function deriveReauthState(detail?: string): SurfaceVerdict {
+  return {
+    state: "denied",
+    reason:
+      "your session is no longer valid — sign in again to continue" +
+      (detail !== undefined && detail.length > 0 ? ` (${detail})` : ""),
+  };
+}// ---------------------------------------------------------------------------
 // Surface visibility (the role-experience matrix, from the capability response)
 // ---------------------------------------------------------------------------
 
@@ -257,7 +434,10 @@ export function deriveLibraryState(
 
 /** Why a reality option is not ready (closed vocabulary, surfaced to users). */
 export type RealityUnavailableReason =
-  "renderer-unavailable" | "rights-denied" | "requires-render" | "no-stored-output";
+  | "renderer-unavailable"
+  | "rights-denied"
+  | "requires-render"
+  | "no-stored-output";
 
 /** One Reality Switcher option. */
 export interface RealityOption {
@@ -265,8 +445,8 @@ export interface RealityOption {
   rendererId: string;
   rendererVersion?: string;
   rendererClass?: string;
-  /** `ready` iff a stored output exists for THIS session under this renderer. */
-  state: "ready" | RealityUnavailableReason;
+  /** `ready` iff a stored output exists; `processing` iff a real render job is in flight. */
+  state: "ready" | "processing" | RealityUnavailableReason;
   /** Human words for every non-ready state — never a fake "coming soon". */
   reason: string;
   /** The render backing this option (when one exists). */
@@ -315,7 +495,8 @@ export function deriveRealityOptions(
       return {
         ...base,
         state: "requires-render" as const,
-        reason: "no render has been requested for this match with this renderer yet",
+        reason:
+          "no render for this match with this renderer has become available yet — renders appear here once a dispatched render job completes (an in-flight job is presented as processing)",
       };
     }
     const withOutput = renders.find((render) => render.outputs.length > 0);
@@ -348,10 +529,25 @@ export function deriveWatchState(
       reason: "this content's rights do not permit stored playback",
     };
   }
-  const options = deriveRealityOptions(capability, watch);
+  return watchVerdictOfOptions(deriveRealityOptions(capability, watch));
+}
+
+/**
+ * The watch verdict over the (job-merged) reality options: `processing` wins
+ * over unavailable when a real render job is in flight for this match — the
+ * watch surface must never present an in-flight render as mere absence.
+ */
+export function watchVerdictOfOptions(options: readonly RealityOption[]): SurfaceVerdict {
   const ready = options.find((option) => option.state === "ready");
   if (ready !== undefined) {
     return { state: "ready", reason: `playing the ${ready.rendererId} reality` };
+  }
+  const processing = options.find((option) => option.state === "processing");
+  if (processing !== undefined) {
+    return {
+      state: "processing",
+      reason: `a render for this match is in flight (${processing.rendererId}) — its output appears when the job completes`,
+    };
   }
   if (options.length > 0 && options.every((option) => option.state === "requires-render")) {
     return { state: "unavailable", reason: "no render has been produced for this match yet" };
