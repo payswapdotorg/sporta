@@ -1,8 +1,8 @@
 {
   "name": "@sporta/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Sporta product frontend — installable web application shell (W903).",
+  "description": "Sporta product frontend — data-driven product surfaces over the real control plane (W903 shell + W904/W905).",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,9 +11,29 @@
     "icons": "bun run scripts/generate-icons.ts"
   },
   "dependencies": {
+    "@sporta/asr": "workspace:*",
+    "@sporta/capability": "workspace:*",
+    "@sporta/commentary-segmentation": "workspace:*",
+    "@sporta/commentary-understanding": "workspace:*",
+    "@sporta/contracts": "workspace:*",
+    "@sporta/control-api": "workspace:*",
+    "@sporta/field-mapping": "workspace:*",
+    "@sporta/fusion": "workspace:*",
+    "@sporta/identity": "workspace:*",
+    "@sporta/observation": "workspace:*",
+    "@sporta/output-pipeline": "workspace:*",
+    "@sporta/perception-tracking": "workspace:*",
+    "@sporta/renderer-anime": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@sporta/spatial-state": "workspace:*",
+    "@sporta/temporal": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@sporta/timeline": "workspace:*",
+    "@sporta/world-model": "workspace:*",
     "next": "16.3.5",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",

@@ -37,22 +37,55 @@ instead of faking it.
 
 ## What is intentionally deferred (and why)
 
-This shell is the *Product* lane of Wave 1. The capability contract (W901,
-parallel lane) did not exist when this was built, so **no capability shapes
-are invented here** — no stub APIs, no fake match data, no simulated live
-badges, no mock auth. Surfaces that need real data render an honest
-"not available yet" placeholder (`src/lib/deferred-surfaces.ts`) that states
-what will live there and which work order delivers it.
+W904/W905 made Home, Live, Explore, Library, Watch and the sign-in surface
+REAL (capability + catalog driven — see below). What remains deferred says so
+honestly (`src/lib/deferred-surfaces.ts`): the Create Studio flow (W906),
+Search and Following (W916 — they need the real catalog/content model), and
+the home "things you can create" section (W906). No fake data, no simulated
+live badges, no mock auth — anywhere.
 
 | Deferred | Arrives with |
 | --- | --- |
-| Catalog / listings / results (Home, Explore, Search, Library, Following) | W904, consuming the W901 capability contract |
-| Watch page + Reality Switcher backed by real renderer capability | W905 |
 | Create Studio (upload → recipe → render → publish) | W906 |
-| Accounts, roles, real sign-in | W902 |
+| Search results, Following feed | W916 (the real catalog/content model) |
 | Anything labelled "live" | W915 (real network transport only — see Simulation F) |
-| Public hosting | W910 (Vercel Hobby is the intended first target) |
+| Hosted persistence (Neon/R2/Upstash backing) | W910–W914 |
 | Real install verification on device | requires the HTTPS host from W910 (PWA install requires a secure context) |
+
+## The data plane (W904/W905)
+
+- **API routes** (`src/app/api/`): `/api/capability` (the frozen W901 seam),
+  `/api/auth/*` (register/login/logout/me/switch-role), `/api/catalog/*`
+  (sessions, library), `/api/watch/*` (watch model, playback-gated stored
+  outputs). Thin transports over the server composition root — typed errors
+  → statuses, `no-store`, fail-closed.
+- **Server composition root** (`src/server/`): constructs the REAL in-process
+  services (real control app over the real renderer registry and the real
+  W504 output pipeline; real identity stores; the real capability
+  composition). Everything is honestly labeled dev backing — in-process,
+  restart-wiped. Worker B's hosted providers (Neon/R2/Upstash) replace them
+  through exactly this seam.
+- **Dev seed** (`src/server/dev-seed.ts`): drives the REAL engine — checked-in
+  fixture stories through the real M1→M3 chain, sessions created through the
+  real identity gate, renders through the real control plane, outputs stored
+  through the real pipeline. Three sessions: an authorized watchable match, a
+  "requires render" match, and a REAL rights-denied match (its card reveals
+  nothing about its renders). Nothing is fabricated; the seed account's
+  password is drawn from real entropy and discarded.
+- **Client surfaces** consume fetch/JSON only (`src/lib/client-api.ts`) and
+  derive their UX state (`loading | ready | processing | degraded | denied |
+  unavailable | failed`) from the real responses (`src/lib/surface-state.ts`)
+  — the W901 fixtures pin every deny/degraded path in
+  `test/surface-state.test.ts`.
+
+### Running the server (Bun runtime required)
+
+The composition root's graph reaches Bun-native packages (`bun:sqlite` via
+`@sporta/session` and `@sporta/output-pipeline`), so the SERVER must run
+under Bun: `bun --bun run dev` / `bun --bun run start`. Plain `next start`
+would execute under Node (the bin's shebang) and fail to load `bun:sqlite`.
+Route handlers keep the heavy graph out of module scope (`src/server/runtime.ts`)
+so `bun run build` stays green under Next's Node build workers.
 
 ## What the service worker does — and does not — cache
 
@@ -99,8 +132,10 @@ bun test           # full monorepo suite, includes apps/web/test/*
 
 ## Boundaries
 
-- This app does **not** import any `@sporta/*` engine package. It is a client
-  of stable control/delivery contracts that arrive with the capability plane
-  (W901) and data plane (W904+).
+- **Client components never import `@sporta/*`** — they consume fetch/JSON
+  from this app's own `/api` routes (the TL's Wave-2 frontend boundary).
+- **The server composition root DOES** — `src/server/` composes the frozen
+  `@sporta/*` packages (server-only; declared `serverExternalPackages` in
+  `next.config.ts`).
 - `packages/viewer-shell` remains the headless viewer/control-state package;
   this app is the product UI seam, not a replacement for it.
