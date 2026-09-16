@@ -60,6 +60,14 @@ export function createDefaultWorkerRegistry(): RendererRegistry {
   return registry;
 }
 
+/**
+ * The default worker store: the REAL in-memory W504 render-segment store
+ * (per-process; the R2-backed store is W912 behind the same port).
+ */
+export function createDefaultOutputSegmentStore(): RenderSegmentStore {
+  return new InMemoryRenderSegmentStore();
+}
+
 /** Reads + validates the provider selection from the environment. */
 export function computeProviderSelectionOf(
   env: Record<string, string | undefined> = process.env,

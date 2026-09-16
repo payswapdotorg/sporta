@@ -10,6 +10,17 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // W914 (ADDITIVE): the /api/compute worker route imports the sporta
+  // workspace packages as TypeScript sources — transpile them (and their
+  // workspace deps) so the server bundle builds.
+  transpilePackages: [
+    "@sporta/compute-adapter-hosted",
+    "@sporta/compute-adapter",
+    "@sporta/contracts",
+    "@sporta/output-pipeline",
+    "@sporta/renderer-anime",
+    "@sporta/renderer-contract",
+  ],
 };
 
 export default nextConfig;

@@ -78,6 +78,7 @@ export {
 export type { ComputeWorkerServerOptions } from "./http";
 export {
   computeProviderSelectionOf,
+  createDefaultOutputSegmentStore,
   createDefaultWorkerRegistry,
   resolveComputeAdapterFromEnv,
 } from "./env";
