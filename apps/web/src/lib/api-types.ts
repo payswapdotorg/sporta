@@ -587,6 +587,18 @@ export interface OperationsHealthLike {
     artifacts: { provider: string; configured: boolean; state: string; detail: string };
     transientState: { provider: string; configured: boolean; state: string; detail: string };
   };
+  /** The W919 spend alarms (window-scoped, persisted limit states). */
+  spendAlarms: {
+    limitId: string;
+    provider: string;
+    state: "under" | "approaching" | "reached" | "exceeded" | "unmeasured";
+    used: number | null;
+    limit: number;
+    unit: string;
+    changedAtMs: number;
+    transitioned: boolean;
+    previousState: string | null;
+  }[];
   compute: { configured: boolean; provider: string | null; adapterId: string | null };
   liveTransport: { state: string; note: string };
   renderQueue: {
@@ -628,6 +640,18 @@ export interface OperationsProvidersLike {
     usage: "measured" | "unknown";
     counters: { name: string; value: number }[];
     limits: { name: string; value: number | string }[];
+    /** The W919 ledger evaluations (usage vs threshold, honest unmeasured). */
+    limitStates: {
+      limitId: string;
+      name: string;
+      used: number | null;
+      limit: number;
+      unit: string;
+      state: "under" | "approaching" | "reached" | "exceeded" | "unmeasured";
+      admissionEnforced: boolean;
+      meterNote: string;
+      source: string;
+    }[];
     note: string;
   }[];
   notes: string[];

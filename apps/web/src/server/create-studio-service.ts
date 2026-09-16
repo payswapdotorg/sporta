@@ -725,15 +725,22 @@ export class CreateStudioService {
    * (real renderer plugin, real W504 encode + store) and the control plane
    * ingests the artifacts into its playback store when the job settles.
    *
-   * W913 admission ladder (fail-closed, Simulation E — new expensive jobs
-   * stop admitting BEFORE the provider is asked to run them):
-   * 1. the caller's per-user render-request quota is consumed — exhausted
+   * W913 + W919 admission ladder (fail-closed, Simulation E — new expensive
+   * jobs stop admitting BEFORE the provider is asked to run them):
+   * 1. the W919 provider-capacity check (READS ONLY, first on purpose: a
+   *    capacity refusal must not charge the caller's request quota) — the
+   *    per-user daily metered-compute quotas AND the global provider limits
+   *    (R2 storage, Upstash command budget); at a hard limit → 503 with the
+   *    REAL reason (limit id, measured usage vs threshold);
+   * 2. the caller's per-user render-request quota is consumed — exhausted
    *    → 429 with the W901 QuotaState (admission refused);
-   * 2. the job is admitted to the BOUNDED queue — at its hard depth bound
+   * 3. the job is admitted to the BOUNDED queue — at its hard depth bound
    *    → 503 (platform capacity; never silently dropped, never unbounded);
-   * 3. only then does `createRenderAsync` run. The admission slot is
+   * 4. only then does `createRenderAsync` run. The admission slot is
    *    released when the job poll observes a terminal state (or by the
-   *    queue's admission lease if the client stops polling).
+   *    queue's admission lease if the client stops polling), and the
+   *    terminal poll records the job's metered usage into the dispatching
+   *    user's daily counters (the W919 usage meter's real write seam).
    */
   async dispatchRender(input: {
     token: string;
@@ -746,7 +753,11 @@ export class CreateStudioService {
     const server = this.getServer();
     const account = await this.requireSessionAccess(input.token, input.sessionId);
 
-    // 1. The per-user render quota (fail-closed: an unreadable counter refuses too).
+    // 1. W919 provider capacity (reads before writes — a capacity refusal
+    //    must not charge the caller's render-request quota).
+    await server.guardrails.checkAdmission(account.userId);
+
+    // 2. The per-user render quota (fail-closed: an unreadable counter refuses too).
     const quotaAttempt = await server.transientState.quotas.consume(
       RENDER_REQUESTS_QUOTA,
       account.userId,
@@ -758,7 +769,7 @@ export class CreateStudioService {
       );
     }
 
-    // 2. The bounded queue admission (fail-closed at the hard depth bound).
+    // 3. The bounded queue admission (fail-closed at the hard depth bound).
     this.policySeq += 1;
     const admissionId = `adm-${this.nowMs().toString(36)}-${this.policySeq.toString(36)}`;
     const offered = await server.transientState.queue.offer({
@@ -826,6 +837,13 @@ export class CreateStudioService {
   async jobState(token: string, sessionId: string, jobId: string): Promise<StudioJobView> {
     await this.requireSessionAccess(token, sessionId);
     const job = await this.getServer().control.getComputeJob(sessionId, jobId);
+    // W919: the TERMINAL observation also records the job's metered usage
+    // into the dispatching user's daily counters (the usage meter's real
+    // write seam — idempotent per job, attributed from the recorded
+    // dispatch, never invented).
+    if (job.completion !== undefined) {
+      await this.noteJobUsage(jobId, job.completion.usage.costUnits);
+    }
     // W913: a TERMINAL observation releases the job's bounded-queue admission
     // slot (the render is no longer outstanding). Once-only per job; a client
     // that never polls is covered by the queue's admission lease instead.
@@ -908,6 +926,11 @@ export class CreateStudioService {
     const rows: StudioJobRow[] = [];
     for (const jobId of this.jobsBySession.get(sessionId) ?? []) {
       const job = await server.control.getComputeJob(sessionId, jobId);
+      // W919: the Jobs workspace's listing is a terminal-observation seam too
+      // — the metered usage is recorded once per job (idempotent).
+      if (job.completion !== undefined) {
+        await this.noteJobUsage(jobId, job.completion.usage.costUnits);
+      }
       let progressFraction: number | undefined;
       for (const event of job.events) {
         if (event.type === "progress" && event.fraction !== undefined) {
@@ -1024,5 +1047,26 @@ export class CreateStudioService {
       commentary: source.spec.commentary.map((window) => ({ ...window })),
       lexicon: { players: [...source.spec.lexicon.players], teams: [...source.spec.lexicon.teams] },
     };
+  }
+
+  /**
+   * Records one terminal job's metered usage into the dispatching user's
+   * daily counters (W919): attributed from the RECORDED dispatch (never
+   * invented), idempotent per job, and fail-open ONLY for the metering write
+   * (a lost write is retried on the next observation — an unreadable counter
+   * still refuses admission, so the fail-closed posture is intact).
+   */
+  private async noteJobUsage(
+    jobId: string,
+    costUnits: readonly { unitId: string; quantity: number }[],
+  ): Promise<void> {
+    const dispatchedBy = this.dispatchesByJob.get(jobId)?.dispatchedByUserId ?? null;
+    try {
+      await this.getServer().guardrails.noteJobUsage(dispatchedBy, jobId, costUnits);
+    } catch {
+      // The metering write failed: the job stays un-metered (retried on the
+      // next terminal observation); admission's fail-closed reads are
+      // unaffected (an unreadable counter refuses, never admits).
+    }
   }
 }

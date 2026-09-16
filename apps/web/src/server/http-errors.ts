@@ -15,6 +15,7 @@ import { AuthFlowError } from "./auth-service";
 import { CatalogQueryError } from "./catalog-service";
 import { IdentityApiError } from "@sporta/identity";
 import { QueueFullError, RateLimitedError } from "./platform/upstash/guards";
+import { ProviderCapacityLimitError } from "./platform/guardrails";
 
 /** The JSON error body every non-2xx API answer uses. */
 export interface ApiErrorBody {
@@ -64,6 +65,36 @@ export async function errorResponse(err: unknown): Promise<Response> {
           failureClass: err.failureClass,
           message: err.message,
           details: { depth: err.depth, maxDepth: err.maxDepth },
+        },
+      } satisfies ApiErrorBody,
+      { "retry-after": String(err.retryAfterSeconds) },
+    );
+  }
+  if (err instanceof ProviderCapacityLimitError) {
+    // W919: a provider free-tier limit (or per-user daily usage quota) is at
+    // its hard threshold — the refusal PRECEDES the provider's own failure,
+    // and carries the REAL reason (limit id, scope, measured usage vs the
+    // threshold). 503 + Retry-After, capacity not the caller's fault.
+    return jsonResponse(
+      err.status,
+      {
+        error: {
+          failureClass: err.failureClass,
+          message: err.message,
+          details: {
+            scope: err.scope,
+            reasonCode: err.reasonCode,
+            retryAfterSeconds: err.retryAfterSeconds,
+            limit: {
+              limitId: err.evaluation.limitId,
+              provider: err.evaluation.provider,
+              state: err.evaluation.state,
+              used: err.evaluation.used,
+              limit: err.evaluation.limit,
+              unit: err.evaluation.unit,
+              source: err.evaluation.source,
+            },
+          },
         },
       } satisfies ApiErrorBody,
       { "retry-after": String(err.retryAfterSeconds) },

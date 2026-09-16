@@ -81,6 +81,21 @@ export interface OperationsProviderCheck {
   detail: string;
 }
 
+/** One spend alarm in the health view (the W919 limit states). */
+export interface OperationsSpendAlarmView {
+  limitId: string;
+  provider: string;
+  state: "under" | "approaching" | "reached" | "exceeded" | "unmeasured";
+  used: number | null;
+  limit: number;
+  unit: string;
+  changedAtMs: number;
+  /** True when THIS observation changed the persisted (window-scoped) alarm. */
+  transitioned: boolean;
+  /** The state before this observation (null on first observation). */
+  previousState: string | null;
+}
+
 /** The health panel's snapshot (the honest platform state). */
 export interface OperationsHealthView {
   env: ReturnType<typeof platformEnv>;
@@ -91,6 +106,12 @@ export interface OperationsHealthView {
     artifacts: OperationsProviderCheck;
     transientState: OperationsProviderCheck;
   };
+  /**
+   * The W919 spend alarms (window-scoped, persisted): the current limit
+   * states with their transition stamps — a warning is `approaching`, the
+   * degraded state is `reached`/`exceeded`.
+   */
+  spendAlarms: OperationsSpendAlarmView[];
   compute: {
     configured: boolean;
     provider: string | null;
@@ -140,6 +161,22 @@ export interface OperationsProviderUsageView {
   usage: "measured" | "unknown";
   counters: { name: string; value: number }[];
   limits: { name: string; value: number | string }[];
+  /**
+   * The W919 ledger evaluations for this provider: measured usage vs the
+   * documented threshold (or the honest `unmeasured` state), with the
+   * checked-date source note and the approaching/reached state.
+   */
+  limitStates: {
+    limitId: string;
+    name: string;
+    used: number | null;
+    limit: number;
+    unit: string;
+    state: "under" | "approaching" | "reached" | "exceeded" | "unmeasured";
+    admissionEnforced: boolean;
+    meterNote: string;
+    source: string;
+  }[];
   note: string;
 }
 
@@ -272,6 +309,28 @@ export class OperationsService {
     } catch {
       depth = null;
     }
+    // W919: the spend alarms (the ledger evaluation observes the current
+    // window's alarm states — every limit, honest `unmeasured` included).
+    let spendAlarms: OperationsSpendAlarmView[] = [];
+    try {
+      spendAlarms = (await server.guardrails.evaluateLimits()).alarms.map((alarm) => ({
+        limitId: alarm.limitId,
+        provider: alarm.provider,
+        state: alarm.state,
+        used: alarm.used,
+        limit: alarm.limit,
+        unit:
+          server.guardrails.ledger.limits.find((limit) => limit.limitId === alarm.limitId)?.unit ??
+          "",
+        changedAtMs: alarm.changedAtMs,
+        transitioned: alarm.transitioned,
+        previousState: alarm.previousState,
+      }));
+    } catch {
+      // The alarm evaluation itself failed: an empty view would lie — the
+      // console says so instead (never fabricated alarm states).
+      spendAlarms = [];
+    }
     const states = [identity.state, artifacts.state, transientState.state];
     const overall: OperationsHealthView["overall"] = states.includes("error")
       ? "error"
@@ -283,6 +342,7 @@ export class OperationsService {
       deployMarker: deployMarker(),
       overall,
       providers: { identity, artifacts, transientState },
+      spendAlarms,
       compute: {
         configured: server.compute !== null,
         provider: server.compute?.provider ?? null,
@@ -341,11 +401,31 @@ export class OperationsService {
 
   /**
    * The provider panel: real usage counters where a seam exposes them, the
-   * documented free-tier limits as the W919 seam, honest unknowns elsewhere.
+   * W919 free-tier ledger evaluated against the measured usage (usage vs
+   * limit, approaching/reached states, checked-date source notes), honest
+   * `unmeasured` rows where no counter exists over our seams.
    */
   async providersSnapshot(token: string): Promise<OperationsProvidersView> {
     await this.requireOperator(token);
     const server = this.getServer();
+
+    // The W919 ledger evaluation (usage vs limit per provider; also observes
+    // the window-scoped alarm transitions — the health panel reads those).
+    const guardrail = await server.guardrails.evaluateLimits();
+    const limitStatesOf = (provider: OperationsProviderUsageView["provider"]) =>
+      guardrail.limits
+        .filter((limit) => limit.provider === provider)
+        .map((limit) => ({
+          limitId: limit.limitId,
+          name: limit.name,
+          used: limit.used,
+          limit: limit.limit,
+          unit: limit.unit,
+          state: limit.state,
+          admissionEnforced: limit.admissionEnforced,
+          meterNote: limit.meterNote,
+          source: limit.source,
+        }));
 
     // R2 — the W504 store's own never-silent counters, live.
     let r2Counters: { name: string; value: number }[] = [];
@@ -372,25 +452,29 @@ export class OperationsService {
     const r2Limits: { name: string; value: number | string }[] = [
       { name: "max-segments (store bound)", value: 1_000 },
       { name: "max-total-bytes (store bound)", value: 256 * 1024 * 1024 },
-      { name: "free-tier storage (documented)", value: "10 GB-month (W919 seam)" },
-      { name: "free-tier Class A ops (documented)", value: "1M/month (W919 seam)" },
-      { name: "free-tier Class B ops (documented)", value: "10M/month (W919 seam)" },
     ];
 
-    // Neon — no usage counter exists over the postgres seam: honest unknown.
+    // Neon — W919 measures the live database storage over the postgres seam
+    // when configured (pg_database_size); CU-hours stay honestly unmeasured.
+    const neonStorage = guardrail.limits.find((limit) => limit.limitId === "neon.storage-bytes");
+    const neonCounters: { name: string; value: number }[] =
+      neonStorage?.used !== undefined && neonStorage.used !== null
+        ? [{ name: "database-storage-bytes", value: neonStorage.used }]
+        : [];
     const neon: OperationsProviderUsageView = {
       provider: "neon",
-      usage: "unknown",
-      counters: [],
-      limits: [
-        { name: "free-tier storage (documented)", value: "0.5 GB (W919 seam)" },
-        { name: "free-tier compute hours (documented)", value: "190h/month (W919 seam)" },
-      ],
-      note: "the Neon seam exposes no usage counter (no pg statistics over our port) — provider-side meters are W919 scope",
+      usage: neonCounters.length > 0 ? "measured" : "unknown",
+      counters: neonCounters,
+      limits: [],
+      limitStates: limitStatesOf("neon"),
+      note:
+        neonCounters.length > 0
+          ? "database storage measured live (pg_database_size over the postgres seam); CU-hours are honestly unmeasured (no counter over our seam)"
+          : "the postgres seam is not configured — storage and CU-hours are honestly unmeasured",
     };
 
-    // Upstash — the queue depth is real; command/data usage needs INFO/SCAN
-    // the REST port does not expose: honest unknown.
+    // Upstash — the queue depth and the W919 port command counter are real;
+    // data size needs INFO/SCAN the REST port does not expose.
     let upstashCounters: { name: string; value: number }[] = [];
     let upstashNote = "transient state runs on the in-memory fallback (no Upstash configured).";
     let upstashUsage: "measured" | "unknown" = "unknown";
@@ -406,26 +490,41 @@ export class OperationsService {
           ];
           upstashUsage = "measured";
           upstashNote =
-            "queue depth measured live; data/command usage needs INFO/SCAN the port does not expose";
+            "queue depth measured live; data-size usage needs INFO/SCAN the port does not expose";
         } catch {
           upstashUsage = "unknown";
           upstashNote = "the Upstash REST client could not be reached";
         }
       }
     }
+    const commandsEvaluation = guardrail.limits.find(
+      (limit) => limit.limitId === "upstash.commands",
+    );
+    if (commandsEvaluation?.used !== undefined && commandsEvaluation.used !== null) {
+      upstashCounters = [
+        ...upstashCounters,
+        { name: "commands-this-month (port meter)", value: commandsEvaluation.used },
+      ];
+      // The port command counter is real over BOTH backings (it counts what
+      // this app issues through the port — the honest would-be Upstash volume
+      // on the in-memory fallback).
+      upstashUsage = "measured";
+      if (!upstashConfigured()) {
+        upstashNote =
+          "commands counted at the port (the in-memory fallback's would-be Upstash volume); data-size usage needs INFO/SCAN the port does not expose";
+      }
+    }
     const upstash: OperationsProviderUsageView = {
       provider: "upstash",
       usage: upstashUsage,
       counters: upstashCounters,
-      limits: [
-        { name: "free-tier data (documented)", value: "256 MB (W919 seam)" },
-        { name: "free-tier commands (documented)", value: "500K/month (W919 seam)" },
-      ],
+      limits: [],
+      limitStates: limitStatesOf("upstash"),
       note: upstashNote,
     };
 
     // Compute — the adapter's whole-plane accounting identities are real
-    // counters; the per-user render-requests quota definition rides along.
+    // counters, plus the W919 per-user daily metered totals (today, UTC).
     const adapter: ComputeAdapterPort | null = server.computeAdapter;
     let computeCounters: { name: string; value: number }[] = [];
     if (adapter !== null) {
@@ -441,6 +540,12 @@ export class OperationsService {
         { name: "refused-admissions (adapter)", value: stats.refusedAdmissions },
         { name: "duplicate-dispatches", value: stats.duplicates },
       ];
+      const dailyTotals = await server.guardrails.computeUsageTotals();
+      if (dailyTotals !== null) {
+        for (const total of dailyTotals) {
+          computeCounters.push({ name: `${total.unitId} (today, metered)`, value: total.quantity });
+        }
+      }
     }
     const compute: OperationsProviderUsageView = {
       provider: "compute",
@@ -452,10 +557,11 @@ export class OperationsService {
           value: RENDER_REQUESTS_QUOTA.limit,
         },
       ],
+      limitStates: limitStatesOf("compute"),
       note:
         adapter === null
           ? "no compute adapter is configured (COMPUTE_PROVIDER=none)"
-          : "the compute adapter's own accounting identities (never silent); the render-request quota is the W913 guard",
+          : "the compute adapter's own accounting identities (never silent) + today's metered usage; the per-user daily quotas are the W919 admission guard",
     };
 
     return {
@@ -465,6 +571,7 @@ export class OperationsService {
           usage: r2Usage,
           counters: r2Counters,
           limits: r2Limits,
+          limitStates: limitStatesOf("r2"),
           note: r2Note,
         },
         neon,
@@ -473,7 +580,7 @@ export class OperationsService {
       ],
       notes: [
         STORE_LIMITS_NOTE,
-        "documented free-tier limits are the W919 guardrail seam — they are NOT measured usage",
+        "the W919 ledger evaluates measured usage against the documented free-tier thresholds (checked 2026-09-15 — docs/deployment/free-tier-matrix.md); unmeasured limits are honest unknowns, never estimates",
       ],
     };
   }
@@ -688,6 +795,21 @@ export class OperationsService {
     renderId: string | null;
   }> {
     const job = await this.getServer().control.getComputeJob(sessionId, jobId);
+    // W919: the console's projection is a terminal-observation seam too — the
+    // job's metered usage is recorded into the dispatching user's daily
+    // counters (idempotent per job, attributed from the studio's recorded
+    // dispatch — the same write seam the client poll paths use).
+    if (job.completion !== undefined) {
+      const dispatchedBy =
+        this.getServer()
+          .studio.jobLedger()
+          .find((entry) => entry.jobId === jobId)?.dispatch?.dispatchedByUserId ?? null;
+      await this.getServer().guardrails.noteJobUsage(
+        dispatchedBy,
+        jobId,
+        job.completion.usage.costUnits,
+      );
+    }
     return {
       state: job.state,
       renderId: job.renderId ?? null,
