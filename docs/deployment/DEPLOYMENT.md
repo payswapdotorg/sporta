@@ -634,3 +634,104 @@ same shared grammar the browser's `EventSource` consumes.
   (JSON 200), and `GET /api/live/[sessionId]` will answer the typed **503
   `live-transport-not-configured`** while the env flag stays unset — the
   honest unavailable state, never a faked live badge.
+
+## 8) W921 — Durable control-plane adoption (Neon, LIVE)
+
+The control plane's user-created state — media sessions, renders, publication
+decisions, studio dispatch recipes — persists in **Neon PostgreSQL** and is
+correct **across serverless instances**. Identity (W911) and artifacts (W912)
+were already durable; W921 closes the last per-instance surface.
+
+### The defect (found by the W920 gate walkthrough, on this deployment)
+
+A studio-created session existed only on the Vercel instance that handled the
+create: other warm instances answered `404 unknown-session` for the same URL
+(the studio preview failed while the creating instance served 200), and the
+`sess-<seq>` allocation **collided across instances** (two different sessions
+both `sess-4`). This violated the frozen deployment-architecture
+("Neon PostgreSQL ← control-plane state").
+
+### The design (write-through at the real seams + read-reconstruction)
+
+- **Write-through, fail-loud**: the studio records every created session
+  (id/owner/source/rights/visibility/createdAt — from the control plane's own
+  answer, never the studio clock), every observed render (render id + result
+  document + stored segment ids + the dispatch recipe, replayed verbatim),
+  and every publication flip. A configured store that rejects a write-through
+  fails the request — never a silently undurable session.
+- **Read-reconstruction on instance miss**: a session-scoped read that misses
+  in-process loads the durable record and replays the session through the
+  REAL seams (`createSession` with the recorded id + RECORDED createdAt — the
+  additive control-api seam; the deterministic fixture story; the recorded
+  publication + attestation; the stored outputs re-materialized through the
+  real renderer + W504 encoder under the recorded ids). The content-addressed
+  segment id is ASSERTED equal to the recorded one — determinism proven per
+  reconstruction, never trusted. Reconstruction is once per session per
+  instance (in-flight deduped).
+- **Collision-safe ids**: user sessions are `sess-u-<hex32>` and renders
+  `r-u-<hex32>` (caller-supplied through the additive control-api seams; the
+  legacy `sess-<seq>`/`r-<seq>` namespace is unchanged for the dev seed).
+- **Bounded blast radius for unreplayable rows** (`ControlReconstructionError`:
+  unknown source key, renderer-rejected replay, determinism drift): listings
+  SKIP + COUNT the row (one bad row never 500s the whole catalog), direct
+  reads fail loud with the real reason, infrastructure (pg/store) failures
+  propagate everywhere.
+
+### The honest boundaries
+
+- The compute-ledger **job projections stay per-instance**: a reconstructed
+  session's studio job list is empty on the reconstructing instance (never
+  invented).
+- Rights-holder policy **edits** (overrides on top of the creation-time
+  record) stay per-instance; the durable record is the creation-time truth.
+- The dev-seed sessions (`sess-1/2/3`) are NOT recorded — deterministically
+  re-created per boot (the unrecorded legacy namespace).
+- A recorded policy that has **expired** cannot be recreated (fail-closed
+  admission): the session is skipped from listings (counted,
+  `reconstructionSkips`) and direct reads answer the honest rights-denied.
+
+### Migration
+
+Migration `0002` (tables `sporta_control_sessions`, `sporta_control_renders`)
+applies through the deployed runner:
+
+```bash
+cd apps/web
+DATABASE_URL="<the DSN>" bun run platform:migrate   # → "no pending migrations" when current
+```
+
+`/api/platform/health` answers the dedicated `controlPlane` row — `ok`
+requires the Neon connection AND migration 0002 applied (not just reachable).
+
+### Environment
+
+No new variables: `DATABASE_URL` (W911's, env id `sDD0xKHWe4sBlInJ`) selects
+the durable path; unbound → the in-memory composition with the honest
+`in-memory`/`unconfigured` health. Deploy marker for this deployment:
+`w921-durable-1` →
+`https://sporta-ay5snygc1-ekonplacidegmailcoms-projects.vercel.app`
+(the production alias `https://sporta-flame.vercel.app` serves it).
+
+### Evidence
+
+- **Hermetic (the decisive test)**: `apps/web/test/durable-control-plane.test.ts`
+  — two REAL compositions over ONE record store: create/render on A →
+  watch/preview/publish/catalog from B (and the reverse direction), same ids,
+  byte-identical outputs, honest empty job list on B; the expired-policy skip;
+  the unreplayable-row skip; the fail-loud write-through. 12/12 (83 expects).
+- **Real-Neon integration** (`apps/web/test/platform/neon-control-plane.test.ts`,
+  env-gated, the W911 pattern): migration 0002 applies; write-through persists
+  + reads verbatim from a brand-new client/store; renders idempotent;
+  visibility flips persist; unknown flips refused; **two REAL compositions
+  over the production Neon database** — 3/3 (32 expects, 2026-09-16, run
+  against `restless-dream-12397247`).
+- **Deployed public URL (2026-09-16, marker `w921-durable-1`)** — the exact
+  probe that caught the defect, run twice: fresh user registers/logs in;
+  creates `sess-u-b2995ce9dcada143d90ec5c838586855`; dispatches
+  `render-job-…-1` (succeeded, `r-u-229e0b39bb7a53e3afd796622b0a6cbb`);
+  then **12 parallel fresh-connection reads: watch=200 studio=200, 0/12
+  failures** (twice); output reads `200 32260B` / `200 32260B`
+  (byte-identical); publish 200 → anonymous catalog contains the session →
+  anonymous watch 200; health `controlPlane: neon/ok/postgres`. Second run
+  identical (`sess-u-149bc92d0522ed3565b5462992a592af`,
+  `r-u-1a78dc954d8aff89d50dc11c645d5165`).
