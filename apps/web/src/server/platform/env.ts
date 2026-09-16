@@ -119,6 +119,7 @@ export interface ProviderAvailability {
   identity: { provider: "neon" | "in-memory"; configured: boolean };
   artifacts: { provider: "r2" | "in-memory"; configured: boolean };
   transientState: { provider: "upstash" | "in-memory"; configured: boolean };
+  controlPlane: { provider: "neon" | "in-memory"; configured: boolean };
 }
 
 /** The availability snapshot for the health route (never includes values). */
@@ -129,6 +130,13 @@ export function providerAvailability(): ProviderAvailability {
     transientState: {
       provider: upstashConfigured() ? "upstash" : "in-memory",
       configured: upstashConfigured(),
+    },
+    // W921: the durable control-plane record store rides the SAME Neon gate
+    // as identity (migration 0002); unconfigured → the per-instance
+    // in-memory control state, honestly reported.
+    controlPlane: {
+      provider: neonConfigured() ? "neon" : "in-memory",
+      configured: neonConfigured(),
     },
   };
 }

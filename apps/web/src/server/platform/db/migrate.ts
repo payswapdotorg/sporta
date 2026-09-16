@@ -9,9 +9,13 @@
  */
 import type { PostgresSql } from "./pg";
 import { MIGRATION_0001_IDENTITY, type PlatformMigration } from "./migrations/0001-identity";
+import { MIGRATION_0002_CONTROL_PLANE } from "./migrations/0002-control-plane";
 
 /** Every migration, in ascending version order (pinned by test). */
-export const PLATFORM_MIGRATIONS: readonly PlatformMigration[] = [MIGRATION_0001_IDENTITY]
+export const PLATFORM_MIGRATIONS: readonly PlatformMigration[] = [
+  MIGRATION_0001_IDENTITY,
+  MIGRATION_0002_CONTROL_PLANE,
+]
   .slice()
   .sort((a, b) => a.version - b.version);
 

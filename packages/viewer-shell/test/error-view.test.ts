@@ -24,6 +24,9 @@ const CONTROL_CLASSES = [
   "unknown-session",
   "unknown-render",
   "unknown-segment",
+  // W914 async-compute classes (additive — 503/404 semantics).
+  "compute-unavailable",
+  "unknown-compute-job",
   "unknown-route",
   "method-not-allowed",
 ] as const;
@@ -57,6 +60,13 @@ describe("failure class table — every class is labeled and retry-classified", 
     expect(isViewerFailureClass("rights-denied")).toBe(true);
     expect(isViewerFailureClass("nonsense")).toBe(false);
     expect(isViewerFailureClass(42)).toBe(false);
+  });
+
+  test("the W914 async-compute classes carry honest 503/404-semantics labels", () => {
+    expect(FAILURE_CLASS_LABELS["compute-unavailable"]).toBe("Service unavailable");
+    expect(FAILURE_CLASS_LABELS["unknown-compute-job"]).toBe("Unknown compute job");
+    expect(RETRYABLE_FAILURE_CLASSES.has("compute-unavailable")).toBe(false);
+    expect(RETRYABLE_FAILURE_CLASSES.has("unknown-compute-job")).toBe(false);
   });
 });
 

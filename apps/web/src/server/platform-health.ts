@@ -54,6 +54,25 @@ async function checkR2(): Promise<ProviderCheck> {
   }
 }
 
+/**
+ * W921: the durable control-plane store's live check — proves not just the
+ * Neon connection but that migration 0002 (the control-plane tables) is
+ * applied, which is what "durable sessions" actually requires.
+ */
+async function checkControlPlane(): Promise<ProviderCheck> {
+  const sql = neonClient();
+  if (sql === null) return { state: "unconfigured" };
+  try {
+    const rows = await sql`SELECT version FROM sporta_schema_migrations WHERE version = 2`;
+    if (rows.length === 0) {
+      return { state: "error", detail: "migration 0002 not applied" };
+    }
+    return { state: "ok", detail: "postgres" };
+  } catch {
+    return { state: "error", detail: "postgres" };
+  }
+}
+
 async function checkUpstash(): Promise<ProviderCheck> {
   const state = getHostedTransientState();
   if (state.provider === "in-memory") return { state: "unconfigured", detail: "in-memory" };
@@ -100,10 +119,11 @@ export async function queueObservation(): Promise<{
 
 /** The full honest platform snapshot (the /api/platform/health document). */
 export async function platformSnapshot() {
-  const [neon, r2, upstash, renderQueue] = await Promise.all([
+  const [neon, r2, upstash, controlPlane, renderQueue] = await Promise.all([
     checkNeon(),
     checkR2(),
     checkUpstash(),
+    checkControlPlane(),
     queueObservation(),
   ]);
   return {
@@ -113,6 +133,7 @@ export async function platformSnapshot() {
       identity: { ...providerAvailability().identity, check: neon },
       artifacts: { ...providerAvailability().artifacts, check: r2 },
       transientState: { ...providerAvailability().transientState, check: upstash },
+      controlPlane: { ...providerAvailability().controlPlane, check: controlPlane },
     },
     renderQueue,
     usageGuardrails: {

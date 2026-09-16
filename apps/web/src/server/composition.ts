@@ -58,6 +58,8 @@ import type {
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
 import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env";
+import { neonClient } from "./platform/db/pg";
+import { PgControlPlaneRecordStore } from "./platform/control/pg-records";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
@@ -81,6 +83,9 @@ import {
 } from "./platform/guardrails";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
+import { createDurableControlPlane } from "./durable-control-plane";
+import type { DurableControlPlane } from "./durable-control-plane";
+import type { ControlPlaneRecordStore } from "./platform/control/records";
 import { RightsCenterService } from "./rights-center-service";
 import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
 import { createRightsGovernedControl } from "./rights-governed-control";
@@ -137,6 +142,16 @@ export interface SportaServerOptions {
   transient?: { redis: RedisLike; provider: "upstash" | "in-memory" };
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
+  /**
+   * The durable control-plane record store (W921): when injected, the
+   * composition's control plane is fronted by the durable layer —
+   * user-created sessions are written through (studio create / render poll /
+   * publication flips) and reconstructed on instance miss through the real
+   * seams. Default: absent — today's in-memory behavior, byte-identical.
+   * The production singleton injects the Neon PostgreSQL adapter when
+   * `DATABASE_URL` is configured (the W911 gate).
+   */
+  controlRecords?: ControlPlaneRecordStore;
 }
 
 /** The composed in-process server every route handler consumes. */
@@ -145,6 +160,15 @@ export interface SportaServer {
   auth: AuthService;
   /** The transport-free control plane (sessions, renders, playback gate). */
   control: ControlApp;
+  /**
+   * The durable control plane (W921): the write-through / reconstruct layer
+   * over `control`, or `null` when no record store is configured (the
+   * honest in-memory state the health route reports). Route layers that
+   * gate on publication state BEFORE reading it (the watch gate) ensure
+   * liveness through this seam so a cold instance never mistakes a durable
+   * session's un-seeded in-process publication store for "public".
+   */
+  durable: DurableControlPlane | null;
   /** The renderer registry backing `control` (test-card + anime prototype). */
   registry: RendererRegistry;
   /** The W504 render-output store backing `control`'s playback routes. */
@@ -248,6 +272,12 @@ export interface SportaServer {
  * Creates the composed server. The dev seed (when enabled) starts
  * asynchronously; await `server.ready` before serving catalog/watch traffic.
  */
+
+/** The record store's provider name (structural — wrappers inherit nothing). */
+function providerOfRecords(store: ControlPlaneRecordStore): "neon" | "in-memory" {
+  return (store as { providerName?: unknown }).providerName === "neon" ? "neon" : "in-memory";
+}
+
 export function createSportaServer(options: SportaServerOptions = {}): SportaServer {
   const nowMs = options.nowMs ?? Date.now;
   const entropy = options.entropy ?? defaultEntropySource;
@@ -341,9 +371,43 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     the raw app is never handed out.
   const rightsPolicies = new EffectivePolicyStore();
   const rightsAudit = new PolicyAuditLog();
-  const control = createRightsGovernedControl(rawControl, rightsPolicies, nowMs);
+  let control: ControlApp = createRightsGovernedControl(rawControl, rightsPolicies, nowMs);
 
-  // 6. The identity control gate (owner/operator reads, deny-before-existence).
+  // 7 (hoisted from the studio block — W921): the publication store and the
+  //     rights-attestation index are the durable layer's reconstruction
+  //     targets (a reconstructed session re-seeds its recorded visibility
+  //     and attestation into them), so they exist before it does.
+  const publication = new PublicationStore();
+  const attestations = new PolicyAttestationIndex();
+  const artifacts: R2RenderOutputStore | null = options.artifacts ?? null;
+
+  // 5c. The durable control plane (W921): when a record store is configured,
+  //     the governed control app is fronted by the durable layer —
+  //     session/render write-through at the real seams, reconstruction on
+  //     instance miss through the real seams, and the render-id merge.
+  //     Without a store, `durable` is null and `control` stays the governed
+  //     app — today's in-memory behavior, byte-identical.
+  const durable: DurableControlPlane | null =
+    options.controlRecords !== undefined && options.controlRecords !== null
+      ? createDurableControlPlane({
+          governed: control,
+          records: options.controlRecords,
+          registry,
+          engines,
+          storyIndex,
+          publication,
+          attestations,
+          pipeline,
+          artifacts,
+          provider: providerOfRecords(options.controlRecords),
+          nowMs,
+        })
+      : null;
+  if (durable !== null) control = durable.control;
+
+  // 6. The identity control gate (owner/operator reads, deny-before-existence)
+  //    — over the DECORATED control plane (the gate's mediated reads then
+  //    reconstruct and merge exactly like every other reader).
   const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
   const gate = createIdentityControlGate({ accounts, sessions: auth.sessions, control, ownership });
 
@@ -418,17 +482,13 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     },
   });
 
-  // 6b. The hosted artifact store (W912): the R2-backed render-output store
-  //     when configured. The dev seed MIRRORS every stored output into it
+  // 7. The Create Studio (W906) + the content model (W916: the visibility
+  //    store + the rights-attestation index — constructed above, hoisted
+  //    for the durable layer). The hosted artifact store (W912) is likewise
+  //    bound above: the dev seed MIRRORS every stored output into it
   //     (fail-closed — a configured R2 that rejects the mirror fails the
   //     seed loudly), and the watch output route then serves bytes fetched
   //     back from R2 through a short-lived presigned URL.
-  const artifacts = options.artifacts ?? null;
-
-  // 7. The Create Studio (W906) + the content model (W916: the visibility
-  //    store + the rights-attestation index).
-  const publication = new PublicationStore();
-  const attestations = new PolicyAttestationIndex();
   // W918: the operations console — constructed before the studio so the
   // studio's dispatch seam can count admission refusals into it (the only
   // app path that offers jobs to the bounded queue).
@@ -449,6 +509,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const server: SportaServer = {
     auth,
     control,
+    durable,
     registry,
     pipeline,
     gate,
@@ -530,10 +591,14 @@ export function getSportaServer(): Promise<SportaServer> {
  *   instead of crashing on the missing `Bun` global). `/api/platform/health`
  *   reports this state honestly as `in-memory`.
  *
- * The control plane's session/render REGISTRIES stay in-process in BOTH modes
- * (W913 scope); the render-output BYTES mirror to R2 when configured (W912:
- * `R2_*` bindings present — the seeded outputs persist in the private bucket
- * and playback reads them back through short-lived presigned delivery).
+ * The control plane's session/render REGISTRIES are in-process on the
+ * unconfigured path; with `DATABASE_URL` they are DURABLE (W921) — user
+ * sessions/renders/publication write through to Neon and reconstruct on
+ * instance miss, while the compute-job LEDGER stays per-instance (the
+ * documented W921 boundary). The render-output BYTES mirror to R2 when
+ * configured (W912: `R2_*` bindings present — the outputs persist in the
+ * private bucket and playback reads them back through short-lived presigned
+ * delivery).
  */
 async function buildSingleton(): Promise<SportaServer> {
   const seed = process.env.SPORTA_DISABLE_DEV_SEED !== "1";
@@ -563,6 +628,10 @@ async function buildSingleton(): Promise<SportaServer> {
   }
   await identityReady();
   const hosted = getHostedIdentity();
+  // W921: the durable control-plane records ride the SAME gate as identity
+  // (DATABASE_URL configured ⇒ Neon). `identityReady()` has ensured BOTH
+  // migrations (0001 identity + 0002 control-plane) before any store use.
+  const controlRecords = new PgControlPlaneRecordStore(neonClient()!, Date.now);
   return createSportaServer({
     nowMs: Date.now,
     accounts: hosted.accounts,
@@ -572,6 +641,7 @@ async function buildSingleton(): Promise<SportaServer> {
     ...(artifacts !== null ? { artifacts } : {}),
     transient,
     seed,
+    controlRecords,
     ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
       ? { computeAdapter: httpCompute.adapter }
       : {}),

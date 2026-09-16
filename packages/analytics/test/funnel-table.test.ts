@@ -217,7 +217,8 @@ describe("the boundary table", () => {
 describe("the actionability tables", () => {
   test("the failure-class vocabulary is EXACTLY the viewer model's, in order (verbatim, never re-mapped)", () => {
     expect(FAILURE_CLASSES).toEqual(VIEWER_FAILURE_CLASSES);
-    expect(FAILURE_CLASSES).toHaveLength(12);
+    // 12 through W903 + the two W914 async-compute classes (additive).
+    expect(FAILURE_CLASSES).toHaveLength(14);
   });
 
   test("OWNER_NOTES covers every failure class exactly, with non-empty owner pointers", () => {

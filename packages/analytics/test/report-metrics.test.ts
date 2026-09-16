@@ -287,9 +287,9 @@ describe("every terminal failure class — the verbatim histogram and outcome ro
     }
   });
 
-  test("the session-engaged→renderer-selection boundary attributes all 12 by verbatim class", () => {
+  test("the session-engaged→renderer-selection boundary attributes all 14 by verbatim class", () => {
     const row = boundaryRow(report, "session-engaged→renderer-selection");
-    expect(row.dropOffs).toBe(12);
+    expect(row.dropOffs).toBe(14);
     expect(row.unit).toBe("sessions");
     expect(row.scope).toBe("session");
     const errorRows = row.attribution.filter((entry) => entry.kind === "error");
@@ -309,10 +309,10 @@ describe("every terminal failure class — the verbatim histogram and outcome ro
     for (const entry of namedRows) expect(entry.count).toBe(0);
   });
 
-  test("accounting balances: 36 events in (12×3), all classified, 12 sessions", () => {
-    expect(report.accounting.eventsIn).toBe(36);
-    expect(report.accounting.classified).toBe(36);
-    expect(report.accounting.sessionsObserved).toBe(12);
+  test("accounting balances: 42 events in (14×3), all classified, 14 sessions", () => {
+    expect(report.accounting.eventsIn).toBe(42);
+    expect(report.accounting.classified).toBe(42);
+    expect(report.accounting.sessionsObserved).toBe(14);
     expect(report.accounting.partialSessions).toBe(0);
   });
 });

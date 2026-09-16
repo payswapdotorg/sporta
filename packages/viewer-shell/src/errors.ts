@@ -29,6 +29,8 @@
  * `validation`, `resource-limit`, `internal`, `unknown-session`,
  * `unknown-render`, `unknown-segment` (W504 playback 404 family) come from
  * the control plane's error family (W701 `ControlFailureClass`);
+ * `compute-unavailable`/`unknown-compute-job` are its W914 async-compute
+ * classes (503 Service Unavailable / 404 semantics);
  * `unknown-route`/`method-not-allowed` from its transport; `network` and
  * `unsupported-output` are viewer-side.
  */
@@ -41,6 +43,8 @@ export type ViewerFailureClass =
   | "unknown-session"
   | "unknown-render"
   | "unknown-segment"
+  | "compute-unavailable"
+  | "unknown-compute-job"
   | "unknown-route"
   | "method-not-allowed"
   | "network"
@@ -56,6 +60,8 @@ export const VIEWER_FAILURE_CLASSES: readonly ViewerFailureClass[] = [
   "unknown-session",
   "unknown-render",
   "unknown-segment",
+  "compute-unavailable",
+  "unknown-compute-job",
   "unknown-route",
   "method-not-allowed",
   "network",
@@ -80,6 +86,10 @@ export const FAILURE_CLASS_LABELS: Readonly<Record<ViewerFailureClass, string>> 
   "unknown-session": "Unknown session",
   "unknown-render": "Unknown render",
   "unknown-segment": "Unknown output segment",
+  // W914 async-compute classes (additive): 503/404 semantics per the
+  // control plane's own CONTROL_HTTP_STATUS mapping.
+  "compute-unavailable": "Service unavailable",
+  "unknown-compute-job": "Unknown compute job",
   "unknown-route": "Unknown route",
   "method-not-allowed": "Method not allowed",
   network: "Connection failed",
@@ -94,7 +104,11 @@ export const FAILURE_CLASS_LABELS: Readonly<Record<ViewerFailureClass, string>> 
  * - `resource-limit` — retryable: limits are transient states;
  * - everything else — NOT retryable: rights/validation/media/unknown classes
  *   require a caller action (change policy, change input, refresh the list)
- *   rather than repeating the same call.
+ *   rather than repeating the same call. This includes the W914
+ *   async-compute classes: `compute-unavailable` answers 503 but means the
+ *   control plane has NO compute adapter configured (a configuration state,
+ *   not a transient fault — repeating the same call cannot fix it), and
+ *   `unknown-compute-job` is the 404 family (refresh, not repeat).
  */
 export const RETRYABLE_FAILURE_CLASSES: ReadonlySet<ViewerFailureClass> = new Set([
   "network",

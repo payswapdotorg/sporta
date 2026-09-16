@@ -150,6 +150,12 @@ export const REMEDIATION_HINTS: Readonly<Record<ViewerFailureClass, string>> = {
     "The render no longer exists. Refresh the session detail and select a render that exists.",
   "unknown-segment":
     "The stored output segment no longer exists. Refresh the session detail and reload the render.",
+  // W914 async-compute classes (additive, mirrors the control plane's own
+  // 503/404 semantics — see errors.ts).
+  "compute-unavailable":
+    "The server's compute backend is not available. The operator must configure it; retrying the same call will not fix it.",
+  "unknown-compute-job":
+    "The compute job no longer exists. Refresh the job state and act on a job that exists.",
   "unknown-route":
     "The viewer requested a route the server does not serve. This is a client/server version mismatch — reload the viewer.",
   "method-not-allowed":

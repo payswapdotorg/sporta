@@ -36,12 +36,26 @@ import type { Account } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
 import type { SportaServer } from "./composition";
 import type { SeedStoryMeta } from "./dev-seed";
+import type { ControlRenderRecipe } from "./platform/control/records";
 import { RENDER_REQUESTS_QUOTA } from "./platform/upstash/hosted";
 import type { PlatformQuotaState } from "./platform/upstash/quotas";
 import { QueueFullError, RateLimitedError, retryAfterSeconds } from "./platform/upstash/guards";
 import { DERBY_STORY, FRIENDLY_STORY, TRAINING_STORY, runFixtureStory } from "./dev-story";
 import type { FixtureStorySpec, StoryRun } from "./dev-story";
 import type { SessionVisibility } from "./publication";
+
+/**
+ * A collision-safe crypto-random id (W921): 16 bytes of REAL platform
+ * entropy, hex-encoded. User-created sessions (`sess-u-…`) and their
+ * renders (`r-u-…`) carry these ids so two serverless instances can never
+ * allocate the same id for different state (the W920 gate's defect class).
+ */
+function randomHexId(prefix: string): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${prefix}-${hex}`;
+}
 
 // ---------------------------------------------------------------------------
 // Views (the JSON shapes the /api/create/* routes serve)
@@ -311,6 +325,18 @@ const SOURCES: readonly { spec: FixtureStorySpec; label: string; description: st
 /** The sentinel for "no mediated session has this id" (uniform denial). */
 const NOT_OWNED = "\u0000not-a-user";
 
+/**
+ * Resolves a fixture source key to its REAL story spec (the checked-in
+ * fixture inputs). W921: exported for the durable control plane's
+ * reconstruction path (a recorded session's source key must resolve to the
+ * same deterministic story the creating instance ran) — returns `null` for
+ * an unknown key (never a guessed story).
+ */
+export function studioSourceSpec(sourceKey: string): FixtureStorySpec | null {
+  const entry = SOURCES.find((source) => source.spec.key === sourceKey);
+  return entry === undefined ? null : entry.spec;
+}
+
 /** Options for {@link CreateStudioService}. */
 export interface CreateStudioServiceOptions {
   /** The composed server (resolved lazily — the service outlives the literal). */
@@ -356,6 +382,12 @@ export class CreateStudioService {
   private readonly admissionByJob = new Map<string, string>();
   /** Job ids whose admission was already released (idempotence guard). */
   private readonly releasedJobs = new Set<string>();
+  /**
+   * Dispatched job id → its DISPATCH RECIPE (W921: renderer version/style/
+   * profile — the fields the durable record must carry verbatim so another
+   * instance's reconstruction replays the SAME render).
+   */
+  private readonly recipesByJob = new Map<string, ControlRenderRecipe>();
   /**
    * Dispatched job id → its recorded dispatch parameters + actor (W918: the
    * operations console's retry re-dispatches from this REAL record — the
@@ -574,10 +606,18 @@ export class CreateStudioService {
   // -----------------------------------------------------------------------
 
   /**
-   * Creates a studio session: the identity gate (re-attesting the declared
-   * policy to the verified account), then the REAL fixture chain for the
-   * selected source, registered before any render — exactly the dev seed's
-   * own wiring.
+   * Creates a studio session: the W902 identity-gate attestation sequence,
+   * performed inline against the DECORATED control plane so the session is
+   * created under a COLLISION-SAFE caller-supplied id (W921 — the additive
+   * control-api seam). The gate's own structural interface
+   * (`GatedControlApp`) does not carry a caller session id and
+   * `@sporta/identity` is frozen for W921, so this method replicates the
+   * gate's EXACT sequence with the same denial ordering: resolve the token
+   * (401-shaped), require the `media-session.create` grant (403-shaped),
+   * re-attest the declared policy (`assertedBy` = the VERIFIED account id),
+   * create, then record ownership — every guarantee preserved, no invented
+   * state. When a durable record store is configured the created session is
+   * WRITTEN THROUGH to it (fail-loud).
    */
   async createSession(input: {
     token: string;
@@ -596,24 +636,37 @@ export class CreateStudioService {
       `policy-create-studio-${source.spec.key}-${this.nowMs()}-${this.policySeq}`,
     );
 
-    // The REAL identity gate: `media-session.create` grant required, the
-    // policy re-attested (`assertedBy` = the verified account), ownership
-    // recorded, the control plane's own fail-closed admission applied.
-    const created = (await server.gate.createMediaSession(input.token, {
-      authorizationPolicy: policy,
-      sourceLabel: input.label ?? source.label,
-    })) as { session: { sessionId: string }; rightsCapabilities: RightsCapabilities };
-    const sessionId = created.session.sessionId;
+    const label = input.label ?? source.label;
 
-    // W916: the gate attested the policy as the VERIFIED calling account —
-    // record that attestation (the rights-holder policy scope's data).
-    const attester = await server.auth.resolve(input.token);
-    if (attester !== null) {
-      this.attestations.record(sessionId, attester.account.userId);
+    // 1. The gate's exact attestation sequence, inline (see the method docs):
+    //    token → account → `media-session.create` grant → re-attested policy.
+    const account = await server.gate.requireAccount(input.token);
+    const decision = authorize(account, "media-session.create");
+    if (!decision.allowed) {
+      throw new IdentityPermissionDeniedError(
+        "media session creation requires a creator, rights-holder, or operator grant",
+        { action: "media-session.create" },
+      );
     }
+    const attested: AuthorizationPolicy = { ...policy, assertedBy: account.userId };
 
-    // The REAL M1→M3 chain for the selected source, registered before any
-    // render (the control plane's world-model factory picks it up).
+    // 2. The REAL control-plane creation under the collision-safe id (W921:
+    //    `sess-u-<32 hex>` — crypto-random, so two instances can never
+    //    allocate the same id for different sessions).
+    const sessionId = randomHexId("sess-u");
+    const created = await server.control.createSession({
+      authorizationPolicy: attested,
+      sourceLabel: label,
+      sessionId,
+    });
+
+    // 3. Ownership + the W916 attestation (the gate's own records — the
+    //    attested policy is the verified account's, re-recorded here).
+    await server.ownership.record(sessionId, account.userId);
+    this.attestations.record(sessionId, account.userId);
+
+    // 4. The REAL M1→M3 chain for the selected source, registered before any
+    //    render (the control plane's world-model factory picks it up).
     const run: StoryRun = runFixtureStory(sessionId, source.spec, this.nowMs);
     this.engines.set(sessionId, run.engine);
     this.storyIndex.set(sessionId, {
@@ -624,8 +677,27 @@ export class CreateStudioService {
       waveCount: run.waveCount,
     });
 
-    // Fail-closed publication: studio sessions start private.
+    // 5. Fail-closed publication: studio sessions start private.
     this.publication.set(sessionId, "private");
+
+    // 6. W921 write-through (fail-loud: a configured store that rejects the
+    //    record fails the request — never a silently undurable session). The
+    //    record's createdAt is the CONTROL PLANE's own create answer — never
+    //    this studio's clock.
+    if (server.durable !== null) {
+      await server.durable.noteSessionCreated({
+        sessionId,
+        ownerUserId: account.userId,
+        sourceKey: source.spec.key,
+        label,
+        rightsDeclaration: attested,
+        visibility: { kind: "private", roles: [] },
+        status: created.session.status,
+        publishedAtMs: null,
+        createdAtIso: created.session.createdAtIso,
+        updatedAtMs: this.nowMs(),
+      });
+    }
 
     const view = this.sourceView(source);
     return {
@@ -790,7 +862,24 @@ export class CreateStudioService {
       throw new QueueFullError(offered.depth, offered.maxDepth, 60);
     }
 
-    // 3. The real dispatch (only past both guards).
+    // 3. The real dispatch (only past both guards). W921: when a durable
+    //    record store is configured, the render carries a COLLISION-SAFE
+    //    caller-supplied render id (`r-u-<32 hex>` — the additive
+    //    control-api seam) so renders of the same session dispatched from
+    //    different serverless instances can never collide on `r-<seq>` (the
+    //    exact W920 defect class, for renders); without the store the
+    //    historical `r-<seq>` allocation is unchanged. The dispatch RECIPE is
+    //    remembered per job — it is what the render's durable record must
+    //    carry verbatim so another instance's reconstruction replays the SAME
+    //    render.
+    const renderId = server.durable !== null ? randomHexId("r-u") : undefined;
+    const recipe: ControlRenderRecipe = {
+      ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
+      ...(input.styleId !== undefined
+        ? { styleConfig: { styleId: input.styleId, config: {} } }
+        : {}),
+      ...(input.outputProfile !== undefined ? { outputProfile: input.outputProfile } : {}),
+    };
     const dispatch = await server.control.createRenderAsync(input.sessionId, {
       rendererId: input.rendererId,
       ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
@@ -811,11 +900,13 @@ export class CreateStudioService {
             },
           }
         : {}),
+      ...(renderId !== undefined ? { renderId } : {}),
     });
     const jobs = this.jobsBySession.get(input.sessionId) ?? [];
     if (!jobs.includes(dispatch.jobId)) jobs.push(dispatch.jobId);
     this.jobsBySession.set(input.sessionId, jobs);
     this.admissionByJob.set(dispatch.jobId, admissionId);
+    this.recipesByJob.set(dispatch.jobId, recipe);
     this.dispatchesByJob.set(dispatch.jobId, {
       rendererId: input.rendererId,
       ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
@@ -836,7 +927,20 @@ export class CreateStudioService {
   /** Polls one job (the control plane's own projection, mapped for the UI). */
   async jobState(token: string, sessionId: string, jobId: string): Promise<StudioJobView> {
     await this.requireSessionAccess(token, sessionId);
-    const job = await this.getServer().control.getComputeJob(sessionId, jobId);
+    const server = this.getServer();
+    const job = await server.control.getComputeJob(sessionId, jobId);
+    // W921: the poll that observes the job's ingested RENDER is the render's
+    // durable write-through point (with the recorded dispatch recipe —
+    // fail-loud, idempotent per render id). The poll runs on the instance
+    // that owns the compute-job ledger — exactly where the dispatch's
+    // recipe memory lives.
+    if (job.renderId !== undefined && server.durable !== null) {
+      await server.durable.noteRenderObserved(
+        sessionId,
+        job.renderId,
+        this.recipesByJob.get(jobId),
+      );
+    }
     // W919: the TERMINAL observation also records the job's metered usage
     // into the dispatching user's daily counters (the usage meter's real
     // write seam — idempotent per job, attributed from the recorded
@@ -926,6 +1030,15 @@ export class CreateStudioService {
     const rows: StudioJobRow[] = [];
     for (const jobId of this.jobsBySession.get(sessionId) ?? []) {
       const job = await server.control.getComputeJob(sessionId, jobId);
+      // W921: this listing is a render write-through point too (the Jobs
+      // workspace surfaces observe the same ingested renders).
+      if (job.renderId !== undefined && server.durable !== null) {
+        await server.durable.noteRenderObserved(
+          sessionId,
+          job.renderId,
+          this.recipesByJob.get(jobId),
+        );
+      }
       // W919: the Jobs workspace's listing is a terminal-observation seam too
       // — the metered usage is recorded once per job (idempotent).
       if (job.completion !== undefined) {
@@ -973,6 +1086,15 @@ export class CreateStudioService {
     // The control plane must know the session (uniform 404 for the rest).
     await this.getServer().control.getSession(input.sessionId);
     this.publication.set(input.sessionId, input.visibility);
+    // W921 write-through (fail-loud): the flip is durable so every instance
+    // reconstructs the SAME publication state.
+    const server = this.getServer();
+    if (server.durable !== null) {
+      await server.durable.noteVisibility(input.sessionId, {
+        kind: input.visibility,
+        roles: [],
+      });
+    }
     return { sessionId: input.sessionId, visibility: input.visibility };
   }
 

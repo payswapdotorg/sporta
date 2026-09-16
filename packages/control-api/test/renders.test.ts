@@ -318,3 +318,94 @@ describe("GET /v1/sessions/:id/renders — list (same playback gate)", () => {
     expect(response.body.error.failureClass).toBe("rights-denied");
   });
 });
+
+describe("POST /v1/sessions/:id/renders — W921 flight-8 caller-supplied renderId (additive seam)", () => {
+  test("caller-supplied renderId is honored EXACTLY (never renumbered)", async () => {
+    const sessionId = await createSession(harness.baseUrl, fullAllowPolicy);
+    const response = await callJson<RenderResponse>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard", renderId: "r-u-6f0b2c1d4e5a9733" }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.body.renderId).toBe("r-u-6f0b2c1d4e5a9733");
+    // The id is addressable immediately (get + list by the caller's id).
+    const fetched = await callJson<RenderResponse>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders/r-u-6f0b2c1d4e5a9733`,
+    );
+    expect(fetched.status).toBe(200);
+    expect(fetched.body.renderId).toBe("r-u-6f0b2c1d4e5a9733");
+    const listed = await callJson<{ renders: RenderSummary[] }>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+    );
+    expect(listed.body.renders.map((render) => render.renderId)).toEqual(["r-u-6f0b2c1d4e5a9733"]);
+  });
+
+  test("absent renderId keeps the historical r-<seq> allocation (byte-identical)", async () => {
+    const sessionId = await createSession(harness.baseUrl, fullAllowPolicy);
+    const first = await callJson<RenderResponse>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard" }),
+    );
+    const second = await callJson<RenderResponse>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard" }),
+    );
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(first.body.renderId).toMatch(/^r-\d+$/);
+    expect(second.body.renderId).toMatch(/^r-\d+$/);
+    expect(first.body.renderId).not.toBe(second.body.renderId);
+  });
+
+  test.each([
+    ["empty", ""],
+    ["uppercase", "r-U-1"],
+    ["underscore", "r_u_1"],
+    ["slash", "r/u/1"],
+    ["space", "r u 1"],
+    ["too long", `r-u-${"a".repeat(129)}`],
+  ])("invalid renderId (%s) → 400 validation, nothing stored", async (_label, bad) => {
+    const sessionId = await createSession(harness.baseUrl, fullAllowPolicy);
+    const response = await callJson<ErrorBody>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard", renderId: bad }),
+    );
+    expect(response.status).toBe(400);
+    expect(response.body.error.failureClass).toBe("validation");
+    expect(response.body.error.message).toContain("renderId");
+    const listed = await callJson<{ renders: RenderSummary[] }>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+    );
+    expect(listed.body.renders).toHaveLength(0);
+  });
+
+  test("duplicate renderId → typed 400 duplicate-render-id (never renumbered)", async () => {
+    const sessionId = await createSession(harness.baseUrl, fullAllowPolicy);
+    const first = await callJson<RenderResponse>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard", renderId: "r-u-taken" }),
+    );
+    expect(first.status).toBe(200);
+    const second = await callJson<ErrorBody>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+      postJson({ rendererId: "sporta.testcard", renderId: "r-u-taken" }),
+    );
+    expect(second.status).toBe(400);
+    expect(second.body.error.failureClass).toBe("validation");
+    expect(second.body.error.message).toContain("already in use");
+    const listed = await callJson<{ renders: RenderSummary[] }>(
+      harness.baseUrl,
+      `/v1/sessions/${sessionId}/renders`,
+    );
+    expect(listed.body.renders.map((render) => render.renderId)).toEqual(["r-u-taken"]);
+  });
+});

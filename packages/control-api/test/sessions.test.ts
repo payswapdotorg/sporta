@@ -243,3 +243,114 @@ describe("POST /v1/sessions/:id/terminate — lifecycle", () => {
     expect(response.body.error.failureClass).toBe("unknown-session");
   });
 });
+
+describe("POST /v1/sessions — W921 caller-supplied sessionId/createdAtIso (additive seam)", () => {
+  test("caller-supplied sessionId is honored EXACTLY (never renumbered)", async () => {
+    const response = await callJson<SessionResponse>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({
+        authorizationPolicy: fullAllowPolicy,
+        sourceLabel: "durable-reconstruction-probe",
+        sessionId: "sess-u-9f13c2ab77e04d51",
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.body.session.sessionId).toBe("sess-u-9f13c2ab77e04d51");
+    expect(response.body.session.status).toBe("authorized");
+    // The id is addressable immediately (get by the caller's id).
+    const fetched = await callJson<SessionResponse>(
+      harness.baseUrl,
+      "/v1/sessions/sess-u-9f13c2ab77e04d51",
+    );
+    expect(fetched.status).toBe(200);
+    expect(fetched.body.session.sessionId).toBe("sess-u-9f13c2ab77e04d51");
+  });
+
+  test("caller-supplied createdAtIso is preserved VERBATIM (not the app clock)", async () => {
+    const recorded = "2026-09-16T12:34:56.789Z";
+    const response = await callJson<SessionResponse>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({
+        authorizationPolicy: fullAllowPolicy,
+        sessionId: "sess-u-created-at-probe",
+        createdAtIso: recorded,
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.body.session.createdAtIso).toBe(recorded);
+  });
+
+  test("absent sessionId keeps the historical sess-<seq> allocation (byte-identical)", async () => {
+    const before = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    const response = await callJson<SessionResponse>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({ authorizationPolicy: fullAllowPolicy }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.body.session.sessionId).toMatch(/^sess-\d+$/);
+    // Exactly ONE new session appeared (the seq allocation did not double-create).
+    const after = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    expect(after.body.sessions).toHaveLength(before.body.sessions.length + 1);
+  });
+
+  test.each([
+    ["empty", ""],
+    ["uppercase", "sess-U-1"],
+    ["underscore", "sess_u_1"],
+    ["slash", "sess/u/1"],
+    ["space", "sess u 1"],
+    ["too long", `sess-u-${"a".repeat(129)}`],
+  ])("invalid sessionId (%s) → 400 validation, nothing created", async (_label, bad) => {
+    const before = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    const response = await callJson<ErrorBody>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({ authorizationPolicy: fullAllowPolicy, sessionId: bad }),
+    );
+    expect(response.status).toBe(400);
+    expect(response.body.error.failureClass).toBe("validation");
+    expect(response.body.error.message).toContain("sessionId");
+    const after = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    expect(after.body.sessions).toHaveLength(before.body.sessions.length);
+  });
+
+  test("duplicate sessionId → typed 400 duplicate-session-id (never renumbered)", async () => {
+    const first = await callJson<SessionResponse>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({ authorizationPolicy: fullAllowPolicy, sessionId: "sess-u-taken" }),
+    );
+    expect(first.status).toBe(200);
+    const before = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    const second = await callJson<ErrorBody>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({ authorizationPolicy: fullAllowPolicy, sessionId: "sess-u-taken" }),
+    );
+    expect(second.status).toBe(400);
+    expect(second.body.error.failureClass).toBe("validation");
+    expect(second.body.error.message).toContain("already in use");
+    // The original session is untouched and no renumbered twin was created.
+    const after = await callJson<{ sessions: SessionSummary[] }>(harness.baseUrl, "/v1/sessions");
+    expect(after.body.sessions).toHaveLength(before.body.sessions.length);
+    expect(after.body.sessions.some((entry) => entry.id === "sess-u-taken")).toBe(true);
+  });
+
+  test("invalid createdAtIso → 400 validation", async () => {
+    const response = await callJson<ErrorBody>(
+      harness.baseUrl,
+      "/v1/sessions",
+      postJson({
+        authorizationPolicy: fullAllowPolicy,
+        sessionId: "sess-u-bad-created-at",
+        createdAtIso: "not-a-timestamp",
+      }),
+    );
+    expect(response.status).toBe(400);
+    expect(response.body.error.failureClass).toBe("validation");
+    expect(response.body.error.message).toContain("createdAtIso");
+  });
+});
