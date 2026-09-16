@@ -24,13 +24,18 @@
  */
 export { CONTROL_API_STAGE, CONTROL_METRIC_NAMES, createControlApp } from "./app";
 export type {
+  ComputeJobArtifactView,
+  ComputeJobCompletionView,
   ControlApp,
   ControlAppOptions,
   ControlCallContext,
   ControlRoute,
+  CreateRenderAsyncInput,
+  CreateRenderAsyncResult,
   CreateRenderInput,
   CreateSessionInput,
   CreateSessionResult,
+  GetComputeJobResult,
   GetSessionResult,
   ListRenderersResult,
   ListRendersResult,
@@ -46,10 +51,12 @@ export type { ControlServer, ControlServerOptions, TransportFailureClass } from 
 export {
   CONTROL_HTTP_STATUS,
   ControlApiError,
+  ControlComputeUnavailableError,
   ControlInternalError,
   ControlMediaInvalidError,
   ControlResourceLimitError,
   ControlRightsDeniedError,
+  ControlUnknownComputeJobError,
   ControlUnknownRenderError,
   ControlUnknownSegmentError,
   ControlUnknownSessionError,
@@ -71,6 +78,7 @@ export type {
   RenderOutputSegmentDocument,
   RenderOutputSegmentSummary,
   RenderOutputStore,
+  RenderOutputWriter,
 } from "./playback";
 import { createControlServer } from "./http";
 

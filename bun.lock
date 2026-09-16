@@ -37,6 +37,7 @@
         "@sporta/capability": "workspace:*",
         "@sporta/commentary-segmentation": "workspace:*",
         "@sporta/commentary-understanding": "workspace:*",
+        "@sporta/compute-adapter-hosted": "workspace:*",
         "@sporta/contracts": "workspace:*",
         "@sporta/control-api": "workspace:*",
         "@sporta/field-mapping": "workspace:*",
@@ -187,6 +188,23 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/compute-adapter-hosted": {
+      "name": "@sporta/compute-adapter-hosted",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/compute-adapter": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@sporta/observability": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/contracts": {
       "name": "@sporta/contracts",
       "version": "0.1.0",
@@ -198,6 +216,7 @@
       "name": "@sporta/control-api",
       "version": "0.1.0",
       "dependencies": {
+        "@sporta/compute-adapter": "workspace:*",
         "@sporta/contracts": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
@@ -206,6 +225,9 @@
         "@sporta/world-model": "workspace:*",
       },
       "devDependencies": {
+        "@sporta/compute-adapter-hosted": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/renderer-anime": "workspace:*",
         "@types/bun": "^1.2.0",
       },
     },
@@ -796,6 +818,8 @@
     "@sporta/commentary-understanding": ["@sporta/commentary-understanding@workspace:packages/commentary-understanding"],
 
     "@sporta/compute-adapter": ["@sporta/compute-adapter@workspace:packages/compute-adapter"],
+
+    "@sporta/compute-adapter-hosted": ["@sporta/compute-adapter-hosted@workspace:packages/compute-adapter-hosted"],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
 

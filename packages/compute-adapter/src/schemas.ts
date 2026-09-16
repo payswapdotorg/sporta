@@ -844,6 +844,14 @@ export const ComputeJobCompletion = z
     failure: ComputeJobFailure.optional(),
     /** Output artifacts (non-empty only when succeeded). */
     outputs: z.array(ComputeOutputArtifact),
+    /**
+     * W914 Wave 2 (ADDITIVE): the provider's render result document — the
+     * contracts `RenderResult` VERBATIM from the real renderer plugin, when
+     * the job executed a render. Opaque at this contract layer (the control
+     * plane validates it against `@sporta/contracts` at ingestion); absent on
+     * non-render and failed jobs.
+     */
+    renderResult: z.unknown().optional(),
     /** Total executor invocations reported (W303 attempts). */
     attempts: z.number().int().min(0),
     /** Total claims (lease epochs) consumed (W303 claims; 0 when never executed). */

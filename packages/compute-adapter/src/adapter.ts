@@ -45,6 +45,7 @@ import type {
   ComputeOutputArtifact,
   ComputeUsageRecord,
 } from "./schemas";
+import type { ComputeMaterializedInputs } from "./materialized";
 
 // ---------------------------------------------------------------------------
 // The control-plane-facing port (what the hosted control plane consumes)
@@ -86,7 +87,7 @@ export interface ComputeAdapterPort {
   /**
    * Dispatches one job.
    *
-   * - Malformed description ⇒ typed `ComputeValidationError` throw;
+   * - malformed description ⇒ typed `ComputeValidationError` throw;
    * - descriptor-dishonest renderer/latency class/deadline ⇒ typed
    *   `ComputeAdmissionError` throw;
    * - `source-media` inputs without `canReferenceSourceFrames` ⇒ typed
@@ -94,8 +95,18 @@ export interface ComputeAdapterPort {
    * - capacity ⇒ typed `ComputeResourceLimitError` throw;
    * - known `idempotencyKey` ⇒ `{ disposition: "duplicate" }` (counted);
    * - otherwise `{ disposition: "admitted" }` with the handle.
+   *
+   * W914 Wave 2 (ADDITIVE): a dispatch whose provider needs the input
+   * payloads over a wire carries them as the OPTIONAL second argument
+   * (validated against the job's manifest — `./materialized.ts`).
+   * Implementations that resolve refs in-process (the in-memory
+   * reference) simply ignore them; the argument is additive so every
+   * Wave-1 implementation stays valid without change.
    */
-  dispatch(job: ComputeJobDescription): Promise<ComputeDispatchOutcome>;
+  dispatch(
+    job: ComputeJobDescription,
+    materialized?: ComputeMaterializedInputs,
+  ): Promise<ComputeDispatchOutcome>;
 
   /**
    * Polls one job's snapshot (idempotent, cheap). `null` iff the adapter

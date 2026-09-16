@@ -22,6 +22,8 @@ const SPORTA_SERVER_PACKAGES = [
   "@sporta/commentary-segmentation",
   "@sporta/commentary-understanding",
   "@sporta/contracts",
+  "@sporta/compute-adapter",
+  "@sporta/compute-adapter-hosted",
   "@sporta/control-api",
   "@sporta/field-mapping",
   "@sporta/fusion",

@@ -77,9 +77,28 @@ import {
 } from "@sporta/session";
 import type { MediaSessionRepository } from "@sporta/session";
 import {
+  ComputeAdmissionError,
+  ComputeResourceLimitError,
+  ComputeRightsError,
+  ComputeValidationError,
+  canonicalByteLengthOf,
+  sha256OfCanonicalJson,
+} from "@sporta/compute-adapter";
+import type {
+  ComputeAdapterPort,
+  ComputeDispatchOutcome,
+  ComputeJobEvent as ComputeJobEventDoc,
+  ComputeJobState as ComputeJobStateDoc,
+  ComputeTerminalDisposition as ComputeTerminalDispositionDoc,
+  ComputeUsageRecord as ComputeUsageRecordDoc,
+} from "@sporta/compute-adapter";
+import {
+  ControlComputeUnavailableError,
   ControlInternalError,
   ControlMediaInvalidError,
+  ControlResourceLimitError,
   ControlRightsDeniedError,
+  ControlUnknownComputeJobError,
   ControlUnknownRenderError,
   ControlUnknownSegmentError,
   ControlUnknownSessionError,
@@ -89,7 +108,12 @@ import {
   wrapSessionRightsDenied,
 } from "./errors";
 import { asRenderOutputStoreError } from "./playback";
-import type { RenderOutputDocument, RenderOutputListResult, RenderOutputStore } from "./playback";
+import type {
+  RenderOutputDocument,
+  RenderOutputListResult,
+  RenderOutputStore,
+  RenderOutputWriter,
+} from "./playback";
 
 /** Log/metric stage name for every record emitted by the control plane. */
 export const CONTROL_API_STAGE = "control-api";
@@ -117,7 +141,10 @@ export type ControlRoute =
   | "get_render"
   | "list_renders"
   | "get_render_output"
-  | "list_render_outputs";
+  | "list_render_outputs"
+  // W914 (ADDITIVE): the async compute-dispatch surface (G2-approved).
+  | "create_render_async"
+  | "get_compute_job";
 
 /** Default style id when the caller does not select one. */
 const DEFAULT_STYLE_ID = "default";
@@ -172,6 +199,24 @@ export interface ControlAppOptions {
    * like an empty store.
    */
   renderOutputStore?: RenderOutputStore;
+  /**
+   * W914 (ADDITIVE): the compute adapter the async render surface dispatches
+   * through (a structural `ComputeAdapterPort` — see
+   * `@sporta/compute-adapter-hosted` for the production implementation and
+   * its env-driven provider selection). Absent by default: the async surface
+   * then answers its typed unavailability error (503) and EVERY existing
+   * (synchronous) route is unaffected — this option composes additively,
+   * exactly like `renderOutputStore` did in W504.
+   */
+  computeAdapter?: ComputeAdapterPort;
+  /**
+   * W914 (ADDITIVE): the write side of the render-output store (structural;
+   * satisfied by `@sporta/output-pipeline`'s `RenderSegmentStore`). The
+   * async surface stores a completed job's artifact deliveries through it.
+   * Absent by default: async renders are then observable but their outputs
+   * are not playback-served (the same posture as an unconfigured reader).
+   */
+  renderOutputWriter?: RenderOutputWriter;
 }
 
 /** Input for {@link ControlApp.createSession}. */
@@ -256,6 +301,110 @@ export interface ListRendersResult {
   renders: RenderSummary[];
 }
 
+// ---------------------------------------------------------------------------
+// W914 (ADDITIVE): the async compute-dispatch surface (G2-approved)
+// ---------------------------------------------------------------------------
+
+/**
+ * Input for {@link ControlApp.createRenderAsync} — the synchronous
+ * {@link CreateRenderInput} plus the compute-dispatch controls. The renderer
+ * selection, output profile, and style resolution follow the SAME rules as
+ * the synchronous path; the extra fields control the compute job identity
+ * and budget.
+ */
+export interface CreateRenderAsyncInput extends CreateRenderInput {
+  /** Caller-authored job id (default: `render-job-<sessionId>-<seq>`, the W304 derivation). */
+  jobId?: string;
+  /** Dedupe identity (default: `render-<sessionId>-wm-<seq>-seq-<seq>`, the W304 derivation). */
+  idempotencyKey?: string;
+  /** Whole-job deadline in ms (default: 60 000 — the W304 `renderDeadlineMs` default). */
+  deadlineMs?: number;
+}
+
+/** Result of {@link ControlApp.createRenderAsync}. */
+export interface CreateRenderAsyncResult {
+  /** The dispatch disposition (`admitted`, or a counted `duplicate`). */
+  disposition: "admitted" | "duplicate";
+  /** The compute job id. */
+  jobId: string;
+  /** The dedupe identity. */
+  idempotencyKey: string;
+  /** The session the job renders for. */
+  sessionId: string;
+  /** The adapter that admitted the job. */
+  adapterId: string;
+  /** The job state at dispatch return. */
+  jobState: ComputeJobStateDoc;
+  /** Present when `disposition === "admitted"`. */
+  admittedAtMs?: number;
+  /** The stored render id, when the job's render was already ingested. */
+  renderId?: string;
+}
+
+/** The playback-safe projection of one output artifact of a compute job. */
+export interface ComputeJobArtifactView {
+  /** The content-addressed artifact id (sha-256). */
+  artifactId: string;
+  contentType: string;
+  byteLength: number;
+  /** The W504 store-scope metadata (identity only — bytes are playback-gated). */
+  metadata: {
+    renderId?: string;
+    segmentId?: string;
+    snapshotVersion?: number;
+    frameCount?: number;
+    totalDurationMs?: number;
+  };
+}
+
+/** The terminal completion of a compute job, projected for observation. */
+export interface ComputeJobCompletionView {
+  status: "succeeded" | "failed" | "cancelled";
+  terminalDisposition: ComputeTerminalDispositionDoc;
+  failure?: { errorClass: string; message: string; terminal: string };
+  /** Identity-only artifact views — the bytes come from the playback-gated routes. */
+  outputs: ComputeJobArtifactView[];
+  attempts: number;
+  claims: number;
+  timing: {
+    submittedAtMs: number;
+    startedAtMs?: number;
+    finishedAtMs: number;
+    queueWaitMs?: number;
+    executionMs: number;
+  };
+  /** The never-silent input accounting (always present). */
+  accounting: {
+    consumedInputIds: string[];
+    unconsumedInputs: Array<{ inputId: string; reason: string }>;
+  };
+  /** The metering record for this terminal job (always present). */
+  usage: ComputeUsageRecordDoc;
+}
+
+/**
+ * Result of {@link ControlApp.getComputeJob}: the observable state of one
+ * compute job — lifecycle state, decision trail, the terminal completion
+ * (with accounting and usage) once settled, and the render id once the
+ * job's outputs were ingested into the playback store. Artifact BYTES are
+ * deliberately absent: they are served only by the playback-gated
+ * render-output routes.
+ */
+export interface GetComputeJobResult {
+  jobId: string;
+  idempotencyKey: string;
+  sessionId: string;
+  state: ComputeJobStateDoc;
+  /** The decision/progress trail in occurrence order. */
+  events: ComputeJobEventDoc[];
+  /** The stored render id once the job's render was ingested. */
+  renderId?: string;
+  /** The ingestion state of the job's outputs into the playback store. */
+  ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
+  /** Present once the job reached its terminal disposition. */
+  completion?: ComputeJobCompletionView;
+}
+
 /** The transport-free control-plane application surface. */
 export interface ControlApp {
   /** The resolved observability seams (read-only; used by the transport). */
@@ -290,6 +439,28 @@ export interface ControlApp {
     renderId: string,
     ctx?: ControlCallContext,
   ): Promise<RenderOutputListResult>;
+  /**
+   * W914 (ADDITIVE): dispatches one render asynchronously through the
+   * configured compute adapter (a REAL render job — real renderer, real
+   * output store, artifact handoff). The synchronous `createRender` path is
+   * untouched; when no adapter is configured this answers the typed
+   * `ControlComputeUnavailableError`.
+   */
+  createRenderAsync(
+    sessionId: string,
+    input: CreateRenderAsyncInput,
+    ctx?: ControlCallContext,
+  ): Promise<CreateRenderAsyncResult>;
+  /**
+   * W914 (ADDITIVE): observes one compute job — lifecycle state, decision
+   * trail, terminal completion with never-silent accounting and its usage
+   * record, plus the render id once the outputs were ingested.
+   */
+  getComputeJob(
+    sessionId: string,
+    jobId: string,
+    ctx?: ControlCallContext,
+  ): Promise<GetComputeJobResult>;
 }
 
 /** A stored render, keyed by its deterministic id. */
@@ -920,6 +1091,390 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     }
   }
 
+  // --- W914 (ADDITIVE): the async compute-dispatch surface ------------------
+  // The compute adapter (absent by default — the async surface then fails
+  // closed with the typed unavailability error; every sync route unchanged).
+  const computeAdapter = options.computeAdapter;
+  const renderOutputWriter = options.renderOutputWriter;
+
+  /** One dispatched compute job's control-plane bookkeeping. */
+  interface ComputeJobEntry {
+    jobId: string;
+    sessionId: string;
+    renderId: string | undefined;
+    ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
+  }
+
+  const computeJobs = new Map<string, ComputeJobEntry>();
+  let computeJobSeq = 0;
+
+  /** The whole-job deadline default (the W304 `renderDeadlineMs` default). */
+  const DEFAULT_COMPUTE_DEADLINE_MS = 60_000;
+
+  /** Maps typed compute-adapter refusals onto the control error vocabulary. */
+  function wrapComputeError(err: unknown): unknown {
+    if (err instanceof ComputeValidationError)
+      return asControlError(
+        new ControlValidationError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeAdmissionError)
+      return asControlError(
+        new ControlMediaInvalidError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeResourceLimitError)
+      return asControlError(
+        new ControlResourceLimitError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    if (err instanceof ComputeRightsError)
+      return asControlError(
+        new ControlRightsDeniedError(err.message, { ...(err.details as Record<string, unknown>) }),
+      );
+    return asControlError(err);
+  }
+
+  async function createRenderAsyncImpl(
+    sessionId: string,
+    input: unknown,
+  ): Promise<CreateRenderAsyncResult> {
+    if (computeAdapter === undefined) {
+      throw new ControlComputeUnavailableError(
+        "the async render surface requires a compute adapter (none is configured on this control plane)",
+      );
+    }
+    // 1. Validate the input: the sync-path rules + the dispatch controls.
+    if (!isRecord(input)) {
+      throw new ControlValidationError("request body must be a JSON object");
+    }
+    const parsed = validateCreateRenderInput(input);
+    const jobIdInput =
+      input.jobId === undefined
+        ? undefined
+        : requireNonEmptyString(input.jobId, "jobId", MAX_LABEL_LENGTH);
+    const idempotencyKeyInput =
+      input.idempotencyKey === undefined
+        ? undefined
+        : requireNonEmptyString(input.idempotencyKey, "idempotencyKey", MAX_LABEL_LENGTH);
+    let deadlineMs = DEFAULT_COMPUTE_DEADLINE_MS;
+    if (input.deadlineMs !== undefined) {
+      if (
+        typeof input.deadlineMs !== "number" ||
+        !Number.isFinite(input.deadlineMs) ||
+        input.deadlineMs <= 0
+      ) {
+        throw new ControlValidationError("deadlineMs must be a finite number > 0");
+      }
+      deadlineMs = input.deadlineMs;
+    }
+
+    // 2. Resolve the plugin (unknown renderer id/version → media-invalid) —
+    //    the same admission the sync path applies, so an async dispatch can
+    //    never name a renderer the control plane itself would refuse.
+    let capability: RendererCapability;
+    try {
+      const plugin = rendererRegistry.resolve(parsed.rendererId, parsed.rendererVersion);
+      capability = plugin.capability();
+    } catch (err) {
+      if (err instanceof RendererContractError) {
+        throw wrapRendererResolutionError(err);
+      }
+      throw asControlError(err);
+    }
+
+    // 3. Fail-closed rights derivation (identical to the sync path).
+    requireSession(sessionId);
+    const rightsCapabilities = capabilitiesFor(sessionId);
+    if (allDenied(rightsCapabilities)) {
+      const policy = policies.get(sessionId);
+      const expired =
+        policy?.expiresAtIso !== undefined && Date.parse(policy.expiresAtIso) <= nowMs();
+      throw new ControlRightsDeniedError(
+        expired
+          ? `rights denied (expired-policy): no valid rights decision for session '${sessionId}'`
+          : `rights denied: no rights capability can be derived for session '${sessionId}'`,
+        { sessionId, reason: expired ? "expired-policy" : "no-capabilities" },
+      );
+    }
+
+    // 4. Snapshot the session's world model at the current watermark (the
+    //    same materialization the sync path renders from).
+    const engine = worldModelFor(sessionId);
+    const snapshot: WorldSnapshot = engine.snapshot();
+    const events = engine.eventsSince(snapshot.watermark.sequence);
+    const outputProfile = parsed.outputProfile ?? firstSupportedProfile(capability);
+
+    // 5. Build the materialized inputs (content-addressed — the Wave-2
+    //    contract): the snapshot + the event window, each with its
+    //    canonical sha-256 and byte size.
+    const snapshotPayload = { snapshotVersion: engine.snapshotVersion, snapshot };
+    const eventsPayload = { fromSequence: snapshot.watermark.sequence, entries: events };
+    // Content addressing of the materialized inputs (the Wave-2 contract):
+    // sha-256 of the canonical JSON + the canonical byte size, per input.
+    const snapshotContentHash = await sha256OfCanonicalJson(snapshotPayload);
+    const eventsContentHash = await sha256OfCanonicalJson(eventsPayload);
+    const manifestInputs = [
+      {
+        inputId: "swm-snapshot",
+        kind: "swm-snapshot" as const,
+        ref: `swm-snapshot:${sessionId}:v${engine.snapshotVersion}`,
+        contentHash: snapshotContentHash,
+        byteSize: canonicalByteLengthOf(snapshotPayload),
+      },
+      {
+        inputId: "swm-events",
+        kind: "swm-event-window" as const,
+        ref: `swm-events:${sessionId}:from-${snapshot.watermark.sequence}`,
+        contentHash: eventsContentHash,
+        byteSize: canonicalByteLengthOf(eventsPayload),
+      },
+    ];
+    const materialized = [
+      { inputId: "swm-snapshot", kind: "swm-snapshot" as const, payload: snapshotPayload },
+      { inputId: "swm-events", kind: "swm-event-window" as const, payload: eventsPayload },
+    ];
+
+    // 6. The transport-safe job description (the W914 contract): identity,
+    //    correlation, renderer+recipe, manifest, output profile, rights
+    //    posture, and constraints.
+    computeJobSeq += 1;
+    const jobId = jobIdInput ?? `render-job-${sessionId}-${computeJobSeq}`; // the W304 derivation pattern
+    const idempotencyKey =
+      idempotencyKeyInput ??
+      `render-${sessionId}-wm-${snapshot.watermark.sequence}-seq-${computeJobSeq}`; // the W304 key
+    const policyDoc = policies.get(sessionId);
+    const description = {
+      schemaVersion: "1.0" as const,
+      jobId,
+      idempotencyKey,
+      sessionId,
+      correlationId: `corr-${sessionId}-${computeJobSeq}`,
+      traceId: `trace-${sessionId}-${computeJobSeq}`,
+      renderer: {
+        rendererId: capability.rendererId,
+        rendererVersion: capability.rendererVersion,
+      },
+      recipe: {
+        styleId: parsed.styleConfig?.styleId ?? DEFAULT_STYLE_ID,
+        configSchemaVersion: SCHEMA_VERSION,
+        config: parsed.styleConfig?.config ?? {},
+      },
+      inputs: manifestInputs,
+      outputProfile,
+      rights: {
+        policyRef: policyDoc?.policyId ?? `unknown-policy:${sessionId}`,
+        canReferenceSourceFrames: rightsCapabilities.canReferenceSourceFrames,
+      },
+      constraints: {
+        deadlineMs,
+        priority: 0, // the W304 priority
+        resourceHints: { computeClass: capability.rendererClass },
+      },
+    };
+
+    // 7. Dispatch through the ComputeAdapter port.
+    let outcome: ComputeDispatchOutcome;
+    try {
+      outcome = await computeAdapter.dispatch(description, materialized);
+    } catch (err) {
+      throw wrapComputeError(err);
+    }
+    const outcomeJobId = outcome.disposition === "admitted" ? outcome.handle.jobId : outcome.jobId;
+    const outcomeKey =
+      outcome.disposition === "admitted" ? outcome.handle.idempotencyKey : outcome.idempotencyKey;
+    const entry: ComputeJobEntry = {
+      jobId: outcomeJobId,
+      sessionId,
+      renderId: undefined,
+      ingest: { status: "pending" },
+    };
+    const existing = computeJobs.get(outcomeJobId);
+    if (existing !== undefined || outcome.disposition === "duplicate") {
+      // A counted duplicate: the job's bookkeeping already exists (or the
+      // adapter resolved the idempotency key) — return it with the render
+      // id when its outputs were already ingested.
+      const known = existing ?? computeJobs.get(outcomeJobId);
+      if (known !== undefined) {
+        return {
+          disposition: "duplicate",
+          jobId: known.jobId,
+          idempotencyKey: outcomeKey,
+          sessionId,
+          adapterId: computeAdapter.describe().adapterId,
+          jobState: outcome.disposition === "duplicate" ? outcome.jobState : "admitted",
+          ...(known.renderId !== undefined ? { renderId: known.renderId } : {}),
+        };
+      }
+      // A duplicate for a job this control-plane instance never dispatched
+      // (another instance's ledger admitted it): the honest duplicate answer
+      // without local render bookkeeping.
+      return {
+        disposition: "duplicate",
+        jobId: outcomeJobId,
+        idempotencyKey: outcomeKey,
+        sessionId,
+        adapterId: computeAdapter.describe().adapterId,
+        jobState: outcome.disposition === "duplicate" ? outcome.jobState : "admitted",
+      };
+    }
+    computeJobs.set(outcomeJobId, entry);
+    // Subscription-driven ingestion: when the job settles, its render and
+    // outputs materialize (idempotently — see ingestComputeJob).
+    computeAdapter.subscribe(outcomeJobId, () => {
+      void ingestComputeJob(outcomeJobId);
+    });
+    // The honest job state at dispatch return (the decoupled handoff may
+    // already have progressed past admission).
+    const stateAtReturn = (await computeAdapter.getJob(outcomeJobId))?.state ?? "admitted";
+    return {
+      disposition: "admitted",
+      jobId: outcomeJobId,
+      idempotencyKey: outcomeKey,
+      sessionId,
+      adapterId: computeAdapter.describe().adapterId,
+      jobState: stateAtReturn,
+      admittedAtMs: outcome.handle.admittedAtMs,
+    };
+  }
+
+  /**
+   * Ingests one settled job's render (idempotent): validates the render
+   * result document, stores the render under the SAME `r-<seq>` sequence as
+   * the synchronous path, and stores each inline artifact into the render
+   * output store under the control plane's render id.
+   */
+  async function ingestComputeJob(jobId: string): Promise<void> {
+    if (computeAdapter === undefined) return;
+    const entry = computeJobs.get(jobId);
+    if (entry === undefined || entry.ingest.status !== "pending") return;
+    const snapshot = await computeAdapter.getJob(jobId);
+    if (snapshot === null || snapshot.completion === undefined) return;
+    const completion = snapshot.completion;
+    if (completion.status !== "succeeded") {
+      entry.ingest = { status: "none" };
+      return;
+    }
+    try {
+      // 1. The renderer's own result document (validated against contracts).
+      const resultCheck = RenderResult.safeParse(completion.renderResult);
+      if (!resultCheck.success) {
+        throw new ControlInternalError("compute job returned an invalid RenderResult", {
+          jobId,
+          issues: issuesOf(resultCheck.error),
+        });
+      }
+      renderSeq += 1;
+      const renderId = `r-${renderSeq}`;
+      const record: StoredRender = {
+        renderId,
+        sessionId: entry.sessionId,
+        rendererId: resultCheck.data.rendererId,
+        result: structuredClone(resultCheck.data),
+      };
+      rendersById.set(renderId, record);
+      const list = rendersBySession.get(entry.sessionId) ?? [];
+      list.push(record);
+      rendersBySession.set(entry.sessionId, list);
+      // 2. The artifacts: inline deliveries become stored render-output
+      //    segments under the control plane's render id (the playback store
+      //    is the SAME port the sync path's composition configures).
+      if (renderOutputWriter !== undefined) {
+        for (const artifact of completion.outputs) {
+          if (artifact.delivery.mode !== "inline") continue;
+          renderOutputWriter.storeSegment({
+            sessionId: entry.sessionId,
+            renderId,
+            segment: {
+              segmentId: artifact.metadata.segmentId ?? artifact.artifactId,
+              contentType: artifact.contentType,
+              content: artifact.delivery.content,
+              byteLength: artifact.byteLength,
+              contentHash: artifact.contentHash,
+              manifest: artifact.manifest,
+            },
+          });
+        }
+      }
+      entry.renderId = renderId;
+      entry.ingest = { status: "stored" };
+    } catch (err) {
+      const failure = asControlError(err);
+      entry.ingest = { status: "failed", error: failure.message };
+    }
+  }
+
+  async function getComputeJobImpl(sessionId: string, jobId: string): Promise<GetComputeJobResult> {
+    if (computeAdapter === undefined) {
+      throw new ControlComputeUnavailableError(
+        "the async render surface requires a compute adapter (none is configured on this control plane)",
+      );
+    }
+    requireSession(sessionId);
+    requireNonEmptyString(jobId, "jobId", MAX_LABEL_LENGTH);
+    const entry = computeJobs.get(jobId);
+    const snapshot = await computeAdapter.getJob(jobId);
+    if (entry === undefined || snapshot === null || entry.sessionId !== sessionId) {
+      // Session-scoped 404: a job id from another session is indistinguishable
+      // from an unknown one (no cross-session probing).
+      throw new ControlUnknownComputeJobError(sessionId, jobId);
+    }
+    // Poll-driven ingestion fallback (idempotent with the subscription).
+    if (entry.ingest.status === "pending" && snapshot.completion !== undefined) {
+      await ingestComputeJob(jobId);
+    }
+    const result: GetComputeJobResult = {
+      jobId: snapshot.jobId,
+      idempotencyKey: snapshot.idempotencyKey,
+      sessionId: snapshot.sessionId,
+      state: snapshot.state,
+      events: structuredClone(snapshot.events),
+      ...(entry.renderId !== undefined ? { renderId: entry.renderId } : {}),
+      ingest: entry.ingest,
+    };
+    if (snapshot.completion !== undefined) {
+      const completion = snapshot.completion;
+      result.completion = {
+        status: completion.status,
+        terminalDisposition: completion.terminalDisposition,
+        ...(completion.failure !== undefined
+          ? {
+              failure: {
+                errorClass: completion.failure.errorClass,
+                message: completion.failure.message,
+                terminal: completion.failure.terminal,
+              },
+            }
+          : {}),
+        outputs: completion.outputs.map((artifact) => ({
+          artifactId: artifact.artifactId,
+          contentType: artifact.contentType,
+          byteLength: artifact.byteLength,
+          metadata: {
+            ...(artifact.metadata.renderId !== undefined
+              ? { renderId: artifact.metadata.renderId }
+              : {}),
+            ...(artifact.metadata.segmentId !== undefined
+              ? { segmentId: artifact.metadata.segmentId }
+              : {}),
+            ...(artifact.metadata.snapshotVersion !== undefined
+              ? { snapshotVersion: artifact.metadata.snapshotVersion }
+              : {}),
+            ...(artifact.metadata.frameCount !== undefined
+              ? { frameCount: artifact.metadata.frameCount }
+              : {}),
+            ...(artifact.metadata.totalDurationMs !== undefined
+              ? { totalDurationMs: artifact.metadata.totalDurationMs }
+              : {}),
+          },
+        })),
+        attempts: completion.attempts,
+        claims: completion.claims,
+        timing: completion.timing,
+        accounting: completion.accounting,
+        usage: completion.usage,
+      };
+    }
+    return result;
+  }
+
   const app: ControlApp = {
     observability: { logger, metrics },
     createSession: (input, ctx) =>
@@ -944,6 +1499,12 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       run("list_render_outputs", ctx, sessionId, async () =>
         listRenderOutputsImpl(sessionId, renderId),
       ),
+    createRenderAsync: (sessionId, input, ctx) =>
+      run("create_render_async", ctx, sessionId, async () =>
+        createRenderAsyncImpl(sessionId, input),
+      ),
+    getComputeJob: (sessionId, jobId, ctx) =>
+      run("get_compute_job", ctx, sessionId, async () => getComputeJobImpl(sessionId, jobId)),
   };
   return app;
 }

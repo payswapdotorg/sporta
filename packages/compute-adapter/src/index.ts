@@ -39,6 +39,11 @@
  *   `ComputeJobEvent` (decision + progress), `ComputeJobCompletion`,
  *   `ComputeOutputArtifact` (the W504-aligned artifact handoff),
  *   `ComputeUsageRecord`, `ComputeJobSnapshot`, `ComputeAdapterStats`;
+ * - `canonical`: the canonical JSON serialization + sha-256 content
+ *   addressing of materialized inputs (Wave 2, additive);
+ * - `materialized`: the dispatch-request wire shape — a job description
+ *   plus the materialized payloads of its inputs manifest, with the pure
+ *   coverage validator (Wave 2, additive);
  * - `states`: the closed lifecycle vocabulary + the legal-transition table +
  *   `assertComputeTransition` (illegal transitions reject loudly);
  * - `errors`: the typed boundary errors, classified with the contracts
@@ -90,6 +95,17 @@ export {
   ComputeUsageRecord,
   emptyComputeStats,
 } from "./schemas";
+// canonical serialization + content addressing (Wave 2, additive)
+export { canonicalByteLengthOf, canonicalJsonOf, sha256OfCanonicalJson } from "./canonical";
+// materialized inputs of one dispatch (Wave 2, additive)
+export {
+  ComputeDispatchRequest,
+  ComputeMaterializedInput,
+  ComputeMaterializedInputs,
+  ComputeSwmEventWindowPayload,
+  ComputeSwmSnapshotPayload,
+  materializedInputIssues,
+} from "./materialized";
 // lifecycle state machine
 export {
   COMPUTE_JOB_STATES,
