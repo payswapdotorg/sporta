@@ -114,105 +114,125 @@ function trackClient(sql: PostgresSql): PostgresSql {
   // margin — e.g. a sandbox in Asia-Pacific against a us-east-1 database).
   const WAN_TIMEOUT_MS = 30_000;
 
-  test("register → persist → login from a FRESH store (simulated restart)", async () => {
-    const first = pgAuth();
-    trackClient(first.sql);
-    const view = await first.auth.register({
-      username: USERNAME_A,
-      password: PASSWORD,
-      roles: ["viewer", "analyst"],
-    });
-    aliceUserId = view.userId;
-    createdUserIds.push(view.userId);
-    expect(view.username).toBe(USERNAME_A);
-    expect([...view.roles].sort()).toEqual(["analyst", "viewer"]);
+  test(
+    "register → persist → login from a FRESH store (simulated restart)",
+    async () => {
+      const first = pgAuth();
+      trackClient(first.sql);
+      const view = await first.auth.register({
+        username: USERNAME_A,
+        password: PASSWORD,
+        roles: ["viewer", "analyst"],
+      });
+      aliceUserId = view.userId;
+      createdUserIds.push(view.userId);
+      expect(view.username).toBe(USERNAME_A);
+      expect([...view.roles].sort()).toEqual(["analyst", "viewer"]);
 
-    // A BRAND-NEW client + brand-new stores over the SAME database — exactly
-    // what a redeployed/cold-started server process sees.
-    const fresh = pgAuth();
-    trackClient(fresh.sql);
-    const login = await fresh.auth.login({ username: USERNAME_A, password: PASSWORD });
-    expect(login.account.userId).toBe(view.userId);
-    expect(login.tokenKind).toBe("bearer");
-    expect(login.token.length).toBeGreaterThan(0);
-  }, WAN_TIMEOUT_MS);
+      // A BRAND-NEW client + brand-new stores over the SAME database — exactly
+      // what a redeployed/cold-started server process sees.
+      const fresh = pgAuth();
+      trackClient(fresh.sql);
+      const login = await fresh.auth.login({ username: USERNAME_A, password: PASSWORD });
+      expect(login.account.userId).toBe(view.userId);
+      expect(login.tokenKind).toBe("bearer");
+      expect(login.token.length).toBeGreaterThan(0);
+    },
+    WAN_TIMEOUT_MS,
+  );
 
-  test("session survives store recreation (fresh client resolves the token)", async () => {
-    const issuer = pgAuth();
-    trackClient(issuer.sql);
-    const login = await issuer.auth.login({ username: USERNAME_A, password: PASSWORD });
+  test(
+    "session survives store recreation (fresh client resolves the token)",
+    async () => {
+      const issuer = pgAuth();
+      trackClient(issuer.sql);
+      const login = await issuer.auth.login({ username: USERNAME_A, password: PASSWORD });
 
-    const fresh = pgAuth();
-    trackClient(fresh.sql);
-    const resolved = await fresh.auth.resolve(login.token);
-    expect(resolved).not.toBeNull();
-    expect(resolved!.account.userId).toBe(aliceUserId);
-    expect(resolved!.account.username).toBe(USERNAME_A);
-  }, WAN_TIMEOUT_MS);
+      const fresh = pgAuth();
+      trackClient(fresh.sql);
+      const resolved = await fresh.auth.resolve(login.token);
+      expect(resolved).not.toBeNull();
+      expect(resolved!.account.userId).toBe(aliceUserId);
+      expect(resolved!.account.username).toBe(USERNAME_A);
+    },
+    WAN_TIMEOUT_MS,
+  );
 
-  test("tokens are stored HASHED — the opaque token never reaches the table", async () => {
-    const issuer = pgAuth();
-    trackClient(issuer.sql);
-    const login = await issuer.auth.login({ username: USERNAME_A, password: PASSWORD });
-    const expectedHash = await sha256Hex(login.token);
+  test(
+    "tokens are stored HASHED — the opaque token never reaches the table",
+    async () => {
+      const issuer = pgAuth();
+      trackClient(issuer.sql);
+      const login = await issuer.auth.login({ username: USERNAME_A, password: PASSWORD });
+      const expectedHash = await sha256Hex(login.token);
 
-    // Inspect the REAL table rows for this user.
-    const rows = await issuer.sql`
+      // Inspect the REAL table rows for this user.
+      const rows = await issuer.sql`
       SELECT token_hash, user_id FROM sporta_sessions WHERE user_id = ${aliceUserId}
     `;
-    expect(rows.length).toBeGreaterThan(0);
-    const hashes: string[] = rows.map((row) => row["token_hash"] as string);
-    expect(hashes).toContain(expectedHash);
-    // The plaintext token is never a stored hash…
-    expect(hashes).not.toContain(login.token);
-    // …and no row anywhere stores the raw token as its hash.
-    const plaintext = await issuer.sql`
+      expect(rows.length).toBeGreaterThan(0);
+      const hashes: string[] = rows.map((row) => row["token_hash"] as string);
+      expect(hashes).toContain(expectedHash);
+      // The plaintext token is never a stored hash…
+      expect(hashes).not.toContain(login.token);
+      // …and no row anywhere stores the raw token as its hash.
+      const plaintext = await issuer.sql`
       SELECT count(*)::int AS n FROM sporta_sessions WHERE token_hash = ${login.token}
     `;
-    expect(plaintext[0]!["n"]).toBe(0);
+      expect(plaintext[0]!["n"]).toBe(0);
 
-    // Account rows store a scrypt hash, never the password.
-    const accountRows = await issuer.sql`
+      // Account rows store a scrypt hash, never the password.
+      const accountRows = await issuer.sql`
       SELECT password_hash FROM sporta_accounts WHERE user_id = ${aliceUserId}
     `;
-    const passwordHash = accountRows[0]!["password_hash"] as string;
-    expect(passwordHash).not.toBe(PASSWORD);
-    expect(passwordHash).not.toContain(PASSWORD);
-    expect(isNodeScryptHash(passwordHash)).toBe(true);
-  }, WAN_TIMEOUT_MS);
+      const passwordHash = accountRows[0]!["password_hash"] as string;
+      expect(passwordHash).not.toBe(PASSWORD);
+      expect(passwordHash).not.toContain(PASSWORD);
+      expect(isNodeScryptHash(passwordHash)).toBe(true);
+    },
+    WAN_TIMEOUT_MS,
+  );
 
-  test("expired sessions are rejected (fail-closed)", async () => {
-    const short = pgAuth(1); // 1 ms TTL
-    trackClient(short.sql);
-    const registered = await short.auth.register({
-      username: USERNAME_B,
-      password: PASSWORD,
-    });
-    createdUserIds.push(registered.userId);
-    const login = await short.auth.login({ username: USERNAME_B, password: PASSWORD });
-    expect(login.token.length).toBeGreaterThan(0);
+  test(
+    "expired sessions are rejected (fail-closed)",
+    async () => {
+      const short = pgAuth(1); // 1 ms TTL
+      trackClient(short.sql);
+      const registered = await short.auth.register({
+        username: USERNAME_B,
+        password: PASSWORD,
+      });
+      createdUserIds.push(registered.userId);
+      const login = await short.auth.login({ username: USERNAME_B, password: PASSWORD });
+      expect(login.token.length).toBeGreaterThan(0);
 
-    await new Promise((resolve) => setTimeout(resolve, 50)); // real clock passes expiry
-    const resolved = await short.auth.resolve(login.token);
-    expect(resolved).toBeNull();
-  }, WAN_TIMEOUT_MS);
+      await new Promise((resolve) => setTimeout(resolve, 50)); // real clock passes expiry
+      const resolved = await short.auth.resolve(login.token);
+      expect(resolved).toBeNull();
+    },
+    WAN_TIMEOUT_MS,
+  );
 
-  test("revocation persists across store recreation (logout survives restarts)", async () => {
-    const issuer = pgAuth();
-    trackClient(issuer.sql);
-    const registered = await issuer.auth.register({
-      username: USERNAME_C,
-      password: PASSWORD,
-    });
-    createdUserIds.push(registered.userId);
-    const login = await issuer.auth.login({ username: USERNAME_C, password: PASSWORD });
-    await issuer.auth.logout(login.token);
+  test(
+    "revocation persists across store recreation (logout survives restarts)",
+    async () => {
+      const issuer = pgAuth();
+      trackClient(issuer.sql);
+      const registered = await issuer.auth.register({
+        username: USERNAME_C,
+        password: PASSWORD,
+      });
+      createdUserIds.push(registered.userId);
+      const login = await issuer.auth.login({ username: USERNAME_C, password: PASSWORD });
+      await issuer.auth.logout(login.token);
 
-    const fresh = pgAuth();
-    trackClient(fresh.sql);
-    const resolved = await fresh.auth.resolve(login.token);
-    expect(resolved).toBeNull();
-  }, WAN_TIMEOUT_MS);
+      const fresh = pgAuth();
+      trackClient(fresh.sql);
+      const resolved = await fresh.auth.resolve(login.token);
+      expect(resolved).toBeNull();
+    },
+    WAN_TIMEOUT_MS,
+  );
 
   afterAll(async () => {
     // Best-effort cleanup of THIS run's rows (the database is shared state).
