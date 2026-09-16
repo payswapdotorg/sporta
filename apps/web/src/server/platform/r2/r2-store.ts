@@ -485,13 +485,18 @@ export class R2RenderOutputStore {
     if (existing !== undefined) {
       const storedDoc = await this.#requireDocument(sessionId, renderId, existing);
       if (storedDoc.contentHash === segment.contentHash) {
-        storedDoc.duplicateCount += 1;
-        await this.#putJson(this.#documentKey(sessionId, renderId, segment.segmentId), storedDoc);
-        index.duplicateStores += 1;
-        await this.#writeIndex(sessionId, renderId, index);
-        const stats = await this.#readStats();
-        stats.duplicateStores += 1;
-        await this.#putJson(R2RenderOutputStore.STATS_KEY, stats);
+        // R2 free-tier write-storm fix (the W920 final-gate finding): the
+        // duplicate path is READ-VERIFY-ONLY. Content-addressed segments are
+        // immutable, so re-PUTting the identical document (plus the index,
+        // plus the global stats) burned THREE Class A writes per duplicate —
+        // fired by every cold-instance dev-seed mirror and every durable
+        // reconstruction — and a serverless cold-start burst tripped R2's
+        // per-account rate limit (HTTP 429), 500-ing READS of data that was
+        // already durable. The integrity check below (recorded hash vs the
+        // offered hash) is the whole of the duplicate contract; redundant
+        // duplicate-counting writes are gone (in-process duplicate accounting
+        // lives in the W504 pipeline store; the durable counters only ever
+        // tracked rewrites that must no longer happen).
         return {
           outcome: "duplicate",
           record: documentToRecord(storedDoc),
