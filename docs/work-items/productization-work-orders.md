@@ -94,6 +94,11 @@ Accept: provider usage counters, user/job quotas, spend alarms and fail-closed a
 Owner: Tech Lead. Depends on W909, W915, W917, W919, W803-W806.
 Accept: fresh user can sign up, discover a match, watch, switch renderer, upload authorized media, render, view the result, switch roles, and observe accurate degraded/denied states from a public URL.
 
+### W921 Durable control-plane adoption (added 2026-09-16 by the TL from the W920 gate findings)
+Owner: Platform (Worker B). Depends on W911, W912, W914, W916.
+Background: the W920 fresh-browser walkthrough proved the control-plane media-session/render/job state is per-instance in-memory on serverless — user-created sessions are unreliably viewable across instances (the studio preview 404s while the creating instance serves 200), and session-id allocation collides across instances (two different sessions both "sess-4"). This violates the frozen deployment-architecture ("Neon PostgreSQL <--- control-plane state").
+Accept: user-created sessions (and their renders, publication state, studio job state) are durable in Neon and correct across instances — (a) a session created on one request is watchable, previewable, publishable and catalog-listed from subsequent requests served by ANY instance; (b) user-session ids are collision-safe; (c) the decisive two-composition-instances-over-one-record-store test passes; (d) real-Neon integration tests pass (the W911 env-gated pattern); (e) local dev (DATABASE_URL unset) keeps the in-memory path with an honest health note; (f) deployed public-URL evidence: create → cross-instance watch + studio preview → publish → catalog, from the walkthrough account class.
+
 ## Three-worker dispatch model
 
 ### Worker A — Product/UI
