@@ -162,6 +162,9 @@ function cloneRender(record: ControlRenderRecord): ControlRenderRecord {
  * (a restart forgets it — exactly the W904-era boundary, honestly labeled).
  */
 export class InMemoryControlPlaneRecordStore implements ControlPlaneRecordStore {
+  /** The structural provider marker (the composition's health labels read it). */
+  readonly providerName = "in-memory" as const;
+
   private readonly sessions = new Map<string, ControlSessionRecord>();
   private readonly rendersBySession = new Map<string, ControlRenderRecord[]>();
 

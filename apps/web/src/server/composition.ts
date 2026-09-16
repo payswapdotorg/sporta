@@ -272,6 +272,12 @@ export interface SportaServer {
  * Creates the composed server. The dev seed (when enabled) starts
  * asynchronously; await `server.ready` before serving catalog/watch traffic.
  */
+
+/** The record store's provider name (structural — wrappers inherit nothing). */
+function providerOfRecords(store: ControlPlaneRecordStore): "neon" | "in-memory" {
+  return (store as { providerName?: unknown }).providerName === "neon" ? "neon" : "in-memory";
+}
+
 export function createSportaServer(options: SportaServerOptions = {}): SportaServer {
   const nowMs = options.nowMs ?? Date.now;
   const entropy = options.entropy ?? defaultEntropySource;
@@ -393,6 +399,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
           attestations,
           pipeline,
           artifacts,
+          provider: providerOfRecords(options.controlRecords),
           nowMs,
         })
       : null;

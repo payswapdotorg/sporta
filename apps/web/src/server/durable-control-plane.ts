@@ -123,6 +123,13 @@ export interface DurableControlPlaneOptions {
   pipeline: AnimeOutputPipeline;
   /** The hosted R2 artifact store when configured (idempotent mirrors). */
   artifacts: R2RenderOutputStore | null;
+  /**
+   * The record store's provider name (health surfaces): `"neon"` for the
+   * PostgreSQL adapter, `"in-memory"` for the hermetic store. Defaults to
+   * `"in-memory"` so the store's own kind is reported honestly — the
+   * production singleton passes `"neon"` alongside the pg adapter.
+   */
+  provider?: "neon" | "in-memory";
   /** Wall clock. */
   nowMs: () => number;
 }
@@ -157,6 +164,15 @@ export interface DurableControlPlane {
    * degraded-listing note; every other failure propagates.
    */
   reconstructionSkips(): number;
+  /**
+   * Refreshes the in-process publication flag of one session from its
+   * durable record (the source of truth for publication state). A no-op for
+   * ids that are not durable (the dev-seed namespace — in-process only).
+   * Called by the read seams that gate on publication BEFORE any control
+   * read (the watch gate) so a publication flip made on ANOTHER instance is
+   * honored by a warm instance that still holds the session in-process.
+   */
+  syncVisibility(sessionId: string): Promise<void>;
   /** The record store's provider name (health). */
   provider: "neon" | "in-memory";
 }
@@ -191,6 +207,7 @@ export function createDurableControlPlane(
     attestations,
     pipeline,
     artifacts,
+    provider = "in-memory",
     nowMs,
   } = options;
 
@@ -206,6 +223,13 @@ export function createDurableControlPlane(
   // Reconstruction (deterministic replay through the REAL seams)
   // -----------------------------------------------------------------------
 
+  /** Seeds the in-process publication store from a recorded decision. */
+  function seedVisibility(sessionId: string, visibility: ControlVisibilityRecord): void {
+    publication.set(sessionId, {
+      kind: visibility.kind,
+      ...(visibility.roles.length > 0 ? { roles: [...visibility.roles] } : {}),
+    });
+  }
   /**
    * Re-materializes one render's stored outputs through the REAL renderer
    * detailed surface + the REAL W504 encoder + the REAL pipeline store,
@@ -362,10 +386,7 @@ export function createDurableControlPlane(
     });
     // 3. The recorded publication decision + attestation (in-process stores
     //    re-seeded from the record — the W916 visibility is the record's).
-    publication.set(record.sessionId, {
-      kind: record.visibility.kind,
-      ...(record.visibility.roles.length > 0 ? { roles: [...record.visibility.roles] } : {}),
-    });
+    seedVisibility(record.sessionId, record.visibility);
     attestations.record(record.sessionId, record.ownerUserId);
     // 4. The renders: results served from the record (the decorator's
     //    fall-through); outputs re-materialized under the recorded ids with
@@ -407,6 +428,17 @@ export function createDurableControlPlane(
     } finally {
       reconstructionsInFlight.delete(sessionId);
     }
+  }
+
+  /**
+   * Refreshes the in-process publication flag from the record (see the
+   * interface docs): the honest cost is ONE primary-key record read on the
+   * durable path, a no-op for the unrecorded dev-seed namespace.
+   */
+  async function syncVisibility(sessionId: string): Promise<void> {
+    const record = await records.findSession(sessionId);
+    if (record === null) return; // not durable — the in-process flag stands
+    seedVisibility(sessionId, record.visibility);
   }
 
   // -----------------------------------------------------------------------
@@ -497,15 +529,18 @@ export function createDurableControlPlane(
     async listSessions(ctx) {
       // Seeded (in-process) ∪ durable: every durable record is ensured live
       // (reconstructed once per instance) so the raw registry then lists it
-      // natively. A recorded policy that has expired / derives no capability
-      // cannot be recreated (the control plane's fail-closed admission) —
-      // that session is SKIPPED and counted, exactly like the catalog's
-      // terminated-session skip. Every other failure propagates (the honest
-      // 500 with the real reason).
+      // natively, and its RECORDED publication decision is re-seeded (the
+      // record is the source of truth for publication state — a flip made on
+      // another instance is honored here, warm instance or cold). A recorded
+      // policy that has expired / derives no capability cannot be recreated
+      // (the control plane's fail-closed admission) — that session is SKIPPED
+      // and counted, exactly like the catalog's terminated-session skip.
+      // Every other failure propagates (the honest 500 with the real reason).
       const durable = await records.listSessions();
       for (const record of durable) {
         try {
           await ensureSessionLive(record.sessionId);
+          seedVisibility(record.sessionId, record.visibility);
         } catch (err) {
           if (err instanceof ControlRightsDeniedError) {
             reconstructionSkipCount += 1;
@@ -608,7 +643,8 @@ export function createDurableControlPlane(
     noteVisibility,
     noteRenderObserved,
     reconstructionSkips: () => reconstructionSkipCount,
-    provider: "neon",
+    syncVisibility,
+    provider,
   };
 }
 

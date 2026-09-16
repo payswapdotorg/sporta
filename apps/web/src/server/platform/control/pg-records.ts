@@ -137,6 +137,9 @@ function rowToRender(row: Record<string, unknown>): ControlRenderRecord {
 
 /** `ControlPlaneRecordStore` over Neon PostgreSQL. */
 export class PgControlPlaneRecordStore implements ControlPlaneRecordStore {
+  /** The structural provider marker (the composition's health labels read it). */
+  readonly providerName = "neon" as const;
+
   readonly #sql: PostgresSql;
   readonly #nowMs: () => number;
 
