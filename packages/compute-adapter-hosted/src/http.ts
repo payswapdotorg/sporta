@@ -59,7 +59,8 @@ function executionResponse(execution: ComputeWorkerExecution, requestId: string)
   if (execution.kind === "refused") {
     return json(503, { error: execution.reason }, headers);
   }
-  const duplicate = execution.kind === "duplicate" ? { duplicateExecutions: execution.duplicateExecutions } : {};
+  const duplicate =
+    execution.kind === "duplicate" ? { duplicateExecutions: execution.duplicateExecutions } : {};
   return json(
     200,
     {
@@ -75,7 +76,9 @@ function executionResponse(execution: ComputeWorkerExecution, requestId: string)
  * The transport-free handler: `(request: Request) => Promise<Response>`.
  * Mount it under `Bun.serve` (local) or a serverless route (hosted).
  */
-export function createComputeWorkerHttpHandler(worker: ComputeWorker): (request: Request) => Promise<Response> {
+export function createComputeWorkerHttpHandler(
+  worker: ComputeWorker,
+): (request: Request) => Promise<Response> {
   let requestSeq = 0;
   return async (request: Request): Promise<Response> => {
     requestSeq += 1;
@@ -182,10 +185,7 @@ export function createHttpExecuteFunction(
     // The wire body: the job plus its materialized inputs (the control
     // plane ALWAYS dispatches materialized — a bare job is rejected loudly
     // by the worker's exact-coverage validation).
-    const payload =
-      materialized === undefined
-        ? { job }
-        : { job, inputs: materialized };
+    const payload = materialized === undefined ? { job } : { job, inputs: materialized };
     const response = await doFetch(`${base}/v1/jobs/execute`, {
       method: "POST",
       headers: { "content-type": "application/json" },

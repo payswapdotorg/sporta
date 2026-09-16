@@ -75,9 +75,7 @@ export function computeProviderSelectionOf(
   const raw = env["COMPUTE_PROVIDER"];
   if (raw === undefined || raw === "") return "in-process";
   if (raw === "in-process" || raw === "http" || raw === "none") return raw;
-  throw new Error(
-    `COMPUTE_PROVIDER must be one of "in-process" | "http" | "none" (got '${raw}')`,
-  );
+  throw new Error(`COMPUTE_PROVIDER must be one of "in-process" | "http" | "none" (got '${raw}')`);
 }
 
 /**
@@ -96,7 +94,7 @@ export async function resolveComputeAdapterFromEnv(
   if (provider === "http") {
     const workerUrl = env["COMPUTE_WORKER_URL"];
     if (workerUrl === undefined || workerUrl === "") {
-      throw new Error('COMPUTE_PROVIDER=http requires COMPUTE_WORKER_URL');
+      throw new Error("COMPUTE_PROVIDER=http requires COMPUTE_WORKER_URL");
     }
     const doFetch = options.fetchFn ?? fetch;
     // Descriptor honesty: the hosted adapter's descriptor IS the worker's

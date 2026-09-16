@@ -303,10 +303,21 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
     this.byIdempotencyKey.set(description.idempotencyKey, description.jobId);
     this.statsState.jobsDispatched += 1;
     this.statsState.admitted += 1;
+    // Identity 2: the admitted job is in-flight until it settles (exactly
+    // one terminal bucket) — never-terminal jobs would break the identity.
+    this.statsState.inFlight += 1;
     this.statsState.inputsManifested += description.inputs.length;
     this.statsState.inputsInFlight += description.inputs.length;
-    this.transition(record, "dispatched", this.eventOf(record, "submitted", { adapterId: this.descriptor.adapterId }));
-    this.transition(record, "queued", this.eventOf(record, "dispatched", { providerId: this.providerId }));
+    this.transition(
+      record,
+      "dispatched",
+      this.eventOf(record, "submitted", { adapterId: this.descriptor.adapterId }),
+    );
+    this.transition(
+      record,
+      "queued",
+      this.eventOf(record, "dispatched", { providerId: this.providerId }),
+    );
     assertComputeAccounting(this.statsState);
 
     // 8. Decoupled handoff — execution happens after dispatch returns.
@@ -375,7 +386,11 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
         terminalDisposition: record.state as ComputeTerminalDisposition,
       };
     }
-    this.transition(record, "cancelled", this.eventOf(record, "cancelled", { fromState: record.state }));
+    this.transition(
+      record,
+      "cancelled",
+      this.eventOf(record, "cancelled", { fromState: record.state }),
+    );
     this.settle(record, "cancelled", undefined);
     return { cancelled: true, jobId };
   }
@@ -402,7 +417,16 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
   /** Builds one decision event for a job (schemaVersion + jobId always). */
   private eventOf(
     record: JobRecord,
-    type: "submitted" | "dispatched" | "claimed" | "deadline-timeout" | "cancelled" | "superseded-report" | "succeeded" | "failed" | "dead-lettered",
+    type:
+      | "submitted"
+      | "dispatched"
+      | "claimed"
+      | "deadline-timeout"
+      | "cancelled"
+      | "superseded-report"
+      | "succeeded"
+      | "failed"
+      | "dead-lettered",
     details?: Record<string, unknown>,
   ): ComputeJobEvent {
     return {
@@ -415,11 +439,7 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
   }
 
   /** Applies a legal transition + appends the event (fail-loud otherwise). */
-  private transition(
-    record: JobRecord,
-    to: ComputeJobState,
-    event?: ComputeJobEvent,
-  ): void {
+  private transition(record: JobRecord, to: ComputeJobState, event?: ComputeJobEvent): void {
     assertComputeTransition(record.state, to);
     record.state = to;
     if (event !== undefined) {
@@ -437,10 +457,14 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
     if (now - record.admittedAtMs <= record.job.constraints.deadlineMs) return;
     // The live job missed its whole-job deadline: dispose it failed/timeout
     // (outputs never existed here — nothing to discard).
-    this.transition(record, "failed", this.eventOf(record, "deadline-timeout", {
-      deadlineMs: record.job.constraints.deadlineMs,
-      elapsedMs: now - record.admittedAtMs,
-    }));
+    this.transition(
+      record,
+      "failed",
+      this.eventOf(record, "deadline-timeout", {
+        deadlineMs: record.job.constraints.deadlineMs,
+        elapsedMs: now - record.admittedAtMs,
+      }),
+    );
     this.settle(record, "failed", {
       failure: {
         errorClass: "deadline-exceeded",
@@ -471,14 +495,22 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       }
       record.claims += 1;
       record.attempts += 1;
-      this.transition(record, "in-flight", this.eventOf(record, "claimed", { providerId: this.providerId }));
+      this.transition(
+        record,
+        "in-flight",
+        this.eventOf(record, "claimed", { providerId: this.providerId }),
+      );
       let envelope: HostedJobExecutionDoc;
       try {
         envelope = await this.executeFn(record.job, materialized);
       } catch (err) {
         // Transport/execution fault: the work is unknowable — settle
         // dead-lettered/internal (no retries this wave; documented).
-        this.transition(record, "dead-lettered", this.eventOf(record, "dead-lettered", { errorClass: "provider-fault" }));
+        this.transition(
+          record,
+          "dead-lettered",
+          this.eventOf(record, "dead-lettered", { errorClass: "provider-fault" }),
+        );
         this.settle(record, "dead-lettered", {
           failure: {
             errorClass: "provider-fault",
@@ -497,11 +529,15 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       // Late-outcome deadline check (fail-closed: discard the outputs).
       const now = this.nowMs();
       if (now - record.admittedAtMs > record.job.constraints.deadlineMs) {
-        this.transition(record, "failed", this.eventOf(record, "deadline-timeout", {
-          deadlineMs: record.job.constraints.deadlineMs,
-          elapsedMs: now - record.admittedAtMs,
-          lateOutcome: true,
-        }));
+        this.transition(
+          record,
+          "failed",
+          this.eventOf(record, "deadline-timeout", {
+            deadlineMs: record.job.constraints.deadlineMs,
+            elapsedMs: now - record.admittedAtMs,
+            lateOutcome: true,
+          }),
+        );
         this.settle(record, "failed", {
           failure: {
             errorClass: "deadline-exceeded",
@@ -512,16 +548,24 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
         return;
       }
       if (envelope.status === "succeeded") {
-        this.transition(record, "succeeded", this.eventOf(record, "succeeded", {
-          outputCount: envelope.outputs.length,
-          executionMs: envelope.metering.executionMs,
-        }));
+        this.transition(
+          record,
+          "succeeded",
+          this.eventOf(record, "succeeded", {
+            outputCount: envelope.outputs.length,
+            executionMs: envelope.metering.executionMs,
+          }),
+        );
         this.settle(record, "succeeded", envelope);
         return;
       }
       const failure = envelope.failure;
       if (failure === undefined) {
-        this.transition(record, "dead-lettered", this.eventOf(record, "dead-lettered", { errorClass: "invalid-provider-report" }));
+        this.transition(
+          record,
+          "dead-lettered",
+          this.eventOf(record, "dead-lettered", { errorClass: "invalid-provider-report" }),
+        );
         this.settle(record, "dead-lettered", {
           failure: {
             errorClass: "invalid-provider-report",
@@ -533,10 +577,14 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       }
       const bucket: ComputeTerminalDisposition =
         failure.terminal === "internal" ? "dead-lettered" : "failed";
-      this.transition(record, bucket, this.eventOf(record, bucket === "dead-lettered" ? "dead-lettered" : "failed", {
-        errorClass: failure.errorClass,
-        terminal: failure.terminal,
-      }));
+      this.transition(
+        record,
+        bucket,
+        this.eventOf(record, bucket === "dead-lettered" ? "dead-lettered" : "failed", {
+          errorClass: failure.errorClass,
+          terminal: failure.terminal,
+        }),
+      );
       this.settle(record, bucket, envelope);
     } finally {
       this.inFlightHandoffs -= 1;
@@ -549,7 +597,13 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
     disposition: ComputeTerminalDisposition,
     payload:
       | HostedJobExecutionDoc
-      | { failure: { errorClass: string; message: string; terminal: "non-retryable" | "timeout" | "internal" } }
+      | {
+          failure: {
+            errorClass: string;
+            message: string;
+            terminal: "non-retryable" | "timeout" | "internal";
+          };
+        }
       | undefined,
   ): void {
     if (record.completion !== undefined) {
@@ -564,7 +618,9 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
         : 0;
     const executionMs =
       record.reportedExecutionMs ??
-      (record.roundStartedAtMs !== undefined ? Math.max(0, finishedAtMs - record.roundStartedAtMs) : 0);
+      (record.roundStartedAtMs !== undefined
+        ? Math.max(0, finishedAtMs - record.roundStartedAtMs)
+        : 0);
     const consumedInputIds: string[] = [];
     const unconsumedInputs: Array<{ inputId: string; reason: string }> = [];
     let outputs: HostedJobExecutionDoc["outputs"] = [];
@@ -604,12 +660,17 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       for (const input of record.job.inputs) {
         unconsumedInputs.push({
           inputId: input.inputId,
-          reason: disposition === "cancelled" ? "job cancelled" : "execution did not consume this input",
+          reason:
+            disposition === "cancelled" ? "job cancelled" : "execution did not consume this input",
         });
       }
     }
     const status =
-      disposition === "dead-lettered" ? "failed" : disposition === "cancelled" ? "cancelled" : disposition;
+      disposition === "dead-lettered"
+        ? "failed"
+        : disposition === "cancelled"
+          ? "cancelled"
+          : disposition;
     const completion: ComputeJobCompletion = {
       schemaVersion: "1.0",
       jobId: record.job.jobId,
@@ -636,19 +697,27 @@ export class HostedComputeAdapter implements ComputeAdapterPort {
       claims: record.claims,
       timing: {
         submittedAtMs: record.admittedAtMs,
-        ...(record.firstStartedAtMs !== undefined
-          ? { startedAtMs: record.firstStartedAtMs }
-          : {}),
+        ...(record.firstStartedAtMs !== undefined ? { startedAtMs: record.firstStartedAtMs } : {}),
         finishedAtMs,
         queueWaitMs,
         executionMs,
       },
       accounting: { consumedInputIds, unconsumedInputs },
-      usage: this.buildUsageRecord(record, disposition, queueWaitMs, executionMs, outputs, finishedAtMs),
+      usage: this.buildUsageRecord(
+        record,
+        disposition,
+        queueWaitMs,
+        executionMs,
+        outputs,
+        finishedAtMs,
+      ),
     };
     record.completion = completion;
     this.usageRecords.push(completion.usage);
     this.statsState.usageRecords += 1;
+    // Identity 2: the job left the in-flight bucket for exactly one
+    // terminal bucket (the decrement is here, inside the once-only settle).
+    this.statsState.inFlight -= 1;
     if (disposition === "succeeded") {
       this.statsState.succeeded += 1;
     } else if (disposition === "failed") {

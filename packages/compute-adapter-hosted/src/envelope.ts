@@ -110,7 +110,7 @@ export const HostedJobExecution = z
         code: "custom",
         path: ["outputs"],
         message:
-          'a succeeded render job must carry at least one output artifact (renderer without W504 encoding is not dispatchable to this worker)',
+          "a succeeded render job must carry at least one output artifact (renderer without W504 encoding is not dispatchable to this worker)",
       });
     }
   });

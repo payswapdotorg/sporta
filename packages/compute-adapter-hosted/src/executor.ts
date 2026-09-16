@@ -116,9 +116,7 @@ function failedEnvelope(
 }
 
 /** The structural check for the W502 detailed-render extension. */
-function hasRenderDetailed(
-  plugin: RendererPlugin,
-): plugin is RendererPlugin & {
+function hasRenderDetailed(plugin: RendererPlugin): plugin is RendererPlugin & {
   renderDetailed(
     req: RenderRequestDoc,
     input: { snapshot: WorldSnapshotDoc; events: WorldEventStreamEntryDoc[] },
@@ -143,7 +141,8 @@ export async function executeRenderJob(
   const parsedRequest = ComputeDispatchRequest.safeParse(request);
   if (!parsedRequest.success) {
     return failedEnvelope(
-      typeof request === "object" && request !== null &&
+      typeof request === "object" &&
+        request !== null &&
         typeof (request as { jobId?: unknown }).jobId === "string"
         ? (request as { jobId: string }).jobId
         : "unknown",
@@ -494,9 +493,7 @@ export async function executeRenderJob(
 const initializedPlugins = new WeakSet<RendererPlugin>();
 
 /** The exact one-snapshot + one-event-window input shape, or an issue string. */
-function extractInputs(
-  inputs: readonly ComputeMaterializedInput[],
-):
+function extractInputs(inputs: readonly ComputeMaterializedInput[]):
   | {
       snapshotInput: ComputeMaterializedInput & {
         payload: { snapshotVersion: number; snapshot: unknown };
@@ -530,7 +527,7 @@ function extractInputs(
     return "swm-event-window payload is not { fromSequence, entries[] }";
   }
   return {
-    snapshotInput: snapshot as typeof snapshots[number] & {
+    snapshotInput: snapshot as (typeof snapshots)[number] & {
       payload: { snapshotVersion: number; snapshot: unknown };
     },
     eventsInput: eventWindow as typeof eventWindow & {

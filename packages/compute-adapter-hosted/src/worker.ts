@@ -41,8 +41,12 @@ export const HOSTED_COMPUTE_ADAPTER_ID = "sporta.compute.hosted";
 /** The provider identity this worker executes as (abstract, never a vendor). */
 export const HOSTED_COMPUTE_PROVIDER_ID = "sporta-compute-worker-1";
 
-/** The adapter version of this worker implementation. */
-export const HOSTED_COMPUTE_ADAPTER_VERSION = "0.1.0";
+/**
+ * The adapter version of this worker implementation ("MAJOR.MINOR" — the
+ * descriptor schema's closed format; the patch segment lives in the repo,
+ * not the wire document).
+ */
+export const HOSTED_COMPUTE_ADAPTER_VERSION = "0.1";
 
 /** The cost units this worker meters (the descriptor's currency). */
 export const HOSTED_COMPUTE_COST_UNITS: ComputeAdapterDescriptorDoc["costUnits"] = [
@@ -100,7 +104,10 @@ export interface ComputeWorkerStats {
 export type ComputeWorkerExecution =
   | { kind: "executed"; result: HostedJobExecutionDoc }
   | { kind: "duplicate"; result: HostedJobExecutionDoc; duplicateExecutions: number }
-  | { kind: "refused"; reason: { errorClass: string; message: string; terminal: "resource-limit" } };
+  | {
+      kind: "refused";
+      reason: { errorClass: string; message: string; terminal: "resource-limit" };
+    };
 
 /** The hosted compute worker application. */
 export class ComputeWorker {
@@ -155,7 +162,9 @@ export class ComputeWorker {
         providerKind: "cpu-worker" as const,
         supportedRenderers,
         supportedLatencyClasses:
-          latencyClasses.size > 0 ? (Array.from(latencyClasses) as ("offline" | "near-live" | "live")[]) : (["offline"] as const),
+          latencyClasses.size > 0
+            ? (Array.from(latencyClasses) as ("offline" | "near-live" | "live")[])
+            : (["offline"] as const),
         maxConcurrentJobs: this.budgets.maxConcurrentJobs,
         dispatchTimeoutMs: this.budgets.dispatchTimeoutMs,
         maxJobDeadlineMs: this.budgets.maxJobDeadlineMs,
