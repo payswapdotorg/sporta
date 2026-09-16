@@ -690,9 +690,7 @@ export class CreateStudioService {
       payloadJson: JSON.stringify({
         sessionId: input.sessionId,
         rendererId: input.rendererId,
-        ...(input.rendererVersion !== undefined
-          ? { rendererVersion: input.rendererVersion }
-          : {}),
+        ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
         ...(input.styleId !== undefined ? { styleId: input.styleId } : {}),
       }),
     });

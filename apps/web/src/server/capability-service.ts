@@ -102,7 +102,8 @@ async function transientStateFeed(server: SportaServer) {
         kind: "queue-cache" as const,
         health: "down" as const,
         detail: "upstash redis unreachable — admission guards fail closed until it recovers",
-        degradedMeaning: "render admission and rate limits refuse new work while the shared state is unreachable",
+        degradedMeaning:
+          "render admission and rate limits refuse new work while the shared state is unreachable",
       };
 }
 

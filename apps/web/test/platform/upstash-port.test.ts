@@ -125,7 +125,11 @@ describe("UpstashRestRedis (wire format over a fake fetch)", () => {
 
   test("GET posts the JSON command array with the Bearer token", async () => {
     const { calls, impl } = fakeFetch("the-value");
-    const redis = new UpstashRestRedis({ url: "https://example.upstash.io/", token: "tok", fetchImpl: impl as unknown as typeof fetch });
+    const redis = new UpstashRestRedis({
+      url: "https://example.upstash.io/",
+      token: "tok",
+      fetchImpl: impl as unknown as typeof fetch,
+    });
     expect(await redis.get("k")).toBe("the-value");
     expect(calls).toHaveLength(1);
     expect(calls[0]!.url).toBe("https://example.upstash.io");
@@ -136,14 +140,22 @@ describe("UpstashRestRedis (wire format over a fake fetch)", () => {
 
   test("SET with EX appends the expiry argument", async () => {
     const { calls, impl } = fakeFetch("OK");
-    const redis = new UpstashRestRedis({ url: "https://example.upstash.io", token: "tok", fetchImpl: impl as unknown as typeof fetch });
+    const redis = new UpstashRestRedis({
+      url: "https://example.upstash.io",
+      token: "tok",
+      fetchImpl: impl as unknown as typeof fetch,
+    });
     await redis.set("k", "v", { ex: 60 });
     expect(JSON.parse(String(calls[0]!.init.body))).toEqual(["SET", "k", "v", "EX", 60]);
   });
 
   test("RPUSH/LREM/LRANGE/LLEN/INCR/EXPIRE/DEL/PING command shapes", async () => {
     const { calls, impl } = fakeFetch(1);
-    const redis = new UpstashRestRedis({ url: "https://example.upstash.io", token: "tok", fetchImpl: impl as unknown as typeof fetch });
+    const redis = new UpstashRestRedis({
+      url: "https://example.upstash.io",
+      token: "tok",
+      fetchImpl: impl as unknown as typeof fetch,
+    });
     await redis.rpush("q", "job");
     await redis.lrem("q", 1, "job");
     await redis.lrange("q", 0, -1);
@@ -158,7 +170,11 @@ describe("UpstashRestRedis (wire format over a fake fetch)", () => {
 
   test("an HTTP error FAILS LOUD (a quota layer must never treat an outage as no limit)", async () => {
     const impl = async (): Promise<Response> => new Response("nope", { status: 500 });
-    const redis = new UpstashRestRedis({ url: "https://example.upstash.io", token: "tok", fetchImpl: impl as unknown as typeof fetch });
+    const redis = new UpstashRestRedis({
+      url: "https://example.upstash.io",
+      token: "tok",
+      fetchImpl: impl as unknown as typeof fetch,
+    });
     await expect(redis.get("k")).rejects.toThrow("upstash rest: HTTP 500 for GET");
   });
 });
@@ -301,7 +317,7 @@ describe("QuotaGuard", () => {
   });
 
   test("consumption past the limit is REFUSED and the counter rolls back", async () => {
-    const { now, advance } = clock(1_000_000);
+    const { now } = clock(1_000_000);
     const redis = new InMemoryRedis(now);
     const guard = new QuotaGuard({ redis, nowMs: now });
     for (let index = 0; index < 3; index += 1) await guard.consume(quota, "s");

@@ -49,7 +49,9 @@ if (!gate) {
 }
 
 const PREFIX = `sporta:test:w913:${Math.random().toString(36).slice(2, 10)}`;
-const redis: UpstashRestRedis | null = gate ? new UpstashRestRedis({ url: url!, token: token! }) : null;
+const redis: UpstashRestRedis | null = gate
+  ? new UpstashRestRedis({ url: url!, token: token! })
+  : null;
 const createdKeys: string[] = [];
 
 afterAll(async () => {

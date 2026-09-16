@@ -21,7 +21,10 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { createDeterministicTestHasher } from "@sporta/identity";
 import { InMemoryRedis } from "../src/server/platform/upstash/redis";
-import { HOSTED_QUEUE_MAX_DEPTH, RENDER_REQUESTS_QUOTA } from "../src/server/platform/upstash/hosted";
+import {
+  HOSTED_QUEUE_MAX_DEPTH,
+  RENDER_REQUESTS_QUOTA,
+} from "../src/server/platform/upstash/hosted";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
 import { SPORTA_SESSION_COOKIE } from "../src/server/auth-service";
@@ -109,7 +112,11 @@ describe("login rate limits (per IP + per attempted handle)", () => {
     // the IP window is the guard that fires).
     for (let attempt = 0; attempt < 30; attempt += 1) {
       const response = await loginRoute(
-        fromIp(ip, "/api/auth/login", post({ username: `ip-burn-${attempt}`, password: "wrong-password-123" })),
+        fromIp(
+          ip,
+          "/api/auth/login",
+          post({ username: `ip-burn-${attempt}`, password: "wrong-password-123" }),
+        ),
       );
       expect(response.status).toBe(401); // honest failures while capacity remains
     }
@@ -132,9 +139,7 @@ describe("login rate limits (per IP + per attempted handle)", () => {
       },
     });
     // A DIFFERENT IP is unaffected (the window is per subject).
-    const other = await loginRoute(
-      fromIp("198.51.100.8", "/api/auth/login", correct),
-    );
+    const other = await loginRoute(fromIp("198.51.100.8", "/api/auth/login", correct));
     expect(other.status).toBe(200);
   });
 
@@ -147,9 +152,7 @@ describe("login rate limits (per IP + per attempted handle)", () => {
       );
       expect(response.status).toBe(200);
     }
-    const refused = await loginRoute(
-      fromIp("203.0.113.200", "/api/auth/login", correct),
-    );
+    const refused = await loginRoute(fromIp("203.0.113.200", "/api/auth/login", correct));
     expect(refused.status).toBe(429);
     const body = await bodyOf(refused);
     expect((body.error as { details: { quota: { quotaId: string } } }).details.quota.quotaId).toBe(
@@ -172,14 +175,17 @@ describe("register rate limits (per IP + per attempted handle)", () => {
       expect(response.status).toBe(200);
     }
     const refused = await registerRoute(
-      fromIp(ip, "/api/auth/register", post({ username: "rate-user-10", password: "a-real-user-password" })),
+      fromIp(
+        ip,
+        "/api/auth/register",
+        post({ username: "rate-user-10", password: "a-real-user-password" }),
+      ),
     );
     expect(refused.status).toBe(429);
     expect(refused.headers.get("retry-after")).toMatch(/^\d+$/);
     const body = await bodyOf(refused);
     expect(
-      (body.error as { details: { quota: { quotaId: string; exhausted: boolean } } }).details
-        .quota,
+      (body.error as { details: { quota: { quotaId: string; exhausted: boolean } } }).details.quota,
     ).toMatchObject({ quotaId: "register-attempts-ip", exhausted: true });
   });
 
@@ -196,13 +202,17 @@ describe("register rate limits (per IP + per attempted handle)", () => {
       expect([200, 409]).toContain(response.status);
     }
     const refused = await registerRoute(
-      fromIp("192.0.2.200", "/api/auth/register", post({ username: "contested-handle", password: "a-real-user-password" })),
+      fromIp(
+        "192.0.2.200",
+        "/api/auth/register",
+        post({ username: "contested-handle", password: "a-real-user-password" }),
+      ),
     );
     expect(refused.status).toBe(429);
     const body = await bodyOf(refused);
-    expect(
-      (body.error as { details: { quota: { quotaId: string } } }).details.quota.quotaId,
-    ).toBe("register-attempts-account");
+    expect((body.error as { details: { quota: { quotaId: string } } }).details.quota.quotaId).toBe(
+      "register-attempts-account",
+    );
   });
 });
 
@@ -247,7 +257,11 @@ describe("the per-user render-request quota (degradation path)", () => {
     // One real dispatch through the route (202), then the remaining budget
     // consumed through the SAME guard seam the route uses.
     const dispatch = await dispatchRoute(
-      withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({ rendererId: "anime.prototype" })),
+      withCookie(
+        creatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({ rendererId: "anime.prototype" }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(dispatch.status).toBe(202);
@@ -262,15 +276,19 @@ describe("the per-user render-request quota (degradation path)", () => {
     // provider runs (Simulation E admission-stop).
     const before = await server.transientState.queue.depth();
     const refused = await dispatchRoute(
-      withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({ rendererId: "anime.prototype" })),
+      withCookie(
+        creatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({ rendererId: "anime.prototype" }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(refused.status).toBe(429);
     expect(refused.headers.get("retry-after")).toMatch(/^\d+$/);
     const body = await bodyOf(refused);
-    expect((body.error as { details: { quota: { quotaId: string; exhausted: boolean } } }).details.quota).toMatchObject(
-      { quotaId: "render-requests", exhausted: true, reasonCode: "quota-exhausted" },
-    );
+    expect(
+      (body.error as { details: { quota: { quotaId: string; exhausted: boolean } } }).details.quota,
+    ).toMatchObject({ quotaId: "render-requests", exhausted: true, reasonCode: "quota-exhausted" });
     // The refused job never entered the bounded queue.
     expect(await server.transientState.queue.depth()).toBe(before);
   });
@@ -279,7 +297,13 @@ describe("the per-user render-request quota (degradation path)", () => {
     const response = await capabilityRoute(withCookie(creatorToken, "/api/capability"));
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
-      quotas: { quotaId: string; used: number; limit: number; exhausted: boolean; reasonCode: string }[];
+      quotas: {
+        quotaId: string;
+        used: number;
+        limit: number;
+        exhausted: boolean;
+        reasonCode: string;
+      }[];
       overall: { state: string; reasonCodes: string[] };
     };
     expect(body.quotas).toHaveLength(1);
@@ -327,7 +351,11 @@ describe("the bounded render queue", () => {
     }
     expect(await server.transientState.queue.depth()).toBe(HOSTED_QUEUE_MAX_DEPTH);
     const refused = await dispatchRoute(
-      withCookie(secondCreatorToken, `/api/create/sessions/${sessionId}/renders`, post({ rendererId: "anime.prototype" })),
+      withCookie(
+        secondCreatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({ rendererId: "anime.prototype" }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(refused.status).toBe(503);
@@ -342,7 +370,11 @@ describe("the bounded render queue", () => {
   test("a released slot admits again; the SETTLED job returns its slot", async () => {
     await server.transientState.queue.release("fill-0");
     const dispatch = await dispatchRoute(
-      withCookie(secondCreatorToken, `/api/create/sessions/${sessionId}/renders`, post({ rendererId: "anime.prototype" })),
+      withCookie(
+        secondCreatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({ rendererId: "anime.prototype" }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(dispatch.status).toBe(202);

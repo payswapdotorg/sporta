@@ -46,11 +46,7 @@ export { BoundedJobQueue } from "./upstash/queue";
 export type { QueuedJob, QueuedJobView, AdmissionOutcome } from "./upstash/queue";
 export { TtlCache } from "./upstash/cache";
 export { QuotaGuard } from "./upstash/quotas";
-export type {
-  PlatformQuotaState,
-  QuotaConsumeOutcome,
-  QuotaDefinition,
-} from "./upstash/quotas";
+export type { PlatformQuotaState, QuotaConsumeOutcome, QuotaDefinition } from "./upstash/quotas";
 export {
   RateLimitedError,
   QueueFullError,

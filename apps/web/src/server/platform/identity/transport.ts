@@ -97,10 +97,7 @@ export async function registerHandler(request: Request): Promise<Response> {
     }
     const ip = requestSubject(request);
     const handle = attemptSubject(parsed.data.username);
-    const ipAdmission = await getHostedQuotaGuard().consume(
-      REGISTER_ATTEMPTS_IP_QUOTA,
-      `ip:${ip}`,
-    );
+    const ipAdmission = await getHostedQuotaGuard().consume(REGISTER_ATTEMPTS_IP_QUOTA, `ip:${ip}`);
     if (!ipAdmission.allowed) {
       return apiError(
         "resource-limit",
@@ -166,10 +163,7 @@ export async function loginHandler(request: Request): Promise<Response> {
     }
     const ip = requestSubject(request);
     const handle = attemptSubject(parsed.data.username);
-    const ipAdmission = await getHostedQuotaGuard().consume(
-      LOGIN_ATTEMPTS_IP_QUOTA,
-      `ip:${ip}`,
-    );
+    const ipAdmission = await getHostedQuotaGuard().consume(LOGIN_ATTEMPTS_IP_QUOTA, `ip:${ip}`);
     if (!ipAdmission.allowed) {
       return apiError(
         "resource-limit",
