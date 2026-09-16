@@ -306,13 +306,27 @@ describe("the per-user render-request quota (degradation path)", () => {
       }[];
       overall: { state: string; reasonCodes: string[] };
     };
-    expect(body.quotas).toHaveLength(1);
-    expect(body.quotas[0]).toMatchObject({
-      quotaId: "render-requests",
+    // W913's render-requests entry + the W919 per-user daily usage quotas
+    // (both admission-relevant, both in the W901 QuotaState vocabulary).
+    const quotaIds = body.quotas.map((quota) => quota.quotaId).sort();
+    expect(quotaIds).toEqual(["compute.artifact-bytes-day", "compute.cpu-ms-day", "render-requests"]);
+    const byId = new Map(body.quotas.map((quota) => [quota.quotaId, quota]));
+    expect(byId.get("render-requests")).toMatchObject({
       used: 20,
       limit: 20,
       exhausted: true,
       reasonCode: "quota-exhausted",
+    });
+    // The usage quotas are measured (the same composition dispatched real
+    // jobs earlier in this suite — their metered usage was noted at the
+    // terminal poll seam) and honestly non-exhausted at the defaults.
+    expect(byId.get("compute.cpu-ms-day")).toMatchObject({
+      reasonCode: "ok",
+      exhausted: false,
+    });
+    expect(byId.get("compute.artifact-bytes-day")).toMatchObject({
+      reasonCode: "ok",
+      exhausted: false,
     });
     expect(body.overall.state).toBe("degraded");
     expect(body.overall.reasonCodes).toContain("quota-exhausted");

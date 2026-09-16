@@ -576,18 +576,45 @@ describe("GET /api/operations/providers", () => {
         usage: "measured" | "unknown";
         counters: { name: string; value: number }[];
         limits: { name: string; value: number | string }[];
+        limitStates: {
+          limitId: string;
+          used: number | null;
+          limit: number;
+          state: string;
+          admissionEnforced: boolean;
+        }[];
         note: string;
       }[];
       notes: string[];
     };
     const byId = new Map(providers.providers.map((provider) => [provider.provider, provider]));
     expect([...byId.keys()].sort()).toEqual(["compute", "neon", "r2", "upstash"]);
-    // The hermetic env configures no R2/Neon/Upstash — honest unknowns.
+    // The hermetic env configures no R2/Neon — honest unknowns.
     expect(byId.get("r2")!.usage).toBe("unknown");
     expect(byId.get("neon")!.usage).toBe("unknown");
     expect(byId.get("neon")!.counters).toEqual([]);
-    expect(byId.get("upstash")!.usage).toBe("unknown");
-    expect(byId.get("neon")!.note).toContain("no usage counter");
+    // W919: the Upstash COMMAND meter is real even on the in-memory fallback
+    // (it counts what this app issues through the port — the would-be volume).
+    expect(byId.get("upstash")!.usage).toBe("measured");
+    const upstashCounters = new Map(
+      byId.get("upstash")!.counters.map((counter) => [counter.name, counter.value]),
+    );
+    expect(upstashCounters.get("commands-this-month (port meter)")!).toBeGreaterThan(0);
+    expect(byId.get("upstash")!.note).toContain("port");
+    expect(byId.get("neon")!.note).toContain("honestly unmeasured");
+    // W919: every provider row carries its ledger limit states (honest
+    // `unmeasured` where no counter exists over the seam).
+    const r2States = byId.get("r2")!.limitStates;
+    expect(r2States.map((state) => state.limitId).sort()).toEqual([
+      "r2.class-a-operations",
+      "r2.class-b-operations",
+      "r2.storage-bytes",
+    ]);
+    expect(r2States.every((state) => state.state === "unmeasured")).toBe(true);
+    const upstashStates = byId.get("upstash")!.limitStates;
+    expect(
+      upstashStates.find((state) => state.limitId === "upstash.commands")!.used,
+    ).toBeGreaterThan(0);
     // The compute adapter's accounting identities ARE measured (real
     // dispatches happened in the earlier suites over this same composition).
     const compute = byId.get("compute")!;
@@ -596,12 +623,12 @@ describe("GET /api/operations/providers", () => {
     expect(counters.get("jobs-dispatched")!).toBeGreaterThanOrEqual(2);
     expect(counters.get("failed")!).toBeGreaterThanOrEqual(2);
     expect(counters.get("succeeded")!).toBeGreaterThanOrEqual(1);
-    // The documented render-requests quota limit rides along (the W919 seam).
+    // The documented render-requests quota limit rides along.
     expect(compute.limits).toContainEqual({
       name: "render-requests per user per hour",
       value: 20,
     });
-    expect(providers.notes.join(" ")).toContain("NOT measured usage");
+    expect(providers.notes.join(" ")).toContain("free-tier thresholds");
   });
 });
 

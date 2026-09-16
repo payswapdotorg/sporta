@@ -204,9 +204,9 @@ export function OperationsConsole() {
           Providers &amp; quotas
         </h2>
         <p className="section-lede">
-          Usage counters only where a provider seam exposes them; the documented free-tier limits
-          ride along as the W919 seam and are never presented as measured facts; unknown stays
-          unknown.
+          Usage counters only where a provider seam exposes them, and the W919 free-tier ledger
+          evaluated against the MEASURED usage (approaching / reached / exceeded states with the
+          checked-date source); seams without a counter stay honestly unmeasured — never estimated.
         </p>
         <ProviderPanel state={providers} />
       </section>
@@ -250,6 +250,35 @@ function HealthBoard({ state }: { state: FetchState<OperationsHealthLike> }) {
         overall: {health.overall} · env {health.env}
         {health.deployMarker !== null ? ` · deploy ${health.deployMarker}` : ""}
       </p>
+      {health.spendAlarms.length > 0 ? (
+        <table className="tactics-table">
+          <thead>
+            <tr>
+              <th>Spend alarm (W919)</th>
+              <th>Usage</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody>
+            {health.spendAlarms.map((alarm) => (
+              <tr key={alarm.limitId}>
+                <td>
+                  {alarm.provider} · {alarm.limitId}
+                  {alarm.transitioned
+                    ? ` — changed from ${alarm.previousState ?? "(first observation)"}`
+                    : ""}
+                </td>
+                <td>
+                  {alarm.used === null
+                    ? "unmeasured"
+                    : `${alarm.used} / ${alarm.limit} ${alarm.unit}`}
+                </td>
+                <td>{alarm.state}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
       <table className="tactics-table">
         <thead>
           <tr>
@@ -487,9 +516,41 @@ function ProviderPanel({ state }: { state: FetchState<OperationsProvidersLike> }
           ) : (
             <p className="section-lede">No measured counters over this seam.</p>
           )}
+          {provider.limitStates.length > 0 ? (
+            <table className="tactics-table">
+              <thead>
+                <tr>
+                  <th>Free-tier limit (W919 ledger)</th>
+                  <th>Usage vs threshold</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {provider.limitStates.map((limit) => (
+                  <tr key={limit.limitId}>
+                    <td>
+                      {limit.name} ·{" "}
+                      <span className="section-lede">
+                        {limit.limitId}
+                        {limit.admissionEnforced ? " (admission-enforced)" : " (alarm-only)"}
+                      </span>
+                    </td>
+                    <td>
+                      {limit.used === null
+                        ? `unmeasured — threshold ${limit.limit} ${limit.unit}`
+                        : `${limit.used} / ${limit.limit} ${limit.unit}`}
+                    </td>
+                    <td>{limit.state}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
           <p className="section-lede">
-            {provider.note} · limits:{" "}
-            {provider.limits.map((l) => `${l.name} = ${l.value}`).join("; ")}
+            {provider.note}
+            {provider.limits.length > 0
+              ? ` · bounds: ${provider.limits.map((l) => `${l.name} = ${l.value}`).join("; ")}`
+              : ""}
           </p>
         </div>
       ))}
