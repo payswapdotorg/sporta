@@ -8,8 +8,12 @@ import type {
   AccountViewLike,
   ApiErrorBodyLike,
   CapabilityLike,
+  JobsOverviewLike,
+  OperationsLike,
+  PendingWorkLike,
   RealityOptionsLike,
   RenderOutputLike,
+  RightsCenterLike,
   RightsPreviewLike,
   SessionCardLike,
   StudioDispatchLike,
@@ -244,4 +248,36 @@ export interface LiveSourcesLike {
 /** GET /api/live — the live sources the transport is really serving (W915). */
 export function fetchLiveSources(): Promise<LiveSourcesLike> {
   return getJson<LiveSourcesLike>("/api/live");
+}
+
+// ---------------------------------------------------------------------------
+// W907 — the role-workspace documents
+// ---------------------------------------------------------------------------
+
+/** GET /api/rights/center — the Rights Center (401 anonymous / 403 no grant). */
+export function fetchRightsCenter(): Promise<RightsCenterLike> {
+  return getJson<RightsCenterLike>("/api/rights/center");
+}
+
+/** GET /api/workspaces/jobs — the Jobs workspace (401 anonymous / 403 no grant). */
+export function fetchJobsOverview(): Promise<JobsOverviewLike> {
+  return getJson<JobsOverviewLike>("/api/workspaces/jobs");
+}
+
+/**
+ * GET /api/workspaces/pending-work — null when unauthenticated (401 is the
+ * authentication-required state, not a failure).
+ */
+export async function fetchPendingWork(): Promise<PendingWorkLike | null> {
+  try {
+    return await getJson<PendingWorkLike>("/api/workspaces/pending-work");
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) return null;
+    throw err;
+  }
+}
+
+/** GET /api/operations — the Operations document (401 anonymous / 403 no grant). */
+export function fetchOperations(): Promise<OperationsLike> {
+  return getJson<OperationsLike>("/api/operations");
 }

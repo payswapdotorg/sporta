@@ -2,11 +2,12 @@
  * Deferred-surface state machine for the Sporta web app.
  *
  * W904/W905 made Home, Live, Explore, Library, Watch and the sign-in surface
- * REAL (capability-driven, over the real control plane). This module now
- * covers ONLY the surfaces that are still genuinely deferred — each one says
- * what will live there and which work order delivers it. As surfaces became
- * real, their entries were REMOVED (not repurposed): this list can never
- * grow back a surface that has a real implementation.
+ * REAL (capability-driven, over the real control plane). W906 made Create
+ * real; W907 made Match Lab, Rights Center, Operations and Jobs real. This
+ * module now covers ONLY the surfaces that are still genuinely deferred —
+ * each one says what will live there and which work order delivers it. As
+ * surfaces became real, their entries were REMOVED (not repurposed): this
+ * list can never grow back a surface that has a real implementation.
  *
  * The UX state vocabulary is the one pinned by
  * docs/architecture/ux-architecture.md:
@@ -28,10 +29,16 @@ export const UX_STATES = [
 export type UxState = (typeof UX_STATES)[number];
 
 /** Route a deferred surface belongs to. */
-export type SurfaceRoute = "/" | "/search" | "/following" | "/create";
+export type SurfaceRoute =
+  | "/"
+  | "/search"
+  | "/following"
+  | "/audit"
+  | "/clips"
+  | "/notes";
 
 /** Key of a deferred surface (referenced by pages). */
-export type SurfaceKey = "home-create" | "search" | "following" | "create";
+export type SurfaceKey = "home-create" | "search" | "following" | "audit" | "clips" | "notes";
 
 /** One honest deferred surface. */
 export type DeferredSurfaceSpec = {
@@ -55,10 +62,10 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
     state: "unavailable",
     title: "Things you can create",
     summary:
-      "Ideas and starting points for new viewing experiences will live here, linked into the Create Studio.",
+      "Starting points and ideas for new viewing experiences will be personalized here, linked into the Create Studio.",
     detail:
-      "The Create Studio flow (authorized upload, render recipe, progress, publish) is not built yet, so this section stays empty rather than suggesting actions that do not exist.",
-    plannedWorkOrder: "W906",
+      "The Create Studio itself is real (Create in the navigation) — what does not exist yet is a personalized ideas shelf: there is no recommendation or template plane, so nothing is suggested or simulated here.",
+    plannedWorkOrder: "W916",
   },
   search: {
     id: "search",
@@ -82,22 +89,44 @@ export const DEFERRED_SURFACES: Readonly<Record<SurfaceKey, DeferredSurfaceSpec>
       "Accounts exist now (you can sign in), but there is no follow graph yet — no creator, event or reality can be followed, so no activity is simulated.",
     plannedWorkOrder: "W916",
   },
-  create: {
-    id: "create",
-    route: "/create",
+  audit: {
+    id: "audit",
+    route: "/audit",
     state: "unavailable",
-    title: "Create Studio",
+    title: "Audit",
     summary:
-      "The guided creation flow: authorized source, desired experience, renderer and style, rights preview, render, then publish or keep private.",
+      "The audit trail for your scope — rights decisions and publication events for rights holders, system-scope operations for operators.",
     detail:
-      "Uploading and rendering are not connected to the control plane from this studio yet. When it opens, every job will run against real ingestion and render pipelines with real progress states.",
-    plannedWorkOrder: "W906",
+      "No audit log is exposed by the control plane yet: rights-scope audit arrives with the rights/publication center (W917) and system-scope audit with the operational console (W918). Nothing is fabricated here.",
+    plannedWorkOrder: "W918",
+  },
+  clips: {
+    id: "clips",
+    route: "/clips",
+    state: "unavailable",
+    title: "Clips",
+    summary:
+      "Saved analysis clips — moments you cut from the timeline while working in Match Lab.",
+    detail:
+      "There is no clips data plane yet: no clip can be cut, stored or listed, so none is simulated. Saved, role-scoped content arrives with the catalog/content model (W916).",
+    plannedWorkOrder: "W916",
+  },
+  notes: {
+    id: "notes",
+    route: "/notes",
+    state: "unavailable",
+    title: "Notes",
+    summary:
+      "Analysis notes — your annotations on matches, events and commentary windows.",
+    detail:
+      "There is no notes data plane yet: no note can be written, stored or listed, so none is simulated. Personal analysis content arrives with the catalog/content model (W916).",
+    plannedWorkOrder: "W916",
   },
 };
 
 export const DEFERRED_SURFACE_KEYS = Object.keys(DEFERRED_SURFACES) as readonly SurfaceKey[];
 
-/** The page routes that are REAL (W904/W905) — no deferred panel any more. */
+/** The page routes that are REAL (W904/W905/W906/W907) — no deferred panel any more. */
 export const REAL_SURFACE_ROUTES: readonly string[] = [
   "/",
   "/live",
@@ -105,6 +134,11 @@ export const REAL_SURFACE_ROUTES: readonly string[] = [
   "/library",
   "/watch",
   "/auth/signin",
+  "/create",
+  "/matchlab",
+  "/rights",
+  "/operations",
+  "/jobs",
 ];
 
 /** Look up a surface spec (unknown keys fail loudly in tests and code). */

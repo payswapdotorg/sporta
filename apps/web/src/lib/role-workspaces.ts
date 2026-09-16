@@ -116,10 +116,17 @@ export function isRouteInWorkspace(role: Role, pathname: string): boolean {
 // Role-aware navigation
 // ---------------------------------------------------------------------------
 
-/** The workspace's navigation items, in the shared NavItem shape. */
-export function navForRole(role: Role | null | undefined): readonly NavItem[] {
+/**
+ * The navigation items for the given active role (a wire string — validated):
+ * a role in the vocabulary narrows navigation to its workspace; no active
+ * role (or an unknown wire string — fail-closed) shows the shared
+ * navigation. Presentation context only, never authority.
+ */
+export function navForRole(role: string | null | undefined): readonly NavItem[] {
   if (role === null || role === undefined) return PRIMARY_NAV;
-  return ROLE_WORKSPACES[role].map((surface) => ({
+  const workspace = ROLE_WORKSPACES[role as Role];
+  if (workspace === undefined) return PRIMARY_NAV;
+  return workspace.map((surface) => ({
     href: surface.href as NavItem["href"],
     label: surface.label,
     description: surface.description,
@@ -133,14 +140,16 @@ export function navForRole(role: Role | null | undefined): readonly NavItem[] {
 
 /** The account shape the switcher needs (the real /api/auth/me projection). */
 export interface SwitcherAccount {
-  roles: readonly Role[];
-  activeRole: Role | null;
+  /** The account's grants (untrusted wire strings — validated below). */
+  roles: readonly string[];
+  activeRole: string | null;
 }
 
 /**
- * The roles the switcher may offer: EXACTLY the account's grants, in the
- * canonical ROLES order — a role the account does not hold is never
- * switchable, and nothing else is ever invented.
+ * The roles the switcher may offer: EXACTLY the account's grants that are in
+ * the closed role vocabulary, in the canonical ROLES order — a role the
+ * account does not hold is never switchable, and an unknown wire string is
+ * never offered either (fail-closed against version skew).
  */
 export function switchableRoles(account: SwitcherAccount): readonly Role[] {
   const grants = new Set(account.roles);

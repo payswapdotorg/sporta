@@ -2181,3 +2181,130 @@ svg {
   color: var(--text-muted);
   font-size: 12px;
 }
+
+/* ===================================================================== */
+/* W907 — role workspaces (Match Lab, Rights Center, Operations, Jobs)    */
+
+.studio-section {
+  padding: 22px 24px;
+  border: 1px solid var(--surface-border);
+  border-radius: 18px;
+  background: var(--bg-raised);
+}
+
+.field-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.field-note {
+  margin-top: 8px;
+  max-width: 72ch;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.field-note a {
+  color: var(--accent);
+}
+
+.input-select {
+  width: 100%;
+  max-width: 46ch;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.input-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.data-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--surface-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table thead th {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.data-table code {
+  font-size: 0.84rem;
+  word-break: break-all;
+}
+
+.segment-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.segment-item {
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--bg);
+  display: grid;
+  gap: 4px;
+}
+
+.segment-time {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.segment-text {
+  margin: 0;
+}
+
+/* The role switcher's pending-work badge + current-role chip. */
+
+.role-option-name {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.role-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.account-role.no-role {
+  font-style: italic;
+  opacity: 0.85;
+}

@@ -42,13 +42,18 @@ describe("deferred-surface state machine (post-W904/W905)", () => {
     }
   });
 
-  test("exactly the W904/W905-real routes are marked real — no more, no fewer", () => {
+  test("exactly the W904-W907-real routes are marked real — no more, no fewer", () => {
     expect([...REAL_SURFACE_ROUTES].sort()).toEqual([
       "/",
       "/auth/signin",
+      "/create",
       "/explore",
+      "/jobs",
       "/library",
       "/live",
+      "/matchlab",
+      "/operations",
+      "/rights",
       "/watch",
     ]);
   });
@@ -64,12 +69,14 @@ describe("deferred-surface state machine (post-W904/W905)", () => {
     }
   });
 
-  test("the still-deferred pages are search, following and create (W906/W916)", () => {
+  test("the still-deferred pages are search, following, audit, clips and notes (W916-W918)", () => {
     const routes = DEFERRED_SURFACE_KEYS.map((key) => DEFERRED_SURFACES[key].route).sort();
-    expect(routes).toEqual(["/", "/create", "/following", "/search"]);
+    expect(routes).toEqual(["/", "/audit", "/clips", "/following", "/notes", "/search"]);
     expect(DEFERRED_SURFACES.search.plannedWorkOrder).toBe("W916");
     expect(DEFERRED_SURFACES.following.plannedWorkOrder).toBe("W916");
-    expect(DEFERRED_SURFACES.create.plannedWorkOrder).toBe("W906");
+    expect(DEFERRED_SURFACES.clips.plannedWorkOrder).toBe("W916");
+    expect(DEFERRED_SURFACES.notes.plannedWorkOrder).toBe("W916");
+    expect(DEFERRED_SURFACES.audit.plannedWorkOrder).toBe("W918");
   });
 
   test("no deferred surface implies live content or an implemented studio", () => {
