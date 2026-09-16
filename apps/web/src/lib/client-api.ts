@@ -14,6 +14,9 @@ import type {
   RealityOptionsLike,
   RenderOutputLike,
   RightsCenterLike,
+  RightsAuditListLike,
+  RightsCenterInspectLike,
+  RightsCenterListLike,
   RightsPreviewLike,
   SessionCardLike,
   StudioDispatchLike,
@@ -52,6 +55,18 @@ async function getJson<T>(path: string): Promise<T> {
 async function postJson<T>(path: string, payload: unknown): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const text = await response.text();
+  const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+  if (!response.ok) throw new ApiError(response.status, body as ApiErrorBodyLike | null);
+  return body as T;
+}
+
+async function patchJsonRequest<T>(path: string, payload: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method: "PATCH",
     headers: { "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify(payload),
   });
@@ -280,4 +295,50 @@ export async function fetchPendingWork(): Promise<PendingWorkLike | null> {
 /** GET /api/operations — the Operations document (401 anonymous / 403 no grant). */
 export function fetchOperations(): Promise<OperationsLike> {
   return getJson<OperationsLike>("/api/operations");
+}
+
+// W917 — the Rights Center (policy inspection / editing / revocation)
+// ---------------------------------------------------------------------------
+
+/** PATCH /api/rights/policies/[sessionId] — edit the rights policy. */
+export function patchRightsPolicy(
+  sessionId: string,
+  authorizationPolicy: unknown,
+): Promise<RightsCenterInspectLike> {
+  return patchJsonRequest<RightsCenterInspectLike>(
+    `/api/rights/policies/${encodeURIComponent(sessionId)}`,
+    { authorizationPolicy },
+  );
+}
+
+/**
+ * PATCH /api/rights/policies/[sessionId]/visibility — edit the publication
+ * visibility (the W916 kinds; role-scoped carries the grants).
+ */
+export function patchRightsVisibility(
+  sessionId: string,
+  visibility: "public" | "private" | "unlisted" | { kind: "role-scoped"; roles: string[] },
+): Promise<RightsCenterInspectLike> {
+  return patchJsonRequest<RightsCenterInspectLike>(
+    `/api/rights/policies/${encodeURIComponent(sessionId)}/visibility`,
+    { visibility },
+  );
+}
+
+/** POST /api/rights/policies/[sessionId]/revocation — revoke the rights. */
+export function revokeRights(sessionId: string, reason?: string): Promise<RightsCenterInspectLike> {
+  return postJson<RightsCenterInspectLike>(
+    `/api/rights/policies/${encodeURIComponent(sessionId)}/revocation`,
+    reason === undefined ? {} : { reason },
+  );
+}
+
+/** GET /api/rights/policies — the caller's scoped policy list. */
+export function fetchRightsPolicies(): Promise<RightsCenterListLike> {
+  return getJson<RightsCenterListLike>("/api/rights/policies");
+}
+
+/** GET /api/rights/audit — the caller's policy-change audit trail. */
+export function fetchRightsAudit(): Promise<RightsAuditListLike> {
+  return getJson<RightsAuditListLike>("/api/rights/audit");
 }

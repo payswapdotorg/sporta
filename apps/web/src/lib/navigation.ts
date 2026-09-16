@@ -27,6 +27,7 @@ export const ROUTES = {
   audit: "/audit",
   signin: "/auth/signin",
   offline: "/offline",
+  rightsPolicies: "/rights/policies",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
