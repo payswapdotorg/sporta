@@ -125,10 +125,13 @@ export async function roleSwitchFlow(ctx: FlowContext): Promise<void> {
   await browser.waitForSelector("#auth-username", 15_000);
   browser.fill("#auth-username", "sporta-demo");
   browser.fill("#auth-password", ctx.demoPassword);
-  browser.click("form.auth-form button[type='submit']");
+  const demoSignedIn = await browser.clickForOutcome(
+    "form.auth-form button[type='submit']",
+    `(function(){return document.querySelector('.account-button') !== null || document.querySelector('p.form-error') !== null;})()`,
+  );
   assert(
     "the demo account signs in (one identity, five grants)",
-    await browser.waitForSelector(".account-button", 20_000),
+    demoSignedIn && (await browser.waitForSelector(".account-button", 10_000)),
     "selector .account-button",
   );
 

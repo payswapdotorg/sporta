@@ -80,8 +80,11 @@ export async function watchFlow(ctx: FlowContext): Promise<void> {
   );
   assert(
     "the provenance panel renders the real byte + hash accounting",
-    provenance.includes("Stored bytes") && / B · /.test(provenance),
-    `bytes line present=${provenance.includes("Stored bytes")}`,
+    // agent-browser `get text` returns the RENDERED text (innerText), where
+    // the CSS uppercases the definition list ("STORED BYTES") — match the
+    // rendered form, and the real byte + 12-hex-hash accounting line.
+    /stored bytes/i.test(provenance) && /\d+ B · [0-9a-f]{8,}/.test(provenance),
+    `bytes line present=${/stored bytes/i.test(provenance)}`,
   );
 
   browser.screenshot(`${ctx.evidenceDir}/watch-seeded-session.png`);

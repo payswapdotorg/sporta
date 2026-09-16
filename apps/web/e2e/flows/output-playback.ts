@@ -98,13 +98,19 @@ export async function outputPlaybackFlow(ctx: FlowContext): Promise<void> {
   );
 
   // ------------------------------------------- the transport really plays
+  // (clickForOutcome: the marker jump above scrolled the page, and a click
+  // dispatched at off-viewport coordinates hits nothing — the flight-2
+  // "Play → Play" failure; the driver scrolls the target into view and
+  // verifies the outcome, re-clicking like a user would.)
   const toggleBefore = browser.text(".player-toggle");
-  browser.click(".player-toggle");
-  await Bun.sleep(600);
+  const started = await browser.clickForOutcome(
+    ".player-toggle",
+    `(function(){const el=document.querySelector('.player-toggle');return el !== null && el.textContent.trim() === 'Pause';})()`,
+  );
   const toggleAfter = browser.text(".player-toggle");
   assert(
     "the play transport starts playback (Play → Pause)",
-    toggleBefore.trim() !== toggleAfter.trim() && toggleAfter.trim() === "Pause",
+    started && toggleBefore.trim() !== toggleAfter.trim() && toggleAfter.trim() === "Pause",
     `toggle: "${toggleBefore.trim()}" → "${toggleAfter.trim()}"`,
   );
   browser.click(".player-toggle"); // pause again

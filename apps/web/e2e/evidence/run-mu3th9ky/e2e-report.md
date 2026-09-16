@@ -1,19 +1,19 @@
-# W909 browser E2E — run mu3twy97
+# W909 browser E2E — run mu3th9ky
 
 Target: http://127.0.0.1:3909 (production build, port 3909)
 
-**6 passed / 2 failed** — 77 assertions passed, 2 failed.
+**4 passed / 4 failed** — 89 assertions passed, 4 failed.
 
 | Flow | Outcome | Assertions | Evidence |
 | --- | --- | --- | --- |
 | Accessibility smoke — skip link, landmarks, alt text, contrast, keyboard | ✅ passed | 20/20 | a11y-smoke-watch.png |
-| Sign-in — register → login → nav shows the account → sign out | ✅ passed | 15/15 | sign-in-registered.png, sign-in-logged-in.png |
-| Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes | ✅ passed | 9/9 | rights-denial-operations-viewer.png, rights-denial-rights-viewer.png, rights-denial-anonymous.png |
-| Watch — the real output renders (SVG frames) + timeline/event markers | ✅ passed | 11/11 | watch-seeded-session.png |
+| Sign-in — register → login → nav shows the account → sign out | ✅ passed | 11/11 | sign-in-registered.png, sign-in-failure.png |
+| Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes | ❌ failed | 0/1 | rights-denial-failure.png |
+| Watch — the real output renders (SVG frames) + timeline/event markers | ❌ failed | 10/11 | watch-failure.png |
 | Reality Switcher — real availabilities, switch without page reload | ✅ passed | 13/13 | reality-switch-after.png |
-| Output playback — the real output document loads and its frames render | ✅ passed | 7/7 | output-playback-failure.png |
-| Render — guided flow → dispatch → progress → succeeded → output exists | ❌ failed | 2/3 | render-failure.png |
-| Role switch — grants-only offers; switching changes the workspace nav | ❌ failed | 0/1 | role-switch-failure.png |
+| Output playback — the real output document loads and its frames render | ❌ failed | 7/8 | output-playback-failure.png |
+| Render — guided flow → dispatch → progress → succeeded → output exists | ✅ passed | 18/18 | render-succeeded.png |
+| Role switch — grants-only offers; switching changes the workspace nav | ❌ failed | 10/11 | role-switch-creator.png, role-switch-failure.png |
 
 ## Accessibility smoke — skip link, landmarks, alt text, contrast, keyboard
 
@@ -48,28 +48,19 @@ Target: http://127.0.0.1:3909 (production build, port 3909)
 - ✅ **register tab switches the form** — data-auth-mode=register
 - ✅ **register signs the fresh account in** — selector .account-button
 - ✅ **register lands on the Library (the signed-in home)** — url=http://127.0.0.1:3909/library
-- ✅ **the nav shows the account** — .account-name="e2e-viewer-mu3twy97"
+- ✅ **the nav shows the account** — .account-name="e2e-viewer-mu3th9ky"
 - ✅ **the account chip shows no active role yet** — .account-role="no active role"
 - ✅ **the account menu opens** — selector .signout-button
 - ✅ **sign out clears the account** — .account-button gone
 - ✅ **the header offers sign-in again** — link text="Sign in"
 - ✅ **auth surface renders again** — selector #auth-username
-- ✅ **a wrong password shows the API's real error (no sign-in)** — form-error="invalid username or password"
-- ✅ **auth surface renders for the login** — selector #auth-username
-- ✅ **login signs the existing account in** — selector .account-button
-- ✅ **the nav shows the same account after login** — .account-name="e2e-viewer-mu3twy97"
+- 📝 FLOW ABORTED: agent-browser get text p.form-error failed: ✗ Element not found: p.form-error. Verify the selector, role, or name is correct and the element exists in the DOM.
+
 
 ## Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes
 
-- ✅ **the viewer account is signed in for the denial checks** — .account-button count=1
-- ✅ **the operations page renders a state panel** — selector .state-panel
-- ✅ **viewer on /operations sees the operator-grant denial** — panel title + reason present=true
-- ✅ **no operator bytes reach a denied viewer on /operations** — markers found: none
-- ✅ **viewer on /rights sees the rights-holder-grant denial** — denied panel=true; text present=true
-- ✅ **no policy-record bytes reach a denied viewer on /rights** — policy markers present=false
-- ✅ **anonymous on /operations sees the sign-in requirement (the real 401 path)** — panel present=true; text=true
-- ✅ **no operator bytes reach an anonymous visitor** — markers found: none
-- ✅ **anonymous on /rights sees the sign-in denial** — denied panel=true
+- ❌ **the viewer account is signed in for the denial checks** — .account-button count=0
+- 📝 FLOW ABORTED: the viewer account is signed in for the denial checks — .account-button count=0
 
 ## Watch — the real output renders (SVG frames) + timeline/event markers
 
@@ -85,7 +76,8 @@ Target: http://127.0.0.1:3909 (production build, port 3909)
 - ✅ **the provenance panel renders the active renderer's real identity** — data-renderer=anime.prototype; panel starts="Provenance — the real artifact
 RENDERER
 anime.prototype@0.1."
-- ✅ **the provenance panel renders the real byte + hash accounting** — bytes line present=true
+- ❌ **the provenance panel renders the real byte + hash accounting** — bytes line present=false
+- 📝 FLOW ABORTED: the provenance panel renders the real byte + hash accounting — bytes line present=false
 
 ## Reality Switcher — real availabilities, switch without page reload
 
@@ -97,7 +89,7 @@ anime.prototype@0.1."
 - ✅ **a switch target with a stored output exists** — target=anime.prototype
 - ✅ **the target renderer's switcher option was clicked** — switcher options matching anime.prototype: 1
 - ✅ **switching updates the player surface to the target renderer** — data-renderer now=anime.prototype
-- ✅ **the switch did NOT reload the page (window marker survives)** — marker="e2e-alive-mu3twy97"
+- ✅ **the switch did NOT reload the page (window marker survives)** — marker="e2e-alive-mu3th9ky"
 - ✅ **the match session is held constant (same watch URL)** — url=http://127.0.0.1:3909/watch?session=sess-1
 - ✅ **the switched surface renders the target renderer's output** — aria-label="The anime.prototype rendering of match session sess-1, frame 1 of 6"
 - ✅ **the switched surface carries SVG frames** — svg elements=1
@@ -113,19 +105,47 @@ anime.prototype@0.1."
 - ✅ **event markers offer frame jumps** — marker-jump count=3
 - ✅ **a marker targeting a different frame exists to jump to** — markers off frame 1: 2
 - ✅ **an event-marker jump moves the playhead (snaps to a real frame)** — seek: "0:00, frame 1 of 6" → "0:02, frame 3 of 6"
+- ❌ **the play transport starts playback (Play → Pause)** — toggle: "Play" → "Play"
 - 📝 output document /api/watch/sess-1/renders/r-2/outputs/anime-clip-c0f83b01 → 200 application/json (source=in-memory, frames=6)
-- 📝 FLOW ABORTED: agent-browser click .player-toggle failed: ✗ Element '.player-toggle' is covered by <div.site-header-inner> at its click point, so the input would land on that element instead. Dismiss or interact with the covering element first (it is often a dialog, banner, or sticky header).
-
+- 📝 FLOW ABORTED: the play transport starts playback (Play → Pause) — toggle: "Play" → "Play"
 
 ## Render — guided flow → dispatch → progress → succeeded → output exists
 
 - ✅ **auth surface renders for the creator registration** — selector #auth-username
 - ✅ **the creator role checkbox was picked** — role-picker options matching creator: 1
-- ❌ **the creator account registers and signs in** — selector .account-button
-- 📝 FLOW ABORTED: the creator account registers and signs in — selector .account-button
+- ✅ **the creator account registers and signs in** — selector .account-button
+- ✅ **the Create Studio renders its guided flow** — selector .studio-stepper
+- ✅ **the authorized source list offers real fixtures** — radio inputs present
+- ✅ **step 2 (rights declaration) is reached** — selector #studio-rights-heading
+- ✅ **the server-derived rights preview renders (fail-closed derivation)** — selector .studio-rights-preview
+- ✅ **the preview lists derived capabilities** — permit lines=4
+- ✅ **step 3 (renderer) is reached** — selector #studio-renderer-heading
+- ✅ **at least one registered renderer is dispatchable** — dispatchable renderer radios=1
+- ✅ **step 4 (recipe) is reached** — selector #studio-recipe-heading
+- ✅ **step 5 (review) is reached** — selector #studio-review-heading
+- ✅ **the render step renders (session + job dispatched)** — selector #studio-render-heading
+- ✅ **the dispatched session id is shown** — session code="sess-4"
+- ✅ **the job reaches succeeded and the output EXISTS (a real rendered frame preview)** — selector .studio-preview [aria-label^='A real frame of the rendered output']
+- ✅ **the completion accounting is rendered (consumed inputs, usage, outputs)** — completion fact rows=5
+- ✅ **the output preview renders SVG frames** — svg elements=1
+- ✅ **the 'Open in Watch' hand-off targets the new session** — href=/watch?session=sess-4
+- 📝 dispatched session sess-4
 
 ## Role switch — grants-only offers; switching changes the workspace nav
 
-- ❌ **the creator account is signed in** — .account-button present
-- 📝 FLOW ABORTED: the creator account is signed in — .account-button present
+- ✅ **the creator account is signed in** — .account-button present
+- ✅ **the switcher offers EXACTLY the account's grants (grants-only)** — offered=[Viewer, Creator]
+- ✅ **the Creator role option was clicked (exactly one)** — role options matching Creator: 1
+- ✅ **switching to Creator updates the account chip** — .account-role="Creator workspace"
+- ✅ **the Creator workspace nav lists the Create Studio** — nav=[/, /create, /jobs, /library]
+- ✅ **the Creator workspace nav omits operator surfaces** — nav=[/, /create, /jobs, /library]
+- ✅ **the switch safe-returns (no stranding navigation)** — url=http://127.0.0.1:3909/create
+- ✅ **switching back to Viewer updates the chip** — .account-role="Viewer workspace"
+- ✅ **the Viewer workspace nav lists the watching surfaces** — nav=[/, /live, /explore, /watch, /library]
+- ✅ **the Viewer workspace nav omits the Create Studio** — nav=[/, /live, /explore, /watch, /library]
+- ❌ **the demo account signs in (one identity, five grants)** — selector .account-button
+- 📝 creator account's offered roles: Viewer, Creator
+- 📝 creator workspace nav: / | /create | /jobs | /library
+- 📝 viewer workspace nav: / | /live | /explore | /watch | /library
+- 📝 FLOW ABORTED: the demo account signs in (one identity, five grants) — selector .account-button
 

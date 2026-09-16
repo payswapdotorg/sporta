@@ -29,8 +29,14 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
   browser.fill("#auth-password", password);
   // The viewer role checkbox is checked by default — the fresh account holds
   // exactly the viewer grant (self-registration cannot mint more).
-  browser.click("form.auth-form button[type='submit']");
-  const accountShown = await browser.waitForSelector(".account-button", 20_000);
+  // clickForOutcome: the auth page reflows seconds after load (web-font
+  // swap), and a click dispatched at the pre-reflow coordinates lands on
+  // empty page — a user re-clicks; so does the harness.
+  const registered = await browser.clickForOutcome(
+    "form.auth-form button[type='submit']",
+    `(function(){return document.querySelector('.account-button') !== null || document.querySelector('p.form-error') !== null;})()`,
+  );
+  const accountShown = registered && (await browser.waitForSelector(".account-button", 10_000));
   assert("register signs the fresh account in", accountShown, "selector .account-button");
   const afterRegisterUrl = browser.url();
   assert(
@@ -84,16 +90,17 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
   );
   browser.fill("#auth-username", username);
   browser.fill("#auth-password", "definitely-not-the-password");
-  browser.click("form.auth-form button[type='submit']");
-  const errorShown = await browser.waitForSelector("p.form-error", 15_000);
-  const errorText = browser.text("p.form-error");
+  const errorAppeared = await browser.clickForOutcome(
+    "form.auth-form button[type='submit']",
+    `(function(){return document.querySelector('p.form-error') !== null || document.querySelector('.account-button') !== null;})()`,
+  );
+  // Read the error text ONLY when it rendered (agent-browser `get text`
+  // throws on a missing selector — the flight-2 abort).
+  const errorText =
+    browser.count("p.form-error") > 0 ? browser.text("p.form-error") : "(no form-error rendered)";
   assert(
     "a wrong password shows the API's real error (no sign-in)",
-    errorShown &&
-      (await browser.waitForJs(
-        `(function(){return document.querySelector('.account-button') === null;})()`,
-        5_000,
-      )),
+    errorAppeared && browser.count("p.form-error") > 0 && browser.count(".account-button") === 0,
     `form-error="${errorText.slice(0, 120)}"`,
   );
 
@@ -106,9 +113,15 @@ export async function signInFlow(ctx: FlowContext): Promise<void> {
   );
   browser.fill("#auth-username", username);
   browser.fill("#auth-password", password);
-  browser.click("form.auth-form button[type='submit']");
-  const signedInAgain = await browser.waitForSelector(".account-button", 20_000);
-  assert("login signs the existing account in", signedInAgain, "selector .account-button");
+  const signedInAgain = await browser.clickForOutcome(
+    "form.auth-form button[type='submit']",
+    `(function(){return document.querySelector('.account-button') !== null || document.querySelector('p.form-error') !== null;})()`,
+  );
+  assert(
+    "login signs the existing account in",
+    signedInAgain && (await browser.waitForSelector(".account-button", 10_000)),
+    "selector .account-button",
+  );
   const accountNameAfterLogin = browser.text(".account-name");
   assert(
     "the nav shows the same account after login",

@@ -1,7 +1,7 @@
 {
-  "runId": "mu3twy97",
+  "runId": "mu3th9ky",
   "baseUrl": "http://127.0.0.1:3909",
-  "startedAtIso": "2026-09-16T08:18:44.971Z",
+  "startedAtIso": "2026-09-16T08:06:33.154Z",
   "flows": [
     {
       "id": "a11y-smoke",
@@ -151,7 +151,7 @@
         {
           "name": "the nav shows the account",
           "pass": true,
-          "evidence": ".account-name=\"e2e-viewer-mu3twy97\""
+          "evidence": ".account-name=\"e2e-viewer-mu3th9ky\""
         },
         {
           "name": "the account chip shows no active role yet",
@@ -177,96 +177,38 @@
           "name": "auth surface renders again",
           "pass": true,
           "evidence": "selector #auth-username"
-        },
-        {
-          "name": "a wrong password shows the API's real error (no sign-in)",
-          "pass": true,
-          "evidence": "form-error=\"invalid username or password\""
-        },
-        {
-          "name": "auth surface renders for the login",
-          "pass": true,
-          "evidence": "selector #auth-username"
-        },
-        {
-          "name": "login signs the existing account in",
-          "pass": true,
-          "evidence": "selector .account-button"
-        },
-        {
-          "name": "the nav shows the same account after login",
-          "pass": true,
-          "evidence": ".account-name=\"e2e-viewer-mu3twy97\""
         }
       ],
-      "notes": [],
+      "notes": [
+        "FLOW ABORTED: agent-browser get text p.form-error failed: ✗ Element not found: p.form-error. Verify the selector, role, or name is correct and the element exists in the DOM.\n"
+      ],
       "screenshots": [
         "sign-in-registered.png",
-        "sign-in-logged-in.png"
+        "sign-in-failure.png"
       ]
     },
     {
       "id": "rights-denial",
       "title": "Rights denial — viewer/anonymous on a denied route → real 403 state, no bytes",
-      "status": "passed",
+      "status": "failed",
       "assertions": [
         {
           "name": "the viewer account is signed in for the denial checks",
-          "pass": true,
-          "evidence": ".account-button count=1"
-        },
-        {
-          "name": "the operations page renders a state panel",
-          "pass": true,
-          "evidence": "selector .state-panel"
-        },
-        {
-          "name": "viewer on /operations sees the operator-grant denial",
-          "pass": true,
-          "evidence": "panel title + reason present=true"
-        },
-        {
-          "name": "no operator bytes reach a denied viewer on /operations",
-          "pass": true,
-          "evidence": "markers found: none"
-        },
-        {
-          "name": "viewer on /rights sees the rights-holder-grant denial",
-          "pass": true,
-          "evidence": "denied panel=true; text present=true"
-        },
-        {
-          "name": "no policy-record bytes reach a denied viewer on /rights",
-          "pass": true,
-          "evidence": "policy markers present=false"
-        },
-        {
-          "name": "anonymous on /operations sees the sign-in requirement (the real 401 path)",
-          "pass": true,
-          "evidence": "panel present=true; text=true"
-        },
-        {
-          "name": "no operator bytes reach an anonymous visitor",
-          "pass": true,
-          "evidence": "markers found: none"
-        },
-        {
-          "name": "anonymous on /rights sees the sign-in denial",
-          "pass": true,
-          "evidence": "denied panel=true"
+          "pass": false,
+          "evidence": ".account-button count=0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "FLOW ABORTED: the viewer account is signed in for the denial checks — .account-button count=0"
+      ],
       "screenshots": [
-        "rights-denial-operations-viewer.png",
-        "rights-denial-rights-viewer.png",
-        "rights-denial-anonymous.png"
+        "rights-denial-failure.png"
       ]
     },
     {
       "id": "watch",
       "title": "Watch — the real output renders (SVG frames) + timeline/event markers",
-      "status": "passed",
+      "status": "failed",
       "assertions": [
         {
           "name": "the watch page renders the player for the seeded session",
@@ -320,13 +262,15 @@
         },
         {
           "name": "the provenance panel renders the real byte + hash accounting",
-          "pass": true,
-          "evidence": "bytes line present=true"
+          "pass": false,
+          "evidence": "bytes line present=false"
         }
       ],
-      "notes": [],
+      "notes": [
+        "FLOW ABORTED: the provenance panel renders the real byte + hash accounting — bytes line present=false"
+      ],
       "screenshots": [
-        "watch-seeded-session.png"
+        "watch-failure.png"
       ]
     },
     {
@@ -377,7 +321,7 @@
         {
           "name": "the switch did NOT reload the page (window marker survives)",
           "pass": true,
-          "evidence": "marker=\"e2e-alive-mu3twy97\""
+          "evidence": "marker=\"e2e-alive-mu3th9ky\""
         },
         {
           "name": "the match session is held constant (same watch URL)",
@@ -410,7 +354,7 @@
     {
       "id": "output-playback",
       "title": "Output playback — the real output document loads and its frames render",
-      "status": "passed",
+      "status": "failed",
       "assertions": [
         {
           "name": "the watch page is open for the playback checks",
@@ -446,11 +390,16 @@
           "name": "an event-marker jump moves the playhead (snaps to a real frame)",
           "pass": true,
           "evidence": "seek: \"0:00, frame 1 of 6\" → \"0:02, frame 3 of 6\""
+        },
+        {
+          "name": "the play transport starts playback (Play → Pause)",
+          "pass": false,
+          "evidence": "toggle: \"Play\" → \"Play\""
         }
       ],
       "notes": [
         "output document /api/watch/sess-1/renders/r-2/outputs/anime-clip-c0f83b01 → 200 application/json (source=in-memory, frames=6)",
-        "FLOW ABORTED: agent-browser click .player-toggle failed: ✗ Element '.player-toggle' is covered by <div.site-header-inner> at its click point, so the input would land on that element instead. Dismiss or interact with the covering element first (it is often a dialog, banner, or sticky header).\n"
+        "FLOW ABORTED: the play transport starts playback (Play → Pause) — toggle: \"Play\" → \"Play\""
       ],
       "screenshots": [
         "output-playback-failure.png"
@@ -459,7 +408,7 @@
     {
       "id": "render",
       "title": "Render — guided flow → dispatch → progress → succeeded → output exists",
-      "status": "failed",
+      "status": "passed",
       "assertions": [
         {
           "name": "auth surface renders for the creator registration",
@@ -473,15 +422,90 @@
         },
         {
           "name": "the creator account registers and signs in",
-          "pass": false,
+          "pass": true,
           "evidence": "selector .account-button"
+        },
+        {
+          "name": "the Create Studio renders its guided flow",
+          "pass": true,
+          "evidence": "selector .studio-stepper"
+        },
+        {
+          "name": "the authorized source list offers real fixtures",
+          "pass": true,
+          "evidence": "radio inputs present"
+        },
+        {
+          "name": "step 2 (rights declaration) is reached",
+          "pass": true,
+          "evidence": "selector #studio-rights-heading"
+        },
+        {
+          "name": "the server-derived rights preview renders (fail-closed derivation)",
+          "pass": true,
+          "evidence": "selector .studio-rights-preview"
+        },
+        {
+          "name": "the preview lists derived capabilities",
+          "pass": true,
+          "evidence": "permit lines=4"
+        },
+        {
+          "name": "step 3 (renderer) is reached",
+          "pass": true,
+          "evidence": "selector #studio-renderer-heading"
+        },
+        {
+          "name": "at least one registered renderer is dispatchable",
+          "pass": true,
+          "evidence": "dispatchable renderer radios=1"
+        },
+        {
+          "name": "step 4 (recipe) is reached",
+          "pass": true,
+          "evidence": "selector #studio-recipe-heading"
+        },
+        {
+          "name": "step 5 (review) is reached",
+          "pass": true,
+          "evidence": "selector #studio-review-heading"
+        },
+        {
+          "name": "the render step renders (session + job dispatched)",
+          "pass": true,
+          "evidence": "selector #studio-render-heading"
+        },
+        {
+          "name": "the dispatched session id is shown",
+          "pass": true,
+          "evidence": "session code=\"sess-4\""
+        },
+        {
+          "name": "the job reaches succeeded and the output EXISTS (a real rendered frame preview)",
+          "pass": true,
+          "evidence": "selector .studio-preview [aria-label^='A real frame of the rendered output']"
+        },
+        {
+          "name": "the completion accounting is rendered (consumed inputs, usage, outputs)",
+          "pass": true,
+          "evidence": "completion fact rows=5"
+        },
+        {
+          "name": "the output preview renders SVG frames",
+          "pass": true,
+          "evidence": "svg elements=1"
+        },
+        {
+          "name": "the 'Open in Watch' hand-off targets the new session",
+          "pass": true,
+          "evidence": "href=/watch?session=sess-4"
         }
       ],
       "notes": [
-        "FLOW ABORTED: the creator account registers and signs in — selector .account-button"
+        "dispatched session sess-4"
       ],
       "screenshots": [
-        "render-failure.png"
+        "render-succeeded.png"
       ]
     },
     {
@@ -491,24 +515,78 @@
       "assertions": [
         {
           "name": "the creator account is signed in",
-          "pass": false,
+          "pass": true,
           "evidence": ".account-button present"
+        },
+        {
+          "name": "the switcher offers EXACTLY the account's grants (grants-only)",
+          "pass": true,
+          "evidence": "offered=[Viewer, Creator]"
+        },
+        {
+          "name": "the Creator role option was clicked (exactly one)",
+          "pass": true,
+          "evidence": "role options matching Creator: 1"
+        },
+        {
+          "name": "switching to Creator updates the account chip",
+          "pass": true,
+          "evidence": ".account-role=\"Creator workspace\""
+        },
+        {
+          "name": "the Creator workspace nav lists the Create Studio",
+          "pass": true,
+          "evidence": "nav=[/, /create, /jobs, /library]"
+        },
+        {
+          "name": "the Creator workspace nav omits operator surfaces",
+          "pass": true,
+          "evidence": "nav=[/, /create, /jobs, /library]"
+        },
+        {
+          "name": "the switch safe-returns (no stranding navigation)",
+          "pass": true,
+          "evidence": "url=http://127.0.0.1:3909/create"
+        },
+        {
+          "name": "switching back to Viewer updates the chip",
+          "pass": true,
+          "evidence": ".account-role=\"Viewer workspace\""
+        },
+        {
+          "name": "the Viewer workspace nav lists the watching surfaces",
+          "pass": true,
+          "evidence": "nav=[/, /live, /explore, /watch, /library]"
+        },
+        {
+          "name": "the Viewer workspace nav omits the Create Studio",
+          "pass": true,
+          "evidence": "nav=[/, /live, /explore, /watch, /library]"
+        },
+        {
+          "name": "the demo account signs in (one identity, five grants)",
+          "pass": false,
+          "evidence": "selector .account-button"
         }
       ],
       "notes": [
-        "FLOW ABORTED: the creator account is signed in — .account-button present"
+        "creator account's offered roles: Viewer, Creator",
+        "creator workspace nav: / | /create | /jobs | /library",
+        "viewer workspace nav: / | /live | /explore | /watch | /library",
+        "FLOW ABORTED: the demo account signs in (one identity, five grants) — selector .account-button"
       ],
       "screenshots": [
+        "role-switch-creator.png",
         "role-switch-failure.png"
       ]
     }
   ],
   "summary": {
-    "passed": 6,
-    "failed": 2,
+    "passed": 4,
+    "failed": 4,
     "assertions": {
-      "pass": 77,
-      "fail": 2
+      "pass": 89,
+      "fail": 4
     },
     "exitCode": 1
   }

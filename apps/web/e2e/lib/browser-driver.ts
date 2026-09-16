@@ -81,7 +81,35 @@ export class BrowserDriver {
   // ------------------------------------------------------------- interaction
 
   click(selector: string): void {
+    // Bring the first match into view FIRST: agent-browser dispatches the
+    // click at viewport coordinates computed from the element, and a target
+    // outside the viewport (e.g. after a marker jump scrolled the page down)
+    // would make the dispatch hit whatever scrolled under those coordinates
+    // instead — silently. Scrolling first is what a real user does.
+    this.eval(
+      `(function(){const el=document.querySelector(${JSON.stringify(selector)});if(el!==null)el.scrollIntoView({block:'center',inline:'nearest'});return el!==null;})()`,
+    );
     this.run(["click", selector]);
+  }
+
+  /**
+   * Clicks and waits for `outcomeJs` (a page JS expression) to hold; if
+   * nothing happened — a layout shift (e.g. the web-font swap reflow)
+   * moved the button between agent-browser's coordinate measure and its
+   * event dispatch, so the click landed on empty page — scrolls the target
+   * into view and clicks again. Returns whether the outcome finally held.
+   */
+  async clickForOutcome(
+    selector: string,
+    outcomeJs: string,
+    attempts = 3,
+    waitMs = 4_000,
+  ): Promise<boolean> {
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      this.click(selector);
+      if (await this.waitForJs(outcomeJs, waitMs)) return true;
+    }
+    return this.waitForJs(outcomeJs, 1_000);
   }
 
   clickText(text: string): void {
