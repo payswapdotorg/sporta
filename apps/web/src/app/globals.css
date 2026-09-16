@@ -1909,3 +1909,194 @@ svg {
     height: auto;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   W906 — the Create Studio (guided flow)
+   --------------------------------------------------------------------------- */
+
+.studio-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.studio-stepper li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid color-mix(in oklch, currentColor 18%, transparent);
+  border-radius: 999px;
+  color: var(--muted, inherit);
+  font-size: 0.85rem;
+}
+
+.studio-stepper li.current {
+  border-color: currentColor;
+  font-weight: 600;
+}
+
+.studio-stepper li.done {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.studio-step-index {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: color-mix(in oklch, currentColor 14%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.studio-step-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+}
+
+.studio-subheading {
+  margin: 1.2rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.studio-nav {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.studio-source-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.studio-source {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.studio-source.current {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.studio-source input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.studio-source-description {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.studio-source .commentary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.studio-source-facts {
+  margin-top: 0.8rem;
+}
+
+.studio-operation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.studio-operation-list label,
+.studio-scope-option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.studio-operation-label {
+  font-weight: 600;
+}
+
+.studio-operation-description {
+  flex-basis: 100%;
+  margin-left: 1.4rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.studio-rights-preview,
+.studio-progress,
+.studio-completion,
+.studio-preview,
+.studio-publication {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid color-mix(in oklch, currentColor 12%, transparent);
+}
+
+.studio-permit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.studio-permit-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.studio-progress-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.studio-progress-fraction {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.studio-event-trail {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.studio-event-type {
+  font-weight: 600;
+}
+
+.studio-preview-svg {
+  max-width: 480px;
+  border: 1px solid color-mix(in oklch, currentColor 15%, transparent);
+  border-radius: 0.6rem;
+  padding: 0.5rem;
+}
+
+.studio-preview-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

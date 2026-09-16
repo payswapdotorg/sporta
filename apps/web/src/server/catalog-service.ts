@@ -264,7 +264,7 @@ export async function assertWatchable(
   // Private: the owner or an operator may still watch; everyone else gets
   // the uniform unknown-session answer.
   const token = tokenFromRequest(request);
-  if (token !== null) {
+  if (token !== "") {
     try {
       const account = await server.gate.requireAccount(token);
       const ownerId = (await server.ownership.ownerIdOf(sessionId)) ?? "\u0000not-a-user";

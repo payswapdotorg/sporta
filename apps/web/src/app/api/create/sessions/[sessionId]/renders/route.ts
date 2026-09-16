@@ -26,7 +26,7 @@ export async function POST(
     const server = await getSportaServer();
     await server.ready;
     const token = tokenFromRequest(request);
-    if (token === null) {
+    if (token === "") {
       const { IdentityUnauthenticatedError } = await import("@sporta/identity");
       throw new IdentityUnauthenticatedError();
     }

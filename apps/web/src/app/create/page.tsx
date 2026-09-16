@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { CreateStudio } from "@/components/create-studio";
 
 export const metadata: Metadata = {
   title: "Create",
 };
 
 /**
- * Create (W903). The studio flow (W906) is described but not wired:
- * no upload form is rendered because it could not actually ingest
- * anything yet.
+ * Create (W906) — the Create Studio: a guided flow from an authorized
+ * source, through a rights declaration (identity-attested, fail-closed),
+ * a renderer + recipe, a REAL render through the compute plane with real
+ * progress, a preview of the stored output, and publish/private.
  */
 export default function CreatePage() {
   return (
@@ -17,10 +18,10 @@ export default function CreatePage() {
       <PageHeader
         kicker="Build"
         title="Create Studio"
-        description="Turn authorized footage into new viewing experiences: pick your source, choose the reality, set the recipe, and render."
+        description="Turn authorized footage into new viewing experiences: pick your source, declare your rights, choose the reality, and render."
       />
       <div className="surface-stack">
-        <DeferredSurface surface="create" />
+        <CreateStudio />
       </div>
     </>
   );

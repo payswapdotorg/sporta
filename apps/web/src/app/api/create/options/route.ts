@@ -21,7 +21,7 @@ export async function GET(request: Request): Promise<Response> {
     const server = await getSportaServer();
     await server.ready;
     const token = tokenFromRequest(request);
-    if (token === null) {
+    if (token === "") {
       // The uniform unauthenticated answer (identity's own class → 401).
       const { IdentityUnauthenticatedError } = await import("@sporta/identity");
       throw new IdentityUnauthenticatedError();
