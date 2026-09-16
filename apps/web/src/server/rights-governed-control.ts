@@ -28,13 +28,13 @@
  *   the store, so every session created through this composition has an
  *   inspectable policy record from the start.
  *
- * NARROW-ONLY (pinned by tests): an override can only NARROW effective
- * rights relative to the control plane's stored attestation — the raw app
- * still applies its own internal gate underneath every delegated call, so
- * an edit that tries to WIDEN access past the creation-time policy is
- * capped by the raw gate (it denies where the original policy denies).
- * Revocation and every narrowing edit are enforced; widening is not
- * possible through this surface.
+ * NARROW-ONLY (pinned by tests): the effective capabilities are the
+ * INTERSECTION of the creation-time attestation's derivation and the
+ * current override's derivation — a capability holds only when BOTH allow
+ * it. A rights holder's edit can narrow effective rights (or revoke them
+ * entirely) but can never widen access past what the control plane's
+ * stored policy attested at creation; the raw app's own internal gate
+ * still runs underneath every delegated call as well.
  *
  * Pass-through: `listSessions`, `listRenderers`, `terminateSession`,
  * `getComputeJob` and `observability` delegate untouched (no per-session
@@ -58,6 +58,22 @@ function allDenied(caps: RightsCapabilities): boolean {
 }
 
 /**
+ * NARROW-ONLY: the effective capabilities — a capability holds only when
+ * BOTH the creation-time attestation (the raw app's own derivation) AND the
+ * current rights-holder policy allow it. A rights holder's edit can narrow
+ * effective rights (or revoke them entirely) but can never widen access
+ * past what the control plane's stored policy attested at creation.
+ */
+function intersectCaps(a: RightsCapabilities, b: RightsCapabilities): RightsCapabilities {
+  return {
+    canReferenceSourceFrames: a.canReferenceSourceFrames && b.canReferenceSourceFrames,
+    canDeliverLive: a.canDeliverLive && b.canDeliverLive,
+    canStoreDerivatives: a.canStoreDerivatives && b.canStoreDerivatives,
+    canShare: a.canShare && b.canShare,
+  };
+}
+
+/**
  * Wraps `raw` so the EFFECTIVE policy (creation record + any rights-holder
  * edit) governs every rights-checking read. `nowMs` is the composition's
  * clock — every derivation is at request time (a policy that expires later
@@ -73,12 +89,12 @@ export function createRightsGovernedControl(
   const derive = (policy: AuthorizationPolicy): RightsCapabilities =>
     deriveRightsCapabilities(policy, new Date(nowMs()));
 
-  /** The raw app's own playback gate, mirrored over the effective policy. */
+  /** The raw app's own playback gate, mirrored over the EFFECTIVE policy. */
   const assertEffectivePlaybackRights = (
     sessionId: string,
-    override: AuthorizationPolicy,
+    effective: RightsCapabilities,
   ): void => {
-    if (derive(override).canStoreDerivatives !== true) {
+    if (effective.canStoreDerivatives !== true) {
       throw new ControlRightsDeniedError(
         `playback access denied: rightsCapabilities.canStoreDerivatives is false for session '${sessionId}'`,
         { sessionId },
@@ -86,13 +102,13 @@ export function createRightsGovernedControl(
     }
   };
 
-  /** The raw app's own render gate, mirrored over the effective policy. */
+  /** The raw app's own render gate, mirrored over the EFFECTIVE policy. */
   const assertEffectiveRenderRights = (
     sessionId: string,
     override: AuthorizationPolicy,
+    effective: RightsCapabilities,
   ): void => {
-    const caps = derive(override);
-    if (allDenied(caps)) {
+    if (allDenied(effective)) {
       const expired =
         override.expiresAtIso !== undefined && Date.parse(override.expiresAtIso) <= nowMs();
       throw new ControlRightsDeniedError(
@@ -119,7 +135,10 @@ export function createRightsGovernedControl(
       const result = await raw.getSession(sessionId, ctx);
       const override = overrideOf(sessionId);
       if (override === null) return result;
-      return { session: result.session, rightsCapabilities: derive(override) };
+      return {
+        session: result.session,
+        rightsCapabilities: intersectCaps(result.rightsCapabilities, derive(override)),
+      };
     },
 
     async listSessions(ctx) {
@@ -139,8 +158,12 @@ export function createRightsGovernedControl(
       if (override !== null) {
         // Mirror the raw ordering: existence (typed 404) BEFORE the rights
         // denial — then the effective-policy render gate.
-        await raw.getSession(sessionId, ctx);
-        assertEffectiveRenderRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectiveRenderRights(
+          sessionId,
+          override,
+          intersectCaps(rawCaps, derive(override)),
+        );
       }
       return raw.createRender(sessionId, input, ctx);
     },
@@ -148,8 +171,8 @@ export function createRightsGovernedControl(
     async getRender(sessionId, renderId, ctx) {
       const override = overrideOf(sessionId);
       if (override !== null) {
-        await raw.getSession(sessionId, ctx);
-        assertEffectivePlaybackRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectivePlaybackRights(sessionId, intersectCaps(rawCaps, derive(override)));
       }
       return raw.getRender(sessionId, renderId, ctx);
     },
@@ -157,8 +180,8 @@ export function createRightsGovernedControl(
     async listRenders(sessionId, ctx) {
       const override = overrideOf(sessionId);
       if (override !== null) {
-        await raw.getSession(sessionId, ctx);
-        assertEffectivePlaybackRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectivePlaybackRights(sessionId, intersectCaps(rawCaps, derive(override)));
       }
       return raw.listRenders(sessionId, ctx);
     },
@@ -166,8 +189,8 @@ export function createRightsGovernedControl(
     async getRenderOutput(sessionId, renderId, segmentId, ctx) {
       const override = overrideOf(sessionId);
       if (override !== null) {
-        await raw.getSession(sessionId, ctx);
-        assertEffectivePlaybackRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectivePlaybackRights(sessionId, intersectCaps(rawCaps, derive(override)));
       }
       return raw.getRenderOutput(sessionId, renderId, segmentId, ctx);
     },
@@ -175,8 +198,8 @@ export function createRightsGovernedControl(
     async listRenderOutputs(sessionId, renderId, ctx) {
       const override = overrideOf(sessionId);
       if (override !== null) {
-        await raw.getSession(sessionId, ctx);
-        assertEffectivePlaybackRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectivePlaybackRights(sessionId, intersectCaps(rawCaps, derive(override)));
       }
       return raw.listRenderOutputs(sessionId, renderId, ctx);
     },
@@ -184,8 +207,12 @@ export function createRightsGovernedControl(
     async createRenderAsync(sessionId, input, ctx) {
       const override = overrideOf(sessionId);
       if (override !== null) {
-        await raw.getSession(sessionId, ctx);
-        assertEffectiveRenderRights(sessionId, override);
+        const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
+        assertEffectiveRenderRights(
+          sessionId,
+          override,
+          intersectCaps(rawCaps, derive(override)),
+        );
       }
       return raw.createRenderAsync(sessionId, input, ctx);
     },
