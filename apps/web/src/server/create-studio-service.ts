@@ -311,6 +311,18 @@ const SOURCES: readonly { spec: FixtureStorySpec; label: string; description: st
 /** The sentinel for "no mediated session has this id" (uniform denial). */
 const NOT_OWNED = "\u0000not-a-user";
 
+/**
+ * Resolves a fixture source key to its REAL story spec (the checked-in
+ * fixture inputs). W921: exported for the durable control plane's
+ * reconstruction path (a recorded session's source key must resolve to the
+ * same deterministic story the creating instance ran) — returns `null` for
+ * an unknown key (never a guessed story).
+ */
+export function studioSourceSpec(sourceKey: string): FixtureStorySpec | null {
+  const entry = SOURCES.find((source) => source.spec.key === sourceKey);
+  return entry === undefined ? null : entry.spec;
+}
+
 /** Options for {@link CreateStudioService}. */
 export interface CreateStudioServiceOptions {
   /** The composed server (resolved lazily — the service outlives the literal). */
