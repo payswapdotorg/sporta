@@ -648,10 +648,13 @@ function validateCreateRenderInput(input: unknown): {
   if (input.renderId !== undefined) {
     renderId = requireNonEmptyString(input.renderId, "renderId", MAX_SESSION_ID_LENGTH);
     if (!SESSION_ID_PATTERN.test(renderId)) {
-      throw new ControlValidationError(`renderId must match ${SESSION_ID_PATTERN.source} (got '${renderId}')`, {
-        renderId,
-        reason: "invalid-render-id",
-      });
+      throw new ControlValidationError(
+        `renderId must match ${SESSION_ID_PATTERN.source} (got '${renderId}')`,
+        {
+          renderId,
+          reason: "invalid-render-id",
+        },
+      );
     }
   }
   return { rendererId, rendererVersion, outputProfile, styleConfig, renderId };
@@ -774,8 +777,12 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
     scope: { sessionId?: string },
     input: unknown,
   ): Promise<CreateSessionResult> {
-    const { policy, sourceLabel, sessionId: callerSessionId, createdAtIso } =
-      validateCreateSessionInput(input);
+    const {
+      policy,
+      sourceLabel,
+      sessionId: callerSessionId,
+      createdAtIso,
+    } = validateCreateSessionInput(input);
 
     // Fail-closed policy check FIRST: derive the capabilities; a policy from
     // which no capability can be derived denies creation (nothing is stored).

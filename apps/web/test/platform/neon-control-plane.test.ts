@@ -342,9 +342,7 @@ async function bodyOf(response: Response): Promise<Record<string, unknown>> {
       const watchAResponse = await watchRoute(withCookie(creatorToken, `/api/watch/${sessionId}`), {
         params: Promise.resolve({ sessionId }),
       });
-      if (watchAResponse.status !== 200) {
-        console.error("DEBUG watchA status:", watchAResponse.status, await watchAResponse.text());
-      }
+      expect(watchAResponse.status).toBe(200);
       const watchA = (await bodyOf(watchAResponse)) as {
         renders: { renderId: string; outputs: { segmentId: string }[] }[] | null;
       };
@@ -370,8 +368,7 @@ async function bodyOf(response: Response): Promise<Record<string, unknown>> {
       const watchB = (await bodyOf(watchBResponse)) as {
         sessionId: string;
         renders:
-          | { renderId: string; outputs: { segmentId: string; contentHash: string }[] }[]
-          | null;
+          { renderId: string; outputs: { segmentId: string; contentHash: string }[] }[] | null;
       };
       expect(watchB.sessionId).toBe(sessionId);
       expect(watchB.renders!.map((entry) => entry.renderId)).toEqual([renderId]);

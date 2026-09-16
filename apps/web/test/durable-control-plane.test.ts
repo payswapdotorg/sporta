@@ -9,6 +9,8 @@ import {
 } from "@sporta/identity";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
+import type { AllowedOperation } from "@sporta/contracts";
+import { ControlReconstructionError } from "../src/server/durable-control-plane";
 import {
   InMemoryControlPlaneRecordStore,
   type ControlPlaneRecordStore,
@@ -130,11 +132,7 @@ function onB(): void {
   installSportaServerForTests(serverB);
 }
 
-function withCookie(
-  token: string | null,
-  path: string,
-  init: RequestInit = {},
-): Request {
+function withCookie(token: string | null, path: string, init: RequestInit = {}): Request {
   return new Request(`http://sporta.test${path}`, {
     ...init,
     headers: {
@@ -188,7 +186,10 @@ async function pollToTerminalOn(
     const state = job.state as string | undefined;
     if (
       response.status === 200 &&
-      (state === "succeeded" || state === "failed" || state === "cancelled" || state === "dead-lettered")
+      (state === "succeeded" ||
+        state === "failed" ||
+        state === "cancelled" ||
+        state === "dead-lettered")
     ) {
       return { status: response.status, body: job };
     }
@@ -286,10 +287,7 @@ describe("W921 — two composition instances over ONE record store", () => {
 
     onA();
     const outputResponse = await outputRoute(
-      withCookie(
-        creatorToken,
-        `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`,
-      ),
+      withCookie(creatorToken, `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`),
       {
         params: Promise.resolve({ sessionId, renderId, segmentId }),
       },
@@ -341,10 +339,7 @@ describe("W921 — two composition instances over ONE record store", () => {
     // ASSERTED against the recorded one inside the reconstruction).
     onB();
     const outputResponse = await outputRoute(
-      withCookie(
-        creatorToken,
-        `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`,
-      ),
+      withCookie(creatorToken, `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`),
       {
         params: Promise.resolve({ sessionId, renderId, segmentId }),
       },
@@ -503,6 +498,76 @@ describe("W921 — the expired-policy reconstruction skip (honest, counted)", ()
     // elsewhere after expiry).
     const watchA = await watchOn("A", creatorToken, expiredSession);
     expect(watchA.status).toBe(200);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The poisoned-row blast radius (W921 flight 11): ONE unreplayable record
+// must not 500 the whole listing for every OTHER session.
+// ---------------------------------------------------------------------------
+
+describe("W921 — the unreplayable-row reconstruction skip (bounded blast radius)", () => {
+  test("one poisoned record is skipped + counted from listings; its direct read fails loud with the real reason", async () => {
+    // A row written by something other than the studio flow (e.g. an operator
+    // insert, or a record predating an encoder change) — an unknown source key
+    // can never reconstruct. The Neon integration suite hits this class with
+    // the segment-id-drift variant (its adapter fixture rows).
+    const poisonedId = "sess-u-poisoned-0000000000000000dead";
+    await records.upsertSession({
+      sessionId: poisonedId,
+      ownerUserId: creatorUserId,
+      sourceKey: "not-a-real-source-key",
+      label: "a poisoned row",
+      rightsDeclaration: {
+        policyId: "policy-poisoned",
+        allowedOperations: FULL_OPERATIONS as AllowedOperation[],
+        assertedBy: creatorUserId,
+      },
+      visibility: { kind: "private", roles: [] },
+      status: "active",
+      publishedAtMs: null,
+      createdAtIso: new Date(NOW_MS_A).toISOString(),
+      updatedAtMs: NOW_MS_A,
+    });
+
+    const skipsBefore = serverB.durable!.reconstructionSkips();
+
+    // The listing STILL WORKS for every other session — 200, the poisoned row
+    // absent, the skip counted (one bad row ≠ a broken catalog). The exact
+    // arithmetic: +2 skips — the poisoned row AND the expired-policy row from
+    // the previous suite block (listSessions re-attempts every non-live
+    // durable record; deterministic failures are cheap, stateless retries).
+    onB();
+    const listing = await catalogRoute(withCookie(creatorToken, "/api/catalog/sessions"));
+    expect(listing.status).toBe(200);
+    const listingBody = (await listing.json()) as { sessions: { sessionId: string }[] };
+    expect(listingBody.sessions.map((card) => card.sessionId)).not.toContain(poisonedId);
+    expect(serverB.durable!.reconstructionSkips()).toBe(skipsBefore + 2);
+
+    // A HEALTHY session's watch still works from B — the blast radius is the
+    // poisoned row alone (regression pin: the W920-defect probe shape).
+    onA();
+    const healthy = await createSessionOn("A", {
+      sourceKey: "derby",
+      operations: FULL_OPERATIONS,
+    });
+    const watchHealthy = await watchOn("B", creatorToken, healthy);
+    expect(watchHealthy.status).toBe(200);
+
+    // The poisoned row's DIRECT read fails loud with the REAL reason (the
+    // typed class + message) — never a silent 404 hiding the corruption.
+    onB();
+    await expect(serverB.control.getSession(poisonedId)).rejects.toBeInstanceOf(
+      ControlReconstructionError,
+    );
+    await expect(serverB.control.getSession(poisonedId)).rejects.toThrow(
+      /unknown source key 'not-a-real-source-key'/,
+    );
+
+    // And through the route the honest server-failure shape (500 — a real
+    // data problem, not an "unknown session").
+    const watchPoisoned = await watchOn("B", creatorToken, poisonedId);
+    expect(watchPoisoned.status).toBe(500);
   });
 });
 

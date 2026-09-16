@@ -134,6 +134,9 @@ export function providerAvailability(): ProviderAvailability {
     // W921: the durable control-plane record store rides the SAME Neon gate
     // as identity (migration 0002); unconfigured → the per-instance
     // in-memory control state, honestly reported.
-    controlPlane: { provider: neonConfigured() ? "neon" : "in-memory", configured: neonConfigured() },
+    controlPlane: {
+      provider: neonConfigured() ? "neon" : "in-memory",
+      configured: neonConfigured(),
+    },
   };
 }

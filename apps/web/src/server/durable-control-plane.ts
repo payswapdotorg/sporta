@@ -55,15 +55,20 @@
  *   with the record (deduped by id), and `getRender` falls through to the
  *   record only on the raw app's typed unknown-render miss.
  *
- * - RECONSTRUCTION FAILURES ARE HONEST: a drift between the re-encoded
- *   segment id and the recorded one, an unknown source key, or a store
- *   failure propagates — the real reason, never stale or invented state.
- *   The one carved-out class: a session whose recorded policy has EXPIRED
- *   (or otherwise derives no capability) cannot be recreated — the control
- *   plane's fail-closed admission refuses it — so `listSessions` SKIPS it
- *   (counted, {@link reconstructionSkips}) the same way the catalog skips
- *   terminated sessions, while direct session reads answer the honest
- *   rights-denied error with the real reason.
+ * - RECONSTRUCTION FAILURES ARE HONEST, WITH A BOUNDED BLAST RADIUS: a drift
+ *   between the re-encoded segment id and the recorded one, an unknown source
+ *   key, or a render request the renderer rejects are per-ROW data failures
+ *   ({@link ControlReconstructionError}) — `listSessions` SKIPS the row and
+ *   counts it (one unreplayable row must not 500 the whole listing for every
+ *   other session — the same skip+count class as the catalog's terminated
+ *   sessions), while DIRECT session reads fail loud with the real reason
+ *   (never a silent 404 hiding real corruption). A session whose recorded
+ *   policy has EXPIRED (or otherwise derives no capability) cannot be
+ *   recreated — the control plane's fail-closed admission refuses it — so
+ *   `listSessions` skips it (counted, {@link reconstructionSkips}) the same
+ *   way, while direct session reads answer the honest rights-denied error
+ *   with the real reason. Infrastructure failures (a record-store/pg
+ *   rejection) propagate everywhere — the listing itself is unavailable.
  *
  * HONEST BOUNDARIES (documented in DEPLOYMENT.md §8): the compute ledger's
  * job records (live/terminal job projections, the studio's job index) stay
@@ -79,11 +84,7 @@ import {
   ControlUnknownRenderError,
   ControlUnknownSessionError,
 } from "@sporta/control-api";
-import type {
-  ControlApp,
-  RenderEnvelope,
-  RenderSummary,
-} from "@sporta/control-api";
+import type { ControlApp, RenderEnvelope, RenderSummary } from "@sporta/control-api";
 import { SCHEMA_VERSION, deriveRightsCapabilities } from "@sporta/contracts";
 import type { RenderRequest, WorldSnapshot } from "@sporta/contracts";
 import { encodeAnimeClip } from "@sporta/output-pipeline";
@@ -102,6 +103,35 @@ import type { SeedStoryMeta } from "./dev-seed";
 import { studioSourceSpec } from "./create-studio-service";
 import { runFixtureStory } from "./dev-story";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
+
+/**
+ * A per-ROW reconstruction data failure: the record exists but cannot be
+ * faithfully replayed (an unknown source key, a render request the renderer
+ * rejects, a determinism drift between the re-encoded output and the recorded
+ * segment id — e.g. a row written by something other than the studio flow,
+ * or a recorded output predating an encoder change).
+ *
+ * The honesty contract differs by caller:
+ * - LISTINGS (`listSessions`) SKIP the row and count it — one unreplayable
+ *   row must not 500 the whole catalog/watch listing for every session
+ *   (the blast-radius decision, W921 flight 11: the same skip+count class
+ *   as the expired-policy reconstruction skip).
+ * - DIRECT reads (`getSession` / the watch gate) FAIL LOUD with the real
+ *   reason — the caller asked for THAT session; a silent 404 would hide
+ *   real corruption behind "unknown".
+ * - Infrastructure failures (a record-store/pg rejection) are NOT this
+ *   class — they propagate everywhere (the listing itself is unavailable).
+ */
+export class ControlReconstructionError extends Error {
+  /** The unreplayable row's session id (the skipped/counted row). */
+  readonly sessionId: string;
+
+  constructor(sessionId: string, message: string) {
+    super(message);
+    this.name = "ControlReconstructionError";
+    this.sessionId = sessionId;
+  }
+}
 
 /** What the durable layer needs from the composition (all REAL objects). */
 export interface DurableControlPlaneOptions {
@@ -158,10 +188,11 @@ export interface DurableControlPlane {
     recipe?: ControlRenderRecipe,
   ): Promise<void>;
   /**
-   * Counted reconstruction skips of the rights-denied class (a recorded
-   * policy that has expired / derives no capability cannot be recreated —
-   * the control plane's fail-closed admission). Observable for the honest
-   * degraded-listing note; every other failure propagates.
+   * Counted reconstruction skips (the rights-denied class — a recorded
+   * policy that has expired / derives no capability — AND the
+   * unreplayable-row class {@link ControlReconstructionError}: unknown source
+   * key, rejected render request, determinism drift). Observable for the
+   * honest degraded-listing note; every other failure propagates.
    */
   reconstructionSkips(): number;
   /**
@@ -178,9 +209,7 @@ export interface DurableControlPlane {
 }
 
 /** The structural W502 detailed-render extension (the executor's own check). */
-function hasRenderDetailed(
-  plugin: RendererPlugin,
-): plugin is RendererPlugin & {
+function hasRenderDetailed(plugin: RendererPlugin): plugin is RendererPlugin & {
   renderDetailed(
     req: RenderRequest,
     input: { snapshot: WorldSnapshot; events: unknown[] },
@@ -295,7 +324,8 @@ export function createDurableControlPlane(
     };
     const validation = plugin.validateRequest(request);
     if (!validation.ok) {
-      throw new Error(
+      throw new ControlReconstructionError(
+        record.sessionId,
         `durable control plane: reconstruction render request rejected for session ` +
           `'${record.sessionId}' render '${record.renderId}': ${validation.reason}`,
       );
@@ -311,7 +341,8 @@ export function createDurableControlPlane(
     if (encoded.segmentId !== storedSegmentIds[0]) {
       // Determinism violation: the replay produced different bytes than the
       // recorded segment id promises. Loud, never served.
-      throw new Error(
+      throw new ControlReconstructionError(
+        record.sessionId,
         `durable control plane: reconstruction segment id drift for session ` +
           `'${record.sessionId}' render '${record.renderId}' ` +
           `(re-encoded '${encoded.segmentId}' != recorded '${storedSegmentIds[0]}')`,
@@ -356,7 +387,8 @@ export function createDurableControlPlane(
   async function reconstruct(record: ControlSessionRecord): Promise<boolean> {
     const spec = studioSourceSpec(record.sourceKey);
     if (spec === null) {
-      throw new Error(
+      throw new ControlReconstructionError(
+        record.sessionId,
         `durable control plane: session '${record.sessionId}' records unknown source key ` +
           `'${record.sourceKey}' (cannot reconstruct)`,
       );
@@ -533,16 +565,25 @@ export function createDurableControlPlane(
       // record is the source of truth for publication state — a flip made on
       // another instance is honored here, warm instance or cold). A recorded
       // policy that has expired / derives no capability cannot be recreated
-      // (the control plane's fail-closed admission) — that session is SKIPPED
-      // and counted, exactly like the catalog's terminated-session skip.
-      // Every other failure propagates (the honest 500 with the real reason).
+      // (the control plane's fail-closed admission), and a row that cannot be
+      // faithfully replayed (ControlReconstructionError — unknown source key,
+      // rejected request, determinism drift) is equally unreconstructible data:
+      // BOTH classes SKIP the row and count it — one bad row must not 500 the
+      // whole listing for every other session (the W921 flight-11 blast-radius
+      // decision; direct reads of the skipped row still fail loud with the
+      // real reason through ensureSessionLive). Every OTHER failure — a
+      // record-store/pg rejection — propagates (the listing itself is
+      // unavailable, honestly a 500 with the real reason).
       const durable = await records.listSessions();
       for (const record of durable) {
         try {
           await ensureSessionLive(record.sessionId);
           seedVisibility(record.sessionId, record.visibility);
         } catch (err) {
-          if (err instanceof ControlRightsDeniedError) {
+          if (
+            err instanceof ControlRightsDeniedError ||
+            err instanceof ControlReconstructionError
+          ) {
             reconstructionSkipCount += 1;
             continue;
           }
@@ -657,7 +698,9 @@ function recipeOfInput(input: unknown): ControlRenderRecipe {
     outputProfile?: unknown;
   };
   return {
-    ...(typeof value.rendererVersion === "string" ? { rendererVersion: value.rendererVersion } : {}),
+    ...(typeof value.rendererVersion === "string"
+      ? { rendererVersion: value.rendererVersion }
+      : {}),
     ...(value.styleConfig !== undefined
       ? {
           styleConfig: {

@@ -935,7 +935,11 @@ export class CreateStudioService {
     // that owns the compute-job ledger — exactly where the dispatch's
     // recipe memory lives.
     if (job.renderId !== undefined && server.durable !== null) {
-      await server.durable.noteRenderObserved(sessionId, job.renderId, this.recipesByJob.get(jobId));
+      await server.durable.noteRenderObserved(
+        sessionId,
+        job.renderId,
+        this.recipesByJob.get(jobId),
+      );
     }
     // W919: the TERMINAL observation also records the job's metered usage
     // into the dispatching user's daily counters (the usage meter's real
@@ -1029,7 +1033,11 @@ export class CreateStudioService {
       // W921: this listing is a render write-through point too (the Jobs
       // workspace surfaces observe the same ingested renders).
       if (job.renderId !== undefined && server.durable !== null) {
-        await server.durable.noteRenderObserved(sessionId, job.renderId, this.recipesByJob.get(jobId));
+        await server.durable.noteRenderObserved(
+          sessionId,
+          job.renderId,
+          this.recipesByJob.get(jobId),
+        );
       }
       // W919: the Jobs workspace's listing is a terminal-observation seam too
       // — the metered usage is recorded once per job (idempotent).

@@ -63,8 +63,7 @@ async function checkControlPlane(): Promise<ProviderCheck> {
   const sql = neonClient();
   if (sql === null) return { state: "unconfigured" };
   try {
-    const rows =
-      await sql`SELECT version FROM sporta_schema_migrations WHERE version = 2`;
+    const rows = await sql`SELECT version FROM sporta_schema_migrations WHERE version = 2`;
     if (rows.length === 0) {
       return { state: "error", detail: "migration 0002 not applied" };
     }

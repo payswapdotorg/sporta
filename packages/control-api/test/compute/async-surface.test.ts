@@ -413,10 +413,14 @@ describe("createRenderAsync — the additive async surface (W914)", () => {
     const harness = createComputeHarness();
     try {
       const sessionId = await newSession(harness.baseUrl, allowAll);
-      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
-        rendererId: ANIME_RENDERER_ID,
-        renderId: "r-u-2a7d41f0c9b8e356",
-      });
+      const dispatched = await postJson(
+        harness.baseUrl,
+        `/v1/sessions/${sessionId}/renders/async`,
+        {
+          rendererId: ANIME_RENDERER_ID,
+          renderId: "r-u-2a7d41f0c9b8e356",
+        },
+      );
       expect(dispatched.status).toBe(200);
       const job = await pollJob(harness.baseUrl, sessionId, dispatched.body.jobId);
       expect(job.body.state).toBe("succeeded");
@@ -449,10 +453,14 @@ describe("createRenderAsync — the additive async surface (W914)", () => {
       });
       expect(taken.status).toBe(200);
       expect(taken.body.renderId).toBe("r-u-conflict");
-      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
-        rendererId: ANIME_RENDERER_ID,
-        renderId: "r-u-conflict",
-      });
+      const dispatched = await postJson(
+        harness.baseUrl,
+        `/v1/sessions/${sessionId}/renders/async`,
+        {
+          rendererId: ANIME_RENDERER_ID,
+          renderId: "r-u-conflict",
+        },
+      );
       expect(dispatched.status).toBe(400);
       expect(dispatched.body.error.failureClass).toBe("validation");
       expect(dispatched.body.error.message).toContain("already in use");
@@ -470,10 +478,14 @@ describe("createRenderAsync — the additive async surface (W914)", () => {
     const harness = createComputeHarness();
     try {
       const sessionId = await newSession(harness.baseUrl, allowAll);
-      const dispatched = await postJson(harness.baseUrl, `/v1/sessions/${sessionId}/renders/async`, {
-        rendererId: ANIME_RENDERER_ID,
-        renderId: "r_u-bad",
-      });
+      const dispatched = await postJson(
+        harness.baseUrl,
+        `/v1/sessions/${sessionId}/renders/async`,
+        {
+          rendererId: ANIME_RENDERER_ID,
+          renderId: "r_u-bad",
+        },
+      );
       expect(dispatched.status).toBe(400);
       expect(dispatched.body.error.failureClass).toBe("validation");
       expect(dispatched.body.error.message).toContain("renderId");

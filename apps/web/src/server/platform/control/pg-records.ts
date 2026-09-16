@@ -33,7 +33,8 @@ function parseVisibility(raw: unknown): ControlVisibilityRecord {
   }
   const roles: Role[] = Array.isArray(value["roles"])
     ? (value["roles"].filter(
-        (role): role is Role => typeof role === "string" && (ROLES as readonly string[]).includes(role),
+        (role): role is Role =>
+          typeof role === "string" && (ROLES as readonly string[]).includes(role),
       ) as Role[])
     : [];
   return kind === "role-scoped" && roles.length === 0
@@ -88,7 +89,8 @@ function rowToSession(row: Record<string, unknown>): ControlSessionRecord {
     rightsDeclaration: rights as AuthorizationPolicy,
     visibility: parseVisibility(visibilityRaw),
     status: row["status"],
-    publishedAtMs: published === null || published === undefined ? null : asInt(published, "published_at_ms"),
+    publishedAtMs:
+      published === null || published === undefined ? null : asInt(published, "published_at_ms"),
     createdAtIso: row["created_at_iso"],
     updatedAtMs: asInt(row["updated_at_ms"], "updated_at_ms"),
   };
