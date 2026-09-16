@@ -470,6 +470,9 @@ function watchModelWithOutput(): WatchModelLike {
         ],
       },
     ],
+    eventTail: [
+      { sequence: 1, eventId: "evt-1", eventTimeMs: 500, eventTypeRef: "football/v1/kickoff" },
+    ],
     story: {
       source: "dev-seed",
       storyKey: "derby",

@@ -322,6 +322,16 @@ function PlayerSection({
     setPlayer(model === null ? null : initialFramePlayer(model));
   }, [model]);
 
+  const markers = useMemo(
+    () =>
+      model === null || output.phase !== "ready"
+        ? []
+        : placeEventMarkers(model, eventTail ?? [], output.data.manifest.sourceManifest),
+    [model, eventTail, output],
+  );
+  const profile = useMemo(() => (model === null ? null : deriveFrameRateProfile(model)), [model]);
+  const playing = player?.playing ?? false;
+
   // The play loop: real elapsed time advances the playhead on the
   // manifest's document timeline (scaled by the explicit display rate).
   useEffect(() => {
@@ -339,16 +349,6 @@ function PlayerSection({
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
   }, [playing, model, player === null]);
-
-  const markers = useMemo(
-    () =>
-      model === null || output.phase !== "ready"
-        ? []
-        : placeEventMarkers(model, eventTail ?? [], output.data.manifest.sourceManifest),
-    [model, eventTail, output],
-  );
-  const profile = useMemo(() => (model === null ? null : deriveFrameRateProfile(model)), [model]);
-  const playing = player?.playing ?? false;
 
   if (output.phase === "loading") {
     return (
@@ -417,7 +417,7 @@ function FramePlayerView({
   model: FramePlayerModel;
   player: FramePlayerState;
   markers: EventMarker[];
-  profile: ReturnType<typeof deriveFrameRateProfile>;
+  profile: ReturnType<typeof deriveFrameRateProfile> | null;
   onPlayer: (next: FramePlayerState) => void;
   rendererId: string;
 }) {
@@ -1088,7 +1088,7 @@ function SessionFactsSection({ watch }: { watch: WatchModelLike }) {
           <dd>
             {watch.story === null
               ? "none"
-              : `${watch.story.storyKey} (${watch.story.eventCount} events, dev seed)`}
+              : `${watch.story.storyKey} (${watch.story.events.length} events, dev seed)`}
           </dd>
         </div>
       </dl>

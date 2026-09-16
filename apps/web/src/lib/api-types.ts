@@ -110,8 +110,9 @@ export interface WatchModelLike {
   story: {
     source: "dev-seed";
     storyKey: string;
-    transcript: { startMs: number; endMs: number; text: string; asrConfidence: number }[];
-    events: {
+    /** `readonly` — the server's `SeedStoryMeta` hands out frozen arrays. */
+    transcript: readonly { startMs: number; endMs: number; text: string; asrConfidence: number }[];
+    events: readonly {
       sequence: number;
       timeMs: number;
       type: string;
