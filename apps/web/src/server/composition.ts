@@ -402,16 +402,14 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     computeUsage: async () => {
       if (computeAdapter === undefined) return null;
       const records = await computeAdapter.usage();
-      return records.map(
-        (record): MeteredJobUsageRecord => ({
-          jobId: record.jobId,
-          meteredAtMs: record.meteredAtMs,
-          costUnits: record.costUnits.map((unit) => ({
-            unitId: unit.unitId,
-            quantity: unit.quantity,
-          })),
-        }),
-      );
+      return records.map((record): MeteredJobUsageRecord => ({
+        jobId: record.jobId,
+        meteredAtMs: record.meteredAtMs,
+        costUnits: record.costUnits.map((unit) => ({
+          unitId: unit.unitId,
+          quantity: unit.quantity,
+        })),
+      }));
     },
     r2Stats: async () => {
       // The composition's OWN artifact store (options-injected or null).

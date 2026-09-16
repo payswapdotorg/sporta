@@ -39,7 +39,6 @@ import type { SeedStoryMeta } from "./dev-seed";
 import { RENDER_REQUESTS_QUOTA } from "./platform/upstash/hosted";
 import type { PlatformQuotaState } from "./platform/upstash/quotas";
 import { QueueFullError, RateLimitedError, retryAfterSeconds } from "./platform/upstash/guards";
-import { ProviderCapacityLimitError } from "./platform/guardrails";
 import { DERBY_STORY, FRIENDLY_STORY, TRAINING_STORY, runFixtureStory } from "./dev-story";
 import type { FixtureStorySpec, StoryRun } from "./dev-story";
 import type { SessionVisibility } from "./publication";

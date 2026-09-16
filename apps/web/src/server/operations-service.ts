@@ -801,8 +801,9 @@ export class OperationsService {
     // dispatch — the same write seam the client poll paths use).
     if (job.completion !== undefined) {
       const dispatchedBy =
-        this.getServer().studio.jobLedger().find((entry) => entry.jobId === jobId)?.dispatch
-          ?.dispatchedByUserId ?? null;
+        this.getServer()
+          .studio.jobLedger()
+          .find((entry) => entry.jobId === jobId)?.dispatch?.dispatchedByUserId ?? null;
       await this.getServer().guardrails.noteJobUsage(
         dispatchedBy,
         jobId,

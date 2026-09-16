@@ -147,7 +147,11 @@ function unitService(
   redis: RedisLike,
   nowMs: () => number,
   seams: {
-    r2Stats?: () => Promise<{ segments: number; totalBytes: number; duplicateStores: number } | null>;
+    r2Stats?: () => Promise<{
+      segments: number;
+      totalBytes: number;
+      duplicateStores: number;
+    } | null>;
     computeUsage?: () => Promise<readonly MeteredJobUsageRecord[] | null>;
     ledger?: ReturnType<typeof resolveLedger>;
   } = {},
@@ -261,9 +265,7 @@ describe("the usage meter (per-user daily windows over real records)", () => {
   });
 
   test("is idempotent per job and skips unattributed usage", async () => {
-    const again = await service.noteJobUsage("u-1", "job-a", [
-      { unitId: "cpu-ms", quantity: 500 },
-    ]);
+    const again = await service.noteJobUsage("u-1", "job-a", [{ unitId: "cpu-ms", quantity: 500 }]);
     expect(again).toBe(false);
     expect(await readUserDailyUsage(redis, "cpu-ms", "u-1", now())).toBe(154);
     const unattributed = await service.noteJobUsage(null, "job-c", [
@@ -274,12 +276,11 @@ describe("the usage meter (per-user daily windows over real records)", () => {
   });
 
   test("keys the window by UTC day (a rolled clock is the next day's key)", async () => {
-    const dayKey = calendarDayKey(now());
     const nextDayMs = now() + 24 * 3600 * 1000;
     await service.noteJobUsage("u-3", "job-d", [{ unitId: "cpu-ms", quantity: 10 }]);
-    expect(
-      await redis.get(userDailyUsageKey("cpu-ms", "u-3", calendarDayKey(nextDayMs))),
-    ).toBe(null);
+    expect(await redis.get(userDailyUsageKey("cpu-ms", "u-3", calendarDayKey(nextDayMs)))).toBe(
+      null,
+    );
   });
 });
 
@@ -305,13 +306,13 @@ describe("the command meter (the RedisLike port's own counter)", () => {
       await metered.set(`k-${index}`, String(index));
     }
     expect(counter.buffered).toBe(10);
-    const first = await counter.flush(metered, calendarMonthKey(clock()), clock());
+    const first = await counter.flush(metered, calendarMonthKey(clock()));
     // The flush's own GET+SET are counted into the NEXT buffer (+2), and the
     // persisted total is exactly the 10 flushed.
     expect(first).toEqual({ total: 10, flushed: 10 });
     expect(counter.buffered).toBe(2);
     // A second flush persists those 2 (plus its own 2 into the buffer).
-    const second = await counter.flush(metered, calendarMonthKey(clock()), clock());
+    const second = await counter.flush(metered, calendarMonthKey(clock()));
     expect(second).toEqual({ total: 12, flushed: 2 });
     // The monthly key is the documented one.
     expect(await inner.get(monthlyCommandsKey(calendarMonthKey(clock())))).toBe("12");
@@ -577,16 +578,6 @@ async function pollToTerminal(
   throw new Error(`job ${jobId} did not settle`);
 }
 
-/** Registers a creator and issues their session token. */
-async function creatorOf(server: SportaServer, username: string): Promise<string> {
-  const registered = await server.auth.register({
-    username,
-    password: "a-real-studio-password",
-    roles: ["creator", "viewer"],
-  });
-  return (await server.auth.issueSession({ userId: registered.userId })).token;
-}
-
 /** Creates one studio session through the REAL route. */
 async function studioSessionOf(token: string): Promise<string> {
   const response = await createSessionRoute(
@@ -604,7 +595,6 @@ describe("W919 route evidence (default ledger, real seams)", () => {
   let server: SportaServer;
   let creatorToken = "";
   let operatorToken = "";
-  let creatorUserId = "";
   let sessionId = "";
 
   beforeAll(async () => {
@@ -621,7 +611,6 @@ describe("W919 route evidence (default ledger, real seams)", () => {
       password: "a-real-studio-password",
       roles: ["creator", "viewer"],
     });
-    creatorUserId = registered.userId;
     creatorToken = (await server.auth.issueSession({ userId: registered.userId })).token;
     const operator = await server.accounts.create({
       username: "w919-operator",
@@ -637,18 +626,24 @@ describe("W919 route evidence (default ledger, real seams)", () => {
   test("a real dispatch's metered usage reaches the capability quotas[] (usage-counter snapshot)", async () => {
     // One REAL render through the full admission ladder.
     const dispatch = await dispatchRoute(
-      withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({
-        rendererId: "anime.prototype",
-      })),
+      withCookie(
+        creatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({
+          rendererId: "anime.prototype",
+        }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(dispatch.status).toBe(202);
     const dispatched = (await bodyOf(dispatch)) as { jobId: string };
     const job = await pollToTerminal(creatorToken, sessionId, dispatched.jobId);
     expect(job.state).toBe("succeeded");
-    const completion = job.completion as {
-      usage: { unitId: string; quantity: number }[];
-    } | undefined;
+    const completion = job.completion as
+      | {
+          usage: { unitId: string; quantity: number }[];
+        }
+      | undefined;
     expect(completion).toBeDefined();
     const units = new Map(completion!.usage.map((unit) => [unit.unitId, unit.quantity]));
     expect(units.get("cpu-ms")!).toBeGreaterThan(0);
@@ -684,9 +679,7 @@ describe("W919 route evidence (default ledger, real seams)", () => {
     expect(states.get("compute.cpu-ms-day")!.used).toBeGreaterThan(0);
     expect(states.get("compute.cpu-ms-day")!.state).toBe("under");
 
-    const health = await operationsHealthRoute(
-      withCookie(operatorToken, "/api/operations/health"),
-    );
+    const health = await operationsHealthRoute(withCookie(operatorToken, "/api/operations/health"));
     expect(health.status).toBe(200);
     const healthBody = (await bodyOf(health)) as {
       spendAlarms: {
@@ -772,9 +765,13 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
     playbackBefore = await before.text();
 
     const dispatch = await dispatchRoute(
-      withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({
-        rendererId: "anime.prototype",
-      })),
+      withCookie(
+        creatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({
+          rendererId: "anime.prototype",
+        }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(dispatch.status).toBe(202);
@@ -813,9 +810,13 @@ describe("W919 limit-crossed degradation + fail-closed admission (cpu-ms thresho
     );
 
     const refusal = await dispatchRoute(
-      withCookie(creatorToken, `/api/create/sessions/${sessionId}/renders`, post({
-        rendererId: "anime.prototype",
-      })),
+      withCookie(
+        creatorToken,
+        `/api/create/sessions/${sessionId}/renders`,
+        post({
+          rendererId: "anime.prototype",
+        }),
+      ),
       { params: Promise.resolve({ sessionId }) },
     );
     expect(refusal.status).toBe(503);

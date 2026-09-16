@@ -175,7 +175,8 @@ export const DEFAULT_FREE_TIER_LEDGER: readonly ProviderLimitDefinition[] = Obje
     unit: "ms",
     window: "calendar-day",
     metered: true,
-    meterNote: "the compute adapter's per-job cpu-ms usage records, attributed to the dispatching user",
+    meterNote:
+      "the compute adapter's per-job cpu-ms usage records, attributed to the dispatching user",
     source: "product admission quota (deployment-architecture.md § Cost safety: per-user quotas)",
     admissionEnforced: true,
   },
@@ -187,7 +188,8 @@ export const DEFAULT_FREE_TIER_LEDGER: readonly ProviderLimitDefinition[] = Obje
     unit: "bytes",
     window: "calendar-day",
     metered: true,
-    meterNote: "the compute adapter's per-job artifact-bytes usage records, attributed to the dispatching user",
+    meterNote:
+      "the compute adapter's per-job artifact-bytes usage records, attributed to the dispatching user",
     source: "product admission quota (deployment-architecture.md § Cost safety: per-user quotas)",
     admissionEnforced: true,
   },
@@ -225,7 +227,9 @@ export interface ResolvedLedger {
  * Resolves the ledger for this process: every documented default, with any
  * present env override applied (fail-loud on invalid overrides).
  */
-export function resolveLedger(env: Record<string, string | undefined> = process.env): ResolvedLedger {
+export function resolveLedger(
+  env: Record<string, string | undefined> = process.env,
+): ResolvedLedger {
   const overrides: { envName: string; value: number }[] = [];
   const limits = DEFAULT_FREE_TIER_LEDGER.map((limit) => {
     const envName = limitEnvName(limit.limitId);

@@ -47,10 +47,7 @@ import {
   type MeteredCostUnit,
 } from "./usage";
 import { observeAlarm, type AlarmEvaluation } from "./alarms";
-import {
-  ProviderCapacityLimitError,
-  admissionRetryAfterSeconds,
-} from "./admission";
+import { ProviderCapacityLimitError, admissionRetryAfterSeconds } from "./admission";
 
 /** One job usage record off the compute adapter's metering drain. */
 export interface MeteredJobUsageRecord {
@@ -60,12 +57,11 @@ export interface MeteredJobUsageRecord {
 }
 
 /** The metered compute units the per-user daily admission quotas track. */
-export const USER_COMPUTE_QUOTA_UNITS: readonly { limitId: string; unitId: string }[] = Object.freeze(
-  [
+export const USER_COMPUTE_QUOTA_UNITS: readonly { limitId: string; unitId: string }[] =
+  Object.freeze([
     { limitId: "compute.cpu-ms-day", unitId: "cpu-ms" },
     { limitId: "compute.artifact-bytes-day", unitId: "artifact-bytes" },
-  ],
-);
+  ]);
 
 /** Options for {@link GuardrailsService}. */
 export interface GuardrailsServiceOptions {
@@ -333,13 +329,15 @@ export class GuardrailsService {
           if (limit.limitId === "r2.storage-bytes") {
             const stats = await this.#r2Stats();
             used = stats === null ? null : stats.totalBytes;
-            if (stats === null) noteOverride = "the R2 store is not configured (the allowance does not apply)";
+            if (stats === null)
+              noteOverride = "the R2 store is not configured (the allowance does not apply)";
           } else if (limit.limitId === "upstash.commands") {
             used = await this.#readCommandTotal();
             if (used === null) noteOverride = "the shared command counter is unreadable";
           } else if (limit.limitId === "neon.storage-bytes") {
             used = await this.#neonStorageBytes();
-            if (used === null) noteOverride = "the postgres seam is not configured (or reported no size)";
+            if (used === null)
+              noteOverride = "the postgres seam is not configured (or reported no size)";
           } else if (limit.provider === "compute") {
             const unitId = this.#unitOf(limit.limitId);
             if (unitId !== null && userId !== undefined) {
@@ -406,7 +404,7 @@ export class GuardrailsService {
   async #readCommandTotal(): Promise<number | null> {
     const monthKey = calendarMonthKey(this.#nowMs());
     try {
-      const flushed = await this.#commands.flush(this.#redis, monthKey, this.#nowMs());
+      const flushed = await this.#commands.flush(this.#redis, monthKey);
       if (flushed !== null) return flushed.total;
       // Flush refused to fabricate a total for an unreadable counter: read
       // directly (an absent key is zero only if the read itself succeeds).

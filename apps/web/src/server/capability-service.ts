@@ -193,9 +193,12 @@ async function transientReachability(server: SportaServer) {
  * control-plane/compute feeds, the storage feed with its R2 limit state, and
  * the queue-cache feed with the command-budget state.
  */
-async function providerFeedsOf(server: SportaServer, evaluation: {
-  limits: LimitEvaluation[];
-}): Promise<unknown[]> {
+async function providerFeedsOf(
+  server: SportaServer,
+  evaluation: {
+    limits: LimitEvaluation[];
+  },
+): Promise<unknown[]> {
   const storage = evaluation.limits.find((limit) => limit.limitId === "r2.storage-bytes");
   const commands = evaluation.limits.find((limit) => limit.limitId === "upstash.commands");
   return [

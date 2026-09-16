@@ -309,7 +309,11 @@ describe("the per-user render-request quota (degradation path)", () => {
     // W913's render-requests entry + the W919 per-user daily usage quotas
     // (both admission-relevant, both in the W901 QuotaState vocabulary).
     const quotaIds = body.quotas.map((quota) => quota.quotaId).sort();
-    expect(quotaIds).toEqual(["compute.artifact-bytes-day", "compute.cpu-ms-day", "render-requests"]);
+    expect(quotaIds).toEqual([
+      "compute.artifact-bytes-day",
+      "compute.cpu-ms-day",
+      "render-requests",
+    ]);
     const byId = new Map(body.quotas.map((quota) => [quota.quotaId, quota]));
     expect(byId.get("render-requests")).toMatchObject({
       used: 20,

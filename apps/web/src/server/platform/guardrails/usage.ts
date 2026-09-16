@@ -222,12 +222,12 @@ export class CommandCounter {
 
   /**
    * Flushes the buffer into the monthly counter, returning the counter's new
-   * absolute value (the caller's usage read follows the same write).
+   * absolute value (the caller's usage read follows the same write). The
+   * month key is the caller's (derived from the same clock the windows use).
    */
   async flush(
     redis: RedisLike,
     monthKey: string,
-    nowMs: number,
   ): Promise<{ total: number; flushed: number } | null> {
     // Snapshot the flushed portion BEFORE the read: the flush's own GET (the
     // read below) + SET (the write below) are counted by the MeteredRedis

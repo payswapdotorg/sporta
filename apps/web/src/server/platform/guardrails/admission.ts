@@ -33,10 +33,7 @@ import type { LimitEvaluation } from "./ledger";
 export type AdmissionRefusalScope = "user" | "provider";
 
 /** Why admission was refused (the closed reason vocabulary). */
-export type AdmissionRefusalReason =
-  | "limit-reached"
-  | "limit-exceeded"
-  | "limit-check-unreadable";
+export type AdmissionRefusalReason = "limit-reached" | "limit-exceeded" | "limit-check-unreadable";
 
 /** Seconds until the next UTC midnight (min 1 — an honest hint). */
 export function secondsUntilNextUtcDay(nowMs: number): number {
@@ -48,9 +45,7 @@ export function secondsUntilNextUtcDay(nowMs: number): number {
 /** Seconds until the next UTC month start (min 1 — an honest hint). */
 export function secondsUntilNextUtcMonth(nowMs: number): number {
   const now = new Date(nowMs);
-  const nextMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0),
-  );
+  const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
   return Math.max(1, Math.ceil((nextMonth.getTime() - nowMs) / 1000));
 }
 
