@@ -1,0 +1,20 @@
+# W910 deployment upload boundaries (repo-root deploy, project rootDirectory=apps/web).
+# Everything NOT ignored here is uploaded as the deployment source; the build
+# then runs `bun install` at the repo root and `next build` in apps/web.
+# Keep this list aligned with the workspace dependency closure of apps/web:
+# packages/contracts, packages/capability, packages/identity (runtime) and
+# packages/output-pipeline (type-only pins in tests) must NOT be ignored.
+.git
+.github
+.vercel
+docs
+tests
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/test
+**/*.test.ts
+**/scripts
+*.log
+.DS_Store

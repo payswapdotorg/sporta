@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { LibrarySurface } from "@/components/library-surface";
 
 export const metadata: Metadata = {
   title: "Library",
 };
 
 /**
- * Library (W903). Libraries are per-account; accounts arrive with W902,
- * so this surface stays empty rather than showing sample shelves.
+ * Library (W904): personal and signed-in. The capability response gates the
+ * state; the signed-in account's OWN sessions (identity-gate ownership)
+ * render as cards.
  */
 export default function LibraryPage() {
   return (
@@ -16,11 +17,9 @@ export default function LibraryPage() {
       <PageHeader
         kicker="You"
         title="Library"
-        description="Your saved matches, followed series and the realities you have rendered — collected in one place."
+        description="Your sessions — the media you created through the control plane, with their real render and output state."
       />
-      <div className="surface-stack">
-        <DeferredSurface surface="library" />
-      </div>
+      <LibrarySurface />
     </>
   );
 }
