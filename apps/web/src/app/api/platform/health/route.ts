@@ -12,7 +12,6 @@ import { platformSnapshot } from "@/server/platform-health";
 import { jsonRespond, newRequestId } from "@/server/platform/api-utils";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 
 export async function GET(): Promise<Response> {
   const requestId = newRequestId();

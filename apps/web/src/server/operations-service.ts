@@ -7,8 +7,9 @@
  * - providers: which provider each seam is bound to + live reachability;
  * - compute: the composed compute plane (provider selection + the real
  *   adapter id), or the honest null when the async surface is disabled;
- * - queues: the control plane exposes NO queue-depth surface yet (W913/W919
- *   scope) — the answer says so instead of inventing numbers;
+ * - queues: the W913 bounded render queue's REAL live observation (depth
+ *   vs the hard bound; a read failure is the honest `depth: null` — never
+ *   an invented number);
  * - live transport: the real env-gated SSE transport state + the sources it
  *   is genuinely serving;
  * - failed jobs: the render jobs that failed for real, read through the
@@ -39,8 +40,13 @@ export interface OperationsModel {
     provider: string;
     adapterId: string;
   } | null;
-  /** The honest queue answer (no queue-depth surface exists yet). */
-  queues: { state: "unavailable"; note: string };
+  /** The W913 render queue's real observation (depth null = unreadable). */
+  queues: {
+    key: string;
+    maxDepth: number;
+    admissionLeaseMs: number;
+    depth: number | null;
+  };
   live: {
     state: "unavailable" | "active";
     detail: string;
@@ -85,10 +91,9 @@ export async function buildOperations(
       server.compute === null
         ? null
         : { provider: server.compute.provider, adapterId: server.compute.adapterId },
-    queues: {
-      state: "unavailable",
-      note: "The control plane exposes no queue-depth surface yet (queue/cache state is W913 scope, usage counters W919) — no numbers are invented here.",
-    },
+    // The SAME queue observation the health snapshot serves (one shared
+    // implementation — the two surfaces can never drift).
+    queues: health.renderQueue,
     live: {
       state: live.state(),
       detail: live.detail(),

@@ -27,7 +27,7 @@ export async function GET(request: Request): Promise<Response> {
       throw new IdentityUnauthenticatedError();
     }
     await server.gate.requireAccount(token);
-    const options = await server.studio.listOptions();
+    const options = await server.studio.listOptions(token);
     return jsonResponse(200, options);
   } catch (err) {
     return errorResponse(err);

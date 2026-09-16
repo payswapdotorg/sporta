@@ -12,7 +12,9 @@
  * needed on the error path, after a request has actually arrived.
  */
 import { AuthFlowError } from "./auth-service";
+import { CatalogQueryError } from "./catalog-service";
 import { IdentityApiError } from "@sporta/identity";
+import { QueueFullError, RateLimitedError } from "./platform/upstash/guards";
 
 /** The JSON error body every non-2xx API answer uses. */
 export interface ApiErrorBody {
@@ -37,12 +39,52 @@ export function jsonResponse(
 
 /** Maps any thrown value onto the API's error-response conventions. */
 export async function errorResponse(err: unknown): Promise<Response> {
+  if (err instanceof RateLimitedError) {
+    // W913: an exhausted quota is an honest 429 — the W901 QuotaState rides
+    // in `details.quota` and the standard Retry-After header carries the
+    // window's remaining seconds.
+    return jsonResponse(
+      err.status,
+      {
+        error: {
+          failureClass: err.failureClass,
+          message: err.message,
+          details: { quota: err.quota, retryAfterSeconds: err.retryAfterSeconds },
+        },
+      } satisfies ApiErrorBody,
+      { "retry-after": String(err.retryAfterSeconds) },
+    );
+  }
+  if (err instanceof QueueFullError) {
+    // W913: platform capacity, not the caller's fault — 503 + Retry-After.
+    return jsonResponse(
+      err.status,
+      {
+        error: {
+          failureClass: err.failureClass,
+          message: err.message,
+          details: { depth: err.depth, maxDepth: err.maxDepth },
+        },
+      } satisfies ApiErrorBody,
+      { "retry-after": String(err.retryAfterSeconds) },
+    );
+  }
   if (err instanceof AuthFlowError) {
     return jsonResponse(err.status, {
       error: {
         failureClass: err.failureClass,
         message: err.message,
         ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
+  if (err instanceof CatalogQueryError) {
+    // W916: a malformed catalog query (unknown closed-vocabulary filter,
+    // empty search) answers the typed 400 — never a silent empty answer.
+    return jsonResponse(err.status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
       },
     } satisfies ApiErrorBody);
   }

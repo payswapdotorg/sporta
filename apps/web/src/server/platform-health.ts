@@ -7,7 +7,8 @@
  * - the environment tier + the deployment marker (rollback evidence);
  * - which provider each seam is bound to (neon / r2 / upstash vs the
  *   in-memory fallbacks) and a LIVE reachability check for each;
- * - the R2 usage-guardrail seam note (W919 — the free-tier limits the
+ * - the W913 render queue's live observation (depth vs the hard bound);
+ * - the usage-guardrail seam note (W919 — the free-tier limits the
  *   capability feed will surface once counters exist).
  *
  * This module NEVER turns a check into a claim: an unconfigured provider is
@@ -18,6 +19,7 @@ import { deployMarker, platformEnv, providerAvailability } from "./platform/env"
 import { neonClient } from "./platform/db/pg";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
 import { getHostedTransientState } from "./platform/upstash/redis";
+import { getHostedJobQueue } from "./platform/upstash/hosted";
 import { HOSTED_STORE_DEFAULT_LIMITS } from "./platform/r2/r2-store";
 
 type CheckState = "ok" | "unconfigured" | "error";
@@ -65,9 +67,45 @@ async function checkUpstash(): Promise<ProviderCheck> {
   }
 }
 
+/**
+ * The W913 render queue's live observation (depth vs the hard bound). The
+ * production composition runs over the SAME process-wide transient backing
+ * this reads (see composition.ts buildSingleton), so the numbers are the
+ * deployment's real queue, never a parallel one. On a read failure the
+ * depth is reported `null` — fail-closed, never invented.
+ */
+export async function queueObservation(): Promise<{
+  key: string;
+  maxDepth: number;
+  admissionLeaseMs: number;
+  depth: number | null;
+}> {
+  const queue = getHostedJobQueue();
+  try {
+    return {
+      key: "sporta:jobs:render",
+      maxDepth: queue.maxDepth,
+      admissionLeaseMs: queue.admissionLeaseMs,
+      depth: await queue.depth(),
+    };
+  } catch {
+    return {
+      key: "sporta:jobs:render",
+      maxDepth: queue.maxDepth,
+      admissionLeaseMs: queue.admissionLeaseMs,
+      depth: null,
+    };
+  }
+}
+
 /** The full honest platform snapshot (the /api/platform/health document). */
 export async function platformSnapshot() {
-  const [neon, r2, upstash] = await Promise.all([checkNeon(), checkR2(), checkUpstash()]);
+  const [neon, r2, upstash, renderQueue] = await Promise.all([
+    checkNeon(),
+    checkR2(),
+    checkUpstash(),
+    queueObservation(),
+  ]);
   return {
     env: platformEnv(),
     deployMarker: deployMarker(),
@@ -76,8 +114,9 @@ export async function platformSnapshot() {
       artifacts: { ...providerAvailability().artifacts, check: r2 },
       transientState: { ...providerAvailability().transientState, check: upstash },
     },
+    renderQueue,
     usageGuardrails: {
-      note: "R2 free-tier limits (10 GB-month storage, 1M Class A, 10M Class B ops) are enforced via the W504 store bounds; provider usage counters are W919 scope.",
+      note: "R2 free-tier limits (10 GB-month storage, 1M Class A, 10M Class B ops) are enforced via the W504 store bounds; Upstash free-tier limits (256 MB data, 500K commands/month) are enforced via the W913 bounded queue + quota windows; provider usage counters are W919 scope.",
       storeLimits: { ...HOSTED_STORE_DEFAULT_LIMITS } as Record<string, number>,
     },
   };

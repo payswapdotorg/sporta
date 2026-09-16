@@ -216,9 +216,10 @@ describe("W907 GET /api/operations — the Operator workspace", () => {
       health: {
         env: string;
         providers: Record<string, { provider: string; check: { state: string } }>;
+        renderQueue: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
       };
       compute: { provider: string; adapterId: string } | null;
-      queues: { state: string; note: string };
+      queues: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
       live: { state: string; detail: string; servingSources: number };
       failedJobs: unknown[];
     };
@@ -240,9 +241,14 @@ describe("W907 GET /api/operations — the Operator workspace", () => {
     expect(body.compute).not.toBeNull();
     expect(body.compute!.provider).toBe("in-process");
     expect(body.compute!.adapterId.length).toBeGreaterThan(0);
-    // Queues are HONESTLY unavailable — no queue-depth surface exists yet.
-    expect(body.queues.state).toBe("unavailable");
-    expect(body.queues.note).toContain("no queue-depth surface");
+    // The REAL W913 render-queue observation — the same numbers the health
+    // snapshot serves (one shared implementation), never an invented depth.
+    expect(body.queues.key).toBe("sporta:jobs:render");
+    expect(body.queues.maxDepth).toBe(256); // the real free-tier hard bound
+    expect(body.queues.admissionLeaseMs).toBeGreaterThan(0);
+    expect(body.queues.depth === null || Number.isInteger(body.queues.depth)).toBe(true);
+    // And the health section carries the SAME observation (no drift).
+    expect(body.health.renderQueue).toEqual(body.queues);
     // The live transport is env-gated OFF in tests — the honest state.
     expect(body.live.state).toBe("unavailable");
     expect(body.live.servingSources).toBe(0);

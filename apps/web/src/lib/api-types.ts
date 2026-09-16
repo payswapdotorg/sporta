@@ -60,6 +60,15 @@ export interface CapabilityLike {
   overall: { state: "ready" | "degraded" | "unavailable"; reasonCodes: string[] };
 }
 
+/** One reality of a match session (the W916 card's reality groups). */
+export interface RealityGroupLike {
+  rendererId: string;
+  renderId: string;
+  state: "ready" | "no-stored-output" | "renderer-unavailable";
+  segmentCount: number;
+  hasStoredOutputs: boolean;
+}
+
 /** One catalog session card (the /api/catalog/* answer). */
 export interface SessionCardLike {
   sessionId: string;
@@ -71,6 +80,39 @@ export interface SessionCardLike {
     | { renderId: string; rendererId: string; segmentCount: number; hasStoredOutputs: boolean }[]
     | null;
   outputCount: number | null;
+  /**
+   * W916 reality linkage: this match session's renderings grouped per
+   * renderer (`null` when playback is denied — no render existence leaked).
+   */
+  realities?: RealityGroupLike[] | null;
+  /** How many realities this match exists in (`null` when denied). */
+  realityCount?: number | null;
+  /** The visibility flag — present only on the owner/operator view. */
+  visibility?: {
+    kind: "public" | "private" | "unlisted" | "role-scoped" | "unknown";
+    roles: readonly string[];
+  } | null;
+  /** Operator-only operational fields (present only on the operator view). */
+  operational?: { ownerRecorded: boolean } | null;
+  story: { source: "dev-seed"; storyKey: string; eventCount: number } | null;
+}
+
+/** The requester-view summary every W916 catalog answer carries (self-data). */
+export interface CatalogViewerLike {
+  state: "anonymous" | "authenticated";
+  userId: string | null;
+  grants: readonly string[];
+}
+
+/** One match entry in the reality-grouped catalog view (/api/catalog/realities). */
+export interface RealityMatchLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  realityCount: number | null;
+  realities: RealityGroupLike[] | null;
   story: { source: "dev-seed"; storyKey: string; eventCount: number } | null;
 }
 
@@ -419,9 +461,10 @@ export interface OperationsLike {
       { provider: string; configured: boolean; check: { state: string; detail?: string } }
     >;
     usageGuardrails: { note: string; storeLimits: Record<string, number> };
+    renderQueue: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
   };
   compute: { provider: string; adapterId: string } | null;
-  queues: { state: "unavailable"; note: string };
+  queues: { key: string; maxDepth: number; admissionLeaseMs: number; depth: number | null };
   live: { state: "unavailable" | "active"; detail: string; servingSources: number };
   failedJobs: { sessionId: string; jobId: string; state: string; failureMessage?: string }[];
 }

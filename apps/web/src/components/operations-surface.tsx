@@ -14,8 +14,8 @@ import { LoadingPanel, StatePanel } from "@/components/state-panels";
  *   `/api/platform/health` serves (one shared server implementation);
  * - Compute: the composed compute plane (provider selection + real adapter
  *   id), or honest null when the async render surface is disabled;
- * - Queues: honestly unavailable — the control plane exposes no queue-depth
- *   surface yet (no numbers are invented);
+ * - Queues: the W913 bounded render queue's REAL observation (depth vs the
+ *   hard bound — the same numbers /api/platform/health serves);
  * - Live transport: the real env-gated SSE transport state;
  * - Failed jobs: the render jobs that failed for real.
  *
@@ -160,7 +160,16 @@ export function OperationsSurface() {
           </table>
         )}
         <p className="field-note">
-          Queues: {data.queues.state} — {data.queues.note}
+          Render queue <code>{data.queues.key}</code>: depth{" "}
+          {data.queues.depth === null ? (
+            <span>unreadable — the honest null, never an invented number</span>
+          ) : (
+            <span>
+              {data.queues.depth} of the {data.queues.maxDepth}-job hard bound
+              (admission lease {Math.round(data.queues.admissionLeaseMs / 1000)}s)
+            </span>
+          )}
+          .
         </p>
       </section>
 
