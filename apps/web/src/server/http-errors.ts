@@ -12,6 +12,7 @@
  * needed on the error path, after a request has actually arrived.
  */
 import { AuthFlowError } from "./auth-service";
+import { IdentityApiError } from "@sporta/identity";
 
 /** The JSON error body every non-2xx API answer uses. */
 export interface ApiErrorBody {
@@ -30,6 +31,17 @@ export function jsonResponse(status: number, payload: unknown): Response {
 export async function errorResponse(err: unknown): Promise<Response> {
   if (err instanceof AuthFlowError) {
     return jsonResponse(err.status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
+  if (err instanceof IdentityApiError) {
+    // W906: identity-typed failures (the control gate's 401/403, the
+    // identity package's own classes) carry their derived status + class.
+    return jsonResponse(err.httpStatus, {
       error: {
         failureClass: err.failureClass,
         message: err.message,

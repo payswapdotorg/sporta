@@ -27,6 +27,15 @@
  */
 import { createControlApp } from "@sporta/control-api";
 import type { ControlApp } from "@sporta/control-api";
+import type { ComputeAdapterPort } from "@sporta/compute-adapter";
+import {
+  ComputeWorker,
+  HostedComputeAdapter,
+  computeProviderSelectionOf,
+  createDefaultOutputSegmentStore,
+  resolveComputeAdapterFromEnv,
+} from "@sporta/compute-adapter-hosted";
+import type { ComputeProviderSelection } from "@sporta/compute-adapter-hosted";
 import { createAnimeOutputPipeline } from "@sporta/output-pipeline";
 import type { AnimeOutputPipeline } from "@sporta/output-pipeline";
 import { RendererRegistry, createTestCardRenderer } from "@sporta/renderer-contract";
@@ -52,9 +61,11 @@ import { neonConfigured } from "./platform/env";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { AuthService } from "./auth-service";
+import { CreateStudioService } from "./create-studio-service";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
+import { PublicationStore } from "./publication";
 
 /** Options for {@link createSportaServer} (every seam injectable; defaults are the REAL ones). */
 export interface SportaServerOptions {
@@ -70,6 +81,12 @@ export interface SportaServerOptions {
   sessions?: SessionService;
   /** Media-ownership store (default: a fresh in-memory store). */
   ownership?: MediaOwnershipStore;
+  /**
+   * A pre-built compute adapter for the async render surface (default: the
+   * env-driven provider selection — `in-process` with this composition's
+   * own renderer registry; `none` disables the async surface).
+   */
+  computeAdapter?: ComputeAdapterPort;
   /** Run the dev seed (default: true — this deployment IS the dev preview). */
   seed?: boolean;
 }
@@ -94,6 +111,16 @@ export interface SportaServer {
   storyIndex: ReadonlyMap<string, SeedStoryMeta>;
   /** The session-scoped SWM engines the control plane's factory hands out. */
   engines: ReadonlyMap<string, WorldModelEngineInstance>;
+  /** The Create Studio service (W906 — the guided creation flow). */
+  studio: CreateStudioService;
+  /** The publication store (the real publish/private visibility flag). */
+  publication: PublicationStore;
+  /**
+   * The compute plane the control plane's async render surface dispatches
+   * through (W914): the env-selected provider + the REAL adapter id, or null
+   * when the async surface is disabled (`COMPUTE_PROVIDER=none`).
+   */
+  compute: { provider: ComputeProviderSelection; adapterId: string } | null;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -130,7 +157,42 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //    plane's render-output store.
   const pipeline = createAnimeOutputPipeline();
 
-  // 4. Session-scoped world-model engines: the dev seed registers fused
+  // 4. The compute plane (the W914 seam, env-driven like the worker route):
+  //    `in-process` (default) executes REAL render jobs in this process
+  //    through THIS composition's own renderer registry — the same code path
+  //    `apps/web/src/app/api/compute` runs; `http` is pre-resolved by the
+  //    singleton (it fetches the worker's live descriptor); `none` disables
+  //    the async surface (its typed 503 answers honestly).
+  let computeAdapter: ComputeAdapterPort | undefined = options.computeAdapter;
+  const computeProvider = computeProviderSelectionOf(process.env);
+  if (computeAdapter === undefined && computeProvider === "in-process") {
+    const worker = new ComputeWorker({
+      rendererRegistry: registry,
+      outputSegmentStore: createDefaultOutputSegmentStore(),
+      nowMs,
+    });
+    computeAdapter = new HostedComputeAdapter({
+      descriptor: worker.describe(),
+      execute: async (job, materialized) => {
+        if (materialized === undefined) {
+          throw new Error("in-process execution requires materialized inputs");
+        }
+        const execution = await worker.execute({ job, inputs: materialized });
+        if (execution.kind === "refused") {
+          throw new Error(`${execution.reason.errorClass}: ${execution.reason.message}`);
+        }
+        return execution.result;
+      },
+      nowMs,
+      providerId: worker.providerId,
+    });
+  }
+  const compute: SportaServer["compute"] =
+    computeAdapter === undefined
+      ? null
+      : { provider: computeProvider, adapterId: computeAdapter.describe().adapterId };
+
+  // 5. Session-scoped world-model engines: the dev seed registers fused
   //    engines here BEFORE rendering; every other session gets a fresh
   //    engine (the documented W701 factory seam).
   const engines = new Map<string, WorldModelEngineInstance>();
@@ -139,6 +201,11 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const control = createControlApp({
     rendererRegistry: registry,
     renderOutputStore: pipeline,
+    ...(computeAdapter !== undefined ? { computeAdapter } : {}),
+    // The async surface's settled outputs land in the SAME playback store
+    // the watch surface reads (the control plane re-keys them under its own
+    // render id when it ingests the inline deliveries).
+    renderOutputWriter: pipeline.segmentStore,
     nowMs,
     worldModelFactory: (sessionId: string) => {
       const seeded = engines.get(sessionId);
@@ -149,9 +216,19 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     },
   });
 
-  // 5. The identity control gate (owner/operator reads, deny-before-existence).
+  // 6. The identity control gate (owner/operator reads, deny-before-existence).
   const ownership = options.ownership ?? new InMemoryMediaOwnershipStore();
   const gate = createIdentityControlGate({ accounts, sessions: auth.sessions, control, ownership });
+
+  // 7. The Create Studio (W906) + the publication store (the visibility flag).
+  const publication = new PublicationStore();
+  const studio = new CreateStudioService({
+    getServer: () => server,
+    engines,
+    storyIndex,
+    publication,
+    nowMs,
+  });
 
   const server: SportaServer = {
     auth,
@@ -163,11 +240,14 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     accounts,
     storyIndex,
     engines,
+    studio,
+    publication,
+    compute,
     nowMs,
     ready: Promise.resolve(),
   };
 
-  // 6. The dev seed (honest, labeled, real-engine-only). It registers its
+  // 8. The dev seed (honest, labeled, real-engine-only). It registers its
   //    engines into `engines` and its story metadata into `storyIndex`.
   if (options.seed !== false) {
     server.ready = seedDevContent({
@@ -229,11 +309,22 @@ export function getSportaServer(): Promise<SportaServer> {
  */
 async function buildSingleton(): Promise<SportaServer> {
   const seed = process.env.SPORTA_DISABLE_DEV_SEED !== "1";
+  // The env-selected compute provider (fail-loud on a bad value). The http
+  // provider's adapter is pre-resolved here — its descriptor is fetched
+  // LIVE from the configured worker (never locally invented).
+  const computeProvider = computeProviderSelectionOf(process.env);
+  const httpCompute =
+    computeProvider === "http"
+      ? await resolveComputeAdapterFromEnv({ nowMs: Date.now })
+      : null;
   if (!neonConfigured()) {
     return createSportaServer({
       nowMs: Date.now,
       passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
       seed,
+      ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
+        ? { computeAdapter: httpCompute.adapter }
+        : {}),
     });
   }
   await identityReady();
@@ -245,6 +336,9 @@ async function buildSingleton(): Promise<SportaServer> {
     ownership: hosted.ownership,
     passwordHasher: hosted.hasher,
     seed,
+    ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
+      ? { computeAdapter: httpCompute.adapter }
+      : {}),
   });
 }
 

@@ -160,6 +160,11 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     })) as { session: { sessionId: string } };
     const sessionId = created.session.sessionId;
 
+    // The seeded sessions are the platform's PUBLIC preview content — the
+    // publication flag is explicit (the store's default is public too, but
+    // the seed says so rather than implying it).
+    server.publication.set(sessionId, "public");
+
     // 2b. Run the story through the REAL chain and register the fused engine
     //     BEFORE any render (the control plane's factory picks it up).
     const run: StoryRun = runFixtureStory(sessionId, plan.story, server.nowMs);

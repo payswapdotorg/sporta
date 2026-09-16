@@ -1,4 +1,5 @@
 import { getSportaServer } from "@/server/runtime";
+import { assertWatchable } from "@/server/catalog-service";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export const dynamic = "force-dynamic";
  * its content hash/length, and the deterministic container manifest).
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   context: {
     params: Promise<{ sessionId: string; renderId: string; segmentId: string }>;
   },
@@ -24,6 +25,7 @@ export async function GET(
     const server = await getSportaServer();
     await server.ready;
     const { sessionId, renderId, segmentId } = await context.params;
+    await assertWatchable(server, request, sessionId);
     const document = await server.control.getRenderOutput(sessionId, renderId, segmentId);
     return jsonResponse(200, document);
   } catch (err) {

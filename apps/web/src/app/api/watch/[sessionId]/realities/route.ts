@@ -1,5 +1,5 @@
 import { getSportaServer } from "@/server/runtime";
-import { buildWatchModel } from "@/server/catalog-service";
+import { assertWatchable, buildWatchModel } from "@/server/catalog-service";
 import { capabilityForRequest } from "@/server/capability-service";
 import { deriveRealityOptions } from "@/lib/surface-state";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
@@ -24,6 +24,7 @@ export async function GET(
     const server = await getSportaServer();
     await server.ready;
     const { sessionId } = await context.params;
+    await assertWatchable(server, request, sessionId);
     const capability = await capabilityForRequest(server, request);
     const watch = await buildWatchModel(server, sessionId);
     const options = deriveRealityOptions(capability, watch);

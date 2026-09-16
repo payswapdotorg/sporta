@@ -13,6 +13,8 @@
  */
 import type { SportaServer } from "./composition";
 import type { SeedStoryMeta } from "./dev-seed";
+import { tokenFromRequest } from "./auth-service";
+import { authorize } from "@sporta/identity";
 
 /** One catalog card (the client-facing session summary). */
 export interface SessionCardModel {
@@ -91,6 +93,9 @@ export async function buildCatalog(server: SportaServer): Promise<SessionCardMod
   const { sessions } = await server.control.listSessions();
   const cards: SessionCardModel[] = [];
   for (const summary of sessions) {
+    // W906: the PUBLIC catalog lists published sessions only — a private
+    // session is not discoverable (the owner's Library still lists it).
+    if (!server.publication.isPublic(summary.id)) continue;
     cards.push(await buildCard(server, summary.id, summary.sourceLabel));
   }
   return cards;
@@ -241,4 +246,35 @@ export async function buildWatchModel(
     eventTail: buildEventTail(server, sessionId),
     story,
   };
+}
+
+/**
+ * The W906 watch-visibility gate: a PRIVATE session's watch surface is
+ * served only to its owner or an operator; every other caller — anonymous
+ * included — receives the SAME answer as for an unknown session (the
+ * control plane's `unknown-session` 404, byte-identical: no existence
+ * oracle). Public sessions are served as before.
+ */
+export async function assertWatchable(
+  server: SportaServer,
+  request: Request,
+  sessionId: string,
+): Promise<void> {
+  if (server.publication.isPublic(sessionId)) return;
+  // Private: the owner or an operator may still watch; everyone else gets
+  // the uniform unknown-session answer.
+  const token = tokenFromRequest(request);
+  if (token !== null) {
+    try {
+      const account = await server.gate.requireAccount(token);
+      const ownerId = (await server.ownership.ownerIdOf(sessionId)) ?? "\u0000not-a-user";
+      if (authorize(account, "media-session.read", { ownerId }).allowed) {
+        return;
+      }
+    } catch {
+      // An unresolvable token is just an unauthenticated caller here.
+    }
+  }
+  const { ControlUnknownSessionError } = await import("@sporta/control-api");
+  throw new ControlUnknownSessionError(sessionId);
 }
