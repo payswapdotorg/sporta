@@ -112,7 +112,7 @@ export async function fetchSegmentDocumentViaPresignedUrl(
   const url = store.presignedGetUrl(sessionId, renderId, segmentId, SERVER_FETCH_PRESIGN_SECONDS);
   let response: Response;
   try {
-    response = await fetch(url);
+    response = await store.fetchViaTransport(url);
   } catch (err) {
     throw new R2PlaybackUnavailableError("artifact storage is unreachable", {
       cause: err instanceof Error ? err.message : String(err),

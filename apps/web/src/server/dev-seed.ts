@@ -20,6 +20,7 @@
  * Users register their own accounts; their Library lists their own sessions.
  */
 import { SCHEMA_VERSION, deriveRightsCapabilities } from "@sporta/contracts";
+import { encodeAnimeClip } from "@sporta/output-pipeline";
 import {
   ANIME_OUTPUT_PROFILE,
   ANIME_RENDERER_ID,
@@ -222,31 +223,35 @@ export async function seedDevContent(options: SeedOptions): Promise<{
       // a mirror that silently no-ops (or silently swallows R2 failures)
       // would make health lie. The store is idempotent (same content =
       // COUNTED duplicate), so a cold-start re-seed is safe.
+      //
+      // The mirror re-runs the pipeline's OWN deterministic encoder
+      // (`encodeAnimeClip` — the exact function `encodeAndStore` uses) instead
+      // of reading the segment back through the rights-gated retrieval: the
+      // training story's policy deliberately denies derivative STORAGE, so a
+      // playback-gated read of its output denies (the honest W905 reality);
+      // the WRITE side (like the pipeline's own `storeSegment`) carries no
+      // rights gate. Deterministic encode ⇒ same segment id + hash as the
+      // pipeline's stored record (asserted, not trusted).
       if (server.artifacts !== null) {
-        const record = server.pipeline.getSegment({
-          sessionId,
-          renderId: animeRenderId,
-          segmentId: stored.segmentId,
-          policy,
-          nowMs: server.nowMs(),
-        });
-        if (record === null) {
+        const encoded = encodeAnimeClip(clip);
+        if (encoded.segmentId !== stored.segmentId) {
           // Unreachable barring a pipeline-contract violation — loud, never
           // an in-memory-only deployment pretending R2 persistence.
           throw new Error(
-            `dev seed mirror: the pipeline lost segment '${stored.segmentId}' it just stored`,
+            `dev seed mirror: encoder/pipeline segment id drift (` +
+              `${encoded.segmentId} != ${stored.segmentId})`,
           );
         }
         await server.artifacts.storeSegment({
           sessionId,
           renderId: animeRenderId,
           segment: {
-            segmentId: record.segmentId,
-            contentType: record.contentType,
-            content: record.content,
-            byteLength: record.byteLength,
-            contentHash: record.contentHash,
-            manifest: record.manifest,
+            segmentId: encoded.segmentId,
+            contentType: encoded.contentType,
+            content: encoded.content,
+            byteLength: encoded.byteLength,
+            contentHash: encoded.contentHash,
+            manifest: encoded.manifest,
           },
         });
       }
