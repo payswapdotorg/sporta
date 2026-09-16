@@ -8,7 +8,10 @@ import { SEED_POLICIES } from "../src/server/dev-story";
 import { ANONYMOUS_REQUESTER, buildCatalogFor, searchCatalog } from "../src/server/catalog-service";
 import { parseSearchQuery } from "../src/server/catalog-service";
 import { GET as listPoliciesRoute } from "../src/app/api/rights/policies/route";
-import { GET as inspectRoute, PATCH as patchPolicyRoute } from "../src/app/api/rights/policies/[sessionId]/route";
+import {
+  GET as inspectRoute,
+  PATCH as patchPolicyRoute,
+} from "../src/app/api/rights/policies/[sessionId]/route";
 import { PATCH as patchVisibilityRoute } from "../src/app/api/rights/policies/[sessionId]/visibility/route";
 import { POST as revokeRoute } from "../src/app/api/rights/policies/[sessionId]/revocation/route";
 import { GET as watchRoute } from "../src/app/api/watch/[sessionId]/route";
@@ -97,6 +100,10 @@ async function bodyOf(response: Response): Promise<Record<string, unknown>> {
   return (await response.json()) as Record<string, unknown>;
 }
 
+function errorClassOf(body: Record<string, unknown>): string {
+  return (body.error as Record<string, unknown> | undefined)?.failureClass as string;
+}
+
 async function createOwnedSession(token: string, label: string): Promise<string> {
   const created = (await server.gate.createMediaSession(token, {
     authorizationPolicy: SEED_POLICIES.derby,
@@ -162,7 +169,7 @@ describe("policy inspection authorization (the scoped list)", () => {
     const response = await listPoliciesRoute(jsonRequest("/api/rights/policies"));
     expect(response.status).toBe(401);
     const body = await bodyOf(response);
-    expect(body.error?.failureClass).toBe("unauthenticated");
+    expect(errorClassOf(body)).toBe("unauthenticated");
   });
 
   test("a viewer with no owned/attested content sees the honest empty scope", async () => {
@@ -191,9 +198,7 @@ describe("policy inspection authorization (the scoped list)", () => {
   });
 
   test("the rights holder sees their attested scope (content they do not own)", async () => {
-    const response = await listPoliciesRoute(
-      withCookie("/api/rights/policies", rightsHolderToken),
-    );
+    const response = await listPoliciesRoute(withCookie("/api/rights/policies", rightsHolderToken));
     expect(response.status).toBe(200);
     const body = await bodyOf(response);
     const entries = body.entries as Record<string, string>[];
@@ -256,10 +261,9 @@ describe("policy inspection authorization (one session)", () => {
   });
 
   test("anonymous → 401", async () => {
-    const response = await inspectRoute(
-      jsonRequest(`/api/rights/policies/${creatorSessionId}`),
-      { params: Promise.resolve({ sessionId: creatorSessionId }) },
-    );
+    const response = await inspectRoute(jsonRequest(`/api/rights/policies/${creatorSessionId}`), {
+      params: Promise.resolve({ sessionId: creatorSessionId }),
+    });
     expect(response.status).toBe(401);
   });
 
@@ -304,12 +308,7 @@ describe("policy editing", () => {
       patchRequest(`/api/rights/policies/${creatorSessionId}`, creatorToken, {
         authorizationPolicy: {
           policyId: "policy-w917-edited",
-          allowedOperations: [
-            "analysis",
-            "transformation",
-            "derivativeGeneration",
-            "storage",
-          ],
+          allowedOperations: ["analysis", "transformation", "derivativeGeneration", "storage"],
           assertedBy: "should-be-ignored",
           sharingScope: "private",
         },
@@ -362,11 +361,15 @@ describe("policy editing", () => {
     // The 400 body is the classified validation error.
     const first = await patchPolicyRoute(
       patchRequest(`/api/rights/policies/${creatorSessionId}`, creatorToken, {
-        authorizationPolicy: { policyId: "x", allowedOperations: ["teleportation"], assertedBy: "a" },
+        authorizationPolicy: {
+          policyId: "x",
+          allowedOperations: ["teleportation"],
+          assertedBy: "a",
+        },
       }),
       { params: Promise.resolve({ sessionId: creatorSessionId }) },
     );
-    expect((await bodyOf(first)).error?.failureClass).toBe("validation");
+    expect(errorClassOf(await bodyOf(first))).toBe("validation");
     // Nothing was applied: the effective policy is the previous edit.
     const after = await server.control.getSession(creatorSessionId);
     expect(after.rightsCapabilities).toEqual(before.rightsCapabilities);
@@ -432,7 +435,7 @@ describe("policy editing", () => {
       { params: Promise.resolve({ sessionId: attestedSessionId }) },
     );
     expect(response.status).toBe(200);
-    const entry = ((await bodyOf(response)).entry as Record<string, unknown>);
+    const entry = (await bodyOf(response)).entry as Record<string, unknown>;
     expect((entry.policy as Record<string, unknown>).assertedBy).toBe(rightsHolderUserId);
   });
 });
@@ -450,13 +453,11 @@ describe("visibility editing", () => {
       { params: Promise.resolve({ sessionId: creatorSessionId }) },
     );
     expect(response.status).toBe(200);
-    expect(
-      ((await bodyOf(response)).entry as Record<string, unknown>).visibility,
-    ).toMatchObject({ kind: "unlisted" });
+    expect(((await bodyOf(response)).entry as Record<string, unknown>).visibility).toMatchObject({
+      kind: "unlisted",
+    });
     const listing = await buildCatalogFor(server, ANONYMOUS_REQUESTER);
-    expect(
-      listing.sessions.some((card) => card.sessionId === creatorSessionId),
-    ).toBe(false);
+    expect(listing.sessions.some((card) => card.sessionId === creatorSessionId)).toBe(false);
     const watchResponse = await watch(creatorSessionId);
     expect(watchResponse.status).toBe(200);
     expect(((await bodyOf(watchResponse)).playback as Record<string, string>).state).toBe(
@@ -479,9 +480,7 @@ describe("visibility editing", () => {
       userId: "w917-viewer-id",
       grants: ["viewer"],
     });
-    expect(
-      viewerListing.sessions.some((card) => card.sessionId === creatorSessionId),
-    ).toBe(false);
+    expect(viewerListing.sessions.some((card) => card.sessionId === creatorSessionId)).toBe(false);
     const analystListing = await buildCatalogFor(server, {
       state: "authenticated",
       userId: "w917-analyst-id",
@@ -575,7 +574,9 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
     const audit = server.rightsAudit.of(derbyId);
     expect(audit.length).toBe(1);
     expect(audit[0]!.changeKind).toBe("revocation");
-    expect(audit[0]!.actorUserId).toBe((await server.accounts.findByUsername("sporta-dev-seed"))!.userId);
+    expect(audit[0]!.actorUserId).toBe(
+      (await server.accounts.findByUsername("sporta-dev-seed"))!.userId,
+    );
     const to = audit[0]!.to as Record<string, Record<string, unknown>>;
     expect((to.policy as Record<string, unknown>).expiresAtIso).toBeTruthy();
     expect((to.visibility as Record<string, unknown>).kind).toBe("private");
@@ -603,9 +604,7 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
     const catalogResponse = await catalogRoute();
     const catalogBody = await bodyOf(catalogResponse);
     expect(
-      (catalogBody.sessions as Record<string, string>[]).some(
-        (card) => card.sessionId === derbyId,
-      ),
+      (catalogBody.sessions as Record<string, string>[]).some((card) => card.sessionId === derbyId),
     ).toBe(false);
   });
 
@@ -650,9 +649,9 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
   });
 
   test("the control plane itself denies the bytes and new renders (typed errors)", async () => {
-    expect(server.control.getRenderOutput(derbyId, derbyAnimeRenderId, derbySegmentId)).rejects.toBeInstanceOf(
-      ControlRightsDeniedError,
-    );
+    expect(
+      server.control.getRenderOutput(derbyId, derbyAnimeRenderId, derbySegmentId),
+    ).rejects.toBeInstanceOf(ControlRightsDeniedError);
     expect(server.control.listRenderOutputs(derbyId, derbyAnimeRenderId)).rejects.toBeInstanceOf(
       ControlRightsDeniedError,
     );
@@ -684,8 +683,10 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
       { params: Promise.resolve({ sessionId: derbyId }) },
     );
     expect(response.status).toBe(200);
-    const policy = ((await bodyOf(response)).entry as Record<string, unknown>)
-      .policy as Record<string, unknown>;
+    const policy = ((await bodyOf(response)).entry as Record<string, unknown>).policy as Record<
+      string,
+      unknown
+    >;
     expect(Date.parse(policy.expiresAtIso as string)).toBe(firstExpiry);
   });
 });
@@ -719,9 +720,7 @@ describe("fail-closed re-derivation (a policy that expires denies later)", () =>
       { params: Promise.resolve({ sessionId }) },
     );
     expect(response.status).toBe(200);
-    expect(
-      ((await bodyOf(response)).entry as Record<string, unknown>).revoked,
-    ).toBe(false);
+    expect(((await bodyOf(response)).entry as Record<string, unknown>).revoked).toBe(false);
     const inForce = await server.control.getSession(sessionId);
     expect(inForce.rightsCapabilities.canStoreDerivatives).toBe(true);
     // Advance the clock past the expiry — the SAME read now denies.
@@ -774,9 +773,7 @@ describe("narrow-only: an edit can never widen past the creation-time attestatio
     const after = await server.control.getSession(trainingId);
     expect(after.rightsCapabilities.canStoreDerivatives).toBe(false);
     expect(after.rightsCapabilities.canShare).toBe(false);
-    expect(
-      server.control.listRenders(trainingId),
-    ).rejects.toBeInstanceOf(ControlRightsDeniedError);
+    expect(server.control.listRenders(trainingId)).rejects.toBeInstanceOf(ControlRightsDeniedError);
   });
 });
 
@@ -787,9 +784,7 @@ describe("narrow-only: an edit can never widen past the creation-time attestatio
 describe("the append-only policy-change record", () => {
   test("every change kind is recorded with who/what/when", async () => {
     const trail = await server.rights.auditTrail(creatorToken);
-    const kinds = (trail.entries as { changeKind: string }[]).map(
-      (entry) => entry.changeKind,
-    );
+    const kinds = (trail.entries as { changeKind: string }[]).map((entry) => entry.changeKind);
     expect(kinds).toContain("policy");
     expect(kinds).toContain("visibility");
     for (const entry of trail.entries) {
@@ -815,15 +810,15 @@ describe("the append-only policy-change record", () => {
     }
     // The creator's trail never contains the seed account's revocation.
     const creatorTrail = await server.rights.auditTrail(creatorToken);
-    expect(
-      creatorTrail.entries.some((entry) => entry.sessionId === derbyId),
-    ).toBe(false);
+    expect(creatorTrail.entries.some((entry) => entry.sessionId === derbyId)).toBe(false);
   });
 
   test("the operator sees the full trail", async () => {
     const trail = await server.rights.auditTrail(operatorToken);
     expect(
-      trail.entries.some((entry) => entry.sessionId === derbyId && entry.changeKind === "revocation"),
+      trail.entries.some(
+        (entry) => entry.sessionId === derbyId && entry.changeKind === "revocation",
+      ),
     ).toBe(true);
   });
 

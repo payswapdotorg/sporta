@@ -84,7 +84,8 @@ export function createRightsGovernedControl(
   policies: EffectivePolicyStore,
   nowMs: () => number,
 ): ControlApp {
-  const overrideOf = (sessionId: string): AuthorizationPolicy | null => policies.overrideOf(sessionId);
+  const overrideOf = (sessionId: string): AuthorizationPolicy | null =>
+    policies.overrideOf(sessionId);
 
   const derive = (policy: AuthorizationPolicy): RightsCapabilities =>
     deriveRightsCapabilities(policy, new Date(nowMs()));
@@ -159,11 +160,7 @@ export function createRightsGovernedControl(
         // Mirror the raw ordering: existence (typed 404) BEFORE the rights
         // denial — then the effective-policy render gate.
         const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
-        assertEffectiveRenderRights(
-          sessionId,
-          override,
-          intersectCaps(rawCaps, derive(override)),
-        );
+        assertEffectiveRenderRights(sessionId, override, intersectCaps(rawCaps, derive(override)));
       }
       return raw.createRender(sessionId, input, ctx);
     },
@@ -208,11 +205,7 @@ export function createRightsGovernedControl(
       const override = overrideOf(sessionId);
       if (override !== null) {
         const { rightsCapabilities: rawCaps } = await raw.getSession(sessionId, ctx);
-        assertEffectiveRenderRights(
-          sessionId,
-          override,
-          intersectCaps(rawCaps, derive(override)),
-        );
+        assertEffectiveRenderRights(sessionId, override, intersectCaps(rawCaps, derive(override)));
       }
       return raw.createRenderAsync(sessionId, input, ctx);
     },

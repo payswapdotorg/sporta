@@ -48,10 +48,7 @@ import { IdentityPermissionDeniedError } from "@sporta/identity";
 import type { Account } from "@sporta/identity";
 import { AuthFlowError } from "./auth-service";
 import type { SportaServer } from "./composition";
-import type {
-  ContentVisibilityKind,
-  ContentVisibilityRecord,
-} from "./publication";
+import type { ContentVisibilityKind, ContentVisibilityRecord } from "./publication";
 import type { PolicyAuditEntry, PolicyChangeKind } from "./rights-policy-store";
 
 /** The uniform sentinel for "no mediated session has this id" (no oracle). */
@@ -119,8 +116,7 @@ export interface RightsCenterServiceOptions {
 
 /** The visibility edit input (the W916 kinds; `role-scoped` carries grants). */
 export type VisibilityEdit =
-  | Exclude<ContentVisibilityKind, "role-scoped">
-  | { kind: "role-scoped"; roles: unknown };
+  Exclude<ContentVisibilityKind, "role-scoped"> | { kind: "role-scoped"; roles: unknown };
 
 /** The W917 Rights Center service. */
 export class RightsCenterService {
@@ -198,7 +194,9 @@ export class RightsCenterService {
       } else {
         continue; // not in this caller's scope — never listed
       }
-      entries.push(await this.buildEntry(server, summary.id, summary.sourceLabel ?? summary.id, access));
+      entries.push(
+        await this.buildEntry(server, summary.id, summary.sourceLabel ?? summary.id, access),
+      );
     }
     return {
       viewer: { userId: account.userId, grants: [...account.roles] },
@@ -239,9 +237,7 @@ export class RightsCenterService {
         inScope.add(summary.id);
       }
     }
-    const entries = isOperator
-      ? server.rightsAudit.all()
-      : server.rightsAudit.ofSessions(inScope);
+    const entries = isOperator ? server.rightsAudit.all() : server.rightsAudit.ofSessions(inScope);
     return { viewer: { userId: account.userId, grants: [...account.roles] }, entries };
   }
 
@@ -272,18 +268,13 @@ export class RightsCenterService {
         "validation",
         "authorizationPolicy is not a valid AuthorizationPolicy (the contracts package defines the shape — malformed edits are never applied)",
         {
-          issues: parsed.error.issues.map(
-            (issue) => `${issue.path.join(".")}: ${issue.message}`,
-          ),
+          issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
         },
       );
     }
     // Re-attest with the VERIFIED editor — a caller never asserts `assertedBy`.
     const next: AuthorizationPolicyDoc = { ...parsed.data, assertedBy: account.userId };
-    if (
-      next.expiresAtIso !== undefined &&
-      Date.parse(next.expiresAtIso) <= this.nowMs()
-    ) {
+    if (next.expiresAtIso !== undefined && Date.parse(next.expiresAtIso) <= this.nowMs()) {
       throw new AuthFlowError(
         400,
         "validation",
@@ -343,11 +334,7 @@ export class RightsCenterService {
    *
    * Both effects are recorded as ONE revocation audit entry.
    */
-  async revoke(
-    token: string,
-    sessionId: string,
-    reason?: string,
-  ): Promise<RightsCenterInspect> {
+  async revoke(token: string, sessionId: string, reason?: string): Promise<RightsCenterInspect> {
     const server = this.getServer();
     const account = await this.requireAccount(token);
     await this.requirePolicyAccess(server, account, sessionId);

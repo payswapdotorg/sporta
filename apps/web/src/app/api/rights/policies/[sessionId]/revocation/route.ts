@@ -36,9 +36,7 @@ export async function POST(
       if (raw !== undefined && raw !== null) {
         if (typeof raw !== "string" || raw.length > 500) {
           const { IdentityValidationError } = await import("@sporta/identity");
-          throw new IdentityValidationError(
-            "reason must be a string of at most 500 characters",
-          );
+          throw new IdentityValidationError("reason must be a string of at most 500 characters");
         }
         reason = raw;
       }

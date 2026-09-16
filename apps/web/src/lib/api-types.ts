@@ -387,3 +387,81 @@ export interface StudioPublicationLike {
   sessionId: string;
   visibility: "public" | "private";
 }
+
+// ---------------------------------------------------------------------------
+// W917 — the Rights Center (policy inspection / editing / revocation)
+// ---------------------------------------------------------------------------
+
+/** The rights vocabulary (structural mirror of the contracts' enums). */
+export const RIGHTS_OPERATIONS = [
+  "analysis",
+  "transformation",
+  "liveDelivery",
+  "derivativeGeneration",
+  "storage",
+  "sharing",
+] as const;
+export type RightsOperationLike = (typeof RIGHTS_OPERATIONS)[number];
+
+/** One session's rights policy as the Rights Center answers it. */
+export interface RightsPolicyLike {
+  policyId: string;
+  allowedOperations: RightsOperationLike[];
+  assertedBy: string;
+  expiresAtIso?: string;
+  storageDurationDays?: number;
+  sharingScope?: "private" | "operator-authorized";
+}
+
+/** The W916 visibility record as the Rights Center answers it. */
+export interface RightsVisibilityLike {
+  kind: "public" | "private" | "unlisted" | "role-scoped";
+  roles: string[];
+  setBy: string | null;
+  setAtIso: string | null;
+}
+
+/** One Rights Center entry (GET /api/rights/policies). */
+export interface RightsPolicyEntryLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  access: "owned" | "attested" | "operator";
+  policy: RightsPolicyLike | null;
+  effectiveSource: "creation" | "edited" | "unrecorded";
+  rightsCapabilities: RightsPreviewLike["capabilities"];
+  revoked: boolean;
+  visibility: RightsVisibilityLike | null;
+  lastChange: { atIso: string; actorUserId: string; changeKind: string } | null;
+}
+
+/** The scoped policy list (GET /api/rights/policies). */
+export interface RightsCenterListLike {
+  viewer: { userId: string; grants: string[] };
+  entries: RightsPolicyEntryLike[];
+  note: string;
+}
+
+/** One append-only policy-change record (who/what/when). */
+export interface PolicyAuditEntryLike {
+  atIso: string;
+  actorUserId: string;
+  sessionId: string;
+  changeKind: "visibility" | "policy" | "revocation";
+  summary: string;
+  from: unknown;
+  to: unknown;
+}
+
+/** The one-session inspection answer (GET /api/rights/policies/[sessionId]). */
+export interface RightsCenterInspectLike {
+  entry: RightsPolicyEntryLike;
+  audit: PolicyAuditEntryLike[];
+}
+
+/** The caller's audit trail (GET /api/rights/audit). */
+export interface RightsAuditListLike {
+  viewer: { userId: string; grants: string[] };
+  entries: PolicyAuditEntryLike[];
+}
