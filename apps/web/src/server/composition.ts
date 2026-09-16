@@ -78,6 +78,7 @@ import { CreateStudioService } from "./create-studio-service";
 import { RightsCenterService } from "./rights-center-service";
 import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
 import { createRightsGovernedControl } from "./rights-governed-control";
+import { OperationsService } from "./operations-service";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
 import type { LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
@@ -193,6 +194,19 @@ export interface SportaServer {
    * when the async surface is disabled (`COMPUTE_PROVIDER=none`).
    */
   compute: { provider: ComputeProviderSelection; adapterId: string } | null;
+  /**
+   * The compute adapter instance itself (W918): the operations console's
+   * remediation seam — the REAL `cancel` + the accounting stats over the
+   * SAME adapter the control plane dispatches through. Null when the async
+   * surface is disabled.
+   */
+  computeAdapter: import("@sporta/compute-adapter").ComputeAdapterPort | null;
+  /**
+   * The operations console service (W918): operator grant-gated health /
+   * queues / providers / jobs panels + the audit-logged safe remediations
+   * (retry a failed job, cancel an admitted job).
+   */
+  operations: OperationsService;
   /**
    * The live network transport (W915): real SSE frame streaming over HTTP,
    * env-gated — `state()` is `active` only when it is genuinely serving
@@ -370,6 +384,10 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //    store + the rights-attestation index).
   const publication = new PublicationStore();
   const attestations = new PolicyAttestationIndex();
+  // W918: the operations console — constructed before the studio so the
+  // studio's dispatch seam can count admission refusals into it (the only
+  // app path that offers jobs to the bounded queue).
+  const operations = new OperationsService({ getServer: () => server, nowMs });
   const studio = new CreateStudioService({
     getServer: () => server,
     engines,
@@ -377,6 +395,9 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     publication,
     attestations,
     nowMs,
+    operations: {
+      noteAdmissionRefusal: (depth, maxDepth) => operations.noteAdmissionRefusal(depth, maxDepth),
+    },
   });
   const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
@@ -398,6 +419,8 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     rightsAudit,
     rights,
     compute,
+    computeAdapter: computeAdapter ?? null,
+    operations,
     live,
     transientState,
     nowMs,

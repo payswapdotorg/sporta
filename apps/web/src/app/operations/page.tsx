@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { OperationsSurface } from "@/components/operations-surface";
+import { OperationsConsole } from "@/components/operations-console";
 
 export const metadata: Metadata = {
   title: "Operations",
 };
 
 /**
- * Operations (W907) — the Operator workspace: real platform health (the
- * shared /api/platform/health snapshot), provider bindings, the compute
- * plane, the live transport state and failed jobs. Queues stay honestly
- * unavailable until the control plane exposes them.
+ * Operations (W918) — the OPERATOR workspace's console surface. Every panel
+ * is served by an operator grant-gated API (the real 401/403 paths for
+ * everyone else): the health board, the bounded render queue, the compute
+ * jobs ledger (FAILED jobs with their never-silent reasons + safe
+ * remediations), the provider panel and the remediation audit trail.
  */
 export default function OperationsPage() {
   return (
@@ -18,9 +19,9 @@ export default function OperationsPage() {
       <PageHeader
         kicker="Operator"
         title="Operations"
-        description="Platform health, providers, compute, live transport and failed jobs — real data only, honest unavailable where no surface exists yet."
+        description="The hosted platform's real operational state: provider health, the bounded render queue, provider quotas, the compute job ledger with failed-job reasons, and the audit-logged safe remediations."
       />
-      <OperationsSurface />
+      <OperationsConsole />
     </>
   );
 }

@@ -11,6 +11,13 @@ import type {
   JobsOverviewLike,
   OperationsLike,
   PendingWorkLike,
+  OperationsAuditLike,
+  OperationsCancelLike,
+  OperationsHealthLike,
+  OperationsJobsLike,
+  OperationsProvidersLike,
+  OperationsQueuesLike,
+  OperationsRetryLike,
   RealityOptionsLike,
   RenderOutputLike,
   RightsCenterLike,
@@ -341,4 +348,47 @@ export function fetchRightsPolicies(): Promise<RightsCenterListLike> {
 /** GET /api/rights/audit — the caller's policy-change audit trail. */
 export function fetchRightsAudit(): Promise<RightsAuditListLike> {
   return getJson<RightsAuditListLike>("/api/rights/audit");
+}
+// Operations console (W918) — the operator workspace's fetchers
+// ---------------------------------------------------------------------------
+
+/** GET /api/operations/health — the health board (operator-gated). */
+export function fetchOperationsHealth(): Promise<OperationsHealthLike> {
+  return getJson<OperationsHealthLike>("/api/operations/health");
+}
+
+/** GET /api/operations/queues — the bounded render queue's live state. */
+export function fetchOperationsQueues(): Promise<OperationsQueuesLike> {
+  return getJson<OperationsQueuesLike>("/api/operations/queues");
+}
+
+/** GET /api/operations/providers — provider quotas + honest unknowns. */
+export function fetchOperationsProviders(): Promise<OperationsProvidersLike> {
+  return getJson<OperationsProvidersLike>("/api/operations/providers");
+}
+
+/** GET /api/operations/jobs — the compute ledger incl. FAILED jobs. */
+export function fetchOperationsJobs(): Promise<OperationsJobsLike> {
+  return getJson<OperationsJobsLike>("/api/operations/jobs");
+}
+
+/** GET /api/operations/audit — the remediation audit trail. */
+export function fetchOperationsAudit(): Promise<OperationsAuditLike> {
+  return getJson<OperationsAuditLike>("/api/operations/audit");
+}
+
+/** POST /api/operations/jobs/[jobId]/retry — retry a FAILED job (new job id). */
+export function retryOperationsJob(jobId: string): Promise<OperationsRetryLike> {
+  return postJson<OperationsRetryLike>(
+    `/api/operations/jobs/${encodeURIComponent(jobId)}/retry`,
+    {},
+  );
+}
+
+/** POST /api/operations/jobs/[jobId]/cancel — cancel an admitted job. */
+export function cancelOperationsJob(jobId: string): Promise<OperationsCancelLike> {
+  return postJson<OperationsCancelLike>(
+    `/api/operations/jobs/${encodeURIComponent(jobId)}/cancel`,
+    {},
+  );
 }
