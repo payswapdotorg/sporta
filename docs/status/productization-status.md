@@ -1,12 +1,20 @@
 # Sporta Productization Status
 
-Status as of 2026-09-16 ~18:00 UTC: **PRODUCTIZATION COMPLETE — PUBLIC BETA CLOSED (W901-W920 + the W921 gate defect)** — https://sporta-flame.vercel.app verified end-to-end from the public URL.
+Status as of 2026-09-17: **PRODUCTIZATION FOUNDATION COMPLETE — MVP REALITY ENGINE NOT YET COMPLETE**.
+
+The W901-W921 program established and verified the hosted/product foundation. A subsequent product review showed that the current web experience still relies on fixture/in-process boundaries and animated-SVG review artifacts for the main visual loop. Those are valid engineering seams, but they do not satisfy the newly approved customer-visible MVP definition.
+
+The authoritative next-stage status is `docs/status/mvp-reality-engine-status.md` and the authoritative execution program is `docs/work-items/mvp-reality-engine-work-items.md`.
 
 ## Current truth
 
 Core W001-W806: complete (50/50).
 
-Productization:
+Productization W901-W921: complete as the control/product/hosting foundation.
+
+MVP Reality Engine R001-R605: not started as a verified customer-visible program.
+
+## Productization evidence
 
 | Item | State | Evidence |
 |---|---|---|
@@ -16,33 +24,63 @@ Productization:
 | W904 Home/Live/Explore/Library | COMPLETE | wave-2 merge — real capability/catalog-driven surfaces, ux-simulation executable gate over all 8 W901 fixtures |
 | W905 watch + Reality Switcher | COMPLETE | merge 8ce7f68 wave — real SVG frame player, session-constant switcher, rights-denied-before-existence |
 | W906 Create Studio | COMPLETE | merge aa6ef78 wave — guided flow over real seams end-to-end (options→rights preview→dispatch→progress→publish) |
-| W907 role workspaces | COMPLETE | wave-5 merge — five workspaces one identity, grants-only switching (denial byte-identical pre/post switch) |
-| W908 UX operational states | COMPLETE | merge 1693ed3 — Simulation A-G executable coverage, search wired to W916, honest auth-expired/provider-degraded states |
-| W909 browser E2E | COMPLETE | merge e214fa6 — 8/8 real-browser flows green (run mu3velul, 111 assertions, 0 failed, 0 aborted, exit 0) |
-| W910 Vercel deployment | COMPLETE | https://sporta-flame.vercel.app (Hobby, non-commercial boundary documented; reproducible from repo + token) |
-| W911 Neon persistence | COMPLETE | Neon project sporta-beta (aws-us-east-1, PG17) live; register→redeploy→login proven on the public URL; health identity=neon/ok |
-| W912 R2 artifacts | COMPLETE | bucket sporta-beta-artifacts live; playback serves R2 round-tripped bytes (hash-verified, source-header, redeploy-stable) |
-| W913 Upstash transient | COMPLETE | Upstash port + guards (token DB-scoped/unprovisionable from this sandbox — honest port+fallback boundary documented) |
-| W914 compute adapter | COMPLETE | createRenderAsync + @sporta/compute-adapter-hosted + /api/compute; real-HTTP dispatch→artifact round-trip evidence |
-| W915 real-network live | COMPLETE | SSE transport over real HTTP — auth-before-bytes, measured end-to-end latency, capability honest in all 3 states |
-| W916 catalog/content model | COMPLETE | merge d938d13 — reality groups + search + 4-kind visibility (46 tests) |
-| W917 rights/publication center | COMPLETE | wave-5 merge (39 tests) |
-| W918 operational console | COMPLETE | merge 9a004bf — operator-gated /api/operations panels, safe-only remediations (15 tests) |
-| W919 cost/usage guardrails | COMPLETE | merge b6b2af4 — limit ledger + spend alarms → capability degraded + fail-closed admission (503 + retry-after), playback unaffected proven |
-| W920 public beta release | COMPLETE | TL final gate closed — the fresh-browser golden path verified from the public URL (sign-up→discover→watch→switch→render→view result→roles→honest degraded/denied states); two gate-caught defects fixed en route (W921 durable control plane; the R2 write-storm — duplicate mirrors now read-verify-only) |
-| W921 durable control-plane | COMPLETE | merge edd0953 — user sessions/renders/publication durable in Neon, cross-instance correct (the W920 gate defect); DEPLOYMENT.md §8 design record |
+| W907 role workspaces | COMPLETE | wave-5 merge — five workspaces one identity, grants-only switching |
+| W908 UX operational states | COMPLETE | merge 1693ed3 — Simulation A-G executable coverage, honest auth-expired/provider-degraded states |
+| W909 browser E2E | COMPLETE | merge e214fa6 — 8/8 real-browser flows green |
+| W910 Vercel deployment | COMPLETE | https://sporta-flame.vercel.app (Hobby, non-commercial boundary documented) |
+| W911 Neon persistence | COMPLETE | live Neon control plane; cross-instance durability proven by W921 |
+| W912 R2 artifacts | COMPLETE | live R2 artifact storage; duplicate path hardened to read-verify-only |
+| W913 Upstash transient | COMPLETE | adapter/guards and honest fallback boundary |
+| W914 compute adapter | COMPLETE | real HTTP dispatch→artifact round-trip seam |
+| W915 real-network live | COMPLETE | SSE transport over real HTTP with measured latency |
+| W916 catalog/content model | COMPLETE | reality groups + search + visibility rules |
+| W917 rights/publication center | COMPLETE | authorized publication/revocation controls |
+| W918 operational console | COMPLETE | operator-gated health/operations panels |
+| W919 cost/usage guardrails | COMPLETE | limits, spend alarms, fail-closed admission |
+| W920 public beta release | COMPLETE AS PRODUCTIZATION GATE | fresh-browser walkthrough verified the hosted foundation; this gate does not replace the new real-video MVP gate |
+| W921 durable control-plane | COMPLETE | Neon-backed user sessions/renders/publication durable across instances |
 
-## The three questions
+## The three earlier productization questions
 
-| Question | Current answer | Required gate |
-|---|---|---|
-| Can a fresh user install and use Sporta? | YES — verified from the public URL by a real browser walkthrough (W920): sign-up with role grants → discover → watch → reality switch → create + render (never-silent accounting) → VIEW THE RESULT cross-instance → role switch → accurate degraded/denied states | G9/G12/G14 |
-| Is Sporta deployed on the target low-cost stack? | YES — Vercel (web) + Neon (control plane, durable across instances) + R2 (artifacts, read-verify-only mirrors) + Upstash (port, honest fallback) live; compute in-process per configuration | G11/G12 |
-| Does Sporta have a YouTube-like interface? | YES — nine surfaces live: Home/Live/Explore/Search/Library/Following/Create/Watch/role workspaces, capability-driven, honest states throughout | G9/G10 |
+These describe the hosted foundation, not the final MVP result:
 
-## TL architecture decisions (Wave 2 dispatch)
+| Question | Foundation answer |
+|---|---|
+| Can a fresh user install/use the hosted product shell? | YES — hosted auth/navigation/watch/create/control foundation verified |
+| Is the control/data plane deployed? | YES — Vercel + Neon + R2 + Upstash boundaries are deployed/documented |
+| Does Sporta have a YouTube-like product interface? | YES — product shell/watch/create/role surfaces exist |
 
-1. `apps/web` API layer = Next.js route handlers (thin transport) over a server-side composition root constructing services from `@sporta/capability`, `@sporta/identity`, `@sporta/control-api` (+ `@sporta/compute-adapter` client types). SERVER-ONLY imports; client components consume JSON. SWM internals remain forbidden imports.
-2. API namespace (frozen): `/api/capability` (A), `/api/auth/*` (A), `/api/catalog/*` (A), `/api/watch/*` (A), `/api/compute/*` (C), server composition root `src/server/` (A creates, B extends for env-driven providers).
-3. Data honesty at W904/W905: surfaces render ONLY real capability responses + real control-plane session/render state. A dev-seed may drive the REAL engine (real fixtures through the REAL control-api createSession/createRender — real renders, real outputs), clearly labeled dev-seed; no fabricated content anywhere.
-4. Hosting: Vercel Hobby initial web host (documented non-commercial boundary); Cloudflare R2 artifacts; Neon control-plane state; Upstash transient state; compute adapter provider selected by configuration (G2 approved: additive createRenderAsync).
+## Critical correction
+
+The final customer-visible MVP is now defined separately:
+
+`authorized real football MP4 -> real perception -> SWM -> Original + Tactical + 3D Game + Anime/NPR actual video -> R2 -> HTML5 video -> Reality Switcher`
+
+The following do **not** qualify as MVP completion on their own:
+
+- fixture-only creation;
+- an in-process renderer;
+- animated-SVG review output;
+- a renderer being registered in capability metadata;
+- a passing unit/integration test that does not produce a customer-visible artifact;
+- simulated provider/GPU execution.
+
+## Next execution
+
+Worker A: R001-R005 and R201-R208.
+
+Worker B: R101-R104 and R401-R409.
+
+Worker C: R301-R307 and R501-R507.
+
+Tech Lead: resolve shared contracts, integrate dependency-safe waves, then run R601-R605.
+
+See:
+
+- `docs/adr/ADR-009-mvp-reality-engine-and-technology-neutrality.md`
+- `docs/architecture/technology-plane.md`
+- `docs/architecture/compute-broker.md`
+- `docs/roadmap/mvp-reality-engine-roadmap.md`
+- `docs/work-items/mvp-reality-engine-work-items.md`
+- `docs/status/mvp-reality-engine-status.md`
+- `docs/agent-handoff/mvp-reality-engine-tech-lead.md`
