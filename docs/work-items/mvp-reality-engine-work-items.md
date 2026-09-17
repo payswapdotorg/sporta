@@ -136,20 +136,26 @@ Dependencies: R501-R506. Accept: a clean browser can complete the whole MVP with
 
 ## R6 — MVP proof
 
-### R601 Fixture A end-to-end
-Dependencies: R507. Accept: 30-second authorized football clip produces four real realities.
+### R601 Clip A end-to-end
+Dependencies: R507. Accept: a known-good 30-second authorized football clip uploads through the clean browser and produces all required outputs.
 
-### R602 Fixture B end-to-end
-Dependencies: R507. Accept: materially different 30-second authorized football clip produces four real realities.
+### R602 Clip B end-to-end
+Dependencies: R507. Accept: a materially different 30-second authorized football clip completes the same path.
 
-### R603 Same-event integrity
-Dependencies: R601, R602. Accept: all realities preserve event order and key facts from the same SWM/session.
+### R603 Real-upload independence
+Dependencies: R601, R602. Accept: the public golden path requires no pre-seeded fixture session, fixture selection, developer action, or manual database edit.
 
-### R604 Human visual acceptance
-Dependencies: R601-R603. Accept: human reviewer confirms the outputs are actual video, visually distinct and recognizably the same match/event.
+### R604 Four-output gate
+Dependencies: R601, R602. Accept: Original + Tactical + 3D + Anime/NPR are actual playable video artifacts with integrity-verifiable manifests.
 
-### R605 Public MVP acceptance
-Dependencies: R604. Accept: fresh public browser completes upload -> render -> four outputs -> Watch -> Reality Switcher.
+### R605 Same-event integrity
+Dependencies: R604. Accept: all alternate realities derive from the same canonical SWM/session and preserve event ordering and key facts within the declared MVP envelope.
+
+### R606 Human visual acceptance
+Dependencies: R605. Accept: a human reviewer confirms the outputs are actual video, visually distinct, recognizably the same event, and understandable as a product result without developer intervention.
+
+### R607 Public MVP acceptance
+Dependencies: R606. Accept: a fresh public browser completes upload -> rights -> compute choice -> processing -> four outputs -> Watch -> Reality Switcher without mocks or developer-only steps.
 
 ## Concurrency model
 
