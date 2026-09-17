@@ -22,15 +22,16 @@ const DENY_ALL: RightsCapabilities = {
 describe("schema versioning", () => {
   test("current schema version is MAJOR.MINOR", () => {
     expect(SCHEMA_VERSION).toBe(`${SCHEMA_MAJOR}.${SCHEMA_MINOR}`);
-    expect(SCHEMA_VERSION).toBe("1.0");
+    expect(SCHEMA_VERSION).toBe("1.1");
   });
 
   test("isCompatibleVersion accepts the current version", () => {
+    expect(isCompatibleVersion("1.1")).toBe(true);
     expect(isCompatibleVersion("1.0")).toBe(true);
   });
 
   test("isCompatibleVersion rejects a newer minor (payload ahead of contracts)", () => {
-    expect(isCompatibleVersion("1.1")).toBe(false);
+    expect(isCompatibleVersion("1.2")).toBe(false);
   });
 
   test("isCompatibleVersion rejects other majors", () => {

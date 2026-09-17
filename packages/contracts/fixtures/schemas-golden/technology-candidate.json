@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "candidateId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapterVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "perception.player-detection",
+        "perception.ball-detection",
+        "perception.player-tracking",
+        "perception.ball-tracking",
+        "perception.reid",
+        "perception.pitch-calibration",
+        "perception.team-identity",
+        "perception.jersey-ocr",
+        "intelligence.asr",
+        "intelligence.commentary-segmentation",
+        "intelligence.commentary-understanding",
+        "rendering.original",
+        "rendering.tactical",
+        "rendering.game-3d",
+        "rendering.anime-npr",
+        "rendering.encode",
+        "compute.execution",
+        "rendering.game-engine"
+      ]
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "registeredAtMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "sourceUrl": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "technologyId",
+    "technologyVersion",
+    "adapterVersion",
+    "task",
+    "displayName",
+    "registeredAtMs"
+  ],
+  "additionalProperties": false
+}

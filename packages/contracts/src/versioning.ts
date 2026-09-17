@@ -12,7 +12,7 @@ import { z } from "zod";
 export const SCHEMA_MAJOR = 1;
 
 /** Current contract minor version. Bumped for additive, backward-compatible changes. */
-export const SCHEMA_MINOR = 0;
+export const SCHEMA_MINOR = 1;
 
 /** Current schema version as `"MAJOR.MINOR"`. */
 export const SCHEMA_VERSION = `${SCHEMA_MAJOR}.${SCHEMA_MINOR}`;

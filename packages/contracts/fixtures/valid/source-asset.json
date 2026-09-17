@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.1",
+  "assetId": "asset-001",
+  "contentHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "byteSize": 52428800,
+  "container": "mp4",
+  "durationMs": 30000,
+  "videoStreamCount": 1,
+  "audioStreamCount": 1,
+  "declaredRightsPolicyId": "pol-owner-broadcast",
+  "uploadState": "stored",
+  "uploadedAtMs": 1789000000000,
+  "checksumVerified": true
+}

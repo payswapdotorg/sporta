@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapterVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "perception.player-detection",
+        "perception.ball-detection",
+        "perception.player-tracking",
+        "perception.ball-tracking",
+        "perception.reid",
+        "perception.pitch-calibration",
+        "perception.team-identity",
+        "perception.jersey-ocr",
+        "intelligence.asr",
+        "intelligence.commentary-segmentation",
+        "intelligence.commentary-understanding",
+        "rendering.original",
+        "rendering.tactical",
+        "rendering.game-3d",
+        "rendering.anime-npr",
+        "rendering.encode",
+        "compute.execution",
+        "rendering.game-engine"
+      ]
+    },
+    "fixtureSetVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "startedAtMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "completedAtMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "metrics": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "resourceUsage": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "runtimeSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "costEstimateUsd": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "failureSummary": {
+      "type": "object",
+      "properties": {
+        "failures": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "failureExamples": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": ["failures", "failureExamples"],
+      "additionalProperties": false
+    },
+    "reproducibility": {
+      "type": "object",
+      "properties": {
+        "deterministic": {
+          "type": "boolean"
+        },
+        "rerunDeltaPct": {
+          "type": "number",
+          "minimum": 0
+        },
+        "seed": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["deterministic"],
+      "additionalProperties": false
+    },
+    "licenseCheck": {
+      "type": "string",
+      "enum": ["pass", "fail", "not-applicable"]
+    },
+    "artifactRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "runId",
+    "technologyId",
+    "technologyVersion",
+    "adapterVersion",
+    "task",
+    "fixtureSetVersion",
+    "startedAtMs",
+    "completedAtMs",
+    "metrics",
+    "resourceUsage",
+    "runtimeSeconds",
+    "costEstimateUsd",
+    "failureSummary",
+    "reproducibility",
+    "licenseCheck",
+    "artifactRefs"
+  ],
+  "additionalProperties": false
+}

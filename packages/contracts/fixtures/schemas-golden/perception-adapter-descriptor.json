@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "adapterKind": {
+      "type": "string",
+      "const": "perception"
+    },
+    "technologyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapterVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "perception.player-detection",
+        "perception.ball-detection",
+        "perception.player-tracking",
+        "perception.ball-tracking",
+        "perception.reid",
+        "perception.pitch-calibration",
+        "perception.team-identity",
+        "perception.jersey-ocr"
+      ]
+    },
+    "inputContract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputContract": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "adapterKind",
+    "technologyId",
+    "technologyVersion",
+    "adapterVersion",
+    "task",
+    "inputContract",
+    "outputContract"
+  ],
+  "additionalProperties": false
+}

@@ -112,13 +112,15 @@ function requireStringArray(value: unknown, path: readonly string[]): readonly s
   return value as readonly string[];
 }
 
-/** Asserts the object carries EXACTLY the required keys (no more, no less). */
+/** Asserts the object carries EXACTLY the required keys (no more, no less).
+ * Keys listed in `optional` are allowed but not required. */
 function exactKeys(
   value: Record<string, unknown>,
   required: readonly string[],
   path: readonly string[],
+  optional: readonly string[] = [],
 ): void {
-  const requiredSet = new Set(required);
+  const requiredSet = new Set([...required, ...optional]);
   for (const key of Object.keys(value)) {
     if (!requiredSet.has(key)) {
       throw new RangeError(
@@ -163,16 +165,23 @@ function requireComparisonReport(value: unknown, path: readonly string[]): void 
   }
   record.diffs.forEach((diff, index) => {
     const diffRecord = requireRecord(diff, [...path, "diffs", `[${index}]`]);
+    // The comparator emits `deviation` only on epsilon breaches (FieldDiff
+    // deviation?: number); it is validated as an optional finite number when
+    // present.
     exactKeys(
       diffRecord,
-      ["path", "fieldClass", "expected", "actual", "reason", "deviation"],
+      ["path", "fieldClass", "expected", "actual", "reason"],
       [...path, "diffs", `[${index}]`],
+      ["deviation"],
     );
     requireNonEmptyString(diffRecord.path, [...path, "diffs", `[${index}]`, "path"]);
     requireNonEmptyString(diffRecord.fieldClass, [...path, "diffs", `[${index}]`, "fieldClass"]);
     requireNonEmptyString(diffRecord.expected, [...path, "diffs", `[${index}]`, "expected"]);
     requireNonEmptyString(diffRecord.actual, [...path, "diffs", `[${index}]`, "actual"]);
     requireNonEmptyString(diffRecord.reason, [...path, "diffs", `[${index}]`, "reason"]);
+    if (diffRecord.deviation !== undefined) {
+      requireFiniteNumber(diffRecord.deviation, [...path, "diffs", `[${index}]`, "deviation"]);
+    }
   });
   const summary = requireRecord(record.summary, [...path, "summary"]);
   exactKeys(

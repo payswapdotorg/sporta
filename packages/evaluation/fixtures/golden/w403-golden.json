@@ -17,7 +17,7 @@
             "startTimeMs": 500
           },
           "provenance": "DERIVED",
-          "schemaVersion": "1.0",
+          "schemaVersion": "1.1",
           "sessionId": "sess-w403-eval"
         },
         "sequence": 1,
@@ -38,7 +38,7 @@
             "startTimeMs": 3000
           },
           "provenance": "DERIVED",
-          "schemaVersion": "1.0",
+          "schemaVersion": "1.1",
           "sessionId": "sess-w403-eval"
         },
         "sequence": 2,
@@ -59,7 +59,7 @@
             "startTimeMs": 5200
           },
           "provenance": "DERIVED",
-          "schemaVersion": "1.0",
+          "schemaVersion": "1.1",
           "sessionId": "sess-w403-eval"
         },
         "sequence": 3,
@@ -80,7 +80,7 @@
             "startTimeMs": 8000
           },
           "provenance": "DERIVED",
-          "schemaVersion": "1.0",
+          "schemaVersion": "1.1",
           "sessionId": "sess-w403-eval"
         },
         "sequence": 4,
@@ -185,7 +185,7 @@
           }
         },
         "generatedAtMs": 0,
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-w403-eval",
         "watermark": {
           "sequence": 2,
@@ -219,7 +219,7 @@
           }
         },
         "generatedAtMs": 0,
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-w403-eval",
         "watermark": {
           "sequence": 3,
@@ -253,7 +253,7 @@
           }
         },
         "generatedAtMs": 0,
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-w403-eval",
         "watermark": {
           "sequence": 4,
@@ -287,7 +287,7 @@
           }
         },
         "generatedAtMs": 0,
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-w403-eval",
         "watermark": {
           "sequence": 4,
@@ -326,7 +326,7 @@
         }
       },
       "generatedAtMs": 0,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 4,
@@ -344,7 +344,7 @@
     "0": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 0,
@@ -354,7 +354,7 @@
     "2000": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 1,
@@ -364,7 +364,7 @@
     "4000": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 2,
@@ -374,7 +374,7 @@
     "6000": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 3,
@@ -384,7 +384,7 @@
     "8000": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 4,
@@ -394,7 +394,7 @@
     "10000": {
       "entities": [],
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 4,
@@ -525,7 +525,7 @@
         }
       },
       "generatedAtMs": 1736164800000,
-      "schemaVersion": "1.0",
+      "schemaVersion": "1.1",
       "sessionId": "sess-w403-eval",
       "watermark": {
         "sequence": 4,

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+        },
+        "licenseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commercialUse": {
+          "type": "boolean"
+        },
+        "reviewRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+        },
+        "licenseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commercialUse": {
+          "type": "boolean"
+        },
+        "reviewRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+        },
+        "licenseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commercialUse": {
+          "type": "boolean"
+        },
+        "reviewRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+    "assets": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+        },
+        "licenseId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commercialUse": {
+          "type": "boolean"
+        },
+        "reviewRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["code"],
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.1",
+  "reportId": "rep-001",
+  "fixtureSetVersion": "fixture-set-v1",
+  "benchmarkRunIds": ["run-001", "run-002"],
+  "comparison": {
+    "yolov11": {
+      "precision": 0.91
+    },
+    "rt-detr": {
+      "precision": 0.89
+    }
+  },
+  "recommendation": "promote",
+  "recommendedCandidate": "yolov11",
+  "rationale": "yolov11 leads precision at comparable cost with license evidence complete",
+  "decidedAtMs": 1789000120000
+}

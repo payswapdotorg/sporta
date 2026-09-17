@@ -162,7 +162,7 @@
         "evidence": { "observationIds": ["obs-18977d"] },
         "interval": { "endTimeMs": 1000, "startTimeMs": 900 },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 1,
@@ -178,7 +178,7 @@
         "evidence": { "observationIds": ["obs-ba8b0e"] },
         "interval": { "endTimeMs": 2500, "startTimeMs": 2400 },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 2,
@@ -194,7 +194,7 @@
         "evidence": { "observationIds": ["obs-158dac"] },
         "interval": { "endTimeMs": 5500, "startTimeMs": 5300 },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 3,
@@ -211,7 +211,7 @@
         "evidence": { "observationIds": ["obs-a0ee51"] },
         "interval": { "endTimeMs": 9000, "startTimeMs": 8900 },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 4,
@@ -235,7 +235,7 @@
     "entityCount": 12,
     "footballState": true,
     "generatedAtMs": 1736164800000,
-    "schemaVersion": "1.0",
+    "schemaVersion": "1.1",
     "watermark": { "sequence": 4, "watermarkMs": 10000 }
   },
   "world": {

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "artifactId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reality": {
+      "type": "string",
+      "enum": ["original", "tactical", "three-d-game", "anime-npr"]
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "byteSize": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "container": {
+      "type": "string",
+      "minLength": 1
+    },
+    "videoCodec": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audioCodec": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "durationMs": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "rendererId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rendererVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatedAtMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "swm": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "snapshotVersion": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "lastEventSequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": ["snapshotVersion", "lastEventSequence"],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sourceAssetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "integrity": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "sha256"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": ["algorithm", "verified"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "sessionId",
+    "reality",
+    "contentHash",
+    "byteSize",
+    "container",
+    "videoCodec",
+    "audioCodec",
+    "durationMs",
+    "rendererId",
+    "rendererVersion",
+    "generatedAtMs",
+    "swm",
+    "integrity"
+  ],
+  "additionalProperties": false
+}

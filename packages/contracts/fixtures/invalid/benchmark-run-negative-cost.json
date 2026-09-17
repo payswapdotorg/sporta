@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.1",
+  "runId": "run-001",
+  "technologyId": "x",
+  "technologyVersion": "0.1.0",
+  "adapterVersion": "0.1.0",
+  "task": "perception.player-detection",
+  "fixtureSetVersion": "fixture-set-v1",
+  "startedAtMs": 1789000000000,
+  "completedAtMs": 1789000060000,
+  "metrics": {},
+  "resourceUsage": {},
+  "runtimeSeconds": 60.0,
+  "costEstimateUsd": -0.01,
+  "failureSummary": {
+    "failures": 0,
+    "failureExamples": []
+  },
+  "reproducibility": {
+    "deterministic": true
+  },
+  "licenseCheck": "pass",
+  "artifactRefs": []
+}

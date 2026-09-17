@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "promotionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapterVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "perception.player-detection",
+        "perception.ball-detection",
+        "perception.player-tracking",
+        "perception.ball-tracking",
+        "perception.reid",
+        "perception.pitch-calibration",
+        "perception.team-identity",
+        "perception.jersey-ocr",
+        "intelligence.asr",
+        "intelligence.commentary-segmentation",
+        "intelligence.commentary-understanding",
+        "rendering.original",
+        "rendering.tactical",
+        "rendering.game-3d",
+        "rendering.anime-npr",
+        "rendering.encode",
+        "compute.execution",
+        "rendering.game-engine"
+      ]
+    },
+    "fromStatus": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "benchmarked",
+        "approved",
+        "canary",
+        "production",
+        "deprecated",
+        "rejected"
+      ]
+    },
+    "toStatus": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "benchmarked",
+        "approved",
+        "canary",
+        "production",
+        "deprecated",
+        "rejected"
+      ]
+    },
+    "decidedAtMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "decidedBy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "evaluationReportId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "benchmarkRunIds": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "licenseReviewRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["evaluationReportId", "benchmarkRunIds"],
+      "additionalProperties": false
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "promotionId",
+    "technologyId",
+    "technologyVersion",
+    "adapterVersion",
+    "task",
+    "fromStatus",
+    "toStatus",
+    "decidedAtMs",
+    "decidedBy",
+    "evidence",
+    "rationale"
+  ],
+  "additionalProperties": false
+}

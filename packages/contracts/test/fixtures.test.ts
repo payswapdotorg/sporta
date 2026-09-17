@@ -16,6 +16,15 @@ const VALID_SCHEMA_BY_FILE: Record<string, string> = {
   "world-snapshot.json": "world-snapshot",
   "render-request.json": "render-request",
   "stage-message.json": "stage-message",
+  "technology-candidate.json": "technology-candidate",
+  "technology-profile.json": "technology-profile",
+  "benchmark-run.json": "benchmark-run",
+  "evaluation-report.json": "evaluation-report",
+  "promotion-record.json": "promotion-record",
+  "perception-adapter-descriptor.json": "perception-adapter-descriptor",
+  "source-asset.json": "source-asset",
+  "media-manifest.json": "media-manifest",
+  "render-artifact-manifest.json": "render-artifact-manifest",
 };
 
 /**
@@ -40,6 +49,36 @@ const INVALID_CASES: Array<{ file: string; schema: string; expectPathIn: string 
     file: "render-request-missing-rights-capabilities.json",
     schema: "render-request",
     expectPathIn: "rightsCapabilities",
+  },
+  {
+    file: "technology-profile-unknown-task.json",
+    schema: "technology-profile",
+    expectPathIn: "task",
+  },
+  {
+    file: "technology-profile-malformed-version.json",
+    schema: "technology-profile",
+    expectPathIn: "schemaVersion",
+  },
+  {
+    file: "source-asset-bad-content-hash.json",
+    schema: "source-asset",
+    expectPathIn: "contentHash",
+  },
+  {
+    file: "benchmark-run-negative-cost.json",
+    schema: "benchmark-run",
+    expectPathIn: "costEstimateUsd",
+  },
+  {
+    file: "render-artifact-manifest-unknown-reality.json",
+    schema: "render-artifact-manifest",
+    expectPathIn: "reality",
+  },
+  {
+    file: "perception-adapter-wrong-kind.json",
+    schema: "perception-adapter-descriptor",
+    expectPathIn: "adapterKind",
   },
 ];
 
