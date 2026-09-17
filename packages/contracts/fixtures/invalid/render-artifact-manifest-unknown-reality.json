@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.1",
+  "artifactId": "art-001",
+  "sessionId": "sess-001",
+  "reality": "vr-hologram",
+  "contentHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "byteSize": 12582912,
+  "container": "mp4",
+  "videoCodec": "avc1.42E01E",
+  "audioCodec": null,
+  "durationMs": 30000,
+  "rendererId": "tactical-2d-renderer",
+  "rendererVersion": "1.0.0",
+  "generatedAtMs": 1789000120000,
+  "swm": {
+    "snapshotVersion": 3,
+    "lastEventSequence": 812
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "verified": true
+  }
+}

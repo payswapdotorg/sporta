@@ -21,7 +21,7 @@
           "startTimeMs": 900
         },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 1,
@@ -41,7 +41,7 @@
           "startTimeMs": 2400
         },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 2,
@@ -61,7 +61,7 @@
           "startTimeMs": 5300
         },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 3,
@@ -82,7 +82,7 @@
           "startTimeMs": 8900
         },
         "provenance": "DERIVED",
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",
         "sessionId": "sess-scene-golden"
       },
       "sequence": 4,
@@ -318,7 +318,7 @@
       }
     },
     "generatedAtMs": 1736164800000,
-    "schemaVersion": "1.0",
+    "schemaVersion": "1.1",
     "sessionId": "sess-scene-golden",
     "watermark": {
       "sequence": 4,

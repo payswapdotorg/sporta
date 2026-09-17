@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.1",
+  "technologyId": "yolov11-player-detector",
+  "technologyVersion": "0.1.0",
+  "adapterVersion": "0.1.0",
+  "task": "perception.player-detection",
+  "displayName": "YOLOv11 Player Detector",
+  "capabilities": {
+    "min-player-height-px": "detects players down to 24px"
+  },
+  "inputContract": "contracts/normalized-video-frame@1",
+  "outputContract": "contracts/observation.detection@1",
+  "resourceRequirements": {
+    "gpuRequired": true,
+    "minVramGb": 8
+  },
+  "executionRequirements": {
+    "runtime": "onnx"
+  },
+  "provenance": {
+    "maintainer": "example",
+    "sourceUrl": "https://example.com/yolov11",
+    "versionTag": "v0.1.0"
+  },
+  "license": {
+    "code": {
+      "status": "permissive",
+      "licenseId": "Apache-2.0",
+      "commercialUse": true,
+      "reviewRef": "reviews/license-001"
+    },
+    "model": {
+      "status": "permissive",
+      "licenseId": "MIT",
+      "commercialUse": true,
+      "reviewRef": "reviews/license-002"
+    }
+  },
+  "benchmarkProfile": {
+    "fixtureSetVersion": "fixture-set-v1",
+    "benchmarkRunIds": ["run-001"]
+  },
+  "failureClasses": [
+    {
+      "failureClassId": "low-light-degradation",
+      "description": "misses players in heavy shadow",
+      "retryable": false
+    }
+  ],
+  "status": "benchmarked",
+  "notes": "profile under evaluation"
+}

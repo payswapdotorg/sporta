@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.1",
+  "adapterKind": "perception",
+  "technologyId": "yolov11-player-detector",
+  "technologyVersion": "0.1.0",
+  "adapterVersion": "0.1.0",
+  "task": "perception.player-detection",
+  "inputContract": "contracts/normalized-video-frame@1",
+  "outputContract": "contracts/observation.detection@1"
+}

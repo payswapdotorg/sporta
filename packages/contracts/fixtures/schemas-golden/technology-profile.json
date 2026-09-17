@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "technologyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technologyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapterVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "perception.player-detection",
+        "perception.ball-detection",
+        "perception.player-tracking",
+        "perception.ball-tracking",
+        "perception.reid",
+        "perception.pitch-calibration",
+        "perception.team-identity",
+        "perception.jersey-ocr",
+        "intelligence.asr",
+        "intelligence.commentary-segmentation",
+        "intelligence.commentary-understanding",
+        "rendering.original",
+        "rendering.tactical",
+        "rendering.game-3d",
+        "rendering.anime-npr",
+        "rendering.encode",
+        "compute.execution",
+        "rendering.game-engine"
+      ]
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capabilities": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "inputContract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputContract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resourceRequirements": {
+      "type": "object",
+      "properties": {
+        "gpuRequired": {
+          "type": "boolean"
+        },
+        "minVramGb": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minRamGb": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minDiskGb": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minCpuCores": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": ["gpuRequired"],
+      "additionalProperties": false
+    },
+    "executionRequirements": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "maintainer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceUrl": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionTag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acquiredAtMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "additionalProperties": false
+    },
+    "license": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+            },
+            "licenseId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commercialUse": {
+              "type": "boolean"
+            },
+            "reviewRef": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+            },
+            "licenseId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commercialUse": {
+              "type": "boolean"
+            },
+            "reviewRef": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        },
+        "dataset": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+            },
+            "licenseId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commercialUse": {
+              "type": "boolean"
+            },
+            "reviewRef": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["permissive", "copyleft", "research-only", "unresolved"]
+            },
+            "licenseId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commercialUse": {
+              "type": "boolean"
+            },
+            "reviewRef": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["status"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["code"],
+      "additionalProperties": false
+    },
+    "benchmarkProfile": {
+      "type": "object",
+      "properties": {
+        "fixtureSetVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "benchmarkRunIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": ["fixtureSetVersion", "benchmarkRunIds"],
+      "additionalProperties": false
+    },
+    "failureClasses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "failureClassId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": ["failureClassId", "description", "retryable"],
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "benchmarked",
+        "approved",
+        "canary",
+        "production",
+        "deprecated",
+        "rejected"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "technologyId",
+    "technologyVersion",
+    "adapterVersion",
+    "task",
+    "displayName",
+    "capabilities",
+    "inputContract",
+    "outputContract",
+    "resourceRequirements",
+    "executionRequirements",
+    "provenance",
+    "license",
+    "benchmarkProfile",
+    "failureClasses",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.1",
+  "candidateId": "cand-001",
+  "technologyId": "yolov11-player-detector",
+  "technologyVersion": "0.1.0",
+  "adapterVersion": "0.1.0",
+  "task": "perception.player-detection",
+  "displayName": "YOLOv11 Player Detector (candidate)",
+  "registeredAtMs": 1789000000000,
+  "sourceUrl": "https://example.com/yolov11",
+  "notes": "candidate entry pending benchmark"
+}

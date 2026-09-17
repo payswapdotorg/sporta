@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.1",
+  "manifestId": "man-001",
+  "sourceAssetId": "asset-001",
+  "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "byteSize": 48000000,
+  "durationMs": 30000,
+  "frameCount": 900,
+  "video": {
+    "codec": "h264",
+    "widthPx": 1920,
+    "heightPx": 1080,
+    "frameRateFps": 30.0,
+    "bitrateKbps": 12000
+  },
+  "audio": {
+    "codec": "aac",
+    "channels": 2,
+    "sampleRateHz": 48000
+  },
+  "normalizedAtMs": 1789000060000
+}
