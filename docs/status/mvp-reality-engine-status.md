@@ -107,6 +107,20 @@ wave-1 re-dispatched 2026-09-17 22:30-22:33 UTC through the replay dispatcher.
   zero-drift confirmed (worker-embed dual-source).
 - Push backlog: 2e42e73..7e8914c awaiting operator PAT restoration.
 
+### R001-R005 — Worker A — COMPLETE (merged locally)
+
+- Delivered via agents-tab session chat b5a9c75a (GLM-5.3, Full-Stack);
+  one mid-content stall recovered by continuation send.
+- Delivery: branch work/r001-technology-registry (sandbox-local, +27816/-32,
+  38 files); harvested via the workspace files API after the visibility nudge.
+- Contents: NEW packages/technology-registry — R001 registry/resolution/store
+  (InMemory + SQLite), R002 fixture-set with the synthetic-diagnostic MP4
+  (sha256-pinned, VLM-verified), R003 deterministic evaluation runner,
+  R004 two-gate license registry, R005 evidence-gated promotion pipeline
+  with append-only audit trail. Frozen contracts applied verbatim.
+- TL battery on the integrated tree (post-B-merge base): 5387 pass / 0 fail /
+  26 skip (94238 expects); lint clean; format clean; 0 TS errors.
+
 ## Worker evidence requirement
 
 Every worker reports:
