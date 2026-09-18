@@ -1,0 +1,51 @@
+{
+  "fixtureSetVersion": "perception-adapters.synthetic-diagnostic@1",
+  "honestyBoundary": "SYNTHETIC-DIAGNOSTIC fixtures: flat-colored rgb24 rasters painted procedurally from these specs, with exact ground truth by construction. NOT real video; quality numbers are diagnostic of the algorithms, not of production accuracy. The axis-aligned affine camera model stays inside the line-based candidate's documented near-axis-aligned envelope.",
+  "scenarios": [
+    {
+      "specId": "cal-full-pitch",
+      "seed": 301,
+      "width": 160,
+      "height": 120,
+      "frameCount": 3,
+      "frameIntervalMs": 40,
+      "window": {
+        "x0": -10.5,
+        "visLength": 126.0,
+        "y0": -6.8,
+        "visWidth": 81.6
+      },
+      "expectedOutcome": "solved"
+    },
+    {
+      "specId": "cal-zoomed-midfield",
+      "seed": 302,
+      "width": 160,
+      "height": 120,
+      "frameCount": 3,
+      "frameIntervalMs": 40,
+      "window": {
+        "x0": 20,
+        "visLength": 40,
+        "y0": 10,
+        "visWidth": 40
+      },
+      "expectedOutcome": "refused-insufficient-lines"
+    },
+    {
+      "specId": "cal-two-line-ambiguous",
+      "seed": 303,
+      "width": 160,
+      "height": 120,
+      "frameCount": 3,
+      "frameIntervalMs": 40,
+      "window": {
+        "x0": -10,
+        "visLength": 110,
+        "y0": -6,
+        "visWidth": 80
+      },
+      "expectedOutcome": "ambiguous-two-line"
+    }
+  ]
+}

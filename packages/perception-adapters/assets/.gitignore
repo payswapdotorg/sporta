@@ -1,0 +1,5 @@
+# Weight binaries are fetched from the pinned official release (see
+# README.md) and intentionally NOT committed: a fresh clone honestly reports
+# weightsStatus "not-downloaded" until the pinned download is reproduced.
+*.pt
+*.onnx

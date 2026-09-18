@@ -1,0 +1,24 @@
+{
+  "name": "@sporta/perception-adapters",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/ball-tracking": "workspace:*",
+    "@sporta/contracts": "workspace:*",
+    "@sporta/field-mapping": "workspace:*",
+    "@sporta/perception-detection": "workspace:*",
+    "@sporta/perception-tracking": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

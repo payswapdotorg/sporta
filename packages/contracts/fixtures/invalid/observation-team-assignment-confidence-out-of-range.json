@@ -1,0 +1,18 @@
+{
+  "observationId": "obs_team_000002",
+  "sessionId": "sess_001",
+  "schemaVersion": "1.1",
+  "eventTimeMs": 30000,
+  "modality": "vision",
+  "componentId": "team-identity.jersey-color.v1",
+  "provenance": "OBSERVED",
+  "confidence": 0.87,
+  "payload": {
+    "kind": "team-assignment",
+    "trackId": "t3",
+    "teamId": "away",
+    "confidence": 1.4,
+    "method": "jersey-color"
+  },
+  "subjectEntityRefs": []
+}
