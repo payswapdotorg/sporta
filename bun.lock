@@ -261,6 +261,22 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/encoding": {
+      "name": "@sporta/encoding",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/renderer-tactical": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/eval-harness": {
       "name": "@sporta/eval-harness",
       "version": "0.1.0",
@@ -923,6 +939,8 @@
     "@sporta/control-api": ["@sporta/control-api@workspace:packages/control-api"],
 
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
+
+    "@sporta/encoding": ["@sporta/encoding@workspace:packages/encoding"],
 
     "@sporta/eval-harness": ["@sporta/eval-harness@workspace:packages/eval-harness"],
 

@@ -1,0 +1,25 @@
+{
+  "name": "@sporta/encoding",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/observability": "workspace:*",
+    "@sporta/output-pipeline": "workspace:*",
+    "@sporta/renderer-contract": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/renderer-3d": "workspace:*",
+    "@sporta/renderer-tactical": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}
