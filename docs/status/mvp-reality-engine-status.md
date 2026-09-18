@@ -201,14 +201,55 @@ leakage/no-drift audit) precedes the wave-2 dispatch.
   patterns (API-key-as-Bearer only), provider names only as adapter
   data.
 
+### Worker C — R303+R304 COMPLETE (merged @d56bcae, 2026-09-18)
+
+- Re-run chat ef9cd24c (landed 06:28 UTC); report rendered but the tab's
+  renderer FROZE mid-view (lesson 36 pattern — static DOM, no Stop
+  button); a fresh tab at the same URL resynced to server truth and
+  revealed the completed report (lesson 37 recovery without loss).
+- Frozen-turn revival + nudge battles: the capacity modal blocked the
+  visibility nudge (lesson 34 loop: modal Cancel + composer re-Enter,
+  landed after retries); the server committed the nudge and the worker
+  executed the copy (tree 78 → 1,333 files; 1,255 sporta paths).
+- Branch `work/r303-r304-renderers` (2 commits) in the sandbox; push
+  refused (PAT-less, by design) — harvested via the visibility-copy
+  rail: 30/30 changed files by path.
+- packages/renderer-3d extended IN PLACE (disclosed deviation, argued:
+  the W602/W603 SVG prototype already owned the @sporta/renderer-3d
+  name on public main): NEW src/game/ — Software3DEngine
+  (painter's-algorithm software 3D engine behind the frozen
+  GameEngineAdapter seam), Game3DRenderer (stylized-3d) +
+  AnimeNprRenderer (cel-shaded/NPR) plugins, typed ffmpeg codec,
+  content-addressed artifact staging + test/game/ (conformance,
+  same-event integrity, ADR-009 difference, per-build determinism).
+- Real measured MP4 outputs (SD + HD; honest per-build byte-determinism
+  caveat — x264 SEI embedded).
+- TL verification: 5746 pass / 0 fail / 30 skip (99,468 expects) on
+  merged main; lint 0 errors; format clean; 44 typechecks 0 errors.
+  Seam fix: contracts index.ts restored to the local superset
+  (technology exports + R206 TeamAssignmentPayload). No-drift clean:
+  Date.now metrics-only (rendererHealth), Godot only in doc comments.
+
+## Wave 2 COMPLETE (A + B + C)
+
+All three lanes delivered and merged locally: R201-R206, R402-R405,
+R303, R304. Integration battery on merged main: 5746 pass / 0 fail.
+Wave-2 integration gate review PASSED: SWM contract core untouched
+(world-model/event zero diff; observation.ts = the packet-sanctioned
+R206 additive only); provider names only in sanctioned adapter data
+(compute-provider-adapters' own clients, doc comments); frozen
+contracts seam-neutral. WAVE 3 REMAINS BLOCKED ON PAT RESTORATION
+(R207/R208 need the full perception-adapters + media-platform source
+on public main; 21-commit push backlog ready).
+
 ### Wave-2 lanes B and C (incident record)
 
 - Worker C (R303+R304, chat c36c3c45): report RENDERED and extracted
   (23,107 chars, completion marker present) but its workspace was released
   before the visibility-copy nudge could land (capacity gate blocked the
-  send; 13 failed attempts in the prior session) — the file work is lost
-  (W205-class platform TTL loss). Lane re-dispatch with the same staged
-  prompt (proven near-completable: the worker reached the report stage).
+  send; 13 failed attempts in the prior session) — the file work was lost
+  (W205-class platform TTL loss). RESOLVED by the re-run (see the Worker C
+  COMPLETE entry above).
 - Worker B (R402-R405, chat e7eea490): first generation died at
   thought-start (172 chars streamed, chat never updated again); lane
   voided by the prior session; re-dispatch resolved the lane (see the
