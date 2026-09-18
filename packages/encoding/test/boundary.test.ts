@@ -1,16 +1,16 @@
 /**
- * Source-scan pins (the W602/W703/W706/W604/W605 precedent): the two
- * standing invariants only a source scan can prove, as permanent
- * regression pins —
+ * Source-scan pins (the W602/W703/W604/W605 precedent): the two standing
+ * invariants only a source scan can prove —
  *
- * 1. **Isolation boundary** (architecture-lock §5): every import specifier
- *    in `src/*.ts` is one of the declared runtime dependencies (exactly
- *    the `package.json` `dependencies` list) or a local relative module.
+ * 1. **Isolation boundary** (architecture-lock §5): every import
+ *    specifier in `src/*.ts` is one of the declared runtime dependencies
+ *    (exactly the `package.json` `dependencies` list), a local relative
+ *    module, or a `node:` builtin (the subprocess/fs substrate — the
+ *    decoding / renderer-tactical src convention).
  * 2. **Constitution** (the sporta-wide rule): zero `Math.random(…)`,
  *    `Date.now(…)`, `performance.now(…)`, `new Date(…)` CALLS in `src` —
- *    the suite is a pure function of its inputs.
- *
- * Both scans walk `src` dynamically and both have teeth tests.
+ *    the encoding plane is deterministic (wall-clock evidence lives in
+ *    the OBSERVABILITY seam + test measurements, never in artifacts).
  */
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
@@ -22,13 +22,10 @@ const PACKAGE_ROOT = dirname(import.meta.dir);
 /** The runtime-dependency allowlist (package.json dependencies, verbatim). */
 const ALLOWED_SPECIFIERS: readonly string[] = [
   "@sporta/contracts",
-  "@sporta/encoding",
-  "@sporta/renderer-3d",
+  "@sporta/observability",
+  "@sporta/output-pipeline",
   "@sporta/renderer-contract",
-  "@sporta/renderer-evaluation",
-  "@sporta/renderer-tactical",
-  "@sporta/scene-evaluation",
-  "zod",
+  "@sporta/testing",
 ];
 
 /** Every import specifier (static or dynamic) in one module's source. */
@@ -46,15 +43,15 @@ function srcModules(): { name: string; source: string }[] {
     .map((name) => ({ name, source: readFileSync(join(PACKAGE_ROOT, "src", name), "utf8") }));
 }
 
-describe("isolation boundary — src imports only the declared deps", () => {
-  test("every src import specifier is allowed or relative", () => {
+describe("isolation boundary — src imports only the declared deps + node builtins", () => {
+  test("every src import specifier is allowed, relative, or a node: builtin", () => {
     for (const module of srcModules()) {
       for (const specifier of importSpecifiersOf(module.source)) {
         expect(
           specifier.startsWith(".") ||
             specifier.startsWith("node:") ||
             ALLOWED_SPECIFIERS.includes(specifier),
-          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")}, node: builtins (the R307 visual gate's real-media substrate: staging dirs + staged-frame reads), or local relative modules (architecture-lock §5)`,
+          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")}, node: builtins, or local relative modules (architecture-lock §5)`,
         ).toBe(true);
       }
     }
@@ -63,6 +60,15 @@ describe("isolation boundary — src imports only the declared deps", () => {
   test("the allowlist matches package.json dependencies verbatim", () => {
     const pkg = JSON.parse(readFileSync(join(PACKAGE_ROOT, "package.json"), "utf8"));
     expect(Object.keys(pkg.dependencies).sort()).toEqual([...ALLOWED_SPECIFIERS].sort());
+  });
+
+  test("the runtime deps exclude the renderer packages (bridges are STRUCTURAL)", () => {
+    // The three renderer bridges consume the renderers' outputs
+    // structurally — the renderers are devDependencies only (tests prove
+    // the real plugins satisfy the structural seams).
+    const pkg = JSON.parse(readFileSync(join(PACKAGE_ROOT, "package.json"), "utf8"));
+    expect(pkg.dependencies["@sporta/renderer-tactical"]).toBeUndefined();
+    expect(pkg.dependencies["@sporta/renderer-3d"]).toBeUndefined();
   });
 
   test("teeth: the scan rejects a forbidden specifier (not vacuous)", () => {
@@ -85,7 +91,7 @@ describe("constitution — no wall clock, no randomness in src", () => {
       for (const pattern of forbidden) {
         expect(
           pattern.test(module.source),
-          `${module.name} matches ${pattern} — the suite must be a pure function of its inputs`,
+          `${module.name} matches ${pattern} — the encoding plane must be deterministic (wall-clock evidence lives in the observability seam, never in artifacts)`,
         ).toBe(false);
       }
     }

@@ -21,9 +21,9 @@ describe("the clean baseline", () => {
     expect(report.verdict.outcome).toBe("PASS");
     expect(report.gates.every((g) => g.status === "PASS")).toBe(true);
     expect(report.accounting.reconciles).toBe(true);
-    expect(report.accounting.gateCount).toBe(3);
-    expect(report.accounting.passCount).toBe(3);
-  });
+    expect(report.accounting.gateCount).toBe(4);
+    expect(report.accounting.passCount).toBe(4);
+  }, 120_000);
 });
 
 describe("the report shape", () => {
@@ -34,16 +34,17 @@ describe("the report shape", () => {
   test("carries the versioned schema tag and policy version", () => {
     expect(report.schemaTag).toBe(REPORT_SCHEMA_TAG);
     expect(report.policyVersion).toBe(GATE_POLICY_VERSION);
-  });
+  }, 120_000);
 
   test("validates against its own zod schema", () => {
     expect(() => ReleaseReadinessReportSchema.parse(report)).not.toThrow();
-  });
+  }, 120_000);
 
   test("the gate rows carry their source packages and measured summaries", () => {
     expect(report.gates.map((g) => g.id)).toEqual([
       "temporal-stability",
       "scene-correctness",
+      "visual-correctness",
       "human-review",
     ]);
     const temporal = report.gates[0]!;
@@ -53,22 +54,23 @@ describe("the report shape", () => {
     expect(scene.source).toBe("@sporta/scene-evaluation");
     expect(scene.summary.matchCheckCount).toBeGreaterThan(0);
     expect(scene.summary.directedCheckCount).toBeGreaterThan(0);
-  });
+  }, 120_000);
 
   test("the accounting reconciles exactly (never silent)", () => {
     const a = report.accounting;
     expect(a.gateCount).toBe(
       a.passCount + a.failCount + a.notRunnableCount + a.pendingHumanReviewCount,
     );
-  });
+  }, 120_000);
 
   test("the blocking gates are recorded behind the verdict", () => {
     expect(report.verdict.blockingGates).toEqual([
       "temporal-stability",
       "scene-correctness",
+      "visual-correctness",
       "human-review",
     ]);
-  });
+  }, 120_000);
 });
 
 describe("determinism", () => {
@@ -76,12 +78,12 @@ describe("determinism", () => {
     const a = JSON.stringify(evaluateReleaseReadiness({ humanRecord: parseDemoRecord() }));
     const b = JSON.stringify(evaluateReleaseReadiness({ humanRecord: parseDemoRecord() }));
     expect(a).toBe(b);
-  });
+  }, 120_000);
 
   test("the pending path is deterministic too", () => {
     const a = JSON.stringify(evaluateReleaseReadiness({}));
     const b = JSON.stringify(evaluateReleaseReadiness({}));
     expect(a).toBe(b);
     expect(JSON.parse(a!).verdict.outcome).toBe("PENDING-HUMAN-REVIEW");
-  });
+  }, 120_000);
 });

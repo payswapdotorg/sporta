@@ -11,12 +11,16 @@
  * - **scene-correctness** — `@sporta/scene-evaluation`'s real
  *   `evaluateSceneOutput` over its real match AND directed fixtures (both
  *   must pass);
+ * - **visual-correctness** — `@sporta/encoding`'s R306 plane + the R307
+ *   gate (./visual-correctness.ts): the per-axis visual correctness of a
+ *   REAL encoded artifact over the MVP fixture envelope;
  * - **human-review** — the fail-closed record gate (./human.ts).
  *
  * A gate runner that THROWS (package error, unreadable input) is reported
  * NOT-RUNNABLE with the reason — and a not-runnable BLOCKING gate counts
  * as FAIL for the release verdict (never a silent skip).
  */
+export { runVisualCorrectnessGate } from "./visual-correctness";
 import {
   evaluateRenderOutput,
   renderW503CleanFixture,

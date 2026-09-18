@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/presentation-director",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/camera-director": "workspace:*",
+    "@sporta/commentary-understanding": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/renderer-3d": "workspace:*",
+    "@sporta/scene-projection": "workspace:*",
+    "@sporta/testing": "workspace:*",
+    "@types/bun": "^1.2.0"
+  }
+}

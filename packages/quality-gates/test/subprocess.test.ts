@@ -31,5 +31,5 @@ describe("cross-subprocess determinism", () => {
     const b = subprocessReportHash();
     expect(a).toBe(b);
     expect(a).toMatch(/^[0-9a-f]{64}$/);
-  });
+  }, 360_000);
 });

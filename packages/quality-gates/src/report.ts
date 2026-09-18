@@ -2,8 +2,12 @@
  * The release-readiness report (W803 deliverable 2): the deterministic
  * composition verdict. Pure — a function of the human-review record (and
  * the deterministic fixtures the gate runners evaluate); no clock, no
- * randomness, no I/O. Same input → byte-identical report (pinned in-process
- * ×2 and across subprocesses).
+ * randomness. Same input → byte-identical report (pinned in-process
+ * ×2 and across subprocesses). The machine gates evaluate in-memory
+ * fixtures; the `visual-correctness` gate (R307) additionally performs
+ * REAL bounded media work (engine render + ffmpeg encode/decode) over
+ * the same deterministic fixture domain — determinism per encoder build
+ * (the encoding plane's documented bound).
  *
  * Verdict semantics (the policy, one place):
  * - **PASS** — every BLOCKING gate PASSes (machine gates green + the human
@@ -13,10 +17,23 @@
  * - **FAIL** — any blocking gate FAILs or is NOT-RUNNABLE (a gate that
  *   cannot run is a failed release check, never a skipped one), or the
  *   human record is complete with a "fail" checklist item.
+ *
+ * The `visual-correctness` gate (R307, added in `w803@2`) performs REAL
+ * media work (a real engine render + a real ffmpeg encode + a real decode
+ * of the artifact's frames) over the repo's deterministic fixtures — the
+ * report remains a pure function of the fixture domain and the encoder
+ * build (no wall clock, no randomness; byte-determinism per build, the
+ * encoding plane's documented bound).
  */
 import { z } from "zod";
 import { GATE_POLICY_VERSION } from "./policy";
-import { runTemporalGate, runSceneGate, runHumanGate, type GateResult } from "./gates";
+import {
+  runTemporalGate,
+  runSceneGate,
+  runHumanGate,
+  runVisualCorrectnessGate,
+  type GateResult,
+} from "./gates";
 import { humanReviewVerdict, parseHumanReview } from "./human";
 
 /** The report schema tag (versioned with the report shape). */
@@ -68,7 +85,7 @@ export const ReleaseReadinessReportSchema = z.object({
   }),
   gates: z.array(
     z.object({
-      id: z.enum(["temporal-stability", "scene-correctness", "human-review"]),
+      id: z.enum(["temporal-stability", "scene-correctness", "visual-correctness", "human-review"]),
       source: z.string(),
       status: z.enum(["PASS", "FAIL", "NOT-RUNNABLE", "PENDING-HUMAN-REVIEW"]),
       reason: z.string().optional(),
@@ -103,6 +120,7 @@ export interface ReleaseReadinessOptions {
   /** Gate runner overrides (test seams — the defaults run the real gates). */
   temporalGate?: () => GateResult;
   sceneGate?: () => GateResult;
+  visualGate?: () => GateResult;
 }
 
 /**
@@ -134,6 +152,7 @@ export function evaluateReleaseReadiness(
   const gates: GateResult[] = [
     safeRunner(options.temporalGate ?? runTemporalGate, "temporal-stability"),
     safeRunner(options.sceneGate ?? runSceneGate, "scene-correctness"),
+    safeRunner(options.visualGate ?? runVisualCorrectnessGate, "visual-correctness"),
     safeRunner(() => runHumanGate(options.humanRecord), "human-review"),
   ];
 

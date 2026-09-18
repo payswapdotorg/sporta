@@ -261,6 +261,22 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/encoding": {
+      "name": "@sporta/encoding",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/output-pipeline": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/renderer-tactical": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/eval-harness": {
       "name": "@sporta/eval-harness",
       "version": "0.1.0",
@@ -479,6 +495,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/presentation-director": {
+      "name": "@sporta/presentation-director",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/camera-director": "workspace:*",
+        "@sporta/commentary-understanding": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/processing-queues": {
       "name": "@sporta/processing-queues",
       "version": "0.1.0",
@@ -496,7 +526,12 @@
       "name": "@sporta/quality-gates",
       "version": "0.1.0",
       "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/encoding": "workspace:*",
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
         "@sporta/renderer-evaluation": "workspace:*",
+        "@sporta/renderer-tactical": "workspace:*",
         "@sporta/scene-evaluation": "workspace:*",
         "zod": "^3.24.0",
       },
@@ -927,6 +962,8 @@
 
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
 
+    "@sporta/encoding": ["@sporta/encoding@workspace:packages/encoding"],
+
     "@sporta/eval-harness": ["@sporta/eval-harness@workspace:packages/eval-harness"],
 
     "@sporta/evaluation": ["@sporta/evaluation@workspace:packages/evaluation"],
@@ -960,6 +997,8 @@
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
+
+    "@sporta/presentation-director": ["@sporta/presentation-director@workspace:packages/presentation-director"],
 
     "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
 

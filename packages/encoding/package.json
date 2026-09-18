@@ -1,5 +1,5 @@
 {
-  "name": "@sporta/quality-gates",
+  "name": "@sporta/encoding",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,17 +8,18 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "bun test",
-    "gate": "bun run scripts/gate.ts"
+    "test": "bun test"
   },
   "dependencies": {
     "@sporta/contracts": "workspace:*",
-    "@sporta/encoding": "workspace:*",
-    "@sporta/renderer-3d": "workspace:*",
+    "@sporta/observability": "workspace:*",
+    "@sporta/output-pipeline": "workspace:*",
     "@sporta/renderer-contract": "workspace:*",
-    "@sporta/renderer-evaluation": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@sporta/renderer-3d": "workspace:*",
     "@sporta/renderer-tactical": "workspace:*",
-    "@sporta/scene-evaluation": "workspace:*",
-    "zod": "^3.24.0"
+    "@types/bun": "^1.2.0"
   }
 }

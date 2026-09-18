@@ -14,6 +14,12 @@
  *   real clean fixture; the gate verdict is that report's own verdict;
  * - **scene-correctness** — `@sporta/scene-evaluation` (W605) over its
  *   real match AND directed fixtures (both must pass);
+ * - **visual-correctness** — the R307 gate over the R306 encoding plane
+ *   (`@sporta/encoding`): the per-axis visual correctness (score / clock /
+ *   player-identity continuity / event ordering / ball continuity + the
+ *   MEASURED temporal stability) of a REAL encoded artifact over the MVP
+ *   fixture envelope (the existing clean match + W503 + R301/R303/R304
+ *   conformance fixtures) — added in `w803@2`;
  * - **human-review** — the fail-closed record gate: a missing, malformed,
  *   or incomplete record makes the release PENDING-HUMAN-REVIEW — never
  *   PASS, never silently skipped.
@@ -29,8 +35,9 @@
  * exit 2 on PENDING-HUMAN-REVIEW).
  *
  * Package boundary: runtime dependencies are
- * `@sporta/renderer-evaluation`, `@sporta/scene-evaluation`, and `zod` —
- * pinned by test/boundary.test.ts.
+ * `@sporta/renderer-evaluation`, `@sporta/scene-evaluation`,
+ * `@sporta/encoding`, `@sporta/renderer-3d`, `@sporta/renderer-tactical`,
+ * `@sporta/renderer-contract`, and `zod` — pinned by test/boundary.test.ts.
  */
 export { ReleaseGateError, type ReleaseGateErrorCode } from "./errors";
 export { GATE_POLICY, GATE_POLICY_VERSION, HUMAN_CHECKLIST, type GatePolicyRow } from "./policy";
@@ -48,9 +55,27 @@ export {
   runTemporalGate,
   runSceneGate,
   runHumanGate,
+  runVisualCorrectnessGate,
   buildTemporalDefectFixture,
   type GateResult,
 } from "./gates";
+export {
+  VISUAL_REPORT_SCHEMA_TAG,
+  SPIKE_ABS_FLOOR,
+  SPIKE_DEFINITION,
+  SPIKE_RATIO,
+  DEFAULT_VISUAL_GEOMETRY,
+  buildDefaultVisualArtifact,
+  buildDefaultVisualEnvelope,
+  buildVisualFlickerArtifact,
+  encodeSceneThroughEngine,
+  evaluateVisualCorrectness,
+  type ArtifactTemporalMeasurements,
+  type VisualAxisResult,
+  type VisualCorrectnessOptions,
+  type VisualCorrectnessReport,
+  type VisualFixtureEnvelope,
+} from "./visual-correctness";
 export {
   REPORT_SCHEMA_TAG,
   ReleaseReadinessReportSchema,

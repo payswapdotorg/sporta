@@ -1,0 +1,177 @@
+{
+  "policyId": "broadcast-classic-presentation",
+  "policyVersion": "presentation-director.policy@1",
+  "camera": {
+    "policyId": "broadcast-classic",
+    "policyVersion": "camera-director.policy@1",
+    "possessionFollow": {
+      "enabled": true,
+      "zones": [
+        {
+          "xMin": 0,
+          "xMax": 17.5,
+          "slotId": "behind-goal-x0"
+        },
+        {
+          "xMin": 87.5,
+          "xMax": 105,
+          "slotId": "behind-goal-x105"
+        },
+        {
+          "xMin": 17.5,
+          "xMax": 87.5,
+          "slotId": "main-touchline"
+        }
+      ],
+      "fallbackSlotId": "main-touchline",
+      "hysteresisMs": 3000
+    },
+    "eventRules": [
+      {
+        "eventType": "goal",
+        "minConfidence": 0.5,
+        "focusSlotSelector": "nearest-goal",
+        "holdMs": 4000,
+        "replay": {
+          "replaySlotSelector": "nearest-goal",
+          "leadMs": 2000,
+          "trailMs": 2000
+        }
+      },
+      {
+        "eventType": "save",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "nearest-goal",
+        "holdMs": 2500,
+        "replay": {
+          "replaySlotSelector": "nearest-goal",
+          "leadMs": 1500,
+          "trailMs": 1500
+        }
+      },
+      {
+        "eventType": "shot",
+        "minConfidence": 0.65,
+        "focusSlotSelector": "nearest-goal",
+        "holdMs": 2000
+      },
+      {
+        "eventType": "free-kick",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "nearest-goal",
+        "holdMs": 3000
+      },
+      {
+        "eventType": "card",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "main-touchline",
+        "holdMs": 3000
+      },
+      {
+        "eventType": "corner",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "nearest-goal",
+        "holdMs": 2500
+      },
+      {
+        "eventType": "kickoff",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "main-touchline",
+        "holdMs": 3000
+      },
+      {
+        "eventType": "fulltime",
+        "minConfidence": 0.6,
+        "focusSlotSelector": "aerial-tactical",
+        "holdMs": 5000
+      }
+    ]
+  },
+  "eventImportance": [
+    {
+      "eventType": "goal",
+      "weight": 1
+    },
+    {
+      "eventType": "save",
+      "weight": 0.8
+    },
+    {
+      "eventType": "shot",
+      "weight": 0.7
+    },
+    {
+      "eventType": "free-kick",
+      "weight": 0.6
+    },
+    {
+      "eventType": "card",
+      "weight": 0.6
+    },
+    {
+      "eventType": "corner",
+      "weight": 0.5
+    },
+    {
+      "eventType": "foul",
+      "weight": 0.3
+    },
+    {
+      "eventType": "offside",
+      "weight": 0.3
+    },
+    {
+      "eventType": "throw-in",
+      "weight": 0.2
+    },
+    {
+      "eventType": "substitution",
+      "weight": 0.3
+    },
+    {
+      "eventType": "kickoff",
+      "weight": 0.4
+    },
+    {
+      "eventType": "fulltime",
+      "weight": 0.7
+    },
+    {
+      "eventType": "pass",
+      "weight": 0.1
+    },
+    {
+      "eventType": "other",
+      "weight": 0.05
+    }
+  ],
+  "baselineImportance": 0.1,
+  "semantics": {
+    "importanceWeight": 0.5,
+    "emphasisWeight": 0.3,
+    "confidenceWeight": 0.2
+  },
+  "baselineSemanticScore": 0.2,
+  "framing": [
+    {
+      "slotId": "main-touchline",
+      "framing": "wide"
+    },
+    {
+      "slotId": "opposite-touchline",
+      "framing": "wide"
+    },
+    {
+      "slotId": "aerial-tactical",
+      "framing": "wide"
+    },
+    {
+      "slotId": "behind-goal-x0",
+      "framing": "tight"
+    },
+    {
+      "slotId": "behind-goal-x105",
+      "framing": "tight"
+    }
+  ]
+}

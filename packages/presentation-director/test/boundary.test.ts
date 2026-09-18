@@ -1,16 +1,14 @@
 /**
- * Source-scan pins (the W602/W703/W706/W604/W605 precedent): the two
- * standing invariants only a source scan can prove, as permanent
- * regression pins —
+ * Source-scan pins (the W602/W703/W604/W605 precedent): the two standing
+ * invariants only a source scan can prove, as permanent regression pins —
  *
- * 1. **Isolation boundary** (architecture-lock §5): every import specifier
- *    in `src/*.ts` is one of the declared runtime dependencies (exactly
- *    the `package.json` `dependencies` list) or a local relative module.
+ * 1. **Isolation boundary** (architecture-lock §5): every import
+ *    specifier in `src/*.ts` is one of the declared runtime dependencies
+ *    (exactly the `package.json` `dependencies` list) or a local relative
+ *    module.
  * 2. **Constitution** (the sporta-wide rule): zero `Math.random(…)`,
  *    `Date.now(…)`, `performance.now(…)`, `new Date(…)` CALLS in `src` —
- *    the suite is a pure function of its inputs.
- *
- * Both scans walk `src` dynamically and both have teeth tests.
+ *    the director is a pure function of its inputs.
  */
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
@@ -21,14 +19,8 @@ const PACKAGE_ROOT = dirname(import.meta.dir);
 
 /** The runtime-dependency allowlist (package.json dependencies, verbatim). */
 const ALLOWED_SPECIFIERS: readonly string[] = [
-  "@sporta/contracts",
-  "@sporta/encoding",
-  "@sporta/renderer-3d",
-  "@sporta/renderer-contract",
-  "@sporta/renderer-evaluation",
-  "@sporta/renderer-tactical",
-  "@sporta/scene-evaluation",
-  "zod",
+  "@sporta/camera-director",
+  "@sporta/commentary-understanding",
 ];
 
 /** Every import specifier (static or dynamic) in one module's source. */
@@ -51,10 +43,8 @@ describe("isolation boundary — src imports only the declared deps", () => {
     for (const module of srcModules()) {
       for (const specifier of importSpecifiersOf(module.source)) {
         expect(
-          specifier.startsWith(".") ||
-            specifier.startsWith("node:") ||
-            ALLOWED_SPECIFIERS.includes(specifier),
-          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")}, node: builtins (the R307 visual gate's real-media substrate: staging dirs + staged-frame reads), or local relative modules (architecture-lock §5)`,
+          specifier.startsWith(".") || ALLOWED_SPECIFIERS.includes(specifier),
+          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")} or local relative modules (architecture-lock §5)`,
         ).toBe(true);
       }
     }
@@ -85,7 +75,7 @@ describe("constitution — no wall clock, no randomness in src", () => {
       for (const pattern of forbidden) {
         expect(
           pattern.test(module.source),
-          `${module.name} matches ${pattern} — the suite must be a pure function of its inputs`,
+          `${module.name} matches ${pattern} — the director must be a pure function of its inputs`,
         ).toBe(false);
       }
     }
