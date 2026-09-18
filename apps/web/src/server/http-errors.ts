@@ -6,10 +6,11 @@
  * `{ error: { failureClass, message, details? } }` with the documented
  * status; unknown failures answer a generic 500 that carries no secrets.
  *
- * The `@sporta/control-api` import is LAZY: its module graph reaches
- * `bun:sqlite` (a Bun-native package) which cannot be evaluated by the
- * Node worker Next.js uses at build time (see ./runtime.ts). It is only
- * needed on the error path, after a request has actually arrived.
+ * The `@sporta/control-api` and `@sporta/media-platform` imports are LAZY:
+ * their module graphs reach `bun:sqlite` (a Bun-native package) which
+ * cannot be evaluated by the Node worker Next.js uses at build time (see
+ * ./runtime.ts). They are only needed on the error path, after a request
+ * has actually arrived.
  */
 import { AuthFlowError } from "./auth-service";
 import { CatalogQueryError } from "./catalog-service";
@@ -143,6 +144,42 @@ export async function errorResponse(err: unknown): Promise<Response> {
     // CONTROL_HTTP_STATUS mapping: rights-denied → 403, validation → 400,
     // unknown-session/render/segment → 404, resource-limit → 413, internal → 500).
     const status = err.httpStatus ?? controlApi.CONTROL_HTTP_STATUS[err.failureClass];
+    return jsonResponse(status, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
+  // The media platform's typed errors (R101-R104): upload refusals (the
+  // violated constraint rides in details), fail-closed rights, integrity
+  // failures, and the typed not-found family. The import is LAZY for the
+  // same build-safety reason as control-api (bun:sqlite in the graph).
+  let mediaPlatform: typeof import("@sporta/media-platform") | null = null;
+  try {
+    mediaPlatform = await import("@sporta/media-platform");
+  } catch (importErr) {
+    console.error("[api] media-platform error classes unavailable:", importErr);
+  }
+  if (mediaPlatform !== null && mediaPlatform.isMediaPlatformError(err)) {
+    if (err instanceof mediaPlatform.MediaNotFoundError) {
+      return jsonResponse(404, {
+        error: {
+          failureClass: err.failureClass,
+          message: err.message,
+          ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+        },
+      } satisfies ApiErrorBody);
+    }
+    const status =
+      err.failureClass === "rights-denied"
+        ? 403
+        : err.failureClass === "resource-limit"
+          ? 413
+          : err.failureClass === "media-invalid"
+            ? 400
+            : 500;
     return jsonResponse(status, {
       error: {
         failureClass: err.failureClass,

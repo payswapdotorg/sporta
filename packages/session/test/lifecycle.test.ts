@@ -11,7 +11,6 @@ import {
   newSession,
 } from "../src/index";
 import type { MediaSession, SessionStatus } from "@sporta/contracts";
-import { SCHEMA_VERSION } from "@sporta/contracts";
 import {
   FAR_FUTURE_ISO,
   analysisOnlyPolicy,
@@ -43,7 +42,7 @@ describe("newSession", () => {
   test("creates a created-status session with neutral defaults", () => {
     const session = makeSession();
     expect(session.status).toBe("created");
-    expect(session.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(session.schemaVersion).toBe("1.1");
     expect(session.timeline).toEqual({
       durationMs: 0,
       videoClockOffsetMs: 0,
