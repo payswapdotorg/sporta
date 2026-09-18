@@ -143,6 +143,53 @@ R301, R302. Integration battery on merged main: 5469 pass / 0 fail.
 The wave-1 integration gate review (contracts/adapter seams/provider
 leakage/no-drift audit) precedes the wave-2 dispatch.
 
+## Wave 2 execution ledger
+
+### Worker A — R201-R206 COMPLETE (merged @0f7760a, 2026-09-18)
+
+- Worker chat 2e1f95e6 (dispatched 03:05 UTC); report rendered ~05:00 with
+  the full completion marker; the server tree rolled the content back
+  (peak-hour commit failure) — the report was recovered from the DOM via
+  the CodeMirror extractor (30,639 chars).
+- Branch `work/r201-perception-adapters` in the sandbox (4 commits:
+  ddc267d, 0d0155d, 0cd6b75, 4f8d3f2); push refused (PAT-less, by design)
+  — harvested via the visibility-copy rail: 62/62 changed files by path.
+- NEW `packages/perception-adapters`: 6 family interfaces
+  (PlayerDetectionAdapter, BallDetectionAdapter, TrackingAdapter,
+  BallStateAdapter, CalibrationAdapter, TeamAssignmentAdapter), 13
+  candidates (2 per family + 2 extra ball-detection), deterministic
+  per-family benchmarks, registry bindings, honest license records
+  (YOLOv8n weights AGPL-3.0 evaluation-only, fail-closed commercial use).
+- R206 contract change (the wave's one additive change, exactly per
+  packet): `TeamAssignmentPayload` appended to the `ObservationPayload`
+  union; observation.json golden regenerated (+1 oneOf member); 1 valid +
+  1 invalid fixture added.
+- Pinned weights asset reproduced from the sanctioned URL:
+  yolov8n.pt, sha256 f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c
+  47ccfc83b36 (gitignored, never committed).
+- TL verification: 5550 pass / 0 fail / 26 skip (97,844 expects) on merged
+  main; lint 0 errors (1 benign no-console warning); format clean; all
+  package typechecks 0 errors. No-drift audit: vendor names only in
+  license records / display names / asset filenames (TechnologyCandidate
+  data), contract seams neutral; Date.now only in the documented opt-in
+  REAL-clock seam (tests never use it).
+- Incident + correction: a prior session misread the server-tree rollback
+  as "never fired" and voided the lane + created a phantom re-dispatch;
+  registry corrected (latest-wins truth record) before harvest.
+
+### Wave-2 lanes B and C (incident record)
+
+- Worker C (R303+R304, chat c36c3c45): report RENDERED and extracted
+  (23,107 chars, completion marker present) but its workspace was released
+  before the visibility-copy nudge could land (capacity gate blocked the
+  send; 13 failed attempts in the prior session) — the file work is lost
+  (W205-class platform TTL loss). Lane re-dispatch with the same staged
+  prompt (proven near-completable: the worker reached the report stage).
+- Worker B (R402-R405, chat e7eea490): first generation died at
+  thought-start (172 chars streamed, chat never updated again); lane
+  voided by the prior session; fresh re-dispatch with the staged prompt.
+
+
 ## Worker evidence requirement
 
 Every worker reports:
