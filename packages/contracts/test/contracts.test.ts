@@ -27,7 +27,7 @@ describe("schema versioning", () => {
 
   test("isCompatibleVersion accepts the current version", () => {
     expect(isCompatibleVersion("1.1")).toBe(true);
-    expect(isCompatibleVersion("1.0")).toBe(true);
+    expect(isCompatibleVersion("1.0")).toBe(true); // older payloads stay compatible
   });
 
   test("isCompatibleVersion rejects a newer minor (payload ahead of contracts)", () => {

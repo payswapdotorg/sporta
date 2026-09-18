@@ -184,3 +184,94 @@ export type {
   AvatarField3dStyleConfig,
   AvatarField3dRenderOutput,
 } from "./types";
+
+// ---------------------------------------------------------------------------
+// R303/R304 — the engine-consumer game renderers (stylized-3d + anime/NPR)
+// ---------------------------------------------------------------------------
+
+export {
+  GAME_3D_RENDERER_ID,
+  GAME_3D_RENDERER_VERSION,
+  ANIME_NPR_RENDERER_ID,
+  ANIME_NPR_RENDERER_VERSION,
+  SOFTWARE_3D_ENGINE_ID,
+  SOFTWARE_3D_ENGINE_VERSION,
+  SOFTWARE_3D_ADAPTER_VERSION,
+  SOFTWARE_3D_OUTPUT_FORMAT,
+  GAME_MP4_SD_PROFILE,
+  GAME_MP4_HD_PROFILE,
+  MAX_ENGINE_FRAMES,
+  MAX_SCENE_ENTITIES,
+  MAX_LIVE_SCENES,
+  GAME_DEFAULT_DURATION_MS,
+  GAME_MIN_DURATION_MS,
+  GAME_MAX_DURATION_MS,
+  GAME_DEFAULT_CAMERA,
+  GAME_CAMERA_KEYS,
+  game3dCapability,
+  animeNprCapability,
+  software3dDescriptor,
+} from "./game/identity";
+export type { GameCameraKey, GameStyleConfig } from "./game/identity";
+export { Framebuffer, rgb, mixRgb, shade, tint, posterize } from "./game/raster";
+export type { Rgb, DepthScreenPoint } from "./game/raster";
+export {
+  GLYPH_WIDTH,
+  GLYPH_HEIGHT,
+  GLYPH_ADVANCE,
+  measureText,
+  drawText,
+  isRenderableText,
+  glyphVocabulary,
+} from "./game/font";
+export type { DrawTarget } from "./game/font";
+export { buildGameCamera, emphasisWindowsOf } from "./game/camera";
+export type { GameCamera } from "./game/camera";
+export {
+  KIT_PALETTE_SIZE,
+  KEEPER_KIT_COLOR,
+  OFFICIAL_KIT_COLOR,
+  entityKit,
+  jerseyNumberOf,
+  STYLIZED_3D_PALETTE,
+  CEL_SHADED_PALETTE,
+} from "./game/palette";
+export { FrameComposer, chipPhrase, formatClockMs, BALL_DEFAULT_HEIGHT_M } from "./game/frame";
+export type {
+  FrameStyle,
+  FrameMarker,
+  FrameScene,
+  FigureView,
+  BallView,
+  FrameCameraBehavior,
+} from "./game/frame";
+export { Software3DEngine, Software3DEngineError } from "./game/engine";
+export type { Software3DEngineOptions } from "./game/engine";
+export {
+  CodecError,
+  probeCodec,
+  encodeFramesToMp4,
+  probeArtifact,
+  decodeFrameRgb24,
+} from "./game/codec";
+export type {
+  CodecAvailability,
+  EncodeFramesRequest,
+  EncodeFramesResult,
+  ProbedArtifact,
+  DecodeFrameRequest,
+} from "./game/codec";
+export { RenderArtifactStore, videoCodecTagOf } from "./game/artifact";
+export type { ArtifactStoreOptions, StoredRenderArtifact } from "./game/artifact";
+export {
+  createGameRealityRenderer,
+  createGame3DRenderer,
+  createAnimeNprRenderer,
+  parseGameStyleConfig,
+} from "./game/plugin";
+export type {
+  GameRealityRenderer,
+  GameRealityRendererConfig,
+  GameRealityRendererOptions,
+  GameRealityRenderOutput,
+} from "./game/plugin";
