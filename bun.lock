@@ -501,6 +501,23 @@
         "zod": "^3.24.0",
       },
     },
+    "packages/real-to-swm": {
+      "name": "@sporta/real-to-swm",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/decoding": "workspace:*",
+        "@sporta/fusion": "workspace:*",
+        "@sporta/observability": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/perception-adapters": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/render-orchestration": {
       "name": "@sporta/render-orchestration",
       "version": "0.1.0",
@@ -947,6 +964,8 @@
     "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
 
     "@sporta/quality-gates": ["@sporta/quality-gates@workspace:packages/quality-gates"],
+
+    "@sporta/real-to-swm": ["@sporta/real-to-swm@workspace:packages/real-to-swm"],
 
     "@sporta/render-orchestration": ["@sporta/render-orchestration@workspace:packages/render-orchestration"],
 
