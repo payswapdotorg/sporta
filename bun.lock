@@ -479,6 +479,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/presentation-director": {
+      "name": "@sporta/presentation-director",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/camera-director": "workspace:*",
+        "@sporta/commentary-understanding": "workspace:*",
+      },
+      "devDependencies": {
+        "@sporta/renderer-3d": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/processing-queues": {
       "name": "@sporta/processing-queues",
       "version": "0.1.0",
@@ -943,6 +957,8 @@
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
+
+    "@sporta/presentation-director": ["@sporta/presentation-director@workspace:packages/presentation-director"],
 
     "@sporta/processing-queues": ["@sporta/processing-queues@workspace:packages/processing-queues"],
 
