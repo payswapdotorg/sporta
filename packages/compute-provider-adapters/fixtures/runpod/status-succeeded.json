@@ -1,0 +1,45 @@
+{
+  "scenario": "status-succeeded",
+  "provenance": {
+    "source": "transcribed-from-public-api-docs",
+    "recordedAt": "2025-06-10",
+    "note": "Response shapes transcribed from the provider's documented public REST API families (the R40x packet's prescribed endpoint surfaces). Re-record live in the env-gated conditional tier when credentials exist; these files pin the request shapes and the failure mapping deterministically."
+  },
+  "request": {
+    "method": "GET",
+    "pathSuffix": "/v1/pods/pod-0001"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "id": "pod-0001",
+      "desiredStatus": "EXITED",
+      "lastStatus": "EXITED",
+      "jobResult": {
+        "status": "succeeded",
+        "outputs": [
+          {
+            "schemaVersion": "1.0",
+            "artifactId": "7ba3cd3f91f12e26611b9fb9181b613bfef4bf52f149f091816bcdb2e282a437",
+            "contentHash": "7ba3cd3f91f12e26611b9fb9181b613bfef4bf52f149f091816bcdb2e282a437",
+            "contentType": "text/plain",
+            "byteLength": 20,
+            "manifest": {
+              "kind": "worker-fixture",
+              "rendererId": "anime.prototype"
+            },
+            "metadata": {
+              "sessionId": "sess-r402-fixture"
+            },
+            "delivery": {
+              "mode": "inline",
+              "content": "hello sporta compute"
+            }
+          }
+        ],
+        "consumedInputIds": ["input-snapshot-1"],
+        "executionMs": 15000
+      }
+    }
+  }
+}

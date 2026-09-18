@@ -1,0 +1,29 @@
+{
+  "scenario": "status-failed",
+  "provenance": {
+    "source": "transcribed-from-public-api-docs",
+    "recordedAt": "2025-06-10",
+    "note": "Response shapes transcribed from the provider's documented public REST API families (the R40x packet's prescribed endpoint surfaces). Re-record live in the env-gated conditional tier when credentials exist; these files pin the request shapes and the failure mapping deterministically."
+  },
+  "request": {
+    "method": "GET",
+    "pathSuffix": "/v1/pods/pod-0001"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "id": "pod-0001",
+      "desiredStatus": "EXITED",
+      "lastStatus": "EXITED",
+      "jobResult": {
+        "status": "failed",
+        "failure": {
+          "errorClass": "worker-crashed",
+          "message": "the worker container crashed (oom)",
+          "terminal": "non-retryable",
+          "retryable": false
+        }
+      }
+    }
+  }
+}
