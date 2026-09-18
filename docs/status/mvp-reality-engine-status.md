@@ -121,6 +121,28 @@ wave-1 re-dispatched 2026-09-17 22:30-22:33 UTC through the replay dispatcher.
 - TL battery on the integrated tree (post-B-merge base): 5387 pass / 0 fail /
   26 skip (94238 expects); lint clean; format clean; 0 TS errors.
 
+### R301 + R302 — Worker C — COMPLETE (merged locally)
+
+- Delivered via agents-tab session chat 747444cf (GLM-5.3, Full-Stack);
+  two mid-task stalls recovered by continuation sends.
+- Delivery: branch work/r301-renderer-seams @d55f7c5 (3 commits, 31 files,
+  +6089 lines); harvested via the workspace files API after the visibility
+  nudge.
+- Contents: NEW packages/renderer-tactical (R301 — SWM-driven tactical MP4
+  renderer with real deterministic ffmpeg output, W501 conformance 13/13)
+  and NEW packages/game-engine-adapter (R302 — SoftwareSceneEngine reference
+  adapter behind the frozen vendor-neutral seam, stylized-3d + cel-shaded
+  styles, G1-G13 conformance).
+- TL battery on the integrated tree: 5469 pass / 0 fail / 26 skip (94508
+  expects); lint clean; format clean; 0 TS errors.
+
+## Wave 1 COMPLETE (A + B + C)
+
+All three lanes delivered and merged locally: R001-R005, R101-R104, R401,
+R301, R302. Integration battery on merged main: 5469 pass / 0 fail.
+The wave-1 integration gate review (contracts/adapter seams/provider
+leakage/no-drift audit) precedes the wave-2 dispatch.
+
 ## Worker evidence requirement
 
 Every worker reports:
