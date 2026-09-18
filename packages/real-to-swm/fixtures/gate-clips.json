@@ -1,0 +1,44 @@
+{
+  "manifestVersion": "r208-gate-clips@1",
+  "source": "TL media drop (R207/R208 worker packet) — carried VERBATIM; this is the gate's ground truth",
+  "normalizeTransform": "ffmpeg -v error -y -i <source> -ss 0 -t 20 -vf 'scale=640:360:force_original_aspect_ratio=decrease,pad=640:360:(ow-iw)/2:(oh-ih)/2,fps=25' -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -an -movflags +faststart <out>",
+  "clips": [
+    {
+      "clipId": "fx-001",
+      "gateClip": 1,
+      "title": "FIFA Beach Soccer World Cup 2021 Match 31 Switzerland v Senegal — penalty kick",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm",
+      "licenseId": "CC0-1.0",
+      "licenseNote": "CC0 (no attribution required)",
+      "sourceSha256": "a4d163a5bcc54b62d9d09926b56278677e06436c4e9d2b01bd0e137ef8cdf131",
+      "normalizedFile": "fx-001-normalized.mp4",
+      "normalizedShape": {
+        "durationSeconds": 10,
+        "width": 640,
+        "height": 360,
+        "fps": 25,
+        "frameCount": 250
+      },
+      "normalizedSha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7"
+    },
+    {
+      "clipId": "fx-004",
+      "gateClip": 2,
+      "title": "Wedstrijd om de Nederlandse voetbalbeker (Open Beelden 10245)",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Wedstrijd_om_de_Nederlandse_voetbalbeker_Weeknummer_44-24_-_Open_Beelden_-_10245.ogv",
+      "licenseId": "CC-BY-SA-3.0-nl",
+      "licenseNote": "CC BY-SA 3.0 nl (attribution + share-alike — the artifact record MUST carry the source URL + license id)",
+      "licenseAttribution": "Wedstrijd om de Nederlandse voetbalbeker, Weeknummer 44-24 - Open Beelden - 10245. Source: Open Beelden / Nederlandse Instituut voor Beeld en Geluid, via Wikimedia Commons. Licensed under CC BY-SA 3.0 nl.",
+      "sourceSha256": "95c5f15515044dcce9e3186270dc19dbca5fa7c32d239e58b7b2e038446fea45",
+      "normalizedFile": "fx-004-normalized.mp4",
+      "normalizedShape": {
+        "durationSeconds": 20,
+        "width": 640,
+        "height": 360,
+        "fps": 25,
+        "frameCount": 500
+      },
+      "normalizedSha256": "77b631deaed4d3e3eb16a342d1aaae39389f8731b1598eddf9fba4e9b4d3ad07"
+    }
+  ]
+}
