@@ -131,10 +131,14 @@ describe("detection — not-runnable gates count as FAIL, never skipped", () => 
 });
 
 describe("the clean baseline (the demo record's suite)", () => {
-  test("all three gates PASS with the checked-in demo record", () => {
-    const report = evaluateReleaseReadiness({ humanRecord: parseDemoRecord() });
-    expect(report.verdict.outcome).toBe("PASS");
-    expect(report.gates.map((g) => g.status)).toEqual(["PASS", "PASS", "PASS"]);
-    expect(report.accounting.reconciles).toBe(true);
-  });
+  test(
+    "all four gates PASS with the checked-in demo record",
+    () => {
+      const report = evaluateReleaseReadiness({ humanRecord: parseDemoRecord() });
+      expect(report.verdict.outcome).toBe("PASS");
+      expect(report.gates.map((g) => g.status)).toEqual(["PASS", "PASS", "PASS", "PASS"]);
+      expect(report.accounting.reconciles).toBe(true);
+    },
+    120_000,
+  );
 });

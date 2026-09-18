@@ -36,7 +36,7 @@ describe("GATES.md §2 ↔ GATE_POLICY pin", () => {
 
   test("the document table is present and complete", () => {
     expect(rows.length).toBe(GATE_POLICY.length);
-    expect(rows.length).toBe(3);
+    expect(rows.length).toBe(4);
   });
 
   test("row-for-row, order-preserving, both directions", () => {

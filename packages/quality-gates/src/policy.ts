@@ -7,16 +7,23 @@
  *
  * Blocking gates: their FAIL makes the release FAIL. Advisory gates: their
  * FAIL is recorded but never blocks (the policy is explicit, never silent).
+ *
+ * Policy history: `w803@2` adds the `visual-correctness` gate (R307 — the
+ * visual correctness gate over R306 encoded artifacts; see docs/GATES.md
+ * §7). `w803@1` carried the original three gates.
  */
-export const GATE_POLICY_VERSION = "w803@1";
+export const GATE_POLICY_VERSION = "w803@2";
 
 /** One gate's policy row. */
 export interface GatePolicyRow {
   /** The gate id (stable, referenced by reports and GATES.md). */
-  id: "temporal-stability" | "scene-correctness" | "human-review";
+  id: "temporal-stability" | "scene-correctness" | "visual-correctness" | "human-review";
   /** The owning package (the real evaluation that runs). */
   source:
-    "@sporta/renderer-evaluation" | "@sporta/scene-evaluation" | "@sporta/quality-gates/human";
+    | "@sporta/renderer-evaluation"
+    | "@sporta/scene-evaluation"
+    | "@sporta/encoding"
+    | "@sporta/quality-gates/human";
   /** Whether a FAIL blocks the release. */
   blocking: boolean;
 }
@@ -31,6 +38,11 @@ export const GATE_POLICY: readonly GatePolicyRow[] = [
   {
     id: "scene-correctness",
     source: "@sporta/scene-evaluation",
+    blocking: true,
+  },
+  {
+    id: "visual-correctness",
+    source: "@sporta/encoding",
     blocking: true,
   },
   {

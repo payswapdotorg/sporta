@@ -26,10 +26,14 @@ process.stdout.write(JSON.stringify(report));
 }
 
 describe("cross-subprocess determinism", () => {
-  test("two separate processes produce SHA-256-identical reports", () => {
-    const a = subprocessReportHash();
-    const b = subprocessReportHash();
-    expect(a).toBe(b);
-    expect(a).toMatch(/^[0-9a-f]{64}$/);
-  });
+  test(
+    "two separate processes produce SHA-256-identical reports",
+    () => {
+      const a = subprocessReportHash();
+      const b = subprocessReportHash();
+      expect(a).toBe(b);
+      expect(a).toMatch(/^[0-9a-f]{64}$/);
+    },
+    360_000,
+  );
 });

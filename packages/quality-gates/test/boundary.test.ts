@@ -21,7 +21,12 @@ const PACKAGE_ROOT = dirname(import.meta.dir);
 
 /** The runtime-dependency allowlist (package.json dependencies, verbatim). */
 const ALLOWED_SPECIFIERS: readonly string[] = [
+  "@sporta/contracts",
+  "@sporta/encoding",
+  "@sporta/renderer-3d",
+  "@sporta/renderer-contract",
   "@sporta/renderer-evaluation",
+  "@sporta/renderer-tactical",
   "@sporta/scene-evaluation",
   "zod",
 ];
@@ -46,8 +51,10 @@ describe("isolation boundary — src imports only the declared deps", () => {
     for (const module of srcModules()) {
       for (const specifier of importSpecifiersOf(module.source)) {
         expect(
-          specifier.startsWith(".") || ALLOWED_SPECIFIERS.includes(specifier),
-          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")} or local relative modules (architecture-lock §5)`,
+          specifier.startsWith(".") ||
+            specifier.startsWith("node:") ||
+            ALLOWED_SPECIFIERS.includes(specifier),
+          `${module.name} imports "${specifier}" — src may import only ${ALLOWED_SPECIFIERS.join(", ")}, node: builtins (the R307 visual gate's real-media substrate: staging dirs + staged-frame reads), or local relative modules (architecture-lock §5)`,
         ).toBe(true);
       }
     }
