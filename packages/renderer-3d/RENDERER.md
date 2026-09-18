@@ -558,3 +558,109 @@ isolation). Zero external packages (bun.lock carries only the workspace
 registration, the W402→W703 precedent; the W603 in-place extension touched
 no manifest — the renderer-contract version bump is in `src/identity.ts`,
 §1). Not in the root package.json.
+
+---
+
+# Part II — The R303/R304 engine-consumer renderers (real MP4 realities)
+
+The modules under `src/game/` are the R303/R304 deliverables of the MVP
+Reality Engine program (ADR-009, work items R302–R304): TWO renderer
+plugins — `game-3d.prototype@0.1.0` (stylized 3D, reality
+`three-d-game`) and `anime-npr.prototype@0.1.0` (cel-shaded/NPR, reality
+`anime-npr`) — that produce REAL playable MP4 video from the canonical
+SWM through the frozen `GameEngineAdapter` seam
+(`@sporta/contracts` `game-engine.ts`, schema 1.1). This part is a
+COMPANION to the SVG prototype of Part I, not a replacement: the two
+paths share the W601 scene projection and the W501 plugin discipline;
+they differ in the presentation format (deterministic MP4 pixels vs
+inspectable SVG documents).
+
+## II.1 The layering (the frozen engine seam)
+
+A render flows: `RendererPlugin.render` (W501) → validates the request +
+the SWM documents → `GameEngineAdapter.buildScene` (empty tail; bound to
+the snapshot watermark) → `applySceneEvents` (the ordered tail) →
+`renderScene` (staged rgb24 frames + honest telemetry + provenance) →
+the typed ffmpeg codec wrapper (`src/game/codec.ts`) → the
+content-addressed artifact store + `RenderArtifactManifest`
+(`src/game/artifact.ts`, the `@sporta/contracts` `media-artifact.ts`
+contracts). The engine reference implementation is `Software3DEngine`
+(`sporta.software-3d@1.0.0`) — a dependency-free software rasterizer; a
+headless Godot 4 swap behind the SAME seam is the documented future and
+is NOT part of this wave. The plugins consume the seam SYNCHRONOUSLY (an
+async adapter is refused loudly) because the W501 conformance harness is
+synchronous end to end.
+
+## II.2 The two realities (the ADR-009 difference, as code)
+
+Both plugins render the SAME `FrameScene` through the SAME camera math
+(`src/game/camera.ts`); the style split lives in `src/game/frame.ts`:
+
+- **stylized-3d**: gradient sky, mowed-stripe pitch, perspective-true
+  IFAB Law 1 markings and goal frames, players as vertically-shaded
+  capsule billboards with identity-stable kit colors + jersey numbers
+  (the Part I §4 no-flicker discipline), a shaded ball with a
+  screen-space motion trail (the ball's actual on-screen motion under
+  the deterministic camera — never an invented world trajectory),
+  possession ring, panel HUD.
+- **cel-shaded**: flat two-tone figure shading (a hard light/dark
+  split), posterized kit palette (6 levels), a color-distance
+  edge-detection pass for the bold outlines, manga halftone dots on the
+  pitch, radial speed-line accents keyed on the INSTANTANEOUS camera
+  swing rate and the goal/shot/save emphasis windows, ink-and-paper HUD.
+
+## II.3 Honesty decisions (the S2 discipline, carried through)
+
+- **No invented motion**: entity positions are the SNAPSHOT's own state,
+  held for the render window; events drive PRESENTATION only (chips,
+  emphasis windows, provenance). The camera's orbit/pan is documented
+  presentation motion; the ball trail is screen-space (real rendered
+  motion), never a claimed world-space trajectory.
+- **No invented team claims**: kit colors map stably from a known
+  `teamId` slot when the SWM carries one; otherwise they are
+  identity-stable COSMETIC derivations over `(styleKey, entityId)` (the
+  Part I precedent) — never an assertion of canonical team assignment
+  (R206 data does not exist in the public SWM yet). Jersey numbers: a
+  known `jerseyNumber` slot verbatim; else the entityId's trailing
+  digits; else a stable hash (documented derivations).
+- **Event accounting**: replays (at/below the applied sequence OR inside
+  the snapshot watermark) skip WITHOUT degradation; out-of-envelope
+  entries (schema-invalid, cross-session, non-football taxonomy) skip
+  WITH degradation + reason. Through the PLUGIN path, malformed inputs
+  are refused loud at admission (the Part I discipline); the engine's
+  own accounting is exercised by direct-engine tests.
+- **Frame budget**: 2400 frames/render; overrun truncates with an
+  explicit degraded flag and an honest `droppedFrames` count.
+- **Determinism**: no ambient state in the render path; staged frames
+  are content-addressed (sha-256 of the concatenated stream); the codec
+  flag set is pinned (`-threads 1`, `-fflags/-flags:v +bitexact`,
+  `-map_metadata -1 -metadata encoder=`). ffmpeg 7.x REMOVED
+  `-movflags +bitexact` (it errors) and the x264 core-version SEI
+  remains embedded — byte-determinism is therefore PER BUILD, proven
+  empirically by the tests (two runs → identical sha-256).
+- **Integrity**: `integrity.verified` is true only after the stored
+  bytes are re-read and re-hashed; every artifact is ffprobe-validated
+  against the requested geometry before the manifest is composed (an
+  artifact that does not probe is never claimed playable).
+
+## II.4 Codec posture (the repo precedent)
+
+ffmpeg/ffprobe are used ONLY as subprocesses (`Bun.spawnSync` — the
+`@sporta/decoding` W102 precedent; zero npm dependencies). The encode
+profile is h264 Constrained Baseline + yuv420p in mp4 (HTML5
+`<video>`-safe, acceptance contract §D). Render/encode costs measured on
+the reference sandbox (SD = 640×360@25): R303 ≈ 0.62 s for a 1.6 s clip
+(0.28 s raster), R304 ≈ 0.80 s (0.48 s raster — the NPR passes cost
+~5 ms/frame); HD (1280×720) ≈ 1.4–2.0 s per 1.6 s clip.
+
+## II.5 Boundaries
+
+The engine's scene vocabulary is a ground plane + camera-facing
+billboards + world-space markings (painter's algorithm with analytic
+depth ordering — exact for this vocabulary; no z-buffer). Figures whose
+base falls behind the near plane are omitted (the Part I camera-omission
+rule); ground polygons are near-plane CLIPPED (Sutherland–Hodgman, the
+Part I precedent) so a follow camera inside the apron still draws the
+ground. Audio is out of scope (the SWM carries no audio; `audioCodec` is
+honestly `null`). Staging roots and artifact roots are injectable
+(tmpdir defaults) — durability is the host's declaration.
