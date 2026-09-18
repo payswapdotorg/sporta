@@ -126,6 +126,34 @@ export {
 } from "./streaming";
 
 export {
+  AdapterTaskKind,
+  FailureClassRecord,
+  LicenseComponent,
+  LicenseComponentStatus,
+  ResourceRequirements,
+  TechnologyCandidate,
+  TechnologyLicenseRecord,
+  TechnologyProfile,
+  TechnologyStatus,
+  TECHNOLOGY_TRANSITIONS,
+  blockingLicenseIssues,
+  isLegalTechnologyTransition,
+} from "./technology";
+export {
+  BenchmarkRun,
+  EvaluationRecommendation,
+  EvaluationReport,
+  PromotionRecord,
+  missingPromotionEvidence,
+} from "./technology-evaluation";
+export {
+  PERCEPTION_TASK_BINDINGS,
+  PerceptionAdapterDescriptor,
+  PerceptionTaskKind,
+  isPerceptionTask,
+  perceptionBindingIssues,
+} from "./perception-adapter";
+export {
   ContentAddress,
   MediaManifest,
   NormalizedAudioStream,
@@ -137,10 +165,34 @@ export {
   SwmProvenance,
   manifestProvenanceIssues,
 } from "./media-artifact";
+export {
+  GameEngineDescriptor,
+  GameEngineEncodedOutput,
+  GameEngineEncodedSegment,
+  GameEngineFrameOutput,
+  GameEngineRenderOutput,
+  GameEngineRenderTelemetry,
+  GameEngineRenderingStyle,
+  GameSceneBuildRequest,
+  GameSceneHandle,
+  GameSceneOutputProfile,
+  GameSceneRenderRequest,
+  GameSceneRenderResult,
+  GameSceneUpdateResult,
+} from "./game-engine";
+export type { GameEngineAdapter, MaybePromise } from "./game-engine";
 
 import { ExternalIdentityMapping } from "./identity";
 import { MediaSession } from "./media-session";
 import { Observation } from "./observation";
+import {
+  TechnologyCandidate as TechnologyCandidateSchema,
+  TechnologyProfile,
+  TechnologyLicenseRecord,
+} from "./technology";
+import { BenchmarkRun, EvaluationReport, PromotionRecord } from "./technology-evaluation";
+import { PerceptionAdapterDescriptor } from "./perception-adapter";
+import { SourceAsset, MediaManifest, RenderArtifactManifest } from "./media-artifact";
 import { EventEnvelope } from "./event";
 import { WorldEventStreamEntry, WorldSnapshot } from "./world-model";
 import { RenderRequest, RenderResult, RendererCapability } from "./renderer";
@@ -167,6 +219,16 @@ export const CONTRACT_SCHEMAS: Record<string, z.ZodType> = {
   "authorization-policy": AuthorizationPolicy,
   "rights-capabilities": RightsCapabilities,
   "external-identity-mapping": ExternalIdentityMapping,
+  "technology-candidate": TechnologyCandidateSchema,
+  "technology-profile": TechnologyProfile,
+  "technology-license-record": TechnologyLicenseRecord,
+  "benchmark-run": BenchmarkRun,
+  "evaluation-report": EvaluationReport,
+  "promotion-record": PromotionRecord,
+  "perception-adapter-descriptor": PerceptionAdapterDescriptor,
+  "source-asset": SourceAsset,
+  "media-manifest": MediaManifest,
+  "render-artifact-manifest": RenderArtifactManifest,
 };
 
 /** Package version of @sporta/contracts. */
