@@ -1,0 +1,90 @@
+{
+  "fixtureSetVersion": "perception-adapters.synthetic-diagnostic@1",
+  "honestyBoundary": "SYNTHETIC-DIAGNOSTIC fixtures: flat-colored rgb24 rasters painted procedurally from these specs, with exact ground truth by construction. NOT real video; quality numbers are diagnostic of the algorithms, not of production accuracy.",
+  "scenarios": [
+    {
+      "specId": "team-open-play",
+      "seed": 401,
+      "width": 160,
+      "height": 120,
+      "frameCount": 10,
+      "frameIntervalMs": 40,
+      "players": [
+        {
+          "trackId": "t1",
+          "team": "home",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.2, "y": 0.3 },
+          "to": { "x": 0.5, "y": 0.35 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t2",
+          "team": "home",
+          "jersey": { "r": 175, "g": 35, "b": 25 },
+          "from": { "x": 0.7, "y": 0.6 },
+          "to": { "x": 0.4, "y": 0.55 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t3",
+          "team": "home",
+          "jersey": { "r": 185, "g": 25, "b": 35 },
+          "from": { "x": 0.35, "y": 0.7 },
+          "to": { "x": 0.6, "y": 0.4 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t4",
+          "team": "away",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.55, "y": 0.25 },
+          "to": { "x": 0.3, "y": 0.5 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t5",
+          "team": "away",
+          "jersey": { "r": 35, "g": 55, "b": 195 },
+          "from": { "x": 0.8, "y": 0.8 },
+          "to": { "x": 0.75, "y": 0.2 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t6",
+          "team": "away",
+          "jersey": { "r": 25, "g": 65, "b": 205 },
+          "from": { "x": 0.15, "y": 0.15 },
+          "to": { "x": 0.85, "y": 0.85 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t7",
+          "team": "keeper",
+          "jersey": { "r": 240, "g": 220, "b": 40 },
+          "from": { "x": 0.1, "y": 0.45 },
+          "to": { "x": 0.12, "y": 0.5 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "trackId": "t8",
+          "team": "low-signal",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.45, "y": 0.85 },
+          "to": { "x": 0.47, "y": 0.85 },
+          "boxW": 0.015,
+          "boxH": 0.025,
+          "visibleFromFrame": 4,
+          "visibleToFrame": 4
+        }
+      ]
+    }
+  ]
+}

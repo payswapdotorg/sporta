@@ -44,6 +44,7 @@
         "@sporta/field-mapping": "workspace:*",
         "@sporta/fusion": "workspace:*",
         "@sporta/identity": "workspace:*",
+        "@sporta/media-platform": "workspace:*",
         "@sporta/observation": "workspace:*",
         "@sporta/output-pipeline": "workspace:*",
         "@sporta/perception-tracking": "workspace:*",
@@ -302,6 +303,18 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/game-engine-adapter": {
+      "name": "@sporta/game-engine-adapter",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/gpu-worker": {
       "name": "@sporta/gpu-worker",
       "version": "0.1.0",
@@ -368,6 +381,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/media-platform": {
+      "name": "@sporta/media-platform",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/compute-adapter": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/ingestion": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/observability": {
       "name": "@sporta/observability",
       "version": "0.1.0",
@@ -396,6 +422,21 @@
         "@sporta/control-api": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/perception-adapters": {
+      "name": "@sporta/perception-adapters",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/ball-tracking": "workspace:*",
+        "@sporta/contracts": "workspace:*",
+        "@sporta/field-mapping": "workspace:*",
+        "@sporta/perception-detection": "workspace:*",
+        "@sporta/perception-tracking": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
         "@types/bun": "^1.2.0",
       },
     },
@@ -513,6 +554,19 @@
         "@sporta/contracts": "workspace:*",
         "@sporta/renderer-anime": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/renderer-tactical": {
+      "name": "@sporta/renderer-tactical",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/renderer-contract": "workspace:*",
+        "@sporta/scene-projection": "workspace:*",
         "@sporta/testing": "workspace:*",
       },
       "devDependencies": {
@@ -848,6 +902,8 @@
 
     "@sporta/fusion": ["@sporta/fusion@workspace:packages/fusion"],
 
+    "@sporta/game-engine-adapter": ["@sporta/game-engine-adapter@workspace:packages/game-engine-adapter"],
+
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/health": ["@sporta/health@workspace:packages/health"],
@@ -858,11 +914,15 @@
 
     "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
+    "@sporta/media-platform": ["@sporta/media-platform@workspace:packages/media-platform"],
+
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
 
     "@sporta/output-pipeline": ["@sporta/output-pipeline@workspace:packages/output-pipeline"],
+
+    "@sporta/perception-adapters": ["@sporta/perception-adapters@workspace:packages/perception-adapters"],
 
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
@@ -881,6 +941,8 @@
     "@sporta/renderer-contract": ["@sporta/renderer-contract@workspace:packages/renderer-contract"],
 
     "@sporta/renderer-evaluation": ["@sporta/renderer-evaluation@workspace:packages/renderer-evaluation"],
+
+    "@sporta/renderer-tactical": ["@sporta/renderer-tactical@workspace:packages/renderer-tactical"],
 
     "@sporta/scene-evaluation": ["@sporta/scene-evaluation@workspace:packages/scene-evaluation"],
 

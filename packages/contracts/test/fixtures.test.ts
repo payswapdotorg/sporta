@@ -11,6 +11,7 @@ const INVALID_DIR = join(import.meta.dir, "..", "fixtures", "invalid");
 const VALID_SCHEMA_BY_FILE: Record<string, string> = {
   "media-session.json": "media-session",
   "observation-detection.json": "observation",
+  "observation-team-assignment.json": "observation",
   "observation-transcription.json": "observation",
   "event.json": "event",
   "world-snapshot.json": "world-snapshot",
@@ -37,6 +38,11 @@ const INVALID_CASES: Array<{ file: string; schema: string; expectPathIn: string 
     file: "observation-confidence-out-of-range.json",
     schema: "observation",
     expectPathIn: "confidence",
+  },
+  {
+    file: "observation-team-assignment-confidence-out-of-range.json",
+    schema: "observation",
+    expectPathIn: "payload.confidence",
   },
   { file: "event-evidence-empty.json", schema: "event", expectPathIn: "evidence" },
   {

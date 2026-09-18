@@ -76,6 +76,7 @@ export {
   ObservationPayload,
   ProvenanceKind,
   SourceModality,
+  TeamAssignmentPayload,
   TrackPayload,
   TranscriptionPayload,
 } from "./observation";

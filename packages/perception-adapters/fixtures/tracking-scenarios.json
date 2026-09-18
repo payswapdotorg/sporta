@@ -1,0 +1,106 @@
+{
+  "fixtureSetVersion": "perception-adapters.synthetic-diagnostic@1",
+  "honestyBoundary": "SYNTHETIC-DIAGNOSTIC fixtures: flat-colored rgb24 rasters painted procedurally from these specs, with exact ground truth by construction. NOT real video; quality numbers are diagnostic of the algorithms, not of production accuracy.",
+  "scenarios": [
+    {
+      "detection": {
+        "specId": "trk-crossing-with-gaps",
+        "seed": 111,
+        "width": 160,
+        "height": 120,
+        "frameCount": 14,
+        "frameIntervalMs": 40,
+        "players": [
+          {
+            "gtId": "p1",
+            "jersey": { "r": 180, "g": 30, "b": 30 },
+            "from": { "x": 0.2, "y": 0.35 },
+            "to": { "x": 0.8, "y": 0.65 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p2",
+            "jersey": { "r": 30, "g": 60, "b": 200 },
+            "from": { "x": 0.8, "y": 0.35 },
+            "to": { "x": 0.2, "y": 0.65 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p3",
+            "jersey": { "r": 180, "g": 30, "b": 30 },
+            "from": { "x": 0.5, "y": 0.1 },
+            "to": { "x": 0.5, "y": 0.9 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p4",
+            "jersey": { "r": 30, "g": 60, "b": 200 },
+            "from": { "x": 0.3, "y": 0.8 },
+            "to": { "x": 0.7, "y": 0.2 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          }
+        ],
+        "ball": null,
+        "paintPitchLines": false
+      },
+      "degrade": {
+        "missProbability": 0.15,
+        "jitter": 0.01
+      }
+    },
+    {
+      "detection": {
+        "specId": "trk-static-lineup",
+        "seed": 112,
+        "width": 160,
+        "height": 120,
+        "frameCount": 10,
+        "frameIntervalMs": 40,
+        "players": [
+          {
+            "gtId": "p1",
+            "jersey": { "r": 180, "g": 30, "b": 30 },
+            "from": { "x": 0.25, "y": 0.4 },
+            "to": { "x": 0.25, "y": 0.4 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p2",
+            "jersey": { "r": 30, "g": 60, "b": 200 },
+            "from": { "x": 0.4, "y": 0.4 },
+            "to": { "x": 0.42, "y": 0.4 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p3",
+            "jersey": { "r": 180, "g": 30, "b": 30 },
+            "from": { "x": 0.55, "y": 0.4 },
+            "to": { "x": 0.55, "y": 0.42 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          },
+          {
+            "gtId": "p4",
+            "jersey": { "r": 30, "g": 60, "b": 200 },
+            "from": { "x": 0.7, "y": 0.4 },
+            "to": { "x": 0.68, "y": 0.4 },
+            "boxW": 0.06,
+            "boxH": 0.12
+          }
+        ],
+        "ball": null,
+        "paintPitchLines": false
+      },
+      "degrade": {
+        "missProbability": 0.2,
+        "jitter": 0.008
+      }
+    }
+  ]
+}

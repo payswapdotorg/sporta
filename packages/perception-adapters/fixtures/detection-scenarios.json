@@ -1,0 +1,122 @@
+{
+  "fixtureSetVersion": "perception-adapters.synthetic-diagnostic@1",
+  "honestyBoundary": "SYNTHETIC-DIAGNOSTIC fixtures: flat-colored rgb24 rasters painted procedurally from these specs, with exact ground truth by construction. NOT real video; quality numbers are diagnostic of the algorithms, not of production accuracy.",
+  "scenarios": [
+    {
+      "specId": "det-open-play",
+      "seed": 101,
+      "width": 160,
+      "height": 120,
+      "frameCount": 12,
+      "frameIntervalMs": 40,
+      "players": [
+        {
+          "gtId": "p1",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.2, "y": 0.3 },
+          "to": { "x": 0.5, "y": 0.35 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p2",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.7, "y": 0.6 },
+          "to": { "x": 0.4, "y": 0.55 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p3",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.35, "y": 0.7 },
+          "to": { "x": 0.6, "y": 0.4 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p4",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.55, "y": 0.25 },
+          "to": { "x": 0.3, "y": 0.5 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p5",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.8, "y": 0.8 },
+          "to": { "x": 0.75, "y": 0.2 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p6",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.15, "y": 0.15 },
+          "to": { "x": 0.85, "y": 0.85 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        }
+      ],
+      "ball": {
+        "from": { "x": 0.3, "y": 0.8 },
+        "to": { "x": 0.6, "y": 0.2 },
+        "radiusPx": 3
+      },
+      "paintPitchLines": true
+    },
+    {
+      "specId": "det-crowded-box",
+      "seed": 102,
+      "width": 160,
+      "height": 120,
+      "frameCount": 10,
+      "frameIntervalMs": 40,
+      "players": [
+        {
+          "gtId": "p1",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.45, "y": 0.5 },
+          "to": { "x": 0.48, "y": 0.52 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p2",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.51, "y": 0.5 },
+          "to": { "x": 0.5, "y": 0.52 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p3",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.2, "y": 0.3 },
+          "to": { "x": 0.8, "y": 0.3 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p4",
+          "jersey": { "r": 30, "g": 60, "b": 200 },
+          "from": { "x": 0.8, "y": 0.7 },
+          "to": { "x": 0.2, "y": 0.7 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        },
+        {
+          "gtId": "p5",
+          "jersey": { "r": 180, "g": 30, "b": 30 },
+          "from": { "x": 0.1, "y": 0.9 },
+          "to": { "x": 0.9, "y": 0.1 },
+          "boxW": 0.06,
+          "boxH": 0.12
+        }
+      ],
+      "ball": null,
+      "paintPitchLines": true
+    }
+  ]
+}

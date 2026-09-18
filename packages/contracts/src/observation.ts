@@ -95,6 +95,24 @@ export const GenericPayload = z.object({
 });
 export type GenericPayload = z.infer<typeof GenericPayload>;
 
+/**
+ * Team-assignment payload (R206, the wave's one additive contract change):
+ * one team-identity decision for one tracked subject — which team the track
+ * was assigned to, with EXPLICIT uncertainty (`teamId: "unknown"` plus LOW
+ * confidence is a first-class honest value, never a silent guess) and the
+ * documented method id that produced the assignment (e.g. "jersey-color").
+ * `confidence` follows the observation-level uncertainty convention (in
+ * [0, 1], preserved downstream with no silent collapse).
+ */
+export const TeamAssignmentPayload = z.object({
+  kind: z.literal("team-assignment"),
+  trackId: EntityId,
+  teamId: z.enum(["home", "away", "unknown"]),
+  confidence: z.number().min(0).max(1),
+  method: z.string().min(1),
+});
+export type TeamAssignmentPayload = z.infer<typeof TeamAssignmentPayload>;
+
 /** The discriminated union of observation payload variants. */
 export const ObservationPayload = z.discriminatedUnion("kind", [
   DetectionPayload,
@@ -102,6 +120,7 @@ export const ObservationPayload = z.discriminatedUnion("kind", [
   TranscriptionPayload,
   FieldMappingPayload,
   GenericPayload,
+  TeamAssignmentPayload,
 ]);
 export type ObservationPayload = z.infer<typeof ObservationPayload>;
 

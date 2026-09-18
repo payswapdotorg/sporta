@@ -1,0 +1,44 @@
+{
+  "fixtureSetVersion": "perception-adapters.synthetic-diagnostic@1",
+  "honestyBoundary": "SYNTHETIC-DIAGNOSTIC fixtures: flat-colored rgb24 rasters painted procedurally from these specs, with exact ground truth by construction. NOT real video; quality numbers are diagnostic of the algorithms, not of production accuracy.",
+  "scenarios": [
+    {
+      "specId": "ball-crossing-with-short-occlusion",
+      "seed": 201,
+      "width": 160,
+      "height": 120,
+      "frameCount": 24,
+      "frameIntervalMs": 40,
+      "flight": {
+        "from": { "x": 0.15, "y": 0.75 },
+        "to": { "x": 0.85, "y": 0.25 }
+      },
+      "ballRadiusPx": 3,
+      "occlusionWindows": [{ "fromFrame": 10, "toFrame": 13 }],
+      "clutter": true,
+      "detectionDegrade": {
+        "missProbability": 0.1,
+        "jitter": 0.004
+      }
+    },
+    {
+      "specId": "ball-long-occlusion-switch",
+      "seed": 202,
+      "width": 160,
+      "height": 120,
+      "frameCount": 40,
+      "frameIntervalMs": 40,
+      "flight": {
+        "from": { "x": 0.1, "y": 0.5 },
+        "to": { "x": 0.9, "y": 0.5 }
+      },
+      "ballRadiusPx": 3,
+      "occlusionWindows": [{ "fromFrame": 12, "toFrame": 32 }],
+      "clutter": true,
+      "detectionDegrade": {
+        "missProbability": 0.05,
+        "jitter": 0.004
+      }
+    }
+  ]
+}
