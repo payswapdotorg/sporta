@@ -81,6 +81,32 @@ Tech Lead: `R601-R605`.
 
 All workers are fix-only and may only receive narrowly isolated tasks that cannot mutate shared contracts or reset earlier gates without TL approval.
 
+## Wave 1 execution ledger (post reset #4)
+
+Program history: the original wave-1 (2026-09-17 morning) was lost with sandbox
+reset #4 (all local merges unpushed). Recovered via lesson-118 chat-tree rails:
+Wave-0 re-frozen byte-verbatim from the worker-prompt embeds (merged locally),
+wave-1 re-dispatched 2026-09-17 22:30-22:33 UTC through the replay dispatcher.
+
+### R101-R104 + R401 — Worker B — COMPLETE (merged locally @7e8914c)
+
+- Delivered via agents-tab session chat d9e46cfd (GLM-5.3, Full-Stack);
+  one mid-report stall recovered by continuation send.
+- Delivery: branch work/r101-media-loop @a652639 (5 commits, sandbox-local,
+  push refused PAT-less); 36 files harvested via the workspace files API after
+  a visibility nudge (clone lived at /home/z/sporta, outside the API root).
+- Contents: packages/media-platform (real upload w/ fail-closed rights +
+  magic-byte + ffprobe validation on received bytes; real ffmpeg
+  normalization w/ measured manifests; restart-durable job ledger over the
+  W914 vocabulary; original-reality artifact with the full
+  upload->asset->normalized->artifact->playback hash chain + Range
+  semantics), apps/web media routes, R401 ComputeBrokerPort +
+  InMemoryComputeBroker (additive; closed 5-member refusal vocabulary).
+- TL battery on the integrated tree: 5238 pass / 0 fail / 26 skip (93923
+  expects); lint clean; format clean; 0 TS errors. Frozen media-artifact.ts
+  zero-drift confirmed (worker-embed dual-source).
+- Push backlog: 2e42e73..7e8914c awaiting operator PAT restoration.
+
 ## Worker evidence requirement
 
 Every worker reports:
