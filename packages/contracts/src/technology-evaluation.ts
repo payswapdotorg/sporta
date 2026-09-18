@@ -65,7 +65,7 @@ export type EvaluationRecommendation = z.infer<typeof EvaluationRecommendation>;
 
 /**
  * A comparison of candidate runs on the SAME fixture set, ending in at most
- * one recommendation. Machine-readable comparison + the human rationale.
+ * one recommendation. Machine-readable summary + the human rationale.
  */
 export const EvaluationReport = z.object({
   schemaVersion: schemaVersionField,
