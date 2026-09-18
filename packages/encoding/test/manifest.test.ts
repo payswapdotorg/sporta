@@ -21,7 +21,15 @@ import {
   validateEncodedManifest,
 } from "../src/index";
 import type { EncodedArtifact } from "../src/index";
-import { FRAME_FPS, FRAME_HEIGHT, FRAME_WIDTH, SESSION_ID, cleanDir, syntheticFrames, tempDir } from "./helpers";
+import {
+  FRAME_FPS,
+  FRAME_HEIGHT,
+  FRAME_WIDTH,
+  SESSION_ID,
+  cleanDir,
+  syntheticFrames,
+  tempDir,
+} from "./helpers";
 
 const encoder = new FixtureFrameEncoder();
 
@@ -29,12 +37,21 @@ const encoder = new FixtureFrameEncoder();
 function canonicalArtifact(): EncodedArtifact {
   return buildEncodedArtifact(
     encoder.encode({
-      source: { kind: "rgb24-frames", frames: syntheticFrames(6), width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      source: {
+        kind: "rgb24-frames",
+        frames: syntheticFrames(6),
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+      },
       fps: FRAME_FPS,
       origin: { rendererId: "test-renderer", rendererVersion: "0.1.0", bridge: "raw-frames" },
     }),
     { rendererId: "test-renderer", rendererVersion: "0.1.0", bridge: "raw-frames" },
-    { sessionId: SESSION_ID, swm: { snapshotVersion: 7, lastEventSequence: 23 }, rendererManifest: { marker: "verbatim" } },
+    {
+      sessionId: SESSION_ID,
+      swm: { snapshotVersion: 7, lastEventSequence: 23 },
+      rendererManifest: { marker: "verbatim" },
+    },
   );
 }
 
@@ -44,7 +61,10 @@ describe("buildEncodedArtifact (the container manifest)", () => {
     expect(artifact.manifest.schemaVersion).toBe("1.0");
     expect(artifact.manifest.manifestId).toMatch(/^enc-[0-9a-f]{8}$/);
     expect(artifact.manifest.sessionId).toBe(SESSION_ID);
-    expect(artifact.manifest.source).toEqual({ rendererId: "test-renderer", rendererVersion: "0.1.0" });
+    expect(artifact.manifest.source).toEqual({
+      rendererId: "test-renderer",
+      rendererVersion: "0.1.0",
+    });
     expect(artifact.manifest.swm).toEqual({ snapshotVersion: 7, lastEventSequence: 23 });
     expect(artifact.manifest.geometry).toEqual({
       widthPx: FRAME_WIDTH,
@@ -97,7 +117,12 @@ describe("buildEncodedArtifact (the container manifest)", () => {
   test("an injected clock is honored (production hosts inject a real one)", () => {
     const artifact = buildEncodedArtifact(
       encoder.encode({
-        source: { kind: "rgb24-frames", frames: syntheticFrames(2), width: FRAME_WIDTH, height: FRAME_HEIGHT },
+        source: {
+          kind: "rgb24-frames",
+          frames: syntheticFrames(2),
+          width: FRAME_WIDTH,
+          height: FRAME_HEIGHT,
+        },
         fps: FRAME_FPS,
         origin: { rendererId: "r", rendererVersion: "1", bridge: "raw-frames" },
       }),
@@ -109,13 +134,22 @@ describe("buildEncodedArtifact (the container manifest)", () => {
 
   test("a result whose bytes do not re-hash to its declared hash is refused", () => {
     const result = encoder.encode({
-      source: { kind: "rgb24-frames", frames: syntheticFrames(2), width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      source: {
+        kind: "rgb24-frames",
+        frames: syntheticFrames(2),
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+      },
       fps: FRAME_FPS,
       origin: { rendererId: "r", rendererVersion: "1", bridge: "raw-frames" },
     });
     const lying = { ...result, contentHash: sha256Of(new Uint8Array([1, 2, 3])) };
     expect(() =>
-      buildEncodedArtifact(lying, { rendererId: "r", rendererVersion: "1", bridge: "raw-frames" }, { sessionId: SESSION_ID }),
+      buildEncodedArtifact(
+        lying,
+        { rendererId: "r", rendererVersion: "1", bridge: "raw-frames" },
+        { sessionId: SESSION_ID },
+      ),
     ).toThrow(EncodingError);
   });
 });
@@ -191,7 +225,9 @@ describe("the W504 store registration (reused, never forked)", () => {
   test("loads are integrity-verified against the expected hash (a mismatch refuses)", () => {
     const store = new InMemoryArtifactStore();
     const registration = registerEncodedArtifact(store, canonicalArtifact());
-    expect(() => loadEncodedArtifact(store, registration.artifactId, "0".repeat(64))).toThrow(EncodingError);
+    expect(() => loadEncodedArtifact(store, registration.artifactId, "0".repeat(64))).toThrow(
+      EncodingError,
+    );
   });
 
   test("an absent artifact loads as a typed refusal", () => {

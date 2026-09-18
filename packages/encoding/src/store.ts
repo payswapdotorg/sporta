@@ -92,10 +92,15 @@ export function registerEncodedArtifact(
   try {
     outcome = store.putArtifact({ content, contentType: ENCODED_ARTIFACT_CONTENT_TYPE, metadata });
   } catch (cause) {
-    throw new EncodingError("resource-limit", "store-rejected", "the artifact store rejected the put", {
-      cause: String(cause),
-      manifestId: artifact.manifest.manifestId,
-    });
+    throw new EncodingError(
+      "resource-limit",
+      "store-rejected",
+      "the artifact store rejected the put",
+      {
+        cause: String(cause),
+        manifestId: artifact.manifest.manifestId,
+      },
+    );
   }
   // Cross-verify: the stored document decodes back to the exact bytes.
   const decoded = Buffer.from(outcome.record.content, "base64");
@@ -105,7 +110,11 @@ export function registerEncodedArtifact(
       "internal",
       "store-rejected",
       "the stored base64 document does not decode back to the artifact's own bytes",
-      { manifestId: artifact.manifest.manifestId, expected: artifact.contentHash, measured: decodedHash },
+      {
+        manifestId: artifact.manifest.manifestId,
+        expected: artifact.contentHash,
+        measured: decodedHash,
+      },
     );
   }
   return {
@@ -137,9 +146,14 @@ export function loadEncodedArtifact(
     });
   }
   if (record === null) {
-    throw new EncodingError("media-invalid", "artifact-invalid", `no artifact "${artifactId}" is stored`, {
-      artifactId,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      `no artifact "${artifactId}" is stored`,
+      {
+        artifactId,
+      },
+    );
   }
   if (record.contentType !== ENCODED_ARTIFACT_CONTENT_TYPE) {
     throw new EncodingError(

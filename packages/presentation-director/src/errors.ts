@@ -45,6 +45,8 @@ export class PresentationError extends Error {
     const details = Object.entries(this.details)
       .map(([key, value]) => `${key}=${describeValue(value)}`)
       .join("; ");
-    return details === "" ? `${this.kind}: ${this.message}` : `${this.kind}: ${this.message} [${details}]`;
+    return details === ""
+      ? `${this.kind}: ${this.message}`
+      : `${this.kind}: ${this.message} [${details}]`;
   }
 }

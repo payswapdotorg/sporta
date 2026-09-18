@@ -56,8 +56,6 @@ import {
   direct,
   type CameraPlan,
   type DirectorRuleId,
-  type EventAccountingEntry,
-  type EventCandidateOutcome,
   type PresentationKind,
 } from "@sporta/camera-director";
 import type { EventCandidate } from "@sporta/commentary-understanding";
@@ -102,9 +100,6 @@ export interface MatchTimelineStep {
 /** The wrapped director's own match-timeline input type (referenced through the seam). */
 type WrappedSteps = Parameters<typeof direct>[1];
 
-/** The closed classification-rule vocabulary of the presentation layer. */
-const CLASSIFICATION_RULES = ["review-window", "possession-default", "event-framing"] as const;
-
 /** Admits (and clones) the presentation policy document (re-validated, defense in depth). */
 function admitPolicy(policy: unknown): PresentationPolicy {
   const validation = validatePresentationPolicy(policy);
@@ -119,7 +114,10 @@ function admitPolicy(policy: unknown): PresentationPolicy {
 /** Admits the candidate stream for the presentation layer (phrase lookups). */
 function admitCandidateIndex(candidates: readonly EventCandidate[]): Map<string, EventCandidate> {
   if (!Array.isArray(candidates)) {
-    throw new PresentationError("candidates-invalid", "present requires an array of event candidates");
+    throw new PresentationError(
+      "candidates-invalid",
+      "present requires an array of event candidates",
+    );
   }
   const byId = new Map<string, EventCandidate>();
   for (let i = 0; i < candidates.length; i += 1) {
@@ -244,7 +242,11 @@ function classifyWindow(
 }
 
 /** The combined-score formula, one place (documented in the module docs). */
-function combinedScoreOf(policy: PresentationPolicy, weight: number, semanticScore: number): number {
+function combinedScoreOf(
+  policy: PresentationPolicy,
+  weight: number,
+  semanticScore: number,
+): number {
   return roundScore(policy.semantics.importanceWeight * weight + semanticScore);
 }
 
@@ -285,7 +287,12 @@ function traceOfWindow(
     const combinedScore = combinedScoreOf(policy, row.weight, semanticScore);
     return {
       windowIndex,
-      importance: { source: "event-rule", eventType: candidate.eventType, ruleIndex: row.ruleIndex, weight: row.weight },
+      importance: {
+        source: "event-rule",
+        eventType: candidate.eventType,
+        ruleIndex: row.ruleIndex,
+        weight: row.weight,
+      },
       semantics: {
         source: "candidate",
         candidateId,
@@ -405,11 +412,7 @@ export function present(
   const admittedPolicy = admitPolicy(policy);
   const candidatesById = admitCandidateIndex(candidates);
   // The wrapped W604 director directs the camera plan (admission included).
-  const cameraPlan = direct(
-    admittedPolicy.camera,
-    steps as unknown as WrappedSteps,
-    candidates,
-  );
+  const cameraPlan = direct(admittedPolicy.camera, steps as unknown as WrappedSteps, candidates);
   // Wrap verbatim: a one-time deep clone so consumers can never mutate the
   // wrapped seam's output through the presentation plan.
   const wrappedPlan: CameraPlan = cloneJson(cameraPlan);
@@ -507,7 +510,10 @@ export class PresentationDirector {
    * presentation layer (importance trace + presentation kinds + candidate
    * scoring). Pure; deterministic.
    */
-  present(steps: readonly MatchTimelineStep[], candidates: readonly EventCandidate[]): PresentationPlan {
+  present(
+    steps: readonly MatchTimelineStep[],
+    candidates: readonly EventCandidate[],
+  ): PresentationPlan {
     return present(this.policy, steps, candidates);
   }
 }

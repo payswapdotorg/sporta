@@ -43,9 +43,7 @@ describe("plan-shape", () => {
     const plan = clonedPlan();
     plan.windows[1]!.index = 7;
     expect(
-      violationsOf(plan).some((v) =>
-        v.startsWith("plan-shape: windows[1].index: must be 1"),
-      ),
+      violationsOf(plan).some((v) => v.startsWith("plan-shape: windows[1].index: must be 1")),
     ).toBe(true);
   });
 });
@@ -105,9 +103,9 @@ describe("every-window-traced", () => {
     const plan = clonedPlan();
     (plan.windows[1]!.importanceTrace.importance as { weight: number }).weight = 5;
     const violations = violationsOf(plan);
-    expect(
-      violations.some((v) => v.includes("windows[1].importanceTrace.importance.weight")),
-    ).toBe(true);
+    expect(violations.some((v) => v.includes("windows[1].importanceTrace.importance.weight"))).toBe(
+      true,
+    );
   });
 
   test("an in-range but WRONG baseline weight is refused by policy-consistency", () => {
@@ -152,11 +150,9 @@ describe("every-window-traced", () => {
       confidence: 0.9,
       score: 0.48,
     };
-    expect(
-      violationsOf(plan).some((v) =>
-        v.includes("must trace to the declared baseline"),
-      ),
-    ).toBe(true);
+    expect(violationsOf(plan).some((v) => v.includes("must trace to the declared baseline"))).toBe(
+      true,
+    );
   });
 
   test("a tampered verbatim field (emphasis) is refused", () => {
@@ -216,9 +212,9 @@ describe("accounting-reconciled", () => {
   test("a dropped candidate scoring entry breaks the mirror", () => {
     const plan = clonedPlan();
     plan.summary.candidateScoring.pop();
-    expect(
-      violationsOf(plan).some((v) => v.includes("must mirror the wrapped accounting's")),
-    ).toBe(true);
+    expect(violationsOf(plan).some((v) => v.includes("must mirror the wrapped accounting's"))).toBe(
+      true,
+    );
   });
 
   test("a tampered outcome is refused (must ride verbatim)", () => {
@@ -234,21 +230,13 @@ describe("accounting-reconciled", () => {
   test("a bogus droveWindowIndices entry is refused", () => {
     const plan = clonedPlan();
     plan.summary.candidateScoring[3]!.droveWindowIndices = [99];
-    expect(
-      violationsOf(plan).some((v) =>
-        v.includes("99 is not a valid window index"),
-      ),
-    ).toBe(true);
+    expect(violationsOf(plan).some((v) => v.includes("99 is not a valid window index"))).toBe(true);
   });
 
   test("a window index whose camera decision cites ANOTHER candidate is refused", () => {
     const plan = clonedPlan();
     plan.summary.candidateScoring[3]!.droveWindowIndices = [2];
-    expect(
-      violationsOf(plan).some((v) =>
-        v.includes(`cites "ec-2", not "ec-4"`),
-      ),
-    ).toBe(true);
+    expect(violationsOf(plan).some((v) => v.includes(`cites "ec-2", not "ec-4"`))).toBe(true);
   });
 
   test("a drifted presentation count is refused", () => {

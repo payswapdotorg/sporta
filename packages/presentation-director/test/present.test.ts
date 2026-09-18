@@ -14,11 +14,7 @@ import {
   present,
   type PresentationPolicy,
 } from "../src/index";
-import {
-  buildPresentationCandidates,
-  buildPresentationMatch,
-  buildCandidate,
-} from "./helpers";
+import { buildPresentationCandidates, buildPresentationMatch, buildCandidate } from "./helpers";
 
 const STEPS = buildPresentationMatch();
 const CANDIDATES = buildPresentationCandidates();
@@ -72,7 +68,12 @@ describe("presentation kinds classify from the wrapped plan's own fields", () =>
       "tight",
       "replay",
     ]);
-    expect(plan.summary.presentationCounts).toEqual({ liveFollow: 1, replay: 1, wide: 1, tight: 1 });
+    expect(plan.summary.presentationCounts).toEqual({
+      liveFollow: 1,
+      replay: 1,
+      wide: 1,
+      tight: 1,
+    });
     expect(plan.summary.presentationChangeCount).toBe(3);
   });
 

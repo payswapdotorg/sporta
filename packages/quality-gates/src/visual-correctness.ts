@@ -58,7 +58,11 @@
  */
 import type { ConformanceReport } from "@sporta/renderer-contract";
 import { runConformance } from "@sporta/renderer-contract";
-import { createAnimeNprRenderer, createGame3DRenderer, Software3DEngine } from "@sporta/renderer-3d";
+import {
+  createAnimeNprRenderer,
+  createGame3DRenderer,
+  Software3DEngine,
+} from "@sporta/renderer-3d";
 import { createTacticalRenderer } from "@sporta/renderer-tactical";
 import type { SceneEvaluationInput } from "@sporta/scene-evaluation";
 import type { WorldEventStreamEntry, WorldSnapshot } from "@sporta/contracts";
@@ -203,10 +207,7 @@ export interface VisualCorrectnessOptions {
 }
 
 /** A defensive per-axis runner: a throwing evaluation is NOT-RUNNABLE (the W803 posture). */
-function safeAxis(
-  id: VisualAxisResult["id"],
-  run: () => VisualAxisResult,
-): VisualAxisResult {
+function safeAxis(id: VisualAxisResult["id"], run: () => VisualAxisResult): VisualAxisResult {
   try {
     return run();
   } catch (error) {
@@ -226,7 +227,11 @@ function measureArtifactPlane(
 ): ArtifactTemporalMeasurements {
   const frames = decodeEncodedFrames(artifact, { ffmpegPath: options.ffmpegPath });
   if (frames.length < 2) {
-    throw new EncodingError("media-invalid", "verify-failed", "the artifact has fewer than 2 frames (no pairs to measure)");
+    throw new EncodingError(
+      "media-invalid",
+      "verify-failed",
+      "the artifact has fewer than 2 frames (no pairs to measure)",
+    );
   }
   const diffs: number[] = [];
   for (let i = 1; i < frames.length; i += 1) {
@@ -286,7 +291,14 @@ export function evaluateVisualCorrectness(
       return {
         id,
         status: verdict.pass ? "PASS" : "FAIL",
-        ...(verdict.pass ? {} : { reason: `${verdict.failures.length} failing check(s): ${verdict.failures.map((f) => f.metric).slice(0, 5).join(", ")}` }),
+        ...(verdict.pass
+          ? {}
+          : {
+              reason: `${verdict.failures.length} failing check(s): ${verdict.failures
+                .map((f) => f.metric)
+                .slice(0, 5)
+                .join(", ")}`,
+            }),
         evidence: {
           checkCount: verdict.checks.length,
           failingCheckCount: verdict.failures.length,
@@ -373,7 +385,8 @@ export function evaluateVisualCorrectness(
         return {
           id: "renderer-conformance",
           status: "NOT-RUNNABLE",
-          reason: "the envelope carries no conformance reports (the R301/R303/R304 conformance fixtures are part of the MVP envelope)",
+          reason:
+            "the envelope carries no conformance reports (the R301/R303/R304 conformance fixtures are part of the MVP envelope)",
           evidence: { reportCount: 0 },
         };
       }
@@ -383,7 +396,9 @@ export function evaluateVisualCorrectness(
         status: failing.length === 0 ? "PASS" : "FAIL",
         ...(failing.length === 0
           ? {}
-          : { reason: `${failing.length} conformance report(s) failed: ${failing.map((r) => r.plugin.rendererId).join(", ")}` }),
+          : {
+              reason: `${failing.length} conformance report(s) failed: ${failing.map((r) => r.plugin.rendererId).join(", ")}`,
+            }),
         evidence: {
           reportCount: envelope.conformance.length,
           failedReportCount: failing.length,
@@ -466,7 +481,9 @@ export function evaluateVisualCorrectness(
 }
 
 /** The W503 summary (the real evaluation's numbers, verbatim). */
-function w503SummaryOf(envelope: VisualFixtureEnvelope): VisualCorrectnessReport["temporalStability"]["w503"] {
+function w503SummaryOf(
+  envelope: VisualFixtureEnvelope,
+): VisualCorrectnessReport["temporalStability"]["w503"] {
   const w503 = evaluateRenderOutput(envelope.temporal);
   return {
     verdictPass: w503.verdict.pass,
@@ -484,13 +501,22 @@ function w503SummaryOf(envelope: VisualFixtureEnvelope): VisualCorrectnessReport
 // ---------------------------------------------------------------------------
 
 /** The canonical geometry of the default visual artifact (small + fast + real). */
-export const DEFAULT_VISUAL_GEOMETRY = { widthPx: 320, heightPx: 180, fps: 25, durationMs: 1_600 } as const;
+export const DEFAULT_VISUAL_GEOMETRY = {
+  widthPx: 320,
+  heightPx: 180,
+  fps: 25,
+  durationMs: 1_600,
+} as const;
 
 /** Builds the default visual artifact: the clean match fixture's SWM through the REAL engine + REAL encode. */
 export function buildDefaultVisualArtifact(encoder?: FrameEncoderPort): EncodedArtifact {
   const resolved = encoder ?? createFfmpegFrameEncoder() ?? undefined;
   if (resolved === undefined) {
-    throw new EncodingError("resource-limit", "encoder-unavailable", "the default visual artifact requires a working ffmpeg/libx264 encoder");
+    throw new EncodingError(
+      "resource-limit",
+      "encoder-unavailable",
+      "the default visual artifact requires a working ffmpeg/libx264 encoder",
+    );
   }
   const fixture = buildCleanMatchFixture();
   return encodeSceneThroughEngine({
@@ -544,7 +570,10 @@ export function encodeSceneThroughEngine(options: {
         engineId: engine.describe().engineId,
         engineVersion: engine.describe().engineVersion,
       },
-      swm: { snapshotVersion: handle.snapshotVersion, lastEventSequence: rendered.provenance.lastEventSequence },
+      swm: {
+        snapshotVersion: handle.snapshotVersion,
+        lastEventSequence: rendered.provenance.lastEventSequence,
+      },
     });
     engine.dispose();
     return artifact;
@@ -584,11 +613,17 @@ function runTacticalConformance(): ConformanceReport {
  */
 export function buildVisualFlickerArtifact(
   encoder?: FrameEncoderPort,
-  frameIndex = Math.floor((DEFAULT_VISUAL_GEOMETRY.durationMs * DEFAULT_VISUAL_GEOMETRY.fps) / 2000),
+  frameIndex = Math.floor(
+    (DEFAULT_VISUAL_GEOMETRY.durationMs * DEFAULT_VISUAL_GEOMETRY.fps) / 2000,
+  ),
 ): EncodedArtifact {
   const resolved = encoder ?? createFfmpegFrameEncoder() ?? undefined;
   if (resolved === undefined) {
-    throw new EncodingError("resource-limit", "encoder-unavailable", "the flicker defect fixture requires a working ffmpeg/libx264 encoder");
+    throw new EncodingError(
+      "resource-limit",
+      "encoder-unavailable",
+      "the flicker defect fixture requires a working ffmpeg/libx264 encoder",
+    );
   }
   const fixture = buildCleanMatchFixture();
   const snapshot = fixture.snapshots[fixture.snapshots.length - 1]!;
@@ -633,7 +668,10 @@ export function buildVisualFlickerArtifact(
       fps: DEFAULT_VISUAL_GEOMETRY.fps,
       origin: { rendererId: "game-3d.prototype", rendererVersion: "0.1.0", bridge: "game-3d" },
       sessionId: snapshot.sessionId,
-      swm: { snapshotVersion: handle.snapshotVersion, lastEventSequence: rendered.provenance.lastEventSequence },
+      swm: {
+        snapshotVersion: handle.snapshotVersion,
+        lastEventSequence: rendered.provenance.lastEventSequence,
+      },
     });
   } finally {
     rmSync(stagingRoot, { recursive: true, force: true });

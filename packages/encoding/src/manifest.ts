@@ -14,7 +14,13 @@
  */
 import { TEST_EPOCH_MS } from "@sporta/testing";
 import { EncodingError } from "./errors";
-import { encodedManifestIdOf, isFiniteNumber, isRecord, isNonEmptyString, sha256Of } from "./internal";
+import {
+  encodedManifestIdOf,
+  isFiniteNumber,
+  isRecord,
+  isNonEmptyString,
+  sha256Of,
+} from "./internal";
 import type {
   EncodedArtifact,
   EncodedContainerManifest,
@@ -81,7 +87,11 @@ export function buildEncodedArtifact(
   options: BuildEncodedArtifactOptions,
 ): EncodedArtifact {
   if (!isNonEmptyString(options.sessionId)) {
-    throw new EncodingError("media-invalid", "artifact-invalid", "sessionId must be a non-empty string");
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "sessionId must be a non-empty string",
+    );
   }
   // Integrity: the bytes re-hash to the recorded content hash.
   const verifiedHash = sha256Of(result.bytes);
@@ -94,10 +104,15 @@ export function buildEncodedArtifact(
     );
   }
   if (result.byteSize !== result.bytes.length) {
-    throw new EncodingError("internal", "artifact-invalid", "the encode result's byteSize disagrees with its own bytes", {
-      declared: result.byteSize,
-      measured: result.bytes.length,
-    });
+    throw new EncodingError(
+      "internal",
+      "artifact-invalid",
+      "the encode result's byteSize disagrees with its own bytes",
+      {
+        declared: result.byteSize,
+        measured: result.bytes.length,
+      },
+    );
   }
   const identity = encodedIdentityOf({
     sessionId: options.sessionId,
@@ -122,7 +137,10 @@ export function buildEncodedArtifact(
     swm:
       options.swm === undefined || options.swm === null
         ? null
-        : { snapshotVersion: options.swm.snapshotVersion, lastEventSequence: options.swm.lastEventSequence },
+        : {
+            snapshotVersion: options.swm.snapshotVersion,
+            lastEventSequence: options.swm.lastEventSequence,
+          },
     encoder: {
       kind: result.encoderKind,
       version: result.encoderVersion,
@@ -158,8 +176,7 @@ export function buildEncodedArtifact(
 
 /** The result of `validateEncodedManifest`: admitted, or refused with issues. */
 export type EncodedManifestValidation =
-  | { ok: true; value: EncodedContainerManifest }
-  | { ok: false; issues: string[] };
+  { ok: true; value: EncodedContainerManifest } | { ok: false; issues: string[] };
 
 /**
  * Fail-closed structural validation of a container manifest document
@@ -190,7 +207,11 @@ export function validateEncodedManifest(value: unknown): EncodedManifestValidati
   ) {
     push("manifest.bridge", "must be a bridge id (tactical / game-3d / anime-npr / raw-frames)");
   }
-  if (!isRecord(value.source) || !isNonEmptyString(value.source.rendererId) || !isNonEmptyString(value.source.rendererVersion)) {
+  if (
+    !isRecord(value.source) ||
+    !isNonEmptyString(value.source.rendererId) ||
+    !isNonEmptyString(value.source.rendererVersion)
+  ) {
     push("manifest.source", "must carry rendererId + rendererVersion");
   }
   if (value.swm !== null && value.swm !== undefined) {
@@ -202,7 +223,11 @@ export function validateEncodedManifest(value: unknown): EncodedManifestValidati
       push("manifest.swm", "must be null or carry snapshotVersion + lastEventSequence");
     }
   }
-  if (!isRecord(value.encoder) || !isNonEmptyString(value.encoder.kind) || !isRecord(value.encoder.codec)) {
+  if (
+    !isRecord(value.encoder) ||
+    !isNonEmptyString(value.encoder.kind) ||
+    !isRecord(value.encoder.codec)
+  ) {
     push("manifest.encoder", "must carry kind + codec");
   }
   const geometry = value.geometry;
@@ -224,7 +249,10 @@ export function validateEncodedManifest(value: unknown): EncodedManifestValidati
   if (!isFiniteNumber(value.byteSize) || value.byteSize < 1) {
     push("manifest.byteSize", "must be a finite number >= 1");
   }
-  if (!Array.isArray(value.frames) || value.frames.length !== (isRecord(geometry) ? geometry.frameCount : -1)) {
+  if (
+    !Array.isArray(value.frames) ||
+    value.frames.length !== (isRecord(geometry) ? geometry.frameCount : -1)
+  ) {
     push("manifest.frames", "must be an array with exactly geometry.frameCount entries");
   } else {
     for (let i = 0; i < value.frames.length; i += 1) {
@@ -235,7 +263,11 @@ export function validateEncodedManifest(value: unknown): EncodedManifestValidati
       }
     }
   }
-  if (!isRecord(value.integrity) || value.integrity.algorithm !== "sha256" || value.integrity.verified !== true) {
+  if (
+    !isRecord(value.integrity) ||
+    value.integrity.algorithm !== "sha256" ||
+    value.integrity.verified !== true
+  ) {
     push("manifest.integrity", 'must be { algorithm: "sha256", verified: true }');
   }
   if (!isFiniteNumber(value.generatedAtMs) || value.generatedAtMs < 0) {

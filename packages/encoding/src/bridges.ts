@@ -35,7 +35,12 @@ import type { RenderInput } from "@sporta/renderer-contract";
 import { EncodingError } from "./errors";
 import { isNonEmptyString, isRecord, sha256Of } from "./internal";
 import { buildEncodedArtifact, type BuildEncodedArtifactOptions } from "./manifest";
-import { countEncode, countEncodeFailure, logEncode, type EncodingObservability } from "./observability";
+import {
+  countEncode,
+  countEncodeFailure,
+  logEncode,
+  type EncodingObservability,
+} from "./observability";
 import type { EncodedArtifact, EncodeOrigin, FrameEncoderPort } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -69,8 +74,10 @@ export interface TacticalRendererLike {
 }
 
 /** Options for {@link bridgeTacticalRenderer}. */
-export interface BridgeTacticalOptions
-  extends Omit<BuildEncodedArtifactOptions, "rendererManifest" | "sessionId"> {
+export interface BridgeTacticalOptions extends Omit<
+  BuildEncodedArtifactOptions,
+  "rendererManifest" | "sessionId"
+> {
   /** The R301 tactical renderer (structural — the real plugin satisfies this). */
   renderer: TacticalRendererLike;
   /** The request the caller rendered with (its output profile carries the geometry/fps). */
@@ -93,17 +100,31 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
   const { renderer, req, input } = options;
   const detailed = renderer.renderDetailed(req, input);
   const staged = detailed.details.artifact;
-  if (!isRecord(staged) || !isNonEmptyString(staged.artifactPath) || !isNonEmptyString(staged.contentHash)) {
-    throw new EncodingError("media-invalid", "artifact-invalid", "the tactical renderer's staged artifact is malformed", {});
+  if (
+    !isRecord(staged) ||
+    !isNonEmptyString(staged.artifactPath) ||
+    !isNonEmptyString(staged.contentHash)
+  ) {
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "the tactical renderer's staged artifact is malformed",
+      {},
+    );
   }
   let bytes: Buffer;
   try {
     bytes = readFileSync(staged.artifactPath);
   } catch (cause) {
-    throw new EncodingError("media-invalid", "artifact-invalid", "the tactical staged artifact could not be read", {
-      path: staged.artifactPath,
-      cause: String(cause),
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "the tactical staged artifact could not be read",
+      {
+        path: staged.artifactPath,
+        cause: String(cause),
+      },
+    );
   }
   const measuredHash = sha256Of(bytes);
   if (measuredHash !== staged.contentHash) {
@@ -117,9 +138,14 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
   // The frozen manifest: parsed through the contract schema, provenance-checked.
   const parsed = RenderArtifactManifest.safeParse(staged.manifest);
   if (!parsed.success) {
-    throw new EncodingError("media-invalid", "artifact-invalid", "the tactical manifest failed the frozen contract schema", {
-      issues: parsed.error.message.slice(0, 500),
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "the tactical manifest failed the frozen contract schema",
+      {
+        issues: parsed.error.message.slice(0, 500),
+      },
+    );
   }
   const frozenManifest = parsed.data;
   if (frozenManifest.contentHash !== measuredHash) {
@@ -131,9 +157,14 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
     );
   }
   if (frozenManifest.reality !== "tactical") {
-    throw new EncodingError("media-invalid", "artifact-invalid", "the tactical manifest's reality is not tactical", {
-      reality: frozenManifest.reality,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "the tactical manifest's reality is not tactical",
+      {
+        reality: frozenManifest.reality,
+      },
+    );
   }
   const origin: EncodeOrigin = {
     rendererId: frozenManifest.rendererId,
@@ -145,9 +176,14 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
   const height = req.outputProfile.resolution.h;
   const frameCount = detailed.details.frameCount;
   if (frameCount < 1 || !Number.isInteger(frameCount)) {
-    throw new EncodingError("media-invalid", "artifact-invalid", "the tactical render's frame count is invalid", {
-      frameCount,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "artifact-invalid",
+      "the tactical render's frame count is invalid",
+      {
+        frameCount,
+      },
+    );
   }
   // The adopted encode result (the renderer's OWN encode — adopted, not re-encoded).
   const adoptedResult = {
@@ -176,8 +212,7 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
       bitexact: true,
     },
   };
-  const swm: SwmProvenance | null =
-    frozenManifest.swm === null ? null : { ...frozenManifest.swm };
+  const swm: SwmProvenance | null = frozenManifest.swm === null ? null : { ...frozenManifest.swm };
   const artifact = buildEncodedArtifact(adoptedResult, origin, {
     sessionId: frozenManifest.sessionId,
     swm,
@@ -186,6 +221,20 @@ export function bridgeTacticalRenderer(options: BridgeTacticalOptions): EncodedA
   });
   // The adopted artifact is a REAL MP4 (the renderer encoded it — the
   // container IS "mp4", so the builder's tier derivation holds).
+  logEncode(options.observability, {
+    bridge: "tactical",
+    rendererId: origin.rendererId,
+    frameCount,
+    byteSize: bytes.length,
+    contentHash: measuredHash,
+    adopted: true,
+  });
+  countEncode(options.observability, {
+    encoderKind: "tactical-adopted",
+    bridge: "tactical",
+    frameCount,
+    byteSize: bytes.length,
+  });
   return artifact;
 }
 
@@ -208,17 +257,31 @@ export interface BridgeGameFrameOptions extends BuildEncodedArtifactOptions {
 /** Admits a game-engine frame output (fail-closed: rgb24 staged streams only). */
 function admitFrameOutput(frameOutput: GameEngineFrameOutput): void {
   if (frameOutput.kind !== "frame-output") {
-    throw new EncodingError("media-invalid", "frames-invalid", "the engine output is not a frame-output", {
-      kind: (frameOutput as { kind?: string }).kind,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "the engine output is not a frame-output",
+      {
+        kind: (frameOutput as { kind?: string }).kind,
+      },
+    );
   }
   if (frameOutput.pixelFormat !== "rgb24") {
-    throw new EncodingError("media-invalid", "frames-invalid", "only rgb24 frame streams are encodable (this plane)", {
-      pixelFormat: frameOutput.pixelFormat,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "only rgb24 frame streams are encodable (this plane)",
+      {
+        pixelFormat: frameOutput.pixelFormat,
+      },
+    );
   }
   if (!isNonEmptyString(frameOutput.stagingRef)) {
-    throw new EncodingError("media-invalid", "frames-invalid", "the frame output carries no stagingRef");
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "the frame output carries no stagingRef",
+    );
   }
 }
 
@@ -232,9 +295,14 @@ export function bridgeGameFrameOutput(options: BridgeGameFrameOptions): EncodedA
   const { frameOutput, encoder, origin } = options;
   const bridge = origin.bridge;
   if (bridge !== "game-3d" && bridge !== "anime-npr") {
-    throw new EncodingError("media-invalid", "frames-invalid", "the game bridge requires a game origin", {
-      bridge,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "the game bridge requires a game origin",
+      {
+        bridge,
+      },
+    );
   }
   let artifact: EncodedArtifact;
   try {
@@ -252,7 +320,9 @@ export function bridgeGameFrameOutput(options: BridgeGameFrameOptions): EncodedA
     artifact = buildEncodedArtifact(result, origin, {
       sessionId: options.sessionId,
       ...(options.swm === undefined ? {} : { swm: options.swm }),
-      ...(options.rendererManifest === undefined ? {} : { rendererManifest: options.rendererManifest }),
+      ...(options.rendererManifest === undefined
+        ? {}
+        : { rendererManifest: options.rendererManifest }),
       ...(options.nowMs === undefined ? {} : { nowMs: options.nowMs }),
     });
   } catch (error) {
@@ -304,7 +374,9 @@ export function bridgeRgbFrames(options: BridgeRgbFramesOptions): EncodedArtifac
     artifact = buildEncodedArtifact(result, origin, {
       sessionId: options.sessionId,
       ...(options.swm === undefined ? {} : { swm: options.swm }),
-      ...(options.rendererManifest === undefined ? {} : { rendererManifest: options.rendererManifest }),
+      ...(options.rendererManifest === undefined
+        ? {}
+        : { rendererManifest: options.rendererManifest }),
       ...(options.nowMs === undefined ? {} : { nowMs: options.nowMs }),
     });
   } catch (error) {

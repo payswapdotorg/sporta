@@ -153,10 +153,15 @@ function ffmpegArgs(request: {
 /** Admits the geometry/fps/frame-count (the tactical codec's checks, verbatim). */
 function admitGeometry(width: number, height: number, fps: number, frameCount: number): void {
   if (!Number.isInteger(width) || width < 16 || !Number.isInteger(height) || height < 16) {
-    throw new EncodingError("media-invalid", "frames-invalid", "encode dimensions must be integers >= 16", {
-      width,
-      height,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "encode dimensions must be integers >= 16",
+      {
+        width,
+        height,
+      },
+    );
   }
   if (width % 2 !== 0 || height % 2 !== 0) {
     throw new EncodingError(
@@ -172,9 +177,14 @@ function admitGeometry(width: number, height: number, fps: number, frameCount: n
     });
   }
   if (!Number.isInteger(frameCount) || frameCount < 1) {
-    throw new EncodingError("media-invalid", "frames-invalid", "encode frameCount must be an integer >= 1", {
-      frameCount,
-    });
+    throw new EncodingError(
+      "media-invalid",
+      "frames-invalid",
+      "encode frameCount must be an integer >= 1",
+      {
+        frameCount,
+      },
+    );
   }
 }
 
@@ -205,9 +215,14 @@ function admitSource(
   const frameBytes = width * height * 3;
   if (source.kind === "rgb24-file") {
     if (!existsSync(source.path)) {
-      throw new EncodingError("media-invalid", "frames-invalid", "the staged frame file does not exist", {
-        path: source.path,
-      });
+      throw new EncodingError(
+        "media-invalid",
+        "frames-invalid",
+        "the staged frame file does not exist",
+        {
+          path: source.path,
+        },
+      );
     }
     const size = statSync(source.path).size;
     if (size !== source.frameCount * frameBytes) {
@@ -270,7 +285,10 @@ export function probeFfmpegEncoder(ffmpegPath = "ffmpeg"): FfmpegEncoderAvailabi
     killSignal: "SIGKILL",
   });
   if (version.error !== undefined || version.status !== 0) {
-    return { available: false, reason: `ffmpeg -version failed: ${String(version.error?.message ?? version.status)}` };
+    return {
+      available: false,
+      reason: `ffmpeg -version failed: ${String(version.error?.message ?? version.status)}`,
+    };
   }
   const banner = (version.stdout.split("\n", 1)[0] ?? "").trim();
   const encoders = spawnSync(resolved, ["-hide_banner", "-encoders"], {
@@ -281,7 +299,11 @@ export function probeFfmpegEncoder(ffmpegPath = "ffmpeg"): FfmpegEncoderAvailabi
   });
   const hasLibx264 = typeof encoders.stdout === "string" && /libx264\b/.test(encoders.stdout);
   if (!hasLibx264) {
-    return { available: false, version: banner, reason: "this ffmpeg build has no libx264 encoder" };
+    return {
+      available: false,
+      version: banner,
+      reason: "this ffmpeg build has no libx264 encoder",
+    };
   }
   return { available: true, version: banner, hasLibx264: true };
 }
@@ -324,14 +346,23 @@ export class FfmpegFrameEncoder implements FrameEncoderPort {
 
   encode(request: FrameEncodeRequest): FrameEncodeResult {
     if (!this.available()) {
-      throw new EncodingError("resource-limit", "encoder-unavailable", "the ffmpeg/libx264 encoder is unavailable", {
-        ffmpegPath: this.ffmpegPath,
-      });
+      throw new EncodingError(
+        "resource-limit",
+        "encoder-unavailable",
+        "the ffmpeg/libx264 encoder is unavailable",
+        {
+          ffmpegPath: this.ffmpegPath,
+        },
+      );
     }
     const { width, height, frameCount } = geometryOf(request.source);
     const fps = request.fps;
     admitGeometry(width, height, fps, frameCount);
-    const { stagedPath, stagingDir, frameCount: admittedFrames } = admitSource(request.source, width, height);
+    const {
+      stagedPath,
+      stagingDir,
+      frameCount: admittedFrames,
+    } = admitSource(request.source, width, height);
 
     // The MP4 muxer needs a seekable output (a pipe cannot carry a classic
     // mp4), so the encode targets a file in the adapter's OWN staging dir —
@@ -407,9 +438,14 @@ export class FfmpegFrameEncoder implements FrameEncoderPort {
         );
       }
       if (bytes.length === 0) {
-        throw new EncodingError("internal", "encode-failed", "ffmpeg produced no MP4 bytes — no artifact was produced", {
-          ffmpegPath: this.ffmpegPath,
-        });
+        throw new EncodingError(
+          "internal",
+          "encode-failed",
+          "ffmpeg produced no MP4 bytes — no artifact was produced",
+          {
+            ffmpegPath: this.ffmpegPath,
+          },
+        );
       }
       const contentHash = sha256Of(bytes);
       const durationMs = Math.round((admittedFrames * 1_000) / fps);

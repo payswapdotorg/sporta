@@ -36,7 +36,7 @@
  *   importance row's weight at the traced row index, the blend formula,
  *   the framing classification).
  */
-import { checkCameraPlan, type CameraPlan } from "@sporta/camera-director";
+import { checkCameraPlan } from "@sporta/camera-director";
 import { isFiniteNumber, isRecord } from "./internal";
 import type { PresentationPolicy } from "./policy";
 import type { PresentationWindow } from "./types";
@@ -217,7 +217,11 @@ function checkTraceOfWindow(
 ): void {
   const trace = window.importanceTrace;
   if (trace.windowIndex !== index) {
-    push("every-window-traced", `windows[${index}].importanceTrace.windowIndex`, `must be ${index}`);
+    push(
+      "every-window-traced",
+      `windows[${index}].importanceTrace.windowIndex`,
+      `must be ${index}`,
+    );
   }
   const importance = trace.importance;
   const semantics = trace.semantics;
@@ -244,7 +248,11 @@ function checkTraceOfWindow(
         "must be a non-empty string (which event)",
       );
     }
-    if (!isFiniteNumber(importance.ruleIndex) || !Number.isInteger(importance.ruleIndex) || importance.ruleIndex < 0) {
+    if (
+      !isFiniteNumber(importance.ruleIndex) ||
+      !Number.isInteger(importance.ruleIndex) ||
+      importance.ruleIndex < 0
+    ) {
       push(
         "every-window-traced",
         `windows[${index}].importanceTrace.importance.ruleIndex`,
@@ -276,11 +284,16 @@ function checkTraceOfWindow(
     );
   }
   if (typeof trace.reason !== "string" || trace.reason.length === 0) {
-    push("every-window-traced", `windows[${index}].importanceTrace.reason`, "must be a non-empty string");
+    push(
+      "every-window-traced",
+      `windows[${index}].importanceTrace.reason`,
+      "must be a non-empty string",
+    );
   }
 
   // Consistency with the window's OWN camera decision (verbatim riding).
-  const cameraDecision = isRecord(cameraWindow) && isRecord(cameraWindow.decision) ? cameraWindow.decision : undefined;
+  const cameraDecision =
+    isRecord(cameraWindow) && isRecord(cameraWindow.decision) ? cameraWindow.decision : undefined;
   if (cameraDecision === undefined) {
     return; // camera-plan-wrapped already flagged the missing camera window
   }
@@ -346,7 +359,12 @@ function checkTraceOfWindow(
 
   // Policy consistency (when the policy is supplied): every traced value
   // recomputes from the policy's own tables.
-  if (policy === undefined || weight === undefined || semanticScore === undefined || combined === undefined) {
+  if (
+    policy === undefined ||
+    weight === undefined ||
+    semanticScore === undefined ||
+    combined === undefined
+  ) {
     return;
   }
   if (importance.source === "baseline") {
@@ -388,7 +406,11 @@ function checkTraceOfWindow(
         `"${String(importance.eventType)}" disagrees with policy row ${importance.ruleIndex}'s type "${row.eventType}"`,
       );
     }
-    if (semantics.source === "candidate" && isFiniteNumber(semantics.emphasis) && isFiniteNumber(semantics.confidence)) {
+    if (
+      semantics.source === "candidate" &&
+      isFiniteNumber(semantics.emphasis) &&
+      isFiniteNumber(semantics.confidence)
+    ) {
       const expectedSemantic = roundCheck(
         policy.semantics.emphasisWeight * semantics.emphasis +
           policy.semantics.confidenceWeight * semantics.confidence,
@@ -505,7 +527,11 @@ function checkAccounting(
         continue;
       }
       for (const windowIndex of drove) {
-        if (!Number.isInteger(windowIndex) || windowIndex < 0 || windowIndex >= cameraWindows.length) {
+        if (
+          !Number.isInteger(windowIndex) ||
+          windowIndex < 0 ||
+          windowIndex >= cameraWindows.length
+        ) {
           push(
             "accounting-reconciled",
             `plan.summary.candidateScoring[${i}].droveWindowIndices`,
@@ -514,8 +540,14 @@ function checkAccounting(
           continue;
         }
         const cameraWindow = cameraWindows[windowIndex];
-        const decision = isRecord(cameraWindow) && isRecord(cameraWindow.decision) ? cameraWindow.decision : undefined;
-        const cited = decision !== undefined && isRecord(decision.event) ? decision.event.candidateId : undefined;
+        const decision =
+          isRecord(cameraWindow) && isRecord(cameraWindow.decision)
+            ? cameraWindow.decision
+            : undefined;
+        const cited =
+          decision !== undefined && isRecord(decision.event)
+            ? decision.event.candidateId
+            : undefined;
         if (cited !== entry.candidateId) {
           push(
             "accounting-reconciled",

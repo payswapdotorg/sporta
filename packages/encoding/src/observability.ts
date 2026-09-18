@@ -51,9 +51,7 @@ export function countEncode(
 ): void {
   const metrics = observability?.metrics;
   if (metrics === undefined) return;
-  metrics
-    .counter(ENCODE_METRIC_NAMES.encodesTotal, { encoderKind: fields.encoderKind })
-    .inc(1);
+  metrics.counter(ENCODE_METRIC_NAMES.encodesTotal, { encoderKind: fields.encoderKind }).inc(1);
   metrics
     .counter(ENCODE_METRIC_NAMES.encodeFramesTotal, { encoderKind: fields.encoderKind })
     .inc(fields.frameCount);

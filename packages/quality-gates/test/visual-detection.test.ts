@@ -147,45 +147,51 @@ describe.skipIf(!available)("detection — the temporal axis bites (real encoded
   });
 });
 
-describe.skipIf(!available)("detection — not-runnable axes count as FAIL (the W803 posture)", () => {
-  test("a FIXTURE-TIER artifact (not video) → temporal NOT-RUNNABLE → verdict FAIL", () => {
-    const report = evaluateVisualCorrectness(fixtureTierArtifact(), cleanEnvelope());
-    const temporal = report.axes.find((axis) => axis.id === "temporal-stability")!;
-    expect(temporal.status).toBe("NOT-RUNNABLE");
-    expect(report.temporalStability.artifactPlane).toBeNull();
-    expect(report.accounting.notRunnableCount).toBeGreaterThan(0);
-    expect(report.verdict.pass).toBe(false);
-  });
+describe.skipIf(!available)(
+  "detection — not-runnable axes count as FAIL (the W803 posture)",
+  () => {
+    test("a FIXTURE-TIER artifact (not video) → temporal NOT-RUNNABLE → verdict FAIL", () => {
+      const report = evaluateVisualCorrectness(fixtureTierArtifact(), cleanEnvelope());
+      const temporal = report.axes.find((axis) => axis.id === "temporal-stability")!;
+      expect(temporal.status).toBe("NOT-RUNNABLE");
+      expect(report.temporalStability.artifactPlane).toBeNull();
+      expect(report.accounting.notRunnableCount).toBeGreaterThan(0);
+      expect(report.verdict.pass).toBe(false);
+    });
 
-  test("a MISSING decode toolchain → temporal NOT-RUNNABLE → verdict FAIL", () => {
-    const report = evaluateVisualCorrectness(
-      buildDefaultVisualArtifact(encoder!),
-      cleanEnvelope(),
-      { ffmpegPath: "/nonexistent/ffmpeg-for-visual-gate" },
-    );
-    const temporal = report.axes.find((axis) => axis.id === "temporal-stability")!;
-    expect(temporal.status).toBe("NOT-RUNNABLE");
-    expect(report.verdict.pass).toBe(false);
-  });
+    test("a MISSING decode toolchain → temporal NOT-RUNNABLE → verdict FAIL", () => {
+      const report = evaluateVisualCorrectness(
+        buildDefaultVisualArtifact(encoder!),
+        cleanEnvelope(),
+        { ffmpegPath: "/nonexistent/ffmpeg-for-visual-gate" },
+      );
+      const temporal = report.axes.find((axis) => axis.id === "temporal-stability")!;
+      expect(temporal.status).toBe("NOT-RUNNABLE");
+      expect(report.verdict.pass).toBe(false);
+    });
 
-  test("an envelope with NO conformance reports → renderer-conformance NOT-RUNNABLE → FAIL", () => {
-    const envelope = cleanEnvelope();
-    const without = { ...envelope, conformance: [] };
-    const report = evaluateVisualCorrectness(buildDefaultVisualArtifact(encoder!), without);
-    const conformance = report.axes.find((axis) => axis.id === "renderer-conformance")!;
-    expect(conformance.status).toBe("NOT-RUNNABLE");
-    expect(report.verdict.pass).toBe(false);
-  });
+    test("an envelope with NO conformance reports → renderer-conformance NOT-RUNNABLE → FAIL", () => {
+      const envelope = cleanEnvelope();
+      const without = { ...envelope, conformance: [] };
+      const report = evaluateVisualCorrectness(buildDefaultVisualArtifact(encoder!), without);
+      const conformance = report.axes.find((axis) => axis.id === "renderer-conformance")!;
+      expect(conformance.status).toBe("NOT-RUNNABLE");
+      expect(report.verdict.pass).toBe(false);
+    });
 
-  test("a CORRUPTED artifact (hash mismatch) FAILs the artifact-integrity axis", () => {
-    const artifact = buildDefaultVisualArtifact(encoder!);
-    const corrupted: EncodedArtifact = { ...artifact, bytes: new Uint8Array([...artifact.bytes, 1, 2, 3]) };
-    const report = evaluateVisualCorrectness(corrupted, cleanEnvelope());
-    const integrity = report.axes.find((axis) => axis.id === "artifact-integrity")!;
-    expect(integrity.status).toBe("FAIL");
-    expect(report.verdict.pass).toBe(false);
-  });
-});
+    test("a CORRUPTED artifact (hash mismatch) FAILs the artifact-integrity axis", () => {
+      const artifact = buildDefaultVisualArtifact(encoder!);
+      const corrupted: EncodedArtifact = {
+        ...artifact,
+        bytes: new Uint8Array([...artifact.bytes, 1, 2, 3]),
+      };
+      const report = evaluateVisualCorrectness(corrupted, cleanEnvelope());
+      const integrity = report.axes.find((axis) => axis.id === "artifact-integrity")!;
+      expect(integrity.status).toBe("FAIL");
+      expect(report.verdict.pass).toBe(false);
+    });
+  },
+);
 
 describe.skipIf(!available)("the release integration (the 4th blocking gate)", () => {
   test("a visual gate FAIL FAILs the release verdict", () => {

@@ -36,7 +36,8 @@ export const FIXTURE_ENCODE_MAGIC = "SPORTA-FIXTURE-ENCODE\x00";
 export const FIXTURE_ENCODE_CODEC_PARAMS: EncodedCodecParams = {
   container: "fixture",
   videoCodec: "fixture-bytes",
-  encoder: "fixture: deterministic document = magic + canonical JSON of (origin, geometry, fps, stream sha-256)",
+  encoder:
+    "fixture: deterministic document = magic + canonical JSON of (origin, geometry, fps, stream sha-256)",
   preset: "fixture",
   tune: null,
   profile: "fixture",
@@ -84,21 +85,35 @@ export class FixtureFrameEncoder implements FrameEncoderPort {
     const width = request.source.width;
     const height = request.source.height;
     const frameCount =
-      request.source.kind === "rgb24-file" ? request.source.frameCount : request.source.frames.length;
+      request.source.kind === "rgb24-file"
+        ? request.source.frameCount
+        : request.source.frames.length;
     const fps = request.fps;
     if (!Number.isInteger(width) || width < 16 || !Number.isInteger(height) || height < 16) {
-      throw new EncodingError("media-invalid", "frames-invalid", "encode dimensions must be integers >= 16", {
-        width,
-        height,
-      });
+      throw new EncodingError(
+        "media-invalid",
+        "frames-invalid",
+        "encode dimensions must be integers >= 16",
+        {
+          width,
+          height,
+        },
+      );
     }
     if (!Number.isFinite(fps) || fps <= 0) {
-      throw new EncodingError("media-invalid", "frames-invalid", "encode fps must be finite > 0", { fps });
+      throw new EncodingError("media-invalid", "frames-invalid", "encode fps must be finite > 0", {
+        fps,
+      });
     }
     if (!Number.isInteger(frameCount) || frameCount < 1) {
-      throw new EncodingError("media-invalid", "frames-invalid", "encode frameCount must be an integer >= 1", {
-        frameCount,
-      });
+      throw new EncodingError(
+        "media-invalid",
+        "frames-invalid",
+        "encode frameCount must be an integer >= 1",
+        {
+          frameCount,
+        },
+      );
     }
     const streamBytes = concatStream(request.source);
     const streamHash = sha256Of(streamBytes);

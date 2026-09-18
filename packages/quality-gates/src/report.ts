@@ -27,7 +27,13 @@
  */
 import { z } from "zod";
 import { GATE_POLICY_VERSION } from "./policy";
-import { runTemporalGate, runSceneGate, runHumanGate, runVisualCorrectnessGate, type GateResult } from "./gates";
+import {
+  runTemporalGate,
+  runSceneGate,
+  runHumanGate,
+  runVisualCorrectnessGate,
+  type GateResult,
+} from "./gates";
 import { humanReviewVerdict, parseHumanReview } from "./human";
 
 /** The report schema tag (versioned with the report shape). */

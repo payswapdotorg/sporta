@@ -57,7 +57,12 @@ describe.skipIf(!available)("FfmpegFrameEncoder (the real encode path)", () => {
 
   test("the content hash is the sha-256 of the bytes (cross-verified with node:crypto)", () => {
     const result = real.encode({
-      source: { kind: "rgb24-frames", frames: syntheticFrames(6), width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      source: {
+        kind: "rgb24-frames",
+        frames: syntheticFrames(6),
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+      },
       fps: FRAME_FPS,
       origin: { rendererId: "test", rendererVersion: "0.0.0", bridge: "raw-frames" },
     });
@@ -68,9 +73,21 @@ describe.skipIf(!available)("FfmpegFrameEncoder (the real encode path)", () => {
   test("DETERMINISM: three runs of the same frames produce byte-identical MP4s (one sha-256)", () => {
     const frames = syntheticFrames(12);
     const origin = { rendererId: "test", rendererVersion: "0.0.0", bridge: "raw-frames" as const };
-    const a = real.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
-    const b = real.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
-    const c = real.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
+    const a = real.encode({
+      source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      fps: FRAME_FPS,
+      origin,
+    });
+    const b = real.encode({
+      source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      fps: FRAME_FPS,
+      origin,
+    });
+    const c = real.encode({
+      source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      fps: FRAME_FPS,
+      origin,
+    });
     expect(Buffer.compare(Buffer.from(a.bytes), Buffer.from(b.bytes))).toBe(0);
     expect(Buffer.compare(Buffer.from(b.bytes), Buffer.from(c.bytes))).toBe(0);
     expect(a.contentHash).toBe(b.contentHash);
@@ -79,7 +96,16 @@ describe.skipIf(!available)("FfmpegFrameEncoder (the real encode path)", () => {
 
   test("different frame content produces different bytes (the hash is honest)", () => {
     const origin = { rendererId: "test", rendererVersion: "0.0.0", bridge: "raw-frames" as const };
-    const a = real.encode({ source: { kind: "rgb24-frames", frames: syntheticFrames(6), width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
+    const a = real.encode({
+      source: {
+        kind: "rgb24-frames",
+        frames: syntheticFrames(6),
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+      },
+      fps: FRAME_FPS,
+      origin,
+    });
     // A SUBSTANTIAL difference (a full inverted band — a one-pixel nudge can
     // vanish under lossy crf 18, which would make this test vacuous).
     const different = syntheticFrames(6).map((frame) => {
@@ -91,7 +117,11 @@ describe.skipIf(!available)("FfmpegFrameEncoder (the real encode path)", () => {
       }
       return copy;
     });
-    const b = real.encode({ source: { kind: "rgb24-frames", frames: different, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
+    const b = real.encode({
+      source: { kind: "rgb24-frames", frames: different, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+      fps: FRAME_FPS,
+      origin,
+    });
     expect(a.contentHash).not.toBe(b.contentHash);
   });
 });
@@ -101,19 +131,41 @@ describe.skipIf(!available)("admission (fail-closed, typed — never partial vid
 
   test("odd dimensions are refused (yuv420p)", () => {
     expect(() =>
-      real.encode({ source: { kind: "rgb24-frames", frames: [new Uint8Array(161 * 90 * 3)], width: 161, height: 90 }, fps: 25, origin }),
+      real.encode({
+        source: {
+          kind: "rgb24-frames",
+          frames: [new Uint8Array(161 * 90 * 3)],
+          width: 161,
+          height: 90,
+        },
+        fps: 25,
+        origin,
+      }),
     ).toThrow(EncodingError);
   });
 
   test("dimensions below 16 are refused", () => {
     expect(() =>
-      real.encode({ source: { kind: "rgb24-frames", frames: [new Uint8Array(8 * 8 * 3)], width: 8, height: 8 }, fps: 25, origin }),
+      real.encode({
+        source: { kind: "rgb24-frames", frames: [new Uint8Array(8 * 8 * 3)], width: 8, height: 8 },
+        fps: 25,
+        origin,
+      }),
     ).toThrow(EncodingError);
   });
 
   test("a wrong frame byte length is refused (invalid frame stream)", () => {
     try {
-      real.encode({ source: { kind: "rgb24-frames", frames: [new Uint8Array(10)], width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: 25, origin });
+      real.encode({
+        source: {
+          kind: "rgb24-frames",
+          frames: [new Uint8Array(10)],
+          width: FRAME_WIDTH,
+          height: FRAME_HEIGHT,
+        },
+        fps: 25,
+        origin,
+      });
       throw new Error("unreachable");
     } catch (error) {
       expect(error).toBeInstanceOf(EncodingError);
@@ -123,74 +175,104 @@ describe.skipIf(!available)("admission (fail-closed, typed — never partial vid
 
   test("an empty frame list is refused", () => {
     expect(() =>
-      real.encode({ source: { kind: "rgb24-frames", frames: [], width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: 25, origin }),
+      real.encode({
+        source: { kind: "rgb24-frames", frames: [], width: FRAME_WIDTH, height: FRAME_HEIGHT },
+        fps: 25,
+        origin,
+      }),
     ).toThrow(EncodingError);
   });
 
   test("fps <= 0 is refused", () => {
     expect(() =>
-      real.encode({ source: { kind: "rgb24-frames", frames: syntheticFrames(2), width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: 0, origin }),
+      real.encode({
+        source: {
+          kind: "rgb24-frames",
+          frames: syntheticFrames(2),
+          width: FRAME_WIDTH,
+          height: FRAME_HEIGHT,
+        },
+        fps: 0,
+        origin,
+      }),
     ).toThrow(EncodingError);
   });
 });
 
-describe.skipIf(!available)("bounded subprocess discipline (no zombies, no hangs, honest exits)", () => {
-  const origin = { rendererId: "test", rendererVersion: "0.0.0", bridge: "raw-frames" as const };
-  const frames = syntheticFrames(4);
+describe.skipIf(!available)(
+  "bounded subprocess discipline (no zombies, no hangs, honest exits)",
+  () => {
+    const origin = { rendererId: "test", rendererVersion: "0.0.0", bridge: "raw-frames" as const };
+    const frames = syntheticFrames(4);
 
-  test("a hanging encode is killed at the bound and surfaced as a typed error", () => {
-    // NOTE (Bun 1.3.14, measured): spawnSync's timeout+SIGKILL reliably kills
-    // DIRECT binaries (the real ffmpeg) but NOT shebang-script targets —
-    // so the bound is tested against the REAL ffmpeg with a 1 ms timeout:
-    // any real encode exceeds it, the child is killed at the bound (or the
-    // bound races the kill — Node's contract: error ⇒ failure, either way),
-    // and the synchronous contract reaps it (no zombie possible —
-    // spawnSync blocks until the child is gone).
-    const bounded = new FfmpegFrameEncoder({ timeoutMs: 1 });
-    try {
-      bounded.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
-      throw new Error("unreachable: the bounded encode should have been refused");
-    } catch (error) {
-      expect(error).toBeInstanceOf(EncodingError);
-      expect((error as EncodingError).kind).toBe("encode-failed");
-      // The bound surfaced honestly: the timeout is recorded, and the
-      // failure is attributed to the bound (the message) with the signal
-      // recorded when the runtime reports it.
-      expect((error as EncodingError).details.timeoutMs).toBe(1);
-      expect((error as Error).message).toContain("1 ms bound");
-    }
-  });
-
-  test("a failing encode surfaces the exit code + stderr honestly", () => {
-    const fake = failingFfmpeg();
-    try {
-      const failing = new FfmpegFrameEncoder({ ffmpegPath: fake.path });
+    test("a hanging encode is killed at the bound and surfaced as a typed error", () => {
+      // NOTE (Bun 1.3.14, measured): spawnSync's timeout+SIGKILL reliably kills
+      // DIRECT binaries (the real ffmpeg) but NOT shebang-script targets —
+      // so the bound is tested against the REAL ffmpeg with a 1 ms timeout:
+      // any real encode exceeds it, the child is killed at the bound (or the
+      // bound races the kill — Node's contract: error ⇒ failure, either way),
+      // and the synchronous contract reaps it (no zombie possible —
+      // spawnSync blocks until the child is gone).
+      const bounded = new FfmpegFrameEncoder({ timeoutMs: 1 });
       try {
-        failing.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
-        throw new Error("unreachable");
+        bounded.encode({
+          source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+          fps: FRAME_FPS,
+          origin,
+        });
+        throw new Error("unreachable: the bounded encode should have been refused");
       } catch (error) {
         expect(error).toBeInstanceOf(EncodingError);
         expect((error as EncodingError).kind).toBe("encode-failed");
-        expect((error as EncodingError).details.status).toBe(3);
-        expect(String((error as EncodingError).details.stderr)).toContain("fake encoder exploded");
+        // The bound surfaced honestly: the timeout is recorded, and the
+        // failure is attributed to the bound (the message) with the signal
+        // recorded when the runtime reports it.
+        expect((error as EncodingError).details.timeoutMs).toBe(1);
+        expect((error as Error).message).toContain("1 ms bound");
       }
-    } finally {
-      cleanDir(fake.dir);
-    }
-  });
+    });
 
-  test("a missing binary is reported unavailable (createFfmpegFrameEncoder → null)", () => {
-    expect(createFfmpegFrameEncoder({ ffmpegPath: "/nonexistent/ffmpeg-binary" })).toBeNull();
-    const missing = new FfmpegFrameEncoder({ ffmpegPath: "/nonexistent/ffmpeg-binary" });
-    expect(missing.available()).toBe(false);
-    try {
-      missing.encode({ source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT }, fps: FRAME_FPS, origin });
-      throw new Error("unreachable");
-    } catch (error) {
-      expect((error as EncodingError).kind).toBe("encoder-unavailable");
-    }
-  });
-});
+    test("a failing encode surfaces the exit code + stderr honestly", () => {
+      const fake = failingFfmpeg();
+      try {
+        const failing = new FfmpegFrameEncoder({ ffmpegPath: fake.path });
+        try {
+          failing.encode({
+            source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+            fps: FRAME_FPS,
+            origin,
+          });
+          throw new Error("unreachable");
+        } catch (error) {
+          expect(error).toBeInstanceOf(EncodingError);
+          expect((error as EncodingError).kind).toBe("encode-failed");
+          expect((error as EncodingError).details.status).toBe(3);
+          expect(String((error as EncodingError).details.stderr)).toContain(
+            "fake encoder exploded",
+          );
+        }
+      } finally {
+        cleanDir(fake.dir);
+      }
+    });
+
+    test("a missing binary is reported unavailable (createFfmpegFrameEncoder → null)", () => {
+      expect(createFfmpegFrameEncoder({ ffmpegPath: "/nonexistent/ffmpeg-binary" })).toBeNull();
+      const missing = new FfmpegFrameEncoder({ ffmpegPath: "/nonexistent/ffmpeg-binary" });
+      expect(missing.available()).toBe(false);
+      try {
+        missing.encode({
+          source: { kind: "rgb24-frames", frames, width: FRAME_WIDTH, height: FRAME_HEIGHT },
+          fps: FRAME_FPS,
+          origin,
+        });
+        throw new Error("unreachable");
+      } catch (error) {
+        expect((error as EncodingError).kind).toBe("encoder-unavailable");
+      }
+    });
+  },
+);
 
 describe.skipIf(!available)("the verify plane (probe + full decode)", () => {
   test("probeEncodedArtifact cross-checks the manifest (codec, profile, geometry)", () => {

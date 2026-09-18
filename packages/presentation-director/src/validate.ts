@@ -46,8 +46,7 @@ import type {
 
 /** The result of `validatePresentationPolicy`: admitted, or refused with issues. */
 export type PresentationPolicyValidation =
-  | { ok: true; value: PresentationPolicy }
-  | { ok: false; issues: string[] };
+  { ok: true; value: PresentationPolicy } | { ok: false; issues: string[] };
 
 function pushIssue(issues: string[], path: string, message: string): void {
   issues.push(`${path}: ${message}`);
@@ -100,11 +99,7 @@ function validateEventImportance(
   const seen = new Set<string>();
   for (const row of rows) {
     if (seen.has(row.eventType)) {
-      pushIssue(
-        issues,
-        path,
-        `duplicate row for event type "${row.eventType}" (one row per type)`,
-      );
+      pushIssue(issues, path, `duplicate row for event type "${row.eventType}" (one row per type)`);
       valid = false;
     }
     seen.add(row.eventType);
@@ -157,7 +152,11 @@ function validateSemantics(
 }
 
 /** Validates the framing table at `path`. */
-function validateFraming(value: unknown, path: string, issues: string[]): FramingRule[] | undefined {
+function validateFraming(
+  value: unknown,
+  path: string,
+  issues: string[],
+): FramingRule[] | undefined {
   if (!Array.isArray(value) || value.length === 0) {
     pushIssue(issues, path, "must be a non-empty array");
     return undefined;
@@ -179,7 +178,11 @@ function validateFraming(value: unknown, path: string, issues: string[]): Framin
       continue;
     }
     if (row.framing !== "wide" && row.framing !== "tight") {
-      pushIssue(issues, `${rowPath}.framing`, `must be "wide" or "tight" (got ${String(row.framing)})`);
+      pushIssue(
+        issues,
+        `${rowPath}.framing`,
+        `must be "wide" or "tight" (got ${String(row.framing)})`,
+      );
       valid = false;
       continue;
     }
@@ -189,7 +192,11 @@ function validateFraming(value: unknown, path: string, issues: string[]): Framin
   const seen = new Set<string>();
   for (const row of rows) {
     if (seen.has(row.slotId)) {
-      pushIssue(issues, path, `duplicate framing row for slot "${row.slotId}" (ambiguous classification)`);
+      pushIssue(
+        issues,
+        path,
+        `duplicate framing row for slot "${row.slotId}" (ambiguous classification)`,
+      );
       valid = false;
     }
     seen.add(row.slotId);
@@ -225,7 +232,12 @@ export function validatePresentationPolicy(value: unknown): PresentationPolicyVa
     camera.ok ? camera.value.eventRules.map((rule) => rule.eventType as string) : [],
   );
   const eventImportance = camera.ok
-    ? validateEventImportance(value.eventImportance, cameraRuledTypes, "policy.eventImportance", issues)
+    ? validateEventImportance(
+        value.eventImportance,
+        cameraRuledTypes,
+        "policy.eventImportance",
+        issues,
+      )
     : undefined;
   const baselineImportance = value.baselineImportance;
   if (!isFiniteNumber(baselineImportance) || baselineImportance < 0 || baselineImportance > 1) {

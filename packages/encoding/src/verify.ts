@@ -133,9 +133,14 @@ export function probeEncodedArtifact(
       timeoutMs,
     );
     if (run.error !== undefined || (run.status !== 0 && run.status !== null)) {
-      throw new EncodingError("internal", "verify-failed", `ffprobe failed (status ${String(run.status)})`, {
-        stderr: run.stderr.slice(0, 500),
-      });
+      throw new EncodingError(
+        "internal",
+        "verify-failed",
+        `ffprobe failed (status ${String(run.status)})`,
+        {
+          stderr: run.stderr.slice(0, 500),
+        },
+      );
     }
     let stream: ProbeStream | undefined;
     try {
@@ -151,7 +156,8 @@ export function probeEncodedArtifact(
     }
     const avgFrameRateFps = parseFrameRate(stream.avg_frame_rate);
     const frameCount = stream.nb_frames !== undefined ? Number.parseInt(stream.nb_frames, 10) : NaN;
-    const durationSeconds = stream.duration !== undefined ? Number.parseFloat(stream.duration) : NaN;
+    const durationSeconds =
+      stream.duration !== undefined ? Number.parseFloat(stream.duration) : NaN;
     const probe: ProbedEncodedArtifact = {
       codecName: stream.codec_name ?? "",
       profile: stream.profile ?? "",
@@ -165,9 +171,14 @@ export function probeEncodedArtifact(
     // Cross-check against the artifact's own manifest (fail-closed).
     const geometry = artifact.manifest.geometry;
     if (probe.codecName !== "h264") {
-      throw new EncodingError("internal", "verify-failed", `the artifact's codec is not h264 (${probe.codecName})`, {
-        probe,
-      });
+      throw new EncodingError(
+        "internal",
+        "verify-failed",
+        `the artifact's codec is not h264 (${probe.codecName})`,
+        {
+          probe,
+        },
+      );
     }
     if (probe.profile !== "Constrained Baseline" && probe.profile !== "Baseline") {
       throw new EncodingError(
@@ -178,23 +189,38 @@ export function probeEncodedArtifact(
       );
     }
     if (probe.widthPx !== geometry.widthPx || probe.heightPx !== geometry.heightPx) {
-      throw new EncodingError("internal", "verify-failed", "the artifact's dimensions disagree with its manifest", {
-        probe,
-        manifest: geometry,
-      });
+      throw new EncodingError(
+        "internal",
+        "verify-failed",
+        "the artifact's dimensions disagree with its manifest",
+        {
+          probe,
+          manifest: geometry,
+        },
+      );
     }
     if (Math.abs(probe.frameCount - geometry.frameCount) > 1) {
-      throw new EncodingError("internal", "verify-failed", "the artifact's frame count disagrees with its manifest", {
-        probe,
-        manifest: geometry,
-      });
+      throw new EncodingError(
+        "internal",
+        "verify-failed",
+        "the artifact's frame count disagrees with its manifest",
+        {
+          probe,
+          manifest: geometry,
+        },
+      );
     }
     const frameMs = 1_000 / geometry.fps;
     if (Math.abs(probe.durationMs - geometry.durationMs) > frameMs + 1) {
-      throw new EncodingError("internal", "verify-failed", "the artifact's duration disagrees with its manifest", {
-        probe,
-        manifest: geometry,
-      });
+      throw new EncodingError(
+        "internal",
+        "verify-failed",
+        "the artifact's duration disagrees with its manifest",
+        {
+          probe,
+          manifest: geometry,
+        },
+      );
     }
     return probe;
   });
@@ -243,9 +269,14 @@ export function decodeEncodedFrames(
         timeoutMs,
       );
       if (run.error !== undefined || (run.status !== 0 && run.status !== null)) {
-        throw new EncodingError("internal", "verify-failed", `the decode failed (status ${String(run.status)})`, {
-          stderr: run.stderr.slice(0, 500),
-        });
+        throw new EncodingError(
+          "internal",
+          "verify-failed",
+          `the decode failed (status ${String(run.status)})`,
+          {
+            stderr: run.stderr.slice(0, 500),
+          },
+        );
       }
       let raw: Buffer;
       try {

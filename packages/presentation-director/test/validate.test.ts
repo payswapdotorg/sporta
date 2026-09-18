@@ -123,9 +123,9 @@ describe("event-importance table rules", () => {
     const result = validatePresentationPolicy(body);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.includes("must be one of the W209 event types"))).toBe(
-        true,
-      );
+      expect(
+        result.issues.some((issue) => issue.includes("must be one of the W209 event types")),
+      ).toBe(true);
     }
   });
 
@@ -149,7 +149,9 @@ describe("event-importance table rules", () => {
     const result = validatePresentationPolicy(body);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.includes("duplicate row for event type"))).toBe(true);
+      expect(result.issues.some((issue) => issue.includes("duplicate row for event type"))).toBe(
+        true,
+      );
     }
   });
 });

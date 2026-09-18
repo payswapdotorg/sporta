@@ -16,7 +16,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildEventEnvelope, buildRenderRequest, buildWorldSnapshot } from "@sporta/testing";
 import type { WorldEventStreamEntry, WorldSnapshot, RenderRequest } from "@sporta/contracts";
-import { TACTICAL_OUTPUT_PROFILES, TACTICAL_RENDERER_ID, TACTICAL_RENDERER_VERSION } from "@sporta/renderer-tactical";
+import {
+  TACTICAL_OUTPUT_PROFILES,
+  TACTICAL_RENDERER_ID,
+  TACTICAL_RENDERER_VERSION,
+} from "@sporta/renderer-tactical";
 
 /** The canonical test session. */
 export const SESSION_ID = "sess-encoding-test";

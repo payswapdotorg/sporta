@@ -42,11 +42,9 @@
  */
 import type {
   CameraPlan,
-  CameraPlanSummary,
   DirectorRuleId,
   EventCandidateOutcome,
   PresentationKind,
-  WindowDecision,
 } from "@sporta/camera-director";
 import type { FramingClass, PresentationKindClass, PresentationRuleId } from "./policy";
 import type { CommentaryEventType } from "@sporta/commentary-understanding";

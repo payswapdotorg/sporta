@@ -7,11 +7,7 @@
 import { describe, expect, test } from "bun:test";
 import { extractEventCandidates } from "@sporta/commentary-understanding";
 import type { CommentaryUnit } from "@sporta/commentary-segmentation";
-import {
-  DEFAULT_PRESENTATION_POLICY,
-  checkPresentationPlan,
-  present,
-} from "../src/index";
+import { DEFAULT_PRESENTATION_POLICY, checkPresentationPlan, present } from "../src/index";
 import { buildPresentationMatch } from "./helpers";
 
 const STEPS = buildPresentationMatch();
@@ -51,11 +47,7 @@ describe("the real W209 → R305 pipeline", () => {
   });
 
   test("the real extraction produces the expected candidate stream", () => {
-    expect(candidates.map((candidate) => candidate.eventType)).toEqual([
-      "kickoff",
-      "goal",
-      "pass",
-    ]);
+    expect(candidates.map((candidate) => candidate.eventType)).toEqual(["kickoff", "goal", "pass"]);
     expect(candidates[0]!.candidateId).toBe("ec-1");
   });
 

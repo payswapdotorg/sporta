@@ -126,14 +126,25 @@ describe.skipIf(!available)("the game-3d bridge (R303 frame stream → real MP4)
       const engine = new Software3DEngine({ stagingRoot });
       const snapshot = fixtureSnapshot();
       const handle = engine.buildScene(
-        { schemaVersion: "1.1", sessionId: SESSION_ID, snapshotVersion: 1, renderingStyle: "stylized-3d" },
+        {
+          schemaVersion: "1.1",
+          sessionId: SESSION_ID,
+          snapshotVersion: 1,
+          renderingStyle: "stylized-3d",
+        },
         snapshot,
         fixtureEvents(),
       );
       const rendered = engine.renderScene({
         schemaVersion: "1.1",
         sceneId: handle.sceneId,
-        outputProfile: { widthPx: 160, heightPx: 90, fps: 25, durationMs: 800, format: "frames-rgb24" },
+        outputProfile: {
+          widthPx: 160,
+          heightPx: 90,
+          fps: 25,
+          durationMs: 800,
+          format: "frames-rgb24",
+        },
         presentation: { camera: "aerial-follow", seed: "7" },
       });
       expect(rendered.output.kind).toBe("frame-output");
@@ -167,21 +178,38 @@ describe.skipIf(!available)("the game-3d bridge (R303 frame stream → real MP4)
     const render = (root: string) => {
       const engine = new Software3DEngine({ stagingRoot: root });
       const handle = engine.buildScene(
-        { schemaVersion: "1.1", sessionId: SESSION_ID, snapshotVersion: 1, renderingStyle: "stylized-3d" },
+        {
+          schemaVersion: "1.1",
+          sessionId: SESSION_ID,
+          snapshotVersion: 1,
+          renderingStyle: "stylized-3d",
+        },
         fixtureSnapshot(),
         fixtureEvents(),
       );
       const rendered = engine.renderScene({
         schemaVersion: "1.1",
         sceneId: handle.sceneId,
-        outputProfile: { widthPx: 160, heightPx: 90, fps: 25, durationMs: 800, format: "frames-rgb24" },
+        outputProfile: {
+          widthPx: 160,
+          heightPx: 90,
+          fps: 25,
+          durationMs: 800,
+          format: "frames-rgb24",
+        },
         presentation: { camera: "aerial-follow", seed: "7" },
       });
       const artifact = bridgeGameFrameOutput({
         encoder: encoder!,
         frameOutput: rendered.output as GameEngineFrameOutput,
         sessionId: SESSION_ID,
-        origin: { rendererId: "game-3d.prototype", rendererVersion: "0.1.0", bridge: "game-3d", engineId: engine.describe().engineId, engineVersion: engine.describe().engineVersion },
+        origin: {
+          rendererId: "game-3d.prototype",
+          rendererVersion: "0.1.0",
+          bridge: "game-3d",
+          engineId: engine.describe().engineId,
+          engineVersion: engine.describe().engineVersion,
+        },
         swm: { snapshotVersion: 1, lastEventSequence: rendered.provenance.lastEventSequence },
       });
       engine.dispose();
@@ -201,21 +229,38 @@ describe.skipIf(!available)("the anime-npr bridge (R304 frame stream → real MP
       try {
         const engine = new Software3DEngine({ stagingRoot });
         const handle = engine.buildScene(
-          { schemaVersion: "1.1", sessionId: SESSION_ID, snapshotVersion: 1, renderingStyle: style },
+          {
+            schemaVersion: "1.1",
+            sessionId: SESSION_ID,
+            snapshotVersion: 1,
+            renderingStyle: style,
+          },
           fixtureSnapshot(),
           fixtureEvents(),
         );
         const rendered = engine.renderScene({
           schemaVersion: "1.1",
           sceneId: handle.sceneId,
-          outputProfile: { widthPx: 160, heightPx: 90, fps: 25, durationMs: 800, format: "frames-rgb24" },
+          outputProfile: {
+            widthPx: 160,
+            heightPx: 90,
+            fps: 25,
+            durationMs: 800,
+            format: "frames-rgb24",
+          },
           presentation: { camera: "aerial-follow", seed: "7" },
         });
         return bridgeGameFrameOutput({
           encoder: encoder!,
           frameOutput: rendered.output as GameEngineFrameOutput,
           sessionId: SESSION_ID,
-          origin: { rendererId: bridge === "anime-npr" ? "anime-npr.prototype" : "game-3d.prototype", rendererVersion: "0.1.0", bridge, engineId: engine.describe().engineId, engineVersion: engine.describe().engineVersion },
+          origin: {
+            rendererId: bridge === "anime-npr" ? "anime-npr.prototype" : "game-3d.prototype",
+            rendererVersion: "0.1.0",
+            bridge,
+            engineId: engine.describe().engineId,
+            engineVersion: engine.describe().engineVersion,
+          },
           swm: { snapshotVersion: 1, lastEventSequence: rendered.provenance.lastEventSequence },
         });
       } finally {

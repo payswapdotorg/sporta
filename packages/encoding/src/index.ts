@@ -80,11 +80,7 @@ export {
   validateEncodedManifest,
 } from "./manifest";
 export type { BuildEncodedArtifactOptions, EncodedManifestValidation } from "./manifest";
-export {
-  bridgeGameFrameOutput,
-  bridgeRgbFrames,
-  bridgeTacticalRenderer,
-} from "./bridges";
+export { bridgeGameFrameOutput, bridgeRgbFrames, bridgeTacticalRenderer } from "./bridges";
 export type {
   BridgeGameFrameOptions,
   BridgeRgbFramesOptions,
@@ -108,11 +104,7 @@ export {
   noopObservability,
 } from "./observability";
 export type { EncodingObservability } from "./observability";
-export {
-  DEFAULT_VERIFY_TIMEOUT_MS,
-  decodeEncodedFrames,
-  probeEncodedArtifact,
-} from "./verify";
+export { DEFAULT_VERIFY_TIMEOUT_MS, decodeEncodedFrames, probeEncodedArtifact } from "./verify";
 export type {
   DecodeEncodedFramesOptions,
   ProbeEncodedArtifactOptions,
