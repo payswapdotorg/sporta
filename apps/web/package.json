@@ -23,6 +23,7 @@
     "@sporta/field-mapping": "workspace:*",
     "@sporta/fusion": "workspace:*",
     "@sporta/identity": "workspace:*",
+    "@sporta/media-platform": "workspace:*",
     "@sporta/observation": "workspace:*",
     "@sporta/output-pipeline": "workspace:*",
     "@sporta/compute-adapter-hosted": "workspace:*",

@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Database } from "bun:sqlite";
 import type { MediaSession } from "@sporta/contracts";
-import { SCHEMA_VERSION } from "@sporta/contracts";
 import {
   InMemorySessionRepository,
   SessionConflictError,
@@ -37,7 +36,7 @@ function roundTripSuite(makeRepo: () => MediaSessionRepository) {
       expect(stored).not.toBeNull();
       expect(stored?.sessionId).toBe("sess-rt-1");
       expect(stored?.status).toBe("created");
-      expect(stored?.schemaVersion).toBe(SCHEMA_VERSION);
+      expect(stored?.schemaVersion).toBe("1.1");
       expect(stored?.sources).toEqual([fixtureSource]);
     });
 

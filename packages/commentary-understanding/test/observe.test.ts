@@ -3,7 +3,7 @@
  * commentary-derived Observation.
  */
 import { describe, expect, test } from "bun:test";
-import { Observation, SCHEMA_VERSION } from "@sporta/contracts";
+import { Observation } from "@sporta/contracts";
 import { InMemoryObservationStore } from "@sporta/observation";
 import { buildObservation } from "@sporta/testing";
 import type { CommentaryUnit } from "@sporta/commentary-segmentation";
@@ -75,7 +75,7 @@ describe("event-candidate observation emission", () => {
     expect(observation.eventTimeMs).toBe(10_000);
     expect(observation.modality).toBe("commentary");
     expect(observation.provenance).toBe("DERIVED");
-    expect(observation.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(observation.schemaVersion).toBe("1.1");
   });
 
   test("subjectEntityRefs is []: commentary names are not yet entities (W401's job)", () => {

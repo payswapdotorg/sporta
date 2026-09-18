@@ -157,3 +157,23 @@ export {
   type MeterUsageFn,
   type NowMsSource,
 } from "./memory-adapter";
+// the compute broker (R401, additive): quote/select over registered adapters
+export {
+  COMPUTE_BROKER_REFUSALS,
+  ComputeBrokerRefusalError,
+  ComputeQuote,
+  ComputeQuoteRequest,
+  InMemoryComputeBroker,
+  UnknownComputeProviderError,
+} from "./quote";
+export type {
+  ComputeBrokerFailureClass,
+  ComputeBrokerPort,
+  ComputeBrokerProvider,
+  ComputeBrokerProviderQuoting,
+  ComputeBrokerRefusal,
+  ComputeBrokerSelection,
+  ComputeProviderRefusal,
+  ComputeSelectionPolicy,
+  InMemoryComputeBrokerOptions,
+} from "./quote";

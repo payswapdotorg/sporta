@@ -57,6 +57,12 @@ import type {
   SessionService,
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
+import {
+  LocalFilesystemStorage,
+  MediaPlatformService,
+  SqliteMediaPlatformStore,
+} from "@sporta/media-platform";
+import type { MediaStoragePort } from "@sporta/media-platform";
 import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env";
 import { neonClient } from "./platform/db/pg";
 import { PgControlPlaneRecordStore } from "./platform/control/pg-records";
@@ -152,6 +158,19 @@ export interface SportaServerOptions {
    * `DATABASE_URL` is configured (the W911 gate).
    */
   controlRecords?: ControlPlaneRecordStore;
+  /**
+   * The real-media loop's seams (R101-R104): the storage backend (default:
+   * the local-filesystem adapter at `SPORTA_MEDIA_STORAGE` or
+   * `db/media-storage`) and the sqlite database backing the durable
+   * records (default: `SPORTA_MEDIA_DB` or `db/media-platform.db`). Tests
+   * inject temp dirs and `:memory:`; an R2 adapter is a future drop-in
+   * behind the same `MediaStoragePort` (no route change).
+   */
+  media?: {
+    storage?: MediaStoragePort;
+    /** A sqlite db path (or `:memory:`). */
+    db?: string;
+  };
 }
 
 /** The composed in-process server every route handler consumes. */
@@ -262,6 +281,17 @@ export interface SportaServer {
    * provider-capacity admission rung the studio's dispatch ladder runs.
    */
   guardrails: GuardrailsService;
+  /**
+   * The real-media loop (R101-R104): browser upload → pre-storage
+   * constraint validation → durable hash-verified SourceAsset → REAL
+   * ffmpeg normalization (the in-process executor; fails loud when ffmpeg
+   * is absent) → the `original` reality artifact. Storage seams + the
+   * sqlite record store are `SportaServerOptions.media` (the R2 adapter is
+   * a drop-in behind the same port).
+   */
+  media: MediaPlatformService;
+  /** The media loop's storage seam (the playback route's Range primitive). */
+  mediaStorage: MediaStoragePort;
   /** Wall clock the composition runs on. */
   nowMs: () => number;
   /** Resolves when the (optional) dev seed has finished. Route handlers await this. */
@@ -506,6 +536,33 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   });
   const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
+  // 6b. The real-media loop (R101-R104): the durable sqlite record store +
+  //     the storage seam (the local-filesystem adapter by default; the R2
+  //     adapter is a drop-in behind the same `MediaStoragePort` — the
+  //     composition root is the ONLY wiring point). Rights resolve through
+  //     the W917 effective-policy store (fail-closed per upload); the
+  //     pipeline executor runs in-process (REAL ffmpeg — fails loud when
+  //     the binary is absent, never a faked normalization).
+  const mediaStore = new SqliteMediaPlatformStore(
+    options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
+  );
+  const mediaStorage: MediaStoragePort =
+    options.media?.storage ??
+    new LocalFilesystemStorage(
+      process.env.SPORTA_MEDIA_STORAGE ?? "db/media-storage",
+      "media-local-fs",
+    );
+  const media = new MediaPlatformService({
+    storage: mediaStorage,
+    sourceAssets: mediaStore.sourceAssets,
+    manifests: mediaStore.manifests,
+    artifacts: mediaStore.artifacts,
+    jobs: mediaStore.jobs,
+    resolvePolicy: (sessionId) => rightsPolicies.effectiveOf(sessionId),
+    nowMs,
+    autoRun: true,
+  });
+
   const server: SportaServer = {
     auth,
     control,
@@ -530,6 +587,8 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     live,
     transientState,
     guardrails,
+    media,
+    mediaStorage,
     nowMs,
     ready: Promise.resolve(),
   };
