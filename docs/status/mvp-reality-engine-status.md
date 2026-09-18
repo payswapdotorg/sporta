@@ -256,7 +256,47 @@ on public main; 21-commit push backlog ready).
   Worker B COMPLETE entry above).
 
 
-## Wave 3 (R207-R208 A / R406-R409 B / R305-R307 C) — in flight
+## Wave 3 (R207-R208 A / R406-R409 B / R305-R307 C) — A + C complete; B in flight
+
+### Worker C — R305+R306+R307 COMPLETE (merged @9219076, 2026-09-18)
+
+- Chat b922d058 ("Sporta MVP Engine Tasks: R305-R307", re-armed after
+  the 3c193113 delayed-rollback phantom); server tree holds the prompt
+  (11,176 chars) + the final report rendered in the live DOM —
+  completion marker `SPORTA-COMPLETION-REPORT R305-R307 END` present
+  (marker count 2 = prompt echo + answer) alongside the report
+  artifact panel; re-attach post-reset verified the report fully.
+- DELIVERED VIA THE PUSH RAIL: branch
+  `work/r305-r307-presentation-encoding` on GitHub at
+  0c3e67312fcc864fab8d79d4b79fac43e5748898, tip sha named in the
+  report and verified via ls-remote — byte-exact. Four commits on
+  baseline ddac9e7: R305 (presentation director wrapping W604),
+  R306 (real video encoding plane behind FrameEncoderPort), R307
+  (visual correctness gate, policy w803@1 → w803@2), and a final
+  chore (prettier + unused-import lint fixes).
+- NEW `packages/presentation-director` (19 files: deterministic
+  event/camera presentation policy, golden fixture, validation,
+  selfcheck) + NEW `packages/encoding` (20 files: ffmpeg-backed real
+  encoding, manifests, content-addressed store, verification,
+  bridges) + ADDITIVE `packages/quality-gates` extension (new
+  `src/visual-correctness.ts` +757 lines, gate-id union extended with
+  `"visual-correctness"`, GATES.md row-for-row test-pinned update,
+  report/policy/gates additive deltas +905/-23) + bun.lock.
+  53 files, +8,544/−40. CONTRACT CHANGES: none (frozen contracts
+  zero-diff verified).
+- TL verification on merged main (9219076): bun test 5928 pass /
+  14 fail / 30 skip — all 14 failures reproduce byte-identically on
+  pre-merge baseline 0d00bcc in the same session (13 × 5,000ms
+  embedded-server/live-route timeouts under the resident replay-stack
+  load in apps/web tests + 1 perf-flake in
+  perception-adapters benchmark.test.ts, a package this lane does not
+  touch): environmental, not regressions. Lane-C's own +147 tests all
+  pass. Serial per-package typecheck: 0 `error TS`. lint: 0 errors
+  (1 pre-existing no-console warning in media-platform). prettier
+  --check: clean. Determinism scan (new src): no Date.now /
+  Math.random / new Date(). Vendor-leakage scan: none. Diff scoped
+  to the two new packages + the sanctioned quality-gates extension +
+  bun.lock.
 
 ### Worker A — R207+R208 COMPLETE (merged @fc7b39b, 2026-09-18)
 
