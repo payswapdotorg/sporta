@@ -256,6 +256,64 @@ on public main; 21-commit push backlog ready).
   Worker B COMPLETE entry above).
 
 
+## Wave 3 (R207-R208 A / R406-R409 B / R305-R307 C) — in flight
+
+### Worker A — R207+R208 COMPLETE (merged @fc7b39b, 2026-09-18)
+
+- Chat b4b310ce (landed 17:32 UTC after 5+ hours of phantom-eating
+  through the morning+evening capacity peaks — 10+ create attempts
+  rolled back; the void+re-arm loop + phantom sentinel closed the
+  cycle autonomously); report rendered ~18:43 with the completion
+  marker; extracted from the DOM (18,258 chars).
+- DELIVERED VIA THE PUSH RAIL (the boot-prompt-sanctioned one-off
+  remote): branch `work/r207-r208-real-to-swm` on GitHub at
+  ebb8cda7bebc6670eb91afbf4bcfc518720936ea, tip sha named in the
+  report and verified via ls-remote — the first worker delivery to
+  arrive as a durable server-side branch (harvest fallback not
+  needed).
+- NEW `packages/real-to-swm` (+4,666 lines, 27 files incl. bun.lock):
+  decode → perception adapters → observation bridge → canonical SWM
+  → content-addressed artifacts, plus the R208 reconstruction gate.
+  R208 ran on the two REAL gate clips only (fx-001, fx-004 —
+  byte-identical to the TL media-drop pins, sha256-verified in the
+  gate review); pipeline end-to-end on fx-001: 250 frames,
+  252 entities, 35 event candidates, ~3s. Licenses carried verbatim
+  in every artifact (fx-001 CC0-1.0, …). CONTRACT CHANGES: none.
+- Worker-reported battery: 5782 pass / 0 fail / 30 env-gated skips
+  (baseline 5746/0/30 + 36 package tests); lint clean; prettier
+  clean; typecheck clean.
+- TL verification on merged main (fc7b39b): 5781 pass / 1 fail /
+  30 skip — the single failure is the R101 121s-encode test timing
+  out at its 5,000ms budget; the identical test fails identically on
+  baseline main ddac9e7 on this host (encode throughput under load —
+  a manual 121s testsrc+libx264 encode takes >70s here) and passes
+  in the worker's own run: environmental, not a regression. All
+  other 5,781 green; determinism scan clean (no Date.now/Math.random
+  in src); vendor-leakage scan clean; frozen contracts zero-diff;
+  diff scoped to the new package + bun.lock only.
+- Honest-risk disclosure (per the report): perception quality on the
+  two REAL clips is honestly WEAK (heuristic detector's documented
+  off-envelope behavior); ball-impulse candidates are conservative
+  image-space statements; the default tracking chain is the
+  greedy-iou baseline (hungarian candidate supported);
+  football state initialized with documented no-evidence defaults.
+  BLOCKERS: none. ARCHITECTURE-DEVIATION PROPOSAL: (empty).
+
+### Reset #5 incident (2026-09-18 ~18:47 UTC)
+
+- The sandbox environment executed a full reset mid-session: /home/z
+  wiped except my-project (which reverted to a pre-R-program
+  checkpoint), all machinery processes killed, the default my-project
+  dev server restarted on :3000. No program state was lost that lived
+  in durable stores: sporta main + worker branches on GitHub, the
+  three wave-3 chats server-side on the platform, and the TL session
+  context. Local-only artifacts (replay2 deployment, browser profile
+  + login session, wave-3/4 prompt files, extracted worker reports,
+  fixtures-real working copies) were destroyed and were/are being
+  rebuilt. Worker A's merge was executed AFTER the reset from the
+  re-cloned repo (branch tip re-verified byte-exact before merge).
+
+
 ## Worker evidence requirement
 
 Every worker reports:
