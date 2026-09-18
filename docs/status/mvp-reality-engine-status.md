@@ -177,6 +177,30 @@ leakage/no-drift audit) precedes the wave-2 dispatch.
   as "never fired" and voided the lane + created a phantom re-dispatch;
   registry corrected (latest-wins truth record) before harvest.
 
+### Worker B — R402-R405 COMPLETE (merged @dd84e4b, 2026-09-18)
+
+- Re-run chat 84435f50 (landed 06:34 UTC via the supervisor fighter after
+  two delayed-rollback phantoms); report rendered ~07:42 with the full
+  completion marker; extracted from the DOM (25,399 chars).
+- Branch `work/r402-r405-provider-adapters` in the sandbox (8 commits,
+  2e42e73..4e5e66f); push refused (PAT-less, by design) — harvested via
+  the visibility-copy rail: 77/77 changed files by path.
+- NEW `packages/compute-provider-adapters`: four provider adapters
+  (Modal, Lightning AI, RunPod, Local via Bun.spawn + nvidia-smi probe)
+  behind the frozen R401 ComputeBrokerPort seam; typed refusal mapping to
+  W914 failure classes; credentialStatus vocabulary extended with
+  `invalid` + `not-applicable` (disclosed deviation, argued: a real 401
+  must not report present-unverified); two-tier tests (recorded fixtures
+  + env-gated conditional integration tiers — api.modal.co egress blocked
+  in the sandbox, honestly recorded).
+- TL verification: 5656 pass / 0 fail / 30 skip (99,133 expects) on
+  merged main; lint 0 errors; format clean; 44 package typechecks 0
+  errors. R401 contract surface byte-identical to wave-1 (the
+  verbatim-embed prompt pattern — zero seam fixes needed). No-drift
+  scans clean: no Math.random/Date.now in src, no master-password
+  patterns (API-key-as-Bearer only), provider names only as adapter
+  data.
+
 ### Wave-2 lanes B and C (incident record)
 
 - Worker C (R303+R304, chat c36c3c45): report RENDERED and extracted
@@ -187,7 +211,8 @@ leakage/no-drift audit) precedes the wave-2 dispatch.
   prompt (proven near-completable: the worker reached the report stage).
 - Worker B (R402-R405, chat e7eea490): first generation died at
   thought-start (172 chars streamed, chat never updated again); lane
-  voided by the prior session; fresh re-dispatch with the staged prompt.
+  voided by the prior session; re-dispatch resolved the lane (see the
+  Worker B COMPLETE entry above).
 
 
 ## Worker evidence requirement
