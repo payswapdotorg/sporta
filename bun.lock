@@ -44,7 +44,6 @@
         "@sporta/field-mapping": "workspace:*",
         "@sporta/fusion": "workspace:*",
         "@sporta/identity": "workspace:*",
-        "@sporta/media-platform": "workspace:*",
         "@sporta/observation": "workspace:*",
         "@sporta/output-pipeline": "workspace:*",
         "@sporta/perception-tracking": "workspace:*",
@@ -369,19 +368,6 @@
         "@types/bun": "^1.2.0",
       },
     },
-    "packages/media-platform": {
-      "name": "@sporta/media-platform",
-      "version": "0.1.0",
-      "dependencies": {
-        "@sporta/compute-adapter": "workspace:*",
-        "@sporta/contracts": "workspace:*",
-        "@sporta/ingestion": "workspace:*",
-        "zod": "^4.0.0",
-      },
-      "devDependencies": {
-        "@types/bun": "^1.2.0",
-      },
-    },
     "packages/observability": {
       "name": "@sporta/observability",
       "version": "0.1.0",
@@ -617,6 +603,18 @@
         "@sporta/session": "workspace:*",
         "@sporta/testing": "workspace:*",
         "@sporta/transport": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/technology-registry": {
+      "name": "@sporta/technology-registry",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/testing": "workspace:*",
+        "zod": "^4.0.0",
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",
@@ -860,8 +858,6 @@
 
     "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
-    "@sporta/media-platform": ["@sporta/media-platform@workspace:packages/media-platform"],
-
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
@@ -897,6 +893,8 @@
     "@sporta/spatial-state": ["@sporta/spatial-state@workspace:packages/spatial-state"],
 
     "@sporta/streaming-ingress": ["@sporta/streaming-ingress@workspace:packages/streaming-ingress"],
+
+    "@sporta/technology-registry": ["@sporta/technology-registry@workspace:packages/technology-registry"],
 
     "@sporta/temporal": ["@sporta/temporal@workspace:packages/temporal"],
 
