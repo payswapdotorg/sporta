@@ -131,3 +131,28 @@ export type {
   SelectionRefusalRecord,
   SelectionReasonKey,
 } from "./selection";
+// R408 — the BYOC usage ledger
+export {
+  ByocLedgerConflictError,
+  ByocLedgerError,
+  ByocLedgerIntegrityError,
+  ByocLedgerLimitError,
+  ByocLedgerScopeInvalidError,
+  ByocUsageRecord,
+  DEFAULT_MAX_LEDGER_RECORDS,
+  EXECUTION_OWNERSHIPS,
+  InMemoryByocLedgerStore,
+  SqliteByocLedgerStore,
+  UsageLedger,
+} from "./ledger";
+export type {
+  ByocLedgerStore,
+  ByocLedgerStoreOptions,
+  ByocLedgerStoreStats,
+  ByocUsageRecord as ByocUsageRecordDoc,
+  ExecutionOwnership,
+  LedgerPutOutcome,
+  RecordOutcome,
+  UsageSummary,
+  UsageLedgerOptions,
+} from "./ledger";
