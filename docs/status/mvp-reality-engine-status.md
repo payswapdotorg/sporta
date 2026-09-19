@@ -256,7 +256,56 @@ on public main; 21-commit push backlog ready).
   Worker B COMPLETE entry above).
 
 
-## Wave 3 (R207-R208 A / R406-R409 B / R305-R307 C) — A + C complete; B in flight
+## Wave 3 (R207-R208 A / R406-R409 B / R305-R307 C) — COMPLETE (A + B + C all merged)
+
+### Worker B — R406+R407+R408+R409 COMPLETE (merged @1967fd3, 2026-09-19)
+
+- Chat 7d2f009c. The original flight stalled mid-work (turn open, 14h
+  idle) and its sandbox was TTL-wiped to the default scaffold — the
+  unpushed WIP was unrecoverable (W205/W801-class platform loss).
+  Recovery per §3.10: two continuation nudges (both VERIFIED into the
+  transcript) — the worker re-cloned, re-created the full delivery
+  from its chat context, and landed the completion marker.
+- PUSH initially blocked: the platform transcript render redacts
+  tokens (`x-access-token:[REDACTED:github_token]` in the DOM while
+  the API-side message carries the real PAT) — the worker read the
+  rendered form and fell back to a committed git bundle
+  (`/home/z/sporta-r406-r409-connection-center.bundle`, the documented
+  GIT TRANSIT rail). The TL re-issued the push command with the real
+  PAT inline (lesson-117 substitution; first re-issue carried a
+  template artifact `${PAT}` — corrected on the second send) and the
+  worker pushed cleanly, reporting token hygiene (used only for the
+  two git commands, never echoed/committed; rotation advised).
+- DELIVERED VIA THE PUSH RAIL: branch
+  `work/r406-r409-connection-center` on GitHub at
+  18cd5507d4366f183bcc870654a9491f5914ed64, ls-remote verified.
+  Six commits on baseline ddac9e7: R406 (connection center, master-
+  password refusal), R407 (auditable selection), R408 (BYOC usage
+  ledger), R409 (managed compute seam), the full product-tier test
+  commit, plus one provider-ledger fix (envelope attached BEFORE the
+  terminal event fans out — the W914 awaitCompletion contract shape,
+  doc-commented, test-pinned).
+- NEW `packages/connection-center` (25 files, +8,257/−61 incl. one
+  cross-package fix + bun.lock): connections (typed master-password
+  refusal, credential fingerprints never plaintext), selection
+  (SelectionDirector with auditable explanations), ledger (W919
+  guardrail composition), managed seam (provider-independent
+  allowance/admission), W004-pattern stores, live/recorded-fixture/
+  env-gated/boundary/vocabulary test tiers.
+- TL verification on merged main (1967fd3): bun test 6,073 pass /
+  14 fail / 33 skip — the identical 14 environmental failures
+  already verified byte-identically on pre-lane-C baseline 0d00bcc
+  (apps/web embedded-server/live-route timeouts under resident
+  replay-stack load + the perception benchmark flake; classes
+  untouched by this lane; lane B's own +145 tests all green —
+  5,928→6,073 with zero new failures). Serial per-package typecheck:
+  0 `error TS`. lint: 0 errors (1 pre-existing warning). prettier
+  --check: clean. Determinism scan (new src + the adapter fix):
+  clean. Frozen contracts: zero-diff. Vendor-leakage scan: only
+  sanctioned shapes (README data vocabulary, credential-class
+  comments, anti-leakage test deny-lists, env-gated integration
+  imports; exported vocabularies clean). Cross-package adapter fix
+  gate-reviewed: contract-coherent, additive helper, ordering-only.
 
 ### Worker C — R305+R306+R307 COMPLETE (merged @9219076, 2026-09-18)
 
