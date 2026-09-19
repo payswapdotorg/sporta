@@ -7,6 +7,7 @@ import type {
   RenderOutputLike,
   RightsPreviewLike,
   StudioComputeSelectionLike,
+  StudioComputeStatusLike,
   StudioDispatchLike,
   StudioJobLike,
   StudioOptionsLike,
@@ -20,6 +21,7 @@ import {
   createStudioSession,
   createUploadSession,
   dispatchStudioRender,
+  fetchComputeStatus,
   fetchCreateOptions,
   fetchMediaJob,
   fetchRenderOutput,
@@ -109,6 +111,15 @@ export function CreateStudio() {
     | { phase: "ready"; data: StudioComputeSelectionLike }
     | { phase: "failed"; error: string }
   >({ phase: "idle" });
+  // The caller's compute/cost status (R506): whose compute plane this
+  // deployment renders on + the caller's daily allowance states + the
+  // metered usage totals (honest nulls — never fabricated numbers).
+  const [computeStatus, setComputeStatus] = useState<
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: StudioComputeStatusLike }
+    | { phase: "failed"; error: string }
+  >({ phase: "idle" });
   const [submission, setSubmission] = useState<SubmissionState | null>(null);
   const [job, setJob] = useState<StudioJobLike | null>(null);
   const [jobError, setJobError] = useState<string | null>(null);
@@ -143,6 +154,30 @@ export function CreateStudio() {
       cancelled = true;
     };
   }, []);
+
+  // -------------------------------------------------------------------
+  // Compute/cost status (R506 — the plane + the caller's allowances)
+  // -------------------------------------------------------------------
+  const authenticated = options.phase === "ready" && options.data !== null;
+  useEffect(() => {
+    if (!authenticated) {
+      setComputeStatus({ phase: "idle" });
+      return;
+    }
+    let cancelled = false;
+    setComputeStatus({ phase: "loading" });
+    void fetchComputeStatus().then(
+      (data) => {
+        if (!cancelled) setComputeStatus({ phase: "ready", data });
+      },
+      (error) => {
+        if (!cancelled) setComputeStatus({ phase: "failed", error: String(error) });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated]);
 
   // -------------------------------------------------------------------
   // Rights preview (re-derived by the SERVER on every declaration change)
@@ -518,6 +553,7 @@ export function CreateStudio() {
           draft={draft}
           renderer={renderer}
           preview={computePreview}
+          status={computeStatus}
           onMode={(mode) => setDraft((prev) => ({ ...prev, computeMode: mode }))}
           onProvider={(providerId) =>
             setDraft((prev) => ({ ...prev, computeProviderId: providerId }))
@@ -548,6 +584,7 @@ export function CreateStudio() {
           sessionState={sessionState}
           watch={watch}
           output={output}
+          computeStatus={computeStatus}
           publishing={publishing}
           onVisibility={(visibility) => void changeVisibility(visibility)}
         />
@@ -1045,6 +1082,7 @@ function ComputeStep({
   draft,
   renderer,
   preview,
+  status,
   onMode,
   onProvider,
 }: {
@@ -1055,6 +1093,11 @@ function ComputeStep({
     | { phase: "idle" }
     | { phase: "loading" }
     | { phase: "ready"; data: StudioComputeSelectionLike }
+    | { phase: "failed"; error: string };
+  status:
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: StudioComputeStatusLike }
     | { phase: "failed"; error: string };
   onMode: (mode: "sporta-auto" | "user-explicit") => void;
   onProvider: (providerId: string | null) => void;
@@ -1156,11 +1199,96 @@ function ComputeStep({
           ) : (
             <SelectionExplanationPanel selection={preview.data} />
           )}
+
+          <ComputeCostPanel status={status} />
         </>
       )}
     </section>
   );
 }
+
+// ---------------------------------------------------------------------------
+// R506 — the compute/cost panel (the plane + the caller's allowances)
+// ---------------------------------------------------------------------------
+
+/**
+ * The compute/cost panel (R506): whose compute plane this deployment renders
+ * on (the operator's declared responsibility boundary), the caller's daily
+ * allowance states, and the metered usage totals — every unknown shown as
+ * unknown (`not measured`), never as 0. A projection of connection-center
+ * state; no invented numbers.
+ */
+function ComputeCostPanel({ status }: { status: ComputeCostStatus }) {
+  if (status.phase === "idle") return null;
+  if (status.phase === "loading") {
+    return <LoadingPanel label="Reading the compute plane and your allowances" />;
+  }
+  if (status.phase === "failed") {
+    return (
+      <StatePanel
+        state="failed"
+        title="The compute/cost status could not be read"
+        reason={status.error}
+      />
+    );
+  }
+  const { plane, quotas, usage } = status.data;
+  return (
+    <section className="studio-rights-preview" aria-label="Compute and cost">
+      <h3 className="studio-subheading">Compute &amp; cost</h3>
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Whose compute</dt>
+          <dd>
+            {plane === null ? (
+              "no compute plane is configured"
+            ) : (
+              <>
+                <StateChip state={plane.executionOwnership === "sporta-managed" ? "ready" : "degraded"}>
+                  {plane.executionOwnership}
+                </StateChip>{" "}
+                <span className="field-hint">
+                  provider <code>{plane.providerId}</code> · zone {plane.facts.privacyZone}
+                </span>
+              </>
+            )}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Usage totals</dt>
+          <dd>
+            {usage === null
+              ? "not measured"
+              : usage.map((unit) => `${unit.quantity} ${unit.unitId}`).join(" · ") || "none metered"}
+          </dd>
+        </div>
+        {quotas.map((quota) => (
+          <div className="fact" key={quota.quotaId}>
+            <dt>{quota.quotaId}</dt>
+            <dd>
+              {quota.used === null || quota.limit === null
+                ? "not measured (unreadable counter — fail-closed)"
+                : `${quota.used} of ${quota.limit} used today · ${
+                    quota.exhausted ? "exhausted" : `${quota.remaining} remaining`
+                  }`}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p className="field-hint">
+        Allowance states are the platform&rsquo;s own daily quotas (the W919 ledger). Unknown measures
+        are shown as unknown — never as 0.
+      </p>
+    </section>
+  );
+}
+
+/** The compute/cost status fetch state shared by the studio steps. */
+type ComputeCostStatus =
+  | { phase: "idle" }
+  | { phase: "loading" }
+  | { phase: "ready"; data: StudioComputeStatusLike }
+  | { phase: "failed"; error: string };
 
 /** The auditable explanation, rendered verbatim from the director's document. */
 function SelectionExplanationPanel({ selection }: { selection: StudioComputeSelectionLike }) {
@@ -1331,6 +1459,7 @@ function RenderStep({
   sessionState,
   watch,
   output,
+  computeStatus,
   publishing,
   onVisibility,
 }: {
@@ -1346,6 +1475,7 @@ function RenderStep({
     | { phase: "ready"; data: RenderOutputLike }
     | { phase: "denied"; reason: string }
     | { phase: "failed"; error: string };
+  computeStatus: ComputeCostStatus;
   publishing: boolean;
   onVisibility: (visibility: "public" | "private") => void;
 }) {
@@ -1398,7 +1528,27 @@ function RenderStep({
               : ""}
           </dd>
         </div>
+        <div className="fact">
+          <dt>Whose compute (R506)</dt>
+          <dd>
+            {job?.selection !== undefined ? (
+              <>
+                <StateChip state={job.selection.mode === "user-explicit" ? "ready" : "degraded"}>
+                  {job.selection.mode === "user-explicit" ? "your choice" : "platform chose"}
+                </StateChip>{" "}
+                <code>{job.selection.providerId}</code>{" "}
+                <span className="field-hint">{job.selection.explanation.selectionReason}</span>
+              </>
+            ) : (
+              <span className="field-hint">
+                this dispatch carried no compute directive — no selection was recorded
+              </span>
+            )}
+          </dd>
+        </div>
       </dl>
+
+      <ComputeCostPanel status={computeStatus} />
 
       {/* The upload path's source + perception summary (R501) */}
       {submission.perception !== null && (

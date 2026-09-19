@@ -260,6 +260,56 @@ export interface RealityOptionsLike {
     renderId?: string;
     segmentId?: string;
   }[];
+  /**
+   * The REALITY ARTIFACT CATALOG (R503 shapes, R504/R505's data contract):
+   * the four reality entries with their real artifact descriptors. A
+   * playback-denied session carries `realities: null` — it reveals nothing.
+   */
+  artifacts: SessionArtifactCatalogLike;
+}
+
+// ---------------------------------------------------------------------------
+// R503/R504/R505 — the reality artifact catalog (client-side mirror)
+// ---------------------------------------------------------------------------
+
+/** The frozen reality-kind vocabulary (the contracts `RealityKind`). */
+export const REALITY_KINDS = ["original", "tactical", "three-d-game", "anime-npr"] as const;
+export type RealityKindLike = (typeof REALITY_KINDS)[number];
+
+/** One real artifact descriptor the store actually holds (R503). */
+export interface RealityArtifactDescriptorLike {
+  artifactId: string;
+  kind: RealityKindLike;
+  manifestLink: string;
+  integrityHash: string;
+  byteSize: number;
+  contentType: string;
+  producerId: string;
+}
+
+/** One reality's artifact set for one session (R503). */
+export interface RealityArtifactEntryLike {
+  kind: RealityKindLike;
+  availability:
+    | "ready"
+    | "job-in-flight"
+    | "job-failed"
+    | "requires-render"
+    | "requires-upload"
+    | "producer-unavailable";
+  reason: string;
+  artifacts: RealityArtifactDescriptorLike[];
+}
+
+/** One session's reality artifact catalog (R503 — the player's contract). */
+export interface SessionArtifactCatalogLike {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  realities: RealityArtifactEntryLike[] | null;
+  readyRealityCount: number | null;
 }
 
 /** The API error body. */
@@ -502,9 +552,20 @@ export interface StudioSessionStateLike {
    * the renderer the dispatch named (recorded at dispatch). This is the
    * W908 processing source: an in-flight job means the watch surface shows
    * `processing` for that renderer — never a spinner pretending nothing is
-   * happening.
+   * happening. R506: each row also carries the COMPUTE SELECTION its
+   * dispatch carried (provider + user-choice/auto mode + the auditable
+   * explanation VERBATIM) — present only when a directive rode the dispatch.
    */
-  jobs: { jobId: string; state: string; rendererId: string | null }[];
+  jobs: {
+    jobId: string;
+    state: string;
+    rendererId: string | null;
+    selection?: {
+      providerId: string;
+      mode: "user-explicit" | "sporta-auto";
+      explanation: SelectionExplanationLike;
+    };
+  }[];
 }
 
 /** The dispatch answer (POST /api/create/sessions/[sessionId]/renders). */
@@ -540,6 +601,17 @@ export interface StudioJobLike {
     details?: Record<string, unknown>;
   }[];
   renderId?: string;
+  /**
+   * The compute selection the dispatch carried (R506): whose compute is
+   * executing this job — the selected provider, the user-choice vs auto
+   * mode, and the auditable explanation VERBATIM. Absent when the dispatch
+   * carried no directive (the honest boundary — nothing is invented).
+   */
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanationLike;
+  };
   ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   completion?: {
     status: "succeeded" | "failed" | "cancelled";
@@ -572,6 +644,46 @@ export interface StudioJobLike {
 export interface StudioPublicationLike {
   sessionId: string;
   visibility: "public" | "private";
+}
+
+// ---------------------------------------------------------------------------
+// R506 — the compute/cost status (a projection of connection-center state)
+// ---------------------------------------------------------------------------
+
+/** One user-scoped allowance state (the W901 QuotaState vocabulary). */
+export interface ComputeQuotaStateLike {
+  quotaId: string;
+  scope: string;
+  /** `null` = not measured (never rendered as 0 — the W919 posture). */
+  used: number | null;
+  limit: number | null;
+  remaining: number | null;
+  exhausted: boolean;
+  reasonCode: string;
+}
+
+/**
+ * The caller's compute/cost document (GET /api/create/compute-status):
+ * whose compute plane this deployment renders on, the caller's daily
+ * allowance states, and the metered usage totals where available (null =
+ * not measured). A PROJECTION of connection-center state — no new domain
+ * vocabulary.
+ */
+export interface StudioComputeStatusLike {
+  /** The compute plane's real configuration (`null` = no plane configured). */
+  plane: {
+    provider: string;
+    adapterId: string;
+    /** The selection seam's registered provider id (DATA, never a vendor name). */
+    providerId: string;
+    /** The operator's declared responsibility boundary (R408 vocabulary). */
+    executionOwnership: "sporta-managed" | "user-owned-provider";
+    facts: { privacyZone: string; capabilityClasses: string[] };
+  } | null;
+  /** The caller's daily compute allowance states (fail-closed entries on unreadable). */
+  quotas: ComputeQuotaStateLike[];
+  /** The metered usage totals across the plane (`null` = not measured). */
+  usage: { unitId: string; quantity: number }[] | null;
 }
 
 // ---------------------------------------------------------------------------
