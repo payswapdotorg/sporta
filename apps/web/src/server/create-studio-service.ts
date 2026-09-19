@@ -338,7 +338,21 @@ export interface StudioSessionState {
    * surface's `processing` source. A state of `unreadable` means the compute
    * read refused — the honest boundary, never a guessed state.
    */
-  jobs: { jobId: string; state: string; rendererId: string | null }[];
+  jobs: {
+    jobId: string;
+    state: string;
+    rendererId: string | null;
+    /**
+     * The COMPUTE SELECTION the dispatch carried (R506): whose compute is
+     * executing — provider + user-choice/auto mode + the auditable
+     * explanation VERBATIM. Absent when the dispatch carried no directive.
+     */
+    selection?: {
+      providerId: string;
+      mode: "user-explicit" | "sporta-auto";
+      explanation: SelectionExplanation;
+    };
+  }[];
 }
 
 /** The dispatch answer (POST /api/create/sessions/[sessionId]/renders). */
@@ -376,6 +390,17 @@ export interface StudioJobView {
     details?: Record<string, unknown>;
   }[];
   renderId?: string;
+  /**
+   * The COMPUTE SELECTION the dispatch carried (R506): whose compute is
+   * executing this job — provider + user-choice/auto mode + the auditable
+   * explanation VERBATIM. Absent when the dispatch carried no directive
+   * (the honest boundary — nothing is invented).
+   */
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanation;
+  };
   ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   completion?: {
     status: "succeeded" | "failed" | "cancelled";
@@ -404,6 +429,26 @@ export interface StudioJobView {
     /** The metered cost quantities (descriptor-declared units). */
     usage: { unitId: string; quantity: number }[];
   };
+}
+
+/** The caller's compute/cost status document (R506 — GET /api/create/compute-status). */
+export interface StudioComputeStatus {
+  /** The compute plane's real configuration (`null` when none is configured). */
+  plane:
+    | {
+        provider: string;
+        adapterId: string;
+        /** The selection seam's registered provider id (DATA, never a vendor name). */
+        providerId: string;
+        /** The operator's declared responsibility boundary (the R408 vocabulary). */
+        executionOwnership: "sporta-managed" | "user-owned-provider";
+        facts: { privacyZone: string; capabilityClasses: string[] };
+      }
+    | null;
+  /** The caller's daily compute allowance states (fail-closed on unreadable). */
+  quotas: PlatformQuotaState[];
+  /** The plane's metered usage totals (`null` = not measured — never a 0). */
+  usage: { unitId: string; quantity: number }[] | null;
 }
 
 /** The publication answer (POST /api/create/sessions/[sessionId]/publication). */
@@ -588,6 +633,18 @@ export class CreateStudioService {
       styleId?: string;
       dispatchedByUserId: string | null;
       dispatchedAtMs: number;
+      /**
+       * The COMPUTE SELECTION the dispatch carried (R506): the selected
+       * provider + the user-choice/auto mode + the auditable explanation —
+       * the compute-provenance record surfaced on the studio's processing
+       * view and the watch surface. Absent when no directive rode the
+       * dispatch (never invented).
+       */
+      selection?: {
+        providerId: string;
+        mode: "user-explicit" | "sporta-auto";
+        explanation: SelectionExplanation;
+      };
     }
   >();
   private policySeq = 0;
@@ -1247,11 +1304,16 @@ export class CreateStudioService {
       source,
       renders: renderViews,
       jobs: await Promise.all(
-        (this.jobsBySession.get(sessionId) ?? []).map(async (jobId) => ({
-          jobId,
-          state: await this.jobComputeStateOf(sessionId, jobId),
-          rendererId: this.dispatchesByJob.get(jobId)?.rendererId ?? null,
-        })),
+        (this.jobsBySession.get(sessionId) ?? []).map(async (jobId) => {
+          const dispatch = this.dispatchesByJob.get(jobId);
+          return {
+            jobId,
+            state: await this.jobComputeStateOf(sessionId, jobId),
+            rendererId: dispatch?.rendererId ?? null,
+            // R506: the compute selection the dispatch carried (verbatim).
+            ...(dispatch?.selection !== undefined ? { selection: dispatch.selection } : {}),
+          };
+        }),
       ),
     };
   }
@@ -1317,6 +1379,50 @@ export class CreateStudioService {
       },
       selection: { providerId: outcome.selection.providerId },
       explanation: outcome.explanation,
+    };
+  }
+
+  /**
+   * THE COMPUTE/COST STATUS (R506): the caller's legibility document —
+   * whose compute plane this deployment renders on (the composition's own
+   * DATA: the compute provider, the selection seam's registered provider id,
+   * and the operator's declared responsibility boundary in the R408
+   * vocabulary), the caller's daily compute allowance states (the W919
+   * per-user quotas, fail-closed entries on unreadable counters), and the
+   * plane's metered usage totals where available (`null` = not measured —
+   * the W919 posture: unknown is shown as unknown, never as 0).
+   *
+   * This is a PROJECTION of connection-center state (the SelectionDirector's
+   * registered facts + the guardrails' quota/usage seams) — no new domain
+   * vocabulary, nothing re-implemented.
+   */
+  async computeStatus(token: string): Promise<StudioComputeStatus> {
+    const server = this.getServer();
+    const account = await this.requireAccount(token);
+    const plane: StudioComputeStatus["plane"] =
+      server.selection === null || server.compute === null
+        ? null
+        : {
+            provider: server.compute.provider,
+            adapterId: server.compute.adapterId,
+            providerId: server.selection.providerId,
+            // The operator's declared responsibility boundary: the
+            // `sporta-managed` privacy zone declares Sporta's own
+            // infrastructure; anything else is the user's connected
+            // provider (the R408 execution-ownership vocabulary).
+            executionOwnership:
+              server.selection.facts.privacyZone === "sporta-managed"
+                ? "sporta-managed"
+                : "user-owned-provider",
+            facts: {
+              privacyZone: server.selection.facts.privacyZone,
+              capabilityClasses: [...(server.selection.facts.capabilityClasses ?? [])],
+            },
+          };
+    return {
+      plane,
+      quotas: await server.guardrails.userQuotaStates(account.userId),
+      usage: await server.guardrails.computeUsageTotals(),
     };
   }
 
@@ -1490,6 +1596,10 @@ export class CreateStudioService {
       ...(input.styleId !== undefined ? { styleId: input.styleId } : {}),
       dispatchedByUserId: account.userId,
       dispatchedAtMs: this.nowMs(),
+      // R506: the compute selection rides the dispatch record — the
+      // compute-provenance source for the processing view and the watch
+      // surface (absent when no directive rode the dispatch).
+      ...(selection !== undefined ? { selection } : {}),
     });
     return {
       disposition: dispatch.disposition,
@@ -1562,6 +1672,12 @@ export class CreateStudioService {
             }),
       })),
       ...(job.renderId !== undefined ? { renderId: job.renderId } : {}),
+      // R506: the compute selection the dispatch carried — whose compute is
+      // executing this job, carried VERBATIM (absent when no directive rode
+      // the dispatch; never invented).
+      ...(this.dispatchesByJob.get(jobId)?.selection !== undefined
+        ? { selection: this.dispatchesByJob.get(jobId)!.selection }
+        : {}),
       ingest: job.ingest,
     };
     if (job.completion !== undefined) {
