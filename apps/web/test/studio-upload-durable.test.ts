@@ -131,7 +131,10 @@ describe("W921 upload variant — the studio upload-source session reconstructs 
     });
     const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
     const form = new FormData();
-    form.append("file", new File([bytes.slice().buffer as ArrayBuffer], "clip.mp4", { type: "video/mp4" }));
+    form.append(
+      "file",
+      new File([bytes.slice().buffer as ArrayBuffer], "clip.mp4", { type: "video/mp4" }),
+    );
     form.append("operations", JSON.stringify(OPERATIONS));
     const created = await uploadSessionRoute(
       withCookie(creatorToken, "/api/create/upload-sessions", { method: "POST", body: form }),
@@ -204,10 +207,15 @@ describe("W921 upload variant — the studio upload-source session reconstructs 
     expect(render!.outputs[0]!.contentHash).toBe(contentHashFromA);
 
     // And B serves the SAME output document bytes (the playback-gated read).
-    const outputA = await (await outputRoute(
-      withCookie(creatorToken, `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`),
-      { params: Promise.resolve({ sessionId, renderId, segmentId }) },
-    )).text();
+    const outputA = await (
+      await outputRoute(
+        withCookie(
+          creatorToken,
+          `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`,
+        ),
+        { params: Promise.resolve({ sessionId, renderId, segmentId }) },
+      )
+    ).text();
     expect(outputA.length).toBeGreaterThan(0);
     expect(outputA).toContain(segmentId);
   });
