@@ -29,7 +29,6 @@ export {
 } from "./credentials";
 export type {
   AcceptedCredentialKind,
-  AcceptedCredentialPresentation,
   CredentialPresentationKind,
   CredentialReference,
   MasterPasswordKind,

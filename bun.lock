@@ -221,6 +221,18 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/connection-center": {
+      "name": "@sporta/connection-center",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/compute-adapter": "workspace:*",
+        "@sporta/compute-provider-adapters": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/contracts": {
       "name": "@sporta/contracts",
       "version": "0.1.0",
@@ -955,6 +967,8 @@
     "@sporta/compute-adapter-hosted": ["@sporta/compute-adapter-hosted@workspace:packages/compute-adapter-hosted"],
 
     "@sporta/compute-provider-adapters": ["@sporta/compute-provider-adapters@workspace:packages/compute-provider-adapters"],
+
+    "@sporta/connection-center": ["@sporta/connection-center@workspace:packages/connection-center"],
 
     "@sporta/contracts": ["@sporta/contracts@workspace:packages/contracts"],
 
