@@ -27,6 +27,7 @@
  */
 import { createControlApp } from "@sporta/control-api";
 import type { ControlApp } from "@sporta/control-api";
+import { InMemoryComputeBroker } from "@sporta/compute-adapter";
 import type { ComputeAdapterPort } from "@sporta/compute-adapter";
 import {
   ComputeWorker,
@@ -36,6 +37,8 @@ import {
   resolveComputeAdapterFromEnv,
 } from "@sporta/compute-adapter-hosted";
 import type { ComputeProviderSelection } from "@sporta/compute-adapter-hosted";
+import { SelectionDirector } from "@sporta/connection-center";
+import type { ProviderSelectionFacts } from "@sporta/connection-center";
 import { createAnimeOutputPipeline } from "@sporta/output-pipeline";
 import type { AnimeOutputPipeline } from "@sporta/output-pipeline";
 import { RendererRegistry, createTestCardRenderer } from "@sporta/renderer-contract";
@@ -64,6 +67,7 @@ import {
 } from "@sporta/media-platform";
 import type { MediaStoragePort } from "@sporta/media-platform";
 import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env";
+import type { RealityKind } from "@sporta/contracts";
 import { neonClient } from "./platform/db/pg";
 import { PgControlPlaneRecordStore } from "./platform/control/pg-records";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
@@ -251,6 +255,34 @@ export interface SportaServer {
    */
   computeAdapter: import("@sporta/compute-adapter").ComputeAdapterPort | null;
   /**
+   * The compute SELECTION seam (R501): the REAL R407 SelectionDirector over
+   * a broker registered with this composition's compute adapter, when the
+   * provider id is knowable (the in-process worker's own id, or an injected
+   * `computeProviderId`). The studio's compute step quotes/selects through
+   * THIS director — the auditable explanation is its own document. `null`
+   * when there is no adapter or no knowable provider id (the honest
+   * unavailable state, never a fabricated selection).
+   */
+  selection: {
+    director: SelectionDirector;
+    /** The provider id the adapter is registered under (data, never a vendor name). */
+    providerId: string;
+    /** The operator's DATA declarations for the registered provider. */
+    facts: ProviderSelectionFacts;
+  } | null;
+  /**
+   * The renderer → reality declarations (R503): which registered renderer
+   * produces which of the four MVP reality kinds. Composition DATA (the
+   * operator's honest declarations — the renderer capabilities carry no
+   * reality field, and the catalog never guesses): today only the anime
+   * prototype maps to the `anime-npr` reality; the tactical and 3D
+   * realities have NO registered producer (the renderers exist as packages
+   * but cannot execute through the async compute plane's encode seam), so
+   * the catalog reports them honestly unavailable. Renderers without a
+   * mapping (the reference test card) are not product realities.
+   */
+  realityProducers: ReadonlyMap<string, RealityKind>;
+  /**
    * The operations console service (W918): operator grant-gated health /
    * queues / providers / jobs panels + the audit-logged safe remediations
    * (retry a failed job, cancel an admitted job).
@@ -369,6 +401,40 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       ? null
       : { provider: computeProvider, adapterId: computeAdapter.describe().adapterId };
 
+  // 4a. The compute SELECTION seam (R501): the REAL R407 SelectionDirector
+  //     over an R401 InMemoryComputeBroker registered with this
+  //     composition's adapter. The R407 identity axis is the ADAPTER's own
+  //     descriptor id (`adapterId` — the director's registeredProviderIds
+  //     reads the descriptors; the connection-center's own composition
+  //     convention registers the broker entry under that same id), so the
+  //     seam is available whenever an adapter is — no separate provider-id
+  //     knowledge needed. The FACTS are the operator's DATA declarations
+  //     (R407 vocabulary): the in-process adapter executes in this
+  //     deployment's own process (`sporta-managed`), declares the
+  //     descriptor's own provider kind as its capability class, and
+  //     declares NO VRAM (an undeclared axis excludes honestly, never by
+  //     guessing).
+  let selection: SportaServer["selection"] = null;
+  if (computeAdapter !== undefined) {
+    const selectionProviderId = computeAdapter.describe().adapterId;
+    const selectionFacts: ProviderSelectionFacts = {
+      providerId: selectionProviderId,
+      privacyZone: "sporta-managed",
+      capabilityClasses: [computeAdapter.describe().providerKind],
+    };
+    selection = {
+      director: new SelectionDirector({
+        broker: new InMemoryComputeBroker({
+          providers: [{ providerId: selectionProviderId, adapter: computeAdapter }],
+        }),
+        facts: new Map([[selectionProviderId, selectionFacts]]),
+        nowMs,
+      }),
+      providerId: selectionProviderId,
+      facts: selectionFacts,
+    };
+  }
+
   // 5. Session-scoped world-model engines: the dev seed registers fused
   //    engines here BEFORE rendering; every other session gets a fresh
   //    engine (the documented W701 factory seam).
@@ -403,6 +469,37 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const rightsAudit = new PolicyAuditLog();
   let control: ControlApp = createRightsGovernedControl(rawControl, rightsPolicies, nowMs);
 
+  // 6b. The real-media loop (R101-R104): the durable sqlite record store +
+  //     the storage seam (the local-filesystem adapter by default; the R2
+  //     adapter is a drop-in behind the same `MediaStoragePort` — the
+  //     composition root is the ONLY wiring point). Rights resolve through
+  //     the W917 effective-policy store (fail-closed per upload); the
+  //     pipeline executor runs in-process (REAL ffmpeg — fails loud when
+  //     the binary is absent, never a faked normalization).
+  //     HOISTED BEFORE the durable layer (R501): the durable control plane
+  //     reconstructs upload-source sessions by re-running the R207
+  //     real-to-SWM pipeline over the STORED source bytes (the media
+  //     service's own storage + records), so it needs the media seam.
+  const mediaStore = new SqliteMediaPlatformStore(
+    options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
+  );
+  const mediaStorage: MediaStoragePort =
+    options.media?.storage ??
+    new LocalFilesystemStorage(
+      process.env.SPORTA_MEDIA_STORAGE ?? "db/media-storage",
+      "media-local-fs",
+    );
+  const media = new MediaPlatformService({
+    storage: mediaStorage,
+    sourceAssets: mediaStore.sourceAssets,
+    manifests: mediaStore.manifests,
+    artifacts: mediaStore.artifacts,
+    jobs: mediaStore.jobs,
+    resolvePolicy: (sessionId) => rightsPolicies.effectiveOf(sessionId),
+    nowMs,
+    autoRun: true,
+  });
+
   // 7 (hoisted from the studio block — W921): the publication store and the
   //     rights-attestation index are the durable layer's reconstruction
   //     targets (a reconstructed session re-seeds its recorded visibility
@@ -429,6 +526,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
           attestations,
           pipeline,
           artifacts,
+          media: { service: media, storage: mediaStorage },
           provider: providerOfRecords(options.controlRecords),
           nowMs,
         })
@@ -536,32 +634,17 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   });
   const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
-  // 6b. The real-media loop (R101-R104): the durable sqlite record store +
-  //     the storage seam (the local-filesystem adapter by default; the R2
-  //     adapter is a drop-in behind the same `MediaStoragePort` — the
-  //     composition root is the ONLY wiring point). Rights resolve through
-  //     the W917 effective-policy store (fail-closed per upload); the
-  //     pipeline executor runs in-process (REAL ffmpeg — fails loud when
-  //     the binary is absent, never a faked normalization).
-  const mediaStore = new SqliteMediaPlatformStore(
-    options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
-  );
-  const mediaStorage: MediaStoragePort =
-    options.media?.storage ??
-    new LocalFilesystemStorage(
-      process.env.SPORTA_MEDIA_STORAGE ?? "db/media-storage",
-      "media-local-fs",
-    );
-  const media = new MediaPlatformService({
-    storage: mediaStorage,
-    sourceAssets: mediaStore.sourceAssets,
-    manifests: mediaStore.manifests,
-    artifacts: mediaStore.artifacts,
-    jobs: mediaStore.jobs,
-    resolvePolicy: (sessionId) => rightsPolicies.effectiveOf(sessionId),
-    nowMs,
-    autoRun: true,
-  });
+  // 7'. The renderer → reality declarations (R503): composition DATA over
+  //      the REGISTERED renderers only. The anime prototype produces the
+  //      anime-npr reality (the product's anime reality — its id and class
+  //      are the prototype's own, never a vendor name). The reference test
+  //      card is not a product reality; the tactical and 3D realities have
+  //      no registered producer (their renderer packages exist but cannot
+  //      execute through the async compute plane's W504 encode seam — the
+  //      catalog reports those realities honestly unavailable).
+  const realityProducers: SportaServer["realityProducers"] = new Map([
+    ["anime.prototype", "anime-npr"],
+  ]);
 
   const server: SportaServer = {
     auth,
@@ -583,6 +666,8 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     rights,
     compute,
     computeAdapter: computeAdapter ?? null,
+    selection,
+    realityProducers,
     operations,
     live,
     transientState,

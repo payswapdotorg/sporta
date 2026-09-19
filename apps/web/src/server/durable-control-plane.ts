@@ -100,7 +100,16 @@ import type {
 } from "./platform/control/records";
 import type { PolicyAttestationIndex, PublicationStore } from "./publication";
 import type { SeedStoryMeta } from "./dev-seed";
-import { studioSourceSpec } from "./create-studio-service";
+import { RealToSwmPipeline } from "@sporta/real-to-swm";
+import type { ClipSource } from "@sporta/real-to-swm";
+import type { MediaPlatformService } from "@sporta/media-platform";
+import type { MediaStoragePort } from "@sporta/media-platform";
+import { sourceAssetKey } from "@sporta/media-platform";
+import {
+  studioSourceSpec,
+  STUDIO_UPLOAD_DECODE_BUDGET_BYTES,
+  STUDIO_UPLOAD_SOURCE_PREFIX,
+} from "./create-studio-service";
 import { runFixtureStory } from "./dev-story";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
 
@@ -154,6 +163,15 @@ export interface DurableControlPlaneOptions {
   /** The hosted R2 artifact store when configured (idempotent mirrors). */
   artifacts: R2RenderOutputStore | null;
   /**
+   * The real-media loop's seams (R501): upload-source sessions are
+   * reconstructed by re-running the R207 real-to-SWM pipeline over the
+   * STORED source bytes — the media service's own durable records + the
+   * storage port are where those bytes actually live. Required when any
+   * upload-source session may be reconstructed (the composition always
+   * passes it).
+   */
+  media: { service: MediaPlatformService; storage: MediaStoragePort };
+  /**
    * The record store's provider name (health surfaces): `"neon"` for the
    * PostgreSQL adapter, `"in-memory"` for the hermetic store. Defaults to
    * `"in-memory"` so the store's own kind is reported honestly — the
@@ -187,6 +205,14 @@ export interface DurableControlPlane {
     renderId: string,
     recipe?: ControlRenderRecipe,
   ): Promise<void>;
+  /**
+   * The recorded source key of one durable session (R501), or `null` when
+   * the session is not durable. The studio's session-state read uses this
+   * to resolve an upload-source session's source asset on a cold instance
+   * (`upload:<assetId>` → the media store's own records) — a real read of
+   * the durable record, never a guess.
+   */
+  findSourceKey(sessionId: string): Promise<string | null>;
   /**
    * Counted reconstruction skips (the rights-denied class — a recorded
    * policy that has expired / derives no capability — AND the
@@ -236,6 +262,7 @@ export function createDurableControlPlane(
     attestations,
     pipeline,
     artifacts,
+    media,
     provider = "in-memory",
     nowMs,
   } = options;
@@ -378,20 +405,48 @@ export function createDurableControlPlane(
   /**
    * Reconstructs one durable session in-process: `createSession` through the
    * REAL (rights-governed) control plane with the recorded id, policy, label
-   * and RECORDED creation time; the deterministic fixture story re-run (the
-   * same engine/story data the creating instance produced); the recorded
-   * publication decision and attestation re-seeded; each recorded render's
-   * outputs re-materialized under the recorded ids. A reconstruction failure
-   * propagates — the honest error, never stale or invented state.
+   * and RECORDED creation time; the deterministic source replay — the
+   * fixture story re-run for fixture sources (the same engine/story data
+   * the creating instance produced), or the R207 real-to-SWM pipeline
+   * re-run over the STORED upload bytes for upload sources (R501: same
+   * bytes + same deterministic config → the same engine the creating
+   * instance registered — the perceptual feed is re-derived, never
+   * invented); the recorded publication decision and attestation
+   * re-seeded; each recorded render's outputs re-materialized under the
+   * recorded ids. A reconstruction failure propagates — the honest error,
+   * never stale or invented state.
    */
   async function reconstruct(record: ControlSessionRecord): Promise<boolean> {
-    const spec = studioSourceSpec(record.sourceKey);
-    if (spec === null) {
-      throw new ControlReconstructionError(
-        record.sessionId,
-        `durable control plane: session '${record.sessionId}' records unknown source key ` +
-          `'${record.sourceKey}' (cannot reconstruct)`,
-      );
+    // 0. Resolve the deterministic source replay FIRST — before ANY state
+    //    mutation: an unresolvable source (unknown fixture key, missing
+    //    upload asset/bytes, a pipeline refusal) must leave the instance
+    //    untouched (the bounded-blast-radius rule — a poisoned row is
+    //    skipped from listings, never half-reconstructed into them).
+    let engine: WorldModelEngineInstance;
+    let story: SeedStoryMeta | null = null;
+    if (record.sourceKey.startsWith(STUDIO_UPLOAD_SOURCE_PREFIX)) {
+      engine = await reconstructUploadEngine(record);
+    } else {
+      const spec = studioSourceSpec(record.sourceKey);
+      if (spec === null) {
+        throw new ControlReconstructionError(
+          record.sessionId,
+          `durable control plane: session '${record.sessionId}' records unknown source key ` +
+            `'${record.sourceKey}' (cannot reconstruct)`,
+        );
+      }
+      // The fixture story's content is fixture-time-based (the W912-mirror
+      // determinism proof: re-runs across boots/clocks re-mirror the same
+      // content-addressed ids).
+      const run = runFixtureStory(record.sessionId, spec, nowMs);
+      engine = run.engine;
+      story = {
+        source: "dev-seed",
+        storyKey: record.sourceKey,
+        transcript: run.transcript,
+        events: run.events,
+        waveCount: run.waveCount,
+      };
     }
     // 1. The REAL session creation, with the recorded id + RECORDED createdAt
     //    (the additive control-api seam). The rights-governed wrapper records
@@ -402,20 +457,13 @@ export function createDurableControlPlane(
       sessionId: record.sessionId,
       createdAtIso: record.createdAtIso,
     });
-    // 2. The deterministic story replay — the same engine + story metadata
-    //    the creating instance registered (registered BEFORE any render).
-    //    The fixture story's content is fixture-time-based (the W912-mirror
-    //    determinism proof: re-runs across boots/clocks re-mirror the same
-    //    content-addressed ids).
-    const run = runFixtureStory(record.sessionId, spec, nowMs);
-    engines.set(record.sessionId, run.engine);
-    storyIndex.set(record.sessionId, {
-      source: "dev-seed",
-      storyKey: record.sourceKey,
-      transcript: run.transcript,
-      events: run.events,
-      waveCount: run.waveCount,
-    });
+    // 2. The deterministic source replay's engine + story metadata — the
+    //    same engine the creating instance registered (registered BEFORE
+    //    any render).
+    engines.set(record.sessionId, engine);
+    if (story !== null) {
+      storyIndex.set(record.sessionId, story);
+    }
     // 3. The recorded publication decision + attestation (in-process stores
     //    re-seeded from the record — the W916 visibility is the record's).
     seedVisibility(record.sessionId, record.visibility);
@@ -425,10 +473,84 @@ export function createDurableControlPlane(
     //    the executor's own rights posture.
     const renders = await records.findRenders(record.sessionId);
     for (const render of renders) {
-      await rematerializeOutputs(render, run.engine, canReferenceSourceFramesOf(record));
+      await rematerializeOutputs(render, engine, canReferenceSourceFramesOf(record));
     }
     durableSessions.add(record.sessionId);
     return true;
+  }
+
+  /**
+   * The R501 upload-source engine reconstruction: resolve the recorded
+   * source asset, re-read its STORED bytes through the media storage port
+   * (hash-verified against the asset's own content hash — the W004
+   * integrity posture), and re-run the REAL R207 pipeline over them with
+   * the same deterministic config the studio's creation path used (the
+   * pipeline's documented determinism: same clip + same config → the same
+   * engine). The provenance mirrors the creation path's (the asset id +
+   * content hash). Fail-loud at every step — an unreadable asset or a
+   * pipeline refusal is a real reconstruction failure, never a silently
+   * fresh engine.
+   */
+  async function reconstructUploadEngine(
+    record: ControlSessionRecord,
+  ): Promise<WorldModelEngineInstance> {
+    const assetId = record.sourceKey.slice(STUDIO_UPLOAD_SOURCE_PREFIX.length);
+    const asset = media.service.asset(assetId);
+    if (asset === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: session '${record.sessionId}' records upload source ` +
+          `'${record.sourceKey}' but the media store has no such source asset (cannot reconstruct)`,
+      );
+    }
+    const storedBytes = await media.storage.get(sourceAssetKey(assetId));
+    if (storedBytes === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the stored bytes of upload source '${assetId}' are ` +
+          `unreadable (session '${record.sessionId}' cannot reconstruct)`,
+      );
+    }
+    const verified = await media.storage.verify(sourceAssetKey(assetId), asset.contentHash);
+    if (verified !== asset.contentHash) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the stored bytes of upload source '${assetId}' failed ` +
+          `hash verification (session '${record.sessionId}' cannot reconstruct)`,
+      );
+    }
+    const source: ClipSource = {
+      provenance: {
+        clipId: assetId,
+        sourceSha256: asset.contentHash,
+        normalizationNote: "user upload through the R101 boundary (durable reconstruction re-run)",
+      },
+      bytes: storedBytes,
+      authorizationPolicy: record.rightsDeclaration,
+    };
+    try {
+      const pipeline = new RealToSwmPipeline();
+      const result = await pipeline.run({
+        source,
+        config: {
+          sessionId: record.sessionId,
+          // The same deliberate decode bound the studio's creation path
+          // declared (see create-studio-service.ts) — a recorded decision,
+          // never a default.
+          decode: { maxTotalBytes: STUDIO_UPLOAD_DECODE_BUDGET_BYTES },
+          nowMs: 0,
+        },
+      });
+      return result.engine;
+    } catch (err) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the real-to-SWM replay of upload source '${assetId}' ` +
+          `failed (session '${record.sessionId}'): ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+      );
+    }
   }
 
   /** The recorded policy's dispatch-time source-frames posture (the executor's input). */
@@ -683,6 +805,10 @@ export function createDurableControlPlane(
     noteSessionCreated,
     noteVisibility,
     noteRenderObserved,
+    findSourceKey: async (sessionId: string): Promise<string | null> => {
+      const record = await records.findSession(sessionId);
+      return record === null ? null : record.sourceKey;
+    },
     reconstructionSkips: () => reconstructionSkipCount,
     syncVisibility,
     provider,
