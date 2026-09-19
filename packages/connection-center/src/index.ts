@@ -156,3 +156,28 @@ export type {
   UsageSummary,
   UsageLedgerOptions,
 } from "./ledger";
+// R409 — the managed compute seam
+export {
+  DEFAULT_MAX_ENTITLEMENTS,
+  MANAGED_REFUSAL_BOUNDS,
+  ManagedAdmissionRefusalError,
+  ManagedComputeEntitlement,
+  ManagedComputeSeam,
+  ManagedSequenceError,
+  EntitlementConflictError,
+  EntitlementStoreError,
+  InMemoryEntitlementStore,
+  SqliteEntitlementStore,
+} from "./managed";
+export type {
+  EntitlementStore,
+  EntitlementStoreOptions,
+  EntitlementStoreStats,
+  ManagedAdmission,
+  ManagedAlarmEvent,
+  ManagedComputeEntitlement as ManagedComputeEntitlementDoc,
+  ManagedComputeSeamOptions,
+  ManagedRefusalBound,
+  ManagedStatus,
+  SettlementOutcome,
+} from "./managed";
