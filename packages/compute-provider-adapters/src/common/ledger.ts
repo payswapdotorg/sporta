@@ -532,8 +532,12 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
         };
       }
     }
-    this.transition(record, "cancelled", this.eventOf(record, "cancelled", cancelDetails));
-    this.settle(record, "cancelled", undefined);
+    this.settleAndTransition(
+      record,
+      "cancelled",
+      this.eventOf(record, "cancelled", cancelDetails),
+      undefined,
+    );
     return { cancelled: true, jobId };
   }
 
@@ -646,6 +650,35 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
     }
   }
 
+  /**
+   * Terminal settlement + transition, in the CONTRACT-CORRECT ORDER: the
+   * completion envelope is attached BEFORE the terminal event fans out.
+   * The W914 `awaitCompletion` contract says "the terminal event implies
+   * the completion envelope exists on the next poll" — a synchronous
+   * subscriber that polls inside the terminal-event fan-out must never
+   * observe a terminal state without its envelope (the snapshot contract
+   * forbids exactly that shape). Attaching the envelope first keeps every
+   * mid-fan-out poll consistent; the event TRAIL order is unchanged.
+   */
+  private settleAndTransition(
+    record: JobRecord,
+    disposition: ComputeTerminalDisposition,
+    event: ComputeJobEvent,
+    payload:
+      | { outputs: ComputeOutputArtifact[] }
+      | {
+          failure: {
+            errorClass: string;
+            message: string;
+            terminal: "non-retryable" | "timeout" | "internal";
+          };
+        }
+      | undefined,
+  ): void {
+    this.settle(record, disposition, payload);
+    this.transition(record, disposition, event);
+  }
+
   /** Appends one event to the trail + fans it out to the subscribers. */
   private appendEvent(record: JobRecord, event: ComputeJobEvent): void {
     record.events.push(event);
@@ -667,21 +700,21 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
         () => undefined,
       );
     }
-    this.transition(
+    this.settleAndTransition(
       record,
       "failed",
       this.eventOf(record, "deadline-timeout", {
         deadlineMs: record.job.constraints.deadlineMs,
         elapsedMs: now - record.admittedAtMs,
       }),
-    );
-    this.settle(record, "failed", {
-      failure: {
-        errorClass: "deadline-exceeded",
-        message: `job missed its ${record.job.constraints.deadlineMs}ms whole-job deadline (disposed at poll)`,
-        terminal: "timeout",
+      {
+        failure: {
+          errorClass: "deadline-exceeded",
+          message: `job missed its ${record.job.constraints.deadlineMs}ms whole-job deadline (disposed at poll)`,
+          terminal: "timeout",
+        },
       },
-    });
+    );
   }
 
   /** The decoupled handoff: submit → poll → terminal report into the ledger. */
@@ -710,7 +743,7 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
         // typed refusal reason as the errorClass (the W303 determinate
         // provider-refusal posture — the caller may re-dispatch under a
         // new idempotency key; this adapter never auto-retries dispatch).
-        this.transition(
+        this.settleAndTransition(
           record,
           "failed",
           this.eventOf(record, "failed", {
@@ -720,14 +753,14 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
               ? { transport: submission.refusal.transport }
               : {}),
           }),
-        );
-        this.settle(record, "failed", {
-          failure: {
-            errorClass: submission.refusal.reason,
-            message: submission.refusal.message,
-            terminal: "non-retryable",
+          {
+            failure: {
+              errorClass: submission.refusal.reason,
+              message: submission.refusal.message,
+              terminal: "non-retryable",
+            },
           },
-        });
+        );
         return;
       }
       record.providerJobId = submission.value.providerJobId;
@@ -779,7 +812,7 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
           // (the provider-native error class when the client names one,
           // e.g. the R404 pod-not-found posture), never poll forever.
           const deadLetterClass = polled.refusal.terminalErrorClass ?? "provider-job-not-found";
-          this.transition(
+          this.settleAndTransition(
             record,
             "dead-lettered",
             this.eventOf(record, "dead-lettered", {
@@ -787,14 +820,14 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
               realCause: polled.refusal.message,
               permanent: true,
             }),
-          );
-          this.settle(record, "dead-lettered", {
-            failure: {
-              errorClass: deadLetterClass,
-              message: polled.refusal.message,
-              terminal: "internal",
+            {
+              failure: {
+                errorClass: deadLetterClass,
+                message: polled.refusal.message,
+                terminal: "internal",
+              },
             },
-          });
+          );
           return;
         }
         // Transient poll failure: count it, poll again at the interval
@@ -840,20 +873,22 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
       if (!parsedResult.success) {
         // A lying provider envelope: dead-letter internal, never trust it.
         this.statsState.invalidProviderReports += 1;
-        this.transition(
+        this.settleAndTransition(
           record,
           "dead-lettered",
           this.eventOf(record, "dead-lettered", { errorClass: "invalid-provider-report" }),
-        );
-        this.settle(record, "dead-lettered", {
-          failure: {
-            errorClass: "invalid-provider-report",
-            message:
-              "provider answered a terminal result that is not a valid provider result envelope: " +
-              parsedResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
-            terminal: "internal",
+          {
+            failure: {
+              errorClass: "invalid-provider-report",
+              message:
+                "provider answered a terminal result that is not a valid provider result envelope: " +
+                parsedResult.error.issues
+                  .map((i) => `${i.path.join(".")}: ${i.message}`)
+                  .join("; "),
+              terminal: "internal",
+            },
           },
-        });
+        );
         return;
       }
       const result = parsedResult.data;
@@ -875,7 +910,7 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
       // Late-outcome deadline check (fail-closed: discard the outputs).
       const nowLate = this.nowMs();
       if (nowLate - record.admittedAtMs > record.job.constraints.deadlineMs) {
-        this.transition(
+        this.settleAndTransition(
           record,
           "failed",
           this.eventOf(record, "deadline-timeout", {
@@ -883,14 +918,14 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
             elapsedMs: nowLate - record.admittedAtMs,
             lateOutcome: true,
           }),
-        );
-        this.settle(record, "failed", {
-          failure: {
-            errorClass: "deadline-exceeded",
-            message: `provider outcome arrived after the ${record.job.constraints.deadlineMs}ms whole-job deadline — outputs discarded`,
-            terminal: "timeout",
+          {
+            failure: {
+              errorClass: "deadline-exceeded",
+              message: `provider outcome arrived after the ${record.job.constraints.deadlineMs}ms whole-job deadline — outputs discarded`,
+              terminal: "timeout",
+            },
           },
-        });
+        );
         return;
       }
       for (const inputId of result.consumedInputIds) {
@@ -918,39 +953,39 @@ export class ProviderLedgerAdapter implements ComputeAdapterPort {
         );
       }
       if (result.status === "succeeded") {
-        this.transition(
+        this.settleAndTransition(
           record,
           "succeeded",
           this.eventOf(record, "succeeded", { outputCount: result.outputs.length }),
+          { outputs: result.outputs },
         );
-        this.settle(record, "succeeded", { outputs: result.outputs });
         return;
       }
       const failure = result.failure;
       const bucket: ComputeTerminalDisposition =
         failure?.terminal === "internal" ? "dead-lettered" : "failed";
-      this.transition(
+      this.settleAndTransition(
         record,
         bucket,
         this.eventOf(record, bucket === "dead-lettered" ? "dead-lettered" : "failed", {
           errorClass: failure?.errorClass ?? "provider-failure",
           ...(record.pollFailures > 0 ? { pollFailures: record.pollFailures } : {}),
         }),
+        {
+          failure:
+            failure !== undefined
+              ? {
+                  errorClass: failure.errorClass,
+                  message: failure.message,
+                  terminal: failure.terminal,
+                }
+              : {
+                  errorClass: "invalid-provider-report",
+                  message: "provider reported failure without failure details",
+                  terminal: "internal",
+                },
+        },
       );
-      this.settle(record, bucket, {
-        failure:
-          failure !== undefined
-            ? {
-                errorClass: failure.errorClass,
-                message: failure.message,
-                terminal: failure.terminal,
-              }
-            : {
-                errorClass: "invalid-provider-report",
-                message: "provider reported failure without failure details",
-                terminal: "internal",
-              },
-      });
       return;
     }
   }
