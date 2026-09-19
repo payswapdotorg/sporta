@@ -403,6 +403,51 @@ on public main; 21-commit push backlog ready).
   re-cloned repo (branch tip re-verified byte-exact before merge).
 
 
+## Wave 4 (R501-R503 B / R504-R507 C) — B COMPLETE, C pending
+
+### Worker B — R501+R502+R503 COMPLETE (merged @41f6f75, 2026-09-19)
+
+- Chat fc6c51aa (flight 10 — the only flight to survive the platform's
+  GLM-5.3 CAPACITY SIEGE: between ~05:00-09:30 UTC, 9 prior B flights
+  and 5 C flights were capacity-rolled-back (delayed, list-then-gone),
+  queue-limbo'd (500 + destroyed records), or turn-zombied; the
+  postmortem lives in the TL worklog).
+- The worker landed, verified HEAD ed67199, created the branch, ran the
+  baseline battery, and pushed the full delivery — then the delayed
+  capacity rollback wiped the chat record (the surviving server record
+  shows the 9,451-char prompt with an empty assistant message). Worker
+  died POST-PUSH PRE-REPORT (W909 class): the delivery is real and on
+  the push rail; the completion report is unrecoverable. TL ran the
+  verification battery per the audit-first precedent.
+- DELIVERED VIA THE PUSH RAIL: branch `work/r501-r503-product-plane`
+  on GitHub at 9b01a12, ls-remote verified. Five commits on baseline
+  ed67199: R501 (the real authorized upload flow — durable upload
+  sessions over the R101+R207 seams), R501/R502 (the Create Studio UI
+  — upload source, compute step, honest processing states),
+  R503 (the reality artifact catalog — one session's four-reality
+  artifact set), the R501-R503 test batteries, one format commit.
+- SCOPE: apps/web only + bun.lock (25 files, +3,792/−243):
+  upload-sessions / artifacts / compute-preview routes,
+  create-studio UI (+682), create-studio-service (+625),
+  honest-job-state (+278), catalog-service (+277), durable-control-
+  plane / composition / http-errors extensions, api-types /
+  client-api / create-flow, and three new test batteries
+  (studio-upload-flow 532 lines, studio-upload-durable 222,
+  honest-job-state 207).
+- TL verification on the branch (@9b01a12): the lane's own tests all
+  green. Full battery 4,941 pass / 16 fail / ~60 skip — the 16 are the
+  pre-existing environmental class (apps/web embedded-server /
+  live-route / quota 5s timeouts + the perception benchmark flake),
+  verified same-or-worse on the pre-merge baseline ed67199 itself
+  under the same resident replay-stack load; classes untouched by this
+  lane; zero new failures. Scoped @sporta/web typecheck (the only
+  touched package): 0 errors. eslint on the lane's files: 0 errors.
+  prettier --check apps/web: clean.
+- Lane C incident note: no R504-R507 flight survived the siege (all
+  capacity-culled; the 09:49 final assault send left a stale B-prompt
+  duplicate chat 0caab88d that never generated — voided). C re-dispatch
+  follows after this merge.
+
 ## Worker evidence requirement
 
 Every worker reports:
