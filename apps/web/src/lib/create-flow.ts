@@ -1,6 +1,6 @@
 /**
- * CREATE FLOW MODEL (W906) — the pure, client-safe state machine of the
- * Create Studio's guided flow.
+ * CREATE FLOW MODEL (W906 → R502) — the pure, client-safe state machine of
+ * the Create Studio's guided flow.
  *
  * HONESTY BOUNDARY: every INPUT here is a server answer (the /api/create/*
  * routes' derivations over the real control plane); these functions only
@@ -8,15 +8,33 @@
  * `@sporta/contracts` (server-side); job states come from the real compute
  * ledger; progress fractions come from the real progress events only —
  * when nothing was metered, the answer is `null`, never an invented number.
+ *
+ * R502: the job-state presentation DELEGATES to the pinned
+ * {@link ./honest-job-state} module (the ONE derived, deterministic mapping
+ * — cancellation is a first-class phase there, and the typed failure
+ * reasons ride verbatim).
  */
 import type { RightsPreviewLike, StudioJobLike, StudioOptionsLike } from "./api-types";
+import { honestComputePresentationOf, honestComputeProgressOf } from "./honest-job-state";
 
 // ---------------------------------------------------------------------------
 // The guided-flow state
 // ---------------------------------------------------------------------------
 
-/** The guided steps, in order (ux-architecture: source → … → publish). */
-export const CREATE_STEPS = ["source", "rights", "renderer", "recipe", "review", "render"] as const;
+/**
+ * The guided steps, in order (ux-architecture: source → … → publish). R501
+ * adds the COMPUTE step (the real SelectionDirector's decision surface)
+ * between the recipe and the review.
+ */
+export const CREATE_STEPS = [
+  "source",
+  "rights",
+  "renderer",
+  "recipe",
+  "compute",
+  "review",
+  "render",
+] as const;
 export type CreateStep = (typeof CREATE_STEPS)[number];
 
 // ---------------------------------------------------------------------------
@@ -85,10 +103,14 @@ export function submissionVerdictOf(preview: RightsPreviewLike): {
 // Job → progress presentation (real compute states only)
 // ---------------------------------------------------------------------------
 
-/** The studio's progress presentation of one real compute job state. */
+/**
+ * The studio's progress presentation of one real compute job state (R502:
+ * delegates to the pinned honest mapping — `cancelled` is a first-class
+ * phase, `unreadable` the honest boundary marker).
+ */
 export interface JobProgressView {
   /** The UX-state contract's phase for this job. */
-  phase: "processing" | "ready" | "failed";
+  phase: "processing" | "ready" | "failed" | "cancelled" | "unreadable";
   /** The honest label (never a fabricated percentage). */
   label: string;
   /** `true` once the job reached any terminal disposition. */
@@ -97,26 +119,8 @@ export interface JobProgressView {
 
 /** Maps a REAL compute job state onto the studio's progress presentation. */
 export function jobProgressOf(state: string): JobProgressView {
-  switch (state) {
-    case "admitted":
-    case "dispatched":
-    case "queued":
-      return { phase: "processing", label: "Queued on the compute plane", terminal: false };
-    case "in-flight":
-      return { phase: "processing", label: "Rendering (in flight)", terminal: false };
-    case "succeeded":
-      return { phase: "ready", label: "Render complete", terminal: true };
-    case "failed":
-      return { phase: "failed", label: "Render failed", terminal: true };
-    case "cancelled":
-      return { phase: "failed", label: "Render cancelled", terminal: true };
-    case "dead-lettered":
-      return { phase: "failed", label: "Render dead-lettered", terminal: true };
-    default:
-      // Unknown states are never smoothed over: they present as failed
-      // with the raw state visible (fail-closed presentation).
-      return { phase: "failed", label: `Unknown job state '${state}'`, terminal: true };
-  }
+  const presentation = honestComputePresentationOf(state);
+  return { phase: presentation.phase, label: presentation.label, terminal: presentation.terminal };
 }
 
 /**
@@ -124,13 +128,7 @@ export function jobProgressOf(state: string): JobProgressView {
  * progress events — or `null` when none was metered (never invented).
  */
 export function meteredFractionOf(job: Pick<StudioJobLike, "events">): number | null {
-  let fraction: number | null = null;
-  for (const event of job.events) {
-    if (event.type === "progress" && typeof event.fraction === "number") {
-      fraction = event.fraction;
-    }
-  }
-  return fraction;
+  return honestComputeProgressOf(job);
 }
 
 /** Whether a renderer can produce a stored output through the compute path. */
@@ -148,8 +146,16 @@ export function rendererDispatchabilityOf(renderer: StudioOptionsLike["renderers
 // The flow's local draft (what the UI carries between steps)
 // ---------------------------------------------------------------------------
 
+/** Which real source path the flow runs (R501): a browser upload or the fixture library. */
+export type CreateSourceKind = "upload" | "fixture";
+
 /** Everything the guided flow collected before submission. */
 export interface CreateDraft {
+  /** The source path (R501): a real browser upload or the fixture library. */
+  sourceKind: CreateSourceKind;
+  /** The picked upload file (upload path; held client-side until submission). */
+  file: File | null;
+  /** The fixture source key (fixture path). */
   sourceKey: string | null;
   operations: string[];
   expiresAtIso: string | null;
@@ -157,11 +163,17 @@ export interface CreateDraft {
   rendererId: string | null;
   styleId: string | null;
   outputProfileIndex: number;
+  /** The compute directive (R501): auto or an explicit provider choice. */
+  computeMode: "sporta-auto" | "user-explicit";
+  /** The explicitly chosen provider id (user-explicit mode). */
+  computeProviderId: string | null;
 }
 
 /** The empty draft (step 1's starting point). */
 export function emptyDraft(): CreateDraft {
   return {
+    sourceKind: "upload",
+    file: null,
     sourceKey: null,
     operations: ["analysis", "transformation", "derivativeGeneration", "storage"],
     expiresAtIso: null,
@@ -169,6 +181,8 @@ export function emptyDraft(): CreateDraft {
     rendererId: null,
     styleId: null,
     outputProfileIndex: 0,
+    computeMode: "sporta-auto",
+    computeProviderId: null,
   };
 }
 
@@ -176,15 +190,28 @@ export function emptyDraft(): CreateDraft {
 export function stepSatisfied(step: CreateStep, draft: CreateDraft): boolean {
   switch (step) {
     case "source":
-      return draft.sourceKey !== null;
+      return draft.sourceKind === "upload" ? draft.file !== null : draft.sourceKey !== null;
     case "rights":
       return draft.operations.length > 0;
     case "renderer":
       return draft.rendererId !== null;
     case "recipe":
       return draft.styleId !== null && draft.styleId.trim().length > 0;
+    case "compute":
+      return (
+        draft.computeMode === "sporta-auto" ||
+        (draft.computeMode === "user-explicit" && draft.computeProviderId !== null)
+      );
     case "review":
     case "render":
       return true;
   }
+}
+
+/** Human-readable byte size for the upload constraint copy (display only). */
+export function formatBytes(bytes: number): string {
+  if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(0)} GB`;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
 }

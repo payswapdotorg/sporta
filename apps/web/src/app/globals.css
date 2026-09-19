@@ -919,6 +919,18 @@ svg {
   background: var(--text-faint);
 }
 
+/* R502: a cancelled job is a FIRST-CLASS terminal state — its own honest
+   look (neutral-terminal, distinct from both success and failure). */
+.status-chip.state-cancelled {
+  border-color: color-mix(in srgb, var(--warning, #b8860b) 55%, transparent);
+  color: var(--warning, #b8860b);
+  background: color-mix(in srgb, var(--warning, #b8860b) 10%, transparent);
+}
+
+.status-chip.state-cancelled::before {
+  background: var(--warning, #b8860b);
+}
+
 /* State panels (loading / unavailable / denied / degraded / failed) */
 
 .state-panel {

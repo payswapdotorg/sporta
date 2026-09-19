@@ -9,7 +9,7 @@ export function StateChip({
   state,
   children,
 }: {
-  state: UxState | "authorized" | "denied" | "not-live";
+  state: UxState | "authorized" | "denied" | "not-live" | "cancelled";
   children: React.ReactNode;
 }) {
   return (
