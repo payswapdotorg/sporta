@@ -188,6 +188,69 @@ export async function errorResponse(err: unknown): Promise<Response> {
       },
     } satisfies ApiErrorBody);
   }
+  // The R207 real-to-SWM pipeline's typed errors (R501's upload path): a
+  // fail-closed admission refusal (and the decoding-boundary refusals the
+  // pipeline propagates) is a CLASSIFIED rejection, never a generic 500 —
+  // the studio's upload flow surfaces every rejection typed. LAZY import
+  // for the same build-safety reason (the graph reaches ffmpeg subprocess
+  // tooling and bun:sqlite through the decoding package).
+  let realToSwm: typeof import("@sporta/real-to-swm") | null = null;
+  try {
+    realToSwm = await import("@sporta/real-to-swm");
+  } catch (importErr) {
+    console.error("[api] real-to-swm error classes unavailable:", importErr);
+  }
+  if (realToSwm !== null && realToSwm.isRealToSwmError(err)) {
+    const status =
+      err.terminalFailureClass === "rights-denied"
+        ? 403
+        : err.terminalFailureClass === "resource-limit"
+          ? 413
+          : err.terminalFailureClass === "media-invalid"
+            ? 400
+            : 500;
+    return jsonResponse(status, {
+      error: {
+        failureClass: err.terminalFailureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
+  // The R407 compute-selection errors (R501's compute step): an explicit
+  // directive the director refused (with EVERY reason the broker/axes
+  // recorded) is a classified 422-shaped rejection; a malformed directive
+  // is a 400. Both carry the structured refusal records — the UI shows
+  // them verbatim, never smoothed.
+  let connectionCenter: typeof import("@sporta/connection-center") | null = null;
+  try {
+    connectionCenter = await import("@sporta/connection-center");
+  } catch (importErr) {
+    console.error("[api] connection-center error classes unavailable:", importErr);
+  }
+  if (connectionCenter !== null) {
+    if (err instanceof connectionCenter.SelectionRefusedError) {
+      return jsonResponse(422, {
+        error: {
+          failureClass: err.failureClass,
+          message: err.message,
+          details: {
+            requestedProviderId: err.requestedProviderId ?? null,
+            refusals: err.refusals,
+          },
+        },
+      } satisfies ApiErrorBody);
+    }
+    if (err instanceof connectionCenter.SelectionValidationError) {
+      return jsonResponse(400, {
+        error: {
+          failureClass: "validation",
+          message: err.message,
+          details: { issues: err.issues },
+        },
+      } satisfies ApiErrorBody);
+    }
+  }
   // Observability (the W920 final-gate finding): an unknown failure is LOGGED
   // with its real cause — name, message, stack — before the secret-free
   // generic 500 answers. A silent 500 hid the exact class of intermittent

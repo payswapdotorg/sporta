@@ -3,19 +3,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type {
+  MediaJobLike,
   RenderOutputLike,
   RightsPreviewLike,
+  StudioComputeSelectionLike,
   StudioDispatchLike,
   StudioJobLike,
   StudioOptionsLike,
   StudioSessionLike,
   StudioSessionStateLike,
+  StudioUploadSessionLike,
   WatchModelLike,
 } from "@/lib/api-types";
 import {
+  computeSelectionPreview,
   createStudioSession,
+  createUploadSession,
   dispatchStudioRender,
   fetchCreateOptions,
+  fetchMediaJob,
   fetchRenderOutput,
   fetchStudioJob,
   fetchStudioSession,
@@ -27,6 +33,7 @@ import {
   CREATE_STEPS,
   capabilityLineOf,
   emptyDraft,
+  formatBytes,
   jobProgressOf,
   meteredFractionOf,
   rendererDispatchabilityOf,
@@ -34,22 +41,32 @@ import {
   submissionVerdictOf,
 } from "@/lib/create-flow";
 import type { CreateDraft, CreateStep } from "@/lib/create-flow";
+import {
+  chipStateOf,
+  honestComputePresentationOf,
+  honestFailureLineOf,
+  honestMediaFailureLineOf,
+  honestMediaPresentationOf,
+} from "@/lib/honest-job-state";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
 import { prepareFrameForDisplay } from "@/lib/frame-svg";
 import { ROUTES } from "@/lib/navigation";
 
 /**
- * THE CREATE STUDIO (W906) — the guided creation flow:
- * authorized source → rights declaration → renderer → recipe → review →
- * render (real progress) → preview → publish/private.
+ * THE CREATE STUDIO (W906 → R501/R502) — the guided creation flow:
+ * authorized source (a REAL browser upload or the labeled fixture library)
+ * → rights declaration → renderer → recipe → compute selection (the REAL
+ * SelectionDirector, auditable) → review → render (real progress) →
+ * preview → publish/private.
  *
  * Every state shown is a REAL server answer: the options come from the
- * registry + the fixture library, the rights preview is the contracts'
- * fail-closed derivation, the progress is the compute ledger's own state
- * with its metered fractions (never an invented number), the preview is the
- * stored output through the playback gate, and publish/private is the real
- * visibility flag. No fake upload: this wave's authorized sources are the
- * checked-in fixtures, and the UI says so.
+ * registry + the two source paths, the rights preview is the contracts'
+ * fail-closed derivation, the compute step shows the SelectionDirector's
+ * own auditable explanation, the progress is the compute ledger's own
+ * state with its metered fractions (never an invented number) mapped
+ * through the PINNED honest-state module, the preview is the stored output
+ * through the playback gate, and publish/private is the real visibility
+ * flag.
  */
 
 const STEP_LABELS: Record<CreateStep, string> = {
@@ -57,14 +74,19 @@ const STEP_LABELS: Record<CreateStep, string> = {
   rights: "Rights",
   renderer: "Renderer",
   recipe: "Recipe",
+  compute: "Compute",
   review: "Review",
   render: "Render",
 };
 
 /** The studio's in-flight submission (session + dispatch + poll). */
 interface SubmissionState {
-  session: StudioSessionLike;
+  session: StudioSessionLike | StudioUploadSessionLike;
   dispatch: StudioDispatchLike;
+  /** The upload path's media job id (the normalization pipeline's poll). */
+  mediaJobId: string | null;
+  /** The upload path's honest perception summary (the R207 run). */
+  perception: StudioUploadSessionLike["perception"] | null;
 }
 
 export function CreateStudio() {
@@ -81,9 +103,16 @@ export function CreateStudio() {
     | { phase: "ready"; data: RightsPreviewLike }
     | { phase: "failed"; error: string }
   >({ phase: "idle" });
+  const [computePreview, setComputePreview] = useState<
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: StudioComputeSelectionLike }
+    | { phase: "failed"; error: string }
+  >({ phase: "idle" });
   const [submission, setSubmission] = useState<SubmissionState | null>(null);
   const [job, setJob] = useState<StudioJobLike | null>(null);
   const [jobError, setJobError] = useState<string | null>(null);
+  const [mediaJob, setMediaJob] = useState<MediaJobLike | null>(null);
   const [sessionState, setSessionState] = useState<StudioSessionStateLike | null>(null);
   const [output, setOutput] = useState<
     | { phase: "idle" }
@@ -144,6 +173,49 @@ export function CreateStudio() {
   }, [declarationKey]);
 
   // -------------------------------------------------------------------
+  // Compute preview (the REAL SelectionDirector, re-run per directive)
+  // -------------------------------------------------------------------
+  const renderer =
+    options.phase === "ready"
+      ? (options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null)
+      : null;
+  const computePreviewKey =
+    step === "compute" && renderer !== null
+      ? `${renderer.rendererId}|${draft.outputProfileIndex}|${draft.computeMode}|${draft.computeProviderId ?? ""}`
+      : null;
+  useEffect(() => {
+    if (computePreviewKey === null || renderer === null) {
+      if (step !== "compute") setComputePreview({ phase: "idle" });
+      return;
+    }
+    let cancelled = false;
+    setComputePreview({ phase: "loading" });
+    const profile = renderer.supportedOutputProfiles[draft.outputProfileIndex];
+    void computeSelectionPreview({
+      rendererId: renderer.rendererId,
+      rendererVersion: renderer.rendererVersion,
+      latencyClass: profile?.latencyClass ?? "offline",
+      directive: {
+        mode: draft.computeMode,
+        ...(draft.computeMode === "user-explicit" && draft.computeProviderId !== null
+          ? { providerId: draft.computeProviderId }
+          : {}),
+        preference: { privacyPosture: "privacy-any" },
+      },
+    }).then(
+      (data) => {
+        if (!cancelled) setComputePreview({ phase: "ready", data });
+      },
+      (error) => {
+        if (!cancelled) setComputePreview({ phase: "failed", error: String(error) });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [computePreviewKey]);
+
+  // -------------------------------------------------------------------
   // Job polling (the REAL compute ledger's states — never silent)
   // -------------------------------------------------------------------
   const pollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -177,6 +249,34 @@ export function CreateStudio() {
       stopPolling();
     };
   }, [submission, stopPolling]);
+
+  // -------------------------------------------------------------------
+  // Media-job polling (the upload path's normalization pipeline — the
+  // REAL MediaJobView states, mapped through the pinned honest module)
+  // -------------------------------------------------------------------
+  useEffect(() => {
+    if (submission === null || submission.mediaJobId === null) return;
+    let cancelled = false;
+    const poll = () => {
+      void fetchMediaJob(submission.mediaJobId!).then(
+        (next) => {
+          if (cancelled) return;
+          setMediaJob(next);
+          if (!next.terminal) {
+            pollTimer.current = setTimeout(poll, 700);
+          }
+        },
+        () => {
+          // The media job poll failing is honest to show as-is (the compute
+          // job poll carries the primary error surface).
+        },
+      );
+    };
+    poll();
+    return () => {
+      cancelled = true;
+    };
+  }, [submission]);
 
   // -------------------------------------------------------------------
   // Preview (the real watch surface data, through the playback gate)
@@ -237,10 +337,6 @@ export function CreateStudio() {
     options.phase === "ready"
       ? (options.data?.sources.find((entry) => entry.key === draft.sourceKey) ?? null)
       : null;
-  const renderer =
-    options.phase === "ready"
-      ? (options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null)
-      : null;
   const previewReady = preview.phase === "ready" ? preview.data : null;
   const verdict = previewReady !== null ? submissionVerdictOf(previewReady) : null;
 
@@ -248,24 +344,55 @@ export function CreateStudio() {
     stepSatisfied(step, draft) && (step !== "rights" || verdict?.state === "ready");
 
   const submit = useCallback(async () => {
-    if (source === null || renderer === null || previewReady === null) return;
+    if (renderer === null || previewReady === null) return;
     setSubmitting(true);
     setFlowError(null);
     try {
-      const session = await createStudioSession({
-        sourceKey: source.key,
-        operations: draft.operations,
-        ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
-        sharingScope: draft.sharingScope,
-      });
+      // R501: the source path decides the creation call. The upload path
+      // carries the file + the declaration in ONE multipart request (the
+      // server runs the R101 boundary + the R207 pipeline); the fixture
+      // path is the unchanged W906 flow.
+      const session =
+        draft.sourceKind === "upload" && draft.file !== null
+          ? await createUploadSession({
+              file: draft.file,
+              operations: draft.operations,
+              ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
+              sharingScope: draft.sharingScope,
+            })
+          : await createStudioSession({
+              sourceKey: draft.sourceKey ?? "",
+              operations: draft.operations,
+              ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
+              sharingScope: draft.sharingScope,
+            });
       const dispatch = await dispatchStudioRender(session.sessionId, {
         rendererId: renderer.rendererId,
         styleId: draft.styleId ?? undefined,
         ...(renderer.supportedOutputProfiles[draft.outputProfileIndex] !== undefined
           ? { outputProfile: renderer.supportedOutputProfiles[draft.outputProfileIndex] }
           : {}),
+        compute: {
+          mode: draft.computeMode,
+          ...(draft.computeMode === "user-explicit" && draft.computeProviderId !== null
+            ? { providerId: draft.computeProviderId }
+            : {}),
+          preference: { privacyPosture: "privacy-any" },
+        },
       });
-      setSubmission({ session, dispatch });
+      // R501: the upload answer carries the durable source state (asset +
+      // the admitted media job) + the perception summary; the fixture
+      // answer carries the fixture source view. `perception` discriminates.
+      const uploadAnswer = "perception" in session ? session : null;
+      setSubmission({
+        session,
+        dispatch,
+        mediaJobId:
+          uploadAnswer !== null && uploadAnswer.source.job !== null
+            ? uploadAnswer.source.job.jobId
+            : null,
+        perception: uploadAnswer !== null ? uploadAnswer.perception : null,
+      });
       setStep("render");
     } catch (err) {
       setFlowError(err instanceof Error ? err.message : String(err));
@@ -344,7 +471,15 @@ export function CreateStudio() {
         <SourceStep
           options={options.data}
           draft={draft}
+          onSourceKind={(kind) =>
+            setDraft((prev) => ({
+              ...prev,
+              sourceKind: kind,
+              ...(kind === "upload" ? { sourceKey: null } : { file: null }),
+            }))
+          }
           onPick={(key) => setDraft((prev) => ({ ...prev, sourceKey: key }))}
+          onFile={(file) => setDraft((prev) => ({ ...prev, file }))}
         />
       )}
 
@@ -377,6 +512,19 @@ export function CreateStudio() {
         />
       )}
 
+      {step === "compute" && (
+        <ComputeStep
+          options={options.data}
+          draft={draft}
+          renderer={renderer}
+          preview={computePreview}
+          onMode={(mode) => setDraft((prev) => ({ ...prev, computeMode: mode }))}
+          onProvider={(providerId) =>
+            setDraft((prev) => ({ ...prev, computeProviderId: providerId }))
+          }
+        />
+      )}
+
       {step === "review" && (
         <ReviewStep
           draft={draft}
@@ -384,6 +532,7 @@ export function CreateStudio() {
           renderer={renderer}
           preview={previewReady}
           verdict={verdict}
+          computePreview={computePreview.phase === "ready" ? computePreview.data : null}
           submitting={submitting}
           flowError={flowError}
           onSubmit={() => void submit()}
@@ -395,6 +544,7 @@ export function CreateStudio() {
           submission={submission}
           job={job}
           jobError={jobError}
+          mediaJob={mediaJob}
           sessionState={sessionState}
           watch={watch}
           output={output}
@@ -429,17 +579,22 @@ export function CreateStudio() {
 }
 
 // ---------------------------------------------------------------------------
-// Step 1 — the authorized source (fixture library; honest upload state)
+// Step 1 — the authorized source (a REAL browser upload, or the labeled
+// fixture library dev surface)
 // ---------------------------------------------------------------------------
 
 function SourceStep({
   options,
   draft,
+  onSourceKind,
   onPick,
+  onFile,
 }: {
   options: StudioOptionsLike;
   draft: CreateDraft;
+  onSourceKind: (kind: "upload" | "fixture") => void;
   onPick: (key: string) => void;
+  onFile: (file: File | null) => void;
 }) {
   return (
     <section className="studio-step" aria-labelledby="studio-source-heading">
@@ -447,54 +602,127 @@ function SourceStep({
         Choose an authorized source
       </h2>
       <p className="section-lede">
-        This wave&apos;s authorized sources are the checked-in fixture library the engine runs (real
-        vision lanes + a real commentary transcript). Every downstream number — positions, events,
-        confidences — is computed by the real chain.
+        Upload your own clip — the real perception pipeline runs over YOUR frames — or pick from the
+        checked-in fixture library (an explicitly-labeled development surface).
       </p>
-      <p className="form-notice" role="note">
-        Upload: {options.upload.reason}.
-      </p>
-      <ul className="card-grid studio-source-grid">
-        {options.sources.map((entry) => (
-          <li key={entry.key}>
-            <label
-              className={`session-card studio-source${draft.sourceKey === entry.key ? " current" : ""}`}
-            >
-              <input
-                type="radio"
-                name="studio-source"
-                checked={draft.sourceKey === entry.key}
-                onChange={() => onPick(entry.key)}
-              />
-              <span className="session-card-title">{entry.label}</span>
-              <span className="studio-source-description">{entry.description}</span>
-              <dl className="session-card-facts">
-                <div className="fact">
-                  <dt>Camera</dt>
-                  <dd>
-                    pan {entry.camera.pan} · zoom {entry.camera.zoom} · jitter {entry.camera.jitter}
-                  </dd>
-                </div>
-                <div className="fact">
-                  <dt>Commentary</dt>
-                  <dd>{entry.commentary.length} windows</dd>
-                </div>
-                <div className="fact">
-                  <dt>Known entities</dt>
-                  <dd>{[...entry.lexicon.players, ...entry.lexicon.teams].join(", ") || "none"}</dd>
-                </div>
-              </dl>
-              <span className="commentary-list">
-                {entry.commentary.map((window) => (
-                  <span className="commentary-line" key={`${entry.key}-${window.startMs}`}>
-                    “{window.text}”
-                  </span>
-                ))}
-              </span>
-            </label>
-          </li>
-        ))}
-      </ul>
+
+      <div className="form-field">
+        <fieldset>
+          <legend>Source path</legend>
+          <ul className="studio-operation-list">
+            <li>
+              <label>
+                <input
+                  type="radio"
+                  name="studio-source-kind"
+                  checked={draft.sourceKind === "upload"}
+                  onChange={() => onSourceKind("upload")}
+                />
+                <span className="studio-operation-label">Upload your clip</span>
+                <span className="studio-operation-description">
+                  A real browser upload through the server&apos;s ingestion boundary
+                </span>
+              </label>
+            </li>
+            <li>
+              <label>
+                <input
+                  type="radio"
+                  name="studio-source-kind"
+                  checked={draft.sourceKind === "fixture"}
+                  onChange={() => onSourceKind("fixture")}
+                />
+                <span className="studio-operation-label">Fixture library</span>
+                <span className="studio-operation-description">
+                  The checked-in dev surface (real engine inputs, labeled)
+                </span>
+              </label>
+            </li>
+          </ul>
+        </fieldset>
+      </div>
+
+      {draft.sourceKind === "upload" ? (
+        <div className="studio-upload">
+          {options.upload.available ? (
+            <>
+              <div className="form-field">
+                <label htmlFor="studio-upload-file">Your MP4 clip</label>
+                <input
+                  id="studio-upload-file"
+                  type="file"
+                  accept="video/mp4,.mp4"
+                  onChange={(event) => onFile(event.target.files?.[0] ?? null)}
+                />
+                <p className="field-hint">
+                  Constraints enforced server-side before anything is stored:{" "}
+                  {options.upload.constraints.container.toUpperCase()} container · up to{" "}
+                  {formatBytes(options.upload.constraints.maxBytes)} · at most{" "}
+                  {Math.round(options.upload.constraints.maxDurationMs / 1000)}s · at least one
+                  video stream. Every rejection is typed — nothing is stored on refusal.
+                </p>
+              </div>
+              {draft.file !== null && (
+                <p className="field-note" role="status">
+                  Picked <strong>{draft.file.name}</strong> ({formatBytes(draft.file.size)}) — the
+                  upload, its server-side constraint checks, and the real-to-SWM pipeline run when
+                  you submit; the session is created under your rights declaration.
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="form-notice" role="note">
+              Upload: {options.upload.reason}
+            </p>
+          )}
+        </div>
+      ) : (
+        <ul className="card-grid studio-source-grid">
+          {options.sources.map((entry) => (
+            <li key={entry.key}>
+              <label
+                className={`session-card studio-source${draft.sourceKey === entry.key ? " current" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="studio-source"
+                  checked={draft.sourceKey === entry.key}
+                  onChange={() => onPick(entry.key)}
+                />
+                <span className="session-card-title">{entry.label}</span>
+                <span className="studio-source-description">{entry.description}</span>
+                <dl className="session-card-facts">
+                  <div className="fact">
+                    <dt>Camera</dt>
+                    <dd>
+                      pan {entry.camera.pan} · zoom {entry.camera.zoom} · jitter{" "}
+                      {entry.camera.jitter}
+                    </dd>
+                  </div>
+                  <div className="fact">
+                    <dt>Commentary</dt>
+                    <dd>{entry.commentary.length} windows</dd>
+                  </div>
+                  <div className="fact">
+                    <dt>Known entities</dt>
+                    <dd>
+                      {[...entry.lexicon.players, ...entry.lexicon.teams].join(", ") || "none"}
+                    </dd>
+                  </div>
+                </dl>
+                <span className="commentary-list">
+                  {entry.commentary.map((window) => (
+                    <span className="commentary-line" key={`${entry.key}-${window.startMs}`}>
+                      “{window.text}”
+                    </span>
+                  ))}
+                </span>
+                <StateChip state="unavailable">dev surface — fixture library</StateChip>
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
@@ -745,10 +973,10 @@ function RecipeStep({
         Set the recipe
       </h2>
       <p className="section-lede">
-        The recipe carries your style label and one of the renderer&apos;s real output profiles.
-        Commentary, camera behavior and tactics come from the source fixture itself (the real engine
-        inputs below) — there is no separate commentary/camera/tactical renderer to configure this
-        wave.
+        The recipe carries your style label and one of the renderer&apos;s real output profiles. For
+        an uploaded clip the engine inputs come from the real-to-SWM pipeline over YOUR frames; for
+        a fixture they come from the source fixture itself — there is no separate
+        commentary/camera/tactical renderer to configure this wave.
       </p>
       <div className="form-field">
         <label htmlFor="studio-style">Style label</label>
@@ -809,7 +1037,201 @@ function RecipeStep({
 }
 
 // ---------------------------------------------------------------------------
-// Step 5 — review + submit
+// Step 5 — the compute selection (the REAL SelectionDirector, auditable)
+// ---------------------------------------------------------------------------
+
+function ComputeStep({
+  options,
+  draft,
+  renderer,
+  preview,
+  onMode,
+  onProvider,
+}: {
+  options: StudioOptionsLike;
+  draft: CreateDraft;
+  renderer: StudioOptionsLike["renderers"][number] | null;
+  preview:
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "ready"; data: StudioComputeSelectionLike }
+    | { phase: "failed"; error: string };
+  onMode: (mode: "sporta-auto" | "user-explicit") => void;
+  onProvider: (providerId: string | null) => void;
+}) {
+  return (
+    <section className="studio-step" aria-labelledby="studio-compute-heading">
+      <h2 id="studio-compute-heading" className="studio-step-title">
+        Choose the compute
+      </h2>
+      <p className="section-lede">
+        The compute selection runs through the real selection director: choose a provider yourself
+        or let the platform choose — either way the auditable explanation (every considered
+        provider&apos;s quote, refusal, or exclusion) is shown verbatim, and the dispatch verifies
+        the same decision.
+      </p>
+
+      {options.selection === null ? (
+        <StatePanel
+          state="unavailable"
+          title="No compute selection is available"
+          reason="No compute plane / selection seam is configured — the render dispatch would answer the control plane's typed 503."
+        />
+      ) : (
+        <>
+          <fieldset className="form-field">
+            <legend>Selection mode</legend>
+            <ul className="studio-operation-list">
+              <li>
+                <label>
+                  <input
+                    type="radio"
+                    name="studio-compute-mode"
+                    checked={draft.computeMode === "sporta-auto"}
+                    onChange={() => onMode("sporta-auto")}
+                  />
+                  <span className="studio-operation-label">Let the platform choose</span>
+                  <span className="studio-operation-description">
+                    The deterministic policy order (first eligible in registration order), explained
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label>
+                  <input
+                    type="radio"
+                    name="studio-compute-mode"
+                    checked={draft.computeMode === "user-explicit"}
+                    onChange={() => onMode("user-explicit")}
+                  />
+                  <span className="studio-operation-label">Choose a provider</span>
+                  <span className="studio-operation-description">
+                    Your explicit choice wins or fails loudly with every recorded reason
+                  </span>
+                </label>
+              </li>
+            </ul>
+          </fieldset>
+
+          {draft.computeMode === "user-explicit" && (
+            <fieldset className="form-field">
+              <legend>Provider</legend>
+              <ul className="studio-operation-list">
+                {options.selection.providers.map((provider) => (
+                  <li key={provider.providerId}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="studio-compute-provider"
+                        checked={draft.computeProviderId === provider.providerId}
+                        onChange={() => onProvider(provider.providerId)}
+                      />
+                      <span className="studio-operation-label">{provider.providerId}</span>
+                      <span className="studio-operation-description">
+                        zone {provider.privacyZone}
+                        {provider.capabilityClasses.length > 0
+                          ? ` · ${provider.capabilityClasses.join(", ")}`
+                          : ""}
+                        {provider.vramMb !== undefined
+                          ? ` · ${provider.vramMb}MB VRAM declared`
+                          : ""}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </fieldset>
+          )}
+
+          {renderer === null ? (
+            <p className="field-note">Pick a renderer first — the selection quotes its workload.</p>
+          ) : preview.phase === "idle" ? null : preview.phase === "loading" ? (
+            <LoadingPanel label="Running the selection director" />
+          ) : preview.phase === "failed" ? (
+            <StatePanel
+              state="failed"
+              title="The selection was refused"
+              reason={`${preview.error} — a typed refusal, never a silent fallback.`}
+            />
+          ) : (
+            <SelectionExplanationPanel selection={preview.data} />
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+/** The auditable explanation, rendered verbatim from the director's document. */
+function SelectionExplanationPanel({ selection }: { selection: StudioComputeSelectionLike }) {
+  return (
+    <section className="studio-rights-preview" aria-live="polite">
+      <h3 className="studio-subheading">The auditable selection (derived)</h3>
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Selected provider</dt>
+          <dd>
+            <code>{selection.selection.providerId}</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Workload</dt>
+          <dd>
+            {selection.request.rendererId} · {selection.request.latencyClass} · deadline{" "}
+            {selection.request.deadlineMs}ms
+          </dd>
+        </div>
+      </dl>
+      <p className="field-hint">{selection.explanation.selectionReason}</p>
+      <table className="data-table">
+        <caption className="studio-subheading">Every considered provider (verbatim)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Provider</th>
+            <th scope="col">Quote</th>
+            <th scope="col">Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          {selection.explanation.considered.map((entry) => (
+            <tr key={entry.providerId}>
+              <td>
+                <code>{entry.providerId}</code>
+              </td>
+              <td>
+                {entry.quote === undefined
+                  ? "—"
+                  : `${entry.quote.estimatedCostUsd === null ? "cost unknown" : `$${entry.quote.estimatedCostUsd}`} · ${
+                      entry.quote.estimatedQueueSeconds === null
+                        ? "queue unknown"
+                        : `${entry.quote.estimatedQueueSeconds}s queue`
+                    }`}
+              </td>
+              <td>
+                {entry.providerId === selection.selection.providerId ? (
+                  <StateChip state="ready">selected</StateChip>
+                ) : entry.brokerRefusal !== undefined ? (
+                  <span className="field-hint">
+                    refused: {entry.brokerRefusal.reason} — {entry.brokerRefusal.message}
+                  </span>
+                ) : entry.preferenceExclusion !== undefined ? (
+                  <span className="field-hint">
+                    excluded ({entry.preferenceExclusion.axis}): {entry.preferenceExclusion.message}
+                  </span>
+                ) : (
+                  <span className="field-hint">not selected</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Step 6 — review + submit
 // ---------------------------------------------------------------------------
 
 function ReviewStep({
@@ -818,6 +1240,7 @@ function ReviewStep({
   renderer,
   preview,
   verdict,
+  computePreview,
   submitting,
   flowError,
   onSubmit,
@@ -827,6 +1250,7 @@ function ReviewStep({
   renderer: StudioOptionsLike["renderers"][number] | null;
   preview: RightsPreviewLike | null;
   verdict: { state: "ready" | "denied"; warning: string | null } | null;
+  computePreview: StudioComputeSelectionLike | null;
   submitting: boolean;
   flowError: string | null;
   onSubmit: () => void;
@@ -839,7 +1263,11 @@ function ReviewStep({
       <dl className="session-card-facts">
         <div className="fact">
           <dt>Source</dt>
-          <dd>{source?.label ?? "—"}</dd>
+          <dd>
+            {draft.sourceKind === "upload"
+              ? (draft.file?.name ?? "your upload")
+              : (source?.label ?? "—")}
+          </dd>
         </div>
         <div className="fact">
           <dt>Renderer</dt>
@@ -848,6 +1276,14 @@ function ReviewStep({
         <div className="fact">
           <dt>Style</dt>
           <dd>{draft.styleId ?? "—"}</dd>
+        </div>
+        <div className="fact">
+          <dt>Compute</dt>
+          <dd>
+            {computePreview === null
+              ? draft.computeMode
+              : `${draft.computeMode} → ${computePreview.selection.providerId}`}
+          </dd>
         </div>
         <div className="fact">
           <dt>Operations declared</dt>
@@ -863,6 +1299,7 @@ function ReviewStep({
         </div>
       </dl>
       {preview !== null && <RightsPreviewPanel preview={{ phase: "ready", data: preview }} />}
+      {computePreview !== null && <SelectionExplanationPanel selection={computePreview} />}
       {flowError !== null && (
         <p className="form-error" role="alert">
           {flowError}
@@ -883,13 +1320,14 @@ function ReviewStep({
 }
 
 // ---------------------------------------------------------------------------
-// Step 6 — progress + preview + publish/private
+// Step 7 — the honest processing + preview + publish/private
 // ---------------------------------------------------------------------------
 
 function RenderStep({
   submission,
   job,
   jobError,
+  mediaJob,
   sessionState,
   watch,
   output,
@@ -899,6 +1337,7 @@ function RenderStep({
   submission: SubmissionState;
   job: StudioJobLike | null;
   jobError: string | null;
+  mediaJob: MediaJobLike | null;
   sessionState: StudioSessionStateLike | null;
   watch: WatchModelLike | null;
   output:
@@ -910,9 +1349,13 @@ function RenderStep({
   publishing: boolean;
   onVisibility: (visibility: "public" | "private") => void;
 }) {
+  // R502: the PINNED honest presentations — derived from the server's own
+  // projections, nothing else.
   const progress = job !== null ? jobProgressOf(job.state) : null;
+  const computePresentation = job !== null ? honestComputePresentationOf(job.state) : null;
   const fraction = job !== null ? meteredFractionOf(job) : null;
   const completion = job?.completion ?? null;
+  const mediaPresentation = mediaJob !== null ? honestMediaPresentationOf(mediaJob.state) : null;
   const previewSvg = useMemo(() => {
     if (output.phase !== "ready") return null;
     const frameCount = output.data.manifest.frameCount;
@@ -948,9 +1391,75 @@ function RenderStep({
         </div>
         <div className="fact">
           <dt>Compute adapter</dt>
-          <dd>{submission.dispatch.adapterId}</dd>
+          <dd>
+            {submission.dispatch.adapterId}
+            {submission.dispatch.selection !== undefined
+              ? ` (selected: ${submission.dispatch.selection.providerId}, ${submission.dispatch.selection.mode})`
+              : ""}
+          </dd>
         </div>
       </dl>
+
+      {/* The upload path's source + perception summary (R501) */}
+      {submission.perception !== null && (
+        <section className="studio-progress" data-surface="upload-perception">
+          <h3 className="studio-subheading">Your clip&apos;s perception run (real-to-SWM)</h3>
+          <dl className="session-card-facts">
+            <div className="fact">
+              <dt>Frames decoded</dt>
+              <dd>{submission.perception.frameCount}</dd>
+            </div>
+            <div className="fact">
+              <dt>Snapshots</dt>
+              <dd>{submission.perception.snapshotCount}</dd>
+            </div>
+            <div className="fact">
+              <dt>World events</dt>
+              <dd>{submission.perception.eventCount}</dd>
+            </div>
+            <div className="fact">
+              <dt>Degradations recorded</dt>
+              <dd>{submission.perception.degradationCount}</dd>
+            </div>
+          </dl>
+          <p className="field-hint">{submission.perception.summary}</p>
+        </section>
+      )}
+
+      {/* The upload path's media job — the R103 honest states (R502) */}
+      {submission.mediaJobId !== null && (
+        <section className="studio-progress" data-surface="media-job" aria-live="polite">
+          <h3 className="studio-subheading">The upload pipeline (honest states)</h3>
+          {mediaJob === null ? (
+            <LoadingPanel label="Reading the media job state" />
+          ) : (
+            <>
+              <div className="studio-progress-head">
+                <StateChip state={chipStateOf(mediaPresentation!)}>
+                  {mediaPresentation!.state}
+                </StateChip>
+                <span className="field-hint">{mediaPresentation!.label}</span>
+                <span className="studio-progress-fraction">
+                  {Math.round(mediaJob.progress * 100)}% metered
+                </span>
+              </div>
+              <ol className="studio-event-trail">
+                {mediaJob.stages.map((stage, index) => (
+                  <li key={`${stage.stage}-${index}`}>
+                    <span className="studio-event-type">{stage.stage}</span>{" "}
+                    <span className="subtle">{Math.round(stage.fraction * 100)}%</span>
+                  </li>
+                ))}
+              </ol>
+              {mediaJob.failure !== undefined && (
+                <p className="form-error" role="alert">
+                  {honestMediaFailureLineOf(mediaJob.failure)}
+                </p>
+              )}
+            </>
+          )}
+        </section>
+      )}
 
       {jobError !== null && (
         <StatePanel state="failed" title="The job state could not be read" reason={jobError} />
@@ -958,17 +1467,15 @@ function RenderStep({
 
       {progress === null && <LoadingPanel label="Reading the compute ledger" />}
 
-      {progress !== null && job !== null && (
+      {progress !== null && job !== null && computePresentation !== null && (
         <section className="studio-progress" aria-live="polite">
           <div className="studio-progress-head">
-            <StateChip state={progress.phase === "ready" ? "ready" : progress.phase}>
-              {progress.label}
+            <StateChip state={chipStateOf(computePresentation)}>
+              {computePresentation.state}
             </StateChip>
-            {fraction !== null && (
-              <span className="studio-progress-fraction">
-                {Math.round(fraction * 100)}% metered
-              </span>
-            )}
+            <span className="studio-progress-fraction">
+              {fraction !== null ? `${Math.round(fraction * 100)}% metered` : ""}
+            </span>
             {fraction === null && !progress.terminal && (
               <span className="field-hint">
                 no metered fraction yet — the ledger&apos;s events are the truth
@@ -1037,8 +1544,7 @@ function RenderStep({
               </dl>
               {completion.failure !== undefined && (
                 <p className="form-error" role="alert">
-                  {completion.failure.errorClass}: {completion.failure.message} (
-                  {completion.failure.terminal})
+                  {honestFailureLineOf(completion.failure)}
                 </p>
               )}
             </section>

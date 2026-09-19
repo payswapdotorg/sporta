@@ -547,6 +547,283 @@ export async function buildRealityGroups(
 }
 
 // ---------------------------------------------------------------------------
+// The reality artifact catalog (R503 — the Watch player's data contract)
+// ---------------------------------------------------------------------------
+
+/**
+ * The per-reality availability vocabulary of the artifact catalog (R503).
+ * Every member is an HONEST derived state over the real stores — the kind
+ * of state, never a smoothed-over guess.
+ */
+export type RealityArtifactAvailability =
+  /** The store holds real artifacts for this reality. */
+  | "ready"
+  /** A real job is executing for this reality (its live state is carried). */
+  | "job-in-flight"
+  /** A real job failed (its typed failure is carried verbatim). */
+  | "job-failed"
+  /** A producer is registered for this reality; nothing has been produced yet. */
+  | "requires-render"
+  /** (the `original` reality) this session has no uploaded source. */
+  | "requires-upload"
+  /** No registered producer for this reality on this control plane. */
+  | "producer-unavailable";
+
+/** The closed reality-kind order of the catalog (the frozen contract enum). */
+export const CATALOG_REALITY_KINDS = ["original", "tactical", "three-d-game", "anime-npr"] as const;
+
+/**
+ * One real artifact descriptor the store actually holds (R503): the
+ * artifact's id, its reality kind, the manifest link (the route that serves
+ * the manifest/output document — playback-gated where the bytes are), and
+ * the integrity hash (the content address the store verified). Entries
+ * exist ONLY for real artifacts — never fixture stand-ins.
+ */
+export interface RealityArtifactDescriptor {
+  /** The artifact's id (the media platform's artifact id, or the W504 render+segment). */
+  artifactId: string;
+  /** The reality kind this artifact belongs to (the frozen contract vocabulary). */
+  kind: (typeof CATALOG_REALITY_KINDS)[number];
+  /** The route serving this artifact's manifest/output document. */
+  manifestLink: string;
+  /** The integrity hash (sha-256 content address the store verified). */
+  integrityHash: string;
+  byteSize: number;
+  contentType: string;
+  /** The producing renderer (or the normalization pipeline, for `original`). */
+  producerId: string;
+}
+
+/** One reality's artifact set for one session (R503). */
+export interface RealityArtifactEntry {
+  kind: (typeof CATALOG_REALITY_KINDS)[number];
+  availability: RealityArtifactAvailability;
+  /** The honest reason for the availability state (typed reasons verbatim). */
+  reason: string;
+  /** ONLY real artifacts the store holds (empty for non-ready states). */
+  artifacts: RealityArtifactDescriptor[];
+}
+
+/**
+ * One session's REALITY ARTIFACT CATALOG (R503): the artifact set across
+ * the four MVP realities, linked through the REAL encoding manifests +
+ * artifact stores (the media platform's `RenderArtifactManifest` records +
+ * the control plane's W504 render outputs). This is the data contract the
+ * Watch player (R504, sibling lane) consumes.
+ *
+ * W916 fail-closed posture preserved exactly: a playback-denied session
+ * reveals NOTHING — `realities: null` (the same semantics the card model's
+ * `realities` field carries).
+ */
+export interface SessionArtifactCatalog {
+  sessionId: string;
+  label: string;
+  status: string;
+  createdAtIso: string;
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  /**
+   * The four reality entries in the frozen contract order — `null` when
+   * playback is denied (a denied session reveals nothing about how it was
+   * rendered or sourced).
+   */
+  realities: RealityArtifactEntry[] | null;
+  /** How many realities hold real artifacts (`null` when denied). */
+  readyRealityCount: number | null;
+}
+
+/** The route prefix of the media platform's artifact manifest documents. */
+const MEDIA_ARTIFACT_LINK_PREFIX = "/api/media/artifacts/";
+
+/**
+ * Builds one session's artifact catalog (R503). PURE OVER THE REAL STORES:
+ *
+ * - the `original` reality reads the media platform's session-indexed
+ *   `RenderArtifactManifest` records (real uploads; the availability falls
+ *   back to the studio's honest session→source join for in-flight/failed
+ *   upload jobs);
+ * - each derived reality reads the composition's renderer→reality
+ *   declarations (`server.realityProducers` — operator DATA, never a
+ *   guess) and the control plane's renders + stored W504 outputs for the
+ *   mapped renderers;
+ * - realities with no registered producer answer `producer-unavailable`
+ *   with the honest reason — the catalog NEVER invents artifacts.
+ */
+export async function buildArtifactCatalog(
+  server: SportaServer,
+  requester: CatalogRequester,
+  sessionId: string,
+): Promise<SessionArtifactCatalog> {
+  // Discoverability first (the listing rule — a non-discoverable session is
+  // absent, never 403-vs-404 distinguished).
+  const { sessions } = await server.control.listSessions();
+  const summary = sessions.find((entry) => entry.id === sessionId);
+  const label = summary?.sourceLabel ?? sessionId;
+  const facts = await accessFactsOf(server, sessionId, label);
+  if (!sessionDiscoverableBy(requester, facts)) {
+    const { ControlUnknownSessionError } = await import("@sporta/control-api");
+    throw new ControlUnknownSessionError(sessionId);
+  }
+  const { session, rightsCapabilities } = await server.control.getSession(sessionId);
+  const authorized = rightsCapabilities.canStoreDerivatives === true;
+  if (!authorized) {
+    // The W916 posture: a playback-denied session reveals NOTHING about its
+    // realities or artifacts — the same `realities: null` semantics.
+    return {
+      sessionId,
+      label,
+      status: session.status,
+      createdAtIso: session.createdAtIso,
+      playback: { state: "denied", reasonCode: "rights-denied" },
+      realities: null,
+      readyRealityCount: null,
+    };
+  }
+
+  const entries: RealityArtifactEntry[] = [];
+  for (const kind of CATALOG_REALITY_KINDS) {
+    entries.push(await realityArtifactEntryOf(server, sessionId, kind));
+  }
+  return {
+    sessionId,
+    label,
+    status: session.status,
+    createdAtIso: session.createdAtIso,
+    playback: { state: "authorized", reasonCode: "ok" },
+    realities: entries,
+    readyRealityCount: entries.filter((entry) => entry.availability === "ready").length,
+  };
+}
+
+/** One reality's entry, derived from the real stores (never invented). */
+async function realityArtifactEntryOf(
+  server: SportaServer,
+  sessionId: string,
+  kind: (typeof CATALOG_REALITY_KINDS)[number],
+): Promise<RealityArtifactEntry> {
+  if (kind === "original") {
+    return await originalRealityEntryOf(server, sessionId);
+  }
+  // The derived realities: the composition's renderer→reality declarations
+  // decide which registered renderers produce this kind (operator DATA).
+  const producerRendererIds = [...server.realityProducers.entries()]
+    .filter(([, reality]) => reality === kind)
+    .map(([rendererId]) => rendererId)
+    .sort();
+  if (producerRendererIds.length === 0) {
+    return {
+      kind,
+      availability: "producer-unavailable",
+      reason:
+        `no renderer producing the '${kind}' reality is registered on this control plane — ` +
+        "the catalog lists only artifacts a real producer stored",
+      artifacts: [],
+    };
+  }
+  const { renders } = await server.control.listRenders(sessionId);
+  const realityRenders = renders.filter((render) =>
+    producerRendererIds.includes(render.rendererId),
+  );
+  const descriptors: RealityArtifactDescriptor[] = [];
+  for (const render of realityRenders) {
+    const outputs = await server.control.listRenderOutputs(sessionId, render.renderId);
+    for (const segment of outputs.segments) {
+      descriptors.push({
+        artifactId: segment.segmentId,
+        kind,
+        manifestLink: `/api/watch/${encodeURIComponent(sessionId)}/renders/${encodeURIComponent(
+          render.renderId,
+        )}/outputs/${encodeURIComponent(segment.segmentId)}`,
+        integrityHash: segment.contentHash,
+        byteSize: segment.byteLength,
+        contentType: segment.contentType,
+        producerId: render.rendererId,
+      });
+    }
+  }
+  if (descriptors.length > 0) {
+    return {
+      kind,
+      availability: "ready",
+      reason: `the store holds ${descriptors.length} stored output(s) for this reality (renderer(s): ${producerRendererIds.join(", ")})`,
+      artifacts: descriptors,
+    };
+  }
+  return {
+    kind,
+    availability: "requires-render",
+    reason:
+      `a renderer for this reality is registered (${producerRendererIds.join(", ")}) but no ` +
+      "stored output exists for this session yet — outputs appear when a dispatched render job completes",
+    artifacts: [],
+  };
+}
+
+/** The `original` reality's entry — the media platform's real artifacts. */
+async function originalRealityEntryOf(
+  server: SportaServer,
+  sessionId: string,
+): Promise<RealityArtifactEntry> {
+  const artifacts = server.media
+    .artifactsOfSession(sessionId)
+    .filter((artifact) => artifact.reality === "original");
+  if (artifacts.length > 0) {
+    return {
+      kind: "original",
+      availability: "ready",
+      reason: `the store holds ${artifacts.length} verified original-reality artifact(s) from the session's uploaded source`,
+      artifacts: artifacts.map((artifact) => ({
+        artifactId: artifact.artifactId,
+        kind: "original" as const,
+        manifestLink: `${MEDIA_ARTIFACT_LINK_PREFIX}${encodeURIComponent(artifact.artifactId)}`,
+        integrityHash: artifact.contentHash,
+        byteSize: artifact.byteSize,
+        contentType: `${artifact.container}/${artifact.videoCodec}`,
+        producerId: artifact.rendererId,
+      })),
+    };
+  }
+  // No stored artifact yet: the studio's honest session→source join decides
+  // between an in-flight/failed upload job and "no uploaded source at all".
+  const source = await server.studio.sessionUploadSource(sessionId);
+  if (source === null) {
+    return {
+      kind: "original",
+      availability: "requires-upload",
+      reason:
+        "this session has no uploaded source — the original reality exists only for sessions created from a real upload",
+      artifacts: [],
+    };
+  }
+  if (source.job !== null && !source.job.terminal) {
+    return {
+      kind: "original",
+      availability: "job-in-flight",
+      reason: `the upload's media job is ${source.job.state} (stage: ${
+        source.job.stages.at(-1)?.stage ?? "unknown"
+      }) — the original artifact appears when it completes`,
+      artifacts: [],
+    };
+  }
+  if (source.job !== null && source.job.state === "failed") {
+    return {
+      kind: "original",
+      availability: "job-failed",
+      reason:
+        `the upload's media job failed: ${source.job.failure?.failureClass ?? "internal"} — ` +
+        `${source.job.failure?.message ?? "no failure message recorded"} (typed reason, verbatim)`,
+      artifacts: [],
+    };
+  }
+  return {
+    kind: "original",
+    availability: "requires-upload",
+    reason:
+      "the session's uploaded source has not produced a stored artifact yet and no live media job remains — re-upload to produce the original reality",
+    artifacts: [],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Search (W916 — the Search surface's data layer)
 // ---------------------------------------------------------------------------
 

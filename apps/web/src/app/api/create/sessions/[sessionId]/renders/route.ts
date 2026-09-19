@@ -6,17 +6,21 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/create/sessions/[sessionId]/renders — dispatch ONE REAL render
- * (W906): the control plane's async compute surface (`createRenderAsync`)
- * through the configured compute adapter — the W914 seam the
- * `/api/compute` worker route also serves. The job executes through the
- * REAL renderer plugin and the REAL W504 encode/store; its outputs are
+ * (W906 → R501): the control plane's async compute surface
+ * (`createRenderAsync`) through the configured compute adapter — the W914
+ * seam the `/api/compute` worker route also serves. The job executes through
+ * the REAL renderer plugin and the REAL W504 encode/store; its outputs are
  * ingested into the playback store the watch surface reads when it
  * settles. The session's own rights gate the render fail-closed (the
  * control plane re-derives before dispatch).
  *
  * Owner/operator only. Body:
- * `{ rendererId, rendererVersion?, styleId?, outputProfile? }` where
- * `outputProfile` is one of the renderer's real supported profiles.
+ * `{ rendererId, rendererVersion?, styleId?, outputProfile?, compute? }`
+ * where `outputProfile` is one of the renderer's real supported profiles
+ * and `compute` (R501) is the caller's selection directive — `{ mode:
+ * "user-explicit" | "sporta-auto", providerId?, preference? }` — verified
+ * through the REAL SelectionDirector before the dispatch (fail-loud on a
+ * refusal; the auditable explanation rides in the 202 answer).
  */
 export async function POST(
   request: Request,
@@ -70,6 +74,7 @@ export async function POST(
             },
           }
         : {}),
+      ...(isComputeDirectiveShape(record.compute) ? { compute: record.compute } : {}),
     });
     return jsonResponse(202, dispatch);
   } catch (err) {
@@ -99,4 +104,43 @@ function isOutputProfileShape(value: unknown): value is {
     typeof profile.latencyClass === "string" &&
     ["offline", "near-live", "live"].includes(profile.latencyClass)
   );
+}
+
+/**
+ * Structural check for the R501 compute directive (the R407 vocabulary).
+ * The DIRECTOR validates the semantics (mode/provider pairing, preference
+ * axes); this only checks the wire shape so malformed payloads answer the
+ * typed 400 instead of reaching the director as garbage.
+ */
+function isComputeDirectiveShape(value: unknown): value is {
+  mode: "user-explicit" | "sporta-auto";
+  providerId?: string;
+  preference?: {
+    privacyPosture: "privacy-local-only" | "privacy-any";
+    maxEstimatedCostUsd?: number;
+    maxEstimatedQueueSeconds?: number;
+    vramFloorMb?: number;
+    capabilityClass?: string;
+  };
+} {
+  if (typeof value !== "object" || value === null) return false;
+  const directive = value as Record<string, unknown>;
+  if (directive.mode !== "user-explicit" && directive.mode !== "sporta-auto") {
+    return false;
+  }
+  if (
+    directive.providerId !== undefined &&
+    (typeof directive.providerId !== "string" || directive.providerId.length === 0)
+  ) {
+    return false;
+  }
+  const preference = directive.preference;
+  if (preference !== undefined) {
+    if (typeof preference !== "object" || preference === null) return false;
+    const pref = preference as Record<string, unknown>;
+    if (pref.privacyPosture !== "privacy-local-only" && pref.privacyPosture !== "privacy-any") {
+      return false;
+    }
+  }
+  return true;
 }

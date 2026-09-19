@@ -9,6 +9,7 @@ import type {
   ApiErrorBodyLike,
   CapabilityLike,
   JobsOverviewLike,
+  MediaJobLike,
   OperationsLike,
   PendingWorkLike,
   OperationsAuditLike,
@@ -27,6 +28,8 @@ import type {
   RightsCenterListLike,
   RightsPreviewLike,
   SessionCardLike,
+  StudioComputeDirectiveLike,
+  StudioComputeSelectionLike,
   StudioDispatchLike,
   StudioJobLike,
   StudioOptionsLike,
@@ -34,6 +37,7 @@ import type {
   StudioPublicationLike,
   StudioSessionLike,
   StudioSessionStateLike,
+  StudioUploadSessionLike,
   WatchModelLike,
 } from "./api-types";
 
@@ -239,6 +243,56 @@ export function createStudioSession(input: {
   return postJson<StudioSessionLike>("/api/create/sessions", input);
 }
 
+/**
+ * POST /api/create/upload-sessions (multipart) — the R501 upload flow: one
+ * REAL browser MP4 upload becomes a session whose world model is derived
+ * from the UPLOADED clip (the R101 boundary + the R207 pipeline,
+ * server-side). Every rejection is the server's typed answer.
+ */
+export async function createUploadSession(input: {
+  file: File;
+  operations: string[];
+  expiresAtIso?: string | null;
+  storageDurationDays?: number;
+  sharingScope?: string;
+  label?: string;
+}): Promise<StudioUploadSessionLike> {
+  const form = new FormData();
+  form.append("file", input.file);
+  form.append("operations", JSON.stringify(input.operations));
+  if (input.expiresAtIso != null) form.append("expiresAtIso", input.expiresAtIso);
+  if (input.storageDurationDays !== undefined) {
+    form.append("storageDurationDays", String(input.storageDurationDays));
+  }
+  if (input.sharingScope !== undefined) form.append("sharingScope", input.sharingScope);
+  if (input.label !== undefined && input.label.length > 0) form.append("label", input.label);
+  const response = await fetch("/api/create/upload-sessions", {
+    method: "POST",
+    body: form,
+    headers: { accept: "application/json" },
+  });
+  const text = await response.text();
+  const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+  if (!response.ok) throw new ApiError(response.status, body as ApiErrorBodyLike | null);
+  return body as StudioUploadSessionLike;
+}
+
+/** POST /api/create/compute-preview — the compute step (the REAL director). */
+export function computeSelectionPreview(input: {
+  rendererId: string;
+  rendererVersion?: string;
+  latencyClass: "offline" | "near-live" | "live";
+  deadlineMs?: number;
+  directive: StudioComputeDirectiveLike;
+}): Promise<StudioComputeSelectionLike> {
+  return postJson<StudioComputeSelectionLike>("/api/create/compute-preview", input);
+}
+
+/** GET /api/media/jobs/[jobId] — the media pipeline's honest job view. */
+export function fetchMediaJob(jobId: string): Promise<MediaJobLike> {
+  return getJson<MediaJobLike>(`/api/media/jobs/${encodeURIComponent(jobId)}`);
+}
+
 /** GET /api/create/sessions/[sessionId] — the studio session state. */
 export function fetchStudioSession(sessionId: string): Promise<StudioSessionStateLike> {
   return getJson<StudioSessionStateLike>(`/api/create/sessions/${encodeURIComponent(sessionId)}`);
@@ -252,6 +306,7 @@ export function dispatchStudioRender(
     rendererVersion?: string;
     styleId?: string;
     outputProfile?: StudioOutputProfileLike;
+    compute?: StudioComputeDirectiveLike;
   },
 ): Promise<StudioDispatchLike> {
   return postJson<StudioDispatchLike>(

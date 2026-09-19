@@ -1,32 +1,54 @@
 /**
- * THE CREATE STUDIO SERVICE (W906) — the server side of the guided creation
- * flow, over the REAL seams only:
+ * THE CREATE STUDIO SERVICE (W906 → R501) — the server side of the guided
+ * creation flow, over the REAL seams only:
  *
- * - source selection is the checked-in FIXTURE LIBRARY the dev seed drives
- *   (`./dev-story.ts`) — real engine inputs (fixture camera + commentary
- *   transcript), never invented media;
+ * - SOURCE SELECTION is now TWO real paths (R501): the checked-in FIXTURE
+ *   LIBRARY (an explicitly-labeled dev surface — real engine inputs, never
+ *   invented media) OR a REAL browser upload — an authorized MP4 through
+ *   the R101 ingestion boundary (the composition's media service:
+ *   server-side constraint validation BEFORE storage, a durable
+ *   hash-verified `SourceAsset`, a real processing job) whose bytes feed
+ *   the REAL R207 real-to-SWM pipeline, so the session's world model is
+ *   derived from the UPLOADED clip (real decode + real perception chains,
+ *   never invented state);
  * - session creation goes through the REAL identity control gate
  *   (`createMediaSession` — the W902 pattern: identity-attested policy,
- *   ownership recorded), then runs the selected story through the REAL
- *   M1→M3 chain and registers the fused engine, exactly like the dev seed;
- * - render dispatch goes through the control plane's W914 ASYNC surface
- *   (`createRenderAsync` → the configured compute adapter → a REAL render
- *   job executing through the REAL renderer plugin + the REAL W504 encoder
- *   and store, with the never-silent input accounting);
- * - job polling is the control plane's OWN `getComputeJob` projection;
+ *   ownership recorded), then registers the fused engine, exactly like
+ *   the dev seed (fixture path) or the pipeline run (upload path);
+ * - the COMPUTE step goes through the REAL R407 SelectionDirector (user
+ *   choice or auto, with the auditable explanation shown); the dispatch
+ *   re-verifies the same deterministic decision and then goes through the
+ *   control plane's W914 ASYNC surface (`createRenderAsync` → the
+ *   configured compute adapter → a REAL render job executing through the
+ *   REAL renderer plugin + the REAL W504 encoder and store, with the
+ *   never-silent input accounting);
+ * - job polling is the control plane's OWN `getComputeJob` projection (and
+ *   the media pipeline's OWN `MediaJobView` for the upload path — both
+ *   honest state projections, never interpolated progress);
  * - rights PREVIEWS derive from `@sporta/contracts`' fail-closed
  *   `deriveRightsCapabilities` — this module never invents rights semantics;
  * - publish/private is the real {@link PublicationStore} flag.
  *
- * HONEST LIMITATIONS (this wave, surfaced to the UI): no upload path — the
- * authorized source is the fixture library (uploading arbitrary media needs
- * the perception pipeline over real frames, a later wave); the studio job
- * index and publication state are in-memory with the composition's other
- * control-plane state.
+ * HONEST LIMITATIONS (surfaced to the UI): the studio job index and
+ * publication state are in-memory with the composition's other
+ * control-plane state; the R207 upload-path perception run and the R101
+ * normalization BOTH execute on the request path's process (real ffmpeg —
+ * a missing binary fails loud, never a faked pipeline); the tactical and
+ * 3D realities have no registered producer on this control plane (their
+ * renderer packages cannot execute through the async compute plane's W504
+ * encode seam — offered realities are only the registered ones).
  */
 import { deriveRightsCapabilities } from "@sporta/contracts";
 import type { AuthorizationPolicy, RightsCapabilities } from "@sporta/contracts";
 import type { AllowedOperation, SharingScope } from "@sporta/contracts";
+import type { ComputeQuoteRequest } from "@sporta/compute-adapter";
+import { COMPUTE_SCHEMA_VERSION } from "@sporta/compute-adapter";
+import { sniffContainer } from "@sporta/ingestion";
+import { UPLOAD_CONSTRAINTS, sha256OfBytes } from "@sporta/media-platform";
+import type { MediaJobView } from "@sporta/media-platform";
+import { RealToSwmPipeline } from "@sporta/real-to-swm";
+import type { ClipSource } from "@sporta/real-to-swm";
+import type { SelectionExplanation } from "@sporta/connection-center";
 import {
   IdentityPermissionDeniedError,
   IdentityValidationError,
@@ -56,6 +78,33 @@ function randomHexId(prefix: string): string {
   const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
   return `${prefix}-${hex}`;
 }
+
+/**
+ * The durable source-key prefix of an UPLOAD-source studio session (R501):
+ * `"upload:" + <the R101 source asset id>`. The asset id in the record is
+ * the honest join — the durable layer reconstructs the session's engine by
+ * re-running the real-to-SWM pipeline over THAT asset's stored bytes, and
+ * the studio's session-state read resolves the source through it.
+ */
+export const STUDIO_UPLOAD_SOURCE_PREFIX = "upload:";
+
+/**
+ * The real-to-SWM pipeline's DELIBERATE decode budget for studio uploads
+ * (R501 — a recorded decision, never a default): the same 1 GiB bound the
+ * R208 replay-determinism gate declares over the 250-frame reference clip.
+ * A clip whose decoded volume exceeds it refuses with the pipeline's typed
+ * resource-limit error — honest, never a silent truncation.
+ */
+export const STUDIO_UPLOAD_DECODE_BUDGET_BYTES = 1024 * 1024 * 1024;
+
+/**
+ * The whole-job render deadline the studio's dispatches and compute quotes
+ * share (the W304 `renderDeadlineMs` default `createRenderAsync` itself
+ * uses — the compute step quotes the SAME workload shape the dispatch
+ * runs, so the explanation the user saw is the decision the dispatch
+ * verified).
+ */
+const STUDIO_RENDER_DEADLINE_MS = 60_000;
 
 // ---------------------------------------------------------------------------
 // Views (the JSON shapes the /api/create/* routes serve)
@@ -149,10 +198,40 @@ export interface StudioOptions {
     operations: typeof RIGHTS_OPERATIONS;
     sharingScopes: { id: SharingScope; label: string }[];
   };
-  /** The honest upload answer (no fake upload, ever). */
-  upload: { available: false; reason: string };
+  /**
+   * The honest upload answer (R501): the studio's source step offers a REAL
+   * browser upload constrained exactly as the R101 boundary enforces it
+   * server-side (mp4 container, size, duration — the frozen
+   * `UPLOAD_CONSTRAINTS` constants), or the honest reason upload is not
+   * available. Never a fake upload, never an invented constraint.
+   */
+  upload:
+    | {
+        available: true;
+        constraints: {
+          container: "mp4";
+          maxBytes: number;
+          maxDurationMs: number;
+        };
+      }
+    | { available: false; reason: string };
   /** The compute plane the async renders dispatch through (or null). */
   compute: { provider: string; adapterId: string } | null;
+  /**
+   * The compute SELECTION surface (R501): the providers the REAL
+   * SelectionDirector can select between, with the operator's declared
+   * facts (data — privacy zone, capability classes, VRAM when declared).
+   * `null` when no selection seam is configured (the compute step then
+   * shows the honest unavailable state).
+   */
+  selection: {
+    providers: {
+      providerId: string;
+      privacyZone: string;
+      capabilityClasses: string[];
+      vramMb?: number;
+    }[];
+  } | null;
   /**
    * The caller's live render-request quota state (W913 — the studio's honest
    * degraded-state input; `null` when the caller is not authenticated).
@@ -186,6 +265,49 @@ export interface StudioSessionView {
   story: { eventCount: number; waveCount: number };
 }
 
+/** The uploaded source's durable state (the R101 records, verbatim fields). */
+export interface StudioUploadSourceState {
+  asset: {
+    assetId: string;
+    contentHash: string;
+    byteSize: number;
+    container: string;
+    durationMs: number;
+    uploadState: string;
+    checksumVerified: boolean;
+    declaredRightsPolicyId: string;
+  };
+  /** The latest media job for the asset (its REAL state — the R103 view). */
+  job: MediaJobView | null;
+  /** The stored `original`-reality artifact manifest, once the job stored one. */
+  artifact: { artifactId: string; contentHash: string; reality: string } | null;
+}
+
+/** The honest summary of the R207 real-to-SWM run over an uploaded clip. */
+export interface StudioUploadPerceptionSummary {
+  frameCount: number;
+  snapshotCount: number;
+  eventCount: number;
+  degradationCount: number;
+  /** The degradation ledger's own one-line summary (verbatim). */
+  summary: string;
+}
+
+/**
+ * The created UPLOAD-source studio session (POST /api/create/upload-sessions):
+ * the session view's shape plus the durable source state (the R101 asset +
+ * the admitted media job) and the honest perception summary of the R207
+ * run that fed the session's world model.
+ */
+export interface StudioUploadSessionView {
+  sessionId: string;
+  label: string;
+  rightsCapabilities: RightsCapabilities;
+  visibility: SessionVisibility;
+  source: StudioUploadSourceState;
+  perception: StudioUploadPerceptionSummary;
+}
+
 /** The studio's session state (GET /api/create/sessions/[sessionId]). */
 export interface StudioSessionState {
   sessionId: string;
@@ -194,6 +316,14 @@ export interface StudioSessionState {
   createdAtIso: string;
   rightsCapabilities: RightsCapabilities;
   visibility: SessionVisibility;
+  /**
+   * The session's SOURCE state (R501, additive): the fixture key the engine
+   * chain ran, or the uploaded clip's durable R101 records (asset + media
+   * job + stored artifact — the persistent source state a fresh browser
+   * sees after refresh), or `null` when no source is recorded for the
+   * session on this instance. Derived from the REAL stores only.
+   */
+  source: { kind: "fixture"; key: string } | ({ kind: "upload" } & StudioUploadSourceState) | null;
   renders: {
     renderId: string;
     rendererId: string;
@@ -219,6 +349,17 @@ export interface StudioDispatchView {
   sessionId: string;
   adapterId: string;
   jobState: string;
+  /**
+   * The compute selection the dispatch verified (R501, additive): the
+   * provider the REAL SelectionDirector selected under the caller's
+   * directive and the auditable explanation document — present when the
+   * dispatch carried a compute directive.
+   */
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanation;
+  };
 }
 
 /** The job progress view (GET /api/create/sessions/[sessionId]/jobs/[jobId]). */
@@ -282,10 +423,56 @@ export interface StudioJobRow {
   ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   completion?: {
     status: "succeeded" | "failed" | "cancelled";
+    /**
+     * The TYPED failure reason carried VERBATIM from the control plane
+     * (R502 — the error class, the message, and the terminal disposition;
+     * never a generic message). Absent for succeeded/cancelled completions
+     * without a failure record.
+     */
+    failure?: { errorClass: string; message: string; terminal: string };
+    /** @deprecated Use {@link StudioJobRow.completion.failure} — kept for compatibility. */
     failureMessage?: string;
     executionMs: number;
     usage: { unitId: string; quantity: number }[];
   };
+}
+
+// ---------------------------------------------------------------------------
+// R501 — the compute-selection surface (the REAL SelectionDirector)
+// ---------------------------------------------------------------------------
+
+/** The caller's selection directive (the R407 vocabulary, verbatim). */
+export interface StudioComputeDirective {
+  mode: "user-explicit" | "sporta-auto";
+  providerId?: string;
+  preference?: {
+    privacyPosture: "privacy-local-only" | "privacy-any";
+    maxEstimatedCostUsd?: number;
+    maxEstimatedQueueSeconds?: number;
+    vramFloorMb?: number;
+    capabilityClass?: string;
+  };
+}
+
+/**
+ * The compute step's answer (POST /api/create/compute-preview): the REAL
+ * SelectionDirector's outcome over the workload — the broker's selection
+ * verbatim + the auditable explanation (every considered provider's
+ * quote/refusal/exclusion). Derived, deterministic, and identical to the
+ * decision the dispatch will verify for the same inputs.
+ */
+export interface StudioComputeSelectionView {
+  /** The workload the selection ran against (echoed verbatim). */
+  request: {
+    rendererId: string;
+    rendererVersion?: string;
+    latencyClass: StudioLatencyClass;
+    deadlineMs: number;
+  };
+  /** The selected provider (data — the broker's own selection, verbatim). */
+  selection: { providerId: string };
+  /** The auditable explanation document (the R407 shape, verbatim). */
+  explanation: SelectionExplanation;
 }
 
 /** One session's jobs with its header (the Jobs workspace row group). */
@@ -404,6 +591,14 @@ export class CreateStudioService {
     }
   >();
   private policySeq = 0;
+  /**
+   * The studio's upload-source index (R501): session id → its R101 source
+   * asset id + media job id — the warm-instance fast path of the session
+   * state's source read. Cold durable instances resolve the same join from
+   * the durable record's `upload:<assetId>` source key and the media
+   * store's own session-indexed artifacts (see {@link uploadSourceOf}).
+   */
+  private readonly uploadBySession = new Map<string, { assetId: string; jobId: string }>();
 
   constructor(options: CreateStudioServiceOptions) {
     this.getServer = options.getServer;
@@ -493,14 +688,32 @@ export class CreateStudioService {
         ],
       },
       upload: {
-        available: false,
-        reason:
-          "uploading your own media is not available yet — it needs the real perception pipeline over uploaded frames; this studio selects from the checked-in authorized fixture library instead",
+        available: true,
+        constraints: {
+          container: UPLOAD_CONSTRAINTS.container,
+          maxBytes: UPLOAD_CONSTRAINTS.maxBytes,
+          maxDurationMs: UPLOAD_CONSTRAINTS.maxDurationMs,
+        },
       },
       compute:
         server.compute === null
           ? null
           : { provider: server.compute.provider, adapterId: server.compute.adapterId },
+      selection:
+        server.selection === null
+          ? null
+          : {
+              providers: [
+                {
+                  providerId: server.selection.providerId,
+                  privacyZone: server.selection.facts.privacyZone,
+                  capabilityClasses: [...(server.selection.facts.capabilityClasses ?? [])],
+                  ...(server.selection.facts.vramMb !== undefined
+                    ? { vramMb: server.selection.facts.vramMb }
+                    : {}),
+                },
+              ],
+            },
       renderQuota,
     };
   }
@@ -710,6 +923,262 @@ export class CreateStudioService {
   }
 
   // -----------------------------------------------------------------------
+  // R501 — the real upload path (browser MP4 → rights → R101 → R207)
+  // -----------------------------------------------------------------------
+
+  /**
+   * Creates an UPLOAD-source studio session — the R501 flow's server path.
+   * The order is deliberate and every rejection is typed:
+   *
+   * 1. the identity gate (the W902 sequence: token → account →
+   *    `media-session.create` grant → re-attested policy);
+   * 2. the R101 upload constraints, PRE-CHECKED against the frozen
+   *    constants + the ingestion seam's own container sniffer (the same
+   *    `UPLOAD_CONSTRAINTS` the media boundary enforces — the definitive
+   *    gate still runs INSIDE `media.upload` below; this pre-check only
+   *    refuses BEFORE any session is created, so an obvious rejection
+   *    leaves no orphan state);
+   * 3. the REAL R207 real-to-SWM pipeline over the uploaded bytes (its own
+   *    fail-closed admission: rights gate, container, decode) — the
+   *    session's fused engine is derived from the UPLOADED clip, never
+   *    invented. Deterministic config (the pipeline's documented
+   *    clock-injection posture, `nowMs: 0`);
+   * 4. the REAL control-plane session creation (collision-safe id) +
+   *    ownership + attestation + fail-closed private publication;
+   * 5. the REAL R101 boundary: `media.upload` — server-side constraint
+   *    validation, the durable hash-verified `SourceAsset`, the admitted
+   *    media job (normalization → the `original`-reality artifact,
+   *    auto-running async);
+   * 6. W921 durable write-through with the `upload:<assetId>` source key
+   *    (the durable layer's honest join for cold-instance reconstruction).
+   */
+  async createUploadSession(input: {
+    token: string;
+    bytes: Uint8Array;
+    filename?: string;
+    declaration: RightsDeclarationInput;
+    label?: string;
+  }): Promise<StudioUploadSessionView> {
+    const server = this.getServer();
+
+    // 1. The gate's exact attestation sequence (token → account → grant →
+    //    re-attested policy) — identical to the fixture path.
+    const account = await server.gate.requireAccount(input.token);
+    const decision = authorize(account, "media-session.create");
+    if (!decision.allowed) {
+      throw new IdentityPermissionDeniedError(
+        "media session creation requires a creator, rights-holder, or operator grant",
+        { action: "media-session.create" },
+      );
+    }
+    this.policySeq += 1;
+    const policy = this.policyFrom(
+      input.declaration,
+      `policy-create-studio-upload-${this.nowMs()}-${this.policySeq}`,
+    );
+    // The pipeline references source frames and the R101 boundary stores
+    // bytes — the derived capabilities must permit transformation (the
+    // fail-closed derivation the studio's preview already showed).
+    const capabilities = deriveRightsCapabilities(policy, new Date(this.nowMs()));
+    if (!capabilities.canReferenceSourceFrames) {
+      throw new IdentityValidationError(
+        "an upload-source session requires a declaration that allows transformation " +
+          "(the media pipeline references source frames — fail-closed)",
+      );
+    }
+    const attested: AuthorizationPolicy = { ...policy, assertedBy: account.userId };
+
+    // 2. The R101 constraint pre-check (the frozen constants + the
+    //    ingestion seam's own sniffer — the definitive gate is step 5).
+    const { UploadRejectedError } = await import("@sporta/media-platform");
+    if (input.bytes.byteLength === 0) {
+      throw new UploadRejectedError("size-empty", "the upload carries no bytes", "media-invalid", {
+        byteSize: 0,
+      });
+    }
+    if (input.bytes.byteLength > UPLOAD_CONSTRAINTS.maxBytes) {
+      throw new UploadRejectedError(
+        "size-over-limit",
+        `the upload measures ${input.bytes.byteLength} bytes, over the ${UPLOAD_CONSTRAINTS.maxBytes} byte bound`,
+        "resource-limit",
+        { byteSize: input.bytes.byteLength, maxBytes: UPLOAD_CONSTRAINTS.maxBytes },
+      );
+    }
+    const sniffed = sniffContainer(input.bytes);
+    if (sniffed.container !== UPLOAD_CONSTRAINTS.container) {
+      throw new UploadRejectedError(
+        "container-not-mp4",
+        `the upload's container is '${sniffed.container}' (magic-byte sniffed), only 'mp4' is accepted`,
+        "media-invalid",
+        { sniffed: sniffed.container, detectedBy: sniffed.detectedBy },
+      );
+    }
+
+    // 3. The REAL R207 pipeline over the uploaded bytes (registered BEFORE
+    //    any render — the control plane's world-model factory picks it up).
+    //    A pipeline refusal is typed and leaves nothing created. The clip
+    //    provenance is content-derived (the sha-256 of the uploaded bytes —
+    //    the same hash the R101 asset below records), never a placeholder.
+    const sessionId = randomHexId("sess-u");
+    const contentSha256 = sha256OfBytes(input.bytes);
+    const clip: ClipSource = {
+      provenance: {
+        clipId: `upload-${contentSha256.slice(0, 12)}`,
+        sourceSha256: contentSha256,
+        normalizationNote: "user upload through the studio's R101 boundary",
+      },
+      bytes: input.bytes,
+      authorizationPolicy: attested,
+      ...(input.filename !== undefined ? { filename: input.filename } : {}),
+    };
+    const pipeline = new RealToSwmPipeline();
+    const run = await pipeline.run({
+      source: clip,
+      config: {
+        sessionId,
+        decode: { maxTotalBytes: STUDIO_UPLOAD_DECODE_BUDGET_BYTES },
+        nowMs: 0,
+      },
+    });
+
+    // 4. The REAL control-plane creation + ownership + attestation +
+    //    fail-closed private publication, then the engine registration.
+    const label = input.label ?? `Uploaded clip (${sniffed.container})`;
+    const created = await server.control.createSession({
+      authorizationPolicy: attested,
+      sourceLabel: label,
+      sessionId,
+    });
+    await server.ownership.record(sessionId, account.userId);
+    this.attestations.record(sessionId, account.userId);
+    this.engines.set(sessionId, run.engine);
+    this.publication.set(sessionId, "private");
+
+    // 5. The REAL R101 boundary (the definitive constraint gate): durable
+    //    hash-verified SourceAsset + the admitted media job.
+    const outcome = await server.media.upload({
+      bytes: input.bytes,
+      sessionId,
+      declaredRightsPolicyId: attested.policyId,
+      ...(input.filename !== undefined ? { filename: input.filename } : {}),
+    });
+    this.uploadBySession.set(sessionId, {
+      assetId: outcome.asset.assetId,
+      jobId: outcome.job.jobId,
+    });
+
+    // 6. W921 write-through (fail-loud). The source key carries the R101
+    //    asset id — the durable layer's reconstruction join.
+    if (server.durable !== null) {
+      await server.durable.noteSessionCreated({
+        sessionId,
+        ownerUserId: account.userId,
+        sourceKey: `${STUDIO_UPLOAD_SOURCE_PREFIX}${outcome.asset.assetId}`,
+        label,
+        rightsDeclaration: attested,
+        visibility: { kind: "private", roles: [] },
+        status: created.session.status,
+        publishedAtMs: null,
+        createdAtIso: created.session.createdAtIso,
+        updatedAtMs: this.nowMs(),
+      });
+    }
+
+    return {
+      sessionId,
+      label,
+      rightsCapabilities: created.rightsCapabilities,
+      visibility: "private",
+      source: {
+        asset: {
+          assetId: outcome.asset.assetId,
+          contentHash: outcome.asset.contentHash,
+          byteSize: outcome.asset.byteSize,
+          container: outcome.asset.container,
+          durationMs: outcome.asset.durationMs,
+          uploadState: outcome.asset.uploadState,
+          checksumVerified: outcome.asset.checksumVerified,
+          declaredRightsPolicyId: outcome.asset.declaredRightsPolicyId,
+        },
+        job: outcome.job,
+        artifact: null,
+      },
+      perception: {
+        frameCount: run.clip.frameCount,
+        snapshotCount: run.snapshots.length,
+        eventCount: run.events.length,
+        degradationCount: run.ledger.totalEntries,
+        summary:
+          run.ledger.summary.length === 0
+            ? `no degradations across ${run.ledger.stages.length} pipeline stage(s)`
+            : `${run.ledger.totalEntries} recorded degradation(s) across ${run.ledger.stages.length} pipeline stage(s): ${run.ledger.summary
+                .map((entry) => `${entry.kind}×${entry.count}`)
+                .join(", ")}`,
+      },
+    };
+  }
+
+  /**
+   * Resolves one session's upload source state from the REAL stores only
+   * (never invented): the warm-instance index, else the durable record's
+   * `upload:<assetId>` source key, else the media store's session-indexed
+   * artifacts (post-completion). `null` when no upload source resolves.
+   * Public read seam: the R503 artifact catalog derives the `original`
+   * reality's availability from the same honest join (the studio owns the
+   * session→source resolution; the catalog never re-implements it).
+   */
+  async sessionUploadSource(sessionId: string): Promise<StudioUploadSourceState | null> {
+    return await this.uploadSourceOf(sessionId);
+  }
+
+  private async uploadSourceOf(sessionId: string): Promise<StudioUploadSourceState | null> {
+    const server = this.getServer();
+    let assetId: string | null = this.uploadBySession.get(sessionId)?.assetId ?? null;
+    if (assetId === null && server.durable !== null) {
+      const sourceKey = await server.durable.findSourceKey(sessionId);
+      if (sourceKey !== null && sourceKey.startsWith(STUDIO_UPLOAD_SOURCE_PREFIX)) {
+        assetId = sourceKey.slice(STUDIO_UPLOAD_SOURCE_PREFIX.length);
+      }
+    }
+    if (assetId === null) {
+      const artifact = server.media
+        .artifactsOfSession(sessionId)
+        .find((entry) => entry.reality === "original");
+      assetId = artifact?.sourceAssetId ?? null;
+    }
+    if (assetId === null) return null;
+    const asset = server.media.asset(assetId);
+    if (asset === null) return null;
+    const jobs = server.media.jobsForAsset(assetId);
+    const job = jobs.length > 0 ? (jobs[jobs.length - 1] ?? null) : null;
+    const artifact =
+      server.media
+        .artifactsOfSession(sessionId)
+        .find((entry) => entry.reality === "original" && entry.sourceAssetId === assetId) ?? null;
+    return {
+      asset: {
+        assetId: asset.assetId,
+        contentHash: asset.contentHash,
+        byteSize: asset.byteSize,
+        container: asset.container,
+        durationMs: asset.durationMs,
+        uploadState: asset.uploadState,
+        checksumVerified: asset.checksumVerified,
+        declaredRightsPolicyId: asset.declaredRightsPolicyId,
+      },
+      job,
+      artifact:
+        artifact === null
+          ? null
+          : {
+              artifactId: artifact.artifactId,
+              contentHash: artifact.contentHash,
+              reality: artifact.reality,
+            },
+    };
+  }
+
+  // -----------------------------------------------------------------------
   // Session state / render dispatch / job polling / publication
   // -----------------------------------------------------------------------
 
@@ -757,6 +1226,17 @@ export class CreateStudioService {
         rendererHealth: envelope.result.rendererHealth,
       });
     }
+    // R501: the session's source state — the upload's durable R101 records
+    // (asset + media job + artifact) or the fixture key the engine chain
+    // ran; `null` when neither resolves on this instance (never invented).
+    const uploadSource = await this.uploadSourceOf(sessionId);
+    const storyKey = this.storyIndex.get(sessionId)?.storyKey ?? null;
+    const source: StudioSessionState["source"] =
+      uploadSource !== null
+        ? { kind: "upload", ...uploadSource }
+        : storyKey !== null
+          ? { kind: "fixture", key: storyKey }
+          : null;
     return {
       sessionId,
       label,
@@ -764,6 +1244,7 @@ export class CreateStudioService {
       createdAtIso: session.createdAtIso,
       rightsCapabilities,
       visibility: this.publication.visibilityOf(sessionId),
+      source,
       renders: renderViews,
       jobs: await Promise.all(
         (this.jobsBySession.get(sessionId) ?? []).map(async (jobId) => ({
@@ -792,10 +1273,66 @@ export class CreateStudioService {
   }
 
   /**
+   * The COMPUTE STEP (R501): runs the REAL R407 SelectionDirector over the
+   * workload the dispatch will run — the user's directive (explicit provider
+   * choice or auto) answered with the broker's selection VERBATIM plus the
+   * auditable explanation (every considered provider's quote/refusal/
+   * exclusion). Deterministic: the same inputs the dispatch carries produce
+   * the same decision here. Requires an authenticated caller (the studio's
+   * own surfaces); answers the control plane's typed unavailable error when
+   * no compute plane / selection seam is configured.
+   */
+  async computeSelection(input: {
+    token: string;
+    rendererId: string;
+    rendererVersion?: string;
+    latencyClass: StudioLatencyClass;
+    deadlineMs?: number;
+    directive: StudioComputeDirective;
+  }): Promise<StudioComputeSelectionView> {
+    const server = this.getServer();
+    await this.requireAccount(input.token);
+    if (server.selection === null || server.compute === null) {
+      const { ControlComputeUnavailableError } = await import("@sporta/control-api");
+      throw new ControlComputeUnavailableError(
+        "no compute plane is configured — compute selection is unavailable (the control plane answers its typed 503 for render dispatch too)",
+      );
+    }
+    const request: ComputeQuoteRequest = {
+      schemaVersion: COMPUTE_SCHEMA_VERSION,
+      rendererId: input.rendererId,
+      ...(input.rendererVersion !== undefined ? { rendererVersion: input.rendererVersion } : {}),
+      latencyClass: input.latencyClass,
+      deadlineMs: input.deadlineMs ?? STUDIO_RENDER_DEADLINE_MS,
+    };
+    const outcome = await server.selection.director.explain(request, input.directive);
+    return {
+      request: {
+        rendererId: request.rendererId,
+        ...(request.rendererVersion !== undefined
+          ? { rendererVersion: request.rendererVersion }
+          : {}),
+        latencyClass: request.latencyClass,
+        deadlineMs: request.deadlineMs,
+      },
+      selection: { providerId: outcome.selection.providerId },
+      explanation: outcome.explanation,
+    };
+  }
+
+  /**
    * Dispatches one REAL render through the control plane's async compute
    * surface (the W914 seam): the compute adapter executes the render job
    * (real renderer plugin, real W504 encode + store) and the control plane
    * ingests the artifacts into its playback store when the job settles.
+   *
+   * R501: a dispatch that carries a COMPUTE DIRECTIVE first re-runs the REAL
+   * SelectionDirector over the SAME workload (deterministic — the decision
+   * the compute step showed) and verifies the selected provider IS the
+   * composition's dispatch provider; the auditable explanation rides in the
+   * dispatch answer. A directive the director refuses fails the dispatch
+   * with the typed refusal (never a silent fallback to a provider the user
+   * did not choose).
    *
    * W913 + W919 admission ladder (fail-closed, Simulation E — new expensive
    * jobs stop admitting BEFORE the provider is asked to run them):
@@ -821,9 +1358,49 @@ export class CreateStudioService {
     rendererVersion?: string;
     styleId?: string;
     outputProfile?: StudioOutputProfile;
+    compute?: StudioComputeDirective;
   }): Promise<StudioDispatchView> {
     const server = this.getServer();
     const account = await this.requireSessionAccess(input.token, input.sessionId);
+
+    // 0. R501: the compute directive — the REAL SelectionDirector over the
+    //    same workload the dispatch runs (fail-loud on a refusal; the
+    //    selected provider must be the composition's dispatch provider).
+    let selection: StudioDispatchView["selection"];
+    if (input.compute !== undefined) {
+      if (server.selection === null || server.compute === null) {
+        const { ControlComputeUnavailableError } = await import("@sporta/control-api");
+        throw new ControlComputeUnavailableError(
+          "no compute plane is configured — the compute directive cannot be honored (fail-loud, never a silent dispatch without the user's selection)",
+        );
+      }
+      const outcome = await server.selection.director.explain(
+        {
+          schemaVersion: COMPUTE_SCHEMA_VERSION,
+          rendererId: input.rendererId,
+          ...(input.rendererVersion !== undefined
+            ? { rendererVersion: input.rendererVersion }
+            : {}),
+          latencyClass: input.outputProfile?.latencyClass ?? "offline",
+          deadlineMs: STUDIO_RENDER_DEADLINE_MS,
+        },
+        input.compute,
+      );
+      if (outcome.selection.providerId !== server.selection.providerId) {
+        // Invariant: the broker is registered with EXACTLY the composition's
+        // adapter, so the director can only select it — anything else is a
+        // composition bug. Fail loud, never dispatch on an unchosen provider.
+        throw new Error(
+          `compute selection mismatch: the director selected '${outcome.selection.providerId}' ` +
+            `but this control plane dispatches through '${server.selection.providerId}' — refusing`,
+        );
+      }
+      selection = {
+        providerId: outcome.selection.providerId,
+        mode: input.compute.mode,
+        explanation: outcome.explanation,
+      };
+    }
 
     // 1. W919 provider capacity (reads before writes — a capacity refusal
     //    must not charge the caller's render-request quota).
@@ -921,6 +1498,7 @@ export class CreateStudioService {
       sessionId: dispatch.sessionId,
       adapterId: dispatch.adapterId,
       jobState: dispatch.jobState,
+      ...(selection !== undefined ? { selection } : {}),
     };
   }
 
@@ -1060,6 +1638,9 @@ export class CreateStudioService {
           ? {
               completion: {
                 status: job.completion.status,
+                ...(job.completion.failure !== undefined
+                  ? { failure: job.completion.failure }
+                  : {}),
                 ...(job.completion.failure !== undefined
                   ? { failureMessage: job.completion.failure.message }
                   : {}),

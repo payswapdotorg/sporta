@@ -189,11 +189,31 @@ describe("GET /api/create/options", () => {
     expect(testcard.supportedOutputProfiles.length).toBeGreaterThan(0);
   });
 
-  test("says upload is unavailable honestly (never a fake upload)", async () => {
+  test("offers the REAL upload with the R101 constraint constants (R501 — never a fake upload)", async () => {
     const response = await optionsRoute(withCookie(creatorToken, "/api/create/options"));
-    const body = (await bodyOf(response)) as { upload: { available: boolean; reason: string } };
-    expect(body.upload.available).toBe(false);
-    expect(body.upload.reason).toContain("not available yet");
+    const body = (await bodyOf(response)) as {
+      upload:
+        | {
+            available: true;
+            constraints: { container: string; maxBytes: number; maxDurationMs: number };
+          }
+        | { available: false; reason: string };
+      selection: { providers: { providerId: string; privacyZone: string }[] } | null;
+    };
+    // R501: the upload path is NOW REAL — the honest answer is the R101
+    // boundary's own frozen constraint constants (never invented, never
+    // faked): mp4-only, the 200MB bound, the 120s bound.
+    expect(body.upload.available).toBe(true);
+    if (body.upload.available) {
+      expect(body.upload.constraints.container).toBe("mp4");
+      expect(body.upload.constraints.maxBytes).toBe(200 * 1024 * 1024);
+      expect(body.upload.constraints.maxDurationMs).toBe(120_000);
+    }
+    // R501: the compute-selection surface names the registered provider
+    // with the operator's declared facts (data).
+    expect(body.selection).not.toBeNull();
+    expect(body.selection!.providers.length).toBeGreaterThan(0);
+    expect(body.selection!.providers[0]!.privacyZone).toBe("sporta-managed");
   });
 
   test("reports the real compute plane (in-process adapter, real id)", async () => {

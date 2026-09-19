@@ -76,14 +76,26 @@ describe("jobProgressOf (the real compute states → the studio's presentation)"
     expect(view.label).toContain("complete");
   });
 
-  test("the failure dispositions present as failed and terminal", () => {
-    for (const state of ["failed", "cancelled", "dead-lettered"]) {
+  test("the failure dispositions present as terminal with their own first-class phases", () => {
+    for (const state of ["failed", "dead-lettered"]) {
       const view = jobProgressOf(state);
       expect(view.phase).toBe("failed");
       expect(view.terminal).toBe(true);
     }
-    expect(jobProgressOf("cancelled").label).toContain("cancelled");
+    // R502: cancellation is a FIRST-CLASS phase — never a generic failed
+    // spinner, never smoothed over.
+    const cancelled = jobProgressOf("cancelled");
+    expect(cancelled.phase).toBe("cancelled");
+    expect(cancelled.terminal).toBe(true);
+    expect(cancelled.label).toContain("cancelled");
     expect(jobProgressOf("dead-lettered").label).toContain("dead-lettered");
+  });
+
+  test("the honest boundary marker presents as unreadable — never a guessed state", () => {
+    const view = jobProgressOf("unreadable");
+    expect(view.phase).toBe("unreadable");
+    expect(view.terminal).toBe(true);
+    expect(view.label).toContain("could not be read");
   });
 
   test("an unknown state fails closed into the presentation (never smoothed over)", () => {
@@ -91,6 +103,7 @@ describe("jobProgressOf (the real compute states → the studio's presentation)"
     expect(view.phase).toBe("failed");
     expect(view.terminal).toBe(true);
     expect(view.label).toContain("mysterious");
+    expect(view.label).toContain("fail-closed");
   });
 });
 
@@ -199,6 +212,8 @@ describe("the draft + step gating", () => {
   test("the empty draft starts at source with a transformation-forward default", () => {
     const draft = emptyDraft();
     expect(draft.sourceKey).toBeNull();
+    expect(draft.file).toBeNull();
+    expect(draft.sourceKind).toBe("upload");
     expect(draft.operations).toEqual([
       "analysis",
       "transformation",
@@ -216,6 +231,7 @@ describe("the draft + step gating", () => {
     expect(stepSatisfied("recipe", draft)).toBe(false);
     const complete = {
       ...draft,
+      sourceKind: "fixture" as const,
       sourceKey: "derby",
       rendererId: "anime.prototype",
       styleId: "my-style",
@@ -225,5 +241,35 @@ describe("the draft + step gating", () => {
     expect(stepSatisfied("recipe", complete)).toBe(true);
     expect(stepSatisfied("recipe", { ...complete, styleId: "  " })).toBe(false);
     expect(stepSatisfied("rights", { ...complete, operations: [] })).toBe(false);
+  });
+
+  test("R501: the upload source path gates on a picked file (the fixture key alone is not enough)", () => {
+    const draft = emptyDraft();
+    // upload kind, no file: unsatisfied even with a fixture key set.
+    expect(stepSatisfied("source", { ...draft, sourceKey: "derby" })).toBe(false);
+    // upload kind with a picked file: satisfied.
+    expect(
+      stepSatisfied("source", {
+        ...draft,
+        file: new File([new Uint8Array([1, 2, 3])], "clip.mp4", { type: "video/mp4" }),
+      }),
+    ).toBe(true);
+    // fixture kind without a key: unsatisfied.
+    expect(stepSatisfied("source", { ...draft, sourceKind: "fixture" as const })).toBe(false);
+  });
+
+  test("R501: the compute step gates on the directive (auto, or an explicit provider pick)", () => {
+    const draft = emptyDraft();
+    expect(stepSatisfied("compute", draft)).toBe(true); // sporta-auto needs no pick
+    expect(stepSatisfied("compute", { ...draft, computeMode: "user-explicit" as const })).toBe(
+      false,
+    );
+    expect(
+      stepSatisfied("compute", {
+        ...draft,
+        computeMode: "user-explicit" as const,
+        computeProviderId: "sporta-compute-worker-1",
+      }),
+    ).toBe(true);
   });
 });

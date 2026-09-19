@@ -308,8 +308,27 @@ export interface StudioOptionsLike {
     operations: { id: string; label: string; description: string }[];
     sharingScopes: { id: "private" | "operator-authorized"; label: string }[];
   };
-  upload: { available: false; reason: string };
+  /**
+   * The honest upload answer (R501): a REAL browser upload constrained
+   * exactly as the R101 boundary enforces it server-side, or the honest
+   * reason it is unavailable.
+   */
+  upload:
+    | {
+        available: true;
+        constraints: { container: "mp4"; maxBytes: number; maxDurationMs: number };
+      }
+    | { available: false; reason: string };
   compute: { provider: string; adapterId: string } | null;
+  /** The compute-selection surface (R501): the selectable providers' facts. */
+  selection: {
+    providers: {
+      providerId: string;
+      privacyZone: string;
+      capabilityClasses: string[];
+      vramMb?: number;
+    }[];
+  } | null;
 }
 
 /** What a rights declaration really permits (POST /api/create/rights-preview). */
@@ -333,6 +352,129 @@ export interface StudioSessionLike {
   story: { eventCount: number; waveCount: number };
 }
 
+// ---------------------------------------------------------------------------
+// R501 — the upload path + the compute step (/api/create/* answers)
+// ---------------------------------------------------------------------------
+
+/** The uploaded source's durable state (the R101 records' fields). */
+export interface StudioUploadSourceLike {
+  asset: {
+    assetId: string;
+    contentHash: string;
+    byteSize: number;
+    container: string;
+    durationMs: number;
+    uploadState: string;
+    checksumVerified: boolean;
+    declaredRightsPolicyId: string;
+  };
+  /** The latest media job for the asset (its REAL state — the R103 view). */
+  job: MediaJobLike | null;
+  /** The stored `original`-reality artifact manifest, once the job stored one. */
+  artifact: { artifactId: string; contentHash: string; reality: string } | null;
+}
+
+/** The honest summary of the R207 real-to-SWM run over an uploaded clip. */
+export interface StudioUploadPerceptionLike {
+  frameCount: number;
+  snapshotCount: number;
+  eventCount: number;
+  degradationCount: number;
+  summary: string;
+}
+
+/** The created UPLOAD-source session (POST /api/create/upload-sessions). */
+export interface StudioUploadSessionLike {
+  sessionId: string;
+  label: string;
+  rightsCapabilities: RightsPreviewLike["capabilities"];
+  visibility: "public" | "private";
+  source: StudioUploadSourceLike;
+  perception: StudioUploadPerceptionLike;
+}
+
+/**
+ * The media pipeline's honest job view (GET /api/media/jobs/[jobId] — the
+ * R103 projection): the W914 state vocabulary, the stage-completion trail
+ * (progress TIED to actual completions), and the typed failure verbatim.
+ */
+export interface MediaJobLike {
+  jobId: string;
+  sourceAssetId: string;
+  sessionId: string;
+  state: string;
+  terminal: boolean;
+  progress: number;
+  stages: { stage: string; atMs: number; fraction: number }[];
+  failure?: { failureClass: string; message: string };
+  result?: { manifestId: string; artifactId: string };
+  createdAtMs: number;
+  updatedAtMs: number;
+}
+
+/** The caller's compute-selection directive (the R407 vocabulary). */
+export interface StudioComputeDirectiveLike {
+  mode: "user-explicit" | "sporta-auto";
+  providerId?: string;
+  preference?: {
+    privacyPosture: "privacy-local-only" | "privacy-any";
+    maxEstimatedCostUsd?: number;
+    maxEstimatedQueueSeconds?: number;
+    vramFloorMb?: number;
+    capabilityClass?: string;
+  };
+}
+
+/** One considered provider in the auditable selection explanation. */
+export interface SelectionConsideredLike {
+  providerId: string;
+  quote?: {
+    providerId: string;
+    capability: {
+      providerKind: string;
+      maxConcurrentJobs: number;
+      maxJobDeadlineMs: number;
+      supportedLatencyClasses: string[];
+    };
+    estimatedCostUsd: number | null;
+    estimatedQueueSeconds: number | null;
+    quotedAtMs: number;
+    validUntilMs: number;
+  };
+  brokerRefusal?: { reason: string; message: string };
+  preferenceExclusion?: { axis: string; message: string };
+}
+
+/** The R407 auditable explanation document (verbatim). */
+export interface SelectionExplanationLike {
+  schemaVersion: string;
+  decidedAtMs: number;
+  mode: "user-explicit" | "sporta-auto";
+  requestedProviderId?: string;
+  selectedProviderId: string;
+  selectionReason: string;
+  appliedPreference: {
+    privacyPosture: string;
+    maxEstimatedCostUsd?: number;
+    maxEstimatedQueueSeconds?: number;
+    vramFloorMb?: number;
+    capabilityClass?: string;
+  };
+  considered: SelectionConsideredLike[];
+}
+
+/** The compute step's answer (POST /api/create/compute-preview). */
+export interface StudioComputeSelectionLike {
+  request: {
+    rendererId: string;
+    rendererVersion?: string;
+    latencyClass: "offline" | "near-live" | "live";
+    deadlineMs: number;
+  };
+  selection: { providerId: string };
+  explanation: SelectionExplanationLike;
+}
+
 /** The studio's session state (GET /api/create/sessions/[sessionId]). */
 export interface StudioSessionStateLike {
   sessionId: string;
@@ -341,6 +483,13 @@ export interface StudioSessionStateLike {
   createdAtIso: string;
   rightsCapabilities: RightsPreviewLike["capabilities"];
   visibility: "public" | "private";
+  /**
+   * The session's SOURCE state (R501): the fixture key the engine chain
+   * ran, or the uploaded clip's durable R101 records (asset + media job +
+   * stored artifact — the persistent source state a fresh browser sees
+   * after refresh), or `null` when no source is recorded.
+   */
+  source: { kind: "fixture"; key: string } | ({ kind: "upload" } & StudioUploadSourceLike) | null;
   renders: {
     renderId: string;
     rendererId: string;
@@ -366,6 +515,16 @@ export interface StudioDispatchLike {
   sessionId: string;
   adapterId: string;
   jobState: string;
+  /**
+   * The compute selection the dispatch verified (R501): the selected
+   * provider + the auditable explanation — present when the dispatch
+   * carried a compute directive.
+   */
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanationLike;
+  };
 }
 
 /** The job progress view (GET /api/create/sessions/[sessionId]/jobs/[jobId]). */
@@ -452,6 +611,8 @@ export interface WorkspaceJobRowLike {
   ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   completion?: {
     status: "succeeded" | "failed" | "cancelled";
+    /** The TYPED failure verbatim (R502 — error class + message + terminal). */
+    failure?: { errorClass: string; message: string; terminal: string };
     failureMessage?: string;
     executionMs: number;
     usage: { unitId: string; quantity: number }[];

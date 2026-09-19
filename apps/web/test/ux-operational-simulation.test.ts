@@ -143,13 +143,17 @@ describe("Simulation A — new viewer (public URL → watch, capability-driven)"
 // ---------------------------------------------------------------------------
 
 describe("Simulation B — creator flow (processing/degraded/denied/failed/ready all real)", () => {
-  test("the real compute job states map to the studio's processing/ready/failed states", () => {
+  test("the real compute job states map to the studio's honest phases (R502: cancellation first-class)", () => {
     expect(jobProgressOf("queued")).toMatchObject({ phase: "processing", terminal: false });
     expect(jobProgressOf("in-flight")).toMatchObject({ phase: "processing", terminal: false });
     expect(jobProgressOf("succeeded")).toMatchObject({ phase: "ready", terminal: true });
     expect(jobProgressOf("failed")).toMatchObject({ phase: "failed", terminal: true });
-    expect(jobProgressOf("cancelled")).toMatchObject({ phase: "failed", terminal: true });
+    // R502: cancellation is its OWN first-class phase — never "failed",
+    // never a generic spinner.
+    expect(jobProgressOf("cancelled")).toMatchObject({ phase: "cancelled", terminal: true });
     expect(jobProgressOf("dead-lettered")).toMatchObject({ phase: "failed", terminal: true });
+    // The honest boundary marker, and unknown states fail closed.
+    expect(jobProgressOf("unreadable")).toMatchObject({ phase: "unreadable", terminal: true });
     expect(jobProgressOf("something-new")).toMatchObject({ phase: "failed", terminal: true });
   });
 
