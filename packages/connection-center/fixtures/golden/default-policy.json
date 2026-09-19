@@ -1,0 +1,13 @@
+{
+  "policyVersion": "1.0",
+  "selection": {
+    "defaultPrivacyPosture": "privacy-any",
+    "autoTieBreak": "registration-order",
+    "explicitMustWin": true,
+    "maxVramFloorMb": 262144
+  },
+  "managed": {
+    "alarmThresholds": [0.5, 0.8, 1.0],
+    "failClosedAdmission": true
+  }
+}

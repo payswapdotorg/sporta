@@ -94,3 +94,40 @@ export type {
   ConnectionRecord,
   ConnectionStatusReport as ConnectionStatusReportDoc,
 } from "./schema";
+// The policy (versioned DATA + the golden-pinned default)
+export {
+  CONNECTION_POLICY_VERSION,
+  DEFAULT_CONNECTION_POLICY,
+  PROVIDER_FACT_ZONES,
+  SELECTION_EXCLUSION_AXES,
+  SELECTION_PRIVACY_POSTURES,
+  ConnectionCenterPolicy,
+  validateConnectionPolicy,
+} from "./policy";
+export type {
+  ConnectionCenterPolicy as ConnectionCenterPolicyDoc,
+  ProviderFactZone,
+  SelectionExclusionAxis,
+  SelectionPrivacyPosture,
+} from "./policy";
+// R407 — the selection director
+export {
+  SELECTION_DIRECTIVE_MODES,
+  SELECTION_REASONS,
+  SelectionDirector,
+  SelectionPreference,
+  SelectionRefusedError,
+  SelectionValidationError,
+  UserSelectionDirective,
+  canonicalSelectionExplanation,
+} from "./selection";
+export type {
+  ConsideredProvider,
+  PreferenceExclusion,
+  ProviderSelectionFacts,
+  SelectionDirectiveMode,
+  SelectionExplanation,
+  SelectionOutcome,
+  SelectionRefusalRecord,
+  SelectionReasonKey,
+} from "./selection";
