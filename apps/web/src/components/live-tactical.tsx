@@ -140,9 +140,12 @@ function drawEntity(
   const y = (entity.yMeters / PITCH_Y_METERS) * h;
   const isBall = entity.kind === "BALL";
   const radius = isBall ? Math.max(2.5, w / 300) : Math.max(4, w / 200);
+  // The L002 frozen teamRef vocabulary is `team-home` | `team-away` — the
+  // marker color follows THAT contract (home = pink, away = green); an
+  // unknown team ref falls back to the away color, never a wrong split.
   const teamColor =
     entity.teamRef !== undefined
-      ? entity.teamRef.endsWith("a")
+      ? entity.teamRef.endsWith("home")
         ? "#e879b9"
         : "#34d399"
       : entity.kind === "REFEREE"
@@ -336,10 +339,10 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
   }, [frame]);
 
   const teamA = frame?.entities.filter(
-    (entity) => entity.teamRef !== undefined && entity.teamRef.endsWith("a"),
+    (entity) => entity.teamRef !== undefined && entity.teamRef.endsWith("home"),
   ).length;
   const teamB = frame?.entities.filter(
-    (entity) => entity.teamRef !== undefined && !entity.teamRef.endsWith("a"),
+    (entity) => entity.teamRef !== undefined && entity.teamRef.endsWith("away"),
   ).length;
 
   return (

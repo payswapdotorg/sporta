@@ -258,7 +258,7 @@ export function CreateStudio() {
       rendererId: computeQuoteRendererId,
       ...(quoted !== null ? { rendererVersion: quoted.rendererVersion } : {}),
       latencyClass: profile?.latencyClass ?? "offline",
-      directive: {
+      compute: {
         mode: draft.computeMode,
         ...(draft.computeMode === "user-explicit" && draft.computeProviderId !== null
           ? { providerId: draft.computeProviderId }
