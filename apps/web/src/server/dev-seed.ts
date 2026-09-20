@@ -364,6 +364,81 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     summary.push({ sessionId, storyKey: plan.story.key, renderIds, storedSegmentIds });
   }
 
+  // 3. L005 — the LIVE TACTICAL scaffold's session: a real control-plane
+  //     session whose live-authorized policy carries the L002 deterministic
+  //     tracking source as its LIVE source. The registration is the
+  //     transport's producer-seam re-point (the tactical view-model instead
+  //     of a story timeline) — honestly labeled: SYNTHETIC deterministic
+  //     tracking data, never a real broadcast. The scenario is `reconnect`
+  //     so the scaffold's dropout/degraded/recovery display is exercised on
+  //     the default dev surface (the other scenarios are one config away).
+  const tacticalCreated = await server.gate.createMediaSession(login.token, {
+    authorizationPolicy: {
+      policyId: "policy-dev-seed-live-tactical",
+      allowedOperations: [
+        "analysis",
+        "transformation",
+        "liveDelivery",
+        "derivativeGeneration",
+        "storage",
+      ],
+      assertedBy: "dev-seed",
+      sharingScope: "operator-authorized",
+    },
+    sourceLabel: "Synthetic live tracking — tactical view (L002 source, scaffold)",
+  });
+  const tacticalSessionId = (tacticalCreated as { session: { sessionId: string } }).session
+    .sessionId;
+  server.attestations.record(tacticalSessionId, seedAccount.userId);
+  server.publication.set(tacticalSessionId, "public");
+  // The story metadata the card/catalog model exposes (labeled): the
+  // tactical session is dev-seed content whose "story" is the live
+  // synthetic tracking window itself (no stored transcript/events).
+  storyIndex.set(tacticalSessionId, {
+    source: "dev-seed",
+    storyKey: "live-tactical-synthetic",
+    transcript: [],
+    events: [],
+    waveCount: 0,
+  });
+  server.live.registerSource({
+    sessionId: tacticalSessionId,
+    label: "Synthetic live tracking — tactical view",
+    storyKey: "live-tactical-synthetic",
+    steps: [],
+    policy: {
+      policyId: "policy-dev-seed-live-tactical",
+      allowedOperations: [
+        "analysis",
+        "transformation",
+        "liveDelivery",
+        "derivativeGeneration",
+        "storage",
+      ],
+      assertedBy: "dev-seed",
+      sharingScope: "operator-authorized",
+    },
+    snapshotVersion: 0,
+    watermarkSequence: 0,
+    tactical: {
+      config: {
+        seed: 20260920,
+        scenario: "reconnect",
+        tickCount: 600,
+        rateMs: 100,
+        playersPerTeam: 11,
+        referees: 1,
+      },
+      sourceNote: "the dev seed's labeled live-tactical session",
+    },
+  });
+  summary.push({
+    sessionId: tacticalSessionId,
+    storyKey: "live-tactical-synthetic",
+    renderIds: [],
+    storedSegmentIds: [],
+  });
+
   return {
     seedAccountUsername: SEED_ACCOUNT_USERNAME,
     demoAccountUsername: DEMO_ACCOUNT_USERNAME,

@@ -298,14 +298,28 @@ describe("the active transport's wiring", () => {
       available: boolean;
       transportKind: string;
       detail: string;
-      sources: { sessionId: string; label: string; storyKey: string }[];
+      sources: {
+        sessionId: string;
+        label: string;
+        storyKey: string;
+        sourceKind?: string;
+        sourceNote?: string;
+      }[];
     };
     expect(body.available).toBe(true);
     expect(body.transportKind).toBe("live-network");
     expect(body.detail).toContain("SSE live transport");
-    expect(body.sources).toHaveLength(1);
-    expect(body.sources[0]!.sessionId).toBe(derbySessionId!);
-    expect(body.sources[0]!.storyKey).toBe("derby");
+    // L005: the seed now registers TWO live sources — the derby story
+    // timeline AND the live tactical view-model's session.
+    expect(body.sources).toHaveLength(2);
+    const derby = body.sources.find((source) => source.sessionId === derbySessionId!);
+    expect(derby).toBeDefined();
+    expect(derby!.storyKey).toBe("derby");
+    expect(derby!.sourceKind).toBe("story");
+    const tactical = body.sources.find((source) => source.sourceKind === "tactical");
+    expect(tactical).toBeDefined();
+    expect(tactical!.storyKey).toBe("live-tactical-synthetic");
+    expect(tactical!.sourceNote).toContain("L002");
   });
 
   test("the capability response reports modes.live available over live-network", async () => {

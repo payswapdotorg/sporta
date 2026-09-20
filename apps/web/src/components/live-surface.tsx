@@ -10,22 +10,33 @@ import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
 import { ProviderNotices } from "@/components/provider-notices";
 import { LivePlayer } from "@/components/live-player";
 import type { LiveSourceOption } from "@/components/live-player";
+import { LiveTacticalRenderer } from "@/components/live-tactical";
+import type { LiveTacticalSourceOption } from "@/components/live-tactical";
 
 /**
- * The Live data surface (W904 → W915): live is a CAPABILITY verdict, and —
- * since W915 — a REAL one. When the SSE live transport is env-active
+ * The Live data surface (W904 → W915 → L005): live is a CAPABILITY verdict,
+ * and — since W915 — a REAL one. When the SSE live transport is env-active
  * (`SPORTA_LIVE_TRANSPORT=sse`) and an authorized live source is
  * registered, the capability response reports `modes.live` available with
- * `live-network` transport evidence, this surface lists the real sources,
- * and the player consumes the real SSE stream over the real HTTP network
- * (frames rendered as they arrive; latency measured end-to-end).
+ * `live-network` transport evidence, this surface lists the real sources
+ * (the story timelines' animated-SVG players AND the L005 live tactical
+ * view), and each player consumes the real SSE stream over the real HTTP
+ * network.
  *
  * When the transport is NOT active, the surface renders the honest
  * unavailable state — never a simulated live badge (Simulation F).
  */
+
+/** One row of the sources listing (the transport's own data). */
+interface LiveSourceRow extends LiveSourceOption {
+  sourceKind: "story" | "tactical";
+  sourceNote?: string;
+}
+
 export function LiveSurface() {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
   const [sources, setSources] = useState<FetchState<LiveSourcesLike>>({ phase: "loading" });
+  const [picked, setPicked] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchCapability().then(
@@ -62,6 +73,24 @@ export function LiveSurface() {
 
   const live = deriveLiveState(capability.data);
 
+  const rows: LiveSourceRow[] =
+    sources.phase === "ready"
+      ? sources.data.sources.map((source) => ({
+          sessionId: source.sessionId,
+          label: source.label,
+          storyKey: source.storyKey,
+          sourceKind: source.sourceKind ?? "story",
+          ...(source.sourceNote !== undefined ? { sourceNote: source.sourceNote } : {}),
+        }))
+      : [];
+  // The default pick: the FIRST tactical source (the L005 scaffold's live
+  // tactical view), else the first source — a deliberate, visible default.
+  const selected =
+    rows.find((row) => row.sessionId === picked) ??
+    rows.find((row) => row.sourceKind === "tactical") ??
+    rows[0] ??
+    null;
+
   return (
     <div className="surface-stack">
       <ProviderNotices capability={capability.data} />
@@ -76,14 +105,49 @@ export function LiveSurface() {
             title="The live sources could not be read"
             reason={sources.error}
           />
-        ) : sources.data.sources.length === 0 ? (
+        ) : rows.length === 0 ? (
           <StatePanel
             state="unavailable"
             title="No live source is registered"
             reason="the live transport is active but no authorized live session is registered — nothing may be labelled live (Simulation F)"
           />
         ) : (
-          <LivePlayer source={sources.data.sources[0] as LiveSourceOption} />
+          <>
+            <fieldset className="form-field" data-surface="live-source-picker">
+              <legend>Live sources (the transport&rsquo;s own list)</legend>
+              <ul className="studio-operation-list">
+                {rows.map((row) => (
+                  <li key={row.sessionId}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="live-source"
+                        checked={selected?.sessionId === row.sessionId}
+                        onChange={() => setPicked(row.sessionId)}
+                      />
+                      <span className="studio-operation-label">{row.label}</span>
+                      <span className="studio-operation-description">
+                        {row.sourceKind === "tactical"
+                          ? "live tactical view — the live view-model's world frames (L002 deterministic tracking source)"
+                          : `dev-seed story timeline (${row.storyKey}), cycled`}
+                      </span>
+                      {row.sourceKind === "tactical" ? (
+                        <StateChip state="ready">tactical view-model</StateChip>
+                      ) : (
+                        <StateChip state="degraded">story timeline</StateChip>
+                      )}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </fieldset>
+            {selected !== null &&
+              (selected.sourceKind === "tactical" ? (
+                <LiveTacticalRenderer source={selected as LiveTacticalSourceOption} />
+              ) : (
+                <LivePlayer source={selected} />
+              ))}
+          </>
         )
       ) : null}
 
@@ -116,8 +180,10 @@ export function LiveSurface() {
         <p className="section-lede">
           Sporta labels something live only when a real live network transport backs it. The
           transport is Server-Sent-Events over HTTP — a genuine network path with real-time delivery
-          and measured end-to-end latency. When it is not enabled on this deployment, this page
-          stays honestly unavailable.
+          and measured end-to-end latency. The live tactical view consumes live world state through
+          the same transport (its producer seam re-pointed at the live view-model — the L005
+          scaffold). When the transport is not enabled on this deployment, this page stays honestly
+          unavailable.
         </p>
         {transportActive ? (
           <StateChip state="ready">live network transport active</StateChip>

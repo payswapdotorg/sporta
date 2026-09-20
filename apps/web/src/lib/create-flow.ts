@@ -149,6 +149,30 @@ export function rendererDispatchabilityOf(renderer: StudioOptionsLike["renderers
 /** Which real source path the flow runs (R501): a browser upload or the fixture library. */
 export type CreateSourceKind = "upload" | "fixture";
 
+/** The derived reality kinds the ONE-submission plan can select (J004). */
+export type DerivedRealitySelection = "tactical" | "three-d-game" | "anime-npr";
+
+/** Product labels for the derived reality kinds (display only). */
+export const DERIVED_REALITY_LABELS: Record<DerivedRealitySelection, string> = {
+  tactical: "Tactical",
+  "three-d-game": "3D Game",
+  "anime-npr": "Anime / NPR",
+};
+
+/**
+ * Whether a derived reality is selectable in the multi-select (J004): only
+ * kinds the server's honest capability states marked offered — the UI never
+ * invents a reality this control plane cannot render.
+ */
+export function realityOffered(
+  options: StudioOptionsLike | null,
+  reality: DerivedRealitySelection,
+): boolean {
+  if (options === null) return false;
+  const row = options.derivedRealities?.find((entry) => entry.reality === reality);
+  return row?.offered === true;
+}
+
 /** Everything the guided flow collected before submission. */
 export interface CreateDraft {
   /** The source path (R501): a real browser upload or the fixture library. */
@@ -161,6 +185,13 @@ export interface CreateDraft {
   expiresAtIso: string | null;
   sharingScope: "private" | "operator-authorized";
   rendererId: string | null;
+  /**
+   * J004: the DERIVED realities selected for the ONE-submission plan (the
+   * upload path's multi-select; "original" is NOT a selection — the
+   * admitted media job always produces the original-reality artifact). An
+   * empty selection means upload + original only.
+   */
+  derivedRealities: DerivedRealitySelection[];
   styleId: string | null;
   outputProfileIndex: number;
   /** The compute directive (R501): auto or an explicit provider choice. */
@@ -179,6 +210,7 @@ export function emptyDraft(): CreateDraft {
     expiresAtIso: null,
     sharingScope: "private",
     rendererId: null,
+    derivedRealities: [],
     styleId: null,
     outputProfileIndex: 0,
     computeMode: "sporta-auto",
@@ -194,7 +226,10 @@ export function stepSatisfied(step: CreateStep, draft: CreateDraft): boolean {
     case "rights":
       return draft.operations.length > 0;
     case "renderer":
-      return draft.rendererId !== null;
+      // J004: the upload path selects DERIVED realities for the ONE-submission
+      // plan — zero selections is a valid choice (upload + original only, the
+      // legacy behavior); the fixture path still requires one renderer.
+      return draft.sourceKind === "upload" ? true : draft.rendererId !== null;
     case "recipe":
       return draft.styleId !== null && draft.styleId.trim().length > 0;
     case "compute":

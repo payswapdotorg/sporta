@@ -11,6 +11,7 @@ import type {
   StudioDispatchLike,
   StudioJobLike,
   StudioOptionsLike,
+  StudioRenderPlanLike,
   StudioSessionLike,
   StudioSessionStateLike,
   StudioUploadSessionLike,
@@ -33,16 +34,18 @@ import {
 } from "@/lib/client-api";
 import {
   CREATE_STEPS,
+  DERIVED_REALITY_LABELS,
   capabilityLineOf,
   emptyDraft,
   formatBytes,
   jobProgressOf,
   meteredFractionOf,
+  realityOffered,
   rendererDispatchabilityOf,
   stepSatisfied,
   submissionVerdictOf,
 } from "@/lib/create-flow";
-import type { CreateDraft, CreateStep } from "@/lib/create-flow";
+import type { CreateDraft, CreateStep, DerivedRealitySelection } from "@/lib/create-flow";
 import {
   chipStateOf,
   honestComputePresentationOf,
@@ -84,11 +87,17 @@ const STEP_LABELS: Record<CreateStep, string> = {
 /** The studio's in-flight submission (session + dispatch + poll). */
 interface SubmissionState {
   session: StudioSessionLike | StudioUploadSessionLike;
-  dispatch: StudioDispatchLike;
+  dispatch: StudioDispatchLike | null;
   /** The upload path's media job id (the normalization pipeline's poll). */
   mediaJobId: string | null;
   /** The upload path's honest perception summary (the R207 run). */
   perception: StudioUploadSessionLike["perception"] | null;
+  /**
+   * J004: the ONE-submission multi-reality plan (the upload path only;
+   * `null` when the submission carried no `realities` field — the legacy
+   * single-dispatch shape with `dispatch` above).
+   */
+  plan: StudioRenderPlanLike | null;
 }
 
 export function CreateStudio() {
@@ -123,6 +132,8 @@ export function CreateStudio() {
   const [submission, setSubmission] = useState<SubmissionState | null>(null);
   const [job, setJob] = useState<StudioJobLike | null>(null);
   const [jobError, setJobError] = useState<string | null>(null);
+  /** J004: the plan's per-reality job views (jobId → the real projection). */
+  const [planJobs, setPlanJobs] = useState<Record<string, StudioJobLike>>({});
   const [mediaJob, setMediaJob] = useState<MediaJobLike | null>(null);
   const [sessionState, setSessionState] = useState<StudioSessionStateLike | null>(null);
   const [output, setOutput] = useState<
@@ -210,25 +221,42 @@ export function CreateStudio() {
   // -------------------------------------------------------------------
   // Compute preview (the REAL SelectionDirector, re-run per directive)
   // -------------------------------------------------------------------
+  // J004: the workload the compute step quotes — the selected renderer
+  // (fixture path), or the FIRST selected derived reality's producer (the
+  // upload path's ONE-submission plan; the directive covers the whole plan,
+  // never per-reality re-selection). `null` = nothing dispatches through
+  // the compute plane (original-only upload) — the honest skip state.
+  const planProducerRendererId =
+    options.phase === "ready" && draft.sourceKind === "upload" && draft.derivedRealities.length > 0
+      ? (options.data?.derivedRealities.find((entry) => entry.reality === draft.derivedRealities[0])
+          ?.producerRendererId ?? null)
+      : null;
   const renderer =
     options.phase === "ready"
       ? (options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null)
       : null;
+  const computeQuoteRendererId =
+    draft.sourceKind === "upload" ? planProducerRendererId : draft.rendererId;
   const computePreviewKey =
-    step === "compute" && renderer !== null
-      ? `${renderer.rendererId}|${draft.outputProfileIndex}|${draft.computeMode}|${draft.computeProviderId ?? ""}`
+    step === "compute" && computeQuoteRendererId !== null
+      ? `${computeQuoteRendererId}|${draft.outputProfileIndex}|${draft.computeMode}|${draft.computeProviderId ?? ""}`
       : null;
   useEffect(() => {
-    if (computePreviewKey === null || renderer === null) {
+    if (computePreviewKey === null || computeQuoteRendererId === null) {
       if (step !== "compute") setComputePreview({ phase: "idle" });
       return;
     }
     let cancelled = false;
     setComputePreview({ phase: "loading" });
-    const profile = renderer.supportedOutputProfiles[draft.outputProfileIndex];
+    const quoted =
+      options.phase === "ready"
+        ? (options.data?.renderers.find((entry) => entry.rendererId === computeQuoteRendererId) ??
+          null)
+        : null;
+    const profile = quoted?.supportedOutputProfiles[draft.outputProfileIndex];
     void computeSelectionPreview({
-      rendererId: renderer.rendererId,
-      rendererVersion: renderer.rendererVersion,
+      rendererId: computeQuoteRendererId,
+      ...(quoted !== null ? { rendererVersion: quoted.rendererVersion } : {}),
       latencyClass: profile?.latencyClass ?? "offline",
       directive: {
         mode: draft.computeMode,
@@ -251,7 +279,12 @@ export function CreateStudio() {
   }, [computePreviewKey]);
 
   // -------------------------------------------------------------------
-  // Job polling (the REAL compute ledger's states — never silent)
+  // Job polling (the REAL compute ledger's states — never silent). J004:
+  // the upload path's ONE-submission plan polls EVERY admitted per-reality
+  // job (independent states, independent terminals); the legacy dispatch
+  // (fixture path / original single render) polls its one job. The PRIMARY
+  // job (the preview/completion surface) is the dispatch's job, else the
+  // plan's first admitted job.
   // -------------------------------------------------------------------
   const pollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopPolling = useCallback(() => {
@@ -260,25 +293,53 @@ export function CreateStudio() {
       pollTimer.current = null;
     }
   }, []);
+  const primaryJobId =
+    submission !== null
+      ? (submission.dispatch?.jobId ??
+        submission.plan?.realities.find((entry) => entry.jobId !== undefined)?.jobId ??
+        null)
+      : null;
+  const planJobIds =
+    submission?.plan?.realities
+      .map((entry) => entry.jobId)
+      .filter((jobId): jobId is string => jobId !== undefined) ?? [];
   useEffect(() => {
     if (submission === null) return;
     let cancelled = false;
-    const poll = () => {
-      void fetchStudioJob(submission.session.sessionId, submission.dispatch.jobId).then(
-        (next) => {
-          if (cancelled) return;
-          setJob(next);
-          const progress = jobProgressOf(next.state);
-          if (!progress.terminal) {
-            pollTimer.current = setTimeout(poll, 700);
-          }
-        },
-        (error) => {
-          if (!cancelled) setJobError(String(error));
-        },
-      );
+    const sessionId = submission.session.sessionId;
+    // The plan's job ids, plus the legacy dispatch's job when it is not one
+    // of them (the upload path's primary IS the plan's first admitted job).
+    const idsToPoll = [...planJobIds];
+    if (primaryJobId !== null && !idsToPoll.includes(primaryJobId)) {
+      idsToPoll.unshift(primaryJobId);
+    }
+    const poll = async () => {
+      if (idsToPoll.length === 0) return;
+      try {
+        const rows = await Promise.all(
+          idsToPoll.map(async (jobId) => [jobId, await fetchStudioJob(sessionId, jobId)] as const),
+        );
+        if (cancelled) return;
+        let anyRunning = false;
+        for (const [jobId, view] of rows) {
+          if (!jobProgressOf(view.state).terminal) anyRunning = true;
+          if (jobId === primaryJobId) setJob(view);
+        }
+        if (planJobIds.length > 0) {
+          setPlanJobs((prev) => {
+            const next = { ...prev };
+            for (const [jobId, view] of rows) next[jobId] = view;
+            return next;
+          });
+        }
+        if (anyRunning) {
+          pollTimer.current = setTimeout(poll, 700);
+        }
+      } catch (error) {
+        if (!cancelled) setJobError(String(error));
+      }
     };
-    poll();
+    void poll();
     return () => {
       cancelled = true;
       stopPolling();
@@ -379,54 +440,71 @@ export function CreateStudio() {
     stepSatisfied(step, draft) && (step !== "rights" || verdict?.state === "ready");
 
   const submit = useCallback(async () => {
-    if (renderer === null || previewReady === null) return;
+    if (previewReady === null) return;
+    if (draft.sourceKind === "fixture" && renderer === null) return;
     setSubmitting(true);
     setFlowError(null);
     try {
-      // R501: the source path decides the creation call. The upload path
-      // carries the file + the declaration in ONE multipart request (the
-      // server runs the R101 boundary + the R207 pipeline); the fixture
-      // path is the unchanged W906 flow.
-      const session =
-        draft.sourceKind === "upload" && draft.file !== null
-          ? await createUploadSession({
-              file: draft.file,
-              operations: draft.operations,
-              ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
-              sharingScope: draft.sharingScope,
-            })
-          : await createStudioSession({
-              sourceKey: draft.sourceKey ?? "",
-              operations: draft.operations,
-              ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
-              sharingScope: draft.sharingScope,
-            });
-      const dispatch = await dispatchStudioRender(session.sessionId, {
-        rendererId: renderer.rendererId,
-        styleId: draft.styleId ?? undefined,
-        ...(renderer.supportedOutputProfiles[draft.outputProfileIndex] !== undefined
-          ? { outputProfile: renderer.supportedOutputProfiles[draft.outputProfileIndex] }
+      // The compute directive the submission carries (R501/J004 — the ONE
+      // directive; the plan's dispatches all ride it, no per-reality
+      // re-selection).
+      const directive = {
+        mode: draft.computeMode,
+        ...(draft.computeMode === "user-explicit" && draft.computeProviderId !== null
+          ? { providerId: draft.computeProviderId }
           : {}),
-        compute: {
-          mode: draft.computeMode,
-          ...(draft.computeMode === "user-explicit" && draft.computeProviderId !== null
-            ? { providerId: draft.computeProviderId }
+        preference: { privacyPosture: "privacy-any" as const },
+      };
+      if (draft.sourceKind === "upload" && draft.file !== null) {
+        // J004 — THE ONE-SUBMISSION MULTI-REALITY FLOW: the upload carries
+        // the file + the declaration + the DERIVED reality selections in
+        // ONE multipart request. The server runs the R101 boundary + the
+        // R207 pipeline + (when realities are selected) the plan's
+        // per-reality dispatches; the 201 answer carries the plan. NO
+        // second dispatch call — the hidden knowledge is gone.
+        const session = await createUploadSession({
+          file: draft.file,
+          operations: draft.operations,
+          ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
+          sharingScope: draft.sharingScope,
+          realities: [...draft.derivedRealities],
+          compute: directive,
+          ...(draft.styleId !== null && draft.styleId.trim().length > 0
+            ? { styleId: draft.styleId }
             : {}),
-          preference: { privacyPosture: "privacy-any" },
-        },
+        });
+        setSubmission({
+          session,
+          dispatch: null,
+          mediaJobId: session.source.job !== null ? session.source.job.jobId : null,
+          perception: session.perception,
+          plan: session.renderPlan ?? null,
+        });
+        setStep("render");
+        return;
+      }
+      // The fixture path — the unchanged W906 flow (one session, one render
+      // through the renders route).
+      const session = await createStudioSession({
+        sourceKey: draft.sourceKey ?? "",
+        operations: draft.operations,
+        ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
+        sharingScope: draft.sharingScope,
       });
-      // R501: the upload answer carries the durable source state (asset +
-      // the admitted media job) + the perception summary; the fixture
-      // answer carries the fixture source view. `perception` discriminates.
-      const uploadAnswer = "perception" in session ? session : null;
+      const dispatch = await dispatchStudioRender(session.sessionId, {
+        rendererId: renderer!.rendererId,
+        styleId: draft.styleId ?? undefined,
+        ...(renderer!.supportedOutputProfiles[draft.outputProfileIndex] !== undefined
+          ? { outputProfile: renderer!.supportedOutputProfiles[draft.outputProfileIndex] }
+          : {}),
+        compute: directive,
+      });
       setSubmission({
         session,
         dispatch,
-        mediaJobId:
-          uploadAnswer !== null && uploadAnswer.source.job !== null
-            ? uploadAnswer.source.job.jobId
-            : null,
-        perception: uploadAnswer !== null ? uploadAnswer.perception : null,
+        mediaJobId: null,
+        perception: null,
+        plan: null,
       });
       setStep("render");
     } catch (err) {
@@ -534,6 +612,14 @@ export function CreateStudio() {
           options={options.data}
           draft={draft}
           onPick={(rendererId) => setDraft((prev) => ({ ...prev, rendererId }))}
+          onToggleReality={(reality) =>
+            setDraft((prev) => ({
+              ...prev,
+              derivedRealities: prev.derivedRealities.includes(reality)
+                ? prev.derivedRealities.filter((entry) => entry !== reality)
+                : [...prev.derivedRealities, reality],
+            }))
+          }
         />
       )}
 
@@ -581,6 +667,7 @@ export function CreateStudio() {
           job={job}
           jobError={jobError}
           mediaJob={mediaJob}
+          planJobs={planJobs}
           sessionState={sessionState}
           watch={watch}
           output={output}
@@ -910,71 +997,130 @@ function RightsPreviewPanel({
 }
 
 // ---------------------------------------------------------------------------
-// Step 3 — the renderer (the real registry, honestly annotated)
+// Step 3 — the reality selection (J004: the upload path's multi-select of
+// the derived realities; the fixture path's single renderer radio)
 // ---------------------------------------------------------------------------
 
 function RendererStep({
   options,
   draft,
   onPick,
+  onToggleReality,
 }: {
   options: StudioOptionsLike;
   draft: CreateDraft;
   onPick: (rendererId: string) => void;
+  onToggleReality: (reality: DerivedRealitySelection) => void;
 }) {
+  const uploadPath = draft.sourceKind === "upload";
   return (
     <section className="studio-step" aria-labelledby="studio-renderer-heading">
       <h2 id="studio-renderer-heading" className="studio-step-title">
-        Choose the reality
+        Choose the realities
       </h2>
-      <p className="section-lede">
-        Only renderers actually registered on the control plane are offered — the product never
-        invents one. Camera, commentary and tactical renderers are not registered this wave, so they
-        are not offered.
-      </p>
-      <ul className="card-grid studio-source-grid">
-        {options.renderers.map((entry) => {
-          const dispatchability = rendererDispatchabilityOf(entry);
-          return (
-            <li key={entry.rendererId}>
-              <label
-                className={`session-card studio-source${draft.rendererId === entry.rendererId ? " current" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="studio-renderer"
-                  disabled={dispatchability.state !== "ready"}
-                  checked={draft.rendererId === entry.rendererId}
-                  onChange={() => onPick(entry.rendererId)}
-                />
-                <span className="session-card-title">{entry.rendererId}</span>
-                <dl className="session-card-facts">
-                  <div className="fact">
-                    <dt>Version</dt>
-                    <dd>{entry.rendererVersion}</dd>
-                  </div>
-                  <div className="fact">
-                    <dt>Class</dt>
-                    <dd>{entry.rendererClass}</dd>
-                  </div>
-                  <div className="fact">
-                    <dt>Profiles</dt>
-                    <dd>{entry.supportedOutputProfiles.length}</dd>
-                  </div>
-                </dl>
-                {dispatchability.state === "ready" ? (
-                  <StateChip state="ready">dispatchable</StateChip>
-                ) : (
-                  <span>
-                    <StateChip state="unavailable">no artifact handoff</StateChip>
-                    <span className="studio-source-description">{dispatchability.reason}</span>
-                  </span>
-                )}
-              </label>
-            </li>
-          );
-        })}
-      </ul>
+      {uploadPath ? (
+        <>
+          <p className="section-lede">
+            One submission, one render plan. The upload itself always produces the{" "}
+            <strong>Original</strong> reality (the admitted media job&rsquo;s normalization) —
+            select any additional derived realities you want rendered in the same submission. Only
+            realities with a registered producer are offered; the product never invents one.
+          </p>
+          <ul className="studio-operation-list" data-surface="reality-multi-select">
+            {(options.derivedRealities ?? []).map((entry) => {
+              const offered = entry.offered && realityOffered(options, entry.reality);
+              return (
+                <li key={entry.reality}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="studio-derived-reality"
+                      disabled={!offered}
+                      checked={draft.derivedRealities.includes(entry.reality)}
+                      onChange={() => onToggleReality(entry.reality)}
+                    />
+                    <span className="studio-operation-label">
+                      {DERIVED_REALITY_LABELS[entry.reality]}
+                    </span>
+                    <span className="studio-operation-description">
+                      {offered ? entry.reason : `not offered: ${entry.reason}`}
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          {draft.derivedRealities.length === 0 ? (
+            <p className="field-hint" role="status">
+              No derived realities selected — the submission produces the upload + its Original
+              artifact only (you can still render more later from Watch&rsquo;s per-reality
+              &ldquo;requires render&rdquo; state).
+            </p>
+          ) : (
+            <p className="field-note" role="status">
+              Selected: Original (always) +{" "}
+              <strong>
+                {draft.derivedRealities
+                  .map((reality) => DERIVED_REALITY_LABELS[reality])
+                  .join(", ")}
+              </strong>{" "}
+              — one submission dispatches one render per selected reality under one compute
+              selection, with per-reality honest failures.
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="section-lede">
+            Only renderers actually registered on the control plane are offered — the product never
+            invents one. Camera, commentary and tactical renderers are not registered this wave, so
+            they are not offered.
+          </p>
+          <ul className="card-grid studio-source-grid">
+            {options.renderers.map((entry) => {
+              const dispatchability = rendererDispatchabilityOf(entry);
+              return (
+                <li key={entry.rendererId}>
+                  <label
+                    className={`session-card studio-source${draft.rendererId === entry.rendererId ? " current" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="studio-renderer"
+                      disabled={dispatchability.state !== "ready"}
+                      checked={draft.rendererId === entry.rendererId}
+                      onChange={() => onPick(entry.rendererId)}
+                    />
+                    <span className="session-card-title">{entry.rendererId}</span>
+                    <dl className="session-card-facts">
+                      <div className="fact">
+                        <dt>Version</dt>
+                        <dd>{entry.rendererVersion}</dd>
+                      </div>
+                      <div className="fact">
+                        <dt>Class</dt>
+                        <dd>{entry.rendererClass}</dd>
+                      </div>
+                      <div className="fact">
+                        <dt>Profiles</dt>
+                        <dd>{entry.supportedOutputProfiles.length}</dd>
+                      </div>
+                    </dl>
+                    {dispatchability.state === "ready" ? (
+                      <StateChip state="ready">dispatchable</StateChip>
+                    ) : (
+                      <span>
+                        <StateChip state="unavailable">no artifact handoff</StateChip>
+                        <span className="studio-source-description">{dispatchability.reason}</span>
+                      </span>
+                    )}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
       <p className="form-notice" role="note">
         {options.compute === null
           ? "No compute plane is configured — render dispatch is unavailable (the control plane answers its typed 503)."
@@ -1001,19 +1147,22 @@ function RecipeStep({
   onStyle: (styleId: string) => void;
   onProfile: (index: number) => void;
 }) {
-  const profiles =
-    options.renderers.find((entry) => entry.rendererId === draft.rendererId)
-      ?.supportedOutputProfiles ?? [];
+  const uploadPath = draft.sourceKind === "upload";
+  const profiles = uploadPath
+    ? []
+    : (options.renderers.find((entry) => entry.rendererId === draft.rendererId)
+        ?.supportedOutputProfiles ?? []);
   return (
     <section className="studio-step" aria-labelledby="studio-recipe-heading">
       <h2 id="studio-recipe-heading" className="studio-step-title">
         Set the recipe
       </h2>
       <p className="section-lede">
-        The recipe carries your style label and one of the renderer&apos;s real output profiles. For
-        an uploaded clip the engine inputs come from the real-to-SWM pipeline over YOUR frames; for
-        a fixture they come from the source fixture itself — there is no separate
-        commentary/camera/tactical renderer to configure this wave.
+        The recipe carries your style label
+        {uploadPath ? "" : " and one of the renderer's real output profiles"}. For an uploaded clip
+        the engine inputs come from the real-to-SWM pipeline over YOUR frames; for a fixture they
+        come from the source fixture itself — there is no separate commentary/camera/tactical
+        renderer to configure this wave.
       </p>
       <div className="form-field">
         <label htmlFor="studio-style">Style label</label>
@@ -1028,30 +1177,37 @@ function RecipeStep({
           The style id travels with the render&apos;s provenance (the renderer validates it).
         </p>
       </div>
-      <fieldset className="form-field">
-        <legend>Output profile</legend>
-        <ul className="studio-operation-list">
-          {profiles.map((profile, index) => (
-            <li key={`${profile.resolution.w}x${profile.resolution.h}-${profile.frameRate}`}>
-              <label>
-                <input
-                  type="radio"
-                  name="studio-profile"
-                  checked={draft.outputProfileIndex === index}
-                  onChange={() => onProfile(index)}
-                />
-                <span className="studio-operation-label">
-                  {profile.resolution.w}×{profile.resolution.h} @ {profile.frameRate}fps ·{" "}
-                  {profile.latencyClass}
-                </span>
-                <span className="studio-operation-description">
-                  {profile.codec} in {profile.container}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </fieldset>
+      {uploadPath ? (
+        <p className="form-notice" role="note">
+          Each selected reality renders through its own producer&rsquo;s default output profile —
+          the plan dispatches carry no profile override (the producers own their encodes).
+        </p>
+      ) : (
+        <fieldset className="form-field">
+          <legend>Output profile</legend>
+          <ul className="studio-operation-list">
+            {profiles.map((profile, index) => (
+              <li key={`${profile.resolution.w}x${profile.resolution.h}-${profile.frameRate}`}>
+                <label>
+                  <input
+                    type="radio"
+                    name="studio-profile"
+                    checked={draft.outputProfileIndex === index}
+                    onChange={() => onProfile(index)}
+                  />
+                  <span className="studio-operation-label">
+                    {profile.resolution.w}×{profile.resolution.h} @ {profile.frameRate}fps ·{" "}
+                    {profile.latencyClass}
+                  </span>
+                  <span className="studio-operation-description">
+                    {profile.codec} in {profile.container}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+      )}
       {source !== null && (
         <section className="studio-source-facts">
           <h3 className="studio-subheading">What the engine will run (real source inputs)</h3>
@@ -1191,8 +1347,14 @@ function ComputeStep({
             </fieldset>
           )}
 
-          {renderer === null ? (
+          {renderer === null && draft.sourceKind === "fixture" ? (
             <p className="field-note">Pick a renderer first — the selection quotes its workload.</p>
+          ) : renderer === null && draft.derivedRealities.length === 0 ? (
+            <p className="field-note" role="status">
+              No derived realities selected — nothing dispatches through the compute plane. Your
+              upload&rsquo;s Original artifact comes from the media pipeline (real ffmpeg, no render
+              job); the compute selection below applies if you add a derived reality.
+            </p>
           ) : preview.phase === "idle" ? null : preview.phase === "loading" ? (
             <LoadingPanel label="Running the selection director" />
           ) : preview.phase === "failed" ? (
@@ -1406,8 +1568,18 @@ function ReviewStep({
           </dd>
         </div>
         <div className="fact">
-          <dt>Renderer</dt>
-          <dd>{renderer?.rendererId ?? "—"}</dd>
+          <dt>Realities (one submission)</dt>
+          <dd>
+            {draft.sourceKind === "upload"
+              ? `Original (always)${
+                  draft.derivedRealities.length > 0
+                    ? ` + ${draft.derivedRealities
+                        .map((reality) => DERIVED_REALITY_LABELS[reality])
+                        .join(", ")}`
+                    : ""
+                }`
+              : (renderer?.rendererId ?? "—")}
+          </dd>
         </div>
         <div className="fact">
           <dt>Style</dt>
@@ -1464,6 +1636,7 @@ function RenderStep({
   job,
   jobError,
   mediaJob,
+  planJobs,
   sessionState,
   watch,
   output,
@@ -1475,6 +1648,8 @@ function RenderStep({
   job: StudioJobLike | null;
   jobError: string | null;
   mediaJob: MediaJobLike | null;
+  /** J004: the plan's per-reality job views (jobId → the real projection). */
+  planJobs: Record<string, StudioJobLike>;
   sessionState: StudioSessionStateLike | null;
   watch: WatchModelLike | null;
   output:
@@ -1489,6 +1664,7 @@ function RenderStep({
 }) {
   // R502: the PINNED honest presentations — derived from the server's own
   // projections, nothing else.
+  const plan = submission.plan;
   const progress = job !== null ? jobProgressOf(job.state) : null;
   const computePresentation = job !== null ? honestComputePresentationOf(job.state) : null;
   const fraction = job !== null ? meteredFractionOf(job) : null;
@@ -1521,31 +1697,50 @@ function RenderStep({
             <code>{submission.session.sessionId}</code>
           </dd>
         </div>
-        <div className="fact">
-          <dt>Job</dt>
-          <dd>
-            <code>{submission.dispatch.jobId}</code> ({submission.dispatch.disposition})
-          </dd>
-        </div>
-        <div className="fact">
-          <dt>Compute adapter</dt>
-          <dd>
-            {submission.dispatch.adapterId}
-            {submission.dispatch.selection !== undefined
-              ? ` (selected: ${submission.dispatch.selection.providerId}, ${submission.dispatch.selection.mode})`
-              : ""}
-          </dd>
-        </div>
+        {submission.dispatch !== null ? (
+          <>
+            <div className="fact">
+              <dt>Job</dt>
+              <dd>
+                <code>{submission.dispatch.jobId}</code> ({submission.dispatch.disposition})
+              </dd>
+            </div>
+            <div className="fact">
+              <dt>Compute adapter</dt>
+              <dd>
+                {submission.dispatch.adapterId}
+                {submission.dispatch.selection !== undefined
+                  ? ` (selected: ${submission.dispatch.selection.providerId}, ${submission.dispatch.selection.mode})`
+                  : ""}
+              </dd>
+            </div>
+          </>
+        ) : (
+          <div className="fact">
+            <dt>Submission</dt>
+            <dd>one request — upload + original + the selected derived realities</dd>
+          </div>
+        )}
         <div className="fact">
           <dt>Whose compute (R506)</dt>
           <dd>
-            {job?.selection !== undefined ? (
+            {(job?.selection ?? plan?.selection) !== undefined ? (
               <>
-                <StateChip state={job.selection.mode === "user-explicit" ? "ready" : "degraded"}>
-                  {job.selection.mode === "user-explicit" ? "your choice" : "platform chose"}
+                <StateChip
+                  state={
+                    (job?.selection ?? plan?.selection)!.mode === "user-explicit"
+                      ? "ready"
+                      : "degraded"
+                  }
+                >
+                  {(job?.selection ?? plan?.selection)!.mode === "user-explicit"
+                    ? "your choice"
+                    : "platform chose"}
                 </StateChip>{" "}
-                <code>{job.selection.providerId}</code>{" "}
-                <span className="field-hint">{job.selection.explanation.selectionReason}</span>
+                <code>{(job?.selection ?? plan?.selection)!.providerId}</code>{" "}
+                <span className="field-hint">
+                  {(job?.selection ?? plan?.selection)!.explanation.selectionReason}
+                </span>
               </>
             ) : (
               <span className="field-hint">
@@ -1555,6 +1750,106 @@ function RenderStep({
           </dd>
         </div>
       </dl>
+
+      {/* J004: the ONE-submission plan — per-reality honest states */}
+      {plan !== null && (
+        <section className="studio-progress" data-surface="render-plan" aria-live="polite">
+          <h3 className="studio-subheading">The render plan (one submission)</h3>
+          <table className="data-table">
+            <caption className="sr-only">
+              Per-reality plan entries with live job states and typed failures
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Reality</th>
+                <th scope="col">Producer</th>
+                <th scope="col">State</th>
+                <th scope="col">Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Original</td>
+                <td>the media job&rsquo;s normalization</td>
+                <td>
+                  {mediaPresentation !== null ? (
+                    <StateChip state={chipStateOf(mediaPresentation)}>
+                      {mediaPresentation.state}
+                    </StateChip>
+                  ) : (
+                    <StateChip state="loading">starting</StateChip>
+                  )}
+                </td>
+                <td>
+                  {mediaPresentation !== null ? (
+                    <span className="field-hint">{mediaPresentation.label}</span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+              </tr>
+              {plan.realities.map((entry) => {
+                const view = entry.jobId !== undefined ? planJobs[entry.jobId] : undefined;
+                const presentation =
+                  view !== undefined ? honestComputePresentationOf(view.state) : null;
+                return (
+                  <tr key={entry.reality}>
+                    <td>{DERIVED_REALITY_LABELS[entry.reality]}</td>
+                    <td>
+                      <code>{entry.rendererId ?? "—"}</code>
+                    </td>
+                    <td>
+                      {entry.disposition === "failed" ? (
+                        <StateChip state="failed">failed</StateChip>
+                      ) : presentation !== null ? (
+                        <StateChip state={chipStateOf(presentation)}>
+                          {presentation.state}
+                        </StateChip>
+                      ) : (
+                        <StateChip
+                          state={entry.disposition === "admitted" ? "loading" : "degraded"}
+                        >
+                          {entry.jobState ?? entry.disposition}
+                        </StateChip>
+                      )}
+                    </td>
+                    <td>
+                      {entry.disposition === "failed" && entry.failure !== undefined ? (
+                        <span className="form-error" role="alert">
+                          {entry.failure.errorClass}: {entry.failure.message}
+                        </span>
+                      ) : view !== undefined ? (
+                        <span className="field-hint">
+                          job <code>{view.jobId}</code>
+                          {view.renderId !== undefined ? (
+                            <>
+                              {" "}
+                              · render <code>{view.renderId}</code>
+                            </>
+                          ) : null}
+                        </span>
+                      ) : (
+                        <span className="field-hint">
+                          job <code>{entry.jobId ?? "—"}</code>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {plan.realities.length === 0 && (
+            <p className="field-hint">
+              No derived realities were selected — the upload produces its Original artifact only.
+            </p>
+          )}
+          <p className="field-hint">
+            Per-reality failures are independent — one reality refusing never cancels the others;
+            every state above is the control plane&rsquo;s own projection.
+          </p>
+        </section>
+      )}
 
       <ComputeCostPanel status={computeStatus} />
 
@@ -1623,7 +1918,17 @@ function RenderStep({
         <StatePanel state="failed" title="The job state could not be read" reason={jobError} />
       )}
 
-      {progress === null && <LoadingPanel label="Reading the compute ledger" />}
+      {progress === null && plan === null && <LoadingPanel label="Reading the compute ledger" />}
+
+      {progress === null &&
+        plan !== null &&
+        !plan.realities.some((entry) => entry.jobId !== undefined) && (
+          <p className="field-hint">
+            No compute job this submission — the upload&rsquo;s Original reality is the media
+            pipeline&rsquo;s artifact and no derived render was admitted (see the render plan
+            above).
+          </p>
+        )}
 
       {progress !== null && job !== null && computePresentation !== null && (
         <section className="studio-progress" aria-live="polite">

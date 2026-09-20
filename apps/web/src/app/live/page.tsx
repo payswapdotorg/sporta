@@ -7,11 +7,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * Live (W904 → W915). Live is a capability verdict (Simulation F): the
- * surface renders whatever the REAL transport state says — with the SSE
- * live transport env-active (`SPORTA_LIVE_TRANSPORT=sse`), the player
- * consumes a REAL network stream (frames + measured end-to-end latency);
- * otherwise the honest unavailable state.
+ * Live (W904 → W915 → L005). Live is a capability verdict (Simulation F):
+ * the surface renders whatever the REAL transport state says — with the SSE
+ * live transport env-active (`SPORTA_LIVE_TRANSPORT=sse`), the players
+ * consume REAL network streams (the story timelines' animated-SVG frames
+ * and the live tactical view's world frames, with measured end-to-end
+ * latency); otherwise the honest unavailable state.
  */
 export default function LivePage() {
   return (
@@ -19,7 +20,7 @@ export default function LivePage() {
       <PageHeader
         kicker="Watch"
         title="Live"
-        description="Real live network streaming when the SSE transport is enabled — never simulated. The state below is the transport's own verdict."
+        description="Real live network streaming when the SSE transport is enabled — never simulated. The live tactical view renders live world state on the canonical pitch as it changes."
       />
       <LiveSurface />
     </>

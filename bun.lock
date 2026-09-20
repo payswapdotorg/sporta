@@ -48,6 +48,7 @@
         "@sporta/fusion": "workspace:*",
         "@sporta/identity": "workspace:*",
         "@sporta/ingestion": "workspace:*",
+        "@sporta/live-source": "workspace:*",
         "@sporta/media-platform": "workspace:*",
         "@sporta/observation": "workspace:*",
         "@sporta/output-pipeline": "workspace:*",

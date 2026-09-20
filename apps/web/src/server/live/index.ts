@@ -5,6 +5,9 @@
  *   subscribers, bounded buffers, close semantics);
  * - `./producer.ts` — the REAL per-tick frame generation (the W502 anime
  *   renderer over the dev-seed story timeline);
+ * - `./view-model.ts` — the L005 live tactical view-model (the L002
+ *   deterministic tracking source projected to live world frames — the
+ *   producer seam the transport re-points for tactical sources);
  * - `./env.ts` — the env contract (composition-root reads only).
  *
  * The browser side consumes the same wire through the app's `/api/live/*`
@@ -20,4 +23,11 @@ export {
   type LiveTransportState,
 } from "./transport";
 export { createStoryFrameProducer, type StoryFrameProducerOptions } from "./producer";
+export {
+  createTacticalFrameProducer,
+  tacticalSourceNote,
+  type LiveTacticalRegistration,
+  type TacticalFrameProducerOptions,
+  type TacticalFrameResult,
+} from "./view-model";
 export { liveCadenceMs, liveTransportActive } from "./env";

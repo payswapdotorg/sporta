@@ -47,15 +47,23 @@ export const SSE_KEEPALIVE = ": keepalive\n\n";
 export const SSE_KEEPALIVE_INTERVAL_MS = 15_000;
 
 /** The closed event-name vocabulary. */
-export const LIVE_SSE_EVENTS = ["hello", "frame", "close"] as const;
+export const LIVE_SSE_EVENTS = ["hello", "frame", "world", "close"] as const;
 export type LiveSseEventName = (typeof LIVE_SSE_EVENTS)[number];
 
-/** The `hello` payload: the stream's real session meta. */
+/**
+ * The `hello` payload: the stream's real session meta.
+ */
 export interface LiveHelloDoc {
   schemaVersion: "sporta.live-sse/1";
   sessionId: string;
   label: string;
   storyKey: string;
+  /**
+   * L005: the live source's producer kind (honest labeling — the story
+   * timeline's animated-SVG frames, or the live tactical view-model's
+   * world-state frames).
+   */
+  sourceKind: "story" | "tactical";
   /** The transport's real emission cadence (ms between frame events). */
   cadenceMs: number;
   /** The per-subscriber bounded buffer depth (drop-oldest backpressure). */
@@ -81,6 +89,78 @@ export interface LiveFrameDoc {
   generatedAtMs: number;
   /** The render's real execution duration (ms, server clock). */
   renderDurationMs: number;
+}
+
+/**
+ * The `world` payload (L005): ONE live tactical view-model frame — the
+ * server-side projection of the live world state (entities + identity
+ * continuity + honest detection/quality state) the browser tactical
+ * renderer consumes. This is the wire shape of the frozen live-reality.md
+ * §5 `LiveRenderInput` semantics as delivered to the browser: the
+ * `worldState`, the `eventsSincePreviousFrame` and the render clock all
+ * ride one document; the renderer's §9 telemetry stubs measure against
+ * these fields.
+ */
+export interface LiveWorldFrameDoc {
+  schemaVersion: "sporta.live-tactical/1";
+  sessionId: string;
+  /** Monotonic frame ordinal on the stream (gap = counted loss). */
+  ordinal: number;
+  /** The view-model's monotonically advancing world version (per observation). */
+  worldVersion: number;
+  /** The observation's event time (ms on the session timeline — authoritative). */
+  eventTimeMs: number;
+  /** The source's conservative contiguous watermark at this observation. */
+  watermark: { watermarkMs: number; sequence: number };
+  /** The source's 1-based emission sequence (visible gaps on drop scenarios). */
+  sourceSequence: number;
+  /** The source's honest quality at this observation. */
+  quality: "nominal" | "degraded";
+  /** The batch's own confidence summary (min/mean over the entities). */
+  confidence: { min: number; mean: number };
+  /** The projected entities — identity CONTINUOUS by entityRef across frames. */
+  entities: {
+    entityRef: string;
+    kind: "PLAYER" | "BALL" | "REFEREE" | "OTHER";
+    teamRef?: string;
+    /** Canonical pitch-frame position (105 x 68 m). */
+    xMeters: number;
+    yMeters: number;
+    /** Whether the source detected the entity at THIS event time. */
+    detected: boolean;
+    confidence: number;
+    /** ms since the entity's last DETECTED observation (0 when detected). */
+    staleForMs: number;
+  }[];
+  /**
+   * The world events since the previous delivered frame — the honest
+   * accounting kind (recovery gaps, quality transitions, entity
+   * appear/disappear, detection regain), never fabricated match events.
+   */
+  eventsSincePreviousFrame: {
+    type:
+      | "source-recovery"
+      | "quality-degraded"
+      | "quality-nominal"
+      | "entity-appeared"
+      | "entity-lost"
+      | "entity-regained";
+    atMs: number;
+    detail?: { entityRef?: string; missedUpdates?: number; gapDurationMs?: number };
+  }[];
+  /** Real server clock read AFTER the projection completed (ms). */
+  generatedAtMs: number;
+  /** The projection's real execution duration (ms, server clock). */
+  renderDurationMs: number;
+  /** The view-model's own telemetry (the §9 counters it can measure). */
+  telemetry: {
+    /** The source's watermark lag at emission (eventTime − watermark, ms). */
+    watermarkLagMs: number;
+    /** Entities honestly carried as last-known (undetected this frame). */
+    undetectedEntities: number;
+    /** Whether this frame was emitted by a fresh replay cycle (labeled). */
+    replayCycle: boolean;
+  };
 }
 
 /** The `close` payload: why the stream ended + the honest accounting. */

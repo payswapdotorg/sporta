@@ -253,6 +253,12 @@ export function createStudioSession(input: {
  * REAL browser MP4 upload becomes a session whose world model is derived
  * from the UPLOADED clip (the R101 boundary + the R207 pipeline,
  * server-side). Every rejection is the server's typed answer.
+ *
+ * J004: `realities` is the ONE-submission multi-reality selection (the
+ * derived kinds; absent = today's original-only behavior) and `compute` is
+ * the ONE selection directive covering the whole plan. When realities are
+ * selected, the answer carries the render plan (per-reality
+ * renderId/jobId/state + typed failures) — no second dispatch call needed.
  */
 export async function createUploadSession(input: {
   file: File;
@@ -261,6 +267,12 @@ export async function createUploadSession(input: {
   storageDurationDays?: number;
   sharingScope?: string;
   label?: string;
+  /** J004: the DERIVED reality kinds selected in this ONE submission. */
+  realities?: string[];
+  /** J004: the ONE compute selection directive covering the whole plan. */
+  compute?: StudioComputeDirectiveLike;
+  /** J004: the style label the plan's dispatches carry. */
+  styleId?: string;
 }): Promise<StudioUploadSessionLike> {
   const form = new FormData();
   form.append("file", input.file);
@@ -271,6 +283,11 @@ export async function createUploadSession(input: {
   }
   if (input.sharingScope !== undefined) form.append("sharingScope", input.sharingScope);
   if (input.label !== undefined && input.label.length > 0) form.append("label", input.label);
+  if (input.realities !== undefined) form.append("realities", JSON.stringify(input.realities));
+  if (input.compute !== undefined) form.append("compute", JSON.stringify(input.compute));
+  if (input.styleId !== undefined && input.styleId.length > 0) {
+    form.append("styleId", input.styleId);
+  }
   const response = await fetch("/api/create/upload-sessions", {
     method: "POST",
     body: form,
@@ -353,7 +370,15 @@ export interface LiveSourcesLike {
   available: boolean;
   transportKind: string;
   detail: string;
-  sources: { sessionId: string; label: string; storyKey: string }[];
+  sources: {
+    sessionId: string;
+    label: string;
+    storyKey: string;
+    /** L005: the source's producer kind (honest labeling). */
+    sourceKind?: "story" | "tactical";
+    /** L005: the tactical source's honest note (when sourceKind is tactical). */
+    sourceNote?: string;
+  }[];
 }
 
 /** GET /api/live — the live sources the transport is really serving (W915). */

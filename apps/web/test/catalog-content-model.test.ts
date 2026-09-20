@@ -41,6 +41,8 @@ let server: SportaServer;
 let derbyId = "";
 let friendlyId = "";
 let trainingId = "";
+/** L005: the live tactical scaffold's seeded session id. */
+let tacticalSessionId = "";
 
 /** Test accounts + tokens (created through the real store, like provisioning). */
 let viewerToken = "";
@@ -115,6 +117,7 @@ beforeAll(async () => {
     if (story?.storyKey === "derby") derbyId = summary.id;
     if (story?.storyKey === "friendly") friendlyId = summary.id;
     if (story?.storyKey === "training") trainingId = summary.id;
+    if (story?.storyKey === "live-tactical-synthetic") tacticalSessionId = summary.id;
   }
 
   const viewer = await createAccount("w916-viewer", ["viewer"]);
@@ -295,11 +298,12 @@ describe("sessionDiscoverableBy (the fail-closed decision matrix)", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCatalogFor (role-differentiated listings)", () => {
-  test("anonymous: exactly the three public seeded sessions, nothing else", async () => {
+  test("anonymous: exactly the public seeded sessions, nothing else", async () => {
     const { sessions, degraded } = await buildCatalogFor(server, ANONYMOUS_REQUESTER);
     expect(degraded).toBeNull();
+    // L005: the three story sessions + the live tactical scaffold's session.
     expect(sessions.map((card) => card.sessionId).sort()).toEqual(
-      [derbyId, friendlyId, trainingId].sort(),
+      [derbyId, friendlyId, trainingId, tacticalSessionId].sort(),
     );
     for (const card of sessions) {
       expect(card.visibility).toBeNull(); // no visibility flag for anonymous
@@ -312,8 +316,9 @@ describe("buildCatalogFor (role-differentiated listings)", () => {
       server,
       await resolveCatalogRequester(server, withCookie("/api/catalog/sessions", viewerToken)),
     );
+    // L005: the three story sessions + the live tactical scaffold's session.
     expect(sessions.map((card) => card.sessionId).sort()).toEqual(
-      [derbyId, friendlyId, trainingId].sort(),
+      [derbyId, friendlyId, trainingId, tacticalSessionId].sort(),
     );
   });
 
@@ -424,7 +429,8 @@ describe("reality linkage", () => {
 
   test("the reality-grouped view: one match entry per session, sessionId the constant", async () => {
     const view = await buildRealityGroups(server, ANONYMOUS_REQUESTER);
-    expect(view.matches).toHaveLength(3);
+    // L005: the three story sessions + the live tactical scaffold's session.
+    expect(view.matches).toHaveLength(4);
     const derby = view.matches.find((match) => match.sessionId === derbyId)!;
     expect(derby.realityCount).toBe(2);
     expect(derby.realities!.map((reality) => reality.rendererId).sort()).toEqual([
@@ -547,8 +553,9 @@ describe("searchCatalog (real fields, filters, fail-closed)", () => {
       ANONYMOUS_REQUESTER,
       parseSearchQuery(new URLSearchParams("status=authorized&rights=authorized")),
     );
+    // L005: the live tactical scaffold's session is authorized too.
     expect(both.matches.map((match) => match.sessionId).sort()).toEqual(
-      [derbyId, friendlyId].sort(),
+      [derbyId, friendlyId, tacticalSessionId].sort(),
     );
   });
 
@@ -709,7 +716,7 @@ describe("assertWatchable through the watch route (no existence oracle)", () => 
 // ---------------------------------------------------------------------------
 
 describe("GET /api/catalog/sessions (requester-scoped, versioned shape)", () => {
-  test("anonymous: schema 1.1, anonymous viewer summary, the three public sessions", async () => {
+  test("anonymous: schema 1.1, anonymous viewer summary, the public sessions", async () => {
     const response = await catalogRoute();
     expect(response.status).toBe(200);
     const body = (await bodyOf(response)) as {
@@ -720,7 +727,8 @@ describe("GET /api/catalog/sessions (requester-scoped, versioned shape)", () => 
     };
     expect(body.catalogSchemaVersion).toBe("1.1");
     expect(body.viewer).toEqual({ state: "anonymous", userId: null, grants: [] });
-    expect(body.sessions).toHaveLength(3);
+    // L005: the three story sessions + the live tactical scaffold's session.
+    expect(body.sessions).toHaveLength(4);
     expect(body.catalogSource).toBe("dev-seed");
   });
 
