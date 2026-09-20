@@ -1,3 +1,9 @@
+# Historical handoff — superseded as active instruction
+
+The active handoff is `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. This document remains as historical context for J001-J015 and must not be treated as a competing execution plan.
+
+---
+
 # Sporta MVP User Journey Hardening — Final Tech Lead Handoff
 
 You are the implementation Tech Lead/Orchestrator for payswapdotorg/sporta.
