@@ -177,7 +177,7 @@ export interface DurableControlPlaneOptions {
    * `"in-memory"` so the store's own kind is reported honestly — the
    * production singleton passes `"neon"` alongside the pg adapter.
    */
-  provider?: "neon" | "in-memory";
+  provider?: "neon" | "sqlite" | "in-memory";
   /** Wall clock. */
   nowMs: () => number;
 }
@@ -231,7 +231,7 @@ export interface DurableControlPlane {
    */
   syncVisibility(sessionId: string): Promise<void>;
   /** The record store's provider name (health). */
-  provider: "neon" | "in-memory";
+  provider: "neon" | "sqlite" | "in-memory";
 }
 
 /** The structural W502 detailed-render extension (the executor's own check). */

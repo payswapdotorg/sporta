@@ -83,6 +83,8 @@ import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env"
 import type { RealityKind } from "@sporta/contracts";
 import { neonClient } from "./platform/db/pg";
 import { PgControlPlaneRecordStore } from "./platform/control/pg-records";
+import { SqliteControlPlaneRecordStore } from "./platform/control/sqlite-records";
+import { SqliteMediaOwnershipStore } from "./platform/identity/sqlite-ownership";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
@@ -226,6 +228,12 @@ export interface SportaServer {
    * session's un-seeded in-process publication store for "public".
    */
   durable: DurableControlPlane | null;
+  /**
+   * The durable control-plane RECORD store backing `durable` (J007 exposes
+   * it for honest health reporting — a live read through the real store),
+   * or `null` when the control plane is in-memory this run.
+   */
+  controlRecords: ControlPlaneRecordStore | null;
   /** The renderer registry backing `control` (test-card + anime prototype). */
   registry: RendererRegistry;
   /** The W504 render-output store backing `control`'s playback routes. */
@@ -378,9 +386,19 @@ export interface SportaServer {
  */
 
 /** The record store's provider name (structural — wrappers inherit nothing). */
-function providerOfRecords(store: ControlPlaneRecordStore): "neon" | "in-memory" {
-  return (store as { providerName?: unknown }).providerName === "neon" ? "neon" : "in-memory";
+function providerOfRecords(
+  store: ControlPlaneRecordStore,
+): "neon" | "sqlite" | "in-memory" {
+  const name = (store as { providerName?: unknown }).providerName;
+  return name === "neon" ? "neon" : name === "sqlite" ? "sqlite" : "in-memory";
 }
+
+/**
+ * The W911 shim's refusal message — the ONE construction error the
+ * composition treats as the documented in-memory fallback (every other
+ * failure is a real durability fault and fails loud).
+ */
+const SQLITE_SHIM_REFUSAL = "bun:sqlite is available only under the Bun runtime";
 
 export function createSportaServer(options: SportaServerOptions = {}): SportaServer {
   const nowMs = options.nowMs ?? Date.now;
@@ -576,8 +594,6 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     property is carried by the sqlite runs (the batteries execute the
   //     real `bun:sqlite` store under the real Bun runtime). Any OTHER
   //     construction failure is re-thrown — never masked.
-  const SQLITE_SHIM_REFUSAL =
-    "bun:sqlite is available only under the Bun runtime";
   let mediaStore: {
     sourceAssets: import("@sporta/media-platform").SourceAssetRepository;
     manifests: import("@sporta/media-platform").MediaManifestRepository;
@@ -833,6 +849,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     auth,
     control,
     durable,
+    controlRecords: options.controlRecords ?? null,
     registry,
     pipeline,
     gate,
@@ -943,12 +960,56 @@ async function buildSingleton(): Promise<SportaServer> {
   // queue/quota observations match what this composition actually uses.
   const transient = getHostedTransientState();
   if (!neonConfigured()) {
+    // J007 — the LOCAL durable control plane: when the runtime is the real
+    // Bun (bun:sqlite genuinely available), the W921 control-plane records
+    // AND the ownership plane (the Library/owner-access axis) ride the same
+    // local durable engine the media loop already uses
+    // (SqliteMediaPlatformStore) — sessions/renders/publication/ownership
+    // then survive restarts and redeploys against this machine's files, and
+    // the hosted Neon/R2 gate remains the production shape (blocked on
+    // credentials in this sandbox — the deployment-shape analysis doc).
+    // The bundled Node runtime cannot construct these stores (the W911 shim
+    // refusal is caught → the honest in-memory fallbacks + banner); any
+    // OTHER construction failure fails LOUD (a configured-but-broken
+    // durable path is never silently undurable).
+    let controlRecords: ControlPlaneRecordStore | undefined;
+    let ownership: MediaOwnershipStore | undefined;
+    if (runningUnderBun()) {
+      const controlDbPath = process.env.SPORTA_CONTROL_DB ?? "db/control-plane.db";
+      try {
+        mkdirSync(dirname(controlDbPath), { recursive: true });
+        controlRecords = new SqliteControlPlaneRecordStore(controlDbPath, Date.now);
+      } catch (error) {
+        if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+          throw error;
+        }
+        console.error(
+          "[sporta] control-plane records are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "sessions do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+        );
+      }
+      const ownershipDbPath = process.env.SPORTA_OWNERSHIP_DB ?? "db/media-ownership.db";
+      try {
+        mkdirSync(dirname(ownershipDbPath), { recursive: true });
+        ownership = new SqliteMediaOwnershipStore(ownershipDbPath);
+      } catch (error) {
+        if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+          throw error;
+        }
+        console.error(
+          "[sporta] media ownership is IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "the Library's ownership records do not persist across restarts under Node",
+        );
+      }
+    }
     return createSportaServer({
       nowMs: Date.now,
       passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
       ...(artifacts !== null ? { artifacts } : {}),
       transient,
       seed,
+      ...(controlRecords !== undefined ? { controlRecords } : {}),
+      ...(ownership !== undefined ? { ownership } : {}),
       ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
         ? { computeAdapter: httpCompute.adapter }
         : {}),
