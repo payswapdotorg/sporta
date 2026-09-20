@@ -1,4 +1,8 @@
 import { beforeAll, describe, expect, test } from "bun:test";
+import { probeFfmpegEncoder } from "@sporta/encoding";
+
+/** Whether the real ffmpeg toolchain is present (the derived-reality plane composes only then). */
+const ffmpegToolchainAvailable = probeFfmpegEncoder().available;
 import { createDeterministicTestHasher } from "@sporta/identity";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
@@ -118,7 +122,9 @@ describe("GET /api/watch/[sessionId]/realities", () => {
     expect(response.status).toBe(200);
     const body = await getJson<RealityOptionsLike>(response);
     expect(body.sessionId).toBe(derbySessionId!); // the Simulation G constant
-    expect(body.options.length).toBe(2); // the REAL registry: testcard + anime
+    // The REAL registry: testcard + anime, plus the R508-R510 derived-reality
+    // renderers when the real ffmpeg toolchain composes the plane.
+    expect(body.options.length).toBe(ffmpegToolchainAvailable ? 5 : 2);
 
     const anime = body.options.find((option) => option.rendererId === "anime.prototype")!;
     expect(anime.state).toBe("ready");

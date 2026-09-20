@@ -64,13 +64,6 @@ import type {
 } from "@sporta/compute-adapter";
 import { encodeAnimeClip } from "@sporta/output-pipeline";
 import type { ArtifactStore, RenderSegmentStore } from "@sporta/output-pipeline";
-import {
-  base64Of,
-  ENCODED_ARTIFACT_CONTENT_TYPE,
-  EncodingError,
-  registerEncodedArtifact,
-  validateEncodedManifest,
-} from "@sporta/encoding";
 import { RendererContractError, RendererRegistry } from "@sporta/renderer-contract";
 import type { RendererPlugin } from "@sporta/renderer-contract";
 import { HostedJobExecution } from "./envelope";

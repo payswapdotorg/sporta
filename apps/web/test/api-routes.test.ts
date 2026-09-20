@@ -1,4 +1,8 @@
 import { beforeAll, describe, expect, test } from "bun:test";
+import { probeFfmpegEncoder } from "@sporta/encoding";
+
+/** Whether the real ffmpeg toolchain is present (the derived-reality plane composes only then). */
+const ffmpegToolchainAvailable = probeFfmpegEncoder().available;
 import { createDeterministicTestHasher } from "@sporta/identity";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
@@ -97,14 +101,26 @@ describe("GET /api/capability", () => {
     expect(body.requestContext).toEqual({ requestId: "req-w904-1" });
   });
 
-  test("reports the REAL renderer registry (testcard + anime) with honest live", async () => {
+  test("reports the REAL renderer registry (testcard + anime + the derived-reality plane) with honest live", async () => {
     const response = await capabilityRoute(jsonRequest("/api/capability"));
     const body = (await bodyOf(response)) as {
       renderers: { rendererId: string; availability: string }[];
       modes: { live: { availability: string; reasonCode: string; transportKind: string } };
     };
     const ids = body.renderers.map((renderer) => renderer.rendererId).sort();
-    expect(ids).toEqual(["anime.prototype", "sporta.testcard"]);
+    // R508-R510: the derived-reality renderers join the registry when the
+    // real ffmpeg toolchain composes the plane (honest absence otherwise).
+    expect(ids).toEqual(
+      ffmpegToolchainAvailable
+        ? [
+            "anime-npr.prototype",
+            "anime.prototype",
+            "game-3d.prototype",
+            "sporta.testcard",
+            "tactical.prototype",
+          ]
+        : ["anime.prototype", "sporta.testcard"],
+    );
     // Simulation F: the in-process control plane may never be labelled live.
     expect(body.modes.live).toEqual({
       availability: "unavailable",

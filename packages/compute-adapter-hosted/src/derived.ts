@@ -38,11 +38,7 @@
  * - fail-closed: every refusal is a typed `EncodingError` (never a
  *   partially rendered artifact, never a guessed encode).
  */
-import {
-  RenderRequest,
-  RenderResult,
-  SCHEMA_VERSION,
-} from "@sporta/contracts";
+import { RenderRequest, RenderResult, SCHEMA_VERSION } from "@sporta/contracts";
 import type {
   GameEngineAdapter,
   RenderRequest as RenderRequestDoc,
@@ -51,16 +47,8 @@ import type {
   WorldSnapshot as WorldSnapshotDoc,
 } from "@sporta/contracts";
 import { parseGameStyleConfig } from "@sporta/renderer-3d";
-import {
-  bridgeGameFrameOutput,
-  bridgeTacticalRenderer,
-  EncodingError,
-} from "@sporta/encoding";
-import type {
-  EncodedArtifact,
-  FrameEncoderPort,
-  TacticalRendererLike,
-} from "@sporta/encoding";
+import { bridgeGameFrameOutput, bridgeTacticalRenderer, EncodingError } from "@sporta/encoding";
+import type { EncodedArtifact, FrameEncoderPort, TacticalRendererLike } from "@sporta/encoding";
 
 /** The closed derived-reality bridge vocabulary (the R306 bridge ids). */
 export type DerivedRealityBridge = "tactical" | "game-3d" | "anime-npr";
@@ -69,13 +57,12 @@ export type DerivedRealityBridge = "tactical" | "game-3d" | "anime-npr";
  * The derived-reality renderers this plane hosts, keyed by the W501
  * renderer id the dispatch names (the repo's product renderer identities).
  */
-export const DERIVED_REALITY_RENDERERS: Readonly<
-  Record<string, DerivedRealityBridge>
-> = Object.freeze({
-  "tactical.prototype": "tactical",
-  "game-3d.prototype": "game-3d",
-  "anime-npr.prototype": "anime-npr",
-});
+export const DERIVED_REALITY_RENDERERS: Readonly<Record<string, DerivedRealityBridge>> =
+  Object.freeze({
+    "tactical.prototype": "tactical",
+    "game-3d.prototype": "game-3d",
+    "anime-npr.prototype": "anime-npr",
+  });
 
 /** One derived-reality render request (everything the render consumes). */
 export interface DerivedRealityRenderRequest {
@@ -158,8 +145,9 @@ function syncEngineResult<T>(value: T | Promise<T>, method: string, rendererId: 
 }
 
 /** The rendering style each game bridge selects at the engine seam. */
-const GAME_RENDERING_STYLE: Readonly<Record<"game-3d" | "anime-npr", "stylized-3d" | "cel-shaded">> =
-  Object.freeze({ "game-3d": "stylized-3d", "anime-npr": "cel-shaded" });
+const GAME_RENDERING_STYLE: Readonly<
+  Record<"game-3d" | "anime-npr", "stylized-3d" | "cel-shaded">
+> = Object.freeze({ "game-3d": "stylized-3d", "anime-npr": "cel-shaded" });
 
 /** The output-segment id prefix per derived renderer (the R303/R304 convention). */
 const SEGMENT_PREFIX: Readonly<Record<DerivedRealityBridge, string>> = Object.freeze({

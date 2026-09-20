@@ -18,10 +18,7 @@ import { join } from "node:path";
 import { executeRenderJob } from "../src/index";
 import type { RenderJobExecutorDeps } from "../src/index";
 import { createDerivedRealityRenderer, DERIVED_REALITY_RENDERERS } from "../src/index";
-import {
-  InMemoryArtifactStore,
-  InMemoryRenderSegmentStore,
-} from "@sporta/output-pipeline";
+import { InMemoryArtifactStore, InMemoryRenderSegmentStore } from "@sporta/output-pipeline";
 import {
   base64Of,
   createFfmpegFrameEncoder,
@@ -31,8 +28,6 @@ import {
   validateEncodedManifest,
 } from "@sporta/encoding";
 import type { EncodedArtifact } from "@sporta/encoding";
-import { RendererRegistry } from "@sporta/renderer-contract";
-import { createTestCardRenderer } from "@sporta/renderer-contract";
 import {
   createAnimeNprRenderer,
   createGame3DRenderer,
@@ -43,12 +38,7 @@ import { createTacticalRenderer } from "@sporta/renderer-tactical";
 import { TACTICAL_OUTPUT_PROFILES } from "@sporta/renderer-tactical";
 import { RenderArtifactManifest } from "@sporta/contracts";
 import { buildEventEnvelope, buildWorldSnapshot } from "@sporta/testing";
-import {
-  buildDispatchRequest,
-  manualClock,
-  SESSION_ID,
-  workerRegistry,
-} from "./helpers";
+import { buildDispatchRequest, manualClock, SESSION_ID, workerRegistry } from "./helpers";
 
 /** The probed availability of the REAL system ffmpeg (the typed skip guard). */
 const ffmpegProbe = createFfmpegFrameEncoder();
@@ -203,8 +193,7 @@ describe.skipIf(!ffmpegAvailable)("executeRenderJob — the derived-reality MP4 
       expect(frozen.integrity.verified).toBe(true);
       // The contract result (the W501 document, honest provenance).
       const renderResult = envelope.renderResult as
-        | { rendererId: string; sessionId: string }
-        | undefined;
+        { rendererId: string; sessionId: string } | undefined;
       expect(renderResult?.rendererId).toBe("tactical.prototype");
       expect(renderResult?.sessionId).toBe(SESSION_ID);
       // The metering: frames + one encoded segment + the RAW byte size.
@@ -253,7 +242,9 @@ describe.skipIf(!ffmpegAvailable)("executeRenderJob — the derived-reality MP4 
       expect(["Constrained Baseline", "Baseline"]).toContain(probe.profile);
       expect(probe.widthPx).toBe(artifact.manifest.geometry.widthPx);
       expect(probe.heightPx).toBe(artifact.manifest.geometry.heightPx);
-      expect(Math.abs(probe.frameCount - artifact.manifest.geometry.frameCount)).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(probe.frameCount - artifact.manifest.geometry.frameCount),
+      ).toBeLessThanOrEqual(1);
     } finally {
       cleanScratch(scratch);
     }

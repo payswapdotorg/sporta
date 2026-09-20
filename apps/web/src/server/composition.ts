@@ -394,7 +394,9 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       // plane) + the W504 content-addressed artifact store it registers
       // encoded MP4s into (the pipeline's own store — the same instance
       // the routing render-output writer reads back through).
-      ...(derivedPlane === null ? {} : { derivedRealityRenderer: derivedPlane.derivedRealityRenderer }),
+      ...(derivedPlane === null
+        ? {}
+        : { derivedRealityRenderer: derivedPlane.derivedRealityRenderer }),
       encodedArtifactStore: pipeline.artifactStore,
       nowMs,
     });

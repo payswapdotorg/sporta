@@ -33,7 +33,11 @@
  *   drive it) walks the REAL pipeline. A process restart reads the last
  *   durable state and never invents completion.
  */
-import { deriveRightsCapabilities, RenderArtifactManifest, manifestProvenanceIssues } from "@sporta/contracts";
+import {
+  deriveRightsCapabilities,
+  RenderArtifactManifest,
+  manifestProvenanceIssues,
+} from "@sporta/contracts";
 import type { AuthorizationPolicy, SourceAsset } from "@sporta/contracts";
 import { sniffContainer } from "@sporta/ingestion";
 import { MediaRightsError, MediaInvalidError, UploadRejectedError } from "./errors";

@@ -33,7 +33,6 @@ import { createSportaServer, installSportaServerForTests } from "../src/server/c
 import type { SportaServer } from "../src/server/composition";
 import { SPORTA_SESSION_COOKIE } from "../src/server/auth-service";
 import { InMemoryRedis } from "../src/server/platform/upstash/redis";
-import { POST as registerRoute } from "../src/app/api/auth/register/route";
 import { POST as uploadSessionRoute } from "../src/app/api/create/upload-sessions/route";
 import { POST as renderRoute } from "../src/app/api/create/sessions/[sessionId]/renders/route";
 import { GET as jobRoute } from "../src/app/api/create/sessions/[sessionId]/jobs/[jobId]/route";
@@ -86,13 +85,19 @@ async function dispatchAndAwait(
   styleId: string,
 ): Promise<{ renderId: string; outputs: { artifactId: string; contentType: string }[] }> {
   const dispatch = await renderRoute(
-    withCookie(token, `/api/create/sessions/${sessionId}/renders`, jsonPost({ rendererId, styleId })),
+    withCookie(
+      token,
+      `/api/create/sessions/${sessionId}/renders`,
+      jsonPost({ rendererId, styleId }),
+    ),
     { params: Promise.resolve({ sessionId }) },
   );
   expect(dispatch.status).toBe(202);
   const dispatchBody = (await bodyOf(dispatch)) as { jobId: string };
-  let terminal: { renderId: string; outputs: { artifactId: string; contentType: string }[] } | null =
-    null;
+  let terminal: {
+    renderId: string;
+    outputs: { artifactId: string; contentType: string }[];
+  } | null = null;
   for (let attempt = 0; attempt < 400; attempt += 1) {
     const response = await jobRoute(
       withCookie(token, `/api/create/sessions/${sessionId}/jobs/${dispatchBody.jobId}`),
@@ -323,10 +328,7 @@ describe("the derived-reality artifact catalog + playback (R508-R510)", () => {
 
     // The 415: the SVG review segment is never presented as video.
     const notVideo = await videoRoute(
-      withCookie(
-        token,
-        videoSourceOf(sessionId, "anime-npr", anime.artifacts[0]!.artifactId),
-      ),
+      withCookie(token, videoSourceOf(sessionId, "anime-npr", anime.artifacts[0]!.artifactId)),
       {
         params: Promise.resolve({
           sessionId,

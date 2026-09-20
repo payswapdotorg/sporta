@@ -792,7 +792,9 @@ async function realityArtifactEntryOf(
     .artifactsOfSession(sessionId)
     .filter((artifact) => artifact.reality === kind);
   for (const producerRendererId of producerRendererIds) {
-    for (const artifact of mp4Artifacts.filter((entry) => entry.rendererId === producerRendererId)) {
+    for (const artifact of mp4Artifacts.filter(
+      (entry) => entry.rendererId === producerRendererId,
+    )) {
       descriptors.push({
         artifactId: artifact.artifactId,
         kind,

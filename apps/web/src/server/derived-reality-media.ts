@@ -99,9 +99,9 @@ export function createDerivedRealityRenderOutputWriter(
         return landDerivedRealityMp4(options, input);
       }
       // The W504 anime review segment: the pre-R508 landing, byte-identical.
-      return options.segmentStore.storeSegment(input as Parameters<
-        RenderSegmentStore["storeSegment"]
-      >[0]);
+      return options.segmentStore.storeSegment(
+        input as Parameters<RenderSegmentStore["storeSegment"]>[0],
+      );
     },
   };
 }
