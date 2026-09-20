@@ -1,3 +1,9 @@
+# Historical worker packets — superseded as active instructions
+
+The active worker packets are `docs/agent-handoff/mvp-and-live-reality-worker-packets.md`. This file remains as historical context for the completed R-series.
+
+---
+
 # Sporta MVP Reality Engine — Three-Worker Packets
 
 This file is the execution packet used by the Tech Lead when dispatching the three workers concurrently. It is subordinate to `AGENTS.md`, `architecture-lock.md`, ADR-009, the technology/compute architecture docs, and the MVP work-item ledger.
