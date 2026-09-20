@@ -479,3 +479,10 @@ The initial user-owned/hosted candidates are Modal, Lightning AI, RunPod and loc
 ## Final gate
 
 `R601-R605` must pass `docs/testing/mvp-reality-engine-acceptance.md`. Only then may the repository describe Sporta as MVP-complete.
+
+## Wave-4 C — Worker R504-R507 COMPLETE (TL audit-first, 2026-09-20)
+
+- Worker chat 3ff30e8e (fighter3 round-8 landing, 23:24 UTC); incremental pushes honored (5 rails: R504/R505 @1c0655a -> R506 @40a7dcb -> batteries @df10445 -> format @32c841d -> typecheck fix @97e82cd); one mid-run turn-death auto-recovered via TL nudge.
+- Delivery: work/r504-r507-playback-plane merged --no-ff @711c832; R504 HTML5 watch player on real MP4 artifacts (integrity-verified byte routes, honest 415/404/403 boundaries), R505 reality switcher (URL-addressable, same-session), R506 compute/cost legibility, R507 real-browser golden path (9 steps, 104 assertions, runtime-ffmpeg clips).
+- TL battery: lane tests 44/44 green locally; local full battery OOM-capped at the gate segment (sandbox memory, environmental) with its 2 fails inside the main-baseline 13-fail environmental set (timestamp-stripped match); worker battery 6163 pass / 1 fail / 33 skip (the 1 fail = documented perception-benchmark variance, byte-identical pre-change); lint/format/typecheck clean; CONTRACT CHANGES none; BLOCKERS none.
+- Wave 4 is now COMPLETE (B: R501-R503 @41f6f75 + C: R504-R507 @711c832). Next: final MVP gate audit R601-R607 per docs/testing/mvp-reality-engine-acceptance.md.
