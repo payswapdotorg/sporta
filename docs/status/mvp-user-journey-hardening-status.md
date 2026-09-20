@@ -1,3 +1,9 @@
+# Historical status ledger — superseded as active ledger
+
+The active combined status ledger is `docs/status/mvp-and-live-reality-status.md`. This file preserves the original J001-J015 snapshot.
+
+---
+
 # Sporta MVP User Journey Hardening Status
 
 Status: NOT STARTED
