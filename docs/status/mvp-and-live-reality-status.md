@@ -1,7 +1,7 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 1 IN FLIGHT — B LANE MERGED; A + C DISPATCHED (generating); CI GREEN RESTORED (06461e8)
-Date: 2026-09-20 (post-reset Wave 1 session, continuation)
+Status: WAVE 1 — B + C LANES COMPLETE (merged, CI green); A LANE PARTIAL (J012 licensing decision merged-pending; implementation fighting peak-hours churn)
+Date: 2026-09-20 (Wave 1 evening session)
 
 ## Completed foundation
 
@@ -22,14 +22,24 @@ Date: 2026-09-20 (post-reset Wave 1 session, continuation)
 ## Remaining batch MVP
 
 J001-J015:
+- J004: COMPLETE (Worker C wave 1, merged @7e0a810 + lint fix @41f5b83, CI
+  GREEN): the one-submission multi-reality Create — frozen contract
+  implemented verbatim (additive realities field, one compute directive,
+  per-reality honest independent failures, plan state on existing
+  surfaces, honest capability-gated multi-select).
 - J005: COMPLETE (Worker B wave 1, merged @d785e93 + style @08dd215)
 - J007: COMPLETE at the local-substitute scope (Worker B wave 1, merged
   @d785e93); the HOSTED Neon/R2 durability gate remains BLOCKED on
   operator credentials (external dependency below). J014's final
   redeploy acceptance may leverage the same local durable path when the
   hosted gate stays unavailable.
-- J001-J004, J006, J008-J015: NOT_STARTED (Worker A/C lanes not yet
-  dispatched post-reset)
+- J012: IN FLIGHT (Worker A) — checkpoint 1 pushed and TL-reviewed PASS
+  (work/j012-l003-l004-l010 @925feab: the three-way licensing survey +
+  the pure-code contrast-context-detector production-path decision);
+  implementation + sensitivity tests pending (peak-hours capacity churn
+  killed the worker's turn; sentinel re-nudges; sandbox TTL expired —
+  re-entry law resumes from the branch).
+- J001-J003, J006, J008-J011, J013, J015: NOT_STARTED (later waves)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
 (J012/J013 fidelity + J014 durability + J015 journey must pass first).
@@ -41,9 +51,9 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 |---|---|
 | L001 contract freeze | VERIFIED — docs/contracts/live-reality.md is FROZEN FOR IMPLEMENTATION; Wave 0 verified logical-to-implemented contract compatibility (mapping recorded in the Wave 0 log below) |
 | L002 synthetic/replay live source | COMPLETE (Worker B wave 1: packages/live-source — frozen §1/§2 shapes verbatim, 6 delivery scenarios, seeded splitmix32 determinism, honest gap accounting; merged @d785e93) |
+| L005 live tactical renderer | SCAFFOLD COMPLETE (Worker C wave 1, merged @7e0a810, CI green): view-model seam + W915 transport extension (no fork), browser tactical canvas (105x68m canonical frame), honest dropout/degraded display, telemetry stubs per §5/§9 — the full interactive L005 gate is later waves |
 | L003 incremental SWM updater | NOT_STARTED (Wave 1, Worker A design) |
 | L004 temporal buffer/watermark | NOT_STARTED (Wave 1, Worker A design) |
-| L005 live tactical renderer | NOT_STARTED (Wave 1, Worker C scaffold) |
 | L006 live telemetry | NOT_STARTED (Wave 2, Worker B+C) |
 | L007 SkillCorner/open-data replay adapter | NOT_STARTED (Wave 2, Worker A+B) |
 | L008 live provider TechnologyProfile | NOT_STARTED (Wave 2, Worker A) |

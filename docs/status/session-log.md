@@ -554,3 +554,45 @@ L005 scaffold) NOT dispatched — blocked on operator login + PAT.
   determinism pin. Both verified locally (20/20) before push.
 
 Session-end state: main @06461e8 CI GREEN; Worker A + C generating.
+
+## Session 2026-09-20 (Wave 1 evening, TL)
+
+- Peak-hours capacity churn (13:00-19:00 UTC) battle: Worker C lost 4
+  sessions (capacity rollbacks/phantom sends); Worker A's turn died after
+  its 99K-char baseline+survey work with undeliverable continuations
+  (server-null-commit phantom sends). wave1_sentinel.py (detached,
+  crash-hardened after two lessons) automated the fight: branch watch,
+  A-nudges, C re-creates.
+- Worker A checkpoint 1 HARVESTED + TL-reviewed PASS: branch
+  work/j012-l003-l004-l010 @925feab —
+  docs/research/j012-perception-licensing-and-production-path.md (181
+  lines): AGPL YOLO = evaluation-only (network-copyleft analysis);
+  RF-DETR SoccerNet apache-2.0 = benchmark-track (dataset lineage
+  unresolved, honest); PRODUCTION PATH = pure-code
+  contrast-context-detector (surface-agnostic local-contrast, ring-
+  context gates, honest confidence). Implementation + sensitivity tests
+  pending (A's sandbox TTL'd at ~14:55; re-entry law resumes from the
+  branch).
+- Worker C delivered its FULL lane through the churn (session 9828491a,
+  3 checkpoints pushed before the sentinel's void): J004
+  one-submission multi-reality Create (8eb1b93), L005 live tactical
+  renderer scaffold (1588aef: view-model seam + W915 transport extension
+  + browser canvas + 442 test lines), HF010-013 camera-bench notes
+  (e0a4d36: packages/renderer-evaluation + CAMERA-BENCH.md). Bonus fix:
+  catalog content-addressed-dedup visibility (false requires-render).
+- TL verification of C's lane: spot battery 66/66 + 26/26 adjacent,
+  typecheck clean, format clean; the full-suite battery OOM-killed
+  locally 3x (resident replay stack on the 4GiB box) — MERGED @7e0a810
+  with CI as the full-suite verifier. CI caught one lint error my spot
+  pass missed (no-regex-spaces in camera-bench.test.ts — process note:
+  lint EVERY checkpoint) → fixed @41f5b83 → **CI GREEN**.
+- CI-as-verifier doctrine note: the post-ffmpeg-fix CI (ubuntu-latest,
+  7GB) runs the full suite reliably; local full-battery on this box
+  requires stopping the replay stack (not sanctioned while workers
+  fight).
+
+Session-end state: main @41f5b83, CI GREEN, J004/J005/J007 COMPLETE,
+L002 COMPLETE, L005 scaffold COMPLETE, J012 checkpoint 1 reviewed.
+Worker A: fighting (sentinel). Next: A's re-entry continuation, then
+Wave 2 dispatch (A: J012 impl finish + L007/L010/L011; B: J006 backend +
+J014 + L006 + L009; C: J006 UI + J013 + L005 full + L013).
