@@ -518,3 +518,39 @@ Session-end state: local main @ 08dd215 + status evidence commit (2 ahead
 of origin; push blocked). Wave 1 position: Worker B lane COMPLETE;
 Worker A (J012 + L003/L004 design + L010 harness) and Worker C (J004 +
 L005 scaffold) NOT dispatched — blocked on operator login + PAT.
+
+## Session 2026-09-20 (Wave 1 continuation, TL)
+
+- Operator restored the GitHub PAT + supplied Composio API keys (persisted
+  to ~/.secrets/env.sh + git-credentials + bashrc + a gitignored
+  reset-durable backup; never committed). Operator logged in to chat.z.ai
+  through the rebuilt console. All reset blockers cleared.
+- PUSHED the wave-1 backlog: d881700 (Worker B merge + status evidence) →
+  origin.
+- CI REDNESS ROOT-CAUSED AND FIXED: main's CI had failed on EVERY commit
+  since ddac9e7 (R-era wave 2/3) including docs-only commits. The CI log
+  showed the whole family was FfmpegUnavailableError cascades — the
+  ubuntu-latest runner ships no ffmpeg, so every real-media test
+  (generateTestMp4) failed and the default runVisualCorrectnessGate
+  evaluated NOT-RUNNABLE (blocking FAIL), flipping the human-gate
+  verdicts. Fix 2c19f75: install ffmpeg in ci.yml (52 fails → 1 fail).
+  Fix 06461e8: the last failure — the detection-benchmark model-backed
+  degradation assertion expected inference-backend-not-wired, which only
+  fires when a weights asset exists, but weights are never committed; the
+  test now pins deterministically with a controlled temp weightsDir
+  (zero-byte sentinel, existence-only) covering BOTH honest postures.
+  CI GREEN at 06461e8 — first green run since R-era 2e42e72. (d881700's
+  +5 failures vs baseline were J007 tests needing the same ffmpeg.)
+- Wave 1 Worker A + Worker C DISPATCHED (sessions wave1-a / wave1-c,
+  GLM-5.3, Full-Stack, agents tab). A: J012 reality-fidelity investigation
+  (license-first: RF-DETR SoccerNet apache-2.0 vs AGPL YOLO weights) +
+  L003/L004 design docs + L010 harness + HF001 mapping, branch
+  work/j012-l003-l004-l010. C: J04 multi-reality Create (frozen
+  multi-reality-create.md) + L005 live tactical scaffold + HF010-013
+  notes, branch work/j004-l005-hf. C's first session was destroyed by a
+  post-send capacity rollback → voided + re-dispatched clean (round 2,
+  prompt re-verified 100%).
+- TL surgical commits this phase: ci.yml ffmpeg step; benchmark test
+  determinism pin. Both verified locally (20/20) before push.
+
+Session-end state: main @06461e8 CI GREEN; Worker A + C generating.

@@ -1,13 +1,23 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 1 IN PROGRESS — WORKER B LANE MERGED (J005/J007/L002); A + C LANES NOT YET DISPATCHED (machinery reset); PUSH BLOCKED ON OPERATOR PAT
-Date: 2026-09-20 (post-reset Wave 1 session)
+Status: WAVE 1 IN FLIGHT — B LANE MERGED; A + C DISPATCHED (generating); CI GREEN RESTORED (06461e8)
+Date: 2026-09-20 (post-reset Wave 1 session, continuation)
 
 ## Completed foundation
 
 - W001-W921: COMPLETE
 - R001-R510: COMPLETE
 - R601-R605: VERIFIED (gate-audit doc @fb0a708; live R602 four-reality evidence)
+- CI on main: GREEN as of 06461e8 — the standing redness since ddac9e7
+  root-caused to the GitHub runner lacking ffmpeg (FfmpegUnavailableError
+  cascades through every real-media test family + the default
+  runVisualCorrectnessGate NOT-RUNNABLE); fixed by installing ffmpeg in
+  ci.yml (2c19f75). The last documented machine-variance failure (the
+  detection-benchmark model-backed degradation assertion, which depended
+  on an uncommitted weights asset) is now pinned deterministically with a
+  controlled temp weightsDir covering BOTH honest postures
+  (inference-backend-not-wired + weights-unavailable) @06461e8.
+  First green CI run since the R-era 2e42e72.
 
 ## Remaining batch MVP
 
@@ -226,13 +236,13 @@ enforced for future lanes).
    sandbox. J007 implementation and seam tests can proceed; the final
    durability gate is blocked until the operator supplies credentials.
 5. Operator's section-I human visual acceptance (R606) on the live app.
-6. OPERATOR PAT (GitHub push credential) — lost in the reset; required to
-   push the Wave 1 merge + status evidence to origin/main and to arm
-   worker prompts with push URLs. Local main is ahead of origin by 2
-   commits (d785e93, 08dd215) + the status evidence commit.
-7. Operator chat.z.ai login through the rebuilt replay console — required
-   to dispatch Worker A/C lanes (the worker model runs through chat.z.ai
-   sessions; the browser profile was wiped with the reset).
+6. ~~OPERATOR PAT~~ RESOLVED (restored by the operator post-reset): pushes
+   work; wave-1 Worker B merge + CI fixes + status evidence pushed
+   (d881700 → 2c19f75 → 06461e8).
+7. ~~Operator chat.z.ai login~~ RESOLVED (logged in through the rebuilt
+   replay console). Worker A + Worker C Wave 1 lanes DISPATCHED and
+   generating (sessions wave1-a / wave1-c, GLM-5.3, Full-Stack; branches
+   work/j012-l003-l004-l010 and work/j004-l005-hf).
 
 ## No-conversation-dependency rule
 
