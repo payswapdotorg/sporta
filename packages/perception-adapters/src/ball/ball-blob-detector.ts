@@ -16,6 +16,7 @@
 import type { DetectedBox, DetectorFrameInput } from "@sporta/perception-detection";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type {
   FailureClassRecord,
   PerceptionAdapterDescriptor,
@@ -232,7 +233,10 @@ export class ModelBackedBallDetector implements BallDetectionAdapter {
       throw new RangeError("ModelBackedBallDetector: detectorId must be a non-empty string");
     }
     this.detectorId = detectorId;
-    const weightsDir = options.weightsDir ?? join(import.meta.dir, "..", "..", "assets");
+    // `import.meta.dir` is Bun-only (undefined under Node/bundled runtimes
+    // — a TypeError in `join`); `import.meta.url` is the portable ESM form.
+    const weightsDir = options.weightsDir ??
+      join(fileURLToPath(new URL(".", import.meta.url)), "..", "..", "assets");
     let weightsPath: string | undefined;
     for (const fileName of ["yolov8n.pt", "yolov5nu.onnx"]) {
       const candidate = join(weightsDir, fileName);

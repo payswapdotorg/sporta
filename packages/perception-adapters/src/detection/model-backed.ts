@@ -43,6 +43,7 @@
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { DetectedBox, DetectorFrameInput } from "@sporta/perception-detection";
 import type {
   FailureClassRecord,
@@ -124,6 +125,15 @@ export const MODEL_BACKED_DETECTOR_RESOURCES: ResourceRequirements = {
 };
 
 /**
+ * This module's own directory, resolved portably (Bun's `import.meta.dir`
+ * is undefined under Node/bundled runtimes; `import.meta.url` is the ESM
+ * standard and carries a file URL on every runtime).
+ */
+function dirnameOfModule(): string {
+  return fileURLToPath(new URL(".", import.meta.url));
+}
+
+/**
  * Resolves the weights presence under `weightsDir`: the FIRST existing file
  * from {@link MODEL_WEIGHT_FILE_NAMES}, or `undefined` when none exists.
  * Pure filesystem check — deterministic, no network, no downloads.
@@ -163,8 +173,12 @@ export class ModelBackedDetector implements PlayerDetectionAdapter {
       throw new RangeError("ModelBackedDetector: detectorId must be a non-empty string");
     }
     this.detectorId = detectorId;
+    // `import.meta.dir` is Bun-only (undefined under Node/bundled runtimes
+    // — a TypeError in `join`); `import.meta.url` is portable ESM. The
+    // resolved directory is IDENTICAL under real Bun.
     this.weightsPath = resolveWeightsPath(
-      options.weightsDir ?? join(import.meta.dir, "..", "..", "assets"),
+      options.weightsDir ??
+        join(dirnameOfModule(), "..", "..", "assets"),
     );
     this.weightsStatus = this.weightsPath === undefined ? "not-downloaded" : "downloaded";
     this.backend = options.backend;
