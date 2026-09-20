@@ -152,6 +152,10 @@ production profile
 
 A new technology may remain registered and benchmarked without becoming the production implementation.
 
+## Logical task profiles
+
+The current expanded task-profile catalog is defined in `docs/contracts/technology-task-profiles.md`. It includes soccer detection/tracking, event/commentary intelligence, geometry/camera reconstruction, neural re-camera and character/video generation. This catalog is additive to the existing adapter families and does not introduce model-specific domain dependencies.
+
 ## Configuration
 
 Product/domain code refers to logical task profiles, not technology names.
