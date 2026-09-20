@@ -539,3 +539,8 @@ The initial user-owned/hosted candidates are Modal, Lightning AI, RunPod and loc
   docs/testing/mvp-reality-engine-acceptance.md (two-clip J-walk,
   human visual acceptance). The derived-reality MP4 gate (section D/K)
   is no longer a gap.
+
+
+## Current next-stage program
+
+Reality Engine technical verification is through R601-R605. The next required program is `docs/work-items/mvp-user-journey-hardening-work-items.md` (J001-J015). R606 and R607 remain blocked until that program and human visual/reality-fidelity acceptance pass.
