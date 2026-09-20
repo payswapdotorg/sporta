@@ -806,6 +806,47 @@ async function realityArtifactEntryOf(
       });
     }
   }
+  // R508-R510 — the CONTENT-ADDRESSED DEDUP case: the deterministic game
+  // bridges (game-3d / anime-npr) produce byte-identical MP4s over an
+  // identical SWM state, so a second session rendering the same state
+  // lands as the media platform's counted-duplicate no-op — the artifact
+  // record keeps the FIRST session's id and `artifactsOfSession` cannot
+  // see it for this one. The render's OWN control-plane record (session-
+  // scoped, never deduped) still carries its `artifact://<sha256>`
+  // reference: resolve it to the existing content-addressed record and
+  // list the descriptor (the bytes ARE this render's real output — the
+  // counted-duplicate branch verified the content hash + reality before
+  // returning). This is the same content-addressed dedup story the gate
+  // audit documented; without it, a succeeded render would be invisible to
+  // its own session's catalog — a false `requires-render`.
+  if (mp4Artifacts.length === 0) {
+    const seen = new Set(descriptors.map((descriptor) => descriptor.artifactId));
+    const { renders } = await server.control.listRenders(sessionId);
+    const kindRenders = renders.filter((render) => producerRendererIds.includes(render.rendererId));
+    for (const render of kindRenders) {
+      const envelope = await server.control.getRender(sessionId, render.renderId);
+      for (const segment of envelope.result.outputSegments) {
+        const match = /^artifact:\/\/([0-9a-f]{64})$/.exec(segment.artifactRef);
+        if (match === null) continue;
+        const artifactId = `mp4-${match[1]!.slice(0, 16)}`;
+        if (seen.has(artifactId)) continue;
+        const artifact = server.media.artifact(artifactId);
+        if (artifact === null || artifact.reality !== kind) continue;
+        if (artifact.rendererId !== render.rendererId) continue;
+        if (artifact.contentHash !== match[1]) continue; // integrity, verbatim
+        seen.add(artifactId);
+        descriptors.push({
+          artifactId: artifact.artifactId,
+          kind,
+          manifestLink: `${MEDIA_ARTIFACT_LINK_PREFIX}${encodeURIComponent(artifact.artifactId)}`,
+          integrityHash: artifact.contentHash,
+          byteSize: artifact.byteSize,
+          contentType: `${artifact.container}/${artifact.videoCodec}`,
+          producerId: artifact.rendererId,
+        });
+      }
+    }
+  }
   // The DIAGNOSTICS surface: the control plane's stored W504 outputs of the
   // reality's renders (the anime prototype's animated-SVG review segments —
   // and any other review-format outputs). Listed AFTER the primary MP4s;

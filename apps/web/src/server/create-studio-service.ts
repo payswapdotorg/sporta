@@ -33,10 +33,24 @@
  * publication state are in-memory with the composition's other
  * control-plane state; the R207 upload-path perception run and the R101
  * normalization BOTH execute on the request path's process (real ffmpeg —
- * a missing binary fails loud, never a faked pipeline); the tactical and
- * 3D realities have no registered producer on this control plane (their
- * renderer packages cannot execute through the async compute plane's W504
- * encode seam — offered realities are only the registered ones).
+ * a missing binary fails loud, never a faked pipeline); offered realities
+ * are only the ones whose producer is registered on this control plane.
+ *
+ * J004 — THE ONE-SUBMISSION MULTI-REALITY PLAN (docs/contracts/
+ * multi-reality-create.md, FROZEN): the upload route's additive `realities`
+ * field selects the DERIVED reality kinds (tactical / three-d-game /
+ * anime-npr — "original" is NOT a selection; the admitted media job's
+ * normalization ALWAYS produces the original-reality artifact). After the
+ * upload's media job reaches its stored-original state, this service
+ * dispatches ONE async render per selected derived reality through the
+ * SAME `createRenderAsync` surface the single-render path uses, under ONE
+ * compute selection directive (the user's sporta-auto or user-explicit
+ * choice — no per-reality re-selection). Per-reality failures are honest
+ * and independent: one reality refusing (rights, producer-unavailable,
+ * compute refusal) NEVER silently cancels the others; each refusal
+ * surfaces in the plan's state with its typed failure class. The durable
+ * result state rides the EXISTING job/render surfaces (session state, Jobs,
+ * Watch availability) — no new state machine, no second source of truth.
  */
 import { deriveRightsCapabilities } from "@sporta/contracts";
 import type { AuthorizationPolicy, RightsCapabilities } from "@sporta/contracts";
@@ -56,6 +70,7 @@ import {
 } from "@sporta/identity";
 import type { Account } from "@sporta/identity";
 import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world-model";
+import type { RealityKind } from "@sporta/contracts";
 import type { SportaServer } from "./composition";
 import type { SeedStoryMeta } from "./dev-seed";
 import type { ControlRenderRecipe } from "./platform/control/records";
@@ -233,6 +248,21 @@ export interface StudioOptions {
     }[];
   } | null;
   /**
+   * J004: the honest derived-reality capability states for the ONE-submission
+   * multi-select — one row per derived reality kind (tactical / three-d-game
+   * / anime-npr; "original" is NOT a selection: the admitted media job's
+   * normalization always produces the original-reality artifact). Only
+   * registered, artifact-handoff-capable producers are offered; the reason
+   * line is the honest explanation for every state, never invented.
+   */
+  derivedRealities: {
+    reality: StudioDerivedRealityKind;
+    /** The registered producer renderer id (null when none is registered). */
+    producerRendererId: string | null;
+    offered: boolean;
+    reason: string;
+  }[];
+  /**
    * The caller's live render-request quota state (W913 — the studio's honest
    * degraded-state input; `null` when the caller is not authenticated).
    */
@@ -306,6 +336,58 @@ export interface StudioUploadSessionView {
   visibility: SessionVisibility;
   source: StudioUploadSourceState;
   perception: StudioUploadPerceptionSummary;
+  /**
+   * J004 (additive): the ONE-submission render plan, present ONLY when the
+   * upload carried the `realities` field (its absence preserves today's
+   * behavior byte-for-byte — upload + original only, no member). Per-reality
+   * renderId/jobId/state at answer time, plus each refusal's typed failure
+   * class; the durable states ride the EXISTING job/render surfaces.
+   */
+  renderPlan?: StudioRenderPlan;
+}
+
+/** The derived reality kinds a ONE-submission plan can select (J004). */
+export type StudioDerivedRealityKind = "tactical" | "three-d-game" | "anime-npr";
+
+/** The closed vocabulary of the plan's selections ("original" excluded). */
+export const DERIVED_REALITY_SELECTION_KINDS: readonly StudioDerivedRealityKind[] = Object.freeze([
+  "tactical",
+  "three-d-game",
+  "anime-npr",
+]);
+
+/** One reality's entry in the ONE-submission render plan (J004). */
+export interface StudioRealityPlanEntry {
+  /** The selected derived reality kind (never "original"). */
+  reality: StudioDerivedRealityKind;
+  /** The producer renderer the kind resolved through (null when it refused). */
+  rendererId: string | null;
+  /** The entry's disposition at answer time. */
+  disposition: "admitted" | "duplicate" | "failed";
+  /** The stored render id, when the job's render was already ingested. */
+  renderId?: string;
+  /** The dispatched compute job id (present for admitted/duplicate entries). */
+  jobId?: string;
+  /** The job's REAL state at answer time (the control plane's projection). */
+  jobState?: string;
+  /** The typed failure class + message when the disposition is `failed`. */
+  failure?: { errorClass: string; message: string };
+}
+
+/** The ONE-submission render plan carried by the upload answer (J004). */
+export interface StudioRenderPlan {
+  /** The plan's entries, in the submission's selection order. */
+  realities: StudioRealityPlanEntry[];
+  /**
+   * The ONE compute selection that covered the whole plan (present when a
+   * directive rode the submission and at least one dispatch verified it —
+   * the user's sporta-auto or user-explicit choice, explained verbatim).
+   */
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanation;
+  };
 }
 
 /** The studio's session state (GET /api/create/sessions/[sessionId]). */
@@ -363,6 +445,12 @@ export interface StudioDispatchView {
   sessionId: string;
   adapterId: string;
   jobState: string;
+  /**
+   * The stored render id, when the job's render was already ingested at
+   * dispatch return (the control plane's own answer, additive — J004 carries
+   * it into the plan entries; absent means not ingested yet, never missing).
+   */
+  renderId?: string;
   /**
    * The compute selection the dispatch verified (R501, additive): the
    * provider the REAL SelectionDirector selected under the caller's
@@ -556,6 +644,26 @@ const SOURCES: readonly { spec: FixtureStorySpec; label: string; description: st
 const NOT_OWNED = "\u0000not-a-user";
 
 /**
+ * The typed failure class of a per-reality plan refusal (J004): the error's
+ * OWN class when it carries one (the platform's typed errors expose
+ * `failureClass`), else the identity-layer class, else the honest internal
+ * marker — never a generic "failed".
+ */
+function failureClassOf(err: unknown): string {
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "failureClass" in err &&
+    typeof (err as { failureClass?: unknown }).failureClass === "string"
+  ) {
+    return (err as { failureClass: string }).failureClass;
+  }
+  if (err instanceof IdentityPermissionDeniedError) return "permission-denied";
+  if (err instanceof IdentityValidationError) return "validation-failed";
+  return "internal";
+}
+
+/**
  * Resolves a fixture source key to its REAL story spec (the checked-in
  * fixture inputs). W921: exported for the durable control plane's
  * reconstruction path (a recorded session's source key must resolve to the
@@ -593,6 +701,14 @@ export interface CreateStudioServiceOptions {
    * fabrication).
    */
   operations: { noteAdmissionRefusal(depth: number, maxDepth: number): void };
+  /**
+   * J004: the derived-reality producer map (reality kind → the registered
+   * producer renderer id) — the composition's frozen producer map, exactly
+   * `tactical.prototype` / `game-3d.prototype` / `anime-npr.prototype` when
+   * the derived-reality plane composed. A kind with no entry has NO
+   * registered producer — honestly `producer-unavailable`, never invented.
+   */
+  derivedRealityProducers: ReadonlyMap<RealityKind, string>;
   /** Wall clock (rights expiry is evaluated against it). */
   nowMs: () => number;
 }
@@ -605,6 +721,12 @@ export class CreateStudioService {
   private readonly publication: CreateStudioServiceOptions["publication"];
   private readonly attestations: CreateStudioServiceOptions["attestations"];
   private readonly operations: CreateStudioServiceOptions["operations"];
+  /**
+   * J004: the derived-reality producer map (reality kind → producer renderer
+   * id). A kind with no entry has NO registered producer — honestly
+   * `producer-unavailable`, never invented.
+   */
+  private readonly derivedRealityProducers: ReadonlyMap<RealityKind, string>;
   private readonly nowMs: () => number;
   /** The REAL job ids this studio dispatched, per session (in-memory). */
   private readonly jobsBySession = new Map<string, string[]>();
@@ -662,6 +784,7 @@ export class CreateStudioService {
     this.publication = options.publication;
     this.attestations = options.attestations;
     this.operations = options.operations;
+    this.derivedRealityProducers = options.derivedRealityProducers;
     this.nowMs = options.nowMs;
   }
 
@@ -725,6 +848,41 @@ export class CreateStudioService {
         artifactHandoff: handoff,
       });
     }
+    // J004: the honest derived-reality capability states — only registered,
+    // artifact-handoff-capable producers are offered (the multi-select never
+    // invents a reality this control plane cannot render). `renderers` is
+    // the SAME capability listing the loop above consumed.
+    const derivedRealities = DERIVED_REALITY_SELECTION_KINDS.map((reality) => {
+      const producerRendererId = this.derivedRealityProducers.get(reality) ?? null;
+      if (producerRendererId === null) {
+        return {
+          reality,
+          producerRendererId: null,
+          offered: false,
+          reason:
+            "no producer is registered for this reality on this control plane (the derived-reality encode plane is absent) — never invented",
+        };
+      }
+      // The registry's own answer (registered + versioned + the W502
+      // artifact-handoff surface the compute worker encodes through).
+      let offered = false;
+      let reason = "";
+      try {
+        const capability = renderers.find((entry) => entry.rendererId === producerRendererId);
+        if (capability === undefined) {
+          reason = `the registered producer '${producerRendererId}' is not listed by the control plane's renderer capability surface`;
+        } else {
+          const plugin = server.registry.resolve(capability.rendererId, capability.rendererVersion);
+          offered = typeof (plugin as { renderDetailed?: unknown }).renderDetailed === "function";
+          reason = offered
+            ? `produced by the registered '${producerRendererId}'`
+            : `renderer '${producerRendererId}' does not expose the W502 detailed render surface the compute worker's artifact handoff requires`;
+        }
+      } catch {
+        reason = `the producer '${producerRendererId}' failed to resolve from the registry`;
+      }
+      return { reality, producerRendererId, offered, reason };
+    });
     return {
       sources: SOURCES.map(({ spec, label, description }) => ({
         key: spec.key,
@@ -735,6 +893,7 @@ export class CreateStudioService {
         lexicon: { players: [...spec.lexicon.players], teams: [...spec.lexicon.teams] },
       })),
       renderers: views,
+      derivedRealities,
       rights: {
         operations: RIGHTS_OPERATIONS.map((operation) => ({ ...operation })),
         sharingScopes: [
@@ -1005,7 +1164,16 @@ export class CreateStudioService {
    *    media job (normalization → the `original`-reality artifact,
    *    auto-running async);
    * 6. W921 durable write-through with the `upload:<assetId>` source key
-   *    (the durable layer's honest join for cold-instance reconstruction).
+   *    (the durable layer's honest join for cold-instance reconstruction);
+   * 7. J004 — the ONE-submission multi-reality plan (ONLY when the request
+   *    carried the `realities` field): after the admitted media job reaches
+   *    its stored-original state (its real terminal disposition — awaited
+   *    bounded, honest on failure/timeout), ONE async render per selected
+   *    derived reality dispatches through the SAME `createRenderAsync`
+   *    surface the single-render path uses, under ONE compute selection
+   *    directive. Per-reality failures are isolated and typed — one
+   *    reality refusing never cancels the others; the plan's per-reality
+   *    states ride the EXISTING job/render surfaces (no second truth).
    */
   async createUploadSession(input: {
     token: string;
@@ -1013,6 +1181,16 @@ export class CreateStudioService {
     filename?: string;
     declaration: RightsDeclarationInput;
     label?: string;
+    /**
+     * J004: the DERIVED reality kinds selected in this ONE submission
+     * (validated — each must be `tactical` | `three-d-game` | `anime-npr`;
+     * `undefined` = the field was absent = today's behavior exactly).
+     */
+    realities?: readonly string[];
+    /** J004: the ONE compute selection directive covering the whole plan. */
+    compute?: StudioComputeDirective;
+    /** J004: the style label the plan's dispatches carry (recipe provenance). */
+    styleId?: string;
   }): Promise<StudioUploadSessionView> {
     const server = this.getServer();
 
@@ -1042,6 +1220,30 @@ export class CreateStudioService {
       );
     }
     const attested: AuthorizationPolicy = { ...policy, assertedBy: account.userId };
+
+    // 1b. J004: validate the plan's selections BEFORE anything is created —
+    //     each must be a DERIVED reality kind ("original" is NOT a selection;
+    //     the admitted media job's normalization always produces it). The
+    //     order is preserved and duplicates collapse (one entry per kind).
+    let planKinds: StudioDerivedRealityKind[] | undefined;
+    if (input.realities !== undefined) {
+      const seen = new Set<string>();
+      for (const raw of input.realities) {
+        if (raw === "original") {
+          throw new IdentityValidationError(
+            "'original' is not a reality selection — the admitted media job always produces " +
+              "the original-reality artifact (select only derived realities: tactical, three-d-game, anime-npr)",
+          );
+        }
+        if (!(DERIVED_REALITY_SELECTION_KINDS as readonly string[]).includes(raw)) {
+          throw new IdentityValidationError(
+            `unknown derived reality '${String(raw)}' (the plan selects from: ${DERIVED_REALITY_SELECTION_KINDS.join(", ")})`,
+          );
+        }
+        seen.add(raw);
+      }
+      planKinds = DERIVED_REALITY_SELECTION_KINDS.filter((kind) => seen.has(kind));
+    }
 
     // 2. The R101 constraint pre-check (the frozen constants + the
     //    ingestion seam's own sniffer — the definitive gate is step 5).
@@ -1139,6 +1341,34 @@ export class CreateStudioService {
       });
     }
 
+    // 7. J004 — the ONE-submission multi-reality plan (ONLY when the request
+    //    carried the `realities` field; its absence preserves today's
+    //    behavior — no wait, no dispatches, no plan member). The plan
+    //    dispatches AFTER the media job reaches its stored-original state;
+    //    per-reality failures are isolated and typed (never silent
+    //    cancellations); the entries' durable states ride the EXISTING
+    //    job/render surfaces (this.jobsBySession + the control plane's own
+    //    projections).
+    let renderPlan: StudioRenderPlan | undefined;
+    if (planKinds !== undefined) {
+      renderPlan = await this.dispatchRealityPlan({
+        token: input.token,
+        sessionId,
+        mediaJobId: outcome.job.jobId,
+        kinds: planKinds,
+        ...(input.styleId !== undefined && input.styleId.length > 0
+          ? { styleId: input.styleId }
+          : {}),
+        ...(input.compute !== undefined ? { compute: input.compute } : {}),
+      });
+    }
+    // J004: when the plan ran, the media job's wait already observed its
+    // settled state — the answer carries THAT view (the honest current
+    // state), not the admission-time snapshot. Without a plan (the legacy
+    // path), the admission-time view rides exactly as before.
+    const settledMediaJob =
+      renderPlan !== undefined ? server.media.jobView(outcome.job.jobId) : null;
+
     return {
       sessionId,
       label,
@@ -1155,7 +1385,7 @@ export class CreateStudioService {
           checksumVerified: outcome.asset.checksumVerified,
           declaredRightsPolicyId: outcome.asset.declaredRightsPolicyId,
         },
-        job: outcome.job,
+        job: settledMediaJob ?? outcome.job,
         artifact: null,
       },
       perception: {
@@ -1170,7 +1400,151 @@ export class CreateStudioService {
                 .map((entry) => `${entry.kind}×${entry.count}`)
                 .join(", ")}`,
       },
+      ...(renderPlan !== undefined ? { renderPlan } : {}),
     };
+  }
+
+  // -----------------------------------------------------------------------
+  // J004 — the ONE-submission multi-reality render plan
+  // -----------------------------------------------------------------------
+
+  /**
+   * The bounded wait for the admitted media job's stored-original state: the
+   * pipeline's OWN terminal projection (never an interpolated state). A
+   * failed or timed-out wait is returned as-is — the plan's dispatcher
+   * surfaces the honest precondition failure per reality, never a guessed
+   * "probably done".
+   */
+  private async awaitMediaJobSettled(jobId: string): Promise<MediaJobView> {
+    const pollIntervalMs = 25;
+    const boundMs = 180_000; // the upload constraint's own 120s ceiling + headroom
+    const deadline = this.nowMs() + boundMs;
+    for (;;) {
+      const view = this.getServer().media.jobView(jobId);
+      if (view === null) {
+        throw new RangeError(`media job '${jobId}' was not found (impossible on a live upload)`);
+      }
+      if (view.terminal || this.nowMs() >= deadline) return view;
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+  }
+
+  /**
+   * Dispatches the ONE-submission multi-reality plan (J004): after the
+   * upload's media job reaches its stored-original state, ONE async render
+   * per selected derived reality goes through the SAME dispatch path the
+   * single-render flow uses (quota + queue admission + `createRenderAsync`
+   * → the W914 seam), each kind resolved through the composition's frozen
+   * producer map, all under the ONE compute selection directive the
+   * submission carried.
+   *
+   * FAILURE ISOLATION (the contract's explicit rule): every per-reality
+   * dispatch is an independent try/catch — a refusal (producer unavailable,
+   * quota/queue/compute refusal, a rights refusal) is recorded as that
+   * reality's typed failure entry and NEVER cancels the others.
+   */
+  private async dispatchRealityPlan(input: {
+    token: string;
+    sessionId: string;
+    mediaJobId: string;
+    kinds: readonly StudioDerivedRealityKind[];
+    styleId?: string;
+    compute?: StudioComputeDirective;
+  }): Promise<StudioRenderPlan> {
+    const entries: StudioRealityPlanEntry[] = [];
+
+    // The contract's sequencing precondition: the plan dispatches only after
+    // the upload's media job reached its stored-original state. A failed or
+    // timed-out media job is surfaced per reality with its own typed
+    // failure — honest, never a silent skip and never a fabricated wait.
+    const media = await this.awaitMediaJobSettled(input.mediaJobId);
+    const mediaSettledOriginal = media.terminal && media.state === "succeeded";
+
+    for (const kind of input.kinds) {
+      const rendererId = this.derivedRealityProducers.get(kind) ?? null;
+      if (rendererId === null) {
+        entries.push({
+          reality: kind,
+          rendererId: null,
+          disposition: "failed",
+          failure: {
+            errorClass: "producer-unavailable",
+            message:
+              `no producer is registered for the '${kind}' reality on this control plane ` +
+              "(the derived-reality encode plane is absent) — the other selections are unaffected",
+          },
+        });
+        continue;
+      }
+      if (!mediaSettledOriginal) {
+        const detail =
+          media.state === "succeeded"
+            ? "the upload's media job is still settling"
+            : media.failure !== undefined
+              ? `the upload's media job failed (${media.failure.failureClass}: ${media.failure.message})`
+              : `the upload's media job did not settle in the bounded wait (state ${media.state})`;
+        entries.push({
+          reality: kind,
+          rendererId,
+          disposition: "failed",
+          failure: {
+            errorClass:
+              media.terminal && media.state !== "succeeded"
+                ? `media-job-${media.state}`
+                : "media-job-unsettled",
+            message: `the plan dispatches only after the upload's media job reaches its stored-original state — ${detail}`,
+          },
+        });
+        continue;
+      }
+      try {
+        // The SAME dispatch path the single-render flow uses (the compute
+        // directive verification + the W919 quota + the bounded queue
+        // admission + `createRenderAsync` → the W914 seam). Failures here
+        // are THIS reality's honest refusal, never the plan's.
+        const dispatch = await this.dispatchRender({
+          token: input.token,
+          sessionId: input.sessionId,
+          rendererId,
+          ...(input.styleId !== undefined && input.styleId.length > 0
+            ? { styleId: input.styleId }
+            : {}),
+          ...(input.compute !== undefined ? { compute: input.compute } : {}),
+        });
+        entries.push({
+          reality: kind,
+          rendererId,
+          disposition: dispatch.disposition,
+          ...(dispatch.renderId !== undefined ? { renderId: dispatch.renderId } : {}),
+          jobId: dispatch.jobId,
+          jobState: dispatch.jobState,
+        });
+      } catch (err) {
+        entries.push({
+          reality: kind,
+          rendererId,
+          disposition: "failed",
+          failure: {
+            errorClass: failureClassOf(err),
+            message: err instanceof Error ? err.message : String(err),
+          },
+        });
+      }
+    }
+
+    // The ONE selection that covered the whole plan: captured from the
+    // dispatch record (the same directive rode every dispatch; the
+    // SelectionDirector's deterministic decision is identical for each).
+    const admittedJobIds = entries.filter((entry) => entry.jobId !== undefined);
+    let selection: StudioRenderPlan["selection"];
+    for (const entry of admittedJobIds) {
+      const recorded = this.dispatchesByJob.get(entry.jobId!)?.selection;
+      if (recorded !== undefined) {
+        selection = recorded;
+        break;
+      }
+    }
+    return { realities: entries, ...(selection !== undefined ? { selection } : {}) };
   }
 
   /**
@@ -1606,6 +1980,9 @@ export class CreateStudioService {
       sessionId: dispatch.sessionId,
       adapterId: dispatch.adapterId,
       jobState: dispatch.jobState,
+      // The control plane's own ingested-render id, when it already exists
+      // at dispatch return (J004 carries it into the plan entries).
+      ...(dispatch.renderId !== undefined ? { renderId: dispatch.renderId } : {}),
       ...(selection !== undefined ? { selection } : {}),
     };
   }

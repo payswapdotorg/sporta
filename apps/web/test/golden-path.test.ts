@@ -697,3 +697,164 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// J004 — the ONE-SUBMISSION four-reality journey (Journey 2's required
+// outcome: one Create Studio submission requests Original + the selected
+// derived realities and produces one render plan — NO developer API
+// dispatch, NO hidden knowledge). This is the EXACT multipart the studio UI
+// posts: file + operations + `realities` (the derived kinds) + the ONE
+// compute directive. The 201 answer carries the plan; the plan's jobs walk
+// to real terminal success; the catalog's availability states remain the
+// single renderer-availability truth (all four ready).
+// ---------------------------------------------------------------------------
+
+describe("the J004 one-submission four-reality journey (golden-path extension)", () => {
+  let oneShotSessionId = "";
+  const oneShotJobIds: string[] = [];
+
+  test("ONE submission with the three derived realities answers 201 with the whole plan", async () => {
+    // REAL ffmpeg generates a fresh clip for the second journey — a
+    // materially distinct submission (not a replay of step 1's session).
+    const clipPath = await generateTestMp4(join(scratch, "one-submission.mp4"), {
+      durationSeconds: 1,
+      withAudio: false,
+    });
+    const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
+
+    const form = new FormData();
+    form.append(
+      "file",
+      new File([bytes.slice().buffer as ArrayBuffer], "one-submission.mp4", {
+        type: "video/mp4",
+      }),
+    );
+    form.append(
+      "operations",
+      JSON.stringify(["analysis", "transformation", "derivativeGeneration", "storage"]),
+    );
+    form.append("realities", JSON.stringify(["tactical", "three-d-game", "anime-npr"]));
+    form.append("compute", JSON.stringify({ mode: "user-explicit", providerId }));
+    form.append("styleId", "one-submission-golden");
+    const response = await uploadSessionRoute(
+      withCookie(token, "/api/create/upload-sessions", { method: "POST", body: form }),
+    );
+    expect(response.status).toBe(201);
+    const body = (await bodyOf(response)) as {
+      sessionId: string;
+      renderPlan: {
+        realities: {
+          reality: string;
+          rendererId: string | null;
+          disposition: string;
+          jobId?: string;
+          jobState?: string;
+        }[];
+        selection?: { providerId: string; mode: string };
+      };
+      source: { job: { jobId: string; state: string } | null };
+      perception: { frameCount: number };
+    };
+    oneShotSessionId = body.sessionId;
+
+    // The plan: every derived reality admitted, through the frozen producer
+    // map, under the ONE selection directive.
+    expect(body.renderPlan.realities).toHaveLength(3);
+    const byReality = new Map(body.renderPlan.realities.map((entry) => [entry.reality, entry]));
+    expect(byReality.get("tactical")!.rendererId).toBe("tactical.prototype");
+    expect(byReality.get("three-d-game")!.rendererId).toBe("game-3d.prototype");
+    expect(byReality.get("anime-npr")!.rendererId).toBe("anime-npr.prototype");
+    for (const entry of body.renderPlan.realities) {
+      expect(entry.disposition).toBe("admitted");
+      expect(entry.jobId).toBeTruthy();
+      expect(entry.jobState).toBeTruthy();
+      oneShotJobIds.push(entry.jobId!);
+    }
+    expect(body.renderPlan.selection!.providerId).toBe(providerId);
+    expect(body.renderPlan.selection!.mode).toBe("user-explicit");
+
+    // The media job already reached its stored-original state (the plan
+    // dispatched only after it — the contract's sequencing).
+    expect(body.source.job!.state).toBe("succeeded");
+    // The honest perception summary rides unchanged.
+    expect(body.perception.frameCount).toBeGreaterThan(0);
+  });
+
+  test("the plan's jobs are real compute jobs (the EXISTING job surface)", async () => {
+    for (const jobId of oneShotJobIds) {
+      let terminal: Record<string, unknown> | null = null;
+      for (let attempt = 0; attempt < 400; attempt += 1) {
+        const response = await jobRoute(
+          withCookie(token, `/api/create/sessions/${oneShotSessionId}/jobs/${jobId}`),
+          { params: Promise.resolve({ sessionId: oneShotSessionId, jobId }) },
+        );
+        expect(response.status).toBe(200);
+        const job = await bodyOf(response);
+        if (job.completion !== undefined) {
+          terminal = job;
+          break;
+        }
+        await Bun.sleep(25);
+      }
+      expect(terminal).not.toBeNull();
+      const done = terminal as {
+        state: string;
+        completion: { status: string; outputs: { contentType: string }[] };
+        selection: { providerId: string; mode: string };
+      };
+      expect(done.state).toBe("succeeded");
+      expect(done.completion.status).toBe("succeeded");
+      expect(done.completion.outputs.length).toBeGreaterThan(0);
+      // The one directive's selection rode every job.
+      expect(done.selection.providerId).toBe(providerId);
+      expect(done.selection.mode).toBe("user-explicit");
+    }
+  });
+
+  test("the catalog answers all four realities ready (the single availability truth)", async () => {
+    // The plan's compute jobs settled in the previous step; the async
+    // output INGESTS (the landing into the playback store) converge within
+    // moments — poll the catalog until all four realities answer ready
+    // (bounded, honest: availability converges to the real ingest state,
+    // never a fabricated one). The 3D-game encode is the slowest producer
+    // (its staged frame pipeline), so the poll carries an extended
+    // timeout — the SAME posture the media-loop batteries use for it.
+    let catalog: {
+      realities:
+        { kind: string; availability: string; artifacts: { integrityHash: string }[] }[] | null;
+      readyRealityCount: number | null;
+    } | null = null;
+    for (let attempt = 0; attempt < 400; attempt += 1) {
+      const response = await artifactCatalogRoute(
+        withCookie(token, `/api/catalog/sessions/${oneShotSessionId}/artifacts`),
+        { params: Promise.resolve({ sessionId: oneShotSessionId }) },
+      );
+      expect(response.status).toBe(200);
+      catalog = (await bodyOf(response)) as typeof catalog;
+      const kinds = (catalog.realities ?? []).filter(
+        (entry) => entry.availability === "ready",
+      ).length;
+      if (kinds === 4) break;
+      await Bun.sleep(25);
+    }
+    expect(catalog).not.toBeNull();
+    expect(catalog!.realities).not.toBeNull();
+    const byKind = new Map(catalog!.realities!.map((entry) => [entry.kind, entry]));
+    for (const kind of ["original", "tactical", "three-d-game", "anime-npr"] as const) {
+      const entry = byKind.get(kind)!;
+      expect(entry.availability, `${kind} must be ready`).toBe("ready");
+      expect(entry.artifacts.length).toBeGreaterThan(0);
+    }
+    expect(catalog!.readyRealityCount).toBe(4);
+  }, 30_000);
+
+  test("Watch serves every one-shot reality's real bytes (the same deep links)", async () => {
+    for (const kind of ["tactical", "three-d-game", "anime-npr"] as const) {
+      const response = await realitiesRoute(
+        withCookie(token, `/api/watch/${oneShotSessionId}/realities?kind=${kind}`),
+        { params: Promise.resolve({ sessionId: oneShotSessionId }) },
+      );
+      expect(response.status).toBe(200);
+    }
+  });
+});

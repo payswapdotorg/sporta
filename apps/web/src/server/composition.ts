@@ -426,6 +426,18 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     SVG fallback presented as video.
   const derivedPlane = createDerivedRealityPlane({ nowMs });
   if (derivedPlane !== null) derivedPlane.registerRenderers(registry);
+  // J004: the ONE-submission plan's producer map, INVERTED from the frozen
+  //     derived-reality declarations (reality kind → the producer renderer
+  //     id) — exactly the contract's frozen map (tactical.prototype /
+  //     game-3d.prototype / anime-npr.prototype). A kind with no entry has
+  //     NO registered producer: the studio's multi-select offers only the
+  //     registered ones and the plan's dispatches refuse the rest with the
+  //     honest `producer-unavailable` class — never invented.
+  const derivedRealityProducers: ReadonlyMap<RealityKind, string> = new Map(
+    derivedPlane === null
+      ? []
+      : [...derivedPlane.producers.entries()].map(([rendererId, reality]) => [reality, rendererId]),
+  );
 
   // 3. The real W504 output pipeline (in-process stores) as the control
   //    plane's render-output store.
@@ -819,6 +831,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     storyIndex,
     publication,
     attestations,
+    derivedRealityProducers,
     nowMs,
     operations: {
       noteAdmissionRefusal: (depth, maxDepth) => operations.noteAdmissionRefusal(depth, maxDepth),

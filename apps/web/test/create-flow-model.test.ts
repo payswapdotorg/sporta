@@ -227,7 +227,10 @@ describe("the draft + step gating", () => {
     const draft = emptyDraft();
     expect(stepSatisfied("source", draft)).toBe(false);
     expect(stepSatisfied("rights", draft)).toBe(true);
-    expect(stepSatisfied("renderer", draft)).toBe(false);
+    // J004: the upload path's reality step is ALWAYS satisfiable — zero
+    // derived selections is a valid choice (upload + original only);
+    // "original" is never a selection because the media job produces it.
+    expect(stepSatisfied("renderer", draft)).toBe(true);
     expect(stepSatisfied("recipe", draft)).toBe(false);
     const complete = {
       ...draft,
@@ -237,6 +240,8 @@ describe("the draft + step gating", () => {
       styleId: "my-style",
     };
     expect(stepSatisfied("source", complete)).toBe(true);
+    // The fixture path still requires exactly one renderer.
+    expect(stepSatisfied("renderer", { ...complete, rendererId: null })).toBe(false);
     expect(stepSatisfied("renderer", complete)).toBe(true);
     expect(stepSatisfied("recipe", complete)).toBe(true);
     expect(stepSatisfied("recipe", { ...complete, styleId: "  " })).toBe(false);

@@ -354,6 +354,18 @@ export interface StudioRendererLike {
 export interface StudioOptionsLike {
   sources: StudioSourceLike[];
   renderers: StudioRendererLike[];
+  /**
+   * J004: the honest derived-reality capability states for the
+   * ONE-submission multi-select — one row per derived kind ("original" is
+   * NOT a selection); only registered, artifact-handoff-capable producers
+   * are offered, each with its honest reason line.
+   */
+  derivedRealities: {
+    reality: "tactical" | "three-d-game" | "anime-npr";
+    producerRendererId: string | null;
+    offered: boolean;
+    reason: string;
+  }[];
   rights: {
     operations: { id: string; label: string; description: string }[];
     sharingScopes: { id: "private" | "operator-authorized"; label: string }[];
@@ -441,6 +453,34 @@ export interface StudioUploadSessionLike {
   visibility: "public" | "private";
   source: StudioUploadSourceLike;
   perception: StudioUploadPerceptionLike;
+  /**
+   * J004 (additive): the ONE-submission render plan, present ONLY when the
+   * upload carried the `realities` field. Per-reality renderId/jobId/state
+   * + each refusal's typed failure class; the durable states ride the
+   * EXISTING job/render surfaces.
+   */
+  renderPlan?: StudioRenderPlanLike;
+}
+
+/** One reality's entry in the ONE-submission render plan (J004). */
+export interface StudioRealityPlanEntryLike {
+  reality: "tactical" | "three-d-game" | "anime-npr";
+  rendererId: string | null;
+  disposition: "admitted" | "duplicate" | "failed";
+  renderId?: string;
+  jobId?: string;
+  jobState?: string;
+  failure?: { errorClass: string; message: string };
+}
+
+/** The ONE-submission render plan carried by the upload answer (J004). */
+export interface StudioRenderPlanLike {
+  realities: StudioRealityPlanEntryLike[];
+  selection?: {
+    providerId: string;
+    mode: "user-explicit" | "sporta-auto";
+    explanation: SelectionExplanationLike;
+  };
 }
 
 /**
