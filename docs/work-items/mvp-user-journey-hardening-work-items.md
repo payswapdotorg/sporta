@@ -1,3 +1,9 @@
+# Historical work-items — superseded as active backlog
+
+The active artifact is `docs/work-items/mvp-and-live-reality-work-items.md`. This file remains as historical implementation context and must not be treated as a competing execution plan.
+
+---
+
 # Sporta MVP User Journey Hardening Work Items
 
 These items follow the 2026-09-20 user-journey simulation and block R606/R607 until they pass.
