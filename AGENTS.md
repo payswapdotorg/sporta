@@ -13,7 +13,7 @@ The existing W001-W921 foundation remains valuable, but the MVP Reality Engine p
 3. `docs/architecture/technology-plane.md` — canonical technology-adapter/evaluation architecture.
 4. `docs/architecture/compute-broker.md` — canonical provider-neutral compute and BYOC boundary.
 5. `docs/contracts/` — machine-facing domain/interface contracts, including `docs/contracts/live-reality.md`.
-6. `docs/adr/` — accepted architecture decisions; ADR-009 covers the MVP Reality Engine and ADR-010 covers live reality inputs/rendering.
+6. `docs/adr/` — accepted architecture decisions; ADR-009 covers the MVP Reality Engine, ADR-010 covers live reality inputs/rendering, and ADR-011 covers the approved Hugging Face technology portfolio.
 7. `docs/roadmap/` — sequencing and gates.
 8. `docs/work-items/` — executable backlog and dependencies.
 9. Code/tests — implementation evidence; code never silently overrides frozen architecture/contracts.
@@ -26,7 +26,7 @@ At the beginning of every session:
 1. Read this file and the architecture lock.
 2. Read `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`.
 3. Read `docs/work-items/mvp-and-live-reality-work-items.md` and `docs/status/mvp-and-live-reality-status.md`.
-4. Read `docs/contracts/live-reality.md`, ADR-010, and the live-reality research note.
+4. Read `docs/contracts/live-reality.md`, `docs/contracts/technology-task-profiles.md`, ADR-010, ADR-011, the live-reality research note, and the Hugging Face model portfolio research.
 5. Inspect the current repository state, recent commits, dirty files, and existing contracts.
 6. Identify the smallest dependency-safe wave in the active handoff.
 7. Freeze or verify all shared contracts before dispatching workers.
@@ -41,19 +41,19 @@ Historical Reality Engine/journey handoffs remain useful evidence but are not co
 
 ## Three-worker lanes
 
-The active J/L program uses these ownership lanes:
+The active J/L/HF program uses these ownership lanes:
 
 ### Worker A — Intelligence / live state
 
-Owns J012 and L003/L004/L007/L008/L010/L011/L012. Owns perception/reconstruction evaluation and the canonical observation-to-SWM seam. Does not own public web UX.
+Owns J012 and L003/L004/L007/L008/L010/L011/L012 plus HF001, HF003-HF009. Owns perception/reconstruction and intelligence technology evaluation and the canonical observation-to-SWM seam. Does not own public web UX.
 
 ### Worker B — Platform / media / live transport
 
-Owns J005/J007/J014 and L002/L006/L009 plus the platform/recovery side of L014. Owns provider connections, storage, queues, live transport, telemetry and deployment seams.
+Owns J005/J007/J014 and L002/L006/L009 plus the platform/recovery side of L014 and HF002/HF008 runtime/provenance plumbing. Owns provider connections, storage, queues, live transport, telemetry, deployment and model provenance packaging.
 
 ### Worker C — Rendering / experience
 
-Owns J004/J006/J013 and L005/L013 plus the presentation side of L014. Owns tactical/3D visual quality and browser live experience.
+Owns J004/J006/J013 and L005/L013 plus the presentation side of L014 and HF010-HF014. Owns tactical/3D visual quality, neural re-camera experiments, Camera Director integration and browser live experience.
 
 ### Tech Lead integration lane
 
@@ -185,7 +185,7 @@ Start with `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. Then read `do
 
 ## Current program precedence
 
-The active implementation program is `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. It combines J001-J015 batch MVP hardening with L001-L017 live reality. Do not close R606/R607 while batch fidelity/durability/journey gates remain unresolved, and do not close L015-L017 without real live state, latency, continuity and recovery evidence.
+The active implementation program is `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. It combines J001-J015 batch MVP hardening, L001-L017 live reality, and HF001-HF015 technology discovery/benchmark/promotion. Do not close R606/R607 while batch fidelity/durability/journey gates remain unresolved, do not close L015-L017 without real live state, latency, continuity and recovery evidence, and do not promote HF candidates without benchmark/provenance/license evidence.
 
 ## No-conversation-dependency rule
 
