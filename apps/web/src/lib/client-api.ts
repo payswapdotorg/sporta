@@ -305,7 +305,8 @@ export function computeSelectionPreview(input: {
   rendererVersion?: string;
   latencyClass: "offline" | "near-live" | "live";
   deadlineMs?: number;
-  directive: StudioComputeDirectiveLike;
+  /** The selection directive — the route's documented `compute` body key. */
+  compute: StudioComputeDirectiveLike;
 }): Promise<StudioComputeSelectionLike> {
   return postJson<StudioComputeSelectionLike>("/api/create/compute-preview", input);
 }
