@@ -123,7 +123,7 @@ Dependencies: R103, R407. Accept: every visible job state corresponds to a real 
 Dependencies: R104, R306, W916. Accept: one session links Original/Tactical/3D/Anime outputs.
 
 ### R504 HTML5 video Watch player
-Dependencies: R503. Accept: actual MP4 playback; no SVG-only primary player for MVP output.
+Dependencies: R503. Accept: actual MP4 playback; no SVG-only primary player for MVP output. Ratified 2026-09-20 (wave-5 TL audit): the byte route's not-video boundary is CONTENT-TYPE-DRIVEN — an artifact serves as HTML5 video iff its descriptor's content type names the mp4 container (the original reality's ffmpeg-normalized MP4s AND the derived realities' R306-encoded MP4s); every other content type (the W504 animated-SVG review segments) answers the typed 415 and renders only through the diagnostics surface.
 
 ### R505 Reality Switcher
 Dependencies: R503, R504. Accept: same match/session; switch selected output without changing the match.
