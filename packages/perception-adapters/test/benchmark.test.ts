@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BenchmarkRun } from "@sporta/contracts";
 import {
@@ -49,7 +50,20 @@ describe("deterministic family benchmarks (all families)", () => {
   }
 
   test("the detection benchmark's two candidates are both present and materially different", () => {
-    const runs = runDetectionFamilyBenchmark();
+    // Deterministic pin: the model-backed candidate's degradation class depends
+    // on the weights-dir state, and the repo commits NO weights (the pinned
+    // download is operator-provided — packages/perception-adapters/assets/README.md).
+    // A controlled temp weightsDir with a DUMMY weights file pins the documented
+    // pre-W303 posture (weights present, no backend wired) so the assertion holds
+    // on every clean checkout; the weights-absent posture is covered by its own
+    // case below. The detector only checks file EXISTENCE at this seam (the real
+    // parse happens in the injected backend), so a zero-byte sentinel is the
+    // honest pin — it is never parsed, never promoted, never committed.
+    const weightsDir = mkdtempSync(join(tmpdir(), "sporta-weights-pin-"));
+    writeFileSync(join(weightsDir, "yolov8n.pt"), "");
+    const runs = runDetectionFamilyBenchmark({
+      modelBackedOptions: { weightsDir },
+    });
     expect(runs.map((run) => run.technologyId)).toEqual([
       "heuristic-color-detector",
       "model-backed-detector",
@@ -63,6 +77,21 @@ describe("deterministic family benchmarks (all families)", () => {
     expect(modelBacked.failureSummary.failures).toBeGreaterThan(0);
     expect(modelBacked.failureSummary.failureExamples.join("; ")).toContain(
       "model-backed.inference-backend-not-wired",
+    );
+  });
+
+  test("the detection benchmark's model-backed candidate reports weights-unavailable when no weights asset exists", () => {
+    // The complementary honest posture: with NO weights asset (the default on
+    // any clean checkout — weights are never committed), the candidate fails
+    // closed with the weights-unavailable class, never a silent empty list.
+    const emptyWeightsDir = mkdtempSync(join(tmpdir(), "sporta-weights-empty-"));
+    const runs = runDetectionFamilyBenchmark({
+      modelBackedOptions: { weightsDir: emptyWeightsDir },
+    });
+    const modelBacked = runs[1]!;
+    expect(modelBacked.failureSummary.failures).toBeGreaterThan(0);
+    expect(modelBacked.failureSummary.failureExamples.join("; ")).toContain(
+      "model-backed.weights-unavailable",
     );
   });
 
