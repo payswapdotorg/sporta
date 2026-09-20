@@ -340,6 +340,129 @@ describe("the derived-reality artifact catalog + playback (R508-R510)", () => {
     expect(errorBody.error.failureClass).toBe("media-invalid");
   });
 
+  test("R509 — the 3D-game reality's descriptor is a REAL MP4 served by the byte route", async () => {
+    const settled = await dispatchAndAwait("game-3d.prototype", "derived-catalog-3d");
+    expect(settled.outputs[0]!.contentType).toBe("video/mp4+base64");
+
+    const catalog = await buildWatchArtifactCatalog(server, sessionId);
+    const threeD = catalog.realities!.find((entry) => entry.kind === "three-d-game")!;
+    expect(threeD.availability).toBe("ready");
+    expect(threeD.artifacts.length).toBeGreaterThan(0);
+    const descriptor = threeD.artifacts[0]!;
+    expect(descriptor.contentType).toBe("mp4/avc1.42E01E");
+    expect(descriptor.artifactId).toMatch(/^mp4-/);
+    expect(descriptor.integrityHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(descriptor.producerId).toBe("game-3d.prototype");
+    expect(videoDescriptorOf(threeD)).not.toBeNull();
+    // The frozen manifest behind the descriptor (the store's own record):
+    // reality three-d-game, SWM provenance, verified integrity.
+    const frozen = RenderArtifactManifest.parse(server.media.artifact(descriptor.artifactId));
+    expect(frozen.reality).toBe("three-d-game");
+    expect(frozen.swm).not.toBeNull();
+    expect(frozen.integrity.verified).toBe(true);
+
+    // THE PLAYBACK: the byte route serves the REAL MP4, integrity-verified.
+    const full = await videoRoute(
+      withCookie(token, videoSourceOf(sessionId, "three-d-game", descriptor.artifactId)),
+      {
+        params: Promise.resolve({
+          sessionId,
+          kind: "three-d-game",
+          artifactId: descriptor.artifactId,
+        }),
+      },
+    );
+    expect(full.status).toBe(200);
+    expect(full.headers.get("content-type")).toBe("video/mp4");
+    const bytes = new Uint8Array(await full.arrayBuffer());
+    expect(bytes.byteLength).toBe(descriptor.byteSize);
+    expect(sha256OfBytes(bytes)).toBe(descriptor.integrityHash);
+    expect(Buffer.from(bytes.subarray(4, 8)).toString("ascii")).toBe("ftyp");
+  });
+
+  test("R510 — the anime-NPR reality's descriptor is a REAL MP4 served by the byte route", async () => {
+    const settled = await dispatchAndAwait("anime-npr.prototype", "derived-catalog-anime-npr");
+    expect(settled.outputs[0]!.contentType).toBe("video/mp4+base64");
+
+    const catalog = await buildWatchArtifactCatalog(server, sessionId);
+    const anime = catalog.realities!.find((entry) => entry.kind === "anime-npr")!;
+    expect(anime.availability).toBe("ready");
+    // The PRIMARY descriptor is the anime-npr.prototype MP4 (listed before
+    // the anime.prototype SVG review segment — the diagnostics surface).
+    const descriptor = anime.artifacts[0]!;
+    expect(descriptor.contentType).toBe("mp4/avc1.42E01E");
+    expect(descriptor.producerId).toBe("anime-npr.prototype");
+    expect(videoDescriptorOf(anime)!.artifactId).toBe(descriptor.artifactId);
+    // The video descriptor's source serves; the SVG diagnostics descriptor
+    // still answers the honest typed 415 (never presented as video).
+    const full = await videoRoute(
+      withCookie(token, videoSourceOf(sessionId, "anime-npr", descriptor.artifactId)),
+      {
+        params: Promise.resolve({
+          sessionId,
+          kind: "anime-npr",
+          artifactId: descriptor.artifactId,
+        }),
+      },
+    );
+    expect(full.status).toBe(200);
+    expect(full.headers.get("content-type")).toBe("video/mp4");
+    const bytes = new Uint8Array(await full.arrayBuffer());
+    expect(sha256OfBytes(bytes)).toBe(descriptor.integrityHash);
+    expect(Buffer.from(bytes.subarray(4, 8)).toString("ascii")).toBe("ftyp");
+    // The frozen manifest: the cel-shaded reality of the SAME session.
+    const frozen = RenderArtifactManifest.parse(server.media.artifact(descriptor.artifactId));
+    expect(frozen.reality).toBe("anime-npr");
+    expect(frozen.sessionId).toBe(sessionId);
+    expect(frozen.swm).not.toBeNull();
+  });
+
+  test("R509/R510 — four ready realities, one session, one SWM provenance (the acceptance shape)", async () => {
+    const catalog = await buildWatchArtifactCatalog(server, sessionId);
+    expect(catalog.playback.state).toBe("authorized");
+    expect(catalog.sessionId).toBe(sessionId);
+    // ALL FOUR realities hold REAL MP4 artifacts now.
+    expect(catalog.readyRealityCount).toBe(4);
+    for (const entry of catalog.realities!) {
+      expect(entry.availability).toBe("ready");
+      const video = videoDescriptorOf(entry);
+      expect(video, `${entry.kind} must hold a video-playable descriptor`).not.toBeNull();
+      // The mp4 container family (the original's `mp4/h264`, the derived
+      // realities' `mp4/avc1.42E01E` — both real h264/MP4 content types).
+      expect(video!.contentType.startsWith("mp4/")).toBe(true);
+    }
+    // The same-event integrity: the three derived realities' frozen
+    // manifests share ONE session id and ONE SWM provenance (the session's
+    // canonical world model — event ordering, game clock, and ball/player
+    // continuity flow from the ONE SWM every renderer read).
+    const engine = server.engines.get(sessionId)!;
+    const snapshot = engine.snapshot();
+    const derivedKinds = ["tactical", "three-d-game", "anime-npr"] as const;
+    const provenances = derivedKinds.map((kind) => {
+      const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
+      const frozen = RenderArtifactManifest.parse(
+        server.media.artifact(videoDescriptorOf(entry)!.artifactId),
+      );
+      expect(frozen.sessionId).toBe(sessionId);
+      return frozen.swm!;
+    });
+    for (const provenance of provenances) {
+      expect(provenance.snapshotVersion).toBe(provenances[0]!.snapshotVersion);
+      expect(provenance.lastEventSequence).toBe(provenances[0]!.lastEventSequence);
+      expect(provenance.snapshotVersion).toBeLessThanOrEqual(engine.snapshotVersion);
+    }
+    // The session's own world model: the event stream is strictly ascending
+    // (the canonical ordering every reality consumed).
+    const events = engine.eventsSince(0);
+    for (let i = 1; i < events.length; i += 1) {
+      expect(events[i]!.sequence).toBeGreaterThan(events[i - 1]!.sequence);
+    }
+    // The snapshot's entity set is the shared continuity substrate (the
+    // ball + the players every reality rendered).
+    expect(snapshot.entities.length).toBeGreaterThan(0);
+    void snapshot;
+  });
+
   test("R508 same-event integrity — the tactical MP4's SWM provenance matches the session's canonical world model", async () => {
     const catalog = await buildWatchArtifactCatalog(server, sessionId);
     const tactical = catalog.realities!.find((entry) => entry.kind === "tactical")!;

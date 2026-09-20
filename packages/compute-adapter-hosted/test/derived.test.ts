@@ -33,10 +33,16 @@ import {
 import type { EncodedArtifact } from "@sporta/encoding";
 import { RendererRegistry } from "@sporta/renderer-contract";
 import { createTestCardRenderer } from "@sporta/renderer-contract";
-import { Software3DEngine } from "@sporta/renderer-3d";
+import {
+  createAnimeNprRenderer,
+  createGame3DRenderer,
+  GAME_MP4_SD_PROFILE,
+  Software3DEngine,
+} from "@sporta/renderer-3d";
 import { createTacticalRenderer } from "@sporta/renderer-tactical";
 import { TACTICAL_OUTPUT_PROFILES } from "@sporta/renderer-tactical";
 import { RenderArtifactManifest } from "@sporta/contracts";
+import { buildEventEnvelope, buildWorldSnapshot } from "@sporta/testing";
 import {
   buildDispatchRequest,
   manualClock,
@@ -64,6 +70,8 @@ function derivedDeps(): { deps: RenderJobExecutorDeps; scratch: string[] } {
   });
   const registry = workerRegistry();
   registry.register(tacticalRenderer);
+  registry.register(createGame3DRenderer());
+  registry.register(createAnimeNprRenderer());
   const deps: RenderJobExecutorDeps = {
     rendererRegistry: registry,
     outputSegmentStore: new InMemoryRenderSegmentStore(),
@@ -106,6 +114,21 @@ function tacticalProfileOverride(): {
     frameRate: profile.frameRate,
     codec: profile.codec,
     container: profile.container,
+  };
+}
+
+/** The game SD output profile as a dispatch override (R509/R510). */
+function gameProfileOverride(): {
+  resolution: { w: number; h: number };
+  frameRate: number;
+  codec: string;
+  container: string;
+} {
+  return {
+    resolution: { w: GAME_MP4_SD_PROFILE.resolution.w, h: GAME_MP4_SD_PROFILE.resolution.h },
+    frameRate: GAME_MP4_SD_PROFILE.frameRate,
+    codec: GAME_MP4_SD_PROFILE.codec,
+    container: GAME_MP4_SD_PROFILE.container,
   };
 }
 
@@ -317,6 +340,219 @@ describe.skipIf(!ffmpegAvailable)("executeRenderJob — the derived-reality MP4 
     const envelope = await executeRenderJob(request, deps);
     expect(envelope.status).toBe("failed");
     expect(envelope.failure?.errorClass).toBe("renderer-unknown");
+  });
+
+  it("R509 — a 3D-game dispatch renders a REAL MP4 through bridgeGameFrameOutput (game-3d)", async () => {
+    const { deps, scratch } = derivedDeps();
+    try {
+      const request = await buildDispatchRequest({
+        rendererId: "game-3d.prototype",
+        jobId: "render-job-r509-game3d",
+        idempotencyKey: "render-r509-game3d-key",
+        outputProfile: gameProfileOverride(),
+      });
+      const envelope = await executeRenderJob(request, deps);
+      expect(envelope.status).toBe("succeeded");
+      const output = envelope.outputs[0]!;
+      expect(output.contentType).toBe("video/mp4+base64");
+      if (output.delivery.mode !== "inline") throw new Error("expected inline");
+      const bytes = Buffer.from(output.delivery.content, "base64");
+      expect(bytes.byteLength).toBeGreaterThan(1024);
+      expect(bytes.subarray(4, 8).toString("ascii")).toBe("ftyp");
+      const manifest = output.manifest as {
+        bridge: string;
+        source: { engineId: string; engineVersion: string };
+        geometry: { widthPx: number; heightPx: number; frameCount: number };
+        swm: { snapshotVersion: number; lastEventSequence: number } | null;
+      };
+      expect(manifest.bridge).toBe("game-3d");
+      // The frozen R302 engine provenance rides verbatim (the seam's own
+      // accounting — the render is driven ONLY by the canonical SWM).
+      expect(manifest.source.engineId).toBe("sporta.software-3d");
+      expect(manifest.geometry.widthPx).toBe(640);
+      expect(manifest.geometry.heightPx).toBe(360);
+      expect(manifest.geometry.frameCount).toBe(100); // 4000ms @ 25fps (the style default)
+      expect(manifest.swm).not.toBeNull();
+      // The contract result (the W501 document — the game-3d renderer's identity).
+      const renderResult = envelope.renderResult as
+        | { rendererId: string; sessionId: string; provenance: { lastEventSequence: number } }
+        | undefined;
+      expect(renderResult?.rendererId).toBe("game-3d.prototype");
+      expect(renderResult?.sessionId).toBe(SESSION_ID);
+      expect(renderResult?.provenance.lastEventSequence).toBe(manifest.swm!.lastEventSequence);
+      // The ffprobe verify: REAL h264, the manifest's own geometry (the
+      // HTML5 playability evidence — same conventions as R508).
+      const artifact = encodedArtifactOf(output);
+      const probe = probeEncodedArtifact(artifact);
+      expect(probe.codecName).toBe("h264");
+      expect(["Constrained Baseline", "Baseline"]).toContain(probe.profile);
+    } finally {
+      cleanScratch(scratch);
+    }
+  });
+
+  it("R509 manifest/verify — the game-3d MP4 round-trips the R306 store with its integrity hash", async () => {
+    const { deps, scratch } = derivedDeps();
+    try {
+      const request = await buildDispatchRequest({
+        rendererId: "game-3d.prototype",
+        jobId: "render-job-r509-store",
+        idempotencyKey: "render-r509-store-key",
+        outputProfile: gameProfileOverride(),
+      });
+      const envelope = await executeRenderJob(request, deps);
+      expect(envelope.status).toBe("succeeded");
+      const artifact = encodedArtifactOf(envelope.outputs[0]!);
+      const manifestCheck = validateEncodedManifest(artifact.manifest);
+      expect(manifestCheck.ok).toBe(true);
+      if (!manifestCheck.ok) throw new Error("expected a valid manifest");
+      expect(manifestCheck.value.bridge).toBe("game-3d");
+      const store = new InMemoryArtifactStore();
+      const registration = registerEncodedArtifact(store, artifact);
+      expect(registration.outcome).toBe("stored");
+      const loaded = loadEncodedArtifact(store, registration.artifactId, artifact.contentHash);
+      expect(loaded.contentHash).toBe(artifact.contentHash);
+      expect(Buffer.compare(Buffer.from(loaded.bytes), Buffer.from(artifact.bytes))).toBe(0);
+    } finally {
+      cleanScratch(scratch);
+    }
+  });
+
+  it("R510 — an anime-NPR dispatch renders a REAL MP4 through bridgeGameFrameOutput (anime-npr, cel-shaded)", async () => {
+    const { deps, scratch } = derivedDeps();
+    try {
+      const request = await buildDispatchRequest({
+        rendererId: "anime-npr.prototype",
+        jobId: "render-job-r510-animenpr",
+        idempotencyKey: "render-r510-animenpr-key",
+        outputProfile: gameProfileOverride(),
+      });
+      const envelope = await executeRenderJob(request, deps);
+      expect(envelope.status).toBe("succeeded");
+      const output = envelope.outputs[0]!;
+      expect(output.contentType).toBe("video/mp4+base64");
+      if (output.delivery.mode !== "inline") throw new Error("expected inline");
+      const bytes = Buffer.from(output.delivery.content, "base64");
+      expect(bytes.byteLength).toBeGreaterThan(1024);
+      expect(bytes.subarray(4, 8).toString("ascii")).toBe("ftyp");
+      const manifest = output.manifest as {
+        bridge: string;
+        source: { rendererId: string; engineId: string };
+        geometry: { frameCount: number };
+        swm: { snapshotVersion: number; lastEventSequence: number } | null;
+      };
+      expect(manifest.bridge).toBe("anime-npr");
+      expect(manifest.source.rendererId).toBe("anime-npr.prototype");
+      expect(manifest.source.engineId).toBe("sporta.software-3d");
+      expect(manifest.swm).not.toBeNull();
+      const renderResult = envelope.renderResult as { rendererId: string } | undefined;
+      expect(renderResult?.rendererId).toBe("anime-npr.prototype");
+      const artifact = encodedArtifactOf(output);
+      expect(probeEncodedArtifact(artifact).codecName).toBe("h264");
+    } finally {
+      cleanScratch(scratch);
+    }
+  });
+
+  it("R510 manifest/verify — the anime-npr MP4 round-trips the R306 store with its integrity hash", async () => {
+    const { deps, scratch } = derivedDeps();
+    try {
+      const request = await buildDispatchRequest({
+        rendererId: "anime-npr.prototype",
+        jobId: "render-job-r510-store",
+        idempotencyKey: "render-r510-store-key",
+        outputProfile: gameProfileOverride(),
+      });
+      const envelope = await executeRenderJob(request, deps);
+      expect(envelope.status).toBe("succeeded");
+      const artifact = encodedArtifactOf(envelope.outputs[0]!);
+      const manifestCheck = validateEncodedManifest(artifact.manifest);
+      expect(manifestCheck.ok).toBe(true);
+      if (!manifestCheck.ok) throw new Error("expected a valid manifest");
+      expect(manifestCheck.value.bridge).toBe("anime-npr");
+      const store = new InMemoryArtifactStore();
+      const registration = registerEncodedArtifact(store, artifact);
+      expect(registration.outcome).toBe("stored");
+      const loaded = loadEncodedArtifact(store, registration.artifactId, artifact.contentHash);
+      expect(loaded.contentHash).toBe(artifact.contentHash);
+      expect(Buffer.compare(Buffer.from(loaded.bytes), Buffer.from(artifact.bytes))).toBe(0);
+    } finally {
+      cleanScratch(scratch);
+    }
+  });
+
+  it("R509/R510 same-event integrity — the game realities share the canonical SWM the tactical render read", async () => {
+    // The SAME session + the SAME materialized SWM inputs across ALL THREE
+    // derived realities: one snapshot, one event window, one session id.
+    const { deps, scratch } = derivedDeps();
+    try {
+      // One canonical materialization: a snapshot + an ordered event tail
+      // ABOVE the snapshot's watermark (the engine's honest replay floor).
+      const snapshot = buildWorldSnapshot({ sessionId: SESSION_ID });
+      const events = [1, 2].map((i) => ({
+        sequence: snapshot.watermark.sequence + i,
+        snapshotVersionAfter: 40 + i,
+        event: buildEventEnvelope(
+          { eventId: `same-ev-${i}`, sessionId: SESSION_ID, eventTimeMs: 1000 * i },
+          4000 + i,
+        ),
+      }));
+      const snapshotVersion = 1;
+      const lastSequence = events.at(-1)!.sequence;
+      const swms: Array<{ snapshotVersion: number; lastEventSequence: number }> = [];
+      for (const rendererId of ["tactical.prototype", "game-3d.prototype", "anime-npr.prototype"]) {
+        const request = await buildDispatchRequest({
+          rendererId,
+          jobId: `render-job-same-event-${rendererId}`,
+          idempotencyKey: `render-same-event-${rendererId}`,
+          ...(rendererId === "tactical.prototype"
+            ? { outputProfile: tacticalProfileOverride() }
+            : { outputProfile: gameProfileOverride() }),
+          events,
+        });
+        const envelope = await executeRenderJob(request, deps);
+        expect(envelope.status).toBe("succeeded");
+        const manifest = envelope.outputs[0]!.manifest as {
+          sessionId: string;
+          swm: { snapshotVersion: number; lastEventSequence: number };
+        };
+        // The session id is the constant of every reality; the SWM
+        // provenance is the SAME canonical materialization (event ordering
+        // + game clock + ball/player continuity flow from the ONE SWM).
+        expect(manifest.sessionId).toBe(SESSION_ID);
+        expect(manifest.swm.snapshotVersion).toBe(snapshotVersion);
+        expect(manifest.swm.lastEventSequence).toBe(lastSequence);
+        swms.push(manifest.swm);
+      }
+      expect(swms[0]).toEqual(swms[1]);
+      expect(swms[1]).toEqual(swms[2]);
+    } finally {
+      cleanScratch(scratch);
+    }
+  });
+
+  it("R509/R510 — the game artifacts are MATERIALLY DIFFERENT realities (visibly different bytes)", async () => {
+    // ADR-009: two visibly different realities over ONE canonical SWM scene —
+    // the stylized-3d and cel-shaded renders of the same inputs are
+    // different encodes (different content hashes, never the same artifact).
+    const { deps, scratch } = derivedDeps();
+    try {
+      const hashes: string[] = [];
+      for (const rendererId of ["game-3d.prototype", "anime-npr.prototype"]) {
+        const request = await buildDispatchRequest({
+          rendererId,
+          jobId: `render-job-distinct-${rendererId}`,
+          idempotencyKey: `render-distinct-${rendererId}`,
+          outputProfile: gameProfileOverride(),
+        });
+        const envelope = await executeRenderJob(request, deps);
+        expect(envelope.status).toBe("succeeded");
+        hashes.push(envelope.outputs[0]!.contentHash);
+      }
+      expect(hashes[0]).not.toBe(hashes[1]);
+    } finally {
+      cleanScratch(scratch);
+    }
   });
 });
 
