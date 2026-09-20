@@ -12,15 +12,15 @@ R001-R510
     |
 R601-R605 VERIFIED
     |
-    +-------------------------------+
-    |                               |
-USER-JOURNEY HARDENING          LIVE REALITY
-J001-J015                      L001-L014
-    |                               |
-    +---------------+---------------+
-                    |
-            SHARED FINAL PROOF
-          R606 + R607 + L015-L017
+    +----------------------+----------------------+
+    |                      |                      |
+USER-JOURNEY HARDENING  LIVE REALITY       HF MODEL PORTFOLIO
+J001-J015              L001-L017           HF001-HF015
+    |                      |                      |
+    +----------------------+----------------------+
+                           |
+                    SHARED FINAL PROOF
+             R606 + R607 + L015-L017
 
 ## Program A — User Journey Hardening
 
