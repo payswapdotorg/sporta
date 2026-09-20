@@ -230,7 +230,11 @@ export function WatchExperience({
       />
     );
   }
-  if (capability.phase === "loading" || watch.phase === "loading" || realities.phase === "loading") {
+  if (
+    capability.phase === "loading" ||
+    watch.phase === "loading" ||
+    realities.phase === "loading"
+  ) {
     return <LoadingPanel label="Loading the match" />;
   }
   if (capability.phase === "failed") {
@@ -304,9 +308,10 @@ export function WatchExperience({
               selectedEntry !== null && selectedEntry.availability !== "ready"
                 ? switcherStateOf(selectedEntry.availability)
                 : verdict.state,
-            reason: selectedEntry !== null && selectedEntry.availability !== "ready"
-              ? selectedEntry.reason
-              : verdict.reason,
+            reason:
+              selectedEntry !== null && selectedEntry.availability !== "ready"
+                ? selectedEntry.reason
+                : verdict.reason,
           }}
         />
         {selectedKind === null || selectedEntry === null ? (
@@ -325,7 +330,11 @@ export function WatchExperience({
                   ? "A render is being produced"
                   : "Nothing to play for this match"
             }
-            reason={watch.data.playback.state === "denied" ? "The session's rights deny stored playback — no reality is revealed." : (selection?.reason ?? verdict.reason)}
+            reason={
+              watch.data.playback.state === "denied"
+                ? "The session's rights deny stored playback — no reality is revealed."
+                : (selection?.reason ?? verdict.reason)
+            }
           />
         ) : selectedEntry.availability !== "ready" ? (
           <StatePanel
@@ -371,11 +380,7 @@ export function WatchExperience({
           onSelect={onSwitch}
           sessionLabel={watch.data.label}
         />
-        <ComputeProvenanceSection
-          kind={selectedKind}
-          entry={selectedEntry}
-          studio={studio}
-        />
+        <ComputeProvenanceSection kind={selectedKind} entry={selectedEntry} studio={studio} />
         <SessionFactsSection watch={watch.data} />
       </aside>
     </div>
@@ -463,7 +468,10 @@ function VideoPlayerSection({
           error:
             error === null
               ? null
-              : { code: error.code, message: typeof error.message === "string" ? error.message : "" },
+              : {
+                  code: error.code,
+                  message: typeof error.message === "string" ? error.message : "",
+                },
         }),
       );
     };
@@ -504,7 +512,11 @@ function VideoPlayerSection({
         aria-label={`The ${label} rendering of match session ${sessionId} — the real stored MP4 artifact`}
       />
       <p className="video-status" data-video-status={status.phase} role="status">
-        <StateChip state={status.phase === "loading" ? "loading" : status.phase === "error" ? "failed" : "ready"}>
+        <StateChip
+          state={
+            status.phase === "loading" ? "loading" : status.phase === "error" ? "failed" : "ready"
+          }
+        >
           {status.phase}
         </StateChip>{" "}
         {status.reason}
@@ -514,7 +526,9 @@ function VideoPlayerSection({
           <dt>Reality</dt>
           <dd>
             {label}
-            {realityCount !== null ? ` · ${realityCount} of this match’s realities hold artifacts` : ""}
+            {realityCount !== null
+              ? ` · ${realityCount} of this match’s realities hold artifacts`
+              : ""}
           </dd>
         </div>
         <div className="fact">
@@ -1209,7 +1223,10 @@ function ComputeProvenanceSection({
           <dd>
             <code>{producerId}</code>
             {job !== null ? (
-              <> · job <code>{job.jobId}</code> ({job.state})</>
+              <>
+                {" "}
+                · job <code>{job.jobId}</code> ({job.state})
+              </>
             ) : null}
           </dd>
         </div>
@@ -1233,7 +1250,9 @@ function ComputeProvenanceSection({
                           ? "not measured"
                           : `$${considered.quote.estimatedCostUsd}`
                       }`
-                    : (considered.brokerRefusal?.message ?? considered.preferenceExclusion?.message ?? "considered")}
+                    : (considered.brokerRefusal?.message ??
+                      considered.preferenceExclusion?.message ??
+                      "considered")}
                 </span>
               </li>
             ))}
@@ -1366,9 +1385,9 @@ function RendererPanel({
       )}
       <p className="section-lede">
         Renderer-specific controls stay scoped to the selected reality&rsquo;s producing renderer:
-        the diagnostic player&rsquo;s display-cadence choices apply only while that
-        reality&rsquo;s review artifact is showing, and a renderer whose output carries no frame
-        manifest gets no cadence control at all.
+        the diagnostic player&rsquo;s display-cadence choices apply only while that reality&rsquo;s
+        review artifact is showing, and a renderer whose output carries no frame manifest gets no
+        cadence control at all.
       </p>
     </div>
   );
@@ -1452,8 +1471,8 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
     <div>
       <h2 className="section-title">Tactics — per-render provenance</h2>
       <p className="section-lede">
-        Position data lives in each stored artifact&rsquo;s manifest (the diagnostics
-        player&rsquo;s Provenance panel links the same numbers).{" "}
+        Position data lives in each stored artifact&rsquo;s manifest (the diagnostics player&rsquo;s
+        Provenance panel links the same numbers).{" "}
         {option !== null ? `Currently showing the ${option.rendererId} reality.` : ""}
       </p>
       <ol className="marker-list">
@@ -1472,8 +1491,8 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
         ))}
       </ol>
       <p className="section-lede">
-        The live per-frame entity table renders beside the diagnostics player for any frame you
-        seek — every row is the manifest&rsquo;s own accounting (kind, disposition, position,
+        The live per-frame entity table renders beside the diagnostics player for any frame you seek
+        — every row is the manifest&rsquo;s own accounting (kind, disposition, position,
         confidence).
       </p>
     </div>

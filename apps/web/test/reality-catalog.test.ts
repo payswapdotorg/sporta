@@ -7,10 +7,7 @@
  * behavior the acceptance names: no hidden state, no silent fallbacks.
  */
 import { describe, expect, test } from "bun:test";
-import type {
-  RealityArtifactEntryLike,
-  SessionArtifactCatalogLike,
-} from "../src/lib/api-types";
+import type { RealityArtifactEntryLike, SessionArtifactCatalogLike } from "../src/lib/api-types";
 import {
   REALITY_LABELS,
   isRealityKind,
@@ -35,10 +32,7 @@ function catalogOf(overrides: {
     status: "authorized",
     createdAtIso: "2026-01-01T00:00:00.000Z",
     playback: overrides.playback ?? { state: "authorized", reasonCode: "ok" },
-    realities:
-      overrides.realities === undefined
-        ? null
-        : overrides.realities,
+    realities: overrides.realities === undefined ? null : overrides.realities,
     readyRealityCount: null,
   };
 }
@@ -71,9 +65,7 @@ describe("the reality vocabulary + labels (R505)", () => {
   });
 
   test("the watch deep link is URL-addressable and shareable", () => {
-    expect(watchUrlOf("s 1", "anime-npr")).toBe(
-      "/watch?session=s%201&reality=anime-npr",
-    );
+    expect(watchUrlOf("s 1", "anime-npr")).toBe("/watch?session=s%201&reality=anime-npr");
   });
 });
 

@@ -24,8 +24,7 @@ export default async function WatchPage({
   const rendererParam = params.renderer;
   const sessionId =
     typeof sessionParam === "string" && sessionParam.length > 0 ? sessionParam : null;
-  const reality =
-    typeof realityParam === "string" && realityParam.length > 0 ? realityParam : null;
+  const reality = typeof realityParam === "string" && realityParam.length > 0 ? realityParam : null;
   const initialRenderer =
     typeof rendererParam === "string" && rendererParam.length > 0 ? rendererParam : null;
 

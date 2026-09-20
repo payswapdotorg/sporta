@@ -1,5 +1,9 @@
 import { getSportaServer } from "@/server/runtime";
-import { assertWatchable, buildWatchArtifactCatalog, buildWatchModel } from "@/server/catalog-service";
+import {
+  assertWatchable,
+  buildWatchArtifactCatalog,
+  buildWatchModel,
+} from "@/server/catalog-service";
 import { capabilityForRequest } from "@/server/capability-service";
 import { deriveRealityOptions } from "@/lib/surface-state";
 import { errorResponse, jsonResponse } from "@/server/http-errors";

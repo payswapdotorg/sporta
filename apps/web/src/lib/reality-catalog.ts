@@ -54,7 +54,11 @@ const WATCH_ARTIFACT_CONTENT_PREFIX = "/api/watch/";
  * An SVG review segment (`image/svg+xml`) is honestly NOT video.
  */
 export function isVideoArtifact(contentType: string): boolean {
-  return contentType === "video/mp4" || contentType.startsWith("video/") || contentType.startsWith("mp4/");
+  return (
+    contentType === "video/mp4" ||
+    contentType.startsWith("video/") ||
+    contentType.startsWith("mp4/")
+  );
 }
 
 /**
@@ -74,7 +78,11 @@ export function videoDescriptorOf(
  * The URL is derived from the session + the descriptor's own identity —
  * the same route the golden path pins with a byte-level hash check.
  */
-export function videoSourceOf(sessionId: string, kind: RealityKindLike, artifactId: string): string {
+export function videoSourceOf(
+  sessionId: string,
+  kind: RealityKindLike,
+  artifactId: string,
+): string {
   return (
     WATCH_ARTIFACT_CONTENT_PREFIX +
     `${encodeURIComponent(sessionId)}/realities/${encodeURIComponent(kind)}/artifacts/${encodeURIComponent(artifactId)}/content`
@@ -87,7 +95,9 @@ export function videoSourceOf(sessionId: string, kind: RealityKindLike, artifact
 
 /** A `reality` URL parameter is valid when it names a frozen-vocabulary kind. */
 export function isRealityKind(value: string | null | undefined): value is RealityKindLike {
-  return value !== null && value !== undefined && (REALITY_KINDS as readonly string[]).includes(value);
+  return (
+    value !== null && value !== undefined && (REALITY_KINDS as readonly string[]).includes(value)
+  );
 }
 
 /** The outcome of the selection derivation. */

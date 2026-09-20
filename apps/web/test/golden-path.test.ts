@@ -48,7 +48,12 @@ import { GET as watchRoute } from "../src/app/api/watch/[sessionId]/route";
 import { GET as realitiesRoute } from "../src/app/api/watch/[sessionId]/realities/route";
 import { GET as videoRoute } from "../src/app/api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/content/route";
 import { GET as sessionStateRoute } from "../src/app/api/create/sessions/[sessionId]/route";
-import { selectedRealityOf, videoDescriptorOf, videoSourceOf, watchUrlOf } from "../src/lib/reality-catalog";
+import {
+  selectedRealityOf,
+  videoDescriptorOf,
+  videoSourceOf,
+  watchUrlOf,
+} from "../src/lib/reality-catalog";
 import type { SessionArtifactCatalogLike } from "../src/lib/api-types";
 
 /** A deterministic stepping clock (the repo's hermetic rig). */
@@ -148,7 +153,10 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     expect(bytes.byteLength).toBeGreaterThan(1024);
 
     const form = new FormData();
-    form.append("file", new File([bytes.slice().buffer as ArrayBuffer], "golden.mp4", { type: "video/mp4" }));
+    form.append(
+      "file",
+      new File([bytes.slice().buffer as ArrayBuffer], "golden.mp4", { type: "video/mp4" }),
+    );
     form.append(
       "operations",
       JSON.stringify(["analysis", "transformation", "derivativeGeneration", "storage"]),
@@ -266,7 +274,11 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
       state: string;
       renderId: string;
       selection: { providerId: string; mode: string; explanation: { selectionReason: string } };
-      completion: { status: string; outputs: { artifactId: string }[]; usage: { unitId: string; quantity: number }[] };
+      completion: {
+        status: string;
+        outputs: { artifactId: string }[];
+        usage: { unitId: string; quantity: number }[];
+      };
     };
     expect(done.state).toBe("succeeded");
     expect(done.completion.status).toBe("succeeded");
@@ -418,9 +430,7 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
       },
     );
     expect(range.status).toBe(206);
-    expect(range.headers.get("content-range")).toBe(
-      `bytes 0-1023/${descriptor!.byteSize}`,
-    );
+    expect(range.headers.get("content-range")).toBe(`bytes 0-1023/${descriptor!.byteSize}`);
     const slice = new Uint8Array(await range.arrayBuffer());
     expect(slice.byteLength).toBe(1024);
     expect(Array.from(slice)).toEqual(Array.from(bytes.slice(0, 1024)));

@@ -750,7 +750,9 @@ export async function buildWatchArtifactCatalog(
 }
 
 /** A valid reality kind of the frozen catalog vocabulary (the route guard). */
-export function isCatalogRealityKind(value: string): value is (typeof CATALOG_REALITY_KINDS)[number] {
+export function isCatalogRealityKind(
+  value: string,
+): value is (typeof CATALOG_REALITY_KINDS)[number] {
   return (CATALOG_REALITY_KINDS as readonly string[]).includes(value);
 }
 

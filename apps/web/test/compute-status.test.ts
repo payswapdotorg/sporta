@@ -113,7 +113,13 @@ describe("GET /api/create/compute-status (R506)", () => {
         executionOwnership: string;
         facts: { privacyZone: string; capabilityClasses: string[] };
       } | null;
-      quotas: { quotaId: string; used: number | null; limit: number | null; exhausted: boolean; reasonCode: string }[];
+      quotas: {
+        quotaId: string;
+        used: number | null;
+        limit: number | null;
+        exhausted: boolean;
+        reasonCode: string;
+      }[];
       usage: { unitId: string; quantity: number }[] | null;
     };
     // The plane is the composition's own DATA (the in-process adapter the
@@ -196,7 +202,11 @@ describe("the per-job compute provenance (R506 — the selection carried verbati
       selection?: {
         providerId: string;
         mode: string;
-        explanation: { selectedProviderId: string; selectionReason: string; considered: { providerId: string }[] };
+        explanation: {
+          selectedProviderId: string;
+          selectionReason: string;
+          considered: { providerId: string }[];
+        };
       };
     };
     expect(job.selection).not.toBeUndefined();

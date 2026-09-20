@@ -434,17 +434,15 @@ export interface StudioJobView {
 /** The caller's compute/cost status document (R506 — GET /api/create/compute-status). */
 export interface StudioComputeStatus {
   /** The compute plane's real configuration (`null` when none is configured). */
-  plane:
-    | {
-        provider: string;
-        adapterId: string;
-        /** The selection seam's registered provider id (DATA, never a vendor name). */
-        providerId: string;
-        /** The operator's declared responsibility boundary (the R408 vocabulary). */
-        executionOwnership: "sporta-managed" | "user-owned-provider";
-        facts: { privacyZone: string; capabilityClasses: string[] };
-      }
-    | null;
+  plane: {
+    provider: string;
+    adapterId: string;
+    /** The selection seam's registered provider id (DATA, never a vendor name). */
+    providerId: string;
+    /** The operator's declared responsibility boundary (the R408 vocabulary). */
+    executionOwnership: "sporta-managed" | "user-owned-provider";
+    facts: { privacyZone: string; capabilityClasses: string[] };
+  } | null;
   /** The caller's daily compute allowance states (fail-closed on unreadable). */
   quotas: PlatformQuotaState[];
   /** The plane's metered usage totals (`null` = not measured — never a 0). */

@@ -1,5 +1,9 @@
 import { getSportaServer } from "@/server/runtime";
-import { assertWatchable, buildWatchArtifactCatalog, isCatalogRealityKind } from "@/server/catalog-service";
+import {
+  assertWatchable,
+  buildWatchArtifactCatalog,
+  isCatalogRealityKind,
+} from "@/server/catalog-service";
 import { errorResponse, jsonResponse } from "@/server/http-errors";
 import { bodyOf, parseByteRange } from "@/server/http-range";
 

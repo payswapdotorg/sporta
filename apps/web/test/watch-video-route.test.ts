@@ -29,11 +29,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDeterministicTestHasher } from "@sporta/identity";
-import {
-  generateTestMp4,
-  LocalFilesystemStorage,
-  sha256OfBytes,
-} from "@sporta/media-platform";
+import { generateTestMp4, LocalFilesystemStorage, sha256OfBytes } from "@sporta/media-platform";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
 import { SPORTA_SESSION_COOKIE } from "../src/server/auth-service";
@@ -239,7 +235,10 @@ afterAll(async () => {
 describe("GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/content (R504)", () => {
   test("the gates: the watch gate answers the uniform 404 before existence is revealed", async () => {
     const response = await videoRoute(
-      withCookie(null, `/api/watch/${sessionId}/realities/original/artifacts/${artifactId}/content`),
+      withCookie(
+        null,
+        `/api/watch/${sessionId}/realities/original/artifacts/${artifactId}/content`,
+      ),
       {
         params: Promise.resolve({ sessionId, kind: "original", artifactId }),
       },
@@ -332,9 +331,7 @@ describe("GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/con
       },
     );
     expect(response.status).toBe(206);
-    expect(response.headers.get("content-range")).toBe(
-      `bytes 10-49/${artifactBytes.byteLength}`,
-    );
+    expect(response.headers.get("content-range")).toBe(`bytes 10-49/${artifactBytes.byteLength}`);
     expect(response.headers.get("content-length")).toBe("40");
     const slice = new Uint8Array(await response.arrayBuffer());
     expect(slice.byteLength).toBe(40);
@@ -370,9 +367,7 @@ describe("GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/con
       },
     );
     expect(response.status).toBe(416);
-    expect(response.headers.get("content-range")).toBe(
-      `bytes */${artifactBytes.byteLength}`,
-    );
+    expect(response.headers.get("content-range")).toBe(`bytes */${artifactBytes.byteLength}`);
   });
 
   test("a malformed Range is ignored per RFC 9110 — the whole object answers 200", async () => {
@@ -395,10 +390,7 @@ describe("GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/con
     const { normalizedMediaKey } = await import("@sporta/media-platform");
     const key = normalizedMediaKey(artifactHash);
     // Corrupt the stored object (the local-fs adapter's own layout).
-    await writeFile(
-      join(scratch, "media-storage", key),
-      new Uint8Array([0x00, 0x01, 0x02, 0x03]),
-    );
+    await writeFile(join(scratch, "media-storage", key), new Uint8Array([0x00, 0x01, 0x02, 0x03]));
     const response = await videoRoute(
       withCookie(
         creatorToken,
@@ -443,9 +435,8 @@ describe("GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/con
     const dispatchBody = (await bodyOf(dispatch)) as { jobId: string };
 
     // Poll the job to success (the real renderer + the real W504 store).
-    const jobRoute = (
-      await import("../src/app/api/create/sessions/[sessionId]/jobs/[jobId]/route")
-    ).GET;
+    const jobRoute = (await import("../src/app/api/create/sessions/[sessionId]/jobs/[jobId]/route"))
+      .GET;
     let segmentId = "";
     for (let attempt = 0; attempt < 400; attempt += 1) {
       const response = await jobRoute(
@@ -503,12 +494,14 @@ describe("GET /api/watch/[sessionId]/realities — the artifact catalog acquisit
       options: { rendererId: string }[];
       artifacts: {
         playback: { state: string };
-        realities: {
-          kind: string;
-          availability: string;
-          reason: string;
-          artifacts: { artifactId: string; integrityHash: string; contentType: string }[];
-        }[] | null;
+        realities:
+          | {
+              kind: string;
+              availability: string;
+              reason: string;
+              artifacts: { artifactId: string; integrityHash: string; contentType: string }[];
+            }[]
+          | null;
       };
     };
     expect(body.sessionId).toBe(sessionId); // the Simulation G constant

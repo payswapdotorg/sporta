@@ -1244,7 +1244,9 @@ function ComputeCostPanel({ status }: { status: ComputeCostStatus }) {
               "no compute plane is configured"
             ) : (
               <>
-                <StateChip state={plane.executionOwnership === "sporta-managed" ? "ready" : "degraded"}>
+                <StateChip
+                  state={plane.executionOwnership === "sporta-managed" ? "ready" : "degraded"}
+                >
                   {plane.executionOwnership}
                 </StateChip>{" "}
                 <span className="field-hint">
@@ -1259,7 +1261,8 @@ function ComputeCostPanel({ status }: { status: ComputeCostStatus }) {
           <dd>
             {usage === null
               ? "not measured"
-              : usage.map((unit) => `${unit.quantity} ${unit.unitId}`).join(" · ") || "none metered"}
+              : usage.map((unit) => `${unit.quantity} ${unit.unitId}`).join(" · ") ||
+                "none metered"}
           </dd>
         </div>
         {quotas.map((quota) => (
@@ -1276,8 +1279,8 @@ function ComputeCostPanel({ status }: { status: ComputeCostStatus }) {
         ))}
       </dl>
       <p className="field-hint">
-        Allowance states are the platform&rsquo;s own daily quotas (the W919 ledger). Unknown measures
-        are shown as unknown — never as 0.
+        Allowance states are the platform&rsquo;s own daily quotas (the W919 ledger). Unknown
+        measures are shown as unknown — never as 0.
       </p>
     </section>
   );
