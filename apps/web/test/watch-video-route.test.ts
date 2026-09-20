@@ -94,7 +94,8 @@ let sessionId = "";
 let deniedSessionId = "";
 let artifactId = "";
 let artifactHash = "";
-let artifactBytes = new Uint8Array(0);
+/** The real stored bytes (the storage port's own `ArrayBufferLike` backing). */
+let artifactBytes: Uint8Array = new Uint8Array(0);
 let artifactIdDenied = "";
 
 beforeAll(async () => {
