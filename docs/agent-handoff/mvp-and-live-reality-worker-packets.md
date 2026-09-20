@@ -2,7 +2,7 @@
 
 ## Purpose
 
-These packets are the current three-worker operating contract for the J001-J015 and L001-L017 programs.
+These packets are the current three-worker operating contract for the J001-J015, L001-L017 and HF001-HF015 programs.
 
 The Tech Lead may dispatch exactly these three lanes concurrently. Worker reports and ownership boundaries are mandatory.
 
@@ -17,6 +17,8 @@ All workers:
 - record real-vs-fixture evidence;
 - record code/model/dataset/asset license provenance separately;
 - record latency/throughput evidence for live work;
+- record benchmark evidence for model candidates;
+- never download or promote a gated/non-commercial checkpoint without an explicit provenance/license decision.
 - stop and raise a dependency when a shared contract is ambiguous.
 
 ## Worker A — Intelligence / live state
@@ -25,6 +27,14 @@ All workers:
 
 Batch:
 - J012 reality-fidelity perception investigation and implementation.
+- HF001 logical task profiles.
+- HF003 RF-DETR SoccerNet.
+- HF004 MapAnything.
+- HF005 SAM3.
+- HF006 Spivak.
+- HF007 SoccerChat.
+- HF008 ASR portfolio jointly with Worker B.
+- HF009 speaker diarization.
 
 Live:
 - L003 incremental SWM update;
@@ -60,6 +70,8 @@ Batch:
 - J007 durable control plane;
 - J014 restart/redeploy persistence;
 - backend portions of J006.
+- HF002 model provenance/licensing ledger.
+- HF008 ASR runtime and provider packaging.
 
 Live:
 - L002 deterministic/replay live source;
@@ -90,7 +102,12 @@ Live:
 Batch:
 - J004 multi-reality Create;
 - J006 compute transparency UI/render-facing pieces;
-- J013 derived-reality sensitivity;
+- J013 derived-reality sensitivity.
+- HF010 camera-controlled neural renderer benchmark.
+- HF011 ViewCrafter benchmark.
+- HF012 Wan2.2 Animate benchmark.
+- HF013 LTX-2.3 benchmark.
+- HF014 Camera Director integration.
 - renderer fixes required by J012/J013.
 
 Live:
