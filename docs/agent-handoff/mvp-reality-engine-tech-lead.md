@@ -429,3 +429,7 @@ First:
 7. advance one wave at a time.
 
 Optimize for the shortest path to the first undeniable Sporta demo, while preserving the technology-neutral architecture so today's open-source choices can be replaced or fused with better technology later.
+
+## Handoff continuation
+
+After the R601-R605 technical gate, use `docs/agent-handoff/mvp-user-journey-hardening-tech-lead.md` as the current next-stage handoff. The final product gate is R606/R607 after J001-J015 and human visual/reality-fidelity acceptance.
