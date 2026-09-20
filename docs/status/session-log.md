@@ -596,3 +596,46 @@ L002 COMPLETE, L005 scaffold COMPLETE, J012 checkpoint 1 reviewed.
 Worker A: fighting (sentinel). Next: A's re-entry continuation, then
 Wave 2 dispatch (A: J012 impl finish + L007/L010/L011; B: J006 backend +
 J014 + L006 + L009; C: J006 UI + J013 + L005 full + L013).
+
+## Session 2026-09-20 23:00-23:45 UTC — A-lane unblock + C fix-forward merge
+
+- Resumed after operator "continue": full audit — stack healthy, sentinel
+  v1 alive but pointed at the DEAD f97e2d04 tree while the re-entry
+  prompt had actually LANDED in a re-keyed conversation (17cf00bc,
+  20:16 UTC, 12,080 chars server-verified).
+- 17cf00bc forensics: prompt landed, first turn died at birth; my 23:12
+  continuation triggered a REAL model turn (issued the STEP ZERO clone
+  tool call) — but the conversation, born from a phantom-birth chain,
+  NEVER had a sandbox provisioned (no workspace iframe; tool call hung
+  22+ min past its 600s timeout; no capacity/modal UI). Zombie-turn
+  signature confirmed (S105 lesson) — recovery ladder: reload (no
+  effect) → workspace APIs (401) → fresh create.
+- Worker C post-merge fix-forwards harvested: 93c15ab (lint dup of
+  main's 41f5b83) + 48c3ac0 — REAL main bugs surfaced by C's J004
+  browser journey: (a) compute-preview client sent `directive:` while
+  the route documents `compute` (UI preview 400'd on EVERY submission),
+  (b) tactical team split used `endsWith("a")` which matches
+  `team-away` — now the frozen L002 vocabulary (team-home/team-away)
+  drives split + colors. TL battery: 116/116 scoped tests (8 files),
+  typecheck/lint/format clean → MERGED @60282f2 → **CI GREEN**.
+- Worker A RE-DISPATCHED clean (night window 23:34): voided the zombie
+  registry record; fresh create VERIFIED first attempt (agents tab,
+  GLM-5.3, Full-Stack, 12,080-char re-entry prompt) → conversation
+  2e33be84 WITH sandbox iframe provisioned. STEP ZERO executing for
+  real: clone → checkout 925feab verified → checkpoint doc read →
+  canonical docs in progress.
+- wave1_sentinel.py v2: A_CHAT → 2e33be84; DOM-delta + busy-flag
+  activity detection (in-progress turns commit NULL for their whole
+  runtime — v1 would have re-nudged MID-TURN); branch TIP tracking
+  (v1's name-only watch silently missed C's 19:42/19:55 fix-forwards);
+  continuation payload instead of the full re-entry prompt; canonical
+  state path (scripts/flags). C-lane re-dispatch retired (complete).
+- Sentinel log note: first-cycle bug fixed (stale state path caused an
+  early duplicate-nudge attempt — landed as a no-op; state reset).
+
+Session-end state: main @60282f2, CI GREEN. Wave 1: B + C lanes
+COMPLETE (C's fix-forwards merged); A lane GENERATING in a properly
+provisioned session (2e33be84) — J012 implementation + L003/L004
+designs + L010 harness expected as checkpoint pushes on
+work/j012-l003-l004-l010. Sentinel v2 (pid 6720) watching. Next: A's
+checkpoints → TL verify → merge → Wave 2 dispatch.
