@@ -1,3 +1,9 @@
+# Historical roadmap — superseded as active instruction
+
+The active artifact is `docs/roadmap/mvp-and-live-reality-roadmap.md`. This file remains as historical implementation context and must not be treated as a competing execution plan.
+
+---
+
 # Sporta MVP User Journey Hardening Roadmap
 
 ## Goal
