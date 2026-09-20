@@ -1,5 +1,6 @@
 import { getSportaServer } from "@/server/runtime";
 import { jsonResponse } from "@/server/http-errors";
+import { tacticalSourceNote } from "@/server/live";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,14 @@ export async function GET(): Promise<Response> {
     sessionId: source.sessionId,
     label: source.label,
     storyKey: source.storyKey,
+    /**
+     * L005: the source's producer kind (honest labeling) — `story` (the
+     * dev-seed timeline's animated-SVG frames) or `tactical` (the live
+     * tactical view-model's world frames over the L002 deterministic
+     * tracking source).
+     */
+    sourceKind: source.tactical !== undefined ? "tactical" : "story",
+    ...(source.tactical !== undefined ? { sourceNote: tacticalSourceNote(source.tactical) } : {}),
   }));
   return jsonResponse(200, {
     available: sources.length > 0,

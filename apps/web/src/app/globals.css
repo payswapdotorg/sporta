@@ -2277,6 +2277,16 @@ svg {
   max-height: 62vh;
 }
 
+/* L005 — the live tactical pitch canvas (the 2D tactical renderer view). */
+.live-tactical-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
 .live-stats {
   display: grid;
   gap: 8px;

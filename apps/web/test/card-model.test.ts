@@ -30,9 +30,10 @@ beforeAll(async () => {
 });
 
 describe("the dev seed (honesty absolute)", () => {
-  test("seeds exactly three real sessions through the real gate", async () => {
+  test("seeds exactly four real sessions through the real gate", async () => {
     const { sessions } = await server.control.listSessions();
-    expect(sessions).toHaveLength(3);
+    // L005: three story sessions + the live tactical scaffold's session.
+    expect(sessions).toHaveLength(4);
     // Every seeded session is identity-owned by the labeled platform seed account.
     for (const summary of sessions) {
       const owner = await server.ownership.ownerIdOf(summary.id);
@@ -46,8 +47,11 @@ describe("the dev seed (honesty absolute)", () => {
       // The plan: derby = testcard + anime, friendly = testcard (both
       // playback-authorized). Training's render ran too, but its listing is
       // rights-gated (denied before existence) — the deny path is tested in
-      // the catalog/card suites.
-      if (story.storyKey === "training") continue;
+      // the catalog/card suites. The L005 tactical session renders nothing
+      // (its product surface is the live stream, not stored renders).
+      if (story.storyKey === "training" || story.storyKey === "live-tactical-synthetic") {
+        continue;
+      }
       const { renders } = await server.control.listRenders(sessionId);
       const expected = story.storyKey === "derby" ? 2 : 1;
       expect(renders).toHaveLength(expected);
@@ -100,10 +104,11 @@ describe("the dev seed (honesty absolute)", () => {
     });
     expect(summary.seedAccountUsername).toBe("sporta-dev-seed");
     expect(summary.demoAccountUsername).toBe("sporta-demo");
-    expect(summary.sessions).toHaveLength(3);
+    expect(summary.sessions).toHaveLength(4);
     expect(summary.sessions.map((entry) => entry.storyKey).sort()).toEqual([
       "derby",
       "friendly",
+      "live-tactical-synthetic",
       "training",
     ]);
     // Derby and training each stored one real encoded output segment.
@@ -115,7 +120,8 @@ describe("the dev seed (honesty absolute)", () => {
 describe("buildCatalog (the card model from real control-plane state)", () => {
   test("maps every session onto honest card fields", async () => {
     const cards = await buildCatalog(server);
-    expect(cards).toHaveLength(3);
+    // L005: the three story sessions + the live tactical scaffold's session.
+    expect(cards).toHaveLength(4);
     for (const card of cards) {
       expect(card.label.length).toBeGreaterThan(3);
       expect(card.status).toBe("authorized");
@@ -124,7 +130,7 @@ describe("buildCatalog (the card model from real control-plane state)", () => {
       expect(card.story!.source).toBe("dev-seed");
     }
     const storyKeys = cards.map((card) => card.story!.storyKey).sort();
-    expect(storyKeys).toEqual(["derby", "friendly", "training"]);
+    expect(storyKeys).toEqual(["derby", "friendly", "live-tactical-synthetic", "training"]);
   });
 
   test("the derby card: authorized, two renders, one stored output, watchable", async () => {
@@ -264,12 +270,13 @@ describe("the capability service over the real composition", () => {
 });
 
 describe("buildLibrary (ownership-gated)", () => {
-  test("the seed account's library is exactly its three owned sessions", async () => {
+  test("the seed account's library is exactly its owned sessions", async () => {
     const seedAccount = await server.accounts.findByUsername("sporta-dev-seed");
     const cards = await buildLibrary(server, seedAccount!.userId);
-    expect(cards).toHaveLength(3);
+    // L005: the three story sessions + the live tactical scaffold's session.
+    expect(cards).toHaveLength(4);
     const keys = cards.map((card) => card.story!.storyKey).sort();
-    expect(keys).toEqual(["derby", "friendly", "training"]);
+    expect(keys).toEqual(["derby", "friendly", "live-tactical-synthetic", "training"]);
   });
 
   test("a different account's library is empty (ownership, not visibility)", async () => {

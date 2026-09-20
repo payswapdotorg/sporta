@@ -42,9 +42,12 @@ import {
   type LiveCloseDoc,
   type LiveFrameDoc,
   type LiveHelloDoc,
+  type LiveWorldFrameDoc,
 } from "@/lib/live-sse";
 import { createStoryFrameProducer } from "./producer";
 import type { LiveFrameMeta } from "./producer";
+import { createTacticalFrameProducer } from "./view-model";
+import type { LiveTacticalRegistration } from "./view-model";
 
 // ---------------------------------------------------------------------------
 // The ports
@@ -65,6 +68,16 @@ export interface LiveSourceRegistration {
   snapshotVersion: number;
   /** The engine's watermark sequence (the render event cursor). */
   watermarkSequence: number;
+  /**
+   * L005 (additive): the live TACTICAL view-model registration — when
+   * present, the channel's producer is the live tactical view-model (the
+   * L002 deterministic tracking source projected to world frames, `world`
+   * events on the wire) instead of the story timeline's animated-SVG
+   * `frame` events. The transport itself is unchanged (channels,
+   * subscribers, bounded buffers, close semantics) — only the producer
+   * seam is re-pointed, exactly the L005 scaffold's instruction.
+   */
+  tactical?: LiveTacticalRegistration;
 }
 
 /** The honest status of one live channel (all real counters). */
@@ -216,6 +229,13 @@ class BoundedEventQueue {
 // The channel (one live source's tick loop + subscribers)
 // ---------------------------------------------------------------------------
 
+/** One emission the channel fans out (the story SVG frame OR the tactical world frame). */
+interface ChannelEmission {
+  event: "frame" | "world";
+  id: string;
+  payload: LiveFrameDoc | LiveWorldFrameDoc;
+}
+
 /** One live channel: the source's tick loop and its subscribers. */
 class LiveChannel {
   private readonly subscribers = new Map<number, { queue: BoundedEventQueue; dropped: number }>();
@@ -224,7 +244,7 @@ class LiveChannel {
   private framesEmitted = 0;
   private droppedFrames = 0;
   private lastFrameAtMs: number | null = null;
-  private readonly producer: { next: (meta: LiveFrameMeta) => LiveFrameDoc };
+  private readonly producer: { next: (meta: LiveFrameMeta) => ChannelEmission };
   private closed = false;
 
   constructor(
@@ -236,15 +256,38 @@ class LiveChannel {
       scheduler: LiveScheduler;
     },
   ) {
-    this.producer = createStoryFrameProducer({
-      sessionId: source.sessionId,
-      steps: source.steps,
-      policy: source.policy,
-      snapshotVersion: source.snapshotVersion,
-      watermarkSequence: source.watermarkSequence,
-      nowMs: transport.nowMs,
-      storyKey: source.storyKey,
-    });
+    if (source.tactical !== undefined) {
+      // L005: the live tactical view-model producer — the W915 producer
+      // seam re-pointed at the view-model (the transport is NOT forked:
+      // channels, buffers and close semantics are exactly the same).
+      const tactical = createTacticalFrameProducer({
+        sessionId: source.sessionId,
+        nowMs: transport.nowMs,
+        ...source.tactical,
+      });
+      this.producer = {
+        next: (meta: LiveFrameMeta): ChannelEmission => {
+          const { frame } = tactical.next(meta);
+          return { event: "world", id: String(frame.ordinal), payload: frame };
+        },
+      };
+    } else {
+      const story = createStoryFrameProducer({
+        sessionId: source.sessionId,
+        steps: source.steps,
+        policy: source.policy,
+        snapshotVersion: source.snapshotVersion,
+        watermarkSequence: source.watermarkSequence,
+        nowMs: transport.nowMs,
+        storyKey: source.storyKey,
+      });
+      this.producer = {
+        next: (meta: LiveFrameMeta): ChannelEmission => {
+          const frame = story.next(meta);
+          return { event: "frame", id: String(frame.ordinal), payload: frame };
+        },
+      };
+    }
   }
 
   subscribe(onEnd: () => void): LiveSubscriber {
@@ -263,6 +306,7 @@ class LiveChannel {
       sessionId: this.source.sessionId,
       label: this.source.label,
       storyKey: this.source.storyKey,
+      sourceKind: this.source.tactical !== undefined ? "tactical" : "story",
       cadenceMs: this.transport.cadenceMs,
       bufferDepth: this.transport.bufferDepth,
       openedAtMs: this.transport.nowMs(),
@@ -294,12 +338,12 @@ class LiveChannel {
   tick(): void {
     if (this.closed || this.subscribers.size === 0) return;
     this.framesEmitted += 1;
-    const frame = this.producer.next({
+    const emission = this.producer.next({
       sessionId: this.source.sessionId,
       ordinal: this.framesEmitted,
     });
     this.lastFrameAtMs = this.transport.nowMs();
-    const block = encodeSseJson("frame", String(frame.ordinal), frame);
+    const block = encodeSseJson(emission.event, emission.id, emission.payload);
     for (const entry of this.subscribers.values()) entry.queue.push(block);
   }
 

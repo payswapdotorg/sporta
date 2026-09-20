@@ -370,7 +370,15 @@ export interface LiveSourcesLike {
   available: boolean;
   transportKind: string;
   detail: string;
-  sources: { sessionId: string; label: string; storyKey: string }[];
+  sources: {
+    sessionId: string;
+    label: string;
+    storyKey: string;
+    /** L005: the source's producer kind (honest labeling). */
+    sourceKind?: "story" | "tactical";
+    /** L005: the tactical source's honest note (when sourceKind is tactical). */
+    sourceNote?: string;
+  }[];
 }
 
 /** GET /api/live — the live sources the transport is really serving (W915). */

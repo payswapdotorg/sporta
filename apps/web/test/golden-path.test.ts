@@ -819,20 +819,21 @@ describe("the J004 one-submission four-reality journey (golden-path extension)",
     // never a fabricated one). The 3D-game encode is the slowest producer
     // (its staged frame pipeline), so the poll carries an extended
     // timeout — the SAME posture the media-loop batteries use for it.
-    let catalog: {
+    type OneShotCatalog = {
       realities:
         { kind: string; availability: string; artifacts: { integrityHash: string }[] }[] | null;
       readyRealityCount: number | null;
-    } | null = null;
+    };
+    let catalog: OneShotCatalog | null = null;
     for (let attempt = 0; attempt < 400; attempt += 1) {
       const response = await artifactCatalogRoute(
         withCookie(token, `/api/catalog/sessions/${oneShotSessionId}/artifacts`),
         { params: Promise.resolve({ sessionId: oneShotSessionId }) },
       );
       expect(response.status).toBe(200);
-      catalog = (await bodyOf(response)) as typeof catalog;
+      catalog = (await bodyOf(response)) as OneShotCatalog;
       const kinds = (catalog.realities ?? []).filter(
-        (entry) => entry.availability === "ready",
+        (entry: { availability: string }) => entry.availability === "ready",
       ).length;
       if (kinds === 4) break;
       await Bun.sleep(25);

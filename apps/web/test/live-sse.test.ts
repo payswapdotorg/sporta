@@ -45,6 +45,7 @@ test("a complete stream round-trips: hello + frames + close", () => {
     sessionId: "sess-x",
     label: "Derby night",
     storyKey: "derby",
+    sourceKind: "story",
     cadenceMs: 250,
     bufferDepth: 8,
     openedAtMs: 1_000,
