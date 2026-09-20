@@ -61,6 +61,10 @@ import type {
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
 import {
+  InMemoryMediaJobRepository,
+  InMemoryMediaManifestRepository,
+  InMemoryRenderArtifactRepository,
+  InMemorySourceAssetRepository,
   LocalFilesystemStorage,
   MediaPlatformService,
   SqliteMediaPlatformStore,
@@ -525,9 +529,44 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     reconstructs upload-source sessions by re-running the R207
   //     real-to-SWM pipeline over the STORED source bytes (the media
   //     service's own storage + records), so it needs the media seam.
-  const mediaStore = new SqliteMediaPlatformStore(
-    options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
-  );
+  //
+  //     The bundled runtimes (Turbopack/webpack alias `bun:sqlite` to the
+  //     loud W911 shim — see next.config.ts) cannot construct the durable
+  //     sqlite store: the constructor fails with the shim's message and the
+  //     honest fallback is the in-memory repositories plus the loud banner
+  //     below (the W911 doctrine — the deployed backing is the in-memory
+  //     plane). The run itself stays real end-to-end (pipeline, ffmpeg,
+  //     artifacts); only cross-RESTART durability is absent, and that
+  //     property is carried by the sqlite runs (the batteries execute the
+  //     real `bun:sqlite` store under the real Bun runtime). Any OTHER
+  //     construction failure is re-thrown — never masked.
+  const SQLITE_SHIM_REFUSAL =
+    "bun:sqlite is available only under the Bun runtime";
+  let mediaStore: {
+    sourceAssets: import("@sporta/media-platform").SourceAssetRepository;
+    manifests: import("@sporta/media-platform").MediaManifestRepository;
+    artifacts: import("@sporta/media-platform").RenderArtifactRepository;
+    jobs: import("@sporta/media-platform").MediaJobRepository;
+  };
+  try {
+    mediaStore = new SqliteMediaPlatformStore(
+      options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
+    );
+  } catch (error) {
+    if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+      throw error;
+    }
+    console.error(
+      "[sporta] media records are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+        "restarts do not persist sessions — the durable sqlite store runs under the real Bun runtime",
+    );
+    mediaStore = {
+      sourceAssets: new InMemorySourceAssetRepository(),
+      manifests: new InMemoryMediaManifestRepository(),
+      artifacts: new InMemoryRenderArtifactRepository(),
+      jobs: new InMemoryMediaJobRepository(),
+    };
+  }
   const mediaStorage: MediaStoragePort =
     options.media?.storage ??
     new LocalFilesystemStorage(
