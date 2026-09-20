@@ -24,38 +24,44 @@ The existing W001-W921 foundation remains valuable, but the MVP Reality Engine p
 At the beginning of every session:
 
 1. Read this file and the architecture lock.
-2. Read `docs/agent-handoff/mvp-reality-engine-tech-lead.md`.
-3. Read `docs/agent-handoff/mvp-worker-packets.md`.
-4. Read `docs/work-items/mvp-reality-engine-work-items.md` and the current status ledger.
+2. Read `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`.
+3. Read `docs/work-items/mvp-and-live-reality-work-items.md` and `docs/status/mvp-and-live-reality-status.md`.
+4. Read `docs/contracts/live-reality.md`, ADR-010, and the live-reality research note.
 5. Inspect the current repository state, recent commits, dirty files, and existing contracts.
-6. Identify the smallest dependency-safe wave that advances the MVP golden path.
+6. Identify the smallest dependency-safe wave in the active handoff.
 7. Freeze or verify all shared contracts before dispatching workers.
 8. Dispatch at most three workers concurrently, one ownership lane each.
-9. Require each worker to report: changed files, tests, acceptance evidence, contract changes, risks, and proposed deviations.
+9. Require each worker to report: changed files, tests, acceptance evidence, contract changes, rights/license provenance, latency evidence where applicable, risks, blockers, and deviations.
 10. Review worker outputs against architecture, ADRs, contracts, work-item acceptance, and real customer-visible evidence.
 11. Integrate only conforming work. Resolve contract conflicts before merging downstream work.
-12. Update status only after the tech lead verifies executable evidence.
+12. Update the active status ledger only after the tech lead verifies executable evidence.
 13. End each session with the next safe wave and explicit blockers recorded in the repository.
+
+Historical Reality Engine/journey handoffs remain useful evidence but are not competing active instructions.
 
 ## Three-worker lanes
 
-### Worker A — Perception / reconstruction
+The active J/L program uses these ownership lanes:
 
-Owns the Technology Registry/evaluation foundation and real football reconstruction adapters: `R001-R005`, `R201-R208`.
+### Worker A — Intelligence / live state
 
-May add or replace model implementations behind frozen adapter contracts. Owns no public web shell and must not redefine the SWM.
+Owns J012 and L003/L004/L007/L008/L010/L011/L012. Owns perception/reconstruction evaluation and the canonical observation-to-SWM seam. Does not own public web UX.
 
-### Worker B — Media / compute / platform
+### Worker B — Platform / media / live transport
 
-Owns real browser media ingress and artifact lifecycle plus Compute Broker/provider integrations: `R101-R104`, `R401-R409`.
+Owns J005/J007/J014 and L002/L006/L009 plus the platform/recovery side of L014. Owns provider connections, storage, queues, live transport, telemetry and deployment seams.
 
-Owns provider credentials/connections, quotas, usage accounting, worker orchestration, and deployment seams. Must not embed provider-specific behavior in product/domain contracts.
+### Worker C — Rendering / experience
 
-### Worker C — Rendering / product experience
+Owns J004/J006/J013 and L005/L013 plus the presentation side of L014. Owns tactical/3D visual quality and browser live experience.
 
-Owns actual visual realities and the browser experience: `R301-R307`, `R501-R507`.
+### Tech Lead integration lane
 
-Initial renderer candidate is Godot 4 behind the stable renderer/game-engine adapter. Owns actual MP4 production, HTML5 playback, Reality Switcher, and the end-user render UX.
+Owns shared contracts, cross-lane decisions, J015, R606/R607 and L015-L017.
+
+### Historical foundation ownership
+
+The original R-series ownership remains useful when touching those areas: A for perception/technology, B for media/compute/platform, C for rendering/product. The active J/L handoff is authoritative for current sequencing.
 
 ### Tech Lead integration lane
 
@@ -65,7 +71,7 @@ Workers may be temporarily assigned isolated fixes during R6 only when the tech 
 
 ## Dependency-safe concurrency
 
-The three lanes are intentionally parallel, but only after shared contracts are frozen.
+The three lanes are intentionally parallel, but only after shared contracts are frozen. For the current program, the wave plan in `docs/agent-handoff/mvp-and-live-reality-tech-lead.md` supersedes the legacy R-series wave ordering below.
 
 ### Wave 0 — contract freeze / no parallel implementation
 
@@ -175,7 +181,7 @@ If implementation reveals an infeasible frozen decision, stop the affected work.
 
 ## First execution command
 
-Start with `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`, then inspect `docs/work-items/mvp-and-live-reality-work-items.md` and `docs/status/mvp-and-live-reality-status.md`. Use the older Reality Engine and journey-hardening handoffs as historical implementation context, not as competing active instructions.
+Start with `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. Then read `docs/work-items/mvp-and-live-reality-work-items.md` and `docs/status/mvp-and-live-reality-status.md`. Use older handoffs, roadmaps and status ledgers only as historical evidence.
 
 ## Current program precedence
 
