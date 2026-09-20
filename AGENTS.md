@@ -12,8 +12,8 @@ The existing W001-W921 foundation remains valuable, but the MVP Reality Engine p
 2. `docs/architecture/architecture.md` — canonical architecture and boundaries.
 3. `docs/architecture/technology-plane.md` — canonical technology-adapter/evaluation architecture.
 4. `docs/architecture/compute-broker.md` — canonical provider-neutral compute and BYOC boundary.
-5. `docs/contracts/` — machine-facing domain/interface contracts.
-6. `docs/adr/` — accepted architecture decisions; ADR-009 is the current MVP Reality Engine decision.
+5. `docs/contracts/` — machine-facing domain/interface contracts, including `docs/contracts/live-reality.md`.
+6. `docs/adr/` — accepted architecture decisions; ADR-009 covers the MVP Reality Engine and ADR-010 covers live reality inputs/rendering.
 7. `docs/roadmap/` — sequencing and gates.
 8. `docs/work-items/` — executable backlog and dependencies.
 9. Code/tests — implementation evidence; code never silently overrides frozen architecture/contracts.
@@ -175,8 +175,12 @@ If implementation reveals an infeasible frozen decision, stop the affected work.
 
 ## First execution command
 
-Start with `docs/agent-handoff/mvp-reality-engine-tech-lead.md`, then `docs/agent-handoff/mvp-worker-packets.md`, then `docs/testing/mvp-reality-engine-acceptance.md`, then inspect `docs/status/mvp-reality-engine-status.md` and dispatch only the next dependency-safe wave.
+Start with `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`, then inspect `docs/work-items/mvp-and-live-reality-work-items.md` and `docs/status/mvp-and-live-reality-status.md`. Use the older Reality Engine and journey-hardening handoffs as historical implementation context, not as competing active instructions.
 
 ## Current program precedence
 
-After R601-R605 technical verification, `docs/agent-handoff/mvp-user-journey-hardening-tech-lead.md` is the next implementation program. Do not close R606/R607 while J001-J015 remain unresolved or while human visual/reality-fidelity acceptance remains open.
+The active implementation program is `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. It combines J001-J015 batch MVP hardening with L001-L017 live reality. Do not close R606/R607 while batch fidelity/durability/journey gates remain unresolved, and do not close L015-L017 without real live state, latency, continuity and recovery evidence.
+
+## No-conversation-dependency rule
+
+The repository is the sole source of truth. Any decision required for implementation must be captured in an ADR, contract, roadmap, work item, status ledger, benchmark, test, or handoff. Chat history is not an implementation dependency.
