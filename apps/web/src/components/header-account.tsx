@@ -129,6 +129,16 @@ export function HeaderAccount() {
       </button>
       {menuOpen && (
         <div className="account-menu" role="menu" aria-label="Account">
+          <p className="account-menu-heading">Account</p>
+          <Link
+            href={ROUTES.computeCenter}
+            className="account-menu-link"
+            onClick={() => setMenuOpen(false)}
+          >
+            <NavIcon name="compute" />
+            <span>Compute connections</span>
+            <span className="account-menu-link-note">Sporta compute &amp; your providers</span>
+          </Link>
           <p className="account-menu-heading">
             Active role (workspace only)
             {account.activeRole !== null

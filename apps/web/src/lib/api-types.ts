@@ -995,3 +995,75 @@ export interface OperationsCancelLike {
   cancelled: boolean;
   alreadyTerminal: string | null;
 }
+
+/** One provider's honest line in the Compute Center status (J005). */
+export interface ComputeCenterProviderLike {
+  providerId: string;
+  posture:
+    | "connected-verified"
+    | "connected-unverified"
+    | "connected-invalid"
+    | "disconnected"
+    | "never-connected";
+  descriptor: {
+    providerKind: string;
+    supportedRenderers: string[];
+    supportedLatencyClasses: string[];
+    maxConcurrentJobs: number;
+    maxJobDeadlineMs: number;
+  };
+  supportedCredentialKinds: string[];
+  connection: {
+    schemaVersion: string;
+    accountId: string;
+    providerId: string;
+    state: string;
+    credential: { kind: string; fingerprint: string; presentedAtMs: number } | null;
+    connectedAtMs: number;
+    lastVerifiedAtMs?: number;
+    lastVerifiedState?: string;
+    revision: number;
+    history: { type: string; atMs: number; detail?: string }[];
+  } | null;
+  executionZone: "user-controlled" | "provider-cloud" | "sporta-managed";
+  goalFraming: string;
+}
+
+/** The Compute Center destination's status document (GET /api/account/compute, J005). */
+export interface ComputeCenterStatusLike {
+  sportaPlane: {
+    configured: boolean;
+    provider: string | null;
+    selection: {
+      providerId: string;
+      privacyZone: string;
+      capabilityClasses: string[];
+    } | null;
+    framing: string;
+  };
+  providers: ComputeCenterProviderLike[];
+  goals: { id: string; title: string; description: string; where: string }[];
+  credentialPolicy: { acceptedKinds: string[]; refusedKinds: string[]; refusalNote: string };
+  quotas: ComputeQuotaStateLike[];
+  usage: { unitId: string; quantity: number }[] | null;
+}
+
+/** The connect action's answer (POST /api/account/compute/connections, J005). */
+export interface ComputeConnectAnswerLike {
+  outcome: "connected" | "duplicate" | "refused-master-password";
+  message?: string;
+  presentedKind?: string;
+  record?: ComputeCenterProviderLike["connection"];
+}
+
+/** The verify action's answer (POST .../connections/[providerId]/verify, J005). */
+export interface ComputeVerifyAnswerLike {
+  outcome: "verified";
+  record: ComputeCenterProviderLike["connection"];
+}
+
+/** The disconnect action's answer (DELETE .../connections/[providerId], J005). */
+export interface ComputeDisconnectAnswerLike {
+  outcome: "disconnected";
+  record: ComputeCenterProviderLike["connection"];
+}

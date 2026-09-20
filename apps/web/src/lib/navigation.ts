@@ -28,6 +28,7 @@ export const ROUTES = {
   signin: "/auth/signin",
   offline: "/offline",
   rightsPolicies: "/rights/policies",
+  computeCenter: "/account/compute",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
@@ -58,7 +59,8 @@ export type NavIcon =
   | "rights"
   | "operations"
   | "jobs"
-  | "audit";
+  | "audit"
+  | "compute";
 
 /** One primary navigation destination. */
 export type NavItem = {

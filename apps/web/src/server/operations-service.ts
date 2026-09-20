@@ -39,7 +39,7 @@
  */
 import type { StudioJobRow } from "./create-studio-service";
 import { AuthFlowError } from "./auth-service";
-import { platformSnapshot } from "./platform-health";
+import { controlPlaneOverrideOf, platformSnapshot } from "./platform-health";
 
 import {
   IdentityPermissionDeniedError,
@@ -952,7 +952,7 @@ export async function buildOperations(
   server: SportaServer,
   token: string,
 ): Promise<OperationsModel> {
-  const health = await platformSnapshot();
+  const health = await platformSnapshot(controlPlaneOverrideOf(server));
   const live = server.live;
 
   // Failed jobs, operator scope: every session's dispatched jobs, read

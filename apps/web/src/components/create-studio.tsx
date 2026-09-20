@@ -1113,6 +1113,11 @@ function ComputeStep({
         provider&apos;s quote, refusal, or exclusion) is shown verbatim, and the dispatch verifies
         the same decision.
       </p>
+      <p className="studio-compute-center-hint">
+        Want to run renders on your own provider account?{" "}
+        <Link href={ROUTES.computeCenter}>Open the Compute Center</Link> to connect one — the
+        connection lives on your account and is reusable across sessions.
+      </p>
 
       {options.selection === null ? (
         <StatePanel

@@ -8,6 +8,10 @@ import type {
   AccountViewLike,
   ApiErrorBodyLike,
   CapabilityLike,
+  ComputeCenterStatusLike,
+  ComputeConnectAnswerLike,
+  ComputeDisconnectAnswerLike,
+  ComputeVerifyAnswerLike,
   JobsOverviewLike,
   MediaJobLike,
   OperationsLike,
@@ -476,4 +480,43 @@ export function cancelOperationsJob(jobId: string): Promise<OperationsCancelLike
     `/api/operations/jobs/${encodeURIComponent(jobId)}/cancel`,
     {},
   );
+}
+
+// ---------------------------------------------------------------------------
+// The Compute Connection Center (J005) — the account's compute destination
+// ---------------------------------------------------------------------------
+
+/** GET /api/account/compute — the destination's status document. */
+export function fetchComputeCenterStatus(): Promise<ComputeCenterStatusLike> {
+  return getJson<ComputeCenterStatusLike>("/api/account/compute");
+}
+
+/** POST /api/account/compute/connections — connect one provider. */
+export function connectComputeProvider(input: {
+  providerId: string;
+  credential: Record<string, unknown> | null;
+}): Promise<ComputeConnectAnswerLike> {
+  return postJson<ComputeConnectAnswerLike>("/api/account/compute/connections", input);
+}
+
+/** POST /api/account/compute/connections/[providerId]/verify — verify. */
+export function verifyComputeProvider(providerId: string): Promise<ComputeVerifyAnswerLike> {
+  return postJson<ComputeVerifyAnswerLike>(
+    `/api/account/compute/connections/${encodeURIComponent(providerId)}/verify`,
+    {},
+  );
+}
+
+/** DELETE /api/account/compute/connections/[providerId] — disconnect. */
+export async function disconnectComputeProvider(
+  providerId: string,
+): Promise<ComputeDisconnectAnswerLike> {
+  const response = await fetch(
+    `/api/account/compute/connections/${encodeURIComponent(providerId)}`,
+    { method: "DELETE", headers: { accept: "application/json" } },
+  );
+  const text = await response.text();
+  const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+  if (!response.ok) throw new ApiError(response.status, body as ApiErrorBodyLike | null);
+  return body as ComputeDisconnectAnswerLike;
 }

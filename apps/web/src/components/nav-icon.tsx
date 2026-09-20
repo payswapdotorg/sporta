@@ -115,6 +115,13 @@ const GLYPHS: Record<NavIcon, ReactNode> = {
       <circle cx="17.2" cy="7.2" r="2.4" />
     </>
   ),
+  compute: (
+    <>
+      <rect x="7" y="7" width="10" height="10" rx="2.2" />
+      <path d="M10.4 10.4h3.2v3.2h-3.2z" fill="currentColor" stroke="none" />
+      <path d="M9.4 7V4.4M14.6 7V4.4M9.4 19.6V17M14.6 19.6V17M7 9.4H4.4M7 14.6H4.4M19.6 9.4H17M19.6 14.6H17" />
+    </>
+  ),
 };
 
 export function NavIcon({ name }: { name: NavIcon }) {

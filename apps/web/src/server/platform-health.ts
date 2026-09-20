@@ -30,6 +30,41 @@ export interface ProviderCheck {
   detail?: string;
 }
 
+/**
+ * The composition's control-plane override (J007): derives the honest
+ * backing report from the running composition — the durable layer's own
+ * provider name plus a LIVE read through the real record store (a real
+ * `listSessions` — corruption fails loudly, the fail-closed posture), or
+ * `undefined` when the control plane is in-memory this run (the env-derived
+ * availability stands).
+ */
+export function controlPlaneOverrideOf(server: {
+  durable: { provider: "neon" | "sqlite" | "in-memory" } | null;
+  controlRecords: {
+    listSessions(): Promise<unknown[]>;
+    providerName?: unknown;
+  } | null;
+}): { controlPlane: { provider: "neon" | "sqlite" | "in-memory"; check: () => Promise<ProviderCheck> } } | undefined {
+  if (server.durable === null || server.controlRecords === null) return undefined;
+  const provider = server.durable.provider;
+  const records = server.controlRecords;
+  return {
+    controlPlane: {
+      provider,
+      check: async () => {
+        try {
+          // A REAL read through the running backing — proves the store is
+          // alive AND revalidates every row (the fail-closed posture).
+          await records.listSessions();
+          return { state: "ok", detail: provider };
+        } catch {
+          return { state: "error", detail: provider };
+        }
+      },
+    },
+  };
+}
+
 async function checkNeon(): Promise<ProviderCheck> {
   const sql = neonClient();
   if (sql === null) return { state: "unconfigured" };
@@ -118,14 +153,47 @@ export async function queueObservation(): Promise<{
 }
 
 /** The full honest platform snapshot (the /api/platform/health document). */
-export async function platformSnapshot() {
-  const [neon, r2, upstash, controlPlane, renderQueue] = await Promise.all([
+export async function platformSnapshot(overrides?: {
+  /**
+   * The composition's ACTUAL control-plane backing (J007): the health
+   * surface reports what the running composition uses — the hosted Neon
+   * gate when DATABASE_URL is configured, the LOCAL sqlite durable store
+   * when the runtime is the real Bun without hosted credentials, or the
+   * honest in-memory state. When omitted, the env-derived availability
+   * stands (the hosted-gate truth).
+   */
+  controlPlane?: {
+    provider: "neon" | "sqlite" | "in-memory";
+    /**
+     * The live check through the REAL backing (a real read — the caller
+     * holds the composition's store). Defaults by provider: neon → the
+     * migration check; sqlite → REQUIRED (callers pass a real read);
+     * in-memory → unconfigured.
+     */
+    check?: () => Promise<ProviderCheck>;
+  };
+}) {
+  const [neon, r2, upstash, controlPlaneCheck, renderQueue] = await Promise.all([
     checkNeon(),
     checkR2(),
     checkUpstash(),
-    checkControlPlane(),
+    (async (): Promise<ProviderCheck> => {
+      if (overrides?.controlPlane === undefined) return checkControlPlane();
+      const { provider, check } = overrides.controlPlane;
+      if (provider === "in-memory") return { state: "unconfigured", detail: "in-memory" };
+      if (check !== undefined) return check();
+      if (provider === "neon") return checkControlPlane();
+      return { state: "ok", detail: provider };
+    })(),
     queueObservation(),
   ]);
+  const controlPlaneAvailability =
+    overrides?.controlPlane === undefined
+      ? providerAvailability().controlPlane
+      : {
+          provider: overrides.controlPlane.provider,
+          configured: overrides.controlPlane.provider !== "in-memory",
+        };
   return {
     env: platformEnv(),
     deployMarker: deployMarker(),
@@ -133,7 +201,7 @@ export async function platformSnapshot() {
       identity: { ...providerAvailability().identity, check: neon },
       artifacts: { ...providerAvailability().artifacts, check: r2 },
       transientState: { ...providerAvailability().transientState, check: upstash },
-      controlPlane: { ...providerAvailability().controlPlane, check: controlPlane },
+      controlPlane: { ...controlPlaneAvailability, check: controlPlaneCheck },
     },
     renderQueue,
     usageGuardrails: {

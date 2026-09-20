@@ -2652,3 +2652,316 @@ svg {
   color: var(--sky);
   font-size: 13px;
 }
+
+/* Compute Connection Center (J005) */
+
+.account-menu-link {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.account-menu-link:hover,
+.account-menu-link:focus-visible {
+  border-color: var(--accent);
+}
+
+.account-menu-link .nav-icon {
+  grid-row: span 2;
+}
+
+.account-menu-link-note {
+  color: var(--text-faint);
+  font-size: 0.74rem;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.compute-section {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+}
+
+.compute-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.compute-goal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compute-goal-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+}
+
+.compute-goal-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.compute-goal-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.compute-goal-where {
+  color: var(--accent) !important;
+  font-family: var(--font-mono);
+  font-size: 0.74rem !important;
+  letter-spacing: 0.05em;
+}
+
+.compute-plane-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-inset));
+}
+
+.compute-plane-card.unavailable {
+  border-color: color-mix(in srgb, var(--amber) 45%, transparent);
+  background: color-mix(in srgb, var(--amber) 6%, var(--bg-inset));
+}
+
+.compute-plane-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.compute-plane-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.compute-plane-state {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.76rem !important;
+  letter-spacing: 0.04em;
+}
+
+.compute-provider-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compute-provider-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+}
+
+.compute-provider-card.posture-connected-verified {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.compute-provider-card.posture-connected-invalid {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+}
+
+.compute-provider-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compute-provider-name {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.compute-posture {
+  padding: 3px 10px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.compute-posture.posture-connected-verified {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.compute-posture.posture-connected-invalid {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.compute-posture.posture-connected-unverified {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.compute-provider-framing {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.compute-provider-facts,
+.compute-provider-credential,
+.compute-policy-note,
+.compute-usage-note {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+}
+
+.compute-provider-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.button-danger {
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button-danger:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.compute-connect-form {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--surface-border-strong);
+}
+
+.compute-connect-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: 0.84rem;
+}
+
+.compute-connect-form input,
+.compute-connect-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--surface-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.compute-notice {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+}
+
+.compute-action-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: 0.86rem;
+}
+
+.compute-quota-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compute-quota-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+}
+
+.compute-quota-id {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.compute-quota-state {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+.compute-quota-state.limited {
+  color: var(--amber);
+}
+
+.studio-compute-center-hint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.studio-compute-center-hint a {
+  color: var(--accent);
+  font-weight: 700;
+}
