@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type {
   CapabilityLike,
+  RealityKindLike,
+  RealityOptionsLike,
   RenderOutputLike,
+  SessionArtifactCatalogLike,
   StudioSessionStateLike,
   WatchModelLike,
 } from "@/lib/api-types";
@@ -12,6 +15,7 @@ import { ApiError } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
 import {
   fetchCapability,
+  fetchRealityOptions,
   fetchRenderOutput,
   fetchStudioSession,
   fetchWatchModel,
@@ -34,10 +38,17 @@ import {
 } from "@/lib/frame-display";
 import { prepareFrameForDisplay } from "@/lib/frame-svg";
 import {
-  createRealityMachine,
-  switchReality,
-  type RealityMachineState,
-} from "@/lib/reality-machine";
+  REALITY_LABELS,
+  isRealityKind,
+  realityKindOfRenderer,
+  selectedRealityOf,
+  switcherStateOf,
+  videoDescriptorOf,
+  videoSourceOf,
+  videoStatusOf,
+  watchUrlOf,
+  type VideoPlayerStatus,
+} from "@/lib/reality-catalog";
 import {
   deriveRealityOptions,
   formatTimelineMs,
@@ -50,25 +61,27 @@ import { ProviderNotices } from "@/components/provider-notices";
 import { ROUTES } from "@/lib/navigation";
 
 /**
- * THE WATCH EXPERIENCE (W905): one match, many realities.
+ * THE WATCH EXPERIENCE (W905 → R504/R505/R506): one match, many realities.
  *
  * - The MATCH SESSION is constant for the page's life; the Reality Switcher
- *   swaps only the selected renderer (client state — the pure
- *   `reality-machine`) and fetches that renderer's output for the SAME
- *   session. No navigation, no match reload (Simulation G).
- * - The primary player plays the REAL stored output frame by frame on the
- *   artifact's OWN manifest clock: play/pause, a timeline scrubber that
- *   SNAPS to the nearest real frame (frames are discrete — the player never
- *   interpolates a frame that does not exist), and event markers placed at
- *   the frames the render's own provenance says applied each real SWM
- *   event. Render outputs are animated-SVG review artifacts — honestly
- *   labeled as such, never presented as video.
- * - Availability is capability-driven + rights-aware: an option with no
- *   output for this session shows WHY (requires render / no stored output /
- *   rights / renderer unavailable) — never a fake "coming soon".
- * - Panels without real data show honest unavailable states (the
- *   deferred-surfaces posture): Camera needs live production (W915),
- *   Highlights have no real data this wave.
+ *   (R505) swaps only the selected REALITY KIND (Original/Tactical/3D/Anime)
+ *   — the selection is a PURE function of the URL's `reality` parameter and
+ *   the R503 artifact catalog's real availability, it is URL-addressable
+ *   (shareable, refresh-stable) and it never re-acquires the match.
+ * - The PRIMARY player (R504) is an HTML5 `<video>` element playing the
+ *   REAL encoded MP4 artifact of the selected reality, sourced through the
+ *   watch plane's playback-gated, integrity-verifying byte route. The
+ *   browser's own state (loading/ready/playing/paused/ended/error) is
+ *   surfaced honestly — a typed MediaError reason rides verbatim.
+ * - The SVG frame player remains as the explicitly-labeled DIAGNOSTIC
+ *   review surface for realities whose stored artifacts are animated-SVG
+ *   review segments — never the primary player for MVP output.
+ * - The compute provenance panel (R506) makes legible WHOSE compute
+ *   produced the selected reality's artifact (the connection-center
+ *   selection explanation, carried verbatim; user-choice vs auto mode),
+ *   with honest "not recorded" boundaries.
+ * - Availability follows the catalog's fail-closed rights derivation: a
+ *   denied session reveals nothing.
  */
 
 /** The watch page's tab set (ux-architecture: Renderer | Camera | Commentary | Tactics | Stats | Highlights). */
@@ -85,21 +98,28 @@ type WatchTabId = (typeof WATCH_TABS)[number]["id"];
 
 export function WatchExperience({
   sessionId,
+  initialReality,
   initialRenderer,
 }: {
   sessionId: string | null;
+  initialReality: string | null;
   initialRenderer: string | null;
 }) {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
   const [watch, setWatch] = useState<FetchState<WatchModelLike>>({ phase: "loading" });
   // The owner/operator view of this session's studio state (W908): the REAL
-  // per-renderer render-job states. A 401/403/404 is the honest boundary —
-  // a viewer who is not the owner simply has no job data (null), and the
-  // reality options fall back to their own honest derivations.
+  // per-renderer render-job states (R506: the compute provenance source). A
+  // 401/403/404 is the honest viewer boundary — a viewer who is not the
+  // owner simply has no job data (null), and the compute panel shows its
+  // honest unavailable state.
   const [studio, setStudio] = useState<StudioSessionStateLike | null>(null);
+  const [realities, setRealities] = useState<FetchState<RealityOptionsLike>>({ phase: "loading" });
   const [tab, setTab] = useState<WatchTabId>("renderer");
-  const [machine, setMachine] = useState<RealityMachineState | null>(null);
-  const [switchNotice, setSwitchNotice] = useState<string | null>(null);
+  // The URL-addressable selection state (R505): starts from the page's
+  // `reality` parameter; every switch updates it (and the URL).
+  const [userKind, setUserKind] = useState<RealityKindLike | null>(
+    isRealityKind(initialReality) ? initialReality : null,
+  );
 
   useEffect(() => {
     void fetchCapability().then(
@@ -122,10 +142,26 @@ export function WatchExperience({
     );
   }, [sessionId]);
 
+  // The Reality Switcher's acquisition (R504/R505): the per-renderer options
+  // AND the R503 reality artifact catalog for the SAME session — fetched
+  // once; every later switch is a pure client-side derivation.
+  useEffect(() => {
+    if (sessionId === null) return;
+    setRealities({ phase: "loading" });
+    void fetchRealityOptions(sessionId).then(
+      (data) => setRealities({ phase: "ready", data }),
+      (error) =>
+        setRealities({
+          phase: "failed",
+          error: String(error),
+          status: error instanceof ApiError ? error.status : undefined,
+        }),
+    );
+  }, [sessionId]);
+
   // The opportunistic studio read (owner/operator only): the session's real
-  // render-job states, used to present `processing` while a render is in
-  // flight (W908). Any refusal (401 anonymous / 403 not the owner / 404) is
-  // the honest viewer boundary — no job data, no processing claim.
+  // render-job states + their compute selections (R506). Any refusal is the
+  // honest viewer boundary — no job data, no provenance claim.
   useEffect(() => {
     if (sessionId === null) return;
     let cancelled = false;
@@ -154,12 +190,36 @@ export function WatchExperience({
     [capability, watch, studio],
   );
 
-  // The Reality Switcher's machine: created ONCE per session when the
-  // options arrive — the session is frozen into it for the page's life.
+  const catalog: SessionArtifactCatalogLike | null =
+    realities.phase === "ready" ? realities.data.artifacts : null;
+
+  // The legacy `?renderer=<id>` deep-link alias (W905): mapped onto its
+  // reality kind through the catalog's own producer data, deterministically.
+  const legacyKind = useMemo(
+    () =>
+      catalog !== null && initialRenderer !== null
+        ? realityKindOfRenderer(initialRenderer, catalog)
+        : null,
+    [catalog, initialRenderer],
+  );
+
+  // THE SELECTION (R505): a pure function of the URL state + catalog data.
+  const selection = useMemo(
+    () => (catalog === null ? null : selectedRealityOf(userKind ?? legacyKind, catalog)),
+    [catalog, userKind, legacyKind],
+  );
+
+  // Keep the visible URL addressable for the CURRENT selection (the
+  // shareable deep link; replaceState — no history spam, refresh-stable).
   useEffect(() => {
-    if (options === null || sessionId === null) return;
-    setMachine((current) => current ?? createRealityMachine(sessionId, options, initialRenderer));
-  }, [options, sessionId, initialRenderer]);
+    const kind = selection === null ? null : selection.kind;
+    if (kind === null || sessionId === null) return;
+    if (typeof window === "undefined") return;
+    const canonical = watchUrlOf(sessionId, kind);
+    if (window.location.pathname + window.location.search !== canonical) {
+      window.history.replaceState(null, "", canonical);
+    }
+  }, [selection, sessionId]);
 
   if (sessionId === null) {
     return (
@@ -170,7 +230,11 @@ export function WatchExperience({
       />
     );
   }
-  if (capability.phase === "loading" || watch.phase === "loading") {
+  if (
+    capability.phase === "loading" ||
+    watch.phase === "loading" ||
+    realities.phase === "loading"
+  ) {
     return <LoadingPanel label="Loading the match" />;
   }
   if (capability.phase === "failed") {
@@ -194,54 +258,110 @@ export function WatchExperience({
     }
     return <StatePanel state="failed" title="The match could not be read" reason={watch.error} />;
   }
+  if (realities.phase === "failed") {
+    return (
+      <StatePanel
+        state="failed"
+        title="The reality catalog could not be read"
+        reason={realities.error}
+      />
+    );
+  }
 
   const currentOptions = options ?? [];
   const verdict = watchVerdictOfOptions(currentOptions);
-  const effectiveMachine =
-    machine ?? createRealityMachine(sessionId, currentOptions, initialRenderer);
-  const selectedOption =
-    effectiveMachine.selectedRendererId === null
+  const selectedKind = selection?.kind ?? null;
+  const selectedEntry =
+    selectedKind === null || catalog === null || catalog.realities === null
+      ? null
+      : (catalog.realities.find((reality) => reality.kind === selectedKind) ?? null);
+  const selectedDescriptor = selectedEntry === null ? null : videoDescriptorOf(selectedEntry);
+  // The producing renderer's option (the diagnostics player + the Renderer
+  // tab's capability entry) — derived from the catalog's own producer data.
+  const producingOption =
+    selectedEntry === null || selectedEntry.artifacts.length === 0
       ? null
       : (currentOptions.find(
-          (option) => option.rendererId === effectiveMachine.selectedRendererId,
+          (option) =>
+            option.rendererId === selectedEntry.artifacts[0]!.producerId &&
+            option.renderId !== undefined &&
+            option.segmentId !== undefined,
         ) ?? null);
 
-  /** One reality switch: same session, new renderer (Simulation G). */
-  const onSwitch = (rendererId: string) => {
-    const transition = switchReality(effectiveMachine, currentOptions, rendererId);
-    if (transition.status === "switched") {
-      setMachine(transition.state);
-      setSwitchNotice(null);
-      return;
+  /** One reality switch (R505): same session, new selected reality. */
+  const onSwitch = (kind: RealityKindLike) => {
+    setUserKind(kind);
+    // The URL is the addressable selection state — update it in place.
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", watchUrlOf(sessionId, kind));
     }
-    setSwitchNotice(`${rendererId}: ${transition.reason}`);
   };
 
   return (
     <div className="watch-layout">
       <div className="watch-main">
         <ProviderNotices capability={capability.data} />
-        <MatchHeader watch={watch.data} verdict={verdict} />
-        {selectedOption === null ? (
+        <MatchHeader
+          watch={watch.data}
+          verdict={{
+            state:
+              selectedEntry !== null && selectedEntry.availability !== "ready"
+                ? switcherStateOf(selectedEntry.availability)
+                : verdict.state,
+            reason:
+              selectedEntry !== null && selectedEntry.availability !== "ready"
+                ? selectedEntry.reason
+                : verdict.reason,
+          }}
+        />
+        {selectedKind === null || selectedEntry === null ? (
           <StatePanel
             state={
-              verdict.state === "denied"
+              watch.data.playback.state === "denied"
                 ? "denied"
                 : verdict.state === "processing"
                   ? "processing"
                   : "unavailable"
             }
             title={
-              verdict.state === "processing"
-                ? "A render is being produced"
-                : "Nothing to play for this match"
+              watch.data.playback.state === "denied"
+                ? "Playback is denied for this match"
+                : verdict.state === "processing"
+                  ? "A render is being produced"
+                  : "Nothing to play for this match"
             }
-            reason={verdict.reason}
+            reason={
+              watch.data.playback.state === "denied"
+                ? "The session's rights deny stored playback — no reality is revealed."
+                : (selection?.reason ?? verdict.reason)
+            }
+          />
+        ) : selectedEntry.availability !== "ready" ? (
+          <StatePanel
+            state={switcherStateOf(selectedEntry.availability)}
+            title={`The ${REALITY_LABELS[selectedKind]} reality is ${
+              selectedEntry.availability === "job-in-flight"
+                ? "being produced"
+                : selectedEntry.availability === "job-failed"
+                  ? "unavailable (its job failed)"
+                  : "not available"
+            }`}
+            reason={selectedEntry.reason}
+          />
+        ) : selectedDescriptor !== null ? (
+          <VideoPlayerSection
+            sessionId={sessionId}
+            kind={selectedKind}
+            label={REALITY_LABELS[selectedKind]}
+            descriptor={selectedDescriptor}
+            realityCount={catalog?.readyRealityCount ?? null}
           />
         ) : (
-          <PlayerSection
+          <ReviewFormatSection
             sessionId={sessionId}
-            option={selectedOption}
+            kind={selectedKind}
+            entry={selectedEntry}
+            option={producingOption}
             eventTail={watch.data.eventTail}
           />
         )}
@@ -250,16 +370,17 @@ export function WatchExperience({
           onTab={setTab}
           capability={capability.data}
           watch={watch.data}
-          option={selectedOption}
+          option={producingOption}
         />
       </div>
       <aside className="watch-side">
         <RealitySwitcher
-          options={currentOptions}
-          selected={effectiveMachine.selectedRendererId}
-          notice={switchNotice}
+          catalog={catalog}
+          selected={selectedKind}
           onSelect={onSwitch}
+          sessionLabel={watch.data.label}
         />
+        <ComputeProvenanceSection kind={selectedKind} entry={selectedEntry} studio={studio} />
         <SessionFactsSection watch={watch.data} />
       </aside>
     </div>
@@ -302,7 +423,152 @@ function MatchHeader({
 }
 
 // ---------------------------------------------------------------------------
-// The primary player surface (plays the REAL stored output)
+// THE PRIMARY PLAYER (R504): the HTML5 <video> element over the real MP4
+// ---------------------------------------------------------------------------
+
+/**
+ * The primary player: an HTML5 `<video>` element playing the selected
+ * reality's REAL encoded MP4 artifact through the watch plane's
+ * integrity-verifying byte route. The player state is the BROWSER's own
+ * state (events → the pure `videoStatusOf`), surfaced honestly; the
+ * provenance facts beside it are the catalog descriptor's own numbers.
+ */
+function VideoPlayerSection({
+  sessionId,
+  kind,
+  label,
+  descriptor,
+  realityCount,
+}: {
+  sessionId: string;
+  kind: RealityKindLike;
+  label: string;
+  descriptor: NonNullable<ReturnType<typeof videoDescriptorOf>>;
+  realityCount: number | null;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [status, setStatus] = useState<VideoPlayerStatus>({
+    phase: "loading",
+    reason: "the video is being fetched",
+  });
+  const src = videoSourceOf(sessionId, kind, descriptor.artifactId);
+
+  // The browser's real state, derived on every media event (pure mapping).
+  useEffect(() => {
+    const element = videoRef.current;
+    if (element === null) return;
+    const derive = () => {
+      const error = element.error;
+      setStatus(
+        videoStatusOf({
+          networkState: element.networkState,
+          readyState: element.readyState,
+          paused: element.paused,
+          ended: element.ended,
+          error:
+            error === null
+              ? null
+              : {
+                  code: error.code,
+                  message: typeof error.message === "string" ? error.message : "",
+                },
+        }),
+      );
+    };
+    const events = [
+      "loadstart",
+      "loadedmetadata",
+      "canplay",
+      "playing",
+      "play",
+      "pause",
+      "ended",
+      "error",
+      "stalled",
+      "waiting",
+      "suspend",
+      "emptied",
+    ];
+    for (const event of events) element.addEventListener(event, derive);
+    derive();
+    return () => {
+      for (const event of events) element.removeEventListener(event, derive);
+    };
+  }, [src]);
+
+  // A new artifact (a reality switch) resets the surfaced state honestly.
+  useEffect(() => {
+    setStatus({ phase: "loading", reason: "the video is being fetched" });
+  }, [src]);
+
+  return (
+    <section className="player-surface" data-player="html5-video" data-reality={kind}>
+      <video
+        ref={videoRef}
+        className="video-stage"
+        controls
+        preload="metadata"
+        src={src}
+        aria-label={`The ${label} rendering of match session ${sessionId} — the real stored MP4 artifact`}
+      />
+      <p className="video-status" data-video-status={status.phase} role="status">
+        <StateChip
+          state={
+            status.phase === "loading" ? "loading" : status.phase === "error" ? "failed" : "ready"
+          }
+        >
+          {status.phase}
+        </StateChip>{" "}
+        {status.reason}
+      </p>
+      <dl className="session-card-facts player-frame-facts">
+        <div className="fact">
+          <dt>Reality</dt>
+          <dd>
+            {label}
+            {realityCount !== null
+              ? ` · ${realityCount} of this match’s realities hold artifacts`
+              : ""}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Artifact</dt>
+          <dd>
+            <code>{descriptor.artifactId}</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Integrity (sha-256)</dt>
+          <dd>
+            <code title={descriptor.integrityHash}>{descriptor.integrityHash.slice(0, 16)}…</code>{" "}
+            re-verified per request
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Stored bytes</dt>
+          <dd>
+            {descriptor.byteSize} B · {descriptor.contentType}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Producer</dt>
+          <dd>
+            <code>{descriptor.producerId}</code>
+          </dd>
+        </div>
+      </dl>
+      <p className="review-format-note" role="note">
+        Real MP4 playback — the primary Watch player plays the real stored encoded artifact of the
+        selected reality through the playback-gated byte route (the store re-reads and sha-256
+        verifies the bytes on every request; a mismatch refuses to serve). The frame-by-frame SVG
+        review renderers remain available as diagnostics on the realities that store them.
+      </p>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The review-format boundary (SVG artifacts — the diagnostic player)
 // ---------------------------------------------------------------------------
 
 type OutputState =
@@ -313,9 +579,67 @@ type OutputState =
   | { phase: "failed"; error: string };
 
 /**
- * The primary player: acquires the selected reality's stored output through
- * the playback gate, then plays it frame by frame on the artifact's own
- * manifest clock.
+ * The REVIEW FORMAT surface (R504's named boundary): a reality whose stored
+ * artifacts are animated-SVG review segments gets an HONEST "not video"
+ * panel plus the frame-by-frame DIAGNOSTIC player (the W905 frame player,
+ * explicitly labeled — never presented as the MVP video output).
+ */
+function ReviewFormatSection({
+  sessionId,
+  kind,
+  entry,
+  option,
+  eventTail,
+}: {
+  sessionId: string;
+  kind: RealityKindLike;
+  entry: { availability: string; reason: string; artifacts: { contentType: string }[] };
+  option: RealityOption | null;
+  eventTail: WatchModelLike["eventTail"];
+}) {
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  return (
+    <section className="player-surface" data-player="review-format" data-reality={kind}>
+      <StatePanel
+        state="unavailable"
+        title={`The ${REALITY_LABELS[kind]} reality stores a review-format artifact, not video`}
+        reason={`This reality's stored artifact is ${
+          entry.artifacts[0]?.contentType ?? "a review segment"
+        } — the renderer emitted a review format for it. It is never presented as video: the diagnostic frame player below renders it frame by frame on its own manifest clock. ${entry.reason}`}
+      />
+      {option === null ? (
+        <p className="section-lede">
+          The stored review segment has no frame-manifest player to drive this wave.
+        </p>
+      ) : (
+        <div className="diagnostics-disclosure">
+          <button
+            type="button"
+            className="button-ghost"
+            aria-expanded={showDiagnostics}
+            onClick={() => setShowDiagnostics((current) => !current)}
+          >
+            {showDiagnostics ? "Hide" : "Show"} diagnostics — the frame-by-frame review player
+          </button>
+          {showDiagnostics && (
+            <div className="diagnostics-body">
+              <p className="review-format-note" role="note">
+                DIAGNOSTICS (not the MVP video output): the W504 review segment displayed frame by
+                frame — the deterministic encoder&rsquo;s own SVG document on its manifest clock.
+              </p>
+              <PlayerSection sessionId={sessionId} option={option} eventTail={eventTail} />
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The diagnostic frame player (W905): acquires the selected reality's stored
+ * review output through the playback gate, then plays it frame by frame on
+ * the artifact's own manifest clock.
  */
 function PlayerSection({
   sessionId,
@@ -329,8 +653,6 @@ function PlayerSection({
   const [output, setOutput] = useState<OutputState>({ phase: "loading" });
   const [player, setPlayer] = useState<FramePlayerState | null>(null);
 
-  // The Simulation G fetch: the SAME session, the newly-selected renderer's
-  // output — the only I/O a switch performs (the page never reloads).
   useEffect(() => {
     if (option.renderId === undefined || option.segmentId === undefined) {
       setOutput({ phase: "nothing", reason: option.reason });
@@ -365,7 +687,6 @@ function PlayerSection({
     [output],
   );
 
-  // A new artifact (or a new reality) resets the transport to its first frame.
   useEffect(() => {
     setPlayer(model === null ? null : initialFramePlayer(model));
   }, [model]);
@@ -380,8 +701,6 @@ function PlayerSection({
   const profile = useMemo(() => (model === null ? null : deriveFrameRateProfile(model)), [model]);
   const playing = player?.playing ?? false;
 
-  // The play loop: real elapsed time advances the playhead on the
-  // manifest's document timeline (scaled by the explicit display rate).
   useEffect(() => {
     if (player === null || model === null || !playing) return;
     let frame = 0;
@@ -400,46 +719,32 @@ function PlayerSection({
 
   if (output.phase === "loading") {
     return (
-      <section className="player-surface" aria-busy="true">
-        <LoadingPanel label={`Fetching the ${option.rendererId} output`} />
-      </section>
+      <div aria-busy="true">
+        <LoadingPanel label={`Fetching the ${option.rendererId} review output`} />
+      </div>
     );
   }
   if (output.phase === "denied") {
-    return (
-      <section className="player-surface">
-        <StatePanel state="denied" title="Playback denied" reason={output.reason} />
-      </section>
-    );
+    return <StatePanel state="denied" title="Playback denied" reason={output.reason} />;
   }
   if (output.phase === "nothing") {
     return (
-      <section className="player-surface">
-        <StatePanel
-          state={option.state === "processing" ? "processing" : "unavailable"}
-          title={
-            option.state === "processing"
-              ? `The ${option.rendererId} reality is being rendered`
-              : `The ${option.rendererId} reality has no output`
-          }
-          reason={output.reason}
-        />
-      </section>
+      <StatePanel
+        state={option.state === "processing" ? "processing" : "unavailable"}
+        title={
+          option.state === "processing"
+            ? `The ${option.rendererId} reality is being rendered`
+            : `The ${option.rendererId} reality has no output`
+        }
+        reason={output.reason}
+      />
     );
   }
   if (output.phase === "failed") {
-    return (
-      <section className="player-surface">
-        <StatePanel state="failed" title="The output could not be read" reason={output.error} />
-      </section>
-    );
+    return <StatePanel state="failed" title="The output could not be read" reason={output.error} />;
   }
   if (model === null || player === null) {
-    return (
-      <section className="player-surface" aria-busy="true">
-        <LoadingPanel label="Preparing the player" />
-      </section>
-    );
+    return <LoadingPanel label="Preparing the player" />;
   }
 
   return (
@@ -478,8 +783,6 @@ function FramePlayerView({
     output.manifest.sourceManifest.frames.find((frame) => frame.frameIndex === frameIndex) ?? null;
   const totalFrames = model.windows.length;
 
-  // The display document: the REAL stored artifact with the selected frame's
-  // group shown (the transform is pure + fail-closed — see frame-svg.ts).
   const prepared = useMemo(() => {
     if (frameIndex < 0) {
       return { ok: false as const, error: "this artifact carries no frames" };
@@ -492,13 +795,10 @@ function FramePlayerView({
   }, [output.content, frameIndex]);
 
   return (
-    <section className="player-surface" data-renderer={rendererId}>
+    <div className="player-surface diagnostics-player" data-renderer={rendererId}>
       {prepared.ok ? (
         <div
           className="player-stage"
-          // The stored output is the deterministic W504 encoder's own SVG
-          // (no scripts, no external resources — verified per frame by the
-          // fail-closed prepare step above).
           role="img"
           aria-label={`The ${rendererId} rendering of match session ${output.sessionId}, frame ${frameIndex + 1} of ${totalFrames}`}
           dangerouslySetInnerHTML={{ __html: prepared.svg }}
@@ -555,7 +855,8 @@ function FramePlayerView({
         <p className="review-format-note" role="note">
           Rendered output — review format: this is the real stored artifact (a self-contained
           animated-SVG segment), displayed frame by frame on its own manifest clock. Sporta&rsquo;s
-          renderers emit SVG review outputs this wave; there is no video codec to fake here.
+          renderers emit SVG review outputs for this reality; this is the diagnostic surface, not
+          the primary video player.
         </p>
       </div>
 
@@ -692,7 +993,7 @@ function FramePlayerView({
       </div>
 
       <ProvenancePanel output={output} profile={profile} />
-    </section>
+    </div>
   );
 }
 
@@ -756,6 +1057,214 @@ function ProvenancePanel({
           </dd>
         </div>
       </dl>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// THE REALITY SWITCHER (R505 — the catalog-driven four-reality selection)
+// ---------------------------------------------------------------------------
+
+function RealitySwitcher({
+  catalog,
+  selected,
+  onSelect,
+  sessionLabel,
+}: {
+  catalog: SessionArtifactCatalogLike | null;
+  selected: RealityKindLike | null;
+  onSelect: (kind: RealityKindLike) => void;
+  sessionLabel: string;
+}) {
+  if (catalog === null || catalog.realities === null) {
+    return (
+      <section className="reality-switcher" aria-label="Reality Switcher">
+        <h2 className="section-title">Reality Switcher</h2>
+        <p className="section-lede">
+          This session&rsquo;s rights deny stored playback — its realities are not revealed.
+        </p>
+      </section>
+    );
+  }
+  return (
+    <section className="reality-switcher" aria-label="Reality Switcher">
+      <h2 className="section-title">Reality Switcher</h2>
+      <p className="section-lede">
+        Same match, different realities. Switching stays on this page — the match session{" "}
+        <code>{sessionLabel}</code> never reloads, and the selection lives in the link (shareable,
+        refresh-stable).
+      </p>
+      <ul className="switcher-options">
+        {catalog.realities.map((reality) => {
+          const isSelected = reality.kind === selected;
+          const state = switcherStateOf(reality.availability);
+          return (
+            <li key={reality.kind}>
+              <button
+                type="button"
+                className={`switcher-option ${isSelected ? "selected" : ""} state-${state}`}
+                aria-pressed={isSelected}
+                onClick={() => onSelect(reality.kind)}
+              >
+                <span className="switcher-name">{REALITY_LABELS[reality.kind]}</span>
+                <span className={`switcher-state state-${state}`}>
+                  {reality.availability}
+                  {reality.availability === "ready" && reality.artifacts.length > 0
+                    ? ` · ${reality.artifacts.length} artifact${
+                        reality.artifacts.length === 1 ? "" : "s"
+                      }`
+                    : ""}
+                </span>
+                <span className="switcher-reason">{reality.reason}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// THE COMPUTE PROVENANCE PANEL (R506 — whose compute produced this reality)
+// ---------------------------------------------------------------------------
+
+/**
+ * The compute provenance (R506): is THIS reality's artifact on Sporta
+ * compute or the user's connected compute? The answer is the
+ * connection-center's own data — the selection explanation carried VERBATIM
+ * from the dispatch (user-choice vs auto mode visible), with honest
+ * "not recorded" boundaries for renders whose dispatch carried no directive
+ * (e.g. the dev seed) and the honest viewer boundary for non-owners.
+ */
+function ComputeProvenanceSection({
+  kind,
+  entry,
+  studio,
+}: {
+  kind: RealityKindLike | null;
+  entry: { artifacts: { producerId: string }[] } | null;
+  studio: StudioSessionStateLike | null;
+}) {
+  if (kind === null) {
+    return null;
+  }
+  // The original reality: the normalization pipeline (this deployment's own
+  // process — the in-process media executor; no user compute involved).
+  if (kind === "original") {
+    return (
+      <section className="stats-section" aria-label="Compute provenance">
+        <h2 className="section-title">Compute</h2>
+        <dl className="session-card-facts">
+          <div className="fact">
+            <dt>Whose compute</dt>
+            <dd>
+              <StateChip state="ready">sporta-managed</StateChip>
+            </dd>
+          </div>
+          <div className="fact">
+            <dt>How this reality is produced</dt>
+            <dd>
+              The original reality&rsquo;s artifact is produced by the normalization pipeline on
+              this deployment&rsquo;s own process — no user compute selection is involved.
+            </dd>
+          </div>
+        </dl>
+        <p className="section-lede">
+          Rendered realities carry their own provenance: select one to see whose compute executed
+          its render, with the selection explanation the connection center recorded.
+        </p>
+      </section>
+    );
+  }
+  const producerId = entry?.artifacts[0]?.producerId ?? null;
+  if (producerId === null) {
+    return (
+      <section className="stats-section" aria-label="Compute provenance">
+        <h2 className="section-title">Compute</h2>
+        <p className="section-lede">
+          No artifact exists for the {REALITY_LABELS[kind]} reality yet — there is no render whose
+          compute provenance could be shown.
+        </p>
+      </section>
+    );
+  }
+  // The producing render's dispatch record (owner/operator view only).
+  const job = studio?.jobs.find((row) => row.rendererId === producerId) ?? null;
+  return (
+    <section className="stats-section" aria-label="Compute provenance">
+      <h2 className="section-title">Compute</h2>
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Whose compute</dt>
+          <dd>
+            {job?.selection !== undefined && job.selection !== null ? (
+              <>
+                <StateChip state={job.selection.mode === "user-explicit" ? "ready" : "degraded"}>
+                  {job.selection.mode === "user-explicit"
+                    ? `your choice · ${job.selection.providerId}`
+                    : `sporta chose · ${job.selection.providerId}`}
+                </StateChip>{" "}
+                <span className="marker-meta">
+                  {job.selection.mode === "user-explicit"
+                    ? "you explicitly selected this provider"
+                    : "the selection director chose automatically"}
+                </span>
+              </>
+            ) : job !== null ? (
+              <StateChip state="unavailable">not recorded</StateChip>
+            ) : (
+              <StateChip state="unavailable">not visible</StateChip>
+            )}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Producer</dt>
+          <dd>
+            <code>{producerId}</code>
+            {job !== null ? (
+              <>
+                {" "}
+                · job <code>{job.jobId}</code> ({job.state})
+              </>
+            ) : null}
+          </dd>
+        </div>
+      </dl>
+      {job?.selection !== undefined && job.selection !== null ? (
+        <div>
+          <p className="section-lede">The auditable selection (carried verbatim):</p>
+          <p className="field-hint">{job.selection.explanation.selectionReason}</p>
+          <ul className="marker-list">
+            {job.selection.explanation.considered.map((considered) => (
+              <li key={considered.providerId}>
+                <span className="marker-phrase">
+                  <code>{considered.providerId}</code>
+                  {considered.providerId === job.selection!.providerId ? " · selected" : ""}
+                </span>
+                <span className="marker-meta">
+                  {considered.quote !== undefined
+                    ? `estimated cost ${
+                        considered.quote.estimatedCostUsd === null ||
+                        considered.quote.estimatedCostUsd === undefined
+                          ? "not measured"
+                          : `$${considered.quote.estimatedCostUsd}`
+                      }`
+                    : (considered.brokerRefusal?.message ??
+                      considered.preferenceExclusion?.message ??
+                      "considered")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="section-lede">
+          {job !== null
+            ? "This render's dispatch carried no compute directive — the provider selection was not recorded (nothing is invented to fill it)."
+            : "The dispatch record is visible to the session's owner only — a viewer cannot see whose compute rendered this."}
+        </p>
+      )}
     </section>
   );
 }
@@ -828,7 +1337,10 @@ function RendererPanel({
     <div>
       <h2 className="section-title">Renderer</h2>
       {renderer === null ? (
-        <p className="section-lede">No renderer is selected for this match.</p>
+        <p className="section-lede">
+          No renderer is selected for this match (the selected reality&rsquo;s producer is not a
+          registered renderer capability, or the reality holds no artifact).
+        </p>
       ) : (
         <dl className="session-card-facts">
           <div className="fact">
@@ -872,9 +1384,10 @@ function RendererPanel({
         </dl>
       )}
       <p className="section-lede">
-        Renderer-specific controls stay scoped to the selected renderer: the player&rsquo;s
-        display-cadence choices apply only while this reality&rsquo;s artifact is showing, and a
-        renderer whose output carries no frame manifest gets no cadence control at all.
+        Renderer-specific controls stay scoped to the selected reality&rsquo;s producing renderer:
+        the diagnostic player&rsquo;s display-cadence choices apply only while that reality&rsquo;s
+        review artifact is showing, and a renderer whose output carries no frame manifest gets no
+        cadence control at all.
       </p>
     </div>
   );
@@ -887,7 +1400,7 @@ function CameraPanel() {
       <StatePanel
         state="unavailable"
         title="Camera control is not available for stored renders"
-        reason="Camera direction is a live-production capability (real network live transport — W915). A stored review render carries one fixed view per frame — exactly the frame the player shows; there is no camera data to fake here."
+        reason="Camera direction is a live-production capability (real network live transport — W915). A stored render carries one fixed view per frame — exactly the frame the player shows; there is no camera data to fake here."
       />
     </div>
   );
@@ -958,8 +1471,8 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
     <div>
       <h2 className="section-title">Tactics — per-render provenance</h2>
       <p className="section-lede">
-        Position data lives in each stored artifact&rsquo;s manifest (the player&rsquo;s Provenance
-        panel links the same numbers).{" "}
+        Position data lives in each stored artifact&rsquo;s manifest (the diagnostics player&rsquo;s
+        Provenance panel links the same numbers).{" "}
         {option !== null ? `Currently showing the ${option.rendererId} reality.` : ""}
       </p>
       <ol className="marker-list">
@@ -978,8 +1491,9 @@ function TacticsPanel({ watch, option }: { watch: WatchModelLike; option: Realit
         ))}
       </ol>
       <p className="section-lede">
-        The live per-frame entity table renders beside the player for any frame you seek — every row
-        is the manifest&rsquo;s own accounting (kind, disposition, position, confidence).
+        The live per-frame entity table renders beside the diagnostics player for any frame you seek
+        — every row is the manifest&rsquo;s own accounting (kind, disposition, position,
+        confidence).
       </p>
     </div>
   );
@@ -1075,57 +1589,6 @@ function HighlightsPanel({ watch }: { watch: WatchModelLike }) {
         ))}
       </ol>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// THE REALITY SWITCHER (Simulation G — the session stays constant)
-// ---------------------------------------------------------------------------
-
-function RealitySwitcher({
-  options,
-  selected,
-  notice,
-  onSelect,
-}: {
-  options: ReturnType<typeof deriveRealityOptions>;
-  selected: string | null;
-  notice: string | null;
-  onSelect: (rendererId: string) => void;
-}) {
-  return (
-    <section className="reality-switcher" aria-label="Reality Switcher">
-      <h2 className="section-title">Reality Switcher</h2>
-      <p className="section-lede">
-        Same match, different realities. Switching stays on this page — the match session never
-        reloads.
-      </p>
-      <ul className="switcher-options">
-        {options.map((option) => {
-          const isSelected = option.rendererId === selected;
-          return (
-            <li key={option.rendererId}>
-              <button
-                type="button"
-                className={`switcher-option ${isSelected ? "selected" : ""} state-${option.state}`}
-                aria-pressed={isSelected}
-                disabled={option.state !== "ready"}
-                onClick={() => onSelect(option.rendererId)}
-              >
-                <span className="switcher-name">{option.rendererId}</span>
-                <span className={`switcher-state state-${option.state}`}>{option.state}</span>
-                <span className="switcher-reason">{option.reason}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      {notice !== null && (
-        <p className="switcher-notice" role="status">
-          {notice}
-        </p>
-      )}
-    </section>
   );
 }
 

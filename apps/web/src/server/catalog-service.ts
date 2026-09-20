@@ -694,6 +694,68 @@ export async function buildArtifactCatalog(
   };
 }
 
+// ---------------------------------------------------------------------------
+// The watch-plane artifact resolution (R504 — the player's data contract)
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the session's artifact catalog through the WATCH gate's posture
+ * (R504): the SAME fail-closed rights derivation and the SAME per-reality
+ * entry builders as {@link buildArtifactCatalog}, but WITHOUT the catalog's
+ * requester-scoped DISCOVERABILITY gate — the caller has already passed
+ * `assertWatchable` (the watch surface's own content-model rule: public and
+ * unlisted sessions play for everyone who holds the link; a private or
+ * role-scoped session plays for its entitled callers only).
+ *
+ * This is the acquisition document the Watch player's reality switcher and
+ * HTML5 video source resolution consume: the four reality entries with
+ * their REAL artifact descriptors (id, kind, manifest link, integrity
+ * hash) and honest availability states.
+ */
+export async function buildWatchArtifactCatalog(
+  server: SportaServer,
+  sessionId: string,
+): Promise<SessionArtifactCatalog> {
+  const { sessions } = await server.control.listSessions();
+  const summary = sessions.find((entry) => entry.id === sessionId);
+  const label = summary?.sourceLabel ?? sessionId;
+  const { session, rightsCapabilities } = await server.control.getSession(sessionId);
+  const authorized = rightsCapabilities.canStoreDerivatives === true;
+  if (!authorized) {
+    // The W916 posture, unchanged: a playback-denied session reveals
+    // NOTHING about its realities or artifacts.
+    return {
+      sessionId,
+      label,
+      status: session.status,
+      createdAtIso: session.createdAtIso,
+      playback: { state: "denied", reasonCode: "rights-denied" },
+      realities: null,
+      readyRealityCount: null,
+    };
+  }
+  const entries: RealityArtifactEntry[] = [];
+  for (const kind of CATALOG_REALITY_KINDS) {
+    entries.push(await realityArtifactEntryOf(server, sessionId, kind));
+  }
+  return {
+    sessionId,
+    label,
+    status: session.status,
+    createdAtIso: session.createdAtIso,
+    playback: { state: "authorized", reasonCode: "ok" },
+    realities: entries,
+    readyRealityCount: entries.filter((entry) => entry.availability === "ready").length,
+  };
+}
+
+/** A valid reality kind of the frozen catalog vocabulary (the route guard). */
+export function isCatalogRealityKind(
+  value: string,
+): value is (typeof CATALOG_REALITY_KINDS)[number] {
+  return (CATALOG_REALITY_KINDS as readonly string[]).includes(value);
+}
+
 /** One reality's entry, derived from the real stores (never invented). */
 async function realityArtifactEntryOf(
   server: SportaServer,

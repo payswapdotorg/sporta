@@ -30,6 +30,7 @@ import type {
   SessionCardLike,
   StudioComputeDirectiveLike,
   StudioComputeSelectionLike,
+  StudioComputeStatusLike,
   StudioDispatchLike,
   StudioJobLike,
   StudioOptionsLike,
@@ -286,6 +287,16 @@ export function computeSelectionPreview(input: {
   directive: StudioComputeDirectiveLike;
 }): Promise<StudioComputeSelectionLike> {
   return postJson<StudioComputeSelectionLike>("/api/create/compute-preview", input);
+}
+
+/**
+ * GET /api/create/compute-status — the caller's compute/cost document
+ * (R506): whose compute plane this deployment renders on, the caller's
+ * daily allowance states, and the metered usage totals where available
+ * (null = not measured — never a fabricated number).
+ */
+export function fetchComputeStatus(): Promise<StudioComputeStatusLike> {
+  return getJson<StudioComputeStatusLike>("/api/create/compute-status");
 }
 
 /** GET /api/media/jobs/[jobId] — the media pipeline's honest job view. */

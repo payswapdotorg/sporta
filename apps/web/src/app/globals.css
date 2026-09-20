@@ -1472,6 +1472,54 @@ svg {
   max-width: 60ch;
 }
 
+/* R504 — the primary HTML5 video player */
+
+.video-stage {
+  display: block;
+  width: 100%;
+  max-height: 64vh;
+  background: #000;
+  border-radius: var(--radius-md);
+}
+
+.video-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+/* R504 — the diagnostics disclosure (the SVG review-format fallback) */
+
+.diagnostics-disclosure {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.diagnostics-body {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.diagnostics-player {
+  background: var(--bg);
+}
+
+/* R505 — the switcher's processing/failed availability states */
+
+.switcher-state.state-processing {
+  color: var(--amber);
+}
+
+.switcher-state.state-failed {
+  color: var(--danger);
+}
+
 /* Timeline + markers */
 
 .timeline-section {
