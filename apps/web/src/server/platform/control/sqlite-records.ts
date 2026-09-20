@@ -185,10 +185,7 @@ export class SqliteControlPlaneRecordStore implements ControlPlaneRecordStore {
   readonly #nowMs: () => number;
   #closed = false;
 
-  constructor(
-    dbOrPath: Database | string,
-    nowMs: () => number = Date.now,
-  ) {
+  constructor(dbOrPath: Database | string, nowMs: () => number = Date.now) {
     // `bun:sqlite` resolves to the W911 shim under the bundled Node runtime;
     // constructing it there fails loudly with the shim's message (the
     // composition catches that specific refusal and falls back honestly).

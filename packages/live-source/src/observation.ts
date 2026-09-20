@@ -188,9 +188,7 @@ export function parseLiveObservation(document: unknown): LiveObservation {
   const parsed = LiveObservation.safeParse(document);
   if (!parsed.success) {
     throw new LiveObservationValidationError(
-      parsed.error.issues
-        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-        .join("; "),
+      parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; "),
     );
   }
   return parsed.data;

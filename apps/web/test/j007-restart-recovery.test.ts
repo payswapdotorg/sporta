@@ -244,10 +244,7 @@ describe("J007 — the local durable control plane survives a restart", () => {
 
     // The output BYTES serve from the durable storage (the playback read).
     const output = await outputRoute(
-      withCookie(
-        creatorToken,
-        `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`,
-      ),
+      withCookie(creatorToken, `/api/watch/${sessionId}/renders/${renderId}/outputs/${segmentId}`),
       { params: Promise.resolve({ sessionId, renderId, segmentId }) },
     );
     expect(output.status).toBe(200);
@@ -315,9 +312,8 @@ describe("J007 — the local durable control plane survives a restart", () => {
 
   test("the health surface reports the sqlite control plane honestly (a live read)", async () => {
     installSportaServerForTests(serverC);
-    const { platformSnapshot, controlPlaneOverrideOf } = await import(
-      "../src/server/platform-health"
-    );
+    const { platformSnapshot, controlPlaneOverrideOf } =
+      await import("../src/server/platform-health");
     const snapshot = await platformSnapshot(controlPlaneOverrideOf(serverC));
     const controlPlane = (
       snapshot.providers as Record<

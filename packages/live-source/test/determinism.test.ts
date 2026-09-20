@@ -65,10 +65,12 @@ describe("L002 deterministic replay — byte-identical per scenario", () => {
     expect(head.length).toBe(17);
     // The REPLAY: a fresh source over the same config reproduces the whole
     // sequence — including the 17 already-consumed observations.
-    const full = drainSource(createDeterministicLiveSource({
-      ...BASE,
-      scenario: "out-of-order",
-    }));
+    const full = drainSource(
+      createDeterministicLiveSource({
+        ...BASE,
+        scenario: "out-of-order",
+      }),
+    );
     expect(full.length).toBeGreaterThan(17);
     expect(JSON.stringify(full.slice(0, 17))).toBe(JSON.stringify(head));
   });

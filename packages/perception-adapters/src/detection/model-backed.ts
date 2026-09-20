@@ -179,8 +179,7 @@ export class ModelBackedDetector implements PlayerDetectionAdapter {
     // — a TypeError in `join`); `import.meta.url` is portable ESM. The
     // resolved directory is IDENTICAL under real Bun.
     this.weightsPath = resolveWeightsPath(
-      options.weightsDir ??
-        join(dirnameOfModule(), "..", "..", "assets"),
+      options.weightsDir ?? join(dirnameOfModule(), "..", "..", "assets"),
     );
     this.weightsStatus = this.weightsPath === undefined ? "not-downloaded" : "downloaded";
     this.backend = options.backend;

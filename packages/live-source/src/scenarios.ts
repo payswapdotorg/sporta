@@ -131,7 +131,9 @@ export function validateScenario(
     case "drop": {
       const dropRate = config.dropRate ?? LIVE_SCENARIO_DEFAULTS.dropRate;
       if (!(dropRate > 0) || dropRate > 0.5) {
-        issues.push(`dropRate (${dropRate}) must be in (0, 0.5] — drops are bounded honesty, never a flood`);
+        issues.push(
+          `dropRate (${dropRate}) must be in (0, 0.5] — drops are bounded honesty, never a flood`,
+        );
       }
       break;
     }
@@ -139,7 +141,9 @@ export function validateScenario(
       const swapRate = config.swapRate ?? LIVE_SCENARIO_DEFAULTS.swapRate;
       const penalty = config.reorderPenaltyMs ?? LIVE_SCENARIO_DEFAULTS.reorderPenaltyMs;
       if (!(swapRate > 0) || swapRate > 0.5) {
-        issues.push(`swapRate (${swapRate}) must be in (0, 0.5] — bounded reorder-window stress, never a shuffle`);
+        issues.push(
+          `swapRate (${swapRate}) must be in (0, 0.5] — bounded reorder-window stress, never a shuffle`,
+        );
       }
       if (!(penalty > 0)) issues.push(`reorderPenaltyMs (${penalty}) must be > 0`);
       break;
@@ -262,8 +266,7 @@ export function buildDeliveryPlan(input: {
     }
     case "out-of-order": {
       const swapRate = scenario.swapRate ?? LIVE_SCENARIO_DEFAULTS.swapRate;
-      const penalty =
-        scenario.reorderPenaltyMs ?? LIVE_SCENARIO_DEFAULTS.reorderPenaltyMs;
+      const penalty = scenario.reorderPenaltyMs ?? LIVE_SCENARIO_DEFAULTS.reorderPenaltyMs;
       let tick = 0;
       while (tick < tickCount) {
         const next = tick + 1;
@@ -298,9 +301,7 @@ export function buildDeliveryPlan(input: {
         emissions.push({
           tick,
           ingestOffsetMs: baseLatencyMs,
-          ...(firstAfter
-            ? { recovery: { fromTick, toTick } }
-            : {}),
+          ...(firstAfter ? { recovery: { fromTick, toTick } } : {}),
         });
       }
       const degradedFrom = toTick + 1;

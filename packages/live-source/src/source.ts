@@ -90,9 +90,7 @@ export class LiveSourceValidationError extends Error {
 const DEFAULT_TICK_COUNT = 600;
 const DEFAULT_RATE_MS = 100;
 
-function resolveScenario(
-  scenario: LiveScenarioKind | LiveScenarioConfig,
-): LiveScenarioConfig {
+function resolveScenario(scenario: LiveScenarioKind | LiveScenarioConfig): LiveScenarioConfig {
   if (typeof scenario === "string") {
     if (!(LIVE_SCENARIO_KINDS as readonly string[]).includes(scenario)) {
       throw new LiveSourceValidationError([
@@ -218,7 +216,15 @@ export class DeterministicLiveSource implements LiveSourcePort {
   private readonly config: Required<
     Pick<
       DeterministicLiveSourceConfig,
-      "sessionId" | "sourceId" | "seed" | "tickCount" | "rateMs" | "startEventTimeMs" | "playersPerTeam" | "referees" | "baseLatencyMs"
+      | "sessionId"
+      | "sourceId"
+      | "seed"
+      | "tickCount"
+      | "rateMs"
+      | "startEventTimeMs"
+      | "playersPerTeam"
+      | "referees"
+      | "baseLatencyMs"
     >
   > & { scenario: LiveScenarioConfig };
   private readonly roster: readonly ScriptedEntity[];
@@ -254,7 +260,10 @@ export class DeterministicLiveSource implements LiveSourcePort {
     if (config.sessionId.length === 0 || config.sessionId.length > 128) {
       issues.push("sessionId must be 1..128 characters");
     }
-    if (config.sourceId !== undefined && (config.sourceId.length === 0 || config.sourceId.length > 128)) {
+    if (
+      config.sourceId !== undefined &&
+      (config.sourceId.length === 0 || config.sourceId.length > 128)
+    ) {
       issues.push("sourceId must be 1..128 characters");
     }
     if (!Number.isSafeInteger(config.seed)) {
@@ -457,7 +466,9 @@ export class DeterministicLiveSource implements LiveSourcePort {
     const firstIngestTimeMs = this.statsState.firstPulledIngestMs;
     const lastIngestTimeMs = this.statsState.lastPulledIngestMs;
     const spanMs =
-      firstIngestTimeMs !== null && lastIngestTimeMs !== null && lastIngestTimeMs > firstIngestTimeMs
+      firstIngestTimeMs !== null &&
+      lastIngestTimeMs !== null &&
+      lastIngestTimeMs > firstIngestTimeMs
         ? lastIngestTimeMs - firstIngestTimeMs
         : null;
     return {

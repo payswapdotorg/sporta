@@ -44,7 +44,14 @@ export function controlPlaneOverrideOf(server: {
     listSessions(): Promise<unknown[]>;
     providerName?: unknown;
   } | null;
-}): { controlPlane: { provider: "neon" | "sqlite" | "in-memory"; check: () => Promise<ProviderCheck> } } | undefined {
+}):
+  | {
+      controlPlane: {
+        provider: "neon" | "sqlite" | "in-memory";
+        check: () => Promise<ProviderCheck>;
+      };
+    }
+  | undefined {
   if (server.durable === null || server.controlRecords === null) return undefined;
   const provider = server.durable.provider;
   const records = server.controlRecords;

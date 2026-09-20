@@ -12,7 +12,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SqliteControlPlaneRecordStore } from "../../src/server/platform/control/sqlite-records";
-import type { ControlRenderRecord, ControlSessionRecord } from "../../src/server/platform/control/records";
+import type {
+  ControlRenderRecord,
+  ControlSessionRecord,
+} from "../../src/server/platform/control/records";
 
 let scratch = "";
 let dbPath = "";
@@ -105,22 +108,21 @@ describe("SqliteControlPlaneRecordStore (J007 — the port semantics, local engi
     expect(record!.publishedAtMs).toBe(3_000);
     // The fail-closed scope-less role record degrades to private.
     await writer.setVisibility(SESSION.sessionId, { kind: "role-scoped", roles: [] });
-    expect(
-      (await reader.findSession(SESSION.sessionId))!.visibility.kind,
-    ).toBe("private");
+    expect((await reader.findSession(SESSION.sessionId))!.visibility.kind).toBe("private");
     // An unknown session's flip is a typed refusal, never a silent no-op.
-    await expect(writer.setVisibility("sess-u-never-recorded", { kind: "public", roles: [] })).rejects.toThrow(
-      /unknown session/,
-    );
+    await expect(
+      writer.setVisibility("sess-u-never-recorded", { kind: "public", roles: [] }),
+    ).rejects.toThrow(/unknown session/);
   });
 
   test("a corrupted row fails CLOSED on read (never partial data served)", async () => {
     // Corrupt the stored rights declaration directly in the file.
     const { Database } = await import("bun:sqlite");
     const raw = new Database(dbPath);
-    raw.run("UPDATE sporta_control_sessions SET rights_declaration = 'not-json{' WHERE session_id = ?", [
-      SESSION.sessionId,
-    ]);
+    raw.run(
+      "UPDATE sporta_control_sessions SET rights_declaration = 'not-json{' WHERE session_id = ?",
+      [SESSION.sessionId],
+    );
     raw.close();
     const reader = new SqliteControlPlaneRecordStore(dbPath, () => 5_000);
     await expect(reader.findSession(SESSION.sessionId)).rejects.toThrow(/not valid JSON/);

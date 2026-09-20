@@ -32,10 +32,7 @@
  * gate precedent): the caller's token resolves the account; the center
  * keys every record, audit entry and runtime binding by that account id.
  */
-import {
-  ConnectionCenter,
-  isMasterPasswordRefusalError,
-} from "@sporta/connection-center";
+import { ConnectionCenter, isMasterPasswordRefusalError } from "@sporta/connection-center";
 import type {
   ConnectionRecord,
   ConnectionStatusReport,
@@ -173,7 +170,10 @@ const SELECTION_GOALS: readonly ComputeSelectionGoal[] = [
 export class ComputeCenterService {
   private readonly getServer: () => SportaServer;
   private readonly center: ConnectionCenter;
-  private readonly executionZones: ReadonlyMap<string, ComputeCenterProviderStatus["executionZone"]>;
+  private readonly executionZones: ReadonlyMap<
+    string,
+    ComputeCenterProviderStatus["executionZone"]
+  >;
 
   constructor(options: ComputeCenterServiceOptions) {
     this.getServer = options.getServer;
@@ -192,7 +192,10 @@ export class ComputeCenterService {
   }
 
   /** The goal-oriented zone framing for one provider (jargon-free). */
-  private framingOf(providerId: string, zone: ComputeCenterProviderStatus["executionZone"]): string {
+  private framingOf(
+    providerId: string,
+    zone: ComputeCenterProviderStatus["executionZone"],
+  ): string {
     switch (zone) {
       case "user-controlled":
         return "Runs on hardware you control — your own machine, your own rules.";

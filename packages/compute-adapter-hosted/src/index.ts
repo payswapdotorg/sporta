@@ -48,10 +48,7 @@ export type {
 } from "./envelope";
 export { executeRenderJob } from "./executor";
 export type { RenderJobExecutorDeps } from "./executor";
-export {
-  createDerivedRealityRenderer,
-  DERIVED_REALITY_RENDERERS,
-} from "./derived";
+export { createDerivedRealityRenderer, DERIVED_REALITY_RENDERERS } from "./derived";
 export type {
   DerivedRealityBridge,
   DerivedRealityRenderOutput,

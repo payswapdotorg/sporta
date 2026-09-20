@@ -205,8 +205,14 @@ function positionOf(
   const vx = p.ax * p.wx * Math.cos(p.wx * tSeconds + p.px);
   const vy = p.ay * p.wy * Math.cos(p.wy * tSeconds + p.py);
   const vz = p.az > 0 ? p.az * p.wz * Math.cos(p.wz * tSeconds + p.pz) : 0;
-  const clampX = Math.min(PITCH_LENGTH_AXIS_METERS - FRAME_MARGIN_METERS, Math.max(FRAME_MARGIN_METERS, x));
-  const clampY = Math.min(PITCH_WIDTH_AXIS_METERS - FRAME_MARGIN_METERS, Math.max(FRAME_MARGIN_METERS, y));
+  const clampX = Math.min(
+    PITCH_LENGTH_AXIS_METERS - FRAME_MARGIN_METERS,
+    Math.max(FRAME_MARGIN_METERS, x),
+  );
+  const clampY = Math.min(
+    PITCH_WIDTH_AXIS_METERS - FRAME_MARGIN_METERS,
+    Math.max(FRAME_MARGIN_METERS, y),
+  );
   // Clamping distorts the analytic velocity at the frame edge — report the
   // clamped position with the analytic velocity only when they agree (the
   // honest approach: a clamped position has an unknown true velocity).
@@ -276,9 +282,8 @@ export function observeRosterAtTick(input: {
     if (detected) {
       const band = detectedConfidenceBand(entity);
       const confidence =
-        Math.round(
-          confidenceRandom.nextFloatBetween(band.min, band.max) * degradedFactor * 1000,
-        ) / 1000;
+        Math.round(confidenceRandom.nextFloatBetween(band.min, band.max) * degradedFactor * 1000) /
+        1000;
       observations.push({
         entityRef: entity.entityRef,
         kind: entity.kind,
@@ -286,9 +291,7 @@ export function observeRosterAtTick(input: {
         position: {
           xMeters: round3(position.x),
           yMeters: round3(position.y),
-          ...(entity.path.az > 0 && position.z > 0.05
-            ? { zMeters: round3(position.z) }
-            : {}),
+          ...(entity.path.az > 0 && position.z > 0.05 ? { zMeters: round3(position.z) } : {}),
         },
         velocity: {
           vxMps: round3(position.vx),

@@ -47,11 +47,7 @@ export {
   PitchVelocity,
   parseLiveObservation,
 } from "./observation";
-export type {
-  LiveEntityKind,
-  LiveObservationQuality,
-  LiveSourceType,
-} from "./observation";
+export type { LiveEntityKind, LiveObservationQuality, LiveSourceType } from "./observation";
 // The seeded PRNG (deterministic by construction)
 export { createSeededRandom, substreamSeed } from "./prng";
 export type { SeededRandom } from "./prng";

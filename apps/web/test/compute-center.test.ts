@@ -44,12 +44,8 @@ import { InMemoryRedis } from "../src/server/platform/upstash/redis";
 import { ROUTES } from "../src/lib/navigation";
 import { GET as computeStatusRoute } from "../src/app/api/account/compute/route";
 import { POST as connectRoute } from "../src/app/api/account/compute/connections/route";
-import {
-  DELETE as disconnectRoute,
-} from "../src/app/api/account/compute/connections/[providerId]/route";
-import {
-  POST as verifyRoute,
-} from "../src/app/api/account/compute/connections/[providerId]/verify/route";
+import { DELETE as disconnectRoute } from "../src/app/api/account/compute/connections/[providerId]/route";
+import { POST as verifyRoute } from "../src/app/api/account/compute/connections/[providerId]/verify/route";
 
 /** A deterministic stepping clock (the repo's hermetic rig). */
 function steppingClock(): () => number {
@@ -254,7 +250,11 @@ describe("the connect lifecycle (J005)", () => {
   test("verify with the provider rejecting the credential: connected-invalid (honest)", async () => {
     transportBehavior = "reject-credentials";
     const response = await verifyRoute(
-      withCookie(creatorToken, "/api/account/compute/connections/provider.runpod/verify", jsonPost({})),
+      withCookie(
+        creatorToken,
+        "/api/account/compute/connections/provider.runpod/verify",
+        jsonPost({}),
+      ),
       { params: Promise.resolve({ providerId: "provider.runpod" }) },
     );
     expect(response.status).toBe(200);
@@ -268,7 +268,11 @@ describe("the connect lifecycle (J005)", () => {
     transportBehavior = "ok";
     const callsBefore = transportCalls;
     const response = await verifyRoute(
-      withCookie(creatorToken, "/api/account/compute/connections/provider.runpod/verify", jsonPost({})),
+      withCookie(
+        creatorToken,
+        "/api/account/compute/connections/provider.runpod/verify",
+        jsonPost({}),
+      ),
       { params: Promise.resolve({ providerId: "provider.runpod" }) },
     );
     expect(response.status).toBe(200);
@@ -282,7 +286,11 @@ describe("the connect lifecycle (J005)", () => {
   test("verify while the provider is unreachable: the prior verdict stands (an outage proves NOTHING)", async () => {
     transportBehavior = "unreachable";
     const response = await verifyRoute(
-      withCookie(creatorToken, "/api/account/compute/connections/provider.runpod/verify", jsonPost({})),
+      withCookie(
+        creatorToken,
+        "/api/account/compute/connections/provider.runpod/verify",
+        jsonPost({}),
+      ),
       { params: Promise.resolve({ providerId: "provider.runpod" }) },
     );
     expect(response.status).toBe(200);
@@ -437,7 +445,10 @@ describe("account isolation + durability (J005)", () => {
       },
     };
     // Instance A: connect.
-    const serverA = createSportaServer({ ...base, computeCenter: { ...base.computeCenter, db: dbFile } });
+    const serverA = createSportaServer({
+      ...base,
+      computeCenter: { ...base.computeCenter, db: dbFile },
+    });
     installSportaServerForTests(serverA);
     await serverA.ready;
     const accountA = await serverA.auth.register({
@@ -460,7 +471,10 @@ describe("account isolation + durability (J005)", () => {
 
     // Instance B (a DIFFERENT composition — the restart): the connection
     // record is fully addressable through the same routes.
-    const serverB = createSportaServer({ ...base, computeCenter: { ...base.computeCenter, db: dbFile } });
+    const serverB = createSportaServer({
+      ...base,
+      computeCenter: { ...base.computeCenter, db: dbFile },
+    });
     installSportaServerForTests(serverB);
     await serverB.ready;
     const tokenB = (await serverB.auth.issueSession({ userId: accountA.userId })).token;

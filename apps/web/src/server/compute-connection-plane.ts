@@ -136,10 +136,7 @@ export function buildComputeConnectionPlane(
   // The local self-hosted entry exists ONLY with an operator command table
   // (a self-hosted option without commands is honestly not offered — the
   // product never invents a command).
-  if (
-    options.localCommands !== undefined &&
-    Object.keys(options.localCommands).length > 0
-  ) {
+  if (options.localCommands !== undefined && Object.keys(options.localCommands).length > 0) {
     const local: ConnectionPlaneProvider = {
       providerId: "provider.local",
       supportedCredentialKinds: [],

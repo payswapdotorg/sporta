@@ -31,9 +31,10 @@ export async function POST(request: Request): Promise<Response> {
       const { IdentityUnauthenticatedError } = await import("@sporta/identity");
       throw new IdentityUnauthenticatedError();
     }
-    const body = (await request.json().catch(() => null)) as
-      | { providerId?: unknown; credential?: unknown }
-      | null;
+    const body = (await request.json().catch(() => null)) as {
+      providerId?: unknown;
+      credential?: unknown;
+    } | null;
     if (
       body === null ||
       typeof body !== "object" ||

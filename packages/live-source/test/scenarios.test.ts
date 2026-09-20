@@ -13,11 +13,7 @@
  *   observation carries explicit recovery accounting + degraded quality.
  */
 import { describe, expect, test } from "bun:test";
-import {
-  LIVE_SCENARIO_DEFAULTS,
-  createDeterministicLiveSource,
-  drainSource,
-} from "../src/index";
+import { LIVE_SCENARIO_DEFAULTS, createDeterministicLiveSource, drainSource } from "../src/index";
 import type { LiveObservation, LiveScenarioConfig, LiveScenarioKind } from "../src/index";
 
 const BASE = {
@@ -104,9 +100,7 @@ describe("scenario 'delay'", () => {
     const delayed = observations.filter(
       (observation) => observation.ingestTimeMs - observation.eventTimeMs === 120 + 1500,
     );
-    expect(delayed.map((observation) => observation.sequence)).toEqual([
-      51, 52, 53, 54, 55, 56,
-    ]);
+    expect(delayed.map((observation) => observation.sequence)).toEqual([51, 52, 53, 54, 55, 56]);
   });
   test("the watermark keeps pace (in-order delivery — frontier follows)", () => {
     for (const observation of observations) {
@@ -142,9 +136,7 @@ describe("scenario 'drop'", () => {
     // After a drop, the next observation's watermark is at least its own
     // event time (the source guarantees nothing older will arrive).
     for (const observation of observations) {
-      expect(observation.watermark.watermarkMs).toBeGreaterThanOrEqual(
-        observation.eventTimeMs,
-      );
+      expect(observation.watermark.watermarkMs).toBeGreaterThanOrEqual(observation.eventTimeMs);
     }
   });
 });
@@ -226,9 +218,7 @@ describe("scenario 'reconnect'", () => {
     const degraded = observations.filter((observation) => observation.quality === "degraded");
     expect(degraded.length).toBe(3); // recoveryWindowTicks = 3
     for (const observation of degraded) {
-      expect(observation.confidence).toBeLessThan(
-        Math.max(...nominalConfidences),
-      );
+      expect(observation.confidence).toBeLessThan(Math.max(...nominalConfidences));
     }
   });
   test("the reconnect is counted; stats account every tick", () => {
@@ -258,9 +248,7 @@ describe("cross-scenario honesty (never invented)", () => {
       const stats = drainAndStats(source);
       // Emitted + accounted misses = planned: nothing invented, nothing lost
       // silently.
-      expect(stats.emitted + stats.droppedTicks + stats.reconnectGapTicks).toBe(
-        stats.plannedTicks,
-      );
+      expect(stats.emitted + stats.droppedTicks + stats.reconnectGapTicks).toBe(stats.plannedTicks);
     }
   });
 

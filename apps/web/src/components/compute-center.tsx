@@ -1,10 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type {
-  ComputeCenterProviderLike,
-  ComputeCenterStatusLike,
-} from "@/lib/api-types";
+import type { ComputeCenterProviderLike, ComputeCenterStatusLike } from "@/lib/api-types";
 import type { FetchState } from "@/lib/client-api";
 import {
   ApiError,
@@ -76,9 +73,13 @@ export function ComputeCenterSurface() {
       if (answer.outcome === "refused-master-password") {
         setActionError(answer.message ?? "refused: master passwords are never accepted");
       } else if (answer.outcome === "duplicate") {
-        setNotice(`${provider.providerId}: the same credential was re-presented — counted as a duplicate, the connection is unchanged.`);
+        setNotice(
+          `${provider.providerId}: the same credential was re-presented — counted as a duplicate, the connection is unchanged.`,
+        );
       } else {
-        setNotice(`${provider.providerId} connected. Verify it to confirm the credential works with the provider.`);
+        setNotice(
+          `${provider.providerId} connected. Verify it to confirm the credential works with the provider.`,
+        );
       }
       reload();
     } catch (err) {
@@ -111,7 +112,9 @@ export function ComputeCenterSurface() {
     setNotice(null);
     try {
       await disconnectComputeProvider(provider.providerId);
-      setNotice(`${provider.providerId} disconnected — the connection record was removed and the removal audited.`);
+      setNotice(
+        `${provider.providerId} disconnected — the connection record was removed and the removal audited.`,
+      );
       reload();
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "the disconnect action failed");
@@ -127,9 +130,9 @@ export function ComputeCenterSurface() {
           What do you want from your compute?
         </h2>
         <p className="section-lede">
-          You never have to know a provider name to choose. Pick the goal; the platform maps it
-          onto the real compute selection — every decision the selection director makes is shown
-          to you verbatim in the Create Studio.
+          You never have to know a provider name to choose. Pick the goal; the platform maps it onto
+          the real compute selection — every decision the selection director makes is shown to you
+          verbatim in the Create Studio.
         </p>
         <ul className="compute-goal-grid">
           {data.goals.map((goal) => (
@@ -192,8 +195,8 @@ export function ComputeCenterSurface() {
           Your allowance &amp; usage
         </h2>
         <p className="section-lede">
-          The same real counters the Create Studio&apos;s compute step reads — one consistent
-          view, never a second truth. Unknown values stay unknown; nothing here is invented.
+          The same real counters the Create Studio&apos;s compute step reads — one consistent view,
+          never a second truth. Unknown values stay unknown; nothing here is invented.
         </p>
         <ul className="compute-quota-list">
           {data.quotas.map((quota) => (
@@ -210,7 +213,9 @@ export function ComputeCenterSurface() {
           ))}
         </ul>
         {data.usage === null ? (
-          <p className="compute-usage-note">Usage: not measured on this plane (shown as unknown, never as zero).</p>
+          <p className="compute-usage-note">
+            Usage: not measured on this plane (shown as unknown, never as zero).
+          </p>
         ) : (
           <ul className="compute-quota-list">
             {data.usage.map((unit) => (
@@ -279,7 +284,9 @@ function ProviderCard({
     <article className={`compute-provider-card posture-${provider.posture}`}>
       <div className="compute-provider-head">
         <h3 className="compute-provider-name">{provider.providerId}</h3>
-        <span className={`compute-posture posture-${provider.posture}`}>{postureLabel[provider.posture]}</span>
+        <span className={`compute-posture posture-${provider.posture}`}>
+          {postureLabel[provider.posture]}
+        </span>
       </div>
       <p className="compute-provider-framing">{provider.goalFraming}</p>
       <p className="compute-provider-facts">
@@ -300,16 +307,30 @@ function ProviderCard({
       )}
       <div className="compute-provider-actions">
         {!connected && (
-          <button type="button" className="button-primary" onClick={() => setOpen((value) => !value)}>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => setOpen((value) => !value)}
+          >
             {open ? "Cancel" : "Connect"}
           </button>
         )}
         {connected && (
           <>
-            <button type="button" className="button-secondary" disabled={busy} onClick={() => void onVerify(provider)}>
+            <button
+              type="button"
+              className="button-secondary"
+              disabled={busy}
+              onClick={() => void onVerify(provider)}
+            >
               Verify
             </button>
-            <button type="button" className="button-danger" disabled={busy} onClick={() => void onDisconnect(provider)}>
+            <button
+              type="button"
+              className="button-danger"
+              disabled={busy}
+              onClick={() => void onDisconnect(provider)}
+            >
               Disconnect
             </button>
           </>

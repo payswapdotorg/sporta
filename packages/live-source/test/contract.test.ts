@@ -7,10 +7,7 @@
  * and the §6 metadata profile is complete.
  */
 import { describe, expect, test } from "bun:test";
-import {
-  PITCH_LENGTH_AXIS_METERS,
-  PITCH_WIDTH_AXIS_METERS,
-} from "@sporta/contracts";
+import { PITCH_LENGTH_AXIS_METERS, PITCH_WIDTH_AXIS_METERS } from "@sporta/contracts";
 import {
   LIVE_SOURCE_ADAPTER_ID,
   LiveObservation as LiveObservationSchema,
@@ -18,11 +15,7 @@ import {
   drainSource,
   parseLiveObservation,
 } from "../src/index";
-import type {
-  LiveObservation,
-  LiveScenarioConfig,
-  LiveScenarioKind,
-} from "../src/index";
+import type { LiveObservation, LiveScenarioConfig, LiveScenarioKind } from "../src/index";
 
 const BASE = {
   sessionId: "sess-l002-contract",
@@ -33,15 +26,20 @@ const BASE = {
   referees: 2,
 } as const;
 
-function observationsOf(
-  scenario: LiveScenarioKind | LiveScenarioConfig,
-): LiveObservation[] {
+function observationsOf(scenario: LiveScenarioKind | LiveScenarioConfig): LiveObservation[] {
   return drainSource(createDeterministicLiveSource({ ...BASE, scenario }));
 }
 
 describe("the frozen-shaped contract (every scenario, every observation)", () => {
   test("every observation parses against the LiveObservation schema", () => {
-    for (const scenario of ["normal", "jitter", "delay", "drop", "out-of-order", "reconnect"] as const) {
+    for (const scenario of [
+      "normal",
+      "jitter",
+      "delay",
+      "drop",
+      "out-of-order",
+      "reconnect",
+    ] as const) {
       for (const observation of observationsOf(scenario)) {
         // parseLiveObservation throws loudly on ANY drift (also self-checked
         // inside the source — this pins it from the outside).
@@ -64,9 +62,7 @@ describe("the frozen-shaped contract (every scenario, every observation)", () =>
     expect(observations[0]!.eventTimeMs).toBe(0);
     expect(observations[1]!.eventTimeMs).toBe(BASE.rateMs);
     for (const observation of observations) {
-      expect(observation.eventTimeMs).toBe(
-        (observation.sequence - 1) * BASE.rateMs,
-      );
+      expect(observation.eventTimeMs).toBe((observation.sequence - 1) * BASE.rateMs);
     }
   });
 
@@ -165,9 +161,7 @@ describe("honest missing data (never fabricated certainty)", () => {
       const mean =
         observation.entityObservations.reduce((acc, e) => acc + e.confidence, 0) /
         observation.entityObservations.length;
-      expect(Math.abs(observation.confidence - Math.round(mean * 1000) / 1000)).toBeLessThan(
-        0.002,
-      );
+      expect(Math.abs(observation.confidence - Math.round(mean * 1000) / 1000)).toBeLessThan(0.002);
     }
   });
 
@@ -194,9 +188,7 @@ describe("the §6 source metadata profile", () => {
   });
 
   test("validation fails loud on bad configs (never silent defaults)", () => {
-    expect(() =>
-      createDeterministicLiveSource({ ...BASE, scenario: "nope" as never }),
-    ).toThrow();
+    expect(() => createDeterministicLiveSource({ ...BASE, scenario: "nope" as never })).toThrow();
     expect(() =>
       createDeterministicLiveSource({ ...BASE, scenario: { kind: "jitter", jitterMaxMs: 100 } }),
     ).toThrow(/jitterMaxMs/);

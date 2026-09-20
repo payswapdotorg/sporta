@@ -109,10 +109,7 @@ import {
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
 import { ComputeCenterService } from "./compute-center-service";
-import {
-  buildComputeConnectionPlane,
-  parseLocalComputeCommands,
-} from "./compute-connection-plane";
+import { buildComputeConnectionPlane, parseLocalComputeCommands } from "./compute-connection-plane";
 import type { ComputeConnectionPlane } from "./compute-connection-plane";
 import { createDurableControlPlane } from "./durable-control-plane";
 import type { DurableControlPlane } from "./durable-control-plane";
@@ -386,9 +383,7 @@ export interface SportaServer {
  */
 
 /** The record store's provider name (structural — wrappers inherit nothing). */
-function providerOfRecords(
-  store: ControlPlaneRecordStore,
-): "neon" | "sqlite" | "in-memory" {
+function providerOfRecords(store: ControlPlaneRecordStore): "neon" | "sqlite" | "in-memory" {
   const name = (store as { providerName?: unknown }).providerName;
   return name === "neon" ? "neon" : name === "sqlite" ? "sqlite" : "in-memory";
 }
@@ -778,7 +773,8 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
         }
       : buildComputeConnectionPlane({
           nowMs,
-          ...(process.env.LIGHTNING_STUDIO_ID !== undefined && process.env.LIGHTNING_STUDIO_ID !== ""
+          ...(process.env.LIGHTNING_STUDIO_ID !== undefined &&
+          process.env.LIGHTNING_STUDIO_ID !== ""
             ? { lightningStudioId: process.env.LIGHTNING_STUDIO_ID }
             : {}),
           localCommands: parseLocalComputeCommands(process.env.SPORTA_LOCAL_COMPUTE_COMMANDS),
