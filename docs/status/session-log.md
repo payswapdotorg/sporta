@@ -482,3 +482,39 @@ flight (four concurrent Task-tool workers): W605 (packages/scene-evaluation
 building), W802 (packages/slo building), W804 (packages/analytics
 building), W805 (packages/health + docs/observability/PRODUCTION.md
 building). Blocked: W803 on W605. Last: W806. Deadline: midnight UTC.
+
+## Session 2026-09-20 (post-reset Wave 1, TL)
+
+- Sandbox RESET #6: /home/z wiped (sporta + replay2 clones, PAT,
+  git-credentials, replay stack all lost); my-project dev server restarted
+  on :3000 by the platform. Repo re-cloned; 13 new operator docs commits
+  on main (approved Hugging Face technology portfolio, ADR-011, task
+  profiles, candidate registry — all re-read per the
+  no-conversation-dependency rule).
+- Wave 0 re-verified post-reset: contracts still FROZEN, no drift; the
+  wave-0 TL session's compatibility mapping remains valid.
+- Worker B's pre-reset Wave 1 delivery harvested from the server rail
+  (branch work/j005-j007-l002 @7bd7057): L002 deterministic/replay live
+  source (packages/live-source, frozen §1/§2 shapes verbatim + additive
+  recovery member), J005 Compute Connection Center (first-class
+  connect/verify/disconnect, typed failures, master-password refusal,
+  Sporta-vs-BYOC), J007 local durable control plane (sqlite records +
+  ownership + honest health; hosted gate blocked on credentials) +
+  design doc docs/deployment/J007-local-durability-and-deployment-shapes.md.
+- TL verification: battery 6254/33/18 (18 = 17 environmental app-boot
+  timeouts identical on baseline main 6156/17/33 + the documented
+  detection variance; branch's own files green isolated at 60s timeout);
+  typecheck green sequentially (parallel tsc OOMs on this 2-CPU box);
+  lint 0 errors; format remediated (16 worker files + 4 pre-existing)
+  08dd215.
+- Merge --no-ff d785e93. PUSH BLOCKED: no PAT post-reset (external
+  dependency #6 in the status ledger).
+- Post-reset dispatch machinery: replay stack rebuild pending (console
+  :3000 needs the my-project dev server stopped per the sanctioned
+  layout); operator TODOs recorded: (a) PAT to ~/.secrets/env.sh, (b)
+  chat.z.ai login through the rebuilt console for Worker A/C dispatch.
+
+Session-end state: local main @ 08dd215 + status evidence commit (2 ahead
+of origin; push blocked). Wave 1 position: Worker B lane COMPLETE;
+Worker A (J012 + L003/L004 design + L010 harness) and Worker C (J004 +
+L005 scaffold) NOT dispatched — blocked on operator login + PAT.

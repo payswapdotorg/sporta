@@ -1,7 +1,7 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 0 COMPLETE — J/L/HF CONTRACTS VERIFIED/FROZEN; WAVE 1 DISPATCHED
-Date: 2026-09-20 (Wave 0 session)
+Status: WAVE 1 IN PROGRESS — WORKER B LANE MERGED (J005/J007/L002); A + C LANES NOT YET DISPATCHED (machinery reset); PUSH BLOCKED ON OPERATOR PAT
+Date: 2026-09-20 (post-reset Wave 1 session)
 
 ## Completed foundation
 
@@ -11,7 +11,15 @@ Date: 2026-09-20 (Wave 0 session)
 
 ## Remaining batch MVP
 
-J001-J015: NOT_STARTED (Wave 1 dispatching: J004/J005/J012 lanes first)
+J001-J015:
+- J005: COMPLETE (Worker B wave 1, merged @d785e93 + style @08dd215)
+- J007: COMPLETE at the local-substitute scope (Worker B wave 1, merged
+  @d785e93); the HOSTED Neon/R2 durability gate remains BLOCKED on
+  operator credentials (external dependency below). J014's final
+  redeploy acceptance may leverage the same local durable path when the
+  hosted gate stays unavailable.
+- J001-J004, J006, J008-J015: NOT_STARTED (Worker A/C lanes not yet
+  dispatched post-reset)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
 (J012/J013 fidelity + J014 durability + J015 journey must pass first).
@@ -22,7 +30,7 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 | Item | State |
 |---|---|
 | L001 contract freeze | VERIFIED — docs/contracts/live-reality.md is FROZEN FOR IMPLEMENTATION; Wave 0 verified logical-to-implemented contract compatibility (mapping recorded in the Wave 0 log below) |
-| L002 synthetic/replay live source | NOT_STARTED (Wave 1, Worker B) |
+| L002 synthetic/replay live source | COMPLETE (Worker B wave 1: packages/live-source — frozen §1/§2 shapes verbatim, 6 delivery scenarios, seeded splitmix32 determinism, honest gap accounting; merged @d785e93) |
 | L003 incremental SWM updater | NOT_STARTED (Wave 1, Worker A design) |
 | L004 temporal buffer/watermark | NOT_STARTED (Wave 1, Worker A design) |
 | L005 live tactical renderer | NOT_STARTED (Wave 1, Worker C scaffold) |
@@ -141,17 +149,6 @@ Live tactical rendering is not a separate product stack. It is a live input + te
 
 The first live milestone can use synthetic/replay/open-data tracking. A real commercial provider is an optional dependency, not a prerequisite for proving the architecture.
 
-## External dependencies
-
-1. Authorized live tracking provider/feed credentials if L009 is attempted.
-2. Legally permitted benchmark data for any public-data benchmark.
-3. Authorized broadcast media for L010 when real broadcast inference is benchmarked.
-4. Neon/R2 (or equivalent hosted Postgres/object-storage) credentials for
-   J007's cross-instance/redeploy durability gate — NOT present in this
-   sandbox. J007 implementation and seam tests can proceed; the final
-   durability gate is blocked until the operator supplies credentials.
-5. Operator's section-I human visual acceptance (R606) on the live app.
-
 ## Doc-consistency finding (minor, non-blocking)
 
 The HF portfolio is documented in docs/research/hugging-face-sporta-model-portfolio.md and its work items in docs/work-items/hf-model-portfolio-work-items.md. The J001-J015 definitions live in
@@ -163,11 +160,79 @@ active work-items doc. Not blocking Wave 1.
 
 ## Next safe wave
 
-Wave 1 (per the handoff): Worker A (J012 investigation + L003/L004 design +
-L010 benchmark harness), Worker B (J005 + J007 + L002), Worker C (J004 + L005
-scaffold). Shared contracts frozen: live-reality.md (verified), 
-multi-reality-create.md (new). Workers raise contract-change requests, never
-patch around ambiguity.
+Wave 1 continues (per the handoff): Worker A (J012 investigation + L003/L004
+design + L010 benchmark harness), Worker C (J004 + L005 scaffold) — Worker
+B's lane is DONE and merged; B's next lane is Wave 2 (J006 backend + J014 +
+L006 + L009-when-feed-access). Shared contracts frozen: live-reality.md
+(verified), multi-reality-create.md (frozen). Workers raise
+contract-change requests, never patch around ambiguity.
+
+Dispatch precondition (post-reset): the worker-dispatch machinery must be
+re-established — see the session record below.
+
+## Post-reset Wave 1 session record (2026-09-20, Tech Lead)
+
+Environment: the sandbox was RESET (sixth full reset). /home/z was wiped to
+a pre-R-program checkpoint; sporta/replay2 clones, ~/.secrets PAT,
+git-credentials and the replay stack (console :3000, replayd :3100, Chrome
+CDP :9222) were all lost. The my-project default dev server was restarted
+on :3000 by the platform. GitHub main carried 13 NEW operator docs commits
+(the approved Hugging Face technology portfolio + active-handoff wiring).
+
+Wave 0 re-verification (repo-first, per the no-conversation-dependency
+rule): all mandated docs re-read from the fresh clone
+(AGENTS.md, architecture-lock, TL handoff, work-items, status, worker
+packets, live-reality.md, multi-reality-create.md, ADR-009/010/011,
+technology-task-profiles.md, gate-audit, HF portfolio docs). Contracts
+remain FROZEN — no drift found.
+
+Worker B lane harvest (delivered pre-reset, branch work/j005-j007-l002
+@7bd7057, base a0f288e):
+
+- TL battery on the branch: 6254 pass / 33 skip / 18 fail — the 18 are 17
+  environmental app-boot timeouts (full-battery contention on the 2-CPU
+  post-reset box; the IDENTICAL timeout family exists on baseline main:
+  6156/17/33) + the documented detection-benchmark variance failure. The
+  branch's own test files re-run isolated with extended timeouts: ALL PASS
+  (J007 6/6 incl. the live-read health test; golden-path + compute-center
+  28/28; live-source contract suite green).
+- typecheck: every @sporta/* package exit 0 when run sequentially (the
+  parallel fan-out OOM-kills tsc on this 2-CPU/4GiB box — environmental;
+  the pre-reset machine did not hit this).
+- lint: 0 errors. Format: 16 worker files drifted (prettier not run by the
+  worker) — TL style remediation @08dd215 (whitespace-only; format:check
+  green; spot tests re-green after the workspace relink `bun install`).
+- Contract review: VERDICT PASS (recorded in the merge commit d785e93).
+  Notable accepted addition: the live-layer `recovery` member on
+  LiveObservation (documented in packages/live-source/src/observation.ts;
+  implements the frozen temporal rule "reconnect … explicit gap
+  accounting"; additive outside frozen packages/contracts — consistent
+  with the Wave 0 mapping decision).
+- Merged --no-ff d785e93 on local main. CI could not be observed: PUSH IS
+  BLOCKED (no PAT after the reset — external dependency #6 below).
+
+Process deviations recorded (Worker B): prettier not run (fixed by TL);
+no on-repo report artifact (the branch's 3 commit messages + design doc
+carry the report content; acceptable this once — the report contract is
+enforced for future lanes).
+
+## External dependencies
+
+1. Authorized live tracking provider/feed credentials if L009 is attempted.
+2. Legally permitted benchmark data for any public-data benchmark.
+3. Authorized broadcast media for L010 when real broadcast inference is benchmarked.
+4. Neon/R2 (or equivalent hosted Postgres/object-storage) credentials for
+   J007's cross-instance/redeploy durability gate — NOT present in this
+   sandbox. J007 implementation and seam tests can proceed; the final
+   durability gate is blocked until the operator supplies credentials.
+5. Operator's section-I human visual acceptance (R606) on the live app.
+6. OPERATOR PAT (GitHub push credential) — lost in the reset; required to
+   push the Wave 1 merge + status evidence to origin/main and to arm
+   worker prompts with push URLs. Local main is ahead of origin by 2
+   commits (d785e93, 08dd215) + the status evidence commit.
+7. Operator chat.z.ai login through the rebuilt replay console — required
+   to dispatch Worker A/C lanes (the worker model runs through chat.z.ai
+   sessions; the browser profile was wiped with the reset).
 
 ## No-conversation-dependency rule
 
