@@ -84,3 +84,23 @@ export {
   injectWindowOverlap,
   renderW503CleanFixture,
 } from "./fixture";
+
+// ---------------------------------------------------------------------------
+// HF010–HF013 — the camera-controlled neural renderer benchmark structure
+// (design-as-code: the metric vocabulary, the candidate registry with
+// license/provenance states VERBATIM from the candidates yaml, the harness
+// stages, and the honest nothing-ran status). See CAMERA-BENCH.md.
+// ---------------------------------------------------------------------------
+
+export {
+  CAMERA_BENCH_CANDIDATES,
+  CAMERA_BENCH_METRICS,
+  CAMERA_BENCH_STAGES,
+  CAMERA_BENCH_STATUS,
+} from "./camera-bench";
+export type {
+  CameraBenchCandidate,
+  CameraBenchMetric,
+  CameraBenchStage,
+  CameraBenchStatus,
+} from "./camera-bench";
