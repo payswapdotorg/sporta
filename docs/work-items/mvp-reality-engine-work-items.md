@@ -175,3 +175,12 @@ R6 is Tech Lead integration and acceptance, with all workers available only for 
 ## Non-negotiable boundary
 
 A work item is not complete because an adapter or fixture works in isolation. Completion requires evidence at the customer-visible boundary claimed by that work item.
+
+
+## R606-R607 final closure gates
+
+### R606 Human visual acceptance
+Dependencies: R601-R605 and J001-J014. Acceptance: a human confirms the four outputs are actual videos, visually different, recognizably derived from the same underlying football event, and understandable without developer intervention.
+
+### R607 Public MVP acceptance
+Dependencies: R606 and J001-J015. Acceptance: a fresh public browser completes the one-submission journey, including real upload, rights, compute selection, all requested realities, Watch/Reality Switching, Library/Jobs, role switching and durable recovery after restart/redeploy. No developer API calls, manual DB edits or hidden fixture sessions.
