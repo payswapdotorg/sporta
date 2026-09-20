@@ -13,9 +13,12 @@
   "dependencies": {
     "@sporta/compute-adapter": "workspace:*",
     "@sporta/contracts": "workspace:*",
+    "@sporta/encoding": "workspace:*",
     "@sporta/output-pipeline": "workspace:*",
+    "@sporta/renderer-3d": "workspace:*",
     "@sporta/renderer-anime": "workspace:*",
     "@sporta/renderer-contract": "workspace:*",
+    "@sporta/renderer-tactical": "workspace:*",
     "zod": "^4.0.0"
   },
   "devDependencies": {

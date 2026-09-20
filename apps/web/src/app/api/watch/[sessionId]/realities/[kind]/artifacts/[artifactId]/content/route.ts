@@ -13,6 +13,17 @@ export const dynamic = "force-dynamic";
 const VIDEO_CONTENT_TYPE = "video/mp4";
 
 /**
+ * Whether one artifact descriptor's content type names the mp4 container —
+ * the honest HTML5-video boundary (R504 → R508-R510): the `original`
+ * reality's media artifacts (the `mp4/<codec>` convention) AND the derived
+ * realities' R508-R510 MP4s serve as video; everything else (the W504
+ * animated-SVG review segments, `image/svg+xml`) does not.
+ */
+function isMp4ContainerContentType(contentType: string): boolean {
+  return contentType === VIDEO_CONTENT_TYPE || contentType.startsWith("mp4/");
+}
+
+/**
  * GET /api/watch/[sessionId]/realities/[kind]/artifacts/[artifactId]/content
  * — THE WATCH PLAYER'S HTML5 VIDEO SOURCE (R504): the real encoded MP4 bytes
  * of one REALITY ARTIFACT of ONE match session, served for an HTML5
@@ -40,11 +51,14 @@ const VIDEO_CONTENT_TYPE = "video/mp4";
  * the verify is a full-object read; the Range slice is then a second
  * bounded read. Acceptable at MVP artifact sizes, and stated here.)
  *
- * THE HONEST NOT-VIDEO BOUNDARY: a derived reality's stored artifacts are
- * W504 animated-SVG review segments — this route answers a typed 415 for
- * them (the diagnostic frame player renders those; they are never presented
- * as video). The `original` reality's artifacts are the media platform's
- * real ffmpeg-normalized MP4s — THE primary player's source.
+ * THE HONEST NOT-VIDEO BOUNDARY: an artifact serves as HTML5 video iff its
+ * descriptor's content type names the mp4 container (the original
+ * reality's ffmpeg-normalized MP4s and the derived realities' R508-R510
+ * R306-encoded MP4s); a derived reality's W504 animated-SVG review
+ * segment answers a typed 415 (the diagnostic frame player renders those;
+ * they are never presented as video). THE primary player's source is the
+ * byte route itself — every video artifact serves from the SAME media
+ * store through the SAME verified read.
  */
 export async function GET(
   request: Request,
@@ -93,10 +107,15 @@ export async function GET(
       throw new MediaNotFoundError("artifact", artifactId);
     }
 
-    // 4. The honest not-video boundary: only the `original` reality's
-    //    artifacts are HTML5 video bytes this wave. A derived reality's
-    //    stored artifact is a W504 animated-SVG review segment — 415, typed.
-    if (kind !== "original") {
+    // 4. The honest not-video boundary: an artifact serves as HTML5 video
+    //    iff its descriptor's content type names the mp4 container — the
+    //    `original` reality's media artifacts AND the derived realities'
+    //    R508-R510 MP4s (the R306-encoded artifacts the ingest landed in
+    //    the SAME media store, served by the SAME verified-read path
+    //    below). Anything else — a W504 animated-SVG review segment —
+    //    answers the typed 415: the watch surface's diagnostic frame
+    //    player renders those; they are never presented as video.
+    if (!isMp4ContainerContentType(descriptor.contentType)) {
       return jsonResponse(415, {
         error: {
           failureClass: "media-invalid",
@@ -109,9 +128,11 @@ export async function GET(
       });
     }
 
-    // 5. The original reality: the media platform's real artifact. The
+    // 5. The video artifact: the media platform's real record. The
     //    descriptor and the artifact record come from the same store — the
-    //    session-scoped read keeps them consistent (defense in depth).
+    //    session-scoped read keeps them consistent (defense in depth; the
+    //    derived realities' R508-R510 MP4s land in the SAME store through
+    //    the ingest's routing writer).
     const { MediaNotFoundError, normalizedMediaKey } = await import("@sporta/media-platform");
     const artifact = server.media
       .artifactsOfSession(sessionId)

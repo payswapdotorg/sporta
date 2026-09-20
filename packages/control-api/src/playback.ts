@@ -106,7 +106,12 @@ export interface RenderOutputStore {
  * playback-served — exactly like an unconfigured reader store).
  */
 export interface RenderOutputWriter {
-  /** Stores one encoded segment under `(sessionId, renderId, segmentId)`. */
+  /**
+   * Stores one encoded segment under `(sessionId, renderId, segmentId)`.
+   * May resolve synchronously OR return a promise (async landings — e.g.
+   * the R508-R510 derived-reality MP4 registration into the media plane);
+   * the control plane awaits the return either way.
+   */
   storeSegment(input: {
     sessionId: string;
     renderId: string;

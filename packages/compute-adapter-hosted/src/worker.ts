@@ -28,11 +28,12 @@ import type {
   ComputeDispatchRequest as ComputeDispatchRequestDoc,
 } from "@sporta/compute-adapter";
 import { RendererRegistry } from "@sporta/renderer-contract";
-import type { RenderSegmentStore } from "@sporta/output-pipeline";
+import type { ArtifactStore, RenderSegmentStore } from "@sporta/output-pipeline";
 import type { HostedJobExecution as HostedJobExecutionDoc } from "./envelope";
 import { DEFAULT_HOSTED_COMPUTE_BUDGETS, resolveHostedComputeBudgets } from "./budgets";
 import type { HostedComputeBudgets } from "./budgets";
 import { executeRenderJob } from "./executor";
+import type { DerivedRealityRendererPort } from "./derived";
 
 /** The adapter identity this worker reports (names logs and usage records). */
 export const HOSTED_COMPUTE_ADAPTER_ID = "sporta.compute.hosted";
@@ -68,6 +69,18 @@ export interface ComputeWorkerOptions {
   adapterId?: string;
   /** Provider identity (default `sporta-compute-worker-1`). */
   providerId?: string;
+  /**
+   * The derived-reality MP4 renderer (R508-R510): renders the tactical /
+   * 3D-game / anime-NPR realities through the R306 encoding bridges.
+   * Absent (default) → those realities are honestly unrenderable on this
+   * worker (the derived dispatches fail with a typed error).
+   */
+  derivedRealityRenderer?: DerivedRealityRendererPort;
+  /**
+   * The W504 content-addressed artifact store the R306 plane registers
+   * encoded MP4s into (optional; the inline handoff works without it).
+   */
+  encodedArtifactStore?: ArtifactStore;
 }
 
 /** One executed job's worker-side record. */
@@ -112,6 +125,8 @@ export type ComputeWorkerExecution =
 export class ComputeWorker {
   private readonly registry: RendererRegistry;
   private readonly store: RenderSegmentStore;
+  private readonly derivedRealityRenderer: DerivedRealityRendererPort | undefined;
+  private readonly encodedArtifactStore: ArtifactStore | undefined;
   private readonly nowMs: () => number;
   private readonly records = new Map<string, ComputeWorkerJobRecord>();
   private readonly statsState: ComputeWorkerStats = {
@@ -134,6 +149,8 @@ export class ComputeWorker {
   constructor(options: ComputeWorkerOptions) {
     this.registry = options.rendererRegistry;
     this.store = options.outputSegmentStore;
+    this.derivedRealityRenderer = options.derivedRealityRenderer;
+    this.encodedArtifactStore = options.encodedArtifactStore;
     this.nowMs = options.nowMs;
     this.budgets = resolveHostedComputeBudgets(options.budgets);
     this.adapterId = options.adapterId ?? HOSTED_COMPUTE_ADAPTER_ID;
@@ -226,6 +243,12 @@ export class ComputeWorker {
       const result = await executeRenderJob(request, {
         rendererRegistry: this.registry,
         outputSegmentStore: this.store,
+        ...(this.derivedRealityRenderer === undefined
+          ? {}
+          : { derivedRealityRenderer: this.derivedRealityRenderer }),
+        ...(this.encodedArtifactStore === undefined
+          ? {}
+          : { encodedArtifactStore: this.encodedArtifactStore }),
         nowMs: this.nowMs,
         budgets: this.budgets,
       });

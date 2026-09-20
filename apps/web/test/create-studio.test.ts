@@ -1,4 +1,8 @@
 import { beforeAll, describe, expect, test } from "bun:test";
+import { probeFfmpegEncoder } from "@sporta/encoding";
+
+/** Whether the real ffmpeg toolchain is present (the derived-reality plane composes only then). */
+const ffmpegToolchainAvailable = probeFfmpegEncoder().available;
 import { createDeterministicTestHasher } from "@sporta/identity";
 import { createSportaServer, installSportaServerForTests } from "../src/server/composition";
 import type { SportaServer } from "../src/server/composition";
@@ -177,10 +181,27 @@ describe("GET /api/create/options", () => {
       }[];
       compute: { provider: string; adapterId: string } | null;
     };
-    expect(body.renderers.map((renderer) => renderer.rendererId).sort()).toEqual([
-      "anime.prototype",
-      "sporta.testcard",
-    ]);
+    // R508-R510: the derived-reality renderers join the options when the
+    // real ffmpeg toolchain composes the plane (honest absence otherwise).
+    expect(body.renderers.map((renderer) => renderer.rendererId).sort()).toEqual(
+      ffmpegToolchainAvailable
+        ? [
+            "anime-npr.prototype",
+            "anime.prototype",
+            "game-3d.prototype",
+            "sporta.testcard",
+            "tactical.prototype",
+          ]
+        : ["anime.prototype", "sporta.testcard"],
+    );
+    // The derived renderers hand artifacts back through the compute plane
+    // (the R306 bridge path — every one carries the detailed surface).
+    if (ffmpegToolchainAvailable) {
+      for (const rendererId of ["tactical.prototype", "game-3d.prototype", "anime-npr.prototype"]) {
+        const derived = body.renderers.find((r) => r.rendererId === rendererId)!;
+        expect(derived.artifactHandoff.supported).toBe(true);
+      }
+    }
     const anime = body.renderers.find((r) => r.rendererId === "anime.prototype")!;
     const testcard = body.renderers.find((r) => r.rendererId === "sporta.testcard")!;
     expect(anime.artifactHandoff.supported).toBe(true);

@@ -66,6 +66,8 @@ import {
   SqliteMediaPlatformStore,
 } from "@sporta/media-platform";
 import type { MediaStoragePort } from "@sporta/media-platform";
+import { createDerivedRealityPlane } from "./derived-reality";
+import { createDerivedRealityRenderOutputWriter } from "./derived-reality-media";
 import { neonConfigured, r2Configured, upstashConfigured } from "./platform/env";
 import type { RealityKind } from "@sporta/contracts";
 import { neonClient } from "./platform/db/pg";
@@ -362,6 +364,16 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   registry.register(createTestCardRenderer());
   registry.register(createAnimePrototypeRenderer());
 
+  // 2'. The derived-reality plane (R508-R510): the REAL tactical/3D/anime
+  //     renderers + the R306 encoding bridges, composed ONLY when the real
+  //     encode toolchain probes available (system ffmpeg + libx264). When
+  //     it composes, the derived realities (tactical / three-d-game /
+  //     anime-npr) render through the REAL MP4 encode plane; when it does
+  //     not, they stay honestly producer-unavailable — never a silent
+  //     SVG fallback presented as video.
+  const derivedPlane = createDerivedRealityPlane({ nowMs });
+  if (derivedPlane !== null) derivedPlane.registerRenderers(registry);
+
   // 3. The real W504 output pipeline (in-process stores) as the control
   //    plane's render-output store.
   const pipeline = createAnimeOutputPipeline();
@@ -378,6 +390,14 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     const worker = new ComputeWorker({
       rendererRegistry: registry,
       outputSegmentStore: createDefaultOutputSegmentStore(),
+      // R508-R510: the derived-reality MP4 renderer (the R306 bridge
+      // plane) + the W504 content-addressed artifact store it registers
+      // encoded MP4s into (the pipeline's own store — the same instance
+      // the routing render-output writer reads back through).
+      ...(derivedPlane === null
+        ? {}
+        : { derivedRealityRenderer: derivedPlane.derivedRealityRenderer }),
+      encodedArtifactStore: pipeline.artifactStore,
       nowMs,
     });
     computeAdapter = new HostedComputeAdapter({
@@ -441,14 +461,39 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   const engines = new Map<string, WorldModelEngineInstance>();
   const storyIndex = new Map<string, SeedStoryMeta>();
 
+  // 5-pre. The late-binding holder for the media service (the routing
+  //         render-output writer resolves it at LANDING time — see the
+  //         createControlApp wiring above).
+  const mediaServiceHolder: { service: MediaPlatformService | null } = { service: null };
+
   const rawControl = createControlApp({
     rendererRegistry: registry,
     renderOutputStore: pipeline,
     ...(computeAdapter !== undefined ? { computeAdapter } : {}),
     // The async surface's settled outputs land in the SAME playback store
     // the watch surface reads (the control plane re-keys them under its own
-    // render id when it ingests the inline deliveries).
-    renderOutputWriter: pipeline.segmentStore,
+    // render id when it ingests the inline deliveries). R508-R510: the
+    // writer ROUTES by the artifact's honest content type — the W504 SVG
+    // review segments land in the pipeline's segment store exactly as
+    // before, while the R306-encoded derived-reality MP4s (the primary
+    // artifacts of the tactical / 3D / anime realities) land in the media
+    // platform (bytes content-addressed + the frozen manifest), the same
+    // landing the `original` reality's normalized MP4s take. The media
+    // seam is constructed BELOW this point, so the writer resolves it at
+    // LANDING time (an ingest can only fire once the whole composition
+    // exists).
+    renderOutputWriter: createDerivedRealityRenderOutputWriter({
+      segmentStore: pipeline.segmentStore,
+      getMedia: () => {
+        if (mediaServiceHolder.service === null) {
+          throw new Error(
+            "the derived-reality render-output writer fired before the media seam was composed (impossible on a completed composition)",
+          );
+        }
+        return mediaServiceHolder.service;
+      },
+      encodedArtifactStore: pipeline.artifactStore,
+    }),
     nowMs,
     worldModelFactory: (sessionId: string) => {
       const seeded = engines.get(sessionId);
@@ -499,6 +544,9 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     nowMs,
     autoRun: true,
   });
+  // R508-R510: the routing render-output writer's late-bound media seam is
+  // now live — derived-reality MP4 ingests can land from here on.
+  mediaServiceHolder.service = media;
 
   // 7 (hoisted from the studio block — W921): the publication store and the
   //     rights-attestation index are the durable layer's reconstruction
@@ -637,13 +685,16 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   // 7'. The renderer → reality declarations (R503): composition DATA over
   //      the REGISTERED renderers only. The anime prototype produces the
   //      anime-npr reality (the product's anime reality — its id and class
-  //      are the prototype's own, never a vendor name). The reference test
-  //      card is not a product reality; the tactical and 3D realities have
-  //      no registered producer (their renderer packages exist but cannot
-  //      execute through the async compute plane's W504 encode seam — the
-  //      catalog reports those realities honestly unavailable).
+  //      are the prototype's own, never a vendor name) — its W504 SVG
+  //      review segments are the DIAGNOSTICS surface of that reality. The
+  //      R508-R510 derived-reality plane contributes the PRIMARY MP4
+  //      producers — tactical.prototype → tactical, game-3d.prototype →
+  //      three-d-game, anime-npr.prototype → anime-npr — but ONLY when the
+  //      real encode toolchain composed (honest producer-unavailability
+  //      otherwise). The reference test card is not a product reality.
   const realityProducers: SportaServer["realityProducers"] = new Map([
     ["anime.prototype", "anime-npr"],
+    ...(derivedPlane === null ? [] : [...derivedPlane.producers.entries()]),
   ]);
 
   const server: SportaServer = {

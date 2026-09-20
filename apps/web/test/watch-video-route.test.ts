@@ -519,9 +519,12 @@ describe("GET /api/watch/[sessionId]/realities — the artifact catalog acquisit
     expect(original.artifacts[0]!.artifactId).toBe(artifactId);
     expect(original.artifacts[0]!.integrityHash).toBe(artifactHash);
     expect(original.artifacts[0]!.contentType).toContain("mp4");
-    // The tactical/3D realities: honest producer-unavailable (never invented).
+    // The tactical/3D realities: producers are REGISTERED (R508-R510's
+    // derived-reality plane composes when the real ffmpeg toolchain is
+    // present) but no render has been dispatched for them on this session —
+    // the honest requires-render, never invented artifacts.
     const tactical = body.artifacts.realities!.find((entry) => entry.kind === "tactical")!;
-    expect(tactical.availability).toBe("producer-unavailable");
+    expect(tactical.availability).toBe("requires-render");
     expect(tactical.artifacts).toHaveLength(0);
   });
 

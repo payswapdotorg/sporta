@@ -440,10 +440,13 @@ describe("the studio's real upload flow (R501: upload → rights → compute →
     expect(anime.artifacts[0]!.manifestLink).toContain("/watch/");
     expect(anime.artifacts[0]!.integrityHash).toMatch(/^[0-9a-f]{64}$/);
 
-    // tactical + 3D: honestly producer-unavailable — never invented.
-    expect(byKind.get("tactical")!.availability).toBe("producer-unavailable");
+    // tactical + 3D: producers are REGISTERED (R508-R510's derived-reality
+    // plane composes when the real ffmpeg toolchain is present) but no
+    // render has been dispatched for them — the honest requires-render,
+    // never invented artifacts.
+    expect(byKind.get("tactical")!.availability).toBe("requires-render");
     expect(byKind.get("tactical")!.artifacts).toHaveLength(0);
-    expect(byKind.get("three-d-game")!.availability).toBe("producer-unavailable");
+    expect(byKind.get("three-d-game")!.availability).toBe("requires-render");
     expect(byKind.get("three-d-game")!.artifacts).toHaveLength(0);
 
     expect(catalog.readyRealityCount).toBe(2);

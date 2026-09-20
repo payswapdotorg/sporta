@@ -1512,11 +1512,16 @@ export function createControlApp(options: ControlAppOptions = {}): ControlApp {
       rendersBySession.set(entry.sessionId, list);
       // 2. The artifacts: inline deliveries become stored render-output
       //    segments under the control plane's render id (the playback store
-      //    is the SAME port the sync path's composition configures).
+      //    is the SAME port the sync path's composition configures). The
+      //    writer's return is AWAITED: a synchronous writer (the W504
+      //    segment store) is unaffected, while a writer that lands an
+      //    artifact asynchronously (the R508-R510 derived-reality MP4
+      //    registration) must complete BEFORE the job's outputs are
+      //    reported settled — the ingest never races its own artifacts.
       if (renderOutputWriter !== undefined) {
         for (const artifact of completion.outputs) {
           if (artifact.delivery.mode !== "inline") continue;
-          renderOutputWriter.storeSegment({
+          await renderOutputWriter.storeSegment({
             sessionId: entry.sessionId,
             renderId,
             segment: {
