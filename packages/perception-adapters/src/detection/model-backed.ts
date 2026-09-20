@@ -42,7 +42,7 @@
  * use not affirmed; assets = the optional weights file, AGPL-3.0.
  */
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DetectedBox, DetectorFrameInput } from "@sporta/perception-detection";
 import type {
@@ -127,10 +127,12 @@ export const MODEL_BACKED_DETECTOR_RESOURCES: ResourceRequirements = {
 /**
  * This module's own directory, resolved portably (Bun's `import.meta.dir`
  * is undefined under Node/bundled runtimes; `import.meta.url` is the ESM
- * standard and carries a file URL on every runtime).
+ * standard and carries a file URL on every runtime — resolved as a plain
+ * string, never the `new URL('.', import.meta.url)` asset form the
+ * bundlers try to statically resolve).
  */
 function dirnameOfModule(): string {
-  return fileURLToPath(new URL(".", import.meta.url));
+  return dirname(fileURLToPath(import.meta.url));
 }
 
 /**

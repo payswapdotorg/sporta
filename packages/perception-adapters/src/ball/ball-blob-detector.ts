@@ -15,7 +15,7 @@
  */
 import type { DetectedBox, DetectorFrameInput } from "@sporta/perception-detection";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type {
   FailureClassRecord,
@@ -236,7 +236,7 @@ export class ModelBackedBallDetector implements BallDetectionAdapter {
     // `import.meta.dir` is Bun-only (undefined under Node/bundled runtimes
     // — a TypeError in `join`); `import.meta.url` is the portable ESM form.
     const weightsDir = options.weightsDir ??
-      join(fileURLToPath(new URL(".", import.meta.url)), "..", "..", "assets");
+      join(dirname(fileURLToPath(import.meta.url)), "..", "..", "assets");
     let weightsPath: string | undefined;
     for (const fileName of ["yolov8n.pt", "yolov5nu.onnx"]) {
       const candidate = join(weightsDir, fileName);
