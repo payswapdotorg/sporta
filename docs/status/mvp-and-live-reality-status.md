@@ -1,6 +1,6 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 0 COMPLETE — CONTRACTS VERIFIED/FROZEN; WAVE 1 DISPATCHED
+Status: WAVE 0 COMPLETE — J/L/HF CONTRACTS VERIFIED/FROZEN; WAVE 1 DISPATCHED
 Date: 2026-09-20 (Wave 0 session)
 
 ## Completed foundation
@@ -111,6 +111,30 @@ Implementation-state notes for the lanes:
 - `packages/fusion` (`runWorldFusion`) is the batch SWM seam L003 extends to
   incremental updates.
 
+## Hugging Face Technology Portfolio
+
+HF001-HF015: NOT_STARTED
+
+The portfolio is now part of the active program.
+
+P1 discovery/benchmark candidates:
+- RF-DETR SoccerNet
+- MapAnything
+- SoccerChat
+- VibeVoice/Qwen3-ASR
+- Spivak
+- Wan2.2-Fun-Control-Camera
+- ReCamMaster
+- Meridian
+- ViewCrafter
+
+Research/watchlist:
+- SAM3
+- DA3-GIANT
+- non-commercial soccer VLM candidates
+
+No candidate is production-approved. The model cards establish discovery/provenance inputs only; Sporta benchmark and license/commercial-use evidence are required.
+
 ## Current architectural insight
 
 Live tactical rendering is not a separate product stack. It is a live input + temporal SWM + renderer path using the same canonical domains as batch rendering.
@@ -130,7 +154,7 @@ The first live milestone can use synthetic/replay/open-data tracking. A real com
 
 ## Doc-consistency finding (minor, non-blocking)
 
-The J001-J015 definitions live in
+The HF portfolio is documented in docs/research/hugging-face-sporta-model-portfolio.md and its work items in docs/work-items/hf-model-portfolio-work-items.md. The J001-J015 definitions live in
 `docs/work-items/mvp-user-journey-hardening-work-items.md`, whose own header
 marks it "historical/superseded" while the active work-items doc incorporates
 J001-J015 by reference. The ownership assignments are consistent across both
