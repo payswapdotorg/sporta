@@ -49,6 +49,19 @@ export type {
 export { executeRenderJob } from "./executor";
 export type { RenderJobExecutorDeps } from "./executor";
 export {
+  createDerivedRealityRenderer,
+  DERIVED_REALITY_RENDERERS,
+} from "./derived";
+export type {
+  DerivedRealityBridge,
+  DerivedRealityRenderOutput,
+  DerivedRealityRenderRequest,
+  DerivedRealityRendererDeps,
+  DerivedRealityRendererPort,
+} from "./derived";
+export { executeDerivedRealityRender } from "./derived-execution";
+export type { DerivedRealityExecutionInput } from "./derived-execution";
+export {
   ComputeWorker,
   HOSTED_COMPUTE_ADAPTER_ID,
   HOSTED_COMPUTE_ADAPTER_VERSION,

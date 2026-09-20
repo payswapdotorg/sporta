@@ -33,13 +33,13 @@
  *   drive it) walks the REAL pipeline. A process restart reads the last
  *   durable state and never invents completion.
  */
-import { deriveRightsCapabilities } from "@sporta/contracts";
+import { deriveRightsCapabilities, RenderArtifactManifest, manifestProvenanceIssues } from "@sporta/contracts";
 import type { AuthorizationPolicy, SourceAsset } from "@sporta/contracts";
 import { sniffContainer } from "@sporta/ingestion";
+import { MediaRightsError, MediaInvalidError, UploadRejectedError } from "./errors";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { MediaRightsError, UploadRejectedError } from "./errors";
 import { FfmpegTool } from "./ffmpeg";
 import { randomMediaId } from "./ids";
 import { MediaJobService, type MediaJobView } from "./jobs";
@@ -49,9 +49,10 @@ import type {
   RenderArtifactRepository,
   SourceAssetRepository,
 } from "./repositories";
-import { MediaNormalizationService, sourceAssetKey } from "./normalize";
+import { MediaNormalizationService, normalizedMediaKey, sourceAssetKey } from "./normalize";
 import type { MediaStoragePort } from "./storage";
 import { sha256OfBytes } from "./storage";
+import { RenderArtifactConflictError } from "./repositories";
 
 /** The frozen upload constraints (R101 — server-side, validator-enforced). */
 export const UPLOAD_CONSTRAINTS = Object.freeze({
@@ -403,5 +404,102 @@ export class MediaPlatformService {
   /** Every artifact of one session (reality order stable). */
   artifactsOfSession(sessionId: string) {
     return this.artifacts.listBySession(sessionId);
+  }
+
+  // -------------------------------------------------------------------------
+  // R508-R510 — the derived-reality artifact registration
+  // -------------------------------------------------------------------------
+
+  /**
+   * Registers ONE derived-reality MP4 artifact (tactical / 3D game /
+   * anime-NPR) — the landing the compute plane's R306-encoded outputs take
+   * so the Watch surface serves them exactly like the `original` reality's
+   * normalized MP4s: bytes into the storage seam (content-addressed), the
+   * frozen `RenderArtifactManifest` into the artifact store.
+   *
+   * Honesty rules (the same spine the normalizer follows):
+   * - the manifest must parse through the FROZEN contract schema and pass
+   *   the frozen provenance rules (a derived reality MUST carry its SWM
+   *   provenance — never fabricated);
+   * - the bytes are RE-HASHED and must equal the manifest's `contentHash`
+   *   and `byteSize` (a lying manifest is refused, never stored);
+   * - the bytes are stored content-addressed and RE-READ + verified through
+   *   the storage seam before the record is created
+   *   (`integrity.verified` is earned, never asserted);
+   * - idempotent per content: an existing record with the SAME artifact id
+   *   and content hash is a no-op duplicate (the W504 semantics); a
+   *   CONFLICTING record under the same id fails loud.
+   *
+   * The `original` reality is REFUSED here — it is the normalizer's own
+   * artifact (source-derived, `swm: null` + `sourceAssetId`), never a
+   * compute-plane registration.
+   */
+  async recordDerivedRealityArtifact(input: {
+    manifest: RenderArtifactManifest;
+    bytes: Uint8Array;
+  }): Promise<RenderArtifactManifest> {
+    const { manifest, bytes } = input;
+    const parsed = RenderArtifactManifest.safeParse(manifest);
+    if (!parsed.success) {
+      throw new MediaInvalidError(
+        "the derived-reality artifact manifest failed the frozen contract schema",
+        {
+          artifactId: manifest.artifactId,
+          issues: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+        },
+      );
+    }
+    const doc = parsed.data;
+    if (doc.reality === "original") {
+      throw new MediaInvalidError(
+        "the original reality is the normalization pipeline's own artifact — compute-plane registration is refused",
+        { artifactId: doc.artifactId, reality: doc.reality },
+      );
+    }
+    const provenanceIssues = manifestProvenanceIssues(doc);
+    if (provenanceIssues.length > 0) {
+      throw new MediaInvalidError(
+        `the derived-reality artifact violates the provenance rules: ${provenanceIssues.join("; ")}`,
+        { issues: provenanceIssues },
+      );
+    }
+    if (doc.integrity.verified !== true) {
+      throw new MediaInvalidError(
+        "the derived-reality artifact manifest claims an unverified content hash — refusing (fail-closed)",
+        { artifactId: doc.artifactId },
+      );
+    }
+    const measuredHash = sha256OfBytes(bytes);
+    if (measuredHash !== doc.contentHash) {
+      throw new MediaInvalidError(
+        `the derived-reality artifact bytes hash to ${measuredHash}, the manifest claims ${doc.contentHash}`,
+        { artifactId: doc.artifactId, measured: measuredHash, claimed: doc.contentHash },
+      );
+    }
+    if (doc.byteSize !== bytes.byteLength) {
+      throw new MediaInvalidError(
+        `the derived-reality artifact measures ${bytes.byteLength} bytes, the manifest claims ${doc.byteSize}`,
+        { artifactId: doc.artifactId, measured: bytes.byteLength, claimed: doc.byteSize },
+      );
+    }
+    // Content-addressed storage + the RE-READ verification (the honesty
+    // rule executed literally — same as the normalizer's own landing).
+    const storageKey = normalizedMediaKey(doc.contentHash);
+    await this.storage.put(storageKey, bytes);
+    const verifiedHash = await this.storage.verify(storageKey, doc.contentHash);
+    if (verifiedHash !== doc.contentHash) {
+      // verify() throws on mismatch; this is the double-check belt.
+      throw new MediaInvalidError(`verification of '${storageKey}' returned an unexpected hash`);
+    }
+    // The durable record: idempotent per identical content, fail-loud on a
+    // conflicting record under the same artifact id.
+    const existing = this.artifacts.get(doc.artifactId);
+    if (existing !== null) {
+      if (existing.contentHash === doc.contentHash && existing.reality === doc.reality) {
+        return existing; // the counted-duplicate no-op (the W504 semantics)
+      }
+      throw new RenderArtifactConflictError(doc.artifactId);
+    }
+    return this.artifacts.create(doc);
   }
 }

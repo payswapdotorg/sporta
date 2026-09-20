@@ -360,12 +360,15 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     const anime = body.realities.find((entry) => entry.kind === "anime-npr")!;
     expect(anime.availability).toBe("ready");
     expect(anime.artifacts.length).toBeGreaterThan(0);
-    // The tactical/3D realities are honestly producer-unavailable.
+    // The tactical/3D realities: producers are REGISTERED (R508-R510's
+    // derived-reality plane) but this walk has not dispatched their renders
+    // yet — the honest requires-render (never invented artifacts). The
+    // full four-reality walk dispatches them below.
     expect(body.realities.find((entry) => entry.kind === "tactical")!.availability).toBe(
-      "producer-unavailable",
+      "requires-render",
     );
     expect(body.realities.find((entry) => entry.kind === "three-d-game")!.availability).toBe(
-      "producer-unavailable",
+      "requires-render",
     );
     expect(body.readyRealityCount).toBe(2);
   });
@@ -502,12 +505,12 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
       descriptor!.integrityHash,
     );
 
-    // A deep link to an UNAVAILABLE reality selects it and shows its honest
+    // A deep link to an UNRENDERED reality selects it and shows its honest
     // state (never a silent redirect to a different reality).
     const tactical = selectedRealityOf("tactical", catalog);
     expect(tactical.kind).toBe("tactical");
     const tacticalEntry = catalog.realities!.find((entry) => entry.kind === "tactical")!;
-    expect(tacticalEntry.availability).toBe("producer-unavailable");
+    expect(tacticalEntry.availability).toBe("requires-render");
     expect(tacticalEntry.reason.length).toBeGreaterThan(0);
 
     // The compute provenance rides the switched surface (R506): the

@@ -63,12 +63,21 @@ import type {
   ComputeOutputArtifact,
 } from "@sporta/compute-adapter";
 import { encodeAnimeClip } from "@sporta/output-pipeline";
-import type { RenderSegmentStore } from "@sporta/output-pipeline";
+import type { ArtifactStore, RenderSegmentStore } from "@sporta/output-pipeline";
+import {
+  base64Of,
+  ENCODED_ARTIFACT_CONTENT_TYPE,
+  EncodingError,
+  registerEncodedArtifact,
+  validateEncodedManifest,
+} from "@sporta/encoding";
 import { RendererContractError, RendererRegistry } from "@sporta/renderer-contract";
 import type { RendererPlugin } from "@sporta/renderer-contract";
 import { HostedJobExecution } from "./envelope";
 import type { HostedJobExecution as HostedJobExecutionDoc } from "./envelope";
 import type { HostedComputeBudgets } from "./budgets";
+import type { DerivedRealityRendererPort } from "./derived";
+import { executeDerivedRealityRender } from "./derived-execution";
 
 /** What the executor needs from its host (all injected — no globals). */
 export interface RenderJobExecutorDeps {
@@ -80,6 +89,21 @@ export interface RenderJobExecutorDeps {
   nowMs: () => number;
   /** The fail-closed execution budgets (./budgets.ts). */
   budgets: HostedComputeBudgets;
+  /**
+   * The derived-reality MP4 renderer (R508-R510): renders the tactical /
+   * 3D-game / anime-NPR realities through the R306 encoding bridges so
+   * their artifacts are REAL MP4s. Absent (default) → those realities are
+   * honestly unrenderable on this plane (never the SVG path in disguise).
+   */
+  derivedRealityRenderer?: DerivedRealityRendererPort;
+  /**
+   * The W504 content-addressed artifact store the R306 plane registers
+   * encoded MP4s into (idempotent puts, counted duplicates; the honest
+   * base64 representation over the store's string seam). Absent → the
+   * MP4 artifacts hand back inline only (the registration is a
+   * composition-level decision).
+   */
+  encodedArtifactStore?: ArtifactStore;
 }
 
 /** A determinate failure under construction. */
@@ -298,6 +322,39 @@ export async function executeRenderJob(
       { startedAtMs, finishedAtMs: finishAt() },
     );
   }
+
+  // 6'. The derived-reality MP4 path (R508-R510): when the resolved
+  //     renderer is a derived-reality renderer this plane hosts, the
+  //     render runs through the R306 encoding bridges — the artifact
+  //     handed back is a REAL MP4 (an `EncodedArtifact` with a validated
+  //     container manifest), never an SVG review segment. The W504
+  //     SVG-only encode path stays the ANIME review-segment path below.
+  if (
+    deps.derivedRealityRenderer !== undefined &&
+    deps.derivedRealityRenderer.supports(capability.rendererId)
+  ) {
+    return executeDerivedRealityRender({
+      request: dispatch,
+      job,
+      renderRequest: requestCheck.data,
+      snapshot: snapshotCheck.data,
+      snapshotInput,
+      eventsInput,
+      events,
+      capability,
+      deps: {
+        derivedRealityRenderer: deps.derivedRealityRenderer,
+        ...(deps.encodedArtifactStore === undefined
+          ? {}
+          : { encodedArtifactStore: deps.encodedArtifactStore }),
+        nowMs: deps.nowMs,
+        budgets: deps.budgets,
+      },
+      startedAtMs,
+      finishAt,
+    });
+  }
+
   const renderInput = { snapshot: snapshotCheck.data, events };
   let result: RenderResultDoc;
   let framesCount = 0;

@@ -781,11 +781,38 @@ async function realityArtifactEntryOf(
       artifacts: [],
     };
   }
+  // R508-R510 — the PRIMARY artifacts: the media platform's derived-reality
+  // MP4s (real h264/MP4 artifacts the compute plane's R306 bridge plane
+  // encoded and the ingest landed, frozen `RenderArtifactManifest`
+  // records with integrity-verified content-addressed bytes). Listed per
+  // producer, FIRST — a reality's video descriptor is what the Watch
+  // player's HTML5 `<video>` source resolution picks.
+  const descriptors: RealityArtifactDescriptor[] = [];
+  const mp4Artifacts = server.media
+    .artifactsOfSession(sessionId)
+    .filter((artifact) => artifact.reality === kind);
+  for (const producerRendererId of producerRendererIds) {
+    for (const artifact of mp4Artifacts.filter((entry) => entry.rendererId === producerRendererId)) {
+      descriptors.push({
+        artifactId: artifact.artifactId,
+        kind,
+        manifestLink: `${MEDIA_ARTIFACT_LINK_PREFIX}${encodeURIComponent(artifact.artifactId)}`,
+        integrityHash: artifact.contentHash,
+        byteSize: artifact.byteSize,
+        contentType: `${artifact.container}/${artifact.videoCodec}`,
+        producerId: artifact.rendererId,
+      });
+    }
+  }
+  // The DIAGNOSTICS surface: the control plane's stored W504 outputs of the
+  // reality's renders (the anime prototype's animated-SVG review segments —
+  // and any other review-format outputs). Listed AFTER the primary MP4s;
+  // the honest not-video boundary answers a typed 415 for these on the
+  // playback byte route (the diagnostic frame player renders them).
   const { renders } = await server.control.listRenders(sessionId);
   const realityRenders = renders.filter((render) =>
     producerRendererIds.includes(render.rendererId),
   );
-  const descriptors: RealityArtifactDescriptor[] = [];
   for (const render of realityRenders) {
     const outputs = await server.control.listRenderOutputs(sessionId, render.renderId);
     for (const segment of outputs.segments) {
@@ -803,10 +830,14 @@ async function realityArtifactEntryOf(
     }
   }
   if (descriptors.length > 0) {
+    const mp4Count = countMp4Descriptors(descriptors);
     return {
       kind,
       availability: "ready",
-      reason: `the store holds ${descriptors.length} stored output(s) for this reality (renderer(s): ${producerRendererIds.join(", ")})`,
+      reason:
+        `the store holds ${mp4Count} stored MP4 artifact(s)` +
+        `${descriptors.length - mp4Count > 0 ? ` and ${descriptors.length - mp4Count} review segment(s)` : ""}` +
+        ` for this reality (renderer(s): ${producerRendererIds.join(", ")})`,
       artifacts: descriptors,
     };
   }
@@ -818,6 +849,17 @@ async function realityArtifactEntryOf(
       "stored output exists for this session yet — outputs appear when a dispatched render job completes",
     artifacts: [],
   };
+}
+
+/** Counts the mp4-container descriptors of one reality entry (honesty in the reason). */
+function countMp4Descriptors(descriptors: readonly RealityArtifactDescriptor[]): number {
+  let count = 0;
+  for (const descriptor of descriptors) {
+    if (descriptor.contentType === "video/mp4" || descriptor.contentType.startsWith("mp4/")) {
+      count += 1;
+    }
+  }
+  return count;
 }
 
 /** The `original` reality's entry — the media platform's real artifacts. */
