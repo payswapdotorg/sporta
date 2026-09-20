@@ -176,3 +176,7 @@ If implementation reveals an infeasible frozen decision, stop the affected work.
 ## First execution command
 
 Start with `docs/agent-handoff/mvp-reality-engine-tech-lead.md`, then `docs/agent-handoff/mvp-worker-packets.md`, then `docs/testing/mvp-reality-engine-acceptance.md`, then inspect `docs/status/mvp-reality-engine-status.md` and dispatch only the next dependency-safe wave.
+
+## Current program precedence
+
+After R601-R605 technical verification, `docs/agent-handoff/mvp-user-journey-hardening-tech-lead.md` is the next implementation program. Do not close R606/R607 while J001-J015 remain unresolved or while human visual/reality-fidelity acceptance remains open.
