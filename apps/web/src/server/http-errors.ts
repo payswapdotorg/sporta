@@ -250,6 +250,40 @@ export async function errorResponse(err: unknown): Promise<Response> {
         },
       } satisfies ApiErrorBody);
     }
+    // The connection center's typed lifecycle errors (J005): unknown
+    // provider/connection → 404, validation + unsupported credential kind +
+    // bad scope → 400, conflict (a different credential over a live
+    // connection / a stale write) → 409, store limits → 413, absent record
+    // → 404. Both the center's own family and the store's family map.
+    if (
+      err instanceof connectionCenter.ConnectionCenterError ||
+      err instanceof connectionCenter.ConnectionStoreError
+    ) {
+      const status =
+        err instanceof connectionCenter.UnknownConnectionProviderError ||
+        err instanceof connectionCenter.UnknownConnectionError ||
+        err instanceof connectionCenter.ConnectionRecordAbsentError
+          ? 404
+          : err instanceof connectionCenter.ConnectionConflictError ||
+              err instanceof connectionCenter.ConnectionStaleWriteError
+            ? 409
+            : err instanceof connectionCenter.ConnectionStoreLimitError
+              ? 413
+              : err instanceof connectionCenter.ConnectionValidationError ||
+                  err instanceof connectionCenter.CredentialKindUnsupportedError ||
+                  err instanceof connectionCenter.ConnectionScopeInvalidError
+                ? 400
+                : 500;
+      return jsonResponse(status, {
+        error: {
+          failureClass:
+            err instanceof connectionCenter.MasterPasswordRefusalError
+              ? "rights-denied"
+              : "validation",
+          message: err.message,
+        },
+      } satisfies ApiErrorBody);
+    }
   }
   // Observability (the W920 final-gate finding): an unknown failure is LOGGED
   // with its real cause — name, message, stack — before the secret-free

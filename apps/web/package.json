@@ -19,6 +19,7 @@
     "@sporta/commentary-understanding": "workspace:*",
     "@sporta/compute-adapter": "workspace:*",
     "@sporta/compute-adapter-hosted": "workspace:*",
+    "@sporta/compute-provider-adapters": "workspace:*",
     "@sporta/connection-center": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/control-api": "workspace:*",

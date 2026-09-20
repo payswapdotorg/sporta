@@ -27,6 +27,9 @@
  */
 import { createControlApp } from "@sporta/control-api";
 import type { ControlApp } from "@sporta/control-api";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+import { Database } from "bun:sqlite";
 import { InMemoryComputeBroker } from "@sporta/compute-adapter";
 import type { ComputeAdapterPort } from "@sporta/compute-adapter";
 import {
@@ -39,6 +42,10 @@ import {
 import type { ComputeProviderSelection } from "@sporta/compute-adapter-hosted";
 import { SelectionDirector } from "@sporta/connection-center";
 import type { ProviderSelectionFacts } from "@sporta/connection-center";
+import { ConnectionCenter } from "@sporta/connection-center";
+import { InMemoryConnectionStore } from "@sporta/connection-center";
+import { SqliteConnectionStore } from "@sporta/connection-center";
+import type { ConnectionPlaneProvider, ConnectionStore } from "@sporta/connection-center";
 import { createAnimeOutputPipeline } from "@sporta/output-pipeline";
 import type { AnimeOutputPipeline } from "@sporta/output-pipeline";
 import { RendererRegistry, createTestCardRenderer } from "@sporta/renderer-contract";
@@ -99,6 +106,12 @@ import {
 } from "./platform/guardrails";
 import { AuthService } from "./auth-service";
 import { CreateStudioService } from "./create-studio-service";
+import { ComputeCenterService } from "./compute-center-service";
+import {
+  buildComputeConnectionPlane,
+  parseLocalComputeCommands,
+} from "./compute-connection-plane";
+import type { ComputeConnectionPlane } from "./compute-connection-plane";
 import { createDurableControlPlane } from "./durable-control-plane";
 import type { DurableControlPlane } from "./durable-control-plane";
 import type { ControlPlaneRecordStore } from "./platform/control/records";
@@ -179,6 +192,21 @@ export interface SportaServerOptions {
   media?: {
     storage?: MediaStoragePort;
     /** A sqlite db path (or `:memory:`). */
+    db?: string;
+  };
+  /**
+   * The Compute Connection Center's seams (J005): the provider plane
+   * (default: the REAL plane over the four provider adapters — see
+   * ./compute-connection-plane.ts), the connection store (default: the
+   * durable sqlite store under Bun, the honest in-memory fallback under
+   * the bundled Node runtime), or BOTH (tests inject deterministic
+   * stores + controlled-fetch planes).
+   */
+  computeCenter?: {
+    providers?: readonly ConnectionPlaneProvider[];
+    store?: ConnectionStore;
+    executionZones?: ComputeConnectionPlane["executionZones"];
+    /** A sqlite db path for the default store (tests: temp files). */
     db?: string;
   };
 }
@@ -294,6 +322,14 @@ export interface SportaServer {
    * (retry a failed job, cancel an admitted job).
    */
   operations: OperationsService;
+  /**
+   * The Compute Connection Center service (J005): the first-class
+   * connect/verify/disconnect/status destination over the REAL
+   * connection-center plane (the four provider adapters behind factories),
+   * account-scoped, master-password-refusing, with the Sporta-vs-BYOC
+   * distinction and goal-oriented selection language.
+   */
+  computeCenter: ComputeCenterService;
   /**
    * The live network transport (W915): real SSE frame streaming over HTTP,
    * env-gated — `state()` is `active` only when it is genuinely serving
@@ -708,6 +744,63 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   // studio's dispatch seam can count admission refusals into it (the only
   // app path that offers jobs to the bounded queue).
   const operations = new OperationsService({ getServer: () => server, nowMs });
+  // 6a". THE COMPUTE CONNECTION CENTER (J005): the first-class destination
+  //      over the REAL R406 ConnectionCenter. The plane is the four REAL
+  //      provider adapters behind factories (provider names are DATA); the
+  //      store is the durable sqlite store under the real Bun runtime, the
+  //      honest in-memory fallback under the bundled Node runtime (the W911
+  //      doctrine — the media store's exact precedent). The Lightning studio
+  //      target + the local self-hosted command table resolve from the env
+  //      HERE (the composition root is the only env reader).
+  const computePlane =
+    options.computeCenter?.providers !== undefined
+      ? {
+          providers: options.computeCenter.providers,
+          executionZones:
+            options.computeCenter.executionZones ??
+            buildComputeConnectionPlane({ nowMs }).executionZones,
+        }
+      : buildComputeConnectionPlane({
+          nowMs,
+          ...(process.env.LIGHTNING_STUDIO_ID !== undefined && process.env.LIGHTNING_STUDIO_ID !== ""
+            ? { lightningStudioId: process.env.LIGHTNING_STUDIO_ID }
+            : {}),
+          localCommands: parseLocalComputeCommands(process.env.SPORTA_LOCAL_COMPUTE_COMMANDS),
+        });
+  let connectionStore: ConnectionStore | undefined = options.computeCenter?.store;
+  if (connectionStore === undefined) {
+    const computeDbPath =
+      options.computeCenter?.db ?? process.env.SPORTA_COMPUTE_DB ?? "db/compute-connections.db";
+    try {
+      if (computeDbPath !== ":memory:") {
+        mkdirSync(dirname(computeDbPath), { recursive: true });
+      }
+      // Open the handle explicitly so a busy timeout rides along (parallel
+      // compositions over one shared file — the test battery's shape —
+      // wait briefly for the writer instead of failing SQLITE_BUSY).
+      const computeDb = new Database(computeDbPath);
+      computeDb.run("PRAGMA busy_timeout = 5000;");
+      connectionStore = new SqliteConnectionStore(computeDb, { nowMs });
+    } catch (error) {
+      if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+        throw error;
+      }
+      console.error(
+        "[sporta] compute connections are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+          "connected providers do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+      );
+      connectionStore = new InMemoryConnectionStore({ nowMs });
+    }
+  }
+  const computeCenter = new ComputeCenterService({
+    getServer: () => server,
+    center: new ConnectionCenter({
+      providers: computePlane.providers,
+      store: connectionStore,
+      nowMs,
+    }),
+    executionZones: computePlane.executionZones,
+  });
   const studio = new CreateStudioService({
     getServer: () => server,
     engines,
@@ -759,6 +852,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     selection,
     realityProducers,
     operations,
+    computeCenter,
     live,
     transientState,
     guardrails,
