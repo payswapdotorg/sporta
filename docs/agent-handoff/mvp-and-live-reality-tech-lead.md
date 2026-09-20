@@ -11,7 +11,8 @@ Your mission is to:
 1. finish the customer-visible batch MVP through J001-J015 and R606/R607;
 2. establish the first real live tactical reality through L001-L017;
 3. preserve one canonical Sports World Model across batch, live tracking and broadcast-perception paths;
-4. keep technologies/provider choices replaceable and evidence-driven.
+4. continuously improve the Technology Plane through benchmarkable model candidates without coupling the product to any model vendor;
+5. keep technologies/provider choices replaceable and evidence-driven.
 
 ## Read first
 
@@ -22,6 +23,7 @@ Your mission is to:
 5. docs/architecture/compute-broker.md
 6. docs/adr/ADR-009-mvp-reality-engine-and-technology-neutrality.md
 7. docs/adr/ADR-010-live-reality-inputs-and-rendering.md
+8. docs/adr/ADR-011-hugging-face-technology-portfolio.md
 8. docs/contracts/sports-world-model.md
 9. docs/contracts/renderer.md
 10. docs/contracts/streaming.md
@@ -33,6 +35,10 @@ Your mission is to:
 16. docs/work-items/mvp-and-live-reality-work-items.md
 17. docs/status/mvp-and-live-reality-status.md
 18. docs/agent-handoff/mvp-and-live-reality-worker-packets.md
+19. docs/contracts/technology-task-profiles.md
+20. docs/research/hugging-face-sporta-model-portfolio.md
+21. docs/work-items/hf-model-portfolio-work-items.md
+22. docs/status/hf-model-portfolio-status.md
 
 ## Reality-engine baseline
 
@@ -69,6 +75,23 @@ Owns:
 - tactical/3D visual quality and browser live experience.
 
 Tech Lead owns shared contracts, cross-worker decisions, final gates and any ADR.
+
+## Hugging Face model-discovery track
+
+The HF portfolio is part of the active implementation program, not background research.
+
+The first P1 candidates are:
+- RF-DETR SoccerNet for soccer object detection;
+- MapAnything for metric 3D/camera/depth;
+- SoccerChat for soccer event/commentary reasoning;
+- VibeVoice/Qwen3-ASR for live/multilingual commentary;
+- Spivak for temporal event spotting;
+- Wan2.2-Fun-Control-Camera, ReCamMaster and Meridian for cinematic re-camera;
+- ViewCrafter for novel-view comparison.
+
+Research/watchlist candidates remain isolated from production: SAM3, DA3-GIANT and explicitly non-commercial soccer VLMs.
+
+Model research must run alongside the existing J/L waves where file ownership permits. It must not block the customer-visible golden path unless a benchmark proves that a candidate is required for an acceptance gate.
 
 ## Shared contract freeze
 
@@ -108,24 +131,24 @@ Produce no speculative broad refactor.
 ### Wave 1 — parallel
 
 Worker A:
-J012 investigation + L003/L004 design + L010 benchmark harness.
+J012 investigation + L003/L004 design + L010 benchmark harness + HF001/HF003-HF009 first P1 benchmarks.
 
 Worker B:
-J005 + J007 + L002.
+J005 + J007 + L002 + HF002 provenance ledger + HF008 ASR runtime plumbing.
 
 Worker C:
-J004 + L005 implementation scaffold.
+J004 + L005 implementation scaffold + HF010-HF013 renderer benchmark harness.
 
 ### Wave 2 — parallel
 
 Worker A:
-J012 implementation + L007 + L010 + L011.
+J012 implementation + L007 + L010 + L011 + continue HF003-HF009 benchmark/integration.
 
 Worker B:
 J006 backend + J014 + L006 + L009 when feed access exists.
 
 Worker C:
-J006 UI + J013 + L005 + L013.
+J006 UI + J013 + L005 + L013 + HF010-HF014 camera/render integration.
 
 ### Wave 3 — parallel
 
@@ -138,10 +161,18 @@ J011 + L014 persistence/recovery.
 Worker C:
 renderer fidelity + L013 + L014 presentation.
 
+### Wave HF-C — Technology promotion
+
+Tech Lead owns HF015. A candidate may move to production only after the benchmark, resource, provenance/license, reproducibility and failure-envelope evidence is recorded.
+
+HF work can remain candidate/benchmarked/canary without changing the domain contracts.
+
 ### Wave 4 — integration
 
 Run:
 - one-submission four-reality browser journey;
+- highest-priority HF candidate benchmark reports;
+- Technology Registry/profile compatibility checks;
 - real durable restart/redeploy recovery;
 - synthetic/replay live tactical browser journey;
 - meaningful SWM sensitivity;
@@ -252,6 +283,23 @@ A demo that loops canned avatars without changing canonical SWM state does not p
 
 After the live window closes or the browser reloads, the same match/session must remain addressable as replay with the same world versions/timebase.
 
+## Hugging Face production rule
+
+Hugging Face model cards and downloads are discovery inputs, not production approval.
+
+Every candidate must be evaluated for:
+- model/checkpoint license;
+- code license;
+- dataset/weights/assets provenance;
+- commercial-use status;
+- actual Sporta quality;
+- identity/temporal stability;
+- latency/throughput/GPU memory;
+- cost;
+- failure envelope.
+
+Neural re-camera is primarily a replay/highlight/cinematic path. Live tactical remains real-time/procedural-first until measured otherwise.
+
 ## External research boundary
 
 The research note in docs/research/live-tactical-rendering-research.md contains the discovered public evidence and candidate repositories.
@@ -264,7 +312,7 @@ The repository's rights policy continues to govern every input and derived artif
 
 At the end of every Tech Lead session:
 
-1. update the relevant status ledger;
+1. update the relevant status ledger(s), including HF status when model work advances;
 2. record actual evidence, not intentions;
 3. record blockers and external dependencies;
 4. update the next safe wave;
