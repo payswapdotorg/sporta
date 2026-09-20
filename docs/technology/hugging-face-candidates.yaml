@@ -1,0 +1,94 @@
+version: 1
+status: candidate
+source_of_truth: docs/research/hugging-face-sporta-model-portfolio.md
+
+candidates:
+  - id: hf.rfdetr.soccernet
+    source: https://huggingface.co/julianzu9612/RFDETR-Soccernet
+    tasks: [football.playerDetection]
+    license: apache-2.0
+    promotion: benchmark-required
+
+  - id: hf.mapanything.apache
+    source: https://huggingface.co/facebook/map-anything-apache
+    tasks: [scene.metric3DReconstruction, scene.depth, scene.cameraPose, scene.covisibility]
+    license: apache-2.0
+    promotion: benchmark-required
+
+  - id: hf.soccerchat.qwen2vl
+    source: https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b
+    tasks: [football.eventReasoning, football.commentaryUnderstanding]
+    license: apache-2.0
+    promotion: benchmark-required
+
+  - id: hf.vibevoice.asr.streaming
+    source: https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B
+    tasks: [football.commentaryASR.streaming]
+    license: verify-current-card
+    promotion: license-and-benchmark-required
+
+  - id: hf.qwen3.asr
+    source: https://huggingface.co/Qwen/Qwen3-ASR-1.7B
+    tasks: [football.commentaryASR.multilingual]
+    license: apache-2.0
+    promotion: benchmark-required
+
+  - id: hf.pyannote.community1
+    source: https://huggingface.co/pyannote/speaker-diarization-community-1
+    tasks: [football.commentarySpeakerDiarization]
+    license: cc-by-4.0-current-card
+    promotion: license-and-benchmark-required
+
+  - id: hf.spivak.soccernet
+    source: https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet
+    tasks: [football.eventSpotting]
+    license: cc-by-4.0
+    promotion: benchmark-required
+
+  - id: hf.wan22.fun.control-camera
+    source: https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera
+    tasks: [renderer.cinematicReCamera]
+    license: apache-2.0
+    promotion: benchmark-required
+
+  - id: hf.recammaster
+    source: https://github.com/KlingAIResearch/ReCamMaster
+    tasks: [renderer.cinematicReCamera]
+    license: mit-code-check-model-terms
+    promotion: license-and-benchmark-required
+
+  - id: hf.meridian
+    source: https://huggingface.co/Viggle/Meridian
+    tasks: [renderer.cinematicReCamera]
+    license: research-only-until-cleared
+    promotion: benchmark-and-legal-review
+
+  - id: hf.viewcrafter25
+    source: https://huggingface.co/Drexubery/ViewCrafter_25
+    tasks: [renderer.cinematicReCamera.experimental]
+    license: apache-2.0-current-card
+    promotion: benchmark-only
+
+  - id: hf.wan22.animate
+    source: https://huggingface.co/Wan-AI/Wan2.2-Animate-14B
+    tasks: [renderer.characterAnimation]
+    license: verify-current-card
+    promotion: license-and-benchmark-required
+
+  - id: hf.ltx23
+    source: https://huggingface.co/Lightricks/LTX-2.3
+    tasks: [renderer.neuralVideo, renderer.audioVideoGeneration, renderer.upscale]
+    license: ltx-2-community
+    promotion: license-and-benchmark-required
+
+  - id: hf.sam3
+    source: https://huggingface.co/facebook/sam3
+    tasks: [football.playerSegmentation, football.playerTracking, humanCorrection]
+    license: sam-license-gated
+    promotion: research-watchlist
+
+  - id: hf.da3.giant
+    source: https://huggingface.co/depth-anything/DA3-GIANT
+    tasks: [scene.depth, scene.cameraPose, scene.multiViewGeometry]
+    license: non-commercial-current-card
+    promotion: research-watchlist
