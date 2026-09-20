@@ -84,11 +84,41 @@ Examples include kickoff, possession-change, pass, carry, tackle, shot, save, go
 
 Streaming stages communicate through bounded low-latency queues. Expensive processing can operate at variable rates, but the system must preserve a coherent match clock. Every stage reports watermark and lag relative to the canonical media timeline.
 
-## 8. Batch mode
+## 8. Live reality mode
+
+Live reality is a first-class operating mode using the same SWM as batch processing.
+
+Supported input classes are replaceable adapters:
+
+- authorized live tracking/state feeds;
+- authorized broadcast-perception streams;
+- live commentary/event/statistical inputs.
+
+The logical live path is:
+
+```text
+Live Input
+    |
+Timestamped Observations
+    |
+Temporal Fusion + Watermarking
+    |
+Sports World Model
+    |
+Live Tactical / 3D / future Renderers
+    |
+WebRTC/HLS or other delivery
+```
+
+Live state uses event time for chronology and retains ingest time for latency measurement. Bounded reorder buffers, explicit interpolation/extrapolation markers, confidence/provenance and backpressure are mandatory. A live renderer consumes canonical world state/events and never a provider-specific schema.
+
+Live observations may be persisted so the same session becomes replayable without translating into a second canonical world model.
+
+## 9. Batch mode
 
 The same contracts are used for uploaded media. Batch mode is not a separate product implementation. It runs the same pipeline with larger buffers, retryable jobs, deterministic evaluation hooks, and offline quality scoring.
 
-## 9. Renderer contract
+## 10. Renderer contract
 
 Renderers receive:
 
@@ -101,19 +131,19 @@ Renderers receive:
 
 Renderers return encoded segments/frames plus telemetry and quality metadata.
 
-## 10. Model provider boundary
+## 11. Model provider boundary
 
 `ModelAdapter` interfaces abstract speech recognition, vision inference, tracking, multimodal reasoning, generation, embeddings, and optional moderation. Model selection/configuration is data-driven so models can be replaced without changing domain contracts.
 
-## 11. Storage
+## 12. Storage
 
 Object storage holds source segments when allowed, intermediate artifacts when necessary, generated outputs, renderer assets, and evaluation fixtures. Relational storage holds control-plane entities and durable metadata. An event/queue system carries transient processing messages. No single storage product is required by the domain model.
 
-## 12. Runtime
+## 13. Runtime
 
 The first deployment target may use a conventional web frontend, API service, relational database, object storage, queue/stream service, and on-demand GPU workers. GPU orchestration is isolated behind job contracts so the platform can later move from simple managed GPU jobs to a dedicated worker cluster.
 
-## 13. Reference deployment shape
+## 14. Reference deployment shape
 
 - Web client: Next.js/React.
 - API/control plane: typed HTTP API with asynchronous job endpoints.
@@ -126,7 +156,7 @@ The first deployment target may use a conventional web frontend, API service, re
 
 These are implementation defaults, not frozen vendor dependencies.
 
-## 14. Key APIs/contracts
+## 15. Key APIs/contracts
 
 Minimum logical APIs:
 
@@ -139,7 +169,7 @@ Minimum logical APIs:
 - obtain playback manifest/session;
 - retrieve generated highlight/render artifacts.
 
-## 15. Evaluation architecture
+## 16. Evaluation architecture
 
 The repository must maintain fixtures for:
 
