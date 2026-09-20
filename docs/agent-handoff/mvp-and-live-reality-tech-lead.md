@@ -24,7 +24,7 @@ Your mission is to:
 6. docs/adr/ADR-009-mvp-reality-engine-and-technology-neutrality.md
 7. docs/adr/ADR-010-live-reality-inputs-and-rendering.md
 8. docs/adr/ADR-011-hugging-face-technology-portfolio.md
-8. docs/contracts/sports-world-model.md
+9. docs/contracts/sports-world-model.md
 9. docs/contracts/renderer.md
 10. docs/contracts/streaming.md
 11. docs/contracts/live-reality.md
@@ -39,6 +39,7 @@ Your mission is to:
 20. docs/research/hugging-face-sporta-model-portfolio.md
 21. docs/work-items/hf-model-portfolio-work-items.md
 22. docs/status/hf-model-portfolio-status.md
+23. docs/technology/hugging-face-candidates.yaml
 
 ## Reality-engine baseline
 
