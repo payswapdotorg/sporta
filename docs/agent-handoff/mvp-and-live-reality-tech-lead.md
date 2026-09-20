@@ -32,7 +32,7 @@ Your mission is to:
 15. docs/roadmap/mvp-and-live-reality-roadmap.md
 16. docs/work-items/mvp-and-live-reality-work-items.md
 17. docs/status/mvp-and-live-reality-status.md
-18. docs/agent-handoff/mvp-worker-packets.md
+18. docs/agent-handoff/mvp-and-live-reality-worker-packets.md
 
 ## Reality-engine baseline
 
