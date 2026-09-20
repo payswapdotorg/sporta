@@ -23,17 +23,17 @@ async function yamlCandidateBlocks(): Promise<Map<string, Record<string, string>
   const blocks = new Map<string, Record<string, string>>();
   let current: { id: string; fields: Record<string, string> } | null = null;
   for (const line of text.split("\n")) {
-    const idMatch = /^  - id: (\S+)$/.exec(line);
+    const idMatch = /^ {2}- id: (\S+)$/.exec(line);
     if (idMatch !== null) {
       current = { id: idMatch[1]!, fields: {} };
       blocks.set(current.id, current.fields);
       continue;
     }
-    const fieldMatch = /^    (source|license|promotion): (.+)$/.exec(line);
+    const fieldMatch = /^ {4}(source|license|promotion): (.+)$/.exec(line);
     if (fieldMatch !== null && current !== null) {
       current.fields[fieldMatch[1]!] = fieldMatch[2]!;
     }
-    const tasksMatch = /^    tasks: \[(.+)\]$/.exec(line);
+    const tasksMatch = /^ {4}tasks: \[(.+)\]$/.exec(line);
     if (tasksMatch !== null && current !== null) {
       current.fields.tasks = tasksMatch[1]!;
     }
