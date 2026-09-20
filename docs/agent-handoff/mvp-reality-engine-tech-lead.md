@@ -1,3 +1,9 @@
+# Historical handoff — superseded as active instruction
+
+The active artifact is `docs/agent-handoff/mvp-and-live-reality-tech-lead.md`. This file remains as historical implementation context and must not be treated as a competing execution plan.
+
+---
+
 # Sporta MVP Reality Engine — Final Tech Lead Handoff
 
 You are the implementation Tech Lead/Orchestrator for `payswapdotorg/sporta`.
