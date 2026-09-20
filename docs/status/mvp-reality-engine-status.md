@@ -486,3 +486,56 @@ The initial user-owned/hosted candidates are Modal, Lightning AI, RunPod and loc
 - Delivery: work/r504-r507-playback-plane merged --no-ff @711c832; R504 HTML5 watch player on real MP4 artifacts (integrity-verified byte routes, honest 415/404/403 boundaries), R505 reality switcher (URL-addressable, same-session), R506 compute/cost legibility, R507 real-browser golden path (9 steps, 104 assertions, runtime-ffmpeg clips).
 - TL battery: lane tests 44/44 green locally; local full battery OOM-capped at the gate segment (sandbox memory, environmental) with its 2 fails inside the main-baseline 13-fail environmental set (timestamp-stripped match); worker battery 6163 pass / 1 fail / 33 skip (the 1 fail = documented perception-benchmark variance, byte-identical pre-change); lint/format/typecheck clean; CONTRACT CHANGES none; BLOCKERS none.
 - Wave 4 is now COMPLETE (B: R501-R503 @41f6f75 + C: R504-R507 @711c832). Next: final MVP gate audit R601-R607 per docs/testing/mvp-reality-engine-acceptance.md.
+
+## Wave-5 A — Worker R508-R510 COMPLETE (TL audit-first, 2026-09-20)
+
+- Worker chat bedc68a7 (fighter round-2 landing 02:15 UTC during the
+  pre-dawn capacity window; 6x120min armed from 00:45). Incremental
+  pushes honored (3 rails: R508 @4769a5f -> R509+R510 batteries
+  @e2c01f3 -> golden path @2471a8b).
+- Delivery: work/r508-r510-derived-mp4 merged --no-ff @891f085; R508 the
+  tactical reality's MP4 (R301 plugin's own encode adopted+verified via
+  bridgeTacticalRenderer), R509 the 3D-game MP4 and R510 the anime-NPR
+  MP4 (frozen R302 engine seam -> staged rgb24 frames ->
+  bridgeGameFrameOutput through the real FrameEncoderPort), all three
+  landing in the same content-addressed media store the original
+  reality uses, served by the same integrity-verified byte route.
+- Acceptance D/K gap CLOSED: all four realities of an accepted session
+  are READY with real MP4 descriptors (readyRealityCount 4; the W504
+  anime SVG review segment rides as the explicitly-labeled diagnostics
+  surface). Golden path walks/plays/switches ALL FOUR on one
+  acquisition with same-event integrity (shared sessionId + swm
+  {snapshotVersion 13, lastEventSequence 0}).
+- TL audit: lane tests green locally (derived 13/0, derived-reality-
+  catalog 7/0, golden-path 10/0, touched files 86/0, compute-adapter-
+  hosted 84/0, control-api 98/0, media-platform 16/0 after one
+  transient documented 5s-timeout flake); FULL battery completed
+  locally this run (no OOM): 6184 pass / 1 fail / 33 skip — byte-matching
+  the worker's numbers; the 1 fail is the documented pre-existing
+  perception-benchmark variance; baseline f958b52 6163/1/33 => +21
+  pass, 0 NEW FAILURES. Lint 0 errors / 1 pre-existing warning
+  (statement-identical on main). CONTRACT CHANGES none. BLOCKERS none.
+- Two disclosed architecture deviations, verified in-diff: (1) the
+  watch byte route's step-4 boundary is now content-type-driven (serve
+  mp4-container descriptors; 415 everything else, incl. W504 SVG
+  segments) instead of kind!=='original' — the previous form hard-415'd
+  every derived reality regardless of content type; gates/verified-read/
+  Range logic byte-identical. Ratification proposal for the acceptance
+  doc's R504 wording is noted for the R601-R607 gate audit. (2) game
+  realities render through the frozen R302 engine seam + the bridge
+  (per the mission's own wording), not the R303/R304 plugins' internal
+  encode path; a future game-bridge "adopt" mode (mirroring the
+  tactical bridge) is the recorded option if the TL ever wants the
+  plugin path instead.
+- Honest boundaries recorded by the worker: ffmpeg-conditional
+  composition (no-ffmpeg deployments degrade to producer-unavailable,
+  the wave-4 posture); anime-npr SD artifacts approach the 1MB artifact
+  budget at longer style durations (fail-closed artifact-too-large,
+  never silent truncation); inline base64 inflates MP4s ~4/3x on the
+  compute envelope (814KB -> ~1.09MB, inside the 4.5MB platform bound);
+  COMPUTE_PROVIDER=http worker deployments do not host the derived
+  renderers (in-process plane is the wired one).
+- Next: final MVP gate audit R601-R607 per
+  docs/testing/mvp-reality-engine-acceptance.md (two-clip J-walk,
+  human visual acceptance). The derived-reality MP4 gate (section D/K)
+  is no longer a gap.
