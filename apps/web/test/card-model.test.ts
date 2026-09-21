@@ -32,9 +32,11 @@ beforeAll(async () => {
 describe("the dev seed (honesty absolute)", () => {
   test("seeds exactly four real sessions through the real gate", async () => {
     const { sessions } = await server.control.listSessions();
-    // L005 (full): three story sessions + ONE live-tactical session per L002
-    // delivery scenario (normal/jitter/delay/drop/out-of-order/reconnect).
-    expect(sessions).toHaveLength(9);
+    // L005 (full) + L014: three story sessions + ONE live-tactical session per L002
+    // delivery scenario (normal/jitter/delay/drop/out-of-order/reconnect), plus
+    // the Wave-3 finite-window continuity session (the live window that
+    // ends honestly and replays through the same views).
+    expect(sessions).toHaveLength(10);
     // Every seeded session is identity-owned by the labeled platform seed account.
     for (const summary of sessions) {
       const owner = await server.ownership.ownerIdOf(summary.id);
@@ -105,10 +107,11 @@ describe("the dev seed (honesty absolute)", () => {
     });
     expect(summary.seedAccountUsername).toBe("sporta-dev-seed");
     expect(summary.demoAccountUsername).toBe("sporta-demo");
-    expect(summary.sessions).toHaveLength(9);
+    expect(summary.sessions).toHaveLength(10);
     expect(summary.sessions.map((entry) => entry.storyKey).sort()).toEqual([
       "derby",
       "friendly",
+      "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",
@@ -126,8 +129,9 @@ describe("the dev seed (honesty absolute)", () => {
 describe("buildCatalog (the card model from real control-plane state)", () => {
   test("maps every session onto honest card fields", async () => {
     const cards = await buildCatalog(server);
-    // L005 (full): three story sessions + six live-tactical scenario sessions.
-    expect(cards).toHaveLength(9);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(cards).toHaveLength(10);
     for (const card of cards) {
       expect(card.label.length).toBeGreaterThan(3);
       expect(card.status).toBe("authorized");
@@ -139,6 +143,7 @@ describe("buildCatalog (the card model from real control-plane state)", () => {
     expect(storyKeys).toEqual([
       "derby",
       "friendly",
+      "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",
@@ -289,12 +294,14 @@ describe("buildLibrary (ownership-gated)", () => {
   test("the seed account's library is exactly its owned sessions", async () => {
     const seedAccount = await server.accounts.findByUsername("sporta-dev-seed");
     const cards = await buildLibrary(server, seedAccount!.userId);
-    // L005 (full): three story sessions + six live-tactical scenario sessions.
-    expect(cards).toHaveLength(9);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(cards).toHaveLength(10);
     const keys = cards.map((card) => card.story!.storyKey).sort();
     expect(keys).toEqual([
       "derby",
       "friendly",
+      "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",
       "live-tactical-synthetic",

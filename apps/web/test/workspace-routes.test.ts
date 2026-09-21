@@ -314,8 +314,9 @@ describe("W907 GET /api/workspaces/jobs — the Jobs workspace", () => {
       sessions: { sessionId: string; label: string; status: string; jobs: unknown[] }[];
     };
     expect(body.scope).toBe("operator");
-    // L005 (full): 9 seeded (3 stories + 6 L005 tactical scenarios) + the rights-holder's.
-    expect(body.sessions.length).toBe(10);
+    // L005 (full) + L014: 10 seeded (3 stories + 6 L005 tactical scenarios +
+    // the finite-window continuity session) + the rights-holder's.
+    expect(body.sessions.length).toBe(11);
     const ids = body.sessions.map((entry) => entry.sessionId);
     expect(ids).toContain(derbySessionId);
     expect(ids).toContain(trainingSessionId);
