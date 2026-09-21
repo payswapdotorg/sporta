@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { RendererContractError } from "@sporta/renderer-contract";
 import { manifestProvenanceIssues } from "@sporta/contracts";
 import {
+  ANIME_MP4_SD_TWOS_PROFILE,
   ANIME_NPR_RENDERER_ID,
   ANIME_NPR_RENDERER_VERSION,
   GAME_3D_RENDERER_ID,
@@ -54,7 +55,11 @@ function pluginSuite(options: {
       expect(plugin.capability().rendererId).toBe(rendererId);
       expect(plugin.capability().rendererVersion).toBe(rendererVersion);
       expect(plugin.capability().requiresSourceFrames).toBe(false);
-      expect(plugin.capability().supportedOutputProfiles.length).toBe(2);
+      // R304 (Wave-3): the anime capability carries THREE profiles (the slim
+      // "on twos" default first + the historical SD + HD); R303 keeps TWO.
+      expect(plugin.capability().supportedOutputProfiles.length).toBe(
+        rendererId === "anime-npr.prototype" ? 3 : 2,
+      );
       expect(plugin.pluginKind).toBe("sporta-renderer");
     });
 
@@ -369,13 +374,17 @@ pluginSuite({
 });
 
 describe("the two identities share one structure (same seams, different style)", () => {
-  test("identities differ; capabilities differ only in identity+class", () => {
+  test("identities differ; capabilities differ only in identity+class+profile list", () => {
     const game = createGame3DRenderer().capability();
     const anime = createAnimeNprRenderer().capability();
     expect(game.rendererId).not.toBe(anime.rendererId);
     expect(game.rendererClass).toBe("procedural-3d");
     expect(anime.rendererClass).toBe("stylized-video");
-    expect(game.supportedOutputProfiles).toEqual(anime.supportedOutputProfiles);
+    // Wave-3: the anime capability now carries its OWN default profile first
+    // (the on-twos slim default — the J013 budget resolution); the shared
+    // tail (the historical SD + HD profiles both still support) is the same.
+    expect(anime.supportedOutputProfiles[0]).toBe(ANIME_MP4_SD_TWOS_PROFILE);
+    expect(anime.supportedOutputProfiles.slice(1)).toEqual(game.supportedOutputProfiles);
     expect(game.requiresSourceFrames).toBe(anime.requiresSourceFrames);
   });
 });

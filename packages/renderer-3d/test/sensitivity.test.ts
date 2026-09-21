@@ -13,15 +13,14 @@ import { SESSION_ID, ALLOW_ALL, buildFixtureSnapshot, buildFixtureEvents } from 
  *
  * WHY THIS LEVEL: the apps/web J013 battery proves the gate end-to-end
  * through the REAL pipeline (upload → perception → SWM → dispatch → real
- * MP4 artifacts) for the tactical and 3D realities. The anime-NPR leg of
- * THAT battery is honestly BLOCKED at the platform budget today (the
- * cel-shaded render of a POPULATED pitch at the default 4 s SD profile
- * measures ~1.04 MB — over the compute plane's fail-closed 1 MB artifact
- * budget; the budget/content tension is documented for the TL, never
- * faked around). THIS test proves the RENDERER-side sensitivity the
- * acceptance demands — the same engine, the same styles, driven directly
- * with two materially different canonical SWMs — with no budget in the
- * path.
+ * MP4 artifacts) for the tactical and 3D realities — and, since the Wave-3
+ * anime-budget resolution (the "on twos" default profile — 12 fps — that
+ * brings the populated-pitch cel-shaded default render under the compute
+ * plane's fail-closed 1 MB artifact budget; the previous 25 fps default
+ * measured 1 038 993–1 082 922 bytes, OVER), for the Anime/NPR reality too.
+ * THIS test keeps proving the RENDERER-side sensitivity directly — the same
+ * engine, the same styles, driven with two materially different canonical
+ * SWMs — independent of the app battery (no budget in this path).
  *
  * REAL-vs-FIXTURE: FIXTURE SWM snapshots (the @sporta/testing builder +
  * the canonical game fixtures — deterministic, no clock/RNG); REAL engine

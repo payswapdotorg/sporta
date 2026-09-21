@@ -456,9 +456,10 @@ export function createGame3DRenderer(
 }
 
 /**
- * Creates the R304 Anime/NPR renderer (`anime-npr.prototype@0.1.0`): the
+ * Creates the R304 Anime/NPR renderer (`anime-npr.prototype@0.2.0`): the
  * SAME SWM scene through the SAME engine seam, presented in the
- * `cel-shaded` style, reality `anime-npr`.
+ * `cel-shaded` style, reality `anime-npr`. (0.2.0 = the Wave-3 default-
+ * profile slimming — the "on twos" SD default; see ./identity.ts.)
  */
 export function createAnimeNprRenderer(
   options: GameRealityRendererOptions = {},
@@ -466,7 +467,7 @@ export function createAnimeNprRenderer(
   return createGameRealityRenderer(
     {
       rendererId: "anime-npr.prototype",
-      rendererVersion: "0.1.0",
+      rendererVersion: "0.2.0",
       renderingStyle: "cel-shaded",
       reality: "anime-npr",
       segmentPrefix: "animenpr",

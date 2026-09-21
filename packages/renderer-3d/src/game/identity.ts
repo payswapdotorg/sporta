@@ -20,8 +20,11 @@
  *   baseline profile — HTML5 `<video>` compatible); the profile list is
  *   capability data, not preference (the SD profile is first: the
  *   historical default the W501 conformance harness probes);
- * - `rendererVersion` is immutable per the contract; both plugins start at
- *   `0.1.0`.
+ * - `rendererVersion` is immutable per the contract; both plugins started at
+ *   `0.1.0`. The Anime/NPR renderer moved to `0.2.0` with the Wave-3
+ *   default-profile slimming (see {@link ANIME_MP4_SD_TWOS_PROFILE}) — a
+ *   deliberate restyle in the identity.ts doctrine's own words, so the
+ *   version the old capability advertised stays what it was.
  */
 import type { GameEngineDescriptor, OutputProfile, RendererCapability } from "@sporta/contracts";
 import { SCHEMA_VERSION } from "@sporta/contracts";
@@ -35,8 +38,8 @@ export const GAME_3D_RENDERER_VERSION = "0.1.0";
 /** The stable logical renderer id of the R304 Anime/NPR renderer. */
 export const ANIME_NPR_RENDERER_ID = "anime-npr.prototype";
 
-/** The immutable renderer version of the R304 renderer. */
-export const ANIME_NPR_RENDERER_VERSION = "0.1.0";
+/** The immutable renderer version of the R304 renderer (0.2.0 since the Wave-3 default-profile slimming). */
+export const ANIME_NPR_RENDERER_VERSION = "0.2.0";
 
 /** The engine id of the reference software 3D engine (R302 seam consumer). */
 export const SOFTWARE_3D_ENGINE_ID = "sporta.software-3d";
@@ -146,6 +149,44 @@ export function game3dCapability(): RendererCapability {
 }
 
 /**
+ * The Anime/NPR DEFAULT profile (Wave-3, first in the anime capability's
+ * list): the SAME SD geometry at 12 fps — "on twos", the traditional
+ * cel-animation cadence (each animation frame held for two film frames).
+ *
+ * WHY THIS PROFILE EXISTS (the J013 honest finding, resolved renderer-side):
+ * the populated-pitch cel-shaded render at the previous default (SD @ 25 fps
+ * × the 4 000 ms default duration = 100 frames) measured 1 038 993–1 082 922
+ * bytes through the real pipeline — OVER the hosted compute plane's
+ * fail-closed 1 000 000-byte artifact budget (packages/compute-adapter-
+ * hosted/src/budgets.ts, the platform guardrail this renderer must fit at
+ * its DEFAULTS — the budget itself is TL-gated and untouched). The frame
+ * BUDGET is the renderer-local knob: 12 fps × 4 000 ms = 48 frames, and the
+ * same real-pipeline measurements land at 650 036–671 203 bytes (≈ 65 % of
+ * the budget — real margin against content variance, not a shaved pass).
+ *
+ * THE HONEST QUALITY TRADE-OFF: motion renders at half the temporal
+ * resolution of the historical SD profile (12 fps instead of 25 fps). This
+ * is BOTH a budget fit AND the authentic cel-animation cadence (anime is
+ * traditionally animated on twos) — but it is still a real trade-off and is
+ * documented as one (docs/research/l014-anime-budget-resolution.md). The
+ * historical SD @ 25 fps and HD @ 25 fps profiles REMAIN SUPPORTED (explicit
+ * requests for them are honored; an explicit heavier profile may still
+ * exceed the platform budget and fail closed there — the guardrail's own
+ * honest answer, never a renderer-side silent downgrade).
+ *
+ * Determinism pins are unchanged: the same profile + the same SWM input
+ * produce byte-identical artifacts (the codec argv is the frozen template;
+ * the profile only feeds the frame-source geometry/framerate inputs).
+ */
+export const ANIME_MP4_SD_TWOS_PROFILE: OutputProfile = {
+  resolution: { w: 640, h: 360 },
+  frameRate: 12,
+  codec: "h264",
+  container: "mp4",
+  latencyClass: "offline",
+};
+
+/**
  * The immutable capability document of the R304 Anime/NPR renderer.
  * `rendererClass: "stylized-video"`: the same SWM scene through the same
  * engine seam, presented with the cel-shaded/NPR style (flat two-tone
@@ -157,7 +198,11 @@ export function animeNprCapability(): RendererCapability {
     rendererId: ANIME_NPR_RENDERER_ID,
     rendererVersion: ANIME_NPR_RENDERER_VERSION,
     rendererClass: "stylized-video",
-    supportedOutputProfiles: [GAME_MP4_SD_PROFILE, GAME_MP4_HD_PROFILE],
+    supportedOutputProfiles: [
+      ANIME_MP4_SD_TWOS_PROFILE,
+      GAME_MP4_SD_PROFILE,
+      GAME_MP4_HD_PROFILE,
+    ],
     requiresSourceFrames: false,
     minSnapshotVersion: 0,
   };
