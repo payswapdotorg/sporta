@@ -676,3 +676,38 @@ Session state: main @bccf89c (CI pending), Wave 1 ALL THREE LANES
 delivered (B + C merged earlier; A merged now). Next: CI verdict →
 status evidence → Wave 2 dispatch (A: L007/L010/L011 impl; B: J006
 backend + J014 + L006 + L009; C: J006 UI + J013 + L005 full + L013).
+
+## Session 2026-09-21 01:40-02:00 UTC — CI hotfix + WAVE 2 DISPATCHED
+
+- Post-merge CI caught a REAL interaction my scoped battery missed: the
+  J012 default-chain change made golden-path step 7 + derived-reality-
+  catalog fail (snapshot.entities 0) — the tests' testsrc color-bars clip
+  is surface-dominated with thin edge lines, and the contrast-context
+  production path HONESTLY reports zero players on it (the old
+  heuristic-color chain had found blobs in the bars). Product behavior
+  correct per design; test media was the mismatch.
+- Hotfix 451766b: `generateTestMp4` scene option — "pitch" (three moving
+  kit-colored players on a uniform green field, disjoint motion lanes,
+  ring-context clean) for the entity-asserting tests; "bars" default
+  preserved for every other caller. Both tests green locally (7/7,
+  14/14) — **CI GREEN AT 451766b** (the full-suite verifier). Wave 1
+  now fully closed: A + B + C lanes merged, hotfixed, green.
+- WAVE 2 DISPATCHED 01:50-01:57 UTC (deep-night window, all three
+  VERIFIED first try; the create flow released two stale wave-1
+  sandboxes): Worker A b27a3ea4 (L003 + L004 implementation from the
+  designs, L007 open-data replay adapter + L008 profile, L011 perception
+  runtime seam) on work/l003-l004-l007-l011; Worker B dc486588 (J006
+  backend surfaces, J014 restart/redeploy durability, L006 telemetry
+  plumbing, L009 authorized-provider adapter with honest-blocked
+  posture) on work/j006b-j014-l006-l009; Worker C 98f82494 (L005 full
+  live tactical, L013 live 3D, J006 UI, J013 sensitivity gate) on
+  work/j006ui-j013-l005-l013. All sandboxes provisioned (iframes
+  verified). Prompts at /home/z/prompts/sporta-wave2-{a,b,c}.md.
+- wave2_sentinel.py (pid 19441): three-lane tip watch + DOM-delta
+  activity + report markers + 45-min stall alerts (no auto-nudging —
+  wave-1 lessons); state scripts/flags/wave2_sentinel_state.json.
+
+Session state: main @451766b CI GREEN; Wave 1 COMPLETE (all lanes);
+Wave 2 GENERATING (3/3 lanes live). Next: harvest branch pushes → TL
+verify batteries → merges → status evidence; J006 B/C reconciliation at
+merge time.
