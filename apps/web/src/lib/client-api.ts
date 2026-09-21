@@ -379,12 +379,51 @@ export interface LiveSourcesLike {
     sourceKind?: "story" | "tactical";
     /** L005: the tactical source's honest note (when sourceKind is tactical). */
     sourceNote?: string;
+    /** L014: the finite-window + replay continuity source flag. */
+    finiteWindow?: boolean;
   }[];
 }
 
 /** GET /api/live — the live sources the transport is really serving (W915). */
 export function fetchLiveSources(): Promise<LiveSourcesLike> {
   return getJson<LiveSourcesLike>("/api/live");
+}
+
+/** The /api/live/[sessionId]/replay answer (L014 — the recorded live window). */
+export interface LiveReplayRecordLike {
+  schemaVersion: string;
+  sessionId: string;
+  state: "complete" | "live-window-open" | "no-record";
+  frames: unknown[];
+  meta?: {
+    label: string;
+    completedAtMs: number;
+    cadenceMs: number;
+    deliveredFrames: number;
+    droppedFrames: number;
+    worldVersionFirst: number;
+    worldVersionLast: number;
+    eventTimeFirstMs: number;
+    eventTimeLastMs: number;
+    watermarkFinal: { watermarkMs: number; sequence: number };
+  };
+}
+
+/**
+ * GET /api/live/[sessionId]/replay — the completed live window's RECORDED
+ * world frames (L014). `live-window-open` (409) resolves to `null`: the
+ * window has not ended, so the caller stays on the live view (honest
+ * fallback, never an error surface).
+ */
+export async function fetchLiveReplayRecord(
+  sessionId: string,
+): Promise<LiveReplayRecordLike | null> {
+  try {
+    return await getJson<LiveReplayRecordLike>(`/api/live/${encodeURIComponent(sessionId)}/replay`);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 409) return null; // the window is still open
+    throw err;
+  }
 }
 
 // ---------------------------------------------------------------------------

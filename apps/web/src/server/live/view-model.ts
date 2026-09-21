@@ -81,6 +81,15 @@ export interface LiveTacticalRegistration {
    * (zero-cost honesty — never a fabricated measurement).
    */
   telemetry?: LiveTelemetryProbe;
+  /**
+   * L014 (additive, presentation side): when `true` the scripted window
+   * runs ONCE — the producer answers `null` at exhaustion and the transport
+   * ends the channel with the `live-window-complete` close reason, retaining
+   * the RECORDED world frames for replay through the same views. Default
+   * (`false`/absent): the labeled CYCLING behavior of the six L005 scenario
+   * sessions is preserved verbatim.
+   */
+  finiteWindow?: boolean;
 }
 
 /** One projected entity's carried state (identity-continuous by entityRef). */
@@ -115,15 +124,27 @@ export interface TacticalFrameResult {
  * Creates the live tactical frame producer: `next()` pulls the NEXT
  * observation from the deterministic source (arrival order — the scenario's
  * honest delivery plan), projects it into one world frame, and returns it
- * with its telemetry. The scripted window cycles (labeled per frame).
+ * with its telemetry.
+ *
+ * WINDOW SEMANTICS (the L005/L014 split):
+ *
+ * - cycling (the default, the six L005 scenario sessions): when the scripted
+ *   window exhausts, a fresh labeled replay cycle starts (the same
+ *   deterministic sequence — the boundary is DATA, never a fabricated
+ *   continuity);
+ * - finite (L014, `finiteWindow: true`): when the scripted window exhausts,
+ *   `next()` answers `null` — the live window is OVER, and the transport ends
+ *   the channel with the `live-window-complete` close reason (the recorded
+ *   frames are then replayable through the same views).
  */
 export function createTacticalFrameProducer(options: TacticalFrameProducerOptions): {
-  next: (meta: { sessionId: string; ordinal: number }) => TacticalFrameResult;
+  next: (meta: { sessionId: string; ordinal: number }) => TacticalFrameResult | null;
   /** How many observations the current window has delivered. */
   readonly delivered: number;
 } {
   const config = options.config;
   const probe = options.telemetry;
+  const finite = options.finiteWindow === true;
   let source = freshSource();
   const carried = new Map<string, CarriedEntity>();
   let worldVersion = 0;
@@ -146,14 +167,19 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
     get delivered(): number {
       return deliveredCount;
     },
-    next(meta: { sessionId: string; ordinal: number }): TacticalFrameResult {
+    next(meta: { sessionId: string; ordinal: number }): TacticalFrameResult | null {
       const startedAtMs = options.nowMs();
       let observation: LiveObservation | null = source.next();
       let replayCycle = false;
       if (observation === null) {
-        // The scripted window exhausted: a fresh labeled replay cycle (the
-        // same deterministic sequence — the boundary is DATA, never a
-        // fabricated continuity).
+        // The scripted window exhausted. Cycling (the default): a fresh
+        // labeled replay cycle (the same deterministic sequence — the
+        // boundary is DATA, never a fabricated continuity). Finite (L014):
+        // the live window is OVER — `null` (the transport ends the channel
+        // honestly; never a fabricated extra frame).
+        if (finite) {
+          return null;
+        }
         source.close();
         source = freshSource();
         observation = source.next();
@@ -329,5 +355,9 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
 
 /** The view-model's honest registration note (rides the sources listing). */
 export function tacticalSourceNote(registration: LiveTacticalRegistration): string {
-  return `${SYNTHETIC_SOURCE_NOTE} — scenario '${registration.config.scenario}', ${registration.config.tickCount} ticks @ ${registration.config.rateMs}ms (${registration.sourceNote})`;
+  const windowNote =
+    registration.finiteWindow === true
+      ? `; finite window — ends after ${registration.config.tickCount} ticks, then replays (L014)`
+      : "";
+  return `${SYNTHETIC_SOURCE_NOTE} — scenario '${registration.config.scenario}', ${registration.config.tickCount} ticks @ ${registration.config.rateMs}ms (${registration.sourceNote})${windowNote}`;
 }

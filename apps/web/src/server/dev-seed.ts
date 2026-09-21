@@ -20,6 +20,8 @@
  * Users register their own accounts; their Library lists their own sessions.
  */
 import { SCHEMA_VERSION, deriveRightsCapabilities } from "@sporta/contracts";
+import type { AuthorizationPolicy } from "@sporta/contracts";
+import type { LiveScenarioKind } from "@sporta/live-source";
 import { encodeAnimeClip } from "@sporta/output-pipeline";
 import {
   ANIME_OUTPUT_PROFILE,
@@ -364,80 +366,165 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     summary.push({ sessionId, storyKey: plan.story.key, renderIds, storedSegmentIds });
   }
 
-  // 3. L005 — the LIVE TACTICAL scaffold's session: a real control-plane
-  //     session whose live-authorized policy carries the L002 deterministic
-  //     tracking source as its LIVE source. The registration is the
+  // 3. L005 (full) — the LIVE TACTICAL sessions: real control-plane
+  //     sessions whose live-authorized policies carry the L002 deterministic
+  //     tracking source as their LIVE sources. The registration is the
   //     transport's producer-seam re-point (the tactical view-model instead
   //     of a story timeline) — honestly labeled: SYNTHETIC deterministic
-  //     tracking data, never a real broadcast. The scenario is `reconnect`
-  //     so the scaffold's dropout/degraded/recovery display is exercised on
-  //     the default dev surface (the other scenarios are one config away).
-  const tacticalCreated = await server.gate.createMediaSession(login.token, {
-    authorizationPolicy: {
-      policyId: "policy-dev-seed-live-tactical",
-      allowedOperations: [
-        "analysis",
-        "transformation",
-        "liveDelivery",
-        "derivativeGeneration",
-        "storage",
-      ],
-      assertedBy: "dev-seed",
-      sharingScope: "operator-authorized",
+  //     tracking data, never a real broadcast. ONE session per L002 delivery
+  //     scenario (normal / jitter / delay / drop / out-of-order / reconnect)
+  //     so the full L005 surface shows every honest delivery behavior —
+  //     replayable, deterministic, selectable on the Live page.
+  const LIVE_SCENARIO_SEEDS: ReadonlyArray<{
+    scenario: LiveScenarioKind;
+    label: string;
+    note: string;
+  }> = [
+    {
+      scenario: "normal",
+      label: "Synthetic live tracking — normal delivery",
+      note: "every tick delivered in order at the base latency",
     },
-    sourceLabel: "Synthetic live tracking — tactical view (L002 source, scaffold)",
-  });
-  const tacticalSessionId = (tacticalCreated as { session: { sessionId: string } }).session
-    .sessionId;
-  server.attestations.record(tacticalSessionId, seedAccount.userId);
-  server.publication.set(tacticalSessionId, "public");
-  // The story metadata the card/catalog model exposes (labeled): the
-  // tactical session is dev-seed content whose "story" is the live
-  // synthetic tracking window itself (no stored transcript/events).
-  storyIndex.set(tacticalSessionId, {
-    source: "dev-seed",
-    storyKey: "live-tactical-synthetic",
-    transcript: [],
-    events: [],
-    waveCount: 0,
-  });
-  server.live.registerSource({
-    sessionId: tacticalSessionId,
-    label: "Synthetic live tracking — tactical view",
-    storyKey: "live-tactical-synthetic",
-    steps: [],
-    policy: {
-      policyId: "policy-dev-seed-live-tactical",
-      allowedOperations: [
-        "analysis",
-        "transformation",
-        "liveDelivery",
-        "derivativeGeneration",
-        "storage",
-      ],
-      assertedBy: "dev-seed",
-      sharingScope: "operator-authorized",
+    {
+      scenario: "jitter",
+      label: "Synthetic live tracking — jitter",
+      note: "irregular inter-arrival (bounded sender jitter, order preserved)",
     },
-    snapshotVersion: 0,
-    watermarkSequence: 0,
-    tactical: {
-      config: {
-        seed: 20260920,
-        scenario: "reconnect",
-        tickCount: 600,
-        rateMs: 100,
-        playersPerTeam: 11,
-        referees: 1,
+    {
+      scenario: "delay",
+      label: "Synthetic live tracking — delay window",
+      note: "a contiguous late-arrival window (watermark lag grows, then catches up)",
+    },
+    {
+      scenario: "drop",
+      label: "Synthetic live tracking — scattered drops",
+      note: "seeded per-tick drops (visible sequence gaps, counted, never smoothed)",
+    },
+    {
+      scenario: "out-of-order",
+      label: "Synthetic live tracking — out-of-order",
+      note: "bounded adjacent swaps (reorder depth one — the reorder-window stress)",
+    },
+    {
+      scenario: "reconnect",
+      label: "Synthetic live tracking — reconnect",
+      note: "one dropout window then reconnect (recovery accounting + degraded quality)",
+    },
+  ];
+  const liveTacticalPolicy: AuthorizationPolicy = {
+    policyId: "policy-dev-seed-live-tactical",
+    allowedOperations: [
+      "analysis",
+      "transformation",
+      "liveDelivery",
+      "derivativeGeneration",
+      "storage",
+    ],
+    assertedBy: "dev-seed",
+    sharingScope: "operator-authorized",
+  };
+  for (const scenarioSeed of LIVE_SCENARIO_SEEDS) {
+    const created = await server.gate.createMediaSession(login.token, {
+      authorizationPolicy: liveTacticalPolicy,
+      sourceLabel: `Synthetic live tracking — ${scenarioSeed.scenario} (L002 source)`,
+    });
+    const scenarioSessionId = (created as { session: { sessionId: string } }).session.sessionId;
+    server.attestations.record(scenarioSessionId, seedAccount.userId);
+    server.publication.set(scenarioSessionId, "public");
+    // The story metadata the card/catalog model exposes (labeled): the
+    // tactical session is dev-seed content whose "story" is the live
+    // synthetic tracking window itself (no stored transcript/events).
+    storyIndex.set(scenarioSessionId, {
+      source: "dev-seed",
+      storyKey: "live-tactical-synthetic",
+      transcript: [],
+      events: [],
+      waveCount: 0,
+    });
+    server.live.registerSource({
+      sessionId: scenarioSessionId,
+      label: scenarioSeed.label,
+      storyKey: "live-tactical-synthetic",
+      steps: [],
+      policy: liveTacticalPolicy,
+      snapshotVersion: 0,
+      watermarkSequence: 0,
+      tactical: {
+        config: {
+          seed: 20260920,
+          scenario: scenarioSeed.scenario,
+          tickCount: 600,
+          rateMs: 100,
+          playersPerTeam: 11,
+          referees: 1,
+        },
+        sourceNote: scenarioSeed.note,
       },
-      sourceNote: "the dev seed's labeled live-tactical session",
-    },
-  });
-  summary.push({
-    sessionId: tacticalSessionId,
-    storyKey: "live-tactical-synthetic",
-    renderIds: [],
-    storedSegmentIds: [],
-  });
+    });
+    summary.push({
+      sessionId: scenarioSessionId,
+      storyKey: "live-tactical-synthetic",
+      renderIds: [],
+      storedSegmentIds: [],
+    });
+  }
+
+  // 3b. L014 (presentation side) — the LIVE/REPLAY CONTINUITY session: the
+  //     SAME L002 deterministic tracking source, but as a FINITE live
+  //     window — the scripted window runs ONCE (24 ticks), the stream ends
+  //     with the honest `live-window-complete` close, and the transport
+  //     retains the RECORDED world frames. After the window, the SAME
+  //     tactical/3D surfaces replay the recorded session state through the
+  //     SAME view-model contracts (the replay record route serves the
+  //     frames verbatim — world versions/watermarks/timecodes unchanged).
+  //     HONEST LABEL: synthetic deterministic tracking (never a real
+  //     broadcast), and the record is THIS transport instance's memory —
+  //     the durable live-session persistence (the platform side of L014)
+  //     is Worker B's lane.
+  {
+    const created = await server.gate.createMediaSession(login.token, {
+      authorizationPolicy: liveTacticalPolicy,
+      sourceLabel: "Synthetic live tracking — finite window (L002 source, L014 replay)",
+    });
+    const replaySessionId = (created as { session: { sessionId: string } }).session.sessionId;
+    server.attestations.record(replaySessionId, seedAccount.userId);
+    server.publication.set(replaySessionId, "public");
+    storyIndex.set(replaySessionId, {
+      source: "dev-seed",
+      storyKey: "live-tactical-synthetic",
+      transcript: [],
+      events: [],
+      waveCount: 0,
+    });
+    server.live.registerSource({
+      sessionId: replaySessionId,
+      label: "Synthetic live tracking — finite window + replay",
+      storyKey: "live-tactical-synthetic",
+      steps: [],
+      policy: liveTacticalPolicy,
+      snapshotVersion: 0,
+      watermarkSequence: 0,
+      tactical: {
+        config: {
+          seed: 20260921,
+          scenario: "normal",
+          tickCount: 24,
+          rateMs: 100,
+          playersPerTeam: 11,
+          referees: 1,
+        },
+        sourceNote:
+          "a finite 24-tick live window that ends honestly, then replays through the same views",
+        finiteWindow: true,
+      },
+    });
+    summary.push({
+      sessionId: replaySessionId,
+      storyKey: "live-tactical-synthetic",
+      renderIds: [],
+      storedSegmentIds: [],
+    });
+  }
 
   return {
     seedAccountUsername: SEED_ACCOUNT_USERNAME,

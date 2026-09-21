@@ -43,3 +43,8 @@ export {
   runWorldFusion,
 } from "./fusion";
 export type { FusionInput, FusionReport } from "./fusion";
+// Additive (L003, Wave 2): the shared structural deep-equality, exported so
+// the live incremental updater (@sporta/live-swm) reuses THE ONE definition
+// for its possession-idempotence guard instead of forking a second one (the
+// "live package imports the helper" option in the L003 design's D4).
+export { jsonDeepEqual } from "./internal";

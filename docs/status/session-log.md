@@ -711,3 +711,200 @@ Session state: main @451766b CI GREEN; Wave 1 COMPLETE (all lanes);
 Wave 2 GENERATING (3/3 lanes live). Next: harvest branch pushes → TL
 verify batteries → merges → status evidence; J006 B/C reconciliation at
 merge time.
+
+## Session 2026-09-21 — Wave 2 Worker C lane delivered (J006 UI + J013 + L005 full + L013)
+
+- Worker C (branch work/j006ui-j013-l005-l013, base 451766b, tip a459d4d)
+  delivered its full Wave 2 lane as 4 checkpoint pushes:
+  - L005 full (4c03750): the pure view projection + the full browser
+    surface (identity-continuous markers with STABLE labels, pinned entity
+    inspector, honest event ticker, receipt-watchdog stall overlay) +
+    event-driven W915 consumption + one seeded session per L002 scenario
+    (all six) + 21-test battery.
+  - L013 (ff50091): the additive renderer-3d live view-model adapter
+    (identity-continuous carry, pure camera with the canonical look-at
+    equivalence PINNED by test, the renderer's own projection math) + the
+    browser interactive 3D view over the SAME world stream (shared
+    useLiveWorldStream hook; camera never touched by state updates) + the
+    Live 2D/3D toggle + 11-test battery.
+  - J006 UI (6cde4d7): the six compute-transparency facts on Create AND
+    Watch from the EXISTING route contracts (honest unknowns everywhere,
+    the declared no-silent-fallback posture) + 22-test battery.
+  - J013 (a459d4d): the sensitivity gate — pure verdict/premise
+    derivations (4-verdict truth table incl. the explicit equivalence
+    explanation) + the full-pipeline battery over the NEW calibratable
+    pitch-marked test media (generateTestMp4 scene "pitch-marked" — the
+    line-based calibrator's documented envelope; positions project to
+    canonical pitch meters) + tactical + 3D e2e gates PASS + the
+    content-addressed dedup control pair + renderer-side sensitivity for
+    BOTH game realities (5 tests).
+- HONEST FINDINGS recorded for TL reconciliation:
+  1. On the UNMARKED pitch scene, the calibration honestly refuses (no
+     landmarks) → positions stay image-frame → the scene projection
+     omits every entity → the derived renderers (all three) collapse to
+     empty-pitch renders across materially different SWMs. The pitch-marked
+     media fixes the gate; the unmarked finding is the J012-documented
+     fidelity gap, now precisely measured (apps/web battery documents it).
+  2. The anime-NPR e2e leg is BLOCKED by a platform-budget tension: the
+     populated-pitch cel-shaded render at the default 4s SD profile
+     measures ~1.04MB over the compute plane's 1MB fail-closed artifact
+     budget (the honest artifact-too-large refusal fires on both
+     sessions). Cross-lane: renderer content vs budget (B's compute plane
+     / encoding constants). The renderer-side anime sensitivity is proven
+     without the budget in the path (packages/renderer-3d
+     test/sensitivity.test.ts).
+  3. Shared-infra touch flagged: packages/media-platform generateTestMp4
+     gained the ADDITIVE scene "pitch-marked" (existing "bars"/"pitch"
+     byte-identical; all dependent suites re-run green).
+- Gates at tip: lint 0 errors (1 pre-existing warning); sequential
+  per-package typecheck ALL exit 0 incl. web; format:check clean; full
+  battery 6374 pass / 33 skip / 18 fail — IDENTICAL failure set to the
+  recorded clean-clone baseline (451766b: 6301/33/18; the documented
+  contention-timeout families, all passing isolated).
+
+Session-end state: Wave 2 Worker C lane COMPLETE on the branch (TL
+harvests); A + B lanes in flight per the wave plan.
+
+## Session 2026-09-21 04:22-05:00 UTC — WAVE 2 LANES A + C MERGED (CI green)
+
+- Resumed resident duties: stack healthy (replayd/console/Chrome/sentinel
+  all up); sentinel TL-HARVEST signals found unverified — A lane had
+  pushed L003 (3860295), L007+L008 (943ad57) and L011 (7bfde1c, its final
+  lane item); C lane had pushed J013 (a459d4d, its final lane item). Both
+  lanes then pushed their final docs-only evidence commits (A dc3d0e0,
+  C cc00c1fc).
+- TL verification (sporta-wc, correct-branch + bun install doctrine):
+  A L003+L007/L008: 53/53 (live-swm 36 incl. D6 replay-equality core;
+  live-open-data 17 incl. recorded SkillCorner schema pins, provider-field
+  isolation, L008 license posture); A L011: 11/11 (real-MP4 incremental
+  integration into the ONE engine); C J013: 18/18 + 16/16 media-platform
+  regression (additive pitch-marked scene; defaults preserved) + 43/43
+  CI-relevant regressions. Typecheck/lint/format ALL green on every scope.
+- MERGE A: a90ef12 (--no-ff; packages-only lane — four new packages
+  live-swm/live-temporal/live-open-data/live-perception + additive fusion
+  export). Post-merge battery 193/193 + typecheck x5 + lint + format.
+- MERGE C: ae075b5 (--no-ff; session-log/status-table conflicts resolved
+  by union — both lanes' evidence rows kept; L005 row takes C's FULL
+  state, L003/L004 rows take A's delivered state). Post-merge full
+  apps/web battery: 777/777 PASS, 0 fail under the documented clean-env
+  protocol (env -u DATABASE_URL — the stray sandbox DSN hang re-confirmed
+  on cost-guardrails: 3 timeout fails with it, 26/26 in 923ms without);
+  all other failures in the first run were the same environmental family.
+- CI GREEN at ae075b5 (full-suite verifier on GitHub Actions).
+- J013 cross-lane finding (reported for TL): populated-pitch anime-NPR
+  default render ~1.04MB > the compute plane's 1MB fail-closed artifact
+  budget — honest typed artifact-too-large refusal (working as designed).
+  TL DISPOSITION: platform budget stays intact; Wave 3 Worker C gets the
+  renderer-side slimming item (documented encoder-profile trade-off; the
+  J013 anime leg's built-in graduation path then activates).
+- Lane states: A lane RETIRED-after-delivery (4/4 merged); C lane
+  RETIRED-after-delivery (4/4 merged); B lane REVIVED at 04:26 (sentinel
+  auto-nudge landed per chats-API ground truth; turn in tool phase —
+  J006-backend/J014/L009 owed). Wave 3 dispatch next: A (L012 + J008-J010)
+  and C (renderer fidelity + L014 presentation + anime-budget slimming);
+  wave-3 B (J011 + L014 platform) waits for wave-2 B closure.
+
+Session state: main @ae075b5 CI GREEN. Wave 2: A + C MERGED; B in flight
+(1/4). Wave 3: A + C dispatching now.
+
+## Session 2026-09-21 (Wave 3) — Worker C: renderer fidelity + L014 presentation + the anime-budget resolution
+
+- Worker C (branch work/l014pres-fidelity-anime, base 3170a6f) delivered the
+  Wave 3 lane as two checkpoints pushed:
+  - FIDELITY checkpoint (4917fa7): the anime-budget resolution (the J013
+    finding (b) TL decision — slim the render, keep the platform budget).
+    MEASURED on main through the real app path first: 1,038,993 /
+    1,082,922 B over the 1 MB budget (fixture sweeps under-estimate ~2× —
+    motion entropy; all evidence numbers are real-path). Candidate knobs
+    measured through the same real path: 12fps×4s → 650,036/671,203 B
+    (≈65%); 25fps×3s → 801,797/828,076 B (≈80%). Chose the FRAME-BUDGET
+    knob: ANIME_MP4_SD_TWOS_PROFILE (640×360@12 — the traditional
+    cel-animation "on twos" cadence) first in the anime capability; SD/HD
+    @25fps remain supported (explicit requests honored, honest fail-closed
+    at the compute plane if over budget); ANIME_NPR_RENDERER_VERSION
+    0.1.0→0.2.0 (the deliberate restyle per the immutable-version rule; the
+    codec argv untouched — the framerate is a frame-source input, not a
+    codec knob). The J013 anime leg GRADUATED through the test's own
+    built-in path: anime-npr joined the REALITY_MATRIX full gate + the
+    graduation-record block asserts the budget fit. renderer-3d 409/409;
+    the J013 battery 14/14. NOTE for TL: packages/quality-gates
+    visual-correctness.ts still stamps rendererVersion "0.1.0" in its
+    engine-seam origin records — a cross-lane one-line freshness fix,
+    deliberately NOT taken (not this lane's allowed path).
+  - L014 checkpoint (3ec90e2): the presentation side of live/replay
+    continuity. The finite live window (finiteWindow registration → the
+    producer's honest null at exhaustion → the additive
+    `live-window-complete` close); the transport's VERBATIM replay record
+    (ordinals/world versions/watermarks/event times never re-stamped) +
+    replayRecord(); the replay route with the fail-closed ladder
+    (503/401/404/403/409/no-record 200); the stream route's honest 410 +
+    replay pointer for completed windows; the client replay presentation —
+    the SAME tactical/3D views render the recorded frame through the SAME
+    projections/adapters (replay prop + the dormant connect:false stream
+    mode), the shared scrub/step/play cursor, and the pure
+    replayContinuityVerdict making the versions/timecodes alignment VISIBLE
+    and asserted. A transport correctness fix the window forced (documented
+    in the commit): BoundedEventQueue delivery is now ARRIVAL order — the
+    close must arrive AFTER the frames it accounts for (controls-first
+    take() made the deliveredFrames accounting a lie and truncated the
+    window client-side). Dev seed registers the 8th live source (the
+    finite-window continuity session, 24 ticks, honestly labeled). Live
+    batteries 82/82 (18 new tests: live-replay 18, live-replay-routes 8,
+    +2 view-model, live-routes pin 7→8).
+- HONEST BOUNDARY recorded: L014 remains PARTIAL BY DESIGN — the platform
+  side (durable persistence of live observations/world versions +
+  reload/redeploy recovery of the replayable record) is Worker B's lane;
+  the transport record is instance memory (a restart honestly answers
+  no-record). The unmarked-pitch finding (J013 (a)) stands as the
+  J012-documented honest measurement — no renderer-side honest fix
+  identified, nothing faked. HF010–HF014 untouched (benchmark-track-gated).
+- Environmental: the full parallel `bun test` fan-out OOM-kills on this
+  4 GiB box (root-runner died twice mid-e2e; individual chunks all pass
+  clean-env) — the battery is recorded per-package sequentially at session
+  end per the documented contention protocol.
+- Gates at both checkpoints: lint 0 errors (1 pre-existing warning);
+  renderer-3d + apps/web typecheck exit 0; format pending the final
+  prettier pass.
+
+Session-end state: branch work/l014pres-fidelity-anime @3ec90e2 pushed
+(FIDELITY 4917fa7 + L014 3ec90e2); the final full-battery + format pass
+follow before the worker report.
+
+## Session 2026-09-21 (Wave 3, continued) — Worker C final gates + the browser verification
+
+- The browser verification (the repo's own e2e posture: production build +
+  `bun --bun run start` + SPORTA_LIVE_TRANSPORT=sse + a real headless
+  browser) surfaced TWO client-side defects, both fixed on the branch
+  (9a6dcdc):
+  1. PRE-EXISTING on main (verified identical on the clean base 3170a6f):
+     /live did not BUNDLE — live-3d.tsx imported the renderer-3d package
+     INDEX, whose re-exported game plugin consumes node:fs, which Turbopack
+     refuses in client chunks. Fix: the additive `./live` subpath export
+     (the PURE L013/L014 adapter) + renderer-3d joins the app's
+     transpilePackages (the one client-importable subpath, documented in
+     the config comment).
+  2. My own hooks-order bug: the Live surface called useLiveReplay/useMemo/
+     useCallback after the capability early returns → React error #310.
+     All hooks now run unconditionally above the early returns.
+- BROWSER EVIDENCE (production build, real register/login, screenshots
+  under the session's evidence): the live window streams over the real SSE
+  route (24 world frames) → the honest `live-window-complete` close → the
+  replay control bar appears (24 frames, world v1→v24) → scrub/step
+  re-render the RECORDED frames through the SAME 2D view → the SAME 3D view
+  replays through the SAME adapter → the paced play advances the cursor →
+  a reload selecting the finite source lands DIRECTLY in the replay
+  presentation (the completed-record pre-check) → the stream route answers
+  410 live-window-complete (verified from the page context).
+- The seed-count test pins updated (518d5d5): the 8th live source changes
+  the seeded-session counts (9→10, the operator workspace 10→11, the sorted
+  story-key lists gain the 7th live-tactical-synthetic entry).
+- FINAL GATES at tip 518d5d5: lint 0 errors (the 1 pre-existing
+  media-platform no-console warning, present on main); typecheck ALL
+  packages exit 0 sequentially (the parallel fan-out OOM-kills on this
+  4 GiB box — the documented environmental family, code 137 re-confirmed);
+  format:check clean; FULL BATTERY per-package sequential under
+  clean-env (env -u DATABASE_URL): 6558 pass / 0 fail / 33 skip across all
+  63 packages + apps/web (832 tests: 806 pass / 0 fail / 26 skip) + the
+  root e2e — ZERO failures (0 NEW failures vs the recorded wave-2 baseline
+  6374/33/18 with its documented environmental families; the sequential
+  protocol also avoids the contention-timeout family entirely).

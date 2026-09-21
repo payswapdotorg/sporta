@@ -339,7 +339,17 @@ function frameCountOf(stream: FfprobeStreamJson, durationMs: number, frameRateFp
  *   player rectangles (distinct kit colors, disjoint sin-based motion
  *   lanes) — the scene the J012 contrast-context production path DETECTS
  *   (local-contrast outliers standing on a dominant surface, ring-context
- *   clean); used by the tests that assert real entity continuity.
+ *   clean); used by the tests that assert real entity continuity. NOT
+ *   calibratable: the uniform field carries no pitch markings, so
+ *   positions stay image-frame (the honest J013 finding).
+ * - `"pitch-marked"`: the pitch scene's players ON a marked pitch — a
+ *   grass apron with the white line family (goal lines, halfway line,
+ *   touchlines) painted INTERIOR to the green region, the geometry the
+ *   line-based calibrator's documented envelope expects. The players
+ *   detect (same contrast discipline) AND the calibration establishes
+ *   the pitch frame (the lines are the correspondences), so tracked
+ *   positions project to canonical pitch meters — the media the J013
+ *   derived-reality sensitivity battery renders from.
  */
 export async function generateTestMp4(
   outputPath: string,
@@ -349,8 +359,19 @@ export async function generateTestMp4(
     width?: number;
     height?: number;
     frameRate?: number;
-    /** Visual scene: "bars" (legacy testsrc) | "pitch" (detectable players). */
-    scene?: "bars" | "pitch";
+    /**
+     * Visual scene:
+     * - `"bars"` (default): the legacy `lavfi testsrc` SMPTE color-bars
+     *   pattern;
+     * - `"pitch"`: a uniform green field with three moving high-contrast
+     *   players (detectable, NOT calibratable — no pitch markings);
+     * - `"pitch-marked"`: the pitch scene PLUS the calibratable white line
+     *   family (goal lines, halfway line, touchlines) painted INSIDE a
+     *   grass apron — the J013 sensitivity media: players detect AND the
+     *   line-based calibrator establishes the pitch frame, so positions
+     *   project to canonical pitch meters.
+     */
+    scene?: "bars" | "pitch" | "pitch-marked";
   } = {},
 ): Promise<string> {
   const duration = options.durationSeconds ?? 2;
@@ -365,7 +386,7 @@ export async function generateTestMp4(
     );
   }
   let argv: string[];
-  if (scene === "pitch") {
+  if (scene === "pitch" || scene === "pitch-marked") {
     // Three moving kit-colored rectangles on a uniform green field. Player
     // size scales with the frame (14x34 at the 320x240 default); motion
     // lanes are disjoint in x so blobs never merge; every ring stays on
@@ -387,7 +408,7 @@ export async function generateTestMp4(
       "-f",
       "lavfi",
       "-i",
-      `color=c=0x2E8B57:s=${width}x${height}:r=${frameRate}:d=${duration}`,
+      `color=c=${scene === "pitch-marked" ? "0x1a1a2e" : "0x2E8B57"}:s=${width}x${height}:r=${frameRate}:d=${duration}`,
     );
     if (options.withAudio !== false) {
       argv.push("-f", "lavfi", "-i", `sine=frequency=440:duration=${duration}`);
@@ -404,8 +425,39 @@ export async function generateTestMp4(
     const overlayExpr = (lane: (typeof lanes)[number]) =>
       `x=${px(lane.cx)}+${px(lane.ax)}*sin(t*${lane.fx}+${lane.px}):` +
       `y=${py(lane.cy)}+${py(lane.ay)}*sin(t*${lane.fy}+${lane.py})`;
+    // pitch-marked: the grass apron + the interior white line family —
+    // the geometry the line-based calibrator's envelope documents (green
+    // beyond every line, so each line is interior to the pitch region).
+    const markedBase =
+      scene === "pitch-marked"
+        ? (() => {
+            const gx0 = Math.round(width * 0.05);
+            const gx1 = Math.round(width * 0.95);
+            const gy0 = Math.round(height * 0.042);
+            const gy1 = Math.round(height * 0.958);
+            const px0 = Math.round(width * 0.075);
+            const px1 = Math.round(width * 0.928);
+            const py0 = Math.round(height * 0.075);
+            const py1 = Math.round(height * 0.929);
+            const lineThickness = Math.max(2, Math.round(width * 0.009));
+            const line = (x: number, y: number, w: number, h: number) =>
+              `drawbox=x=${x}:y=${y}:w=${w}:h=${h}:color=0xF8F8F8:t=fill`;
+            return [
+              // The grass apron (green beyond every line).
+              `drawbox=x=${gx0}:y=${gy0}:w=${gx1 - gx0}:h=${gy1 - gy0}:color=0x2E8B57:t=fill`,
+              // The vertical family: goal line, halfway line, goal line.
+              line(px0, py0, lineThickness, py1 - py0),
+              line(Math.round((px0 + px1) / 2) - 1, py0, lineThickness, py1 - py0),
+              line(px1 - lineThickness, py0, lineThickness, py1 - py0),
+              // The horizontal family: the two touchlines.
+              line(px0, py0, px1 - px0, lineThickness),
+              line(px0, py1 - lineThickness, px1 - px0, lineThickness),
+            ].join(",");
+          })()
+        : null;
     const filter =
-      `[3:v][0:v]overlay=${overlayExpr(lanes[0]!)}[a1];` +
+      (markedBase === null ? "[3:v]" : `[3:v]${markedBase}[bg];[bg]`) +
+      `[0:v]overlay=${overlayExpr(lanes[0]!)}[a1];` +
       `[a1][1:v]overlay=${overlayExpr(lanes[1]!)}[a2];` +
       `[a2][2:v]overlay=${overlayExpr(lanes[2]!)}[vout]`;
     argv.push(

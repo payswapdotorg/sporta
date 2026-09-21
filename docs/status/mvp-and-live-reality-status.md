@@ -1,7 +1,7 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 1 — B + C LANES COMPLETE (merged, CI green); A LANE PARTIAL (J012 licensing decision merged-pending; implementation fighting peak-hours churn)
-Date: 2026-09-20 (Wave 1 evening session)
+Status: WAVE 2 — WORKER C LANE DELIVERED on branch work/j006ui-j013-l005-l013 (J006 UI + J013 + L005 full + L013; gates: lint/typecheck/format clean, full battery 6374 pass / 0 NEW failures vs the recorded clean-clone baseline); A + B lanes in flight (parallel)
+Date: 2026-09-21 (Wave 2)
 
 ## Completed foundation
 
@@ -39,7 +39,37 @@ J001-J015:
   implementation + sensitivity tests pending (peak-hours capacity churn
   killed the worker's turn; sentinel re-nudges; sandbox TTL expired —
   re-entry law resumes from the branch).
-- J001-J003, J006, J008-J011, J013, J015: NOT_STARTED (later waves)
+- J006: UI DELIVERED (Worker C wave 2, branch work/j006ui-j013-l005-l013): the
+  compute-transparency panels on Create AND Watch rendering the six facts
+  (compute source, provider, selection reason, measured allowance/cost,
+  privacy posture, fallback state) from the EXISTING route contracts
+  (compute-status + compute-preview + the J004 plan selection + the job
+  views), honest unknowns everywhere (never invented numbers), the declared
+  no-silent-fallback posture + typed refusal rendering, 22-test
+  pure-derivation battery; the BACKEND surfaces are Worker B's parallel
+  wave-2 lane (TL reconciles when both land).
+- J013: DELIVERED (Worker C wave 2, MERGED @ae075b5) — the sensitivity gate —
+  pure verdict/premise derivations (the material-difference measurement + the
+  4-verdict truth table incl. the explicit equivalence explanation) + the
+  full-pipeline battery over the NEW calibratable pitch-marked test media
+  (positions project to canonical pitch meters) + tactical + 3D e2e gates
+  PASS (different SWMs → different real artifact hashes) + the
+  content-addressed dedup control pair + the renderer-side sensitivity proof
+  for BOTH game realities (5 tests). The Wave-2 honest findings were BOTH
+  resolved/dispositioned in Wave 3 (Worker C, branch
+  work/l014pres-fidelity-anime): (a) the UNMARKED-pitch fidelity gap remains
+  the J012-documented honest measurement (calibration refuses without
+  landmarks → entities omitted — no renderer-side honest fix identified;
+  NOT faked); (b) the anime-budget tension is RESOLVED renderer-side per the
+  TL decision — the anime capability's default profile is now the "on twos"
+  SD profile (640×360@12 fps, anime-npr.prototype@0.2.0): the populated-
+  pitch default render measures 650 036–671 203 B ≈ 65 % of the untouched
+  1 MB fail-closed platform budget (the previous 25 fps default measured
+  1 038 993–1 082 922 B — OVER), and the J013 anime leg GRADUATED into the
+  full sensitivity gate (the test's built-in graduation path: the leg now
+  runs the SAME matrix as tactical/3D + asserts the budget fit; evidence in
+  docs/research/l014-anime-budget-and-live-replay-presentation.md).
+- J001-J003, J008-J011, J015: NOT_STARTED (later waves)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
 (J012/J013 fidelity + J014 durability + J015 journey must pass first).
@@ -51,18 +81,18 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 |---|---|
 | L001 contract freeze | VERIFIED — docs/contracts/live-reality.md is FROZEN FOR IMPLEMENTATION; Wave 0 verified logical-to-implemented contract compatibility (mapping recorded in the Wave 0 log below) |
 | L002 synthetic/replay live source | COMPLETE (Worker B wave 1: packages/live-source — frozen §1/§2 shapes verbatim, 6 delivery scenarios, seeded splitmix32 determinism, honest gap accounting; merged @d785e93) |
-| L005 live tactical renderer | SCAFFOLD COMPLETE (Worker C wave 1, merged @7e0a810, CI green): view-model seam + W915 transport extension (no fork), browser tactical canvas (105x68m canonical frame), honest dropout/degraded display, telemetry stubs per §5/§9 — the full interactive L005 gate is later waves |
-| L003 incremental SWM updater | NOT_STARTED (Wave 1, Worker A design) |
-| L004 temporal buffer/watermark | NOT_STARTED (Wave 1, Worker A design) |
+| L005 live tactical renderer | FULL (Worker C wave 2, MERGED @ae075b5 — TL-verified incl. 777/777 web battery clean-env): the pure view projection (apps/web/src/lib/live-tactical-view.ts — exact-math fixture battery: coordinates, radii, colors, STABLE identity labels, watchdog math) + the full browser surface (identity-continuous markers with stable labels, pinned entity inspector, honest event ticker, receipt-watchdog stall overlay — never a frozen picture) + event-driven updates over W915 (no polling) + one seeded session per L002 delivery scenario (all six: normal/jitter/delay/drop/out-of-order/reconnect) + 21-test battery (fixtures + every scenario's honest signature + identity-continuity pinning across every window) |
+| L003 incremental SWM updater | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-swm — a DRIVER over the injected canonical WorldModelEngine (no second world model), the batch pass's own no-op guard + per-entity replay frontier (beyond-window lates dropped with an explicit counter, never a position rewind), verbatim confidence/provenance/uncertainty, extrapolation marking (§9), the memoryless incremental possession recompute (the batch formula/tie rule, reused verbatim), the D5 LiveUpdateReport, the W005 continuity bridge with replay-equality proven across all six L002 scenarios (36/36 tests) |
+| L004 temporal buffer/watermark | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-temporal — per-source event-time watermarks (frozen shape, conservative + monotone, property-tested), bounded reorder buffer with honest late/duplicate/overflow accounting, recompute-based sequence-hole model, STALLED/DEGRADED latch + flush, verbatim L002 recovery consumption, every §9 counter this stage owns; the D4 six-scenario acceptance matrix pinned (57/57 tests) |
 | L006 live telemetry | NOT_STARTED (Wave 2, Worker B+C) |
-| L007 SkillCorner/open-data replay adapter | NOT_STARTED (Wave 2, Worker A+B) |
-| L008 live provider TechnologyProfile | NOT_STARTED (Wave 2, Worker A) |
+| L007 SkillCorner/open-data replay adapter | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-open-data — the SkillCorner opendata replay adapter (the recorded published schema, fetched 2026-09-21; provider fields normalize at the seam — the possession hypothesis and image-corner projection never reach a product contract) driving the EXACT live path (adapter → L004 → L003 → the canonical engine, with the D6 replay equality); DEV-TIME real-data verification recorded (15 real frames of match 2017461 through the full composition); NO sample data committed (format-fixtures only) (17/17 tests) |
+| L008 live provider TechnologyProfile | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-open-data/src/profiles.ts — SkillCorner opendata registered as the REAL candidate (code+dataset MIT per the repository LICENSE fetched 2026-09-21, blockingLicenseIssues EMPTY) and Metrica sample-data registered as the EXPLICITLY BLOCKED candidate (NO license file — attribution request only — both components unresolved, blockingLicenseIssues non-empty: the R004 fail-closed rule), both through the frozen TechnologyProfile contract with capabilities/data format/rate/provenance/license/failure classes |
 | L009 authorized live provider adapter | BLOCKED UNTIL FEED ACCESS EXISTS |
-| L010 broadcast-to-live perception benchmark | NOT_STARTED (Wave 1 harness, Worker A) |
-| L011 broadcast perception runtime seam | NOT_STARTED (Wave 2, Worker A+TL) |
+| L010 broadcast-to-live perception benchmark | HARNESS COMPLETE (Worker A wave 1, merged bccf89c); the Wave 2 runtime-backed increment is delivered as the L011 seam evidence (a real decoded clip through the production perception path, per frame, with the L011 integration test measuring the full live composition); real model inference remains W303-blocked (RF-DETR weights never committed) |
+| L011 broadcast perception runtime seam | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-perception — the per-frame seam (tracked boxes + ball detections + the required pitch calibration → frozen LiveObservation with sourceType BROADCAST_PERCEPTION; the batch-bridge projection imported, not forked; track ids verbatim) + the clip-driven source (decode → the contrast-context production path → track → the seam, incremental); the integration test drives a real generated MP4 through L004 → L003 into the ONE canonical engine with NO renderer changes and NO second SWM (11/11 tests) |
 | L012 multi-source evidence fusion | NOT_STARTED (Wave 3, Worker A) |
-| L013 live 3D renderer | NOT_STARTED (Wave 2, Worker C) |
-| L014 live/replay continuity | NOT_STARTED (Wave 3, Worker B+C) |
+| L013 live 3D renderer | COMPLETE (Worker C wave 2, MERGED @ae075b5): the additive renderer-3d live view-model adapter (packages/renderer-3d/src/live.ts — identity-continuous scene carry, honest last-known carries, the pure orbit/zoom/pan camera whose look-at basis is PINNED equivalent to cameraFromSlot by test, the renderer's own projection math reused) + the browser interactive 3D view over the SAME W915 world stream (shared useLiveWorldStream hook — one transport, one world shape, two presentations; camera state the world never touches; pointer/wheel/keyboard camera; no restart on frames) + the Live surface 2D/3D view-mode toggle + 11-test battery (scene-graph math, camera bounds/equivalence, interactivity-during-updates, update continuity) |
+| L014 live/replay continuity | PRESENTATION SIDE DELIVERED (Worker C wave 3, branch work/l014pres-fidelity-anime — awaiting TL harvest): after a live window ends, the SAME tactical/3D surfaces replay the RECORDED session state through the SAME view-model contracts — the finite live window (the additive `live-window-complete` close), the transport's verbatim replay record (ordinals/world versions/watermarks/event times never re-stamped), the replay route (/api/live/[sessionId]/replay, the fail-closed ladder + 409 while the window is open), the honest 410 + replay pointer on the stream route, and the client replay presentation (the shared scrub/step/play cursor driving BOTH views through the same projections + the pure replayContinuityVerdict making the versions/timecodes alignment VISIBLE and asserted). PARTIAL BY DESIGN: the platform side — durable persistence of live observations/world versions + reload/redeploy recovery — is Worker B's lane (the record is the transport instance's own memory; a restart honestly answers no-record). Evidence: docs/research/l014-anime-budget-and-live-replay-presentation.md + the 82-test live battery |
 | L015 live tactical gate | NOT_STARTED (Wave 5, TL) |
 | L016 live tracking -> SWM -> tactical journey | NOT_STARTED (Wave 5, TL) |
 | L017 live-to-replay recovery gate | NOT_STARTED (Wave 5, TL) |

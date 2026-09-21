@@ -42,6 +42,7 @@ import {
   type LiveCloseDoc,
   type LiveFrameDoc,
   type LiveHelloDoc,
+  type LiveReplayRecordDoc,
   type LiveWorldFrameDoc,
 } from "@/lib/live-sse";
 import { createStoryFrameProducer } from "./producer";
@@ -127,12 +128,20 @@ export interface LiveTransport {
   /** Removes a source; its channel (if any) ends with `source-removed`. */
   removeSource(sessionId: string): void;
   /**
-   * Opens one subscriber. `null` when the transport is unavailable or the
-   * session has no registered source (the route maps that honestly).
+   * Opens one subscriber. `null` when the transport is unavailable, the
+   * session has no registered source, or the session's channel has ENDED
+   * (a completed finite live window — the replay record is the honest
+   * answer then; the route differentiates).
    */
   subscribe(sessionId: string): LiveSubscriber | null;
   /** The channel's honest status (`null` when never opened). */
   status(sessionId: string): LiveChannelStatus | null;
+  /**
+   * L014: the session's REPLAY RECORD — the finite live window's recorded
+   * world frames served verbatim (`null` when the session has no registered
+   * source; `no-record` when no finite window has run on this instance).
+   */
+  replayRecord(sessionId: string): LiveReplayRecordDoc | null;
   /** Ends every channel + subscriber (tests/shutdown). */
   closeAll(): void;
 }
@@ -156,14 +165,20 @@ const realScheduler: LiveScheduler = {
 /**
  * A bounded FIFO of wire-encoded events with counted drop-oldest overflow.
  *
- * TWO lanes (ordered): CONTROL events (hello/close) are unbounded — the
- * stream's own framing and terminal accounting must always arrive; FRAME
- * events are bounded (drop-oldest, counted) — the backpressure lane.
+ * TWO lanes: CONTROL events (hello/close) are unbounded — the stream's own
+ * framing and terminal accounting must always arrive; FRAME events are
+ * bounded (drop-oldest, counted) — the backpressure lane. Delivery order
+ * is ARRIVAL order across both lanes (L014 correctness: the terminal close
+ * must arrive AFTER the frames it accounts for — a close that jumped ahead
+ * of undelivered frames would make its own `deliveredFrames` accounting a
+ * lie and truncate the window on the consumer side; hello stays first by
+ * construction — it is the queue's first arrival).
  */
 class BoundedEventQueue {
-  private readonly controls: string[] = [];
-  private readonly frames: string[] = [];
+  private readonly controls: { arrival: number; block: string }[] = [];
+  private readonly frames: { arrival: number; block: string }[] = [];
   private readonly waiters: ((value: string | null) => void)[] = [];
+  private arrivalCounter = 0;
   private ended = false;
 
   constructor(private readonly capacity: number) {}
@@ -171,7 +186,7 @@ class BoundedEventQueue {
   /** Pushes a CONTROL event (hello/close): unbounded, never dropped. */
   pushControl(item: string): void {
     if (this.ended) return;
-    this.controls.push(item);
+    this.controls.push({ arrival: this.arrivalCounter++, block: item });
     this.wake();
   }
 
@@ -184,7 +199,7 @@ class BoundedEventQueue {
       this.dropHandler?.();
       this.frames.shift();
     }
-    this.frames.push(item);
+    this.frames.push({ arrival: this.arrivalCounter++, block: item });
     this.wake();
   }
 
@@ -194,11 +209,17 @@ class BoundedEventQueue {
     if (waiter !== undefined) waiter(this.take() ?? null);
   }
 
-  /** The next item in order (controls first, then frames). */
+  /** The next item in ARRIVAL order (the earliest head across both lanes). */
   private take(): string | undefined {
-    const control = this.controls.shift();
-    if (control !== undefined) return control;
-    return this.frames.shift();
+    const control = this.controls[0];
+    const frame = this.frames[0];
+    if (control === undefined && frame === undefined) return undefined;
+    if (control !== undefined && (frame === undefined || control.arrival < frame.arrival)) {
+      this.controls.shift();
+      return control.block;
+    }
+    this.frames.shift();
+    return frame!.block;
   }
 
   /** Ends the queue: pending pullers resolve `null`; further pushes no-op. */
@@ -231,9 +252,9 @@ class BoundedEventQueue {
 
 /** One emission the channel fans out (the story SVG frame OR the tactical world frame). */
 interface ChannelEmission {
-  event: "frame" | "world";
+  event: "frame" | "world" | "window-complete";
   id: string;
-  payload: LiveFrameDoc | LiveWorldFrameDoc;
+  payload?: LiveFrameDoc | LiveWorldFrameDoc;
 }
 
 /** One live channel: the source's tick loop and its subscribers. */
@@ -246,6 +267,14 @@ class LiveChannel {
   private lastFrameAtMs: number | null = null;
   private readonly producer: { next: (meta: LiveFrameMeta) => ChannelEmission };
   private closed = false;
+  /** The close reason the channel ended with (`null` while open). */
+  private closeReason: LiveCloseDoc["reason"] | null = null;
+  /** The real clock at the moment the channel ended (`null` while open). */
+  private closedAtMs: number | null = null;
+  /** L014: the finite-window producer flag (records world frames for replay). */
+  private readonly finiteWindow: boolean;
+  /** L014: the RECORDED world frames of the finite live window (verbatim). */
+  private readonly recordedFrames: LiveWorldFrameDoc[] = [];
 
   constructor(
     private readonly source: LiveSourceRegistration,
@@ -256,10 +285,15 @@ class LiveChannel {
       scheduler: LiveScheduler;
     },
   ) {
+    this.finiteWindow = source.tactical?.finiteWindow === true;
     if (source.tactical !== undefined) {
       // L005: the live tactical view-model producer — the W915 producer
       // seam re-pointed at the view-model (the transport is NOT forked:
       // channels, buffers and close semantics are exactly the same).
+      // L014: a finite-window tactical source runs ONCE — the producer's
+      // `null` answer ends the channel with `live-window-complete` and the
+      // emitted world frames are RETAINED (the presentation-side replay
+      // record of the live window).
       const tactical = createTacticalFrameProducer({
         sessionId: source.sessionId,
         nowMs: transport.nowMs,
@@ -267,8 +301,11 @@ class LiveChannel {
       });
       this.producer = {
         next: (meta: LiveFrameMeta): ChannelEmission => {
-          const { frame } = tactical.next(meta);
-          return { event: "world", id: String(frame.ordinal), payload: frame };
+          const result = tactical.next(meta);
+          if (result === null) {
+            return { event: "window-complete", id: "window-complete" };
+          }
+          return { event: "world", id: String(result.frame.ordinal), payload: result.frame };
         },
       };
     } else {
@@ -337,12 +374,25 @@ class LiveChannel {
   /** ONE real emission: a fresh render fanned out to every subscriber. */
   tick(): void {
     if (this.closed || this.subscribers.size === 0) return;
-    this.framesEmitted += 1;
     const emission = this.producer.next({
       sessionId: this.source.sessionId,
-      ordinal: this.framesEmitted,
+      ordinal: this.framesEmitted + 1,
     });
+    if (emission.event === "window-complete") {
+      // L014: the finite live window exhausted — the channel ends honestly
+      // (the close reason + the honest accounting ride the terminal event;
+      // the recorded frames are retained for replay).
+      this.end("live-window-complete");
+      return;
+    }
+    this.framesEmitted += 1;
     this.lastFrameAtMs = this.transport.nowMs();
+    if (this.finiteWindow && emission.event === "world" && emission.payload !== undefined) {
+      // L014: the presentation-side session record — the emitted world
+      // frames VERBATIM (ordinals, world versions, watermarks, event times
+      // unchanged; never re-stamped).
+      this.recordedFrames.push(emission.payload as LiveWorldFrameDoc);
+    }
     const block = encodeSseJson(emission.event, emission.id, emission.payload);
     for (const entry of this.subscribers.values()) entry.queue.push(block);
   }
@@ -351,6 +401,8 @@ class LiveChannel {
   end(reason: LiveCloseDoc["reason"]): void {
     if (this.closed) return;
     this.closed = true;
+    this.closeReason = reason;
+    this.closedAtMs = this.transport.nowMs();
     this.stopTicking();
     for (const entry of this.subscribers.values()) {
       const close: LiveCloseDoc = {
@@ -374,6 +426,58 @@ class LiveChannel {
       cadenceMs: this.transport.cadenceMs,
       bufferDepth: this.transport.bufferDepth,
     };
+  }
+
+  /**
+   * L014: the channel's REPLAY RECORD — the finite live window's recorded
+   * world frames, served verbatim. `live-window-open` while the window is
+   * still streaming; `complete` once it ended with `live-window-complete`;
+   * `no-record` when no finite window has run (the cycling sources never
+   * record — replay is not their contract).
+   */
+  replayRecord(): LiveReplayRecordDoc {
+    if (!this.finiteWindow) {
+      return {
+        schemaVersion: "sporta.live-replay/1",
+        sessionId: this.source.sessionId,
+        state: "no-record",
+        frames: [],
+      };
+    }
+    if (this.closeReason !== "live-window-complete") {
+      return {
+        schemaVersion: "sporta.live-replay/1",
+        sessionId: this.source.sessionId,
+        state: "live-window-open",
+        frames: [],
+      };
+    }
+    const frames = [...this.recordedFrames];
+    const first = frames[0];
+    const last = frames[frames.length - 1];
+    return {
+      schemaVersion: "sporta.live-replay/1",
+      sessionId: this.source.sessionId,
+      state: "complete",
+      frames,
+      meta: {
+        label: this.source.label,
+        completedAtMs: this.closedAtMs ?? this.transport.nowMs(),
+        cadenceMs: this.transport.cadenceMs,
+        deliveredFrames: this.framesEmitted,
+        droppedFrames: this.droppedFrames,
+        worldVersionFirst: first?.worldVersion ?? 0,
+        worldVersionLast: last?.worldVersion ?? 0,
+        eventTimeFirstMs: first?.eventTimeMs ?? 0,
+        eventTimeLastMs: last?.eventTimeMs ?? 0,
+        watermarkFinal: last?.watermark ?? { watermarkMs: 0, sequence: 0 },
+      },
+    };
+  }
+
+  /** Whether the channel has ended (subscribing to a dead channel is refused). */
+  isClosed(): boolean {
+    return this.closed;
   }
 
   private stopTicking(): void {
@@ -447,16 +551,37 @@ export function createSseLiveTransport(options: SseLiveTransportOptions): LiveTr
         channel = new LiveChannel(source, deps);
         channels.set(sessionId, channel);
       }
+      if (channel.isClosed()) {
+        // The channel has ENDED (a completed finite live window, or a
+        // source removal that has not yet unregistered) — subscribing to a
+        // dead channel would never yield a frame: refused honestly (the
+        // route differentiates through the replay record).
+        return null;
+      }
       return channel.subscribe(() => {
         const current = channels.get(sessionId);
         if (current !== undefined && current.status().subscribers === 0) {
           // The last subscriber left: the channel stops ticking (kept for
-          // its status history until the source goes away).
+          // its status history + its replay record until the source goes
+          // away).
         }
       });
     },
     status(sessionId: string): LiveChannelStatus | null {
       return channels.get(sessionId)?.status() ?? null;
+    },
+    replayRecord(sessionId: string): LiveReplayRecordDoc | null {
+      if (!options.active) return null;
+      const source = sources.get(sessionId);
+      if (source === undefined) return null;
+      return (
+        channels.get(sessionId)?.replayRecord() ?? {
+          schemaVersion: "sporta.live-replay/1",
+          sessionId,
+          state: "no-record",
+          frames: [],
+        }
+      );
     },
     closeAll(): void {
       shutdown = true;

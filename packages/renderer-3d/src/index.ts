@@ -200,6 +200,7 @@ export {
   SOFTWARE_3D_OUTPUT_FORMAT,
   GAME_MP4_SD_PROFILE,
   GAME_MP4_HD_PROFILE,
+  ANIME_MP4_SD_TWOS_PROFILE,
   MAX_ENGINE_FRAMES,
   MAX_SCENE_ENTITIES,
   MAX_LIVE_SCENES,
@@ -275,3 +276,42 @@ export type {
   GameRealityRendererOptions,
   GameRealityRenderOutput,
 } from "./game/plugin";
+
+// ---------------------------------------------------------------------------
+// L013 — the live 3D view-model adapter (the additive live seam)
+// ---------------------------------------------------------------------------
+
+export {
+  LIVE_CAMERA_INITIAL,
+  LIVE_CAMERA_MIN_ELEVATION_DEG,
+  LIVE_CAMERA_MAX_ELEVATION_DEG,
+  LIVE_CAMERA_MIN_DISTANCE_M,
+  LIVE_CAMERA_MAX_DISTANCE_M,
+  LIVE_CAMERA_TARGET_APRON_M,
+  LIVE_PITCH_X_METERS,
+  LIVE_PITCH_Y_METERS,
+  LIVE_FIGURE_HEIGHT_M,
+  LIVE_BALL_RADIUS_M,
+  LIVE_BALL_CENTER_HEIGHT_M,
+  applyLiveFrame,
+  createLiveSceneState,
+  liveCameraEye,
+  liveCameraFrame,
+  liveCameraReducer,
+  livePitchLineSegments,
+  projectLiveScene,
+} from "./live";
+export type {
+  LiveWorldEntityInput,
+  LiveWorldEventInput,
+  LiveWorldFrameInput,
+  LiveSceneEntity,
+  LiveSceneState,
+  LiveSceneApplyReport,
+  LiveCameraState,
+  LiveCameraAction,
+  ProjectedLiveEntity,
+  ProjectedLiveSegment,
+  ProjectedLivePolygon,
+  ProjectedLiveScene,
+} from "./live";

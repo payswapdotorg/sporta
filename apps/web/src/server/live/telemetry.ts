@@ -257,6 +257,11 @@ export function withLiveTelemetry(
       };
     },
     status: (sessionId: string) => inner.status(sessionId),
+    // L014 (additive at merge): the replay record is a pure READ of the
+    // inner transport's recorded finite window — passed through verbatim
+    // (the decorator never changes a byte, and telemetry stamps nothing
+    // on the replay path — it is the LIVE delivery boundary only).
+    replayRecord: (sessionId: string) => inner.replayRecord(sessionId),
     closeAll: () => inner.closeAll(),
   };
 }

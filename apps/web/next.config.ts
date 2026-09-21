@@ -1,12 +1,16 @@
 import type { NextConfig } from "next";
 
 /**
- * The @sporta/* engine packages this app's SERVER composes (route handlers +
- * src/server only — never client components). They ship raw TypeScript, so
- * they are TRANSPILED into the server bundle (W911 deployment fix): the
- * hosted runtime is Vercel's **Node** server, which can neither execute
- * `node_modules/*.ts` (the old `serverExternalPackages` mode required the
- * Bun runtime to import them natively) nor resolve `bun:sqlite`.
+ * The @sporta/* packages this app composes — server route handlers +
+ * src/server, PLUS the one CLIENT-side subpath the Live surfaces import
+ * (`@sporta/renderer-3d/live`, the L013/L014 pure live view-model adapter —
+ * the ONLY client-importable member of a package whose index also exports
+ * node:fs-consuming server modules; the subpath export keeps those out of
+ * the browser graph). They ship raw TypeScript, so they are TRANSPILED into
+ * the bundle (W911 deployment fix): the hosted runtime is Vercel's **Node**
+ * server, which can neither execute `node_modules/*.ts` (the old
+ * `serverExternalPackages` mode required the Bun runtime to import them
+ * natively) nor resolve `bun:sqlite`.
  *
  * The one Bun-native import in the composed graph (`bun:sqlite`, inside
  * `@sporta/session` and `@sporta/output-pipeline`) is aliased to a loud
@@ -33,6 +37,7 @@ const SPORTA_SERVER_PACKAGES = [
   "@sporta/perception-detection",
   "@sporta/perception-tracking",
   "@sporta/renderer-anime",
+  "@sporta/renderer-3d",
   "@sporta/renderer-contract",
   "@sporta/session",
   "@sporta/spatial-state",

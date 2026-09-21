@@ -42,7 +42,7 @@ let derbyId = "";
 let friendlyId = "";
 let trainingId = "";
 /** L005: the live tactical scaffold's seeded session id. */
-let tacticalSessionId = "";
+const tacticalSessionIds: string[] = [];
 
 /** Test accounts + tokens (created through the real store, like provisioning). */
 let viewerToken = "";
@@ -117,7 +117,9 @@ beforeAll(async () => {
     if (story?.storyKey === "derby") derbyId = summary.id;
     if (story?.storyKey === "friendly") friendlyId = summary.id;
     if (story?.storyKey === "training") trainingId = summary.id;
-    if (story?.storyKey === "live-tactical-synthetic") tacticalSessionId = summary.id;
+    if (story?.storyKey === "live-tactical-synthetic") {
+      tacticalSessionIds.push(summary.id);
+    }
   }
 
   const viewer = await createAccount("w916-viewer", ["viewer"]);
@@ -301,9 +303,9 @@ describe("buildCatalogFor (role-differentiated listings)", () => {
   test("anonymous: exactly the public seeded sessions, nothing else", async () => {
     const { sessions, degraded } = await buildCatalogFor(server, ANONYMOUS_REQUESTER);
     expect(degraded).toBeNull();
-    // L005: the three story sessions + the live tactical scaffold's session.
+    // L005 (full): three story sessions + six live-tactical scenario sessions.
     expect(sessions.map((card) => card.sessionId).sort()).toEqual(
-      [derbyId, friendlyId, trainingId, tacticalSessionId].sort(),
+      [derbyId, friendlyId, trainingId, ...tacticalSessionIds].sort(),
     );
     for (const card of sessions) {
       expect(card.visibility).toBeNull(); // no visibility flag for anonymous
@@ -316,9 +318,9 @@ describe("buildCatalogFor (role-differentiated listings)", () => {
       server,
       await resolveCatalogRequester(server, withCookie("/api/catalog/sessions", viewerToken)),
     );
-    // L005: the three story sessions + the live tactical scaffold's session.
+    // L005 (full): three story sessions + six live-tactical scenario sessions.
     expect(sessions.map((card) => card.sessionId).sort()).toEqual(
-      [derbyId, friendlyId, trainingId, tacticalSessionId].sort(),
+      [derbyId, friendlyId, trainingId, ...tacticalSessionIds].sort(),
     );
   });
 
@@ -429,8 +431,9 @@ describe("reality linkage", () => {
 
   test("the reality-grouped view: one match entry per session, sessionId the constant", async () => {
     const view = await buildRealityGroups(server, ANONYMOUS_REQUESTER);
-    // L005: the three story sessions + the live tactical scaffold's session.
-    expect(view.matches).toHaveLength(4);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(view.matches).toHaveLength(10);
     const derby = view.matches.find((match) => match.sessionId === derbyId)!;
     expect(derby.realityCount).toBe(2);
     expect(derby.realities!.map((reality) => reality.rendererId).sort()).toEqual([
@@ -553,9 +556,9 @@ describe("searchCatalog (real fields, filters, fail-closed)", () => {
       ANONYMOUS_REQUESTER,
       parseSearchQuery(new URLSearchParams("status=authorized&rights=authorized")),
     );
-    // L005: the live tactical scaffold's session is authorized too.
+    // L005 (full): the six live-tactical scenario sessions are authorized too.
     expect(both.matches.map((match) => match.sessionId).sort()).toEqual(
-      [derbyId, friendlyId, tacticalSessionId].sort(),
+      [derbyId, friendlyId, ...tacticalSessionIds].sort(),
     );
   });
 
@@ -727,8 +730,9 @@ describe("GET /api/catalog/sessions (requester-scoped, versioned shape)", () => 
     };
     expect(body.catalogSchemaVersion).toBe("1.1");
     expect(body.viewer).toEqual({ state: "anonymous", userId: null, grants: [] });
-    // L005: the three story sessions + the live tactical scaffold's session.
-    expect(body.sessions).toHaveLength(4);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(body.sessions).toHaveLength(10);
     expect(body.catalogSource).toBe("dev-seed");
   });
 

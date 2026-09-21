@@ -58,6 +58,7 @@ import {
 } from "@/lib/surface-state";
 import { LoadingPanel, StateChip, StatePanel } from "@/components/state-panels";
 import { ProviderNotices } from "@/components/provider-notices";
+import { WatchComputeTransparency } from "@/components/compute-transparency";
 import { ROUTES } from "@/lib/navigation";
 
 /**
@@ -1146,6 +1147,9 @@ function ComputeProvenanceSection({
   entry: { artifacts: { producerId: string }[] } | null;
   studio: StudioSessionStateLike | null;
 }) {
+  // J006: the derived-reality branch delegates to the transparency panel
+  // (the six facts: source, provider, reason, measured cost, privacy,
+  // fallback — the honest unknowns included).
   if (kind === null) {
     return null;
   }
@@ -1192,80 +1196,11 @@ function ComputeProvenanceSection({
   // The producing render's dispatch record (owner/operator view only).
   const job = studio?.jobs.find((row) => row.rendererId === producerId) ?? null;
   return (
-    <section className="stats-section" aria-label="Compute provenance">
-      <h2 className="section-title">Compute</h2>
-      <dl className="session-card-facts">
-        <div className="fact">
-          <dt>Whose compute</dt>
-          <dd>
-            {job?.selection !== undefined && job.selection !== null ? (
-              <>
-                <StateChip state={job.selection.mode === "user-explicit" ? "ready" : "degraded"}>
-                  {job.selection.mode === "user-explicit"
-                    ? `your choice · ${job.selection.providerId}`
-                    : `sporta chose · ${job.selection.providerId}`}
-                </StateChip>{" "}
-                <span className="marker-meta">
-                  {job.selection.mode === "user-explicit"
-                    ? "you explicitly selected this provider"
-                    : "the selection director chose automatically"}
-                </span>
-              </>
-            ) : job !== null ? (
-              <StateChip state="unavailable">not recorded</StateChip>
-            ) : (
-              <StateChip state="unavailable">not visible</StateChip>
-            )}
-          </dd>
-        </div>
-        <div className="fact">
-          <dt>Producer</dt>
-          <dd>
-            <code>{producerId}</code>
-            {job !== null ? (
-              <>
-                {" "}
-                · job <code>{job.jobId}</code> ({job.state})
-              </>
-            ) : null}
-          </dd>
-        </div>
-      </dl>
-      {job?.selection !== undefined && job.selection !== null ? (
-        <div>
-          <p className="section-lede">The auditable selection (carried verbatim):</p>
-          <p className="field-hint">{job.selection.explanation.selectionReason}</p>
-          <ul className="marker-list">
-            {job.selection.explanation.considered.map((considered) => (
-              <li key={considered.providerId}>
-                <span className="marker-phrase">
-                  <code>{considered.providerId}</code>
-                  {considered.providerId === job.selection!.providerId ? " · selected" : ""}
-                </span>
-                <span className="marker-meta">
-                  {considered.quote !== undefined
-                    ? `estimated cost ${
-                        considered.quote.estimatedCostUsd === null ||
-                        considered.quote.estimatedCostUsd === undefined
-                          ? "not measured"
-                          : `$${considered.quote.estimatedCostUsd}`
-                      }`
-                    : (considered.brokerRefusal?.message ??
-                      considered.preferenceExclusion?.message ??
-                      "considered")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p className="section-lede">
-          {job !== null
-            ? "This render's dispatch carried no compute directive — the provider selection was not recorded (nothing is invented to fill it)."
-            : "The dispatch record is visible to the session's owner only — a viewer cannot see whose compute rendered this."}
-        </p>
-      )}
-    </section>
+    <WatchComputeTransparency
+      realityLabel={REALITY_LABELS[kind]}
+      producerId={producerId}
+      job={job}
+    />
   );
 }
 
