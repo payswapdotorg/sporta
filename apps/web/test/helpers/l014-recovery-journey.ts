@@ -31,6 +31,11 @@
  * store (SPORTA_LIVE_REPLAY_DB). The child fails LOUD (exit 1 + stderr) on
  * any structural surprise.
  */
+// A module (not a global script): the sibling journey helpers declare
+// their own top-level names — `export {}` keeps this file's declarations
+// module-scoped so the helpers never collide under one tsc program.
+export {};
+
 const [, , phaseArg, scratchArg, reportArg] = process.argv;
 
 if (phaseArg !== "live" && phaseArg !== "restarted") {
@@ -104,14 +109,15 @@ async function readSseEvents(
   // race-loser read would still consume the next chunk into an abandoned
   // promise; the same pending promise is re-raced against fresh timers
   // until it resolves).
-  let pending: Promise<ReadableStreamReadResult<Uint8Array>> | null = null;
+  type Chunk = Awaited<ReturnType<typeof reader.read>>;
+  let pending: Promise<Chunk> | null = null;
   while (events.length < count && Date.now() < deadline) {
-    pending ??= reader.read();
+    pending ??= reader.read() as Promise<Chunk>;
     const chunk = await Promise.race([
       pending,
-      new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 25)),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 25)),
     ]);
-    if (chunk === undefined) continue; // the timer won — the SAME read stays pending
+    if (chunk === null) continue; // the timer won — the SAME read stays pending
     pending = null;
     if (chunk.done) break;
     events.push(...parser.write(decoder.decode(chunk.value, { stream: true })));

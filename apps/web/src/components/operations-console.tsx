@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type {
   CapabilityLike,
@@ -25,6 +25,42 @@ import {
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
 import { deriveReauthState } from "@/lib/surface-state";
 import { ROUTES } from "@/lib/navigation";
+
+/**
+ * J011: one console job row — the API's own shape plus the session-label
+ * join the operations service serves (additive at the route; typed here
+ * so the shared api-types mirror stays untouched).
+ */
+type ConsoleJob = OperationsJobsLike["jobs"][number] & {
+  sessionLabel?: string | null;
+};
+
+/**
+ * J011: the contextual navigation targets for one job row — PURE
+ * derivations over the job's real data (no fabricated targets, no
+ * guessing URLs). Exported for the route-level battery.
+ */
+export function operationsJobContextLinks(job: {
+  sessionId: string;
+}): {
+  watch: string;
+  create: string;
+  providers: string;
+  computeCenter: string;
+} {
+  return {
+    // The existing session-addressable watch route (the same target the
+    // session cards use — the affected session's Watch page).
+    watch: `${ROUTES.watch}?session=${encodeURIComponent(job.sessionId)}`,
+    // The Create studio — where a re-submission is launched.
+    create: ROUTES.create,
+    // The console's own Providers & quotas panel (the relevant provider
+    // state — in-page, one anchor away).
+    providers: "#ops-providers-title",
+    // The compute connection center (the provider connection state).
+    computeCenter: ROUTES.computeCenter,
+  };
+}
 
 /**
  * The OPERATIONS CONSOLE (W918) — the operator workspace's surface: the
@@ -169,7 +205,9 @@ export function OperationsConsole() {
           The compute ledger: every dispatched async job with its live state; FAILED jobs carry
           their never-silent failure reasons and the metered usage. Retry re-dispatches through the
           real admission ladder (a NEW job — never a status flip); cancel runs the adapter&apos;s
-          real cancel.
+          real cancel. J011: every row links DIRECTLY to its context — the affected session&apos;s
+          Watch page, the full job details, the Create studio, and the provider state — no guessing
+          URLs.
         </p>
         <JobsTable
           state={jobs}
@@ -393,6 +431,7 @@ function JobsTable({
   onRetry: (jobId: string) => Promise<void>;
   onCancel: (jobId: string) => Promise<void>;
 }) {
+  const [expandedJob, setExpandedJob] = useState<string | null>(null);
   if (state.phase === "loading") return <LoadingPanel label="Compute jobs" />;
   if (state.phase === "failed") {
     return failedPanel("The jobs table could not be read", state);
@@ -419,72 +458,152 @@ function JobsTable({
             <th>State</th>
             <th>Renderer</th>
             <th>Never-silent reason / accounting</th>
+            <th>Context (J011)</th>
             <th>Remediation</th>
           </tr>
         </thead>
         <tbody>
-          {jobs.jobs.map((job) => (
-            <tr key={job.jobId}>
-              <td>
-                {job.jobId}
-                <br />
-                <span className="section-lede">session {job.sessionId}</span>
-              </td>
-              <td>{job.state}</td>
-              <td>{job.rendererId ?? "unknown"}</td>
-              <td>
-                {job.unavailableReason !== null ? (
-                  <span>unavailable: {job.unavailableReason}</span>
-                ) : job.state === "failed" && job.completion?.failure ? (
-                  <span>
-                    {job.completion.failure.errorClass}: {job.completion.failure.message} (
-                    {job.completion.failure.terminal}); usage{" "}
-                    {job.completion.usage
-                      .map((unit) => `${unit.unitId}=${unit.quantity}`)
-                      .join(", ")}
-                  </span>
-                ) : job.completion ? (
-                  <span>
-                    {job.completion.outputs} output(s),{" "}
-                    {job.completion.accounting?.consumedInputs ?? 0} input(s) consumed
-                    {job.completion.accounting !== null &&
-                    job.completion.accounting.unconsumedInputs.length > 0
-                      ? `, unconsumed: ${job.completion.accounting.unconsumedInputs
-                          .map((input) => `${input.inputId} (${input.reason})`)
-                          .join("; ")}`
-                      : ""}
-                  </span>
-                ) : (
-                  <span>in flight — no completion yet</span>
-                )}
-              </td>
-              <td>
-                {job.state === "failed" ? (
-                  <button
-                    type="button"
-                    className="button-ghost"
-                    disabled={pending === job.jobId}
-                    onClick={() => void onRetry(job.jobId)}
-                  >
-                    Retry (new job)
-                  </button>
-                ) : null}{" "}
-                {job.state !== "succeeded" &&
-                job.state !== "failed" &&
-                job.state !== "cancelled" &&
-                job.state !== "dead-lettered" ? (
-                  <button
-                    type="button"
-                    className="button-ghost"
-                    disabled={pending === job.jobId}
-                    onClick={() => void onCancel(job.jobId)}
-                  >
-                    Cancel
-                  </button>
+          {jobs.jobs.map((jobRow) => {
+            const job = jobRow as ConsoleJob;
+            const links = operationsJobContextLinks(job);
+            const expanded = expandedJob === job.jobId;
+            return (
+              <Fragment key={job.jobId}>
+                <tr>
+                  <td>
+                    {job.jobId}
+                    <br />
+                    <span className="section-lede">
+                      session{" "}
+                      <Link href={links.watch}>
+                        {job.sessionLabel ?? job.sessionId}
+                      </Link>
+                    </span>
+                  </td>
+                  <td>{job.state}</td>
+                  <td>{job.rendererId ?? "unknown"}</td>
+                  <td>
+                    {job.unavailableReason !== null ? (
+                      <span>unavailable: {job.unavailableReason}</span>
+                    ) : job.state === "failed" && job.completion?.failure ? (
+                      <span>
+                        {job.completion.failure.errorClass}: {job.completion.failure.message} (
+                        {job.completion.failure.terminal}); usage{" "}
+                        {job.completion.usage
+                          .map((unit) => `${unit.unitId}=${unit.quantity}`)
+                          .join(", ")}
+                      </span>
+                    ) : job.completion ? (
+                      <span>
+                        {job.completion.outputs} output(s),{" "}
+                        {job.completion.accounting?.consumedInputs ?? 0} input(s) consumed
+                        {job.completion.accounting !== null &&
+                        job.completion.accounting.unconsumedInputs.length > 0
+                          ? `, unconsumed: ${job.completion.accounting.unconsumedInputs
+                              .map((input) => `${input.inputId} (${input.reason})`)
+                              .join("; ")}`
+                          : ""}
+                      </span>
+                    ) : (
+                      <span>in flight — no completion yet</span>
+                    )}
+                  </td>
+                  <td>
+                    {/* J011: the DIRECT contextual links — the affected
+                        session's Watch page, the full job details (the
+                        expansion below), the Create studio, and the relevant
+                        provider state. */}
+                    <Link href={links.watch}>Watch session</Link>
+                    <br />
+                    <button
+                      type="button"
+                      className="button-ghost"
+                      aria-expanded={expanded}
+                      onClick={() => setExpandedJob(expanded ? null : job.jobId)}
+                    >
+                      {expanded ? "Hide job details" : "Job details"}
+                    </button>{" "}
+                    <Link href={links.create}>Create</Link>
+                    <br />
+                    <Link href={links.providers}>Provider state</Link> ·{" "}
+                    <Link href={links.computeCenter}>Compute center</Link>
+                  </td>
+                  <td>
+                    {job.state === "failed" ? (
+                      <button
+                        type="button"
+                        className="button-ghost"
+                        disabled={pending === job.jobId}
+                        onClick={() => void onRetry(job.jobId)}
+                      >
+                        Retry (new job)
+                      </button>
+                    ) : null}{" "}
+                    {job.state !== "succeeded" &&
+                    job.state !== "failed" &&
+                    job.state !== "cancelled" &&
+                    job.state !== "dead-lettered" ? (
+                      <button
+                        type="button"
+                        className="button-ghost"
+                        disabled={pending === job.jobId}
+                        onClick={() => void onCancel(job.jobId)}
+                      >
+                        Cancel
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+                {expanded ? (
+                  <tr data-surface="ops-job-details">
+                    <td colSpan={6}>
+                      {/* J011: the job's FULL honest record — the detail the
+                          operator needs before remediating, served by the
+                          console itself (no URL guessing). */}
+                      <dl className="field-note">
+                        <dt>session</dt>
+                        <dd>
+                          {job.sessionLabel ?? "(no recorded label)"} —{" "}
+                          <code>{job.sessionId}</code>
+                        </dd>
+                        <dt>dispatched</dt>
+                        <dd>
+                          {new Date(job.dispatchedAtMs).toISOString()} by{" "}
+                          {job.dispatchedByUserId ?? "unknown"}
+                        </dd>
+                        <dt>renderer</dt>
+                        <dd>{job.rendererId ?? "unknown"}</dd>
+                        <dt>render id</dt>
+                        <dd>{job.renderId ?? "none yet"}</dd>
+                        <dt>admission</dt>
+                        <dd>
+                          {job.admission.released
+                            ? `released (was ${job.admission.admissionId ?? "unknown"})`
+                            : `held (${job.admission.admissionId ?? "unknown"})`}
+                        </dd>
+                        <dt>state</dt>
+                        <dd>{job.state}</dd>
+                        <dt>completion</dt>
+                        <dd>
+                          {job.completion === null
+                            ? "none yet (in flight)"
+                            : `${job.completion.status} · ${job.completion.outputs} output(s)`}
+                        </dd>
+                        <dt>metered usage</dt>
+                        <dd>
+                          {job.completion?.usage.length
+                            ? job.completion.usage
+                                .map((unit) => `${unit.unitId}=${unit.quantity}`)
+                                .join(", ")
+                            : "unmeasured (the adapter exposes no usage for this job)"}
+                        </dd>
+                      </dl>
+                    </td>
+                  </tr>
                 ) : null}
-              </td>
-            </tr>
-          ))}
+              </Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -594,7 +713,18 @@ function AuditPanel({ state }: { state: FetchState<OperationsAuditLike> }) {
               <td>{record.actorUsername}</td>
               <td>
                 {record.action} → {record.targetJobId}
-                {record.sessionId !== null ? ` (session ${record.sessionId})` : ""}
+                {record.sessionId !== null ? (
+                  <>
+                    {" "}
+                    (session{" "}
+                    <Link
+                      href={`${ROUTES.watch}?session=${encodeURIComponent(record.sessionId)}`}
+                    >
+                      {record.sessionId}
+                    </Link>
+                    )
+                  </>
+                ) : ""}
               </td>
               <td>
                 {record.outcome}: {record.detail}
