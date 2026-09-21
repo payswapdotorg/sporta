@@ -1,7 +1,7 @@
 # J012 — Reality-Fidelity Perception: Licensing Survey & Production-Path Decision
 
-Status: DECIDED (Wave 1, Worker A) — production path implemented; benchmark-track candidates registered
-Date: 2026-09-20
+Status: DECIDED + IMPLEMENTED (Wave 1, Worker A) — the contrast-context production path is the default player-detection chain head; benchmark-track candidates registered in `@sporta/perception-benchmark` (L010)
+Date: 2026-09-20 (decision); 2026-09-21 (implementation addendum §6)
 Related: J012 (`docs/work-items/mvp-user-journey-hardening-work-items.md`), ADR-011 (HF portfolio; the three-way license rule), `docs/technology/hugging-face-candidates.yaml`, `docs/testing/mvp-reality-engine-gate-audit.md` (the failure evidence), `docs/architecture/technology-plane.md` (license policy: permissive code ≠ usable checkpoint)
 
 ## 1. The problem being solved
@@ -179,3 +179,57 @@ unchanged.
   when the seam exists. Never committed.
 - **Weakening the sensitivity assertions to make the current state pass** —
   prohibited by the work item and the honest-degradation doctrine.
+
+## 6. Implementation addendum (2026-09-21, Worker A)
+
+The production path is implemented as
+`packages/perception-adapters/src/detection/contrast-context.ts`
+(`contrast-context-detector@0.1.0`), wired as the DEFAULT player-detection
+chain head (`contrast-context → model-backed → heuristic-color`), with the
+J012c sensitivity suite at
+`packages/real-to-swm/test/sensitivity.test.ts` and the L010 harness
+registration in `packages/perception-benchmark`. The measured effect on the
+committed gate clips through the default pipeline: fx-001 → 311 final-snapshot
+participants / 15 ball-impulse candidates / artifact `b692ff40…`; fx-004 →
+520 participants / 58 candidates / artifact `00a8f32c…` — materially
+different reconstructed football state (the audited failure mode
+reconstructed both into the same empty-event state).
+
+Honest deviations from §3's literal algorithm wording, each forced by
+measurement during calibration (all documented in the adapter's contract
+docs; all pinned by tests):
+
+1. **Two-pass local mean (background-restricted) + deep-contrast restore**
+   instead of a single-pass local mean. A single-pass mean is polluted by
+   bright clutter (pitch lines, goal frames) and manufactures (a) a "wedge"
+   of shallow-contrast foreground around dense clutter crossings and (b) a
+   halo around every blob. Pass 2 recomputes the mean over pass-1 background
+   pixels only; a pass-1 pixel whose deviation exceeds 2× the threshold
+   (genuine structure edge: 60–150 measured) is restored so close-up
+   boundary rings do not thin below the erosion density. Shallow artifacts
+   (32–45) stay suppressed.
+2. **5-cross majority (≥ 4 of self + 4-neighbours)** instead of a 3×3 box
+   majority: the box majority welds players standing next to pitch lines
+   into the line's full-height bar (the merged blob dies on the aspect
+   gate). The cross element removes speckle without filling 1-pixel gaps.
+3. **Surface-or-background ring membership** instead of "the largest
+   connected region of surface blocks": a thin foreground wall (a chalk
+   line's blocks) partitions any region graph and evicts every player on
+   the wrong side of the line (measured on the marked synthetic fixtures).
+   The implemented ring counts a pixel as surface when it lies in a
+   surface block OR is itself cleaned-mask background — the same
+   crowd/stand gate without the partition failure; out-of-frame ring
+   positions count as non-surface (frame-filling clutter cannot smuggle a
+   clean ring past the gate).
+4. **Block erosion retained at 0.35** (the low-density-block erosion): the
+   measured noise floor without it is 30–70 noise detections per real frame
+   (film grain clumps, compression speckle); with it, straight blob walls
+   (≥ 0.35 block fraction in their core blocks) survive.
+
+Honest quality limits recorded (carried in the registry binding's failure
+classes): merged players/shadows (undercount), suppressed low-contrast kits
+(the newsreel case), off-envelope framings (no dominant uniform surface →
+honest zero), and entity-population overcount on noisy footage (the
+min-track-lifetime gate and the ledger record it; per-frame detection
+density above the plausible-player envelope is ledgered as
+off-envelope-detection).
