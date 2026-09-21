@@ -908,3 +908,67 @@ follow before the worker report.
   root e2e — ZERO failures (0 NEW failures vs the recorded wave-2 baseline
   6374/33/18 with its documented environmental families; the sequential
   protocol also avoids the contention-timeout family entirely).
+
+## Session 2026-09-21 10:15-12:30 UTC — Wave 2 Worker B lane DELIVERED (J006 backend + J014 + L006 + L009)
+
+- RECOVERY: the sandbox was recycled mid-turn by a platform event; the
+  branch (not the sandbox) was the ground truth — re-verified
+  local == remote @c338189 (L006 + J006-backend were already safely
+  pushed; the two orphaned sqlite-identity WIP files were recovered into
+  the J014 commit). The 1679 file-mode-only changes (644→755) were the
+  recycle artifact — `core.fileMode false`, zero content delta.
+- MERGED main into the branch FIRST (d1158b2): A's L003/L004/L007/L008/L011
+  + C's L005/L013/J006-UI/J013 + the Wave-3 C follow-on were all on main.
+  One conflict (live/view-model.ts — my L006 telemetry field vs main's L014
+  finiteWindow: both additive, kept both) + one real seam the merge
+  surfaced (main's LiveTransport grew `replayRecord` — my L006 decorator
+  needed the pure read-through pass). Post-merge: live batteries 49 + 88 +
+  18 green, typecheck clean.
+- J006 RECONCILIATION confirmed: C's UI derives its six-fact views from the
+  EXISTING route contracts; my backend documents are the same seams'
+  server-side truth (computed once at the decision moment + the
+  measured/fail-closed increments the client cannot derive) — additive,
+  j006 battery 18/18 on the merged tree.
+- J014 (25c238c): the local durable IDENTITY plane — SqliteAccountStore +
+  SqliteSessionStore (the W911 port shapes mirrored; only SHA-256 token
+  hashes on disk; WAL + busy-timeout) wired at the composition's env gate
+  (Node-runtime shim refusal → the honest in-memory fallback + banner), the
+  honest health surface (identityPlaneOverrideOf: /api/platform/health +
+  the Operations board report sqlite with a LIVE read through both real
+  stores), and the REAL process-restart battery — three REAL child
+  processes over one scratch (fresh journey with a real render → the
+  restart resolves the STILL-OLD token + Library/Watch/bytes recover → the
+  redeploy serves the anonymous public path; bytes-on-disk proof;
+  server+tests in ONE invocation; 4/4 + 38 assertions). The public-route
+  in-memory audit ships as the status doc's classification table (durable /
+  reconstructed / ephemeral-by-design / per-instance — no undisclosed
+  in-memory state on the public path).
+- L009 (86eef5c + 14815bc): the honest BLOCKED branch of the acceptance,
+  with the shape DELIVERED — packages/live-authorized: the env-driven
+  SkillCorner gate (the provider SDK's OWN binding names), the pull-based
+  adapter over the RECORDED endpoint, and every transport fact FETCHED
+  2026-09-21 from the provider's own artifacts (PyPI skillcorner==3.2.0
+  wheel: base_url https://skillcorner.com, HTTP Basic, GET
+  /api/match/{id}/tracking, DRF pagination; frame core = the opendata
+  schema of record). Strict-on-consumed/counting-unknown parsing
+  (unknownFieldKinds = the activation verification hook), the §6 profile
+  with the honestly-unresolved DATASET component (blockingLicenseIssues
+  non-empty — R004 fail-closed, the Metrica precedent applied to access),
+  the operator-visible liveAuthorized panel on GET /api/operations/providers
+  (lazy module load — only that route pays it). 36/36 + 3/3 tests;
+  format-fixtures only; secrets never surface; no sample data.
+- FULL-BATTERY HONESTY: the web battery's default-timeout failures were
+  classified against a baseline worktree at 25c238c (two stable runs, 18
+  members — the documented app-boot-under-load family). My added file
+  shifted the schedule phase and tipped golden-path step 6 (measured: 26ms
+  uncontended → ~9s at full-battery peak — the 5s default was a coin-flip,
+  never a product signal). Root fix: explicit 120s budgets on the journey's
+  real-media tests (assertions unchanged; matches the existing 30s
+  precedent on one of these very tests). FINAL: 16 fail — a strict SUBSET
+  of the baseline family, ZERO new-vs-baseline; 857/857 green with
+  --timeout 60000. All 64 package typechecks + web typecheck exit 0
+  (sequential); lint 0 errors (1 pre-existing warning); format:check clean.
+- Branch state: work/j006b-j014-l006-l009 @14815bc (merge d1158b2 + J014
+  25c238c + L009 86eef5c + hardening 14815bc, all pushed). Ready for TL
+  verify + merge. The hosted Neon/R2 gates remain the recorded external
+  dependencies (J007/L009).
