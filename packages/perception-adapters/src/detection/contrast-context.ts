@@ -98,7 +98,7 @@ import type {
   ResourceRequirements,
   TechnologyLicenseRecord,
 } from "@sporta/contracts";
-import { assertDescriptorBinding, perceptionDescriptor } from "../errors";
+import { assertDescriptorBinding, CandidateFailureError, perceptionDescriptor } from "../errors";
 import { CONTRAST_CONTEXT_DETECTOR_LICENSE } from "../licenses";
 import type { PlayerDetectionAdapter } from "../adapter";
 
@@ -201,9 +201,11 @@ export const CONTRAST_CONTEXT_DETECTOR_FAILURE_CLASSES: readonly FailureClassRec
     failureClassId: "contrast-context.off-envelope-framing",
     description:
       "A frame without a dominant uniform surface (tight crowd shot, " +
-      "fully-cluttered view) leaves the ring-context gate nothing to stand " +
-      "on: detection degrades honestly toward zero rather than fabricating " +
-      "boxes off the playing surface.",
+      "fully-cluttered pattern) leaves the ring-context gate nothing to " +
+      "stand on: the candidate REFUSES with this class so the chain's " +
+      "degradation ledger engages the fallback (never fabricated boxes off " +
+      "the playing surface). A frame WITH a surface and no players is NOT " +
+      "this class — it is the honest empty result.",
     retryable: false,
   },
 ];
@@ -549,9 +551,33 @@ export class ContrastContextDetector implements PlayerDetectionAdapter {
           fg / Math.max(total, 1) < this.surfaceMaxForegroundFraction ? 1 : 0;
       }
     }
+    let surfaceBlockCount = 0;
+    for (let i = 0; i < blockSurface.length; i += 1) surfaceBlockCount += blockSurface[i]!;
 
     // --- 4. connected components + geometric gates -------------------------
     const detections: DetectedBox[] = [];
+    if (surfaceBlockCount === 0) {
+      // NO surface block exists (every block is dense foreground — a tight
+      // crowd shot, a fully-cluttered pattern): this is the documented
+      // OFF-ENVELOPE refusal, not an honest "no players" result. The
+      // candidate refuses with its failure class so the pipeline's
+      // degradation chain engages (the ledger records the refusal + the
+      // fallback — the checkpoint's designed posture: the color baseline
+      // remains the final fallback); a frame WITH a surface and no players
+      // returns [] honestly instead.
+      throw new CandidateFailureError(
+        `ContrastContextDetector: no dominant playing surface in this frame ` +
+          `(${blocksX}x${blocksY} blocks, none surface-classified) — the ring-context ` +
+          `gate has nothing to stand on; refusing with the documented off-envelope ` +
+          `class so the chain degrades honestly`,
+        {
+          failureClassId: "contrast-context.off-envelope-framing",
+          detectorId: this.detectorId,
+          blocksX,
+          blocksY,
+        },
+      );
+    }
     for (const blob of connectedComponentsOf(cleaned, width, height)) {
       const w = blob.maxX - blob.minX + 1;
       const h = blob.maxY - blob.minY + 1;

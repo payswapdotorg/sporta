@@ -6,6 +6,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
+  CandidateFailureError,
   CONTRAST_CONTEXT_DETECTOR_FAILURE_CLASSES,
   CONTRAST_CONTEXT_DETECTOR_ID,
   CONTRAST_CONTEXT_DETECTOR_LICENSE,
@@ -114,6 +115,43 @@ describe("ContrastContextDetector (J012 production path)", () => {
     };
     paintScenario({ r: 220, g: 200, b: 160 }); // beach sand
     paintScenario({ r: 120, g: 120, b: 120 }); // film gray
+  });
+
+  test("a fully-cluttered frame (no dominant surface) REFUSES with the documented class", () => {
+    // The off-envelope posture: a frame where every block is dense
+    // foreground (a tight crowd shot / clutter pattern) is a REFUSAL that
+    // engages the chain's fallback — the ledger records it — never a
+    // fabricated empty that would strand the chain.
+    const canvas = new SyntheticFrame(160, 120);
+    for (let y = 0; y < 120; y += 6) {
+      for (let x = 0; x < 160; x += 6) {
+        const dark = (Math.floor(x / 6) + Math.floor(y / 6)) % 2 === 0;
+        canvas.fillRect(
+          x,
+          y,
+          x + 5,
+          y + 5,
+          dark ? { r: 40, g: 40, b: 40 } : { r: 240, g: 240, b: 240 },
+        );
+      }
+    }
+    const frame = makeDetectorFrameInput({
+      bytes: canvas.bytes,
+      width: 160,
+      height: 120,
+      decodeOrder: 0,
+      presentationMs: 0,
+    });
+    const detector = new ContrastContextDetector();
+    try {
+      detector.detect(frame);
+      expect.unreachable("must refuse");
+    } catch (error) {
+      expect(error).toBeInstanceOf(CandidateFailureError);
+      expect((error as CandidateFailureError).details.failureClassId).toBe(
+        "contrast-context.off-envelope-framing",
+      );
+    }
   });
 
   test("a uniform frame yields NO detections (honest empty, no fabrication)", () => {

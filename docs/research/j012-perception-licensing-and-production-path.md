@@ -228,8 +228,24 @@ docs; all pinned by tests):
 
 Honest quality limits recorded (carried in the registry binding's failure
 classes): merged players/shadows (undercount), suppressed low-contrast kits
-(the newsreel case), off-envelope framings (no dominant uniform surface →
-honest zero), and entity-population overcount on noisy footage (the
+(the newsreel case), off-envelope framings (a frame with NO surface block
+REFUSES with the documented class so the chain's degradation ledger engages
+the fallback; a frame WITH a surface and no players returns the honest
+empty result), and entity-population overcount on noisy footage (the
 min-track-lifetime gate and the ledger record it; per-frame detection
 density above the plausible-player envelope is ledgered as
 off-envelope-detection).
+
+KNOWN LANE GAP (for the TL; apps/web is outside this lane's ownership): the
+app-level test `derived-reality-catalog.test.ts > R509/R510 — four ready
+realities` asserts `snapshot.entities.length > 0` over a REAL upload of an
+ffmpeg `testsrc` pattern clip. The OLD default chain satisfied that with
+the heuristic color detector's FALSE POSITIVES on the non-football pattern;
+the J012 production path honestly yields an empty SWM on `testsrc` (there
+are surface blocks — the bar interiors — and no player-like blobs, so the
+detector runs and finds nothing; a refusal there would be dishonest).
+Recommended TL action (Worker C owns apps/web): point the test at a
+football-like fixture (e.g. the committed synthetic-diagnostic MP4) or
+update the assertion to accept the honest empty SWM for non-football
+patterns. Root-caused and deterministic; everything else in the app battery
+is the documented environmental 5s-timeout family.
