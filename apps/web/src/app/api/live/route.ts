@@ -39,6 +39,12 @@ export async function GET(): Promise<Response> {
      */
     sourceKind: source.tactical !== undefined ? "tactical" : "story",
     ...(source.tactical !== undefined ? { sourceNote: tacticalSourceNote(source.tactical) } : {}),
+    /**
+     * L014: whether this tactical source runs a FINITE live window that
+     * ends honestly (`live-window-complete`) and then replays through the
+     * same views — the live/replay continuity presentation.
+     */
+    ...(source.tactical?.finiteWindow === true ? { finiteWindow: true } : {}),
   }));
   return jsonResponse(200, {
     available: sources.length > 0,

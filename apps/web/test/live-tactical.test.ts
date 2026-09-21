@@ -90,14 +90,14 @@ describe("the live tactical view-model (L005)", () => {
       nowMs: steppingClock(),
       ...TACTICAL_REGISTRATION,
     });
-    const first = producer.next({ sessionId: "sess-l005-vm", ordinal: 1 }).frame;
+    const first = producer.next({ sessionId: "sess-l005-vm", ordinal: 1 })!.frame;
     expect(first.entities.length).toBe(11 + 11 + 1 + 1); // two teams + ball + referee
     const firstIds = first.entities.map((entity) => entity.entityRef);
     expect(new Set(firstIds).size).toBe(firstIds.length); // identities unique
 
     // Identity continuity: the SAME entityRefs across the next frames.
     for (let ordinal = 2; ordinal <= 5; ordinal += 1) {
-      const frame = producer.next({ sessionId: "sess-l005-vm", ordinal }).frame;
+      const frame = producer.next({ sessionId: "sess-l005-vm", ordinal })!.frame;
       expect(frame.entities.map((entity) => entity.entityRef).sort()).toEqual([...firstIds].sort());
       for (const entity of frame.entities) {
         expect(entity.xMeters).toBeGreaterThanOrEqual(0);
@@ -108,7 +108,7 @@ describe("the live tactical view-model (L005)", () => {
     }
 
     // The positions visibly CHANGE across frames (a live view, not a still).
-    const later = producer.next({ sessionId: "sess-l005-vm", ordinal: 6 }).frame;
+    const later = producer.next({ sessionId: "sess-l005-vm", ordinal: 6 })!.frame;
     const firstById = new Map(first.entities.map((entity) => [entity.entityRef, entity]));
     let moved = 0;
     for (const entity of later.entities) {
@@ -126,7 +126,7 @@ describe("the live tactical view-model (L005)", () => {
     });
     let previousVersion = 0;
     for (let ordinal = 1; ordinal <= 10; ordinal += 1) {
-      const frame = producer.next({ sessionId: "sess-l005-vm", ordinal }).frame;
+      const frame = producer.next({ sessionId: "sess-l005-vm", ordinal })!.frame;
       expect(frame.worldVersion).toBeGreaterThan(previousVersion);
       previousVersion = frame.worldVersion;
       // The watermark is the source's own conservative contiguous frontier
@@ -145,7 +145,7 @@ describe("the live tactical view-model (L005)", () => {
     });
     const frames: LiveWorldFrameDoc[] = [];
     for (let ordinal = 1; ordinal <= 60; ordinal += 1) {
-      frames.push(producer.next({ sessionId: "sess-l005-vm", ordinal }).frame);
+      frames.push(producer.next({ sessionId: "sess-l005-vm", ordinal })!.frame);
     }
     // The reconnect window (tick 40, 8 missed by the default config): the
     // FIRST delivered observation after it carries the recovery accounting.
@@ -180,7 +180,7 @@ describe("the live tactical view-model (L005)", () => {
     });
     const frames: LiveWorldFrameDoc[] = [];
     for (let ordinal = 1; ordinal <= 60; ordinal += 1) {
-      frames.push(producer.next({ sessionId: "sess-l005-vm", ordinal }).frame);
+      frames.push(producer.next({ sessionId: "sess-l005-vm", ordinal })!.frame);
     }
     const undetected = frames
       .flatMap((frame) => frame.entities)
@@ -207,13 +207,13 @@ describe("the live tactical view-model (L005)", () => {
       nowMs: steppingClock(),
       // A short window: the reconnect plan delivers ~112 observations for
       // 120 ticks; cycle after that.
-      config: { ...TACTICAL_REGISTRATION.config, tickCount: 40, scenario: "normal" },
+      config: { ...TACTICAL_REGISTRATION.config, tickCount: 40, scenario: "normal" as const },
       sourceNote: TACTICAL_REGISTRATION.sourceNote,
     });
     let sawCycle = false;
     let lastVersion = 0;
     for (let ordinal = 1; ordinal <= 90; ordinal += 1) {
-      const { frame, replayCycle } = producer.next({ sessionId: "sess-l005-vm", ordinal });
+      const { frame, replayCycle } = producer.next({ sessionId: "sess-l005-vm", ordinal })!;
       if (replayCycle) {
         sawCycle = true;
         expect(frame.telemetry.replayCycle).toBe(true);
@@ -226,6 +226,67 @@ describe("the live tactical view-model (L005)", () => {
     expect(sawCycle).toBe(true);
   });
 
+  test("L014: a FINITE window answers null at exhaustion — never a fabricated extra frame", () => {
+    // The finite-window producer (the L014 registration flag): the scripted
+    // window runs ONCE; `next()` answers `null` when it exhausts (the
+    // transport ends the channel with `live-window-complete` — the recorded
+    // frames are then the replay record). No cycling, no fabricated frame.
+    const producer = createTacticalFrameProducer({
+      sessionId: "sess-l014-vm",
+      nowMs: steppingClock(),
+      config: { ...TACTICAL_REGISTRATION.config, tickCount: 5, scenario: "normal" as const },
+      sourceNote: "the L014 finite-window view-model test",
+      finiteWindow: true,
+    });
+    const frames: LiveWorldFrameDoc[] = [];
+    for (let ordinal = 1; ordinal <= 5; ordinal += 1) {
+      const result = producer.next({ sessionId: "sess-l014-vm", ordinal });
+      expect(result).not.toBeNull();
+      frames.push(result!.frame);
+    }
+    // The window is exhausted: `null` — the honest end (and every call after).
+    expect(producer.next({ sessionId: "sess-l014-vm", ordinal: 6 })).toBeNull();
+    expect(producer.next({ sessionId: "sess-l014-vm", ordinal: 7 })).toBeNull();
+    // The delivered frames advanced monotonically (the window's own span).
+    for (let index = 1; index < frames.length; index += 1) {
+      expect(frames[index]!.worldVersion).toBeGreaterThan(frames[index - 1]!.worldVersion);
+      expect(frames[index]!.eventTimeMs).toBeGreaterThan(frames[index - 1]!.eventTimeMs);
+    }
+    expect(producer.delivered).toBe(5);
+  });
+
+  test("L014: the finite window's frames EQUAL the cycling window's first pass (same source, same seed)", () => {
+    // The SAME deterministic source with the same seed/scenario/window: the
+    // finite producer's one pass is EXACTLY the cycling producer's first
+    // pass — the finite flag changes only the END behavior, never the
+    // frames (the replay record is the same session content either way).
+    const config = { ...TACTICAL_REGISTRATION.config, tickCount: 6, scenario: "normal" as const };
+    const finite = createTacticalFrameProducer({
+      sessionId: "sess-l014-vm-eq",
+      nowMs: steppingClock(),
+      config,
+      sourceNote: "finite",
+      finiteWindow: true,
+    });
+    const cycling = createTacticalFrameProducer({
+      sessionId: "sess-l014-vm-eq",
+      nowMs: steppingClock(),
+      config,
+      sourceNote: "cycling",
+    });
+    for (let ordinal = 1; ordinal <= 6; ordinal += 1) {
+      const left = finite.next({ sessionId: "sess-l014-vm-eq", ordinal });
+      const right = cycling.next({ sessionId: "sess-l014-vm-eq", ordinal });
+      expect(left).not.toBeNull();
+      expect(right).not.toBeNull();
+      expect(left!.frame.entities).toEqual(right!.frame.entities);
+      expect(left!.frame.eventTimeMs).toBe(right!.frame.eventTimeMs);
+      expect(left!.frame.sourceSequence).toBe(right!.frame.sourceSequence);
+      expect(left!.frame.watermark).toEqual(right!.frame.watermark);
+    }
+    expect(finite.next({ sessionId: "sess-l014-vm-eq", ordinal: 7 })).toBeNull();
+  });
+
   test("deterministic replay: the same seed + scenario yields the same frames", () => {
     const run = (): LiveWorldFrameDoc[] => {
       const producer = createTacticalFrameProducer({
@@ -235,7 +296,7 @@ describe("the live tactical view-model (L005)", () => {
       });
       const out: LiveWorldFrameDoc[] = [];
       for (let ordinal = 1; ordinal <= 25; ordinal += 1) {
-        out.push(producer.next({ sessionId: "sess-l005-vm", ordinal }).frame);
+        out.push(producer.next({ sessionId: "sess-l005-vm", ordinal })!.frame);
       }
       return out;
     };

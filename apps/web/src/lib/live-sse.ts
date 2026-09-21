@@ -163,9 +163,16 @@ export interface LiveWorldFrameDoc {
   };
 }
 
-/** The `close` payload: why the stream ended + the honest accounting. */
+/**
+ * The `close` payload: why the stream ended + the honest accounting.
+ *
+ * L014 (additive): `live-window-complete` — the finite live window's OWN
+ * terminal close (the scripted source exhausted and the transport ended the
+ * channel honestly); the recorded session state is then replayable through
+ * the replay route (`/api/live/[sessionId]/replay`).
+ */
 export interface LiveCloseDoc {
-  reason: "transport-closed" | "source-removed" | "server-shutdown";
+  reason: "transport-closed" | "source-removed" | "server-shutdown" | "live-window-complete";
   deliveredFrames: number;
   droppedFrames: number;
 }
@@ -254,4 +261,44 @@ export function createSseParser(): {
 /** Parses a JSON-payload event (typed cast after the parser validated shape). */
 export function ssePayloadOf<T>(event: SseEvent): T {
   return JSON.parse(event.data) as T;
+}
+
+/**
+ * The REPLAY RECORD (L014, presentation side) — the completed live window's
+ * RECORDED world frames, served verbatim by the replay route. This is the
+ * presentation-layer session record of the live window: the exact
+ * `LiveWorldFrameDoc`s the live surface rendered (ordinals, world versions,
+ * watermarks, event times UNCHANGED — never re-stamped, never re-numbered),
+ * so the SAME tactical/3D views replay the recorded session state through
+ * the SAME view-model contracts with the continuity VISIBLE.
+ *
+ * HONEST BOUNDARY (the platform seam): this record is the transport's own
+ * in-memory record of the window it served on THIS instance — the durable
+ * persistence/recovery of live observations and world versions keyed to the
+ * session (the L014 platform side) is Worker B's lane. A restart honestly
+ * starts a fresh window (the record is `no-record` until a window runs).
+ */
+export interface LiveReplayRecordDoc {
+  schemaVersion: "sporta.live-replay/1";
+  sessionId: string;
+  /** `complete` (the window ended — the frames are replayable) | `live-window-open` (still streaming) | `no-record` (no window has run on this transport instance). */
+  state: "complete" | "live-window-open" | "no-record";
+  /** The recorded world frames, VERBATIM (empty unless `complete`). */
+  frames: LiveWorldFrameDoc[];
+  /** The window's honest meta (present when `complete`). */
+  meta?: {
+    label: string;
+    /** Real clock when the window completed (ms). */
+    completedAtMs: number;
+    /** The transport's emission cadence during the window (ms). */
+    cadenceMs: number;
+    deliveredFrames: number;
+    droppedFrames: number;
+    /** The recorded continuity span — verbatim from the frames themselves. */
+    worldVersionFirst: number;
+    worldVersionLast: number;
+    eventTimeFirstMs: number;
+    eventTimeLastMs: number;
+    watermarkFinal: { watermarkMs: number; sequence: number };
+  };
 }

@@ -303,7 +303,10 @@ function runScenarioWindow(scenario: LiveScenarioKind, tickCount = 160): LiveWor
   });
   const frames: LiveWorldFrameDoc[] = [];
   for (let ordinal = 1; ordinal <= tickCount * 2; ordinal += 1) {
-    const { frame, replayCycle } = producer.next({ sessionId: `sess-l005-${scenario}`, ordinal });
+    // (The cycling producer never answers null — only the L014 finite-window
+    // producer does; the non-null assertion documents that invariant.)
+    const result = producer.next({ sessionId: `sess-l005-${scenario}`, ordinal })!;
+    const { frame, replayCycle } = result;
     if (replayCycle) break; // the scripted window ended — stop at the boundary
     frames.push(frame);
   }
