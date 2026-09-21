@@ -51,6 +51,27 @@ import { createTacticalFrameProducer } from "./view-model";
 import type { LiveTacticalRegistration } from "./view-model";
 
 // ---------------------------------------------------------------------------
+// The recorded-window sink (L014 platform side — additive)
+// ---------------------------------------------------------------------------
+
+/**
+ * The L014 PLATFORM persistence seam: the channel reports every finite
+ * window frame it RECORDS and the window's completion — EXACTLY the data
+ * the in-memory replay record serves (one source of truth, two sinks).
+ *
+ * The sink is ABSENT by default: the transport's behavior is
+ * byte-identical without it (the presentation-side record alone — the
+ * pre-platform posture). The composition injects it under the real Bun
+ * runtime where the durable sqlite replay store exists.
+ */
+export interface LiveRecordedWindowSink {
+  /** One recorded finite-window world frame (verbatim — never re-stamped). */
+  onRecordedFrame(sessionId: string, frame: LiveWorldFrameDoc): void;
+  /** The finite window completed — the record with its honest meta. */
+  onWindowComplete(sessionId: string, record: LiveReplayRecordDoc): void;
+}
+
+// ---------------------------------------------------------------------------
 // The ports
 // ---------------------------------------------------------------------------
 
@@ -275,6 +296,8 @@ class LiveChannel {
   private readonly finiteWindow: boolean;
   /** L014: the RECORDED world frames of the finite live window (verbatim). */
   private readonly recordedFrames: LiveWorldFrameDoc[] = [];
+  /** L014 (platform side): the persistence sink (absent → identical behavior). */
+  private readonly recordSink: LiveRecordedWindowSink | undefined;
 
   constructor(
     private readonly source: LiveSourceRegistration,
@@ -284,7 +307,9 @@ class LiveChannel {
       bufferDepth: number;
       scheduler: LiveScheduler;
     },
+    recordSink?: LiveRecordedWindowSink,
   ) {
+    this.recordSink = recordSink;
     this.finiteWindow = source.tactical?.finiteWindow === true;
     if (source.tactical !== undefined) {
       // L005: the live tactical view-model producer — the W915 producer
@@ -383,6 +408,10 @@ class LiveChannel {
       // (the close reason + the honest accounting ride the terminal event;
       // the recorded frames are retained for replay).
       this.end("live-window-complete");
+      // L014 (platform side): the completion is the single durable flip —
+      // the sink receives the COMPLETE record (the frames + the honest
+      // meta) exactly as the in-memory replay record will serve it.
+      this.recordSink?.onWindowComplete(this.source.sessionId, this.replayRecord());
       return;
     }
     this.framesEmitted += 1;
@@ -391,7 +420,12 @@ class LiveChannel {
       // L014: the presentation-side session record — the emitted world
       // frames VERBATIM (ordinals, world versions, watermarks, event times
       // unchanged; never re-stamped).
-      this.recordedFrames.push(emission.payload as LiveWorldFrameDoc);
+      const frame = emission.payload as LiveWorldFrameDoc;
+      this.recordedFrames.push(frame);
+      // L014 (platform side): the same recorded frame reports to the
+      // persistence sink (incremental crash-safety; the sink is absent →
+      // the in-memory record alone, the pre-platform posture).
+      this.recordSink?.onRecordedFrame(this.source.sessionId, frame);
     }
     const block = encodeSseJson(emission.event, emission.id, emission.payload);
     for (const entry of this.subscribers.values()) entry.queue.push(block);
@@ -504,6 +538,15 @@ export interface SseLiveTransportOptions {
   bufferDepth?: number;
   /** The injectable scheduler (tests drive ticks deterministically). */
   scheduler?: LiveScheduler;
+  /**
+   * L014 (platform side, additive): the recorded-window persistence sink
+   * — every finite-window frame the channel records, and the window's
+   * completion, report here. ABSENT → the transport's behavior is
+   * byte-identical (the in-memory record alone — the pre-platform
+   * posture). The transport's channels, buffers and close semantics are
+   * untouched either way (extend, never fork).
+   */
+  recordSink?: LiveRecordedWindowSink;
 }
 
 /**
@@ -517,6 +560,7 @@ export function createSseLiveTransport(options: SseLiveTransportOptions): LiveTr
   const bufferDepth = Math.max(1, options.bufferDepth ?? 8);
   const scheduler = options.scheduler ?? realScheduler;
   const deps = { nowMs: options.nowMs, cadenceMs, bufferDepth, scheduler };
+  const recordSink = options.recordSink;
   const sources = new Map<string, LiveSourceRegistration>();
   const channels = new Map<string, LiveChannel>();
   let shutdown = false;
@@ -548,7 +592,7 @@ export function createSseLiveTransport(options: SseLiveTransportOptions): LiveTr
       if (source === undefined) return null;
       let channel = channels.get(sessionId);
       if (channel === undefined) {
-        channel = new LiveChannel(source, deps);
+        channel = new LiveChannel(source, deps, recordSink);
         channels.set(sessionId, channel);
       }
       if (channel.isClosed()) {
