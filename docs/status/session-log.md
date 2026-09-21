@@ -764,3 +764,45 @@ merge time.
 
 Session-end state: Wave 2 Worker C lane COMPLETE on the branch (TL
 harvests); A + B lanes in flight per the wave plan.
+
+## Session 2026-09-21 04:22-05:00 UTC — WAVE 2 LANES A + C MERGED (CI green)
+
+- Resumed resident duties: stack healthy (replayd/console/Chrome/sentinel
+  all up); sentinel TL-HARVEST signals found unverified — A lane had
+  pushed L003 (3860295), L007+L008 (943ad57) and L011 (7bfde1c, its final
+  lane item); C lane had pushed J013 (a459d4d, its final lane item). Both
+  lanes then pushed their final docs-only evidence commits (A dc3d0e0,
+  C cc00c1fc).
+- TL verification (sporta-wc, correct-branch + bun install doctrine):
+  A L003+L007/L008: 53/53 (live-swm 36 incl. D6 replay-equality core;
+  live-open-data 17 incl. recorded SkillCorner schema pins, provider-field
+  isolation, L008 license posture); A L011: 11/11 (real-MP4 incremental
+  integration into the ONE engine); C J013: 18/18 + 16/16 media-platform
+  regression (additive pitch-marked scene; defaults preserved) + 43/43
+  CI-relevant regressions. Typecheck/lint/format ALL green on every scope.
+- MERGE A: a90ef12 (--no-ff; packages-only lane — four new packages
+  live-swm/live-temporal/live-open-data/live-perception + additive fusion
+  export). Post-merge battery 193/193 + typecheck x5 + lint + format.
+- MERGE C: ae075b5 (--no-ff; session-log/status-table conflicts resolved
+  by union — both lanes' evidence rows kept; L005 row takes C's FULL
+  state, L003/L004 rows take A's delivered state). Post-merge full
+  apps/web battery: 777/777 PASS, 0 fail under the documented clean-env
+  protocol (env -u DATABASE_URL — the stray sandbox DSN hang re-confirmed
+  on cost-guardrails: 3 timeout fails with it, 26/26 in 923ms without);
+  all other failures in the first run were the same environmental family.
+- CI GREEN at ae075b5 (full-suite verifier on GitHub Actions).
+- J013 cross-lane finding (reported for TL): populated-pitch anime-NPR
+  default render ~1.04MB > the compute plane's 1MB fail-closed artifact
+  budget — honest typed artifact-too-large refusal (working as designed).
+  TL DISPOSITION: platform budget stays intact; Wave 3 Worker C gets the
+  renderer-side slimming item (documented encoder-profile trade-off; the
+  J013 anime leg's built-in graduation path then activates).
+- Lane states: A lane RETIRED-after-delivery (4/4 merged); C lane
+  RETIRED-after-delivery (4/4 merged); B lane REVIVED at 04:26 (sentinel
+  auto-nudge landed per chats-API ground truth; turn in tool phase —
+  J006-backend/J014/L009 owed). Wave 3 dispatch next: A (L012 + J008-J010)
+  and C (renderer fidelity + L014 presentation + anime-budget slimming);
+  wave-3 B (J011 + L014 platform) waits for wave-2 B closure.
+
+Session state: main @ae075b5 CI GREEN. Wave 2: A + C MERGED; B in flight
+(1/4). Wave 3: A + C dispatching now.
