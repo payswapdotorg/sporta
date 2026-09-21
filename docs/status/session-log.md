@@ -908,3 +908,36 @@ follow before the worker report.
   root e2e — ZERO failures (0 NEW failures vs the recorded wave-2 baseline
   6374/33/18 with its documented environmental families; the sequential
   protocol also avoids the contention-timeout family entirely).
+
+## Session 2026-09-21 10:15-11:30 UTC — Wave 2 Worker B lane MERGED (wave 2 fully closed) + peak-hours siege + wave-3 progress
+
+- Morning peak-hours siege (09:40-10:45): both active turns blocked by
+  capacity modals; B's turn resumed (DOM +38K — its gates battery), then
+  delivered the recovery sequence exactly per the TL note: merged current
+  main 7d9a375 into its branch (d1158b2, view-model conflict resolved)
+  and pushed J014 (25c238c) + L009 (86eef5c).
+- J014: the local durable IDENTITY plane (sqlite accounts + hashed-token
+  sessions) + the REAL process-restart battery (three child processes:
+  fresh journey → restart recovers OLD token/Library/Watch/bytes + sqlite
+  health → fresh sign-in → redeploy anonymous public path; bytes-on-disk
+  proof) + the public-route in-memory audit (durable/reconstructed/
+  ephemeral/per-instance — nothing undisclosed on the public path).
+- L009: honestly BLOCKED on feed access with the shape DELIVERED —
+  packages/live-authorized (env-driven SkillCorner gate, provider SDK
+  v3.2.0 binding names, recorded endpoint facts, strict frame parsing,
+  R004 fail-closed §6 profile, operator-visible panel; 36/36 + 3/3;
+  format-fixtures only, secrets never surface).
+- TL verification: J014 18/18 + 58/58 integrated regressions; L009 36/36
+  + 33/33 + typecheck + lint + format — ALL GREEN.
+- MERGE @6bd9753 (--no-ff — B's branch already contained main via its own
+  d1158b2, so the merge was conflict-free). Post-merge: 831/831 apps/web
+  full battery (clean-env) + 217/217 live-packages sweep + typechecks +
+  lint + format. **CI GREEN at 6bd9753.** The J006 B/C reconciliation is
+  proven in the combined tree (B's backend + C's UI, both suites green).
+- Wave 3: C lane merged earlier @7d9a375; A lane items complete
+  (L012+J008+J009+J010 verified) — final evidence commit pending (its
+  turn resumed post-siege at 10:47).
+
+Session state: main @6bd9753 CI GREEN. WAVE 2 COMPLETE (A+B+C all
+merged). Wave 3: C MERGED; A awaiting final evidence; wave-3 B lane
+(J011 + L014 platform) now dispatchable.

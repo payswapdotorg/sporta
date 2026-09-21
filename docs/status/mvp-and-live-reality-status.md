@@ -101,7 +101,7 @@ J001-J015:
   full sensitivity gate (the test's built-in graduation path: the leg now
   runs the SAME matrix as tactical/3D + asserts the budget fit; evidence in
   docs/research/l014-anime-budget-and-live-replay-presentation.md).
-- J001-J003, J008-J011, J015: NOT_STARTED (later waves)
+- J001-J003, J015: NOT_STARTED (final hardening waves); J008-J010 DELIVERED domain-side @wave-3 A (UI surfaces later); J011 NOT_STARTED (wave-3 B); J014 MERGED @6bd9753 (Worker B: sqlite identity plane + real three-process restart battery + public-route in-memory audit)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
 (J012/J013 fidelity + J014 durability + J015 journey must pass first).
