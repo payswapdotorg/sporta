@@ -11,7 +11,8 @@
  *    bytes or a stream with no video track refuse with a typed error —
  *    never a partial fake pipeline.
  * 2. **detect** — the player-detection family chain (default:
- *    model-backed → heuristic-color). A candidate that cannot run refuses
+ *    contrast-context → model-backed → heuristic-color — the J012
+ *    license-clean production path first). A candidate that cannot run refuses
  *    with its OWN documented failure class (probed on the first frame); the
  *    refusal is RECORDED and the next candidate runs — degradation, never a
  *    silent skip, never a faked success.
@@ -60,6 +61,7 @@ import { EventDerivationService } from "@sporta/observation";
 import {
   BallBlobDetector,
   ColorBlobBallTracker,
+  ContrastContextDetector,
   GreedyIouTrackerAdapter,
   HeuristicColorDetector,
   HomographyFieldCalibratorAdapter,
@@ -137,6 +139,7 @@ import type { AttemptedCandidate, DegradationLedger, PipelineStageId } from "./l
 // ---------------------------------------------------------------------------
 
 const PLAYER_DETECTION_FACTORIES: Record<string, () => PlayerDetectionAdapter> = {
+  "contrast-context-detector": () => new ContrastContextDetector(),
   "model-backed-detector": () => new ModelBackedDetector(),
   "heuristic-color-detector": () => new HeuristicColorDetector(),
 };
@@ -351,7 +354,7 @@ export class RealToSwmPipeline {
       if (factory === undefined) {
         throw new RangeError(
           `RealToSwmPipeline: unknown player-detection candidate "${technologyId}" ` +
-            "(known: model-backed-detector, heuristic-color-detector)",
+            "(known: contrast-context-detector, model-backed-detector, heuristic-color-detector)",
         );
       }
       const candidate = factory();

@@ -120,7 +120,11 @@ describe("configuration validation (fail loud, repo style)", () => {
       sessionId: "sess-defaults",
       decode: { maxTotalBytes: 1024 },
     });
-    expect(resolved.playerDetection).toEqual(["model-backed-detector", "heuristic-color-detector"]);
+    expect(resolved.playerDetection).toEqual([
+      "contrast-context-detector",
+      "model-backed-detector",
+      "heuristic-color-detector",
+    ]);
     expect(resolved.playerTracking).toEqual(["greedy-iou-tracker"]);
     expect(resolved.ballDetection).toEqual(["model-backed-ball-detector", "ball-blob-detector"]);
     expect(resolved.ballTracking).toEqual(["color-blob-ball-tracker", "nearest-box-ball-tracker"]);

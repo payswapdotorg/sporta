@@ -49,7 +49,7 @@ describe("deterministic family benchmarks (all families)", () => {
     });
   }
 
-  test("the detection benchmark's two candidates are both present and materially different", () => {
+  test("the detection benchmark's candidates are all present and materially different", () => {
     // Deterministic pin: the model-backed candidate's degradation class depends
     // on the weights-dir state, and the repo commits NO weights (the pinned
     // download is operator-provided — packages/perception-adapters/assets/README.md).
@@ -67,9 +67,11 @@ describe("deterministic family benchmarks (all families)", () => {
     expect(runs.map((run) => run.technologyId)).toEqual([
       "heuristic-color-detector",
       "model-backed-detector",
+      "contrast-context-detector",
     ]);
     const heuristic = runs[0]!;
     const modelBacked = runs[1]!;
+    const contrastContext = runs[2]!;
     // The heuristic candidate actually detects on synthetic pixels.
     expect(heuristic.metrics.truePositives).toBeGreaterThan(0);
     expect(heuristic.failureSummary.failures).toBe(0);
@@ -78,6 +80,11 @@ describe("deterministic family benchmarks (all families)", () => {
     expect(modelBacked.failureSummary.failureExamples.join("; ")).toContain(
       "model-backed.inference-backend-not-wired",
     );
+    // The J012b production-path candidate detects on synthetic pixels with
+    // honest metrics (surface-agnostic: it fires on the fixture's green
+    // pitch exactly as it fires on sand or film gray).
+    expect(contrastContext.metrics.truePositives).toBeGreaterThan(0);
+    expect(contrastContext.failureSummary.failures).toBe(0);
   });
 
   test("the detection benchmark's model-backed candidate reports weights-unavailable when no weights asset exists", () => {
