@@ -48,22 +48,27 @@ J001-J015:
   no-silent-fallback posture + typed refusal rendering, 22-test
   pure-derivation battery; the BACKEND surfaces are Worker B's parallel
   wave-2 lane (TL reconciles when both land).
-- J013: DELIVERED (Worker C wave 2, branch work/j006ui-j013-l005-l013): the
-  sensitivity gate — pure verdict/premise derivations (the material-difference
-  measurement + the 4-verdict truth table incl. the explicit equivalence
-  explanation) + the full-pipeline battery over the NEW calibratable
-  pitch-marked test media (positions project to canonical pitch meters) +
-  tactical + 3D e2e gates PASS (different SWMs → different real artifact
-  hashes) + the content-addressed dedup control pair + the renderer-side
-  sensitivity proof for BOTH game realities (5 tests). HONEST FINDINGS: (a)
-  on the UNMARKED pitch scene the derived renderers honestly omit every
-  entity (image-frame positions, no landmarks → calibration refuses) — the
-  J012-documented fidelity gap, now precisely measured; (b) the anime-NPR
-  e2e leg is BLOCKED by a platform-budget tension: the populated-pitch
-  cel-shaded render at the default 4s SD profile measures ~1.04MB over the
-  1MB fail-closed artifact budget (cross-lane: renderer content vs compute
-  budget — renderer-side sensitivity IS proven without the budget in the
-  path); both reported for TL reconciliation.
+- J013: DELIVERED (Worker C wave 2, MERGED @ae075b5) — the sensitivity gate —
+  pure verdict/premise derivations (the material-difference measurement + the
+  4-verdict truth table incl. the explicit equivalence explanation) + the
+  full-pipeline battery over the NEW calibratable pitch-marked test media
+  (positions project to canonical pitch meters) + tactical + 3D e2e gates
+  PASS (different SWMs → different real artifact hashes) + the
+  content-addressed dedup control pair + the renderer-side sensitivity proof
+  for BOTH game realities (5 tests). The Wave-2 honest findings were BOTH
+  resolved/dispositioned in Wave 3 (Worker C, branch
+  work/l014pres-fidelity-anime): (a) the UNMARKED-pitch fidelity gap remains
+  the J012-documented honest measurement (calibration refuses without
+  landmarks → entities omitted — no renderer-side honest fix identified;
+  NOT faked); (b) the anime-budget tension is RESOLVED renderer-side per the
+  TL decision — the anime capability's default profile is now the "on twos"
+  SD profile (640×360@12 fps, anime-npr.prototype@0.2.0): the populated-
+  pitch default render measures 650 036–671 203 B ≈ 65 % of the untouched
+  1 MB fail-closed platform budget (the previous 25 fps default measured
+  1 038 993–1 082 922 B — OVER), and the J013 anime leg GRADUATED into the
+  full sensitivity gate (the test's built-in graduation path: the leg now
+  runs the SAME matrix as tactical/3D + asserts the budget fit; evidence in
+  docs/research/l014-anime-budget-and-live-replay-presentation.md).
 - J001-J003, J008-J011, J015: NOT_STARTED (later waves)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
@@ -87,7 +92,7 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 | L011 broadcast perception runtime seam | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-perception — the per-frame seam (tracked boxes + ball detections + the required pitch calibration → frozen LiveObservation with sourceType BROADCAST_PERCEPTION; the batch-bridge projection imported, not forked; track ids verbatim) + the clip-driven source (decode → the contrast-context production path → track → the seam, incremental); the integration test drives a real generated MP4 through L004 → L003 into the ONE canonical engine with NO renderer changes and NO second SWM (11/11 tests) |
 | L012 multi-source evidence fusion | NOT_STARTED (Wave 3, Worker A) |
 | L013 live 3D renderer | COMPLETE (Worker C wave 2, MERGED @ae075b5): the additive renderer-3d live view-model adapter (packages/renderer-3d/src/live.ts — identity-continuous scene carry, honest last-known carries, the pure orbit/zoom/pan camera whose look-at basis is PINNED equivalent to cameraFromSlot by test, the renderer's own projection math reused) + the browser interactive 3D view over the SAME W915 world stream (shared useLiveWorldStream hook — one transport, one world shape, two presentations; camera state the world never touches; pointer/wheel/keyboard camera; no restart on frames) + the Live surface 2D/3D view-mode toggle + 11-test battery (scene-graph math, camera bounds/equivalence, interactivity-during-updates, update continuity) |
-| L014 live/replay continuity | NOT_STARTED (Wave 3, Worker B+C) |
+| L014 live/replay continuity | PRESENTATION SIDE DELIVERED (Worker C wave 3, branch work/l014pres-fidelity-anime — awaiting TL harvest): after a live window ends, the SAME tactical/3D surfaces replay the RECORDED session state through the SAME view-model contracts — the finite live window (the additive `live-window-complete` close), the transport's verbatim replay record (ordinals/world versions/watermarks/event times never re-stamped), the replay route (/api/live/[sessionId]/replay, the fail-closed ladder + 409 while the window is open), the honest 410 + replay pointer on the stream route, and the client replay presentation (the shared scrub/step/play cursor driving BOTH views through the same projections + the pure replayContinuityVerdict making the versions/timecodes alignment VISIBLE and asserted). PARTIAL BY DESIGN: the platform side — durable persistence of live observations/world versions + reload/redeploy recovery — is Worker B's lane (the record is the transport instance's own memory; a restart honestly answers no-record). Evidence: docs/research/l014-anime-budget-and-live-replay-presentation.md + the 82-test live battery |
 | L015 live tactical gate | NOT_STARTED (Wave 5, TL) |
 | L016 live tracking -> SWM -> tactical journey | NOT_STARTED (Wave 5, TL) |
 | L017 live-to-replay recovery gate | NOT_STARTED (Wave 5, TL) |

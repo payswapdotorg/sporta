@@ -806,3 +806,66 @@ harvests); A + B lanes in flight per the wave plan.
 
 Session state: main @ae075b5 CI GREEN. Wave 2: A + C MERGED; B in flight
 (1/4). Wave 3: A + C dispatching now.
+
+## Session 2026-09-21 (Wave 3) — Worker C: renderer fidelity + L014 presentation + the anime-budget resolution
+
+- Worker C (branch work/l014pres-fidelity-anime, base 3170a6f) delivered the
+  Wave 3 lane as two checkpoints pushed:
+  - FIDELITY checkpoint (4917fa7): the anime-budget resolution (the J013
+    finding (b) TL decision — slim the render, keep the platform budget).
+    MEASURED on main through the real app path first: 1,038,993 /
+    1,082,922 B over the 1 MB budget (fixture sweeps under-estimate ~2× —
+    motion entropy; all evidence numbers are real-path). Candidate knobs
+    measured through the same real path: 12fps×4s → 650,036/671,203 B
+    (≈65%); 25fps×3s → 801,797/828,076 B (≈80%). Chose the FRAME-BUDGET
+    knob: ANIME_MP4_SD_TWOS_PROFILE (640×360@12 — the traditional
+    cel-animation "on twos" cadence) first in the anime capability; SD/HD
+    @25fps remain supported (explicit requests honored, honest fail-closed
+    at the compute plane if over budget); ANIME_NPR_RENDERER_VERSION
+    0.1.0→0.2.0 (the deliberate restyle per the immutable-version rule; the
+    codec argv untouched — the framerate is a frame-source input, not a
+    codec knob). The J013 anime leg GRADUATED through the test's own
+    built-in path: anime-npr joined the REALITY_MATRIX full gate + the
+    graduation-record block asserts the budget fit. renderer-3d 409/409;
+    the J013 battery 14/14. NOTE for TL: packages/quality-gates
+    visual-correctness.ts still stamps rendererVersion "0.1.0" in its
+    engine-seam origin records — a cross-lane one-line freshness fix,
+    deliberately NOT taken (not this lane's allowed path).
+  - L014 checkpoint (3ec90e2): the presentation side of live/replay
+    continuity. The finite live window (finiteWindow registration → the
+    producer's honest null at exhaustion → the additive
+    `live-window-complete` close); the transport's VERBATIM replay record
+    (ordinals/world versions/watermarks/event times never re-stamped) +
+    replayRecord(); the replay route with the fail-closed ladder
+    (503/401/404/403/409/no-record 200); the stream route's honest 410 +
+    replay pointer for completed windows; the client replay presentation —
+    the SAME tactical/3D views render the recorded frame through the SAME
+    projections/adapters (replay prop + the dormant connect:false stream
+    mode), the shared scrub/step/play cursor, and the pure
+    replayContinuityVerdict making the versions/timecodes alignment VISIBLE
+    and asserted. A transport correctness fix the window forced (documented
+    in the commit): BoundedEventQueue delivery is now ARRIVAL order — the
+    close must arrive AFTER the frames it accounts for (controls-first
+    take() made the deliveredFrames accounting a lie and truncated the
+    window client-side). Dev seed registers the 8th live source (the
+    finite-window continuity session, 24 ticks, honestly labeled). Live
+    batteries 82/82 (18 new tests: live-replay 18, live-replay-routes 8,
+    +2 view-model, live-routes pin 7→8).
+- HONEST BOUNDARY recorded: L014 remains PARTIAL BY DESIGN — the platform
+  side (durable persistence of live observations/world versions +
+  reload/redeploy recovery of the replayable record) is Worker B's lane;
+  the transport record is instance memory (a restart honestly answers
+  no-record). The unmarked-pitch finding (J013 (a)) stands as the
+  J012-documented honest measurement — no renderer-side honest fix
+  identified, nothing faked. HF010–HF014 untouched (benchmark-track-gated).
+- Environmental: the full parallel `bun test` fan-out OOM-kills on this
+  4 GiB box (root-runner died twice mid-e2e; individual chunks all pass
+  clean-env) — the battery is recorded per-package sequentially at session
+  end per the documented contention protocol.
+- Gates at both checkpoints: lint 0 errors (1 pre-existing warning);
+  renderer-3d + apps/web typecheck exit 0; format pending the final
+  prettier pass.
+
+Session-end state: branch work/l014pres-fidelity-anime @3ec90e2 pushed
+(FIDELITY 4917fa7 + L014 3ec90e2); the final full-battery + format pass
+follow before the worker report.
