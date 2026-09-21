@@ -1,7 +1,7 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 1 — B + C LANES COMPLETE (merged, CI green); A LANE PARTIAL (J012 licensing decision merged-pending; implementation fighting peak-hours churn)
-Date: 2026-09-20 (Wave 1 evening session)
+Status: WAVE 2 — WORKER C LANE DELIVERED on branch work/j006ui-j013-l005-l013 (J006 UI + J013 + L005 full + L013; gates: lint/typecheck/format clean, full battery 6374 pass / 0 NEW failures vs the recorded clean-clone baseline); A + B lanes in flight (parallel)
+Date: 2026-09-21 (Wave 2)
 
 ## Completed foundation
 
@@ -39,7 +39,32 @@ J001-J015:
   implementation + sensitivity tests pending (peak-hours capacity churn
   killed the worker's turn; sentinel re-nudges; sandbox TTL expired —
   re-entry law resumes from the branch).
-- J001-J003, J006, J008-J011, J013, J015: NOT_STARTED (later waves)
+- J006: UI DELIVERED (Worker C wave 2, branch work/j006ui-j013-l005-l013): the
+  compute-transparency panels on Create AND Watch rendering the six facts
+  (compute source, provider, selection reason, measured allowance/cost,
+  privacy posture, fallback state) from the EXISTING route contracts
+  (compute-status + compute-preview + the J004 plan selection + the job
+  views), honest unknowns everywhere (never invented numbers), the declared
+  no-silent-fallback posture + typed refusal rendering, 22-test
+  pure-derivation battery; the BACKEND surfaces are Worker B's parallel
+  wave-2 lane (TL reconciles when both land).
+- J013: DELIVERED (Worker C wave 2, branch work/j006ui-j013-l005-l013): the
+  sensitivity gate — pure verdict/premise derivations (the material-difference
+  measurement + the 4-verdict truth table incl. the explicit equivalence
+  explanation) + the full-pipeline battery over the NEW calibratable
+  pitch-marked test media (positions project to canonical pitch meters) +
+  tactical + 3D e2e gates PASS (different SWMs → different real artifact
+  hashes) + the content-addressed dedup control pair + the renderer-side
+  sensitivity proof for BOTH game realities (5 tests). HONEST FINDINGS: (a)
+  on the UNMARKED pitch scene the derived renderers honestly omit every
+  entity (image-frame positions, no landmarks → calibration refuses) — the
+  J012-documented fidelity gap, now precisely measured; (b) the anime-NPR
+  e2e leg is BLOCKED by a platform-budget tension: the populated-pitch
+  cel-shaded render at the default 4s SD profile measures ~1.04MB over the
+  1MB fail-closed artifact budget (cross-lane: renderer content vs compute
+  budget — renderer-side sensitivity IS proven without the budget in the
+  path); both reported for TL reconciliation.
+- J001-J003, J008-J011, J015: NOT_STARTED (later waves)
 
 R606: BLOCKED pending human visual acceptance and final fidelity conditions
 (J012/J013 fidelity + J014 durability + J015 journey must pass first).
@@ -51,7 +76,7 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 |---|---|
 | L001 contract freeze | VERIFIED — docs/contracts/live-reality.md is FROZEN FOR IMPLEMENTATION; Wave 0 verified logical-to-implemented contract compatibility (mapping recorded in the Wave 0 log below) |
 | L002 synthetic/replay live source | COMPLETE (Worker B wave 1: packages/live-source — frozen §1/§2 shapes verbatim, 6 delivery scenarios, seeded splitmix32 determinism, honest gap accounting; merged @d785e93) |
-| L005 live tactical renderer | SCAFFOLD COMPLETE (Worker C wave 1, merged @7e0a810, CI green): view-model seam + W915 transport extension (no fork), browser tactical canvas (105x68m canonical frame), honest dropout/degraded display, telemetry stubs per §5/§9 — the full interactive L005 gate is later waves |
+| L005 live tactical renderer | FULL (Worker C wave 2, branch work/j006ui-j013-l005-l013): the pure view projection (apps/web/src/lib/live-tactical-view.ts — exact-math fixture battery: coordinates, radii, colors, STABLE identity labels, watchdog math) + the full browser surface (identity-continuous markers with stable labels, pinned entity inspector, honest event ticker, receipt-watchdog stall overlay — never a frozen picture) + event-driven updates over W915 (no polling) + one seeded session per L002 delivery scenario (all six: normal/jitter/delay/drop/out-of-order/reconnect) + 21-test battery (fixtures + every scenario's honest signature + identity-continuity pinning across every window) |
 | L003 incremental SWM updater | WORKER A WAVE 2 DELIVERED (branch work/l003-l004-l007-l011, pending TL verification): packages/live-swm — a DRIVER over the injected canonical WorldModelEngine (no second world model), the batch pass's own no-op guard + per-entity replay frontier (beyond-window lates dropped with an explicit counter, never a position rewind), verbatim confidence/provenance/uncertainty, extrapolation marking (§9), the memoryless incremental possession recompute (the batch formula/tie rule, reused verbatim), the D5 LiveUpdateReport, the W005 continuity bridge with replay-equality proven across all six L002 scenarios (36/36 tests) |
 | L004 temporal buffer/watermark | WORKER A WAVE 2 DELIVERED (branch work/l003-l004-l007-l011, pending TL verification): packages/live-temporal — per-source event-time watermarks (frozen shape, conservative + monotone, property-tested), bounded reorder buffer with honest late/duplicate/overflow accounting, recompute-based sequence-hole model, STALLED/DEGRADED latch + flush, verbatim L002 recovery consumption, every §9 counter this stage owns; the D4 six-scenario acceptance matrix pinned (57/57 tests) |
 | L006 live telemetry | NOT_STARTED (Wave 2, Worker B+C) |
@@ -61,7 +86,7 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 | L010 broadcast-to-live perception benchmark | HARNESS COMPLETE (Worker A wave 1, merged bccf89c); the Wave 2 runtime-backed increment is delivered as the L011 seam evidence (a real decoded clip through the production perception path, per frame, with the L011 integration test measuring the full live composition); real model inference remains W303-blocked (RF-DETR weights never committed) |
 | L011 broadcast perception runtime seam | WORKER A WAVE 2 DELIVERED (branch work/l003-l004-l007-l011, pending TL verification): packages/live-perception — the per-frame seam (tracked boxes + ball detections + the required pitch calibration → frozen LiveObservation with sourceType BROADCAST_PERCEPTION; the batch-bridge projection imported, not forked; track ids verbatim) + the clip-driven source (decode → the contrast-context production path → track → the seam, incremental); the integration test drives a real generated MP4 through L004 → L003 into the ONE canonical engine with NO renderer changes and NO second SWM (11/11 tests) |
 | L012 multi-source evidence fusion | NOT_STARTED (Wave 3, Worker A) |
-| L013 live 3D renderer | NOT_STARTED (Wave 2, Worker C) |
+| L013 live 3D renderer | COMPLETE (Worker C wave 2, branch work/j006ui-j013-l005-l013): the additive renderer-3d live view-model adapter (packages/renderer-3d/src/live.ts — identity-continuous scene carry, honest last-known carries, the pure orbit/zoom/pan camera whose look-at basis is PINNED equivalent to cameraFromSlot by test, the renderer's own projection math reused) + the browser interactive 3D view over the SAME W915 world stream (shared useLiveWorldStream hook — one transport, one world shape, two presentations; camera state the world never touches; pointer/wheel/keyboard camera; no restart on frames) + the Live surface 2D/3D view-mode toggle + 11-test battery (scene-graph math, camera bounds/equivalence, interactivity-during-updates, update continuity) |
 | L014 live/replay continuity | NOT_STARTED (Wave 3, Worker B+C) |
 | L015 live tactical gate | NOT_STARTED (Wave 5, TL) |
 | L016 live tracking -> SWM -> tactical journey | NOT_STARTED (Wave 5, TL) |

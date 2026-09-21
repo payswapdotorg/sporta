@@ -12,16 +12,22 @@ import { LivePlayer } from "@/components/live-player";
 import type { LiveSourceOption } from "@/components/live-player";
 import { LiveTacticalRenderer } from "@/components/live-tactical";
 import type { LiveTacticalSourceOption } from "@/components/live-tactical";
+import { Live3dRenderer } from "@/components/live-3d";
 
 /**
- * The Live data surface (W904 → W915 → L005): live is a CAPABILITY verdict,
- * and — since W915 — a REAL one. When the SSE live transport is env-active
- * (`SPORTA_LIVE_TRANSPORT=sse`) and an authorized live source is
+ * The Live data surface (W904 → W915 → L005 → L013): live is a CAPABILITY
+ * verdict, and — since W915 — a REAL one. When the SSE live transport is
+ * env-active (`SPORTA_LIVE_TRANSPORT=sse`) and an authorized live source is
  * registered, the capability response reports `modes.live` available with
  * `live-network` transport evidence, this surface lists the real sources
  * (the story timelines' animated-SVG players AND the L005 live tactical
- * view), and each player consumes the real SSE stream over the real HTTP
- * network.
+ * view's per-scenario sessions), and each player consumes the real SSE
+ * stream over the real HTTP network.
+ *
+ * L013: a tactical source offers BOTH presentations of the SAME live
+ * world state — the 2D tactical canvas and the interactive 3D view (one
+ * stream, one world shape, two renderers; the camera in the 3D view is
+ * the user's — state updates never move it).
  *
  * When the transport is NOT active, the surface renders the honest
  * unavailable state — never a simulated live badge (Simulation F).
@@ -33,10 +39,14 @@ interface LiveSourceRow extends LiveSourceOption {
   sourceNote?: string;
 }
 
+/** The presentation of a tactical source's world frames. */
+type TacticalViewMode = "tactical-2d" | "tactical-3d";
+
 export function LiveSurface() {
   const [capability, setCapability] = useState<FetchState<CapabilityLike>>({ phase: "loading" });
   const [sources, setSources] = useState<FetchState<LiveSourcesLike>>({ phase: "loading" });
   const [picked, setPicked] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<TacticalViewMode>("tactical-2d");
 
   useEffect(() => {
     void fetchCapability().then(
@@ -143,7 +153,48 @@ export function LiveSurface() {
             </fieldset>
             {selected !== null &&
               (selected.sourceKind === "tactical" ? (
-                <LiveTacticalRenderer source={selected as LiveTacticalSourceOption} />
+                <fieldset className="form-field" data-surface="live-view-mode">
+                  <legend>View the same live world state as</legend>
+                  <ul className="studio-operation-list">
+                    <li>
+                      <label>
+                        <input
+                          type="radio"
+                          name="live-view-mode"
+                          checked={viewMode === "tactical-2d"}
+                          onChange={() => setViewMode("tactical-2d")}
+                        />
+                        <span className="studio-operation-label">2D tactical canvas</span>
+                        <span className="studio-operation-description">
+                          the canonical top-down pitch — identity-continuous markers
+                        </span>
+                      </label>
+                    </li>
+                    <li>
+                      <label>
+                        <input
+                          type="radio"
+                          name="live-view-mode"
+                          checked={viewMode === "tactical-3d"}
+                          onChange={() => setViewMode("tactical-3d")}
+                        />
+                        <span className="studio-operation-label">3D view (interactive camera)</span>
+                        <span className="studio-operation-description">
+                          the same world frames in 3D — your camera, never moved by state updates
+                          (L013)
+                        </span>
+                      </label>
+                    </li>
+                  </ul>
+                </fieldset>
+              ) : null)}
+            {selected !== null &&
+              (selected.sourceKind === "tactical" ? (
+                viewMode === "tactical-3d" ? (
+                  <Live3dRenderer source={selected as LiveTacticalSourceOption} />
+                ) : (
+                  <LiveTacticalRenderer source={selected as LiveTacticalSourceOption} />
+                )
               ) : (
                 <LivePlayer source={selected} />
               ))}
@@ -180,10 +231,10 @@ export function LiveSurface() {
         <p className="section-lede">
           Sporta labels something live only when a real live network transport backs it. The
           transport is Server-Sent-Events over HTTP — a genuine network path with real-time delivery
-          and measured end-to-end latency. The live tactical view consumes live world state through
-          the same transport (its producer seam re-pointed at the live view-model — the L005
-          scaffold). When the transport is not enabled on this deployment, this page stays honestly
-          unavailable.
+          and measured end-to-end latency. The live tactical view (and its 3D presentation) consumes
+          live world state through the same transport (its producer seam re-pointed at the live
+          view-model — one stream, one world shape, two renderers). When the transport is not
+          enabled on this deployment, this page stays honestly unavailable.
         </p>
         {transportActive ? (
           <StateChip state="ready">live network transport active</StateChip>

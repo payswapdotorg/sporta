@@ -1,54 +1,57 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { LiveCloseDoc, LiveHelloDoc, LiveWorldFrameDoc } from "@/lib/live-sse";
-import { LiveLatencyWindow } from "@/lib/live-latency";
-import type { LiveLatencySnapshot } from "@/lib/live-latency";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { LiveWorldFrameDoc } from "@/lib/live-sse";
+import { useLiveWorldStream } from "@/lib/use-live-world-stream";
+import {
+  TACTICAL_PITCH_LINES,
+  TACTICAL_PITCH_SURFACE,
+  entityMarkerLabel,
+  projectPitchGeometry,
+  projectTacticalFrame,
+  teamRefOf,
+} from "@/lib/live-tactical-view";
 import { StateChip, StatePanel } from "@/components/state-panels";
 
 /**
- * THE LIVE TACTICAL RENDERER (L005 scaffold) — a browser 2D tactical pitch
- * canvas that consumes LIVE world state and VISIBLY changes as positions
- * and events change.
+ * THE LIVE TACTICAL RENDERER (L005 full) — a browser 2D tactical pitch
+ * canvas that consumes LIVE world state over the W915 SSE transport and
+ * VISIBLY CHANGES as positions and events change.
  *
- * WHAT IS REAL HERE (and what is honestly scaffold):
+ * WHAT IS REAL HERE (the full L005 surface, built on the Wave 1 scaffold):
  *
  * - The world frames arrive over the EXISTING W915 SSE transport
- *   (`EventSource` on `/api/live/[sessionId]`) — the `world` event grammar
- *   this scaffold adds additively to the wire (unknown events are ignored
- *   by older consumers, per the SSE grammar's own rule).
+ *   (`EventSource` on `/api/live/[sessionId]`) — EVENT-DRIVEN updates (the
+ *   transport pushes; there is no polling loop anywhere in this view). The
+ *   stream plumbing lives in the shared `useLiveWorldStream` hook (the ONE
+ *   browser-side consumer of the world frames — this view and the 3D view
+ *   both render from it; one transport, one world shape, two presentations).
  * - Each frame is the server-side live view-model's projection of the L002
  *   deterministic synthetic TRACKING source (honestly labeled — never a
- *   real broadcast; the canonical-pitch 105 x 68 m frame is the source's
- *   own coordinate contract).
- * - ENTITY IDENTITY CONTINUITY: the canvas keys every marker by the
- *   canonical `entityRef` — the same entity keeps its marker while its
- *   position updates frame to frame. A tracking miss is displayed honestly:
- *   the undetected marker is drawn hollow at its LAST KNOWN position with
- *   its growing staleness — never fabricated certainty, never a silent
- *   removal.
- * - DROPOUT/DEGRADED HONESTY: the source's reconnect recovery accounting
- *   (the missed window) is displayed as a visible gap badge — accounted,
- *   never smoothed over; the degraded quality state colors the status bar;
- *   the watermark lag is shown per frame.
- * - TELEMETRY STUBS (live-reality.md §9): frame drops (counted ordinal
- *   gaps), rendered worldVersion (vs the newest received), the SWM-to-
- *   render latency (the frame's server generation clock → this browser's
- *   receipt clock — unsynchronized clocks, labeled as such), the effective
- *   update rate, and the per-frame watermark lag + undetected counters the
- *   view-model carries. These are the measurement stubs the later waves
- *   will wire into the real telemetry plane.
+ *   real broadcast; the canonical-pitch 105 × 68 m frame is the source's
+ *   own coordinate contract). The dev seed registers one session per L002
+ *   delivery scenario (normal/jitter/delay/drop/out-of-order/reconnect) —
+ *   replayable, honest, selectable on the Live surface.
+ * - IDENTITY CONTINUITY IS VISIBLE: every marker is keyed by the canonical
+ *   `entityRef` and carries a STABLE short label (the pure
+ *   `entityMarkerLabel` projection) — the same entity keeps its marker AND
+ *   its label while its position updates frame to frame. Selecting an
+ *   entity (canvas click or the keyboard-reachable picker) pins the
+ *   inspector to that identity across frames.
+ * - A TRACKING MISS IS DATA: the undetected marker is drawn HOLLOW at its
+ *   LAST KNOWN position with its growing staleness — never fabricated
+ *   certainty, never a silent removal.
+ * - DROPOUT/DEGRADED/STALL HONESTY: the source's reconnect accounting is
+ *   displayed as a visible gap badge; the degraded quality state colors
+ *   the status facts; the watermark lag is shown per frame; and the
+ *   RECEIPT WATCHDOG (in the shared hook) surfaces a visible stalled
+ *   overlay the moment world frames stop arriving — a frozen picture is
+ *   never presented as live.
+ * - TELEMETRY (live-reality.md §9): counted frame drops (ordinal gaps),
+ *   rendered vs newest worldVersion, the SWM-to-render latency window
+ *   (p50/p95/max), the effective update rate, watermark lag and the
+ *   undetected carry — the measurement stubs the telemetry plane wires.
  */
-
-/** The connection's honest phase. */
-type LivePhase = "connecting" | "live" | "closed" | "failed";
-
-/** The bounded backoff schedule between reconnect attempts (ms). */
-const RECONNECT_BACKOFF_MS = [500, 1_000, 2_000] as const;
-
-/** The canonical pitch frame (meters — the sporta-canonical coordinate contract). */
-const PITCH_X_METERS = 105;
-const PITCH_Y_METERS = 68;
 
 /** One live tactical source the renderer streams. */
 export interface LiveTacticalSourceOption {
@@ -58,295 +61,193 @@ export interface LiveTacticalSourceOption {
   sourceNote?: string;
 }
 
-/** One renderer-side telemetry snapshot (the §9 measurement stubs). */
-interface RendererTelemetry {
-  framesReceived: number;
-  framesDropped: number;
-  /** The newest worldVersion RECEIVED (monotone). */
-  newestWorldVersion: number;
-  /** The worldVersion currently RENDERED (== the latest drawn frame's). */
-  renderedWorldVersion: number;
-  /** The rendered-vs-newest world version lag (versions). */
-  worldVersionLag: number;
-  /** The last frame's own watermark lag (ms, event-time terms). */
-  watermarkLagMs: number;
-  /** The last frame's undetected-entity count (the honest carry). */
-  undetectedEntities: number;
-  /** The effective update rate over the receipt window (Hz). */
-  updateRateHz: number;
-}
-
-/** The empty telemetry (before the first frame). */
-const EMPTY_TELEMETRY: RendererTelemetry = {
-  framesReceived: 0,
-  framesDropped: 0,
-  newestWorldVersion: 0,
-  renderedWorldVersion: 0,
-  worldVersionLag: 0,
-  watermarkLagMs: 0,
-  undetectedEntities: 0,
-  updateRateHz: 0,
-};
-
-/** Draws the canonical pitch (105 x 68 m) markings on the canvas. */
-function drawPitch(ctx: CanvasRenderingContext2D, w: number, h: number): void {
-  const mx = (x: number): number => (x / PITCH_X_METERS) * w;
-  const my = (y: number): number => (y / PITCH_Y_METERS) * h;
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.9)";
-  ctx.lineWidth = Math.max(1, Math.min(w, h) / 240);
-  // The touchlines + goal lines.
-  ctx.strokeRect(mx(0), my(0), mx(PITCH_X_METERS), my(PITCH_Y_METERS));
-  // The halfway line.
-  ctx.beginPath();
-  ctx.moveTo(mx(PITCH_X_METERS / 2), my(0));
-  ctx.lineTo(mx(PITCH_X_METERS / 2), my(PITCH_Y_METERS));
-  ctx.stroke();
-  // The center circle (9.15 m radius).
-  ctx.beginPath();
-  ctx.arc(mx(PITCH_X_METERS / 2), my(PITCH_Y_METERS / 2), mx(9.15), 0, Math.PI * 2);
-  ctx.stroke();
-  // The penalty areas (16.5 m deep, 40.32 m wide) + goal areas.
-  for (const side of [0, 1] as const) {
-    const x0 = side === 0 ? 0 : PITCH_X_METERS;
-    const dir = side === 0 ? 1 : -1;
-    ctx.strokeRect(
-      mx(side === 0 ? 0 : PITCH_X_METERS - 16.5),
-      my((PITCH_Y_METERS - 40.32) / 2),
-      mx(16.5),
-      my(40.32),
-    );
-    ctx.strokeRect(
-      mx(side === 0 ? 0 : PITCH_X_METERS - 5.5),
-      my((PITCH_Y_METERS - 18.32) / 2),
-      mx(5.5),
-      my(18.32),
-    );
-    // The penalty spots.
-    ctx.beginPath();
-    ctx.arc(mx(x0 + dir * 11), my(PITCH_Y_METERS / 2), Math.max(1, w / 420), 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(148, 163, 184, 0.9)";
-    ctx.fill();
-  }
-}
-
-/** Draws one entity marker (honest: undetected = hollow + last-known). */
-function drawEntity(
+/** The pure frame-draw (canvas primitives from the view projection). */
+function drawFrame(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
-  entity: LiveWorldFrameDoc["entities"][number],
+  frame: LiveWorldFrameDoc | null,
+  selectedRef: string | null,
 ): void {
-  const x = (entity.xMeters / PITCH_X_METERS) * w;
-  const y = (entity.yMeters / PITCH_Y_METERS) * h;
-  const isBall = entity.kind === "BALL";
-  const radius = isBall ? Math.max(2.5, w / 300) : Math.max(4, w / 200);
-  // The L002 frozen teamRef vocabulary is `team-home` | `team-away` — the
-  // marker color follows THAT contract (home = pink, away = green); an
-  // unknown team ref falls back to the away color, never a wrong split.
-  const teamColor =
-    entity.teamRef !== undefined
-      ? entity.teamRef.endsWith("home")
-        ? "#e879b9"
-        : "#34d399"
-      : entity.kind === "REFEREE"
-        ? "#fbbf24"
-        : "#94a3b8";
+  // The pitch surface + markings.
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = TACTICAL_PITCH_SURFACE;
+  ctx.fillRect(0, 0, w, h);
+  const pitch = projectPitchGeometry({ width: w, height: h });
+  ctx.strokeStyle = TACTICAL_PITCH_LINES;
+  ctx.lineWidth = Math.max(1, Math.min(w, h) / 240);
+  ctx.strokeRect(pitch.boundary.x, pitch.boundary.y, pitch.boundary.w, pitch.boundary.h);
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  if (entity.detected) {
-    ctx.fillStyle = teamColor;
+  ctx.moveTo(pitch.halfwayLine.x1, pitch.halfwayLine.y1);
+  ctx.lineTo(pitch.halfwayLine.x2, pitch.halfwayLine.y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(pitch.centerCircle.cx, pitch.centerCircle.cy, pitch.centerCircle.r, 0, Math.PI * 2);
+  ctx.stroke();
+  for (const area of pitch.penaltyAreas) {
+    ctx.strokeRect(area.x, area.y, area.w, area.h);
+  }
+  for (const area of pitch.goalAreas) {
+    ctx.strokeRect(area.x, area.y, area.w, area.h);
+  }
+  for (const spot of pitch.penaltySpots) {
+    ctx.beginPath();
+    ctx.arc(spot.cx, spot.cy, Math.max(1, w / 420), 0, Math.PI * 2);
+    ctx.fillStyle = TACTICAL_PITCH_LINES;
     ctx.fill();
-    ctx.strokeStyle = "rgba(15, 23, 42, 0.85)";
-    ctx.lineWidth = Math.max(1, w / 500);
-    ctx.stroke();
-  } else {
-    // The honest carry: LAST KNOWN position, hollow + dashed, labeled by
-    // its staleness — never fabricated certainty.
-    ctx.strokeStyle = teamColor;
-    ctx.setLineDash([3, 3]);
-    ctx.lineWidth = Math.max(1, w / 420);
-    ctx.stroke();
-    ctx.setLineDash([]);
+  }
+  if (frame === null) return;
+
+  // The entity markers (identity-continuous, honest carries, stable labels).
+  const { markers } = projectTacticalFrame(frame.entities, { width: w, height: h });
+  const labelFont = Math.max(9, Math.round(w / 78));
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.font = `700 ${labelFont}px ui-monospace, monospace`;
+  for (const marker of markers) {
+    // The selection ring (the pinned identity, visible across frames).
+    if (selectedRef !== null && marker.entityRef === selectedRef) {
+      ctx.beginPath();
+      ctx.arc(marker.x, marker.y, marker.radius + Math.max(3, w / 210), 0, Math.PI * 2);
+      ctx.strokeStyle = "#fde68a";
+      ctx.lineWidth = Math.max(1.5, w / 420);
+      ctx.setLineDash([]);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.arc(marker.x, marker.y, marker.radius, 0, Math.PI * 2);
+    if (marker.detected) {
+      ctx.fillStyle = marker.color;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(15, 23, 42, 0.85)";
+      ctx.lineWidth = Math.max(1, w / 500);
+      ctx.setLineDash([]);
+      ctx.stroke();
+    } else {
+      // The honest carry: LAST KNOWN position, hollow + dashed.
+      ctx.strokeStyle = marker.color;
+      ctx.setLineDash([3, 3]);
+      ctx.lineWidth = Math.max(1, w / 420);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // The STABLE identity label (never the ball — its marker reads alone).
+    if (marker.kind !== "BALL") {
+      const labelColor = marker.detected ? "rgba(226, 232, 240, 0.92)" : "rgba(148, 163, 184, 0.9)";
+      ctx.fillStyle = labelColor;
+      ctx.fillText(marker.label, marker.x, marker.y + marker.radius + 1);
+      // The honest staleness note on an undetected marker.
+      if (!marker.detected && marker.staleForMs > 0) {
+        ctx.fillStyle = "rgba(251, 191, 36, 0.95)";
+        ctx.fillText(
+          `${Math.round(marker.staleForMs / 100) / 10}s`,
+          marker.x,
+          marker.y - labelFont - 2,
+        );
+      }
+    }
   }
 }
 
 export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOption }) {
-  const [phase, setPhase] = useState<LivePhase>("connecting");
-  const [hello, setHello] = useState<LiveHelloDoc | null>(null);
-  const [frame, setFrame] = useState<LiveWorldFrameDoc | null>(null);
-  const [telemetry, setTelemetry] = useState<RendererTelemetry>(EMPTY_TELEMETRY);
-  const [latency, setLatency] = useState<LiveLatencySnapshot | null>(null);
-  const [terminal, setTerminal] = useState<LiveCloseDoc | null>(null);
-  const [failure, setFailure] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  const [recoveryBadge, setRecoveryBadge] = useState<string | null>(null);
+  const stream = useLiveWorldStream(source.sessionId);
+  const {
+    phase,
+    hello,
+    frame,
+    telemetry,
+    latency,
+    terminal,
+    failure,
+    attempt,
+    recoveryBadge,
+    ticker,
+    staleness,
+  } = stream;
+  const [selectedRef, setSelectedRef] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const lastOrdinalRef = useRef<number | null>(null);
-  const frameClockRef = useRef<{ firstAtMs: number | null; count: number }>({
-    firstAtMs: null,
-    count: 0,
-  });
-  const windowRef = useRef<LiveLatencyWindow | null>(null);
-  if (windowRef.current === null) windowRef.current = new LiveLatencyWindow();
 
-  // The connection (the same bounded-reconnect posture as the story player).
-  const connect = useCallback(
-    (attemptCount: number): (() => void) | undefined => {
-      if (typeof EventSource === "undefined") {
-        setFailure("this browser does not support EventSource (Server-Sent-Events)");
-        setPhase("failed");
-        return undefined;
-      }
-      const stream = new EventSource(`/api/live/${source.sessionId}`);
-      let settled = false;
-      let pendingTimer: ReturnType<typeof setTimeout> | undefined;
-      let cleanup: (() => void) | undefined = () => stream.close();
-
-      stream.addEventListener("hello", (event) => {
-        settled = true;
-        setAttempt(0);
-        setPhase("live");
-        setTerminal(null);
-        setFailure(null);
-        lastOrdinalRef.current = null;
-        frameClockRef.current = { firstAtMs: null, count: 0 };
-        windowRef.current?.reset();
-        setLatency(null);
-        setTelemetry(EMPTY_TELEMETRY);
-        try {
-          setHello(JSON.parse((event as MessageEvent<string>).data) as LiveHelloDoc);
-        } catch {
-          setFailure("the live stream's hello event was not valid JSON");
-          setPhase("failed");
-          stream.close();
-        }
-      });
-
-      // THE WORLD FRAMES: one per real cadence tick, each a fresh live
-      // view-model projection of the source's observations.
-      stream.addEventListener("world", (event) => {
-        try {
-          const doc = JSON.parse((event as MessageEvent<string>).data) as LiveWorldFrameDoc;
-          const receivedAtMs = Date.now();
-          // The counted frame-drop stub: an ordinal gap is a real transport
-          // loss, surfaced — never a silent skip (§9).
-          const previous = lastOrdinalRef.current;
-          const dropped =
-            previous !== null && doc.ordinal > previous + 1 ? doc.ordinal - previous - 1 : 0;
-          lastOrdinalRef.current = doc.ordinal;
-          // The receipt-window clock (the effective update rate stub).
-          if (frameClockRef.current.firstAtMs === null) {
-            frameClockRef.current.firstAtMs = receivedAtMs;
-          }
-          frameClockRef.current.count += 1;
-          const spanSeconds = (receivedAtMs - frameClockRef.current.firstAtMs!) / 1000;
-          const updateRateHz = spanSeconds > 0.25 ? frameClockRef.current.count / spanSeconds : 0;
-          windowRef.current?.add(receivedAtMs - doc.generatedAtMs);
-          setLatency(windowRef.current?.snapshot() ?? null);
-          setFrame(doc);
-          setTelemetry((prev) => ({
-            framesReceived: prev.framesReceived + 1,
-            framesDropped: prev.framesDropped + dropped,
-            newestWorldVersion: doc.worldVersion,
-            renderedWorldVersion: doc.worldVersion,
-            worldVersionLag: 0,
-            watermarkLagMs: doc.telemetry.watermarkLagMs,
-            undetectedEntities: doc.telemetry.undetectedEntities,
-            updateRateHz,
-          }));
-          // The honest recovery accounting: a visible gap badge (accounted,
-          // never smoothed over).
-          const recovery = doc.eventsSincePreviousFrame.find(
-            (entry) => entry.type === "source-recovery",
-          );
-          if (recovery !== undefined) {
-            setRecoveryBadge(
-              `source reconnect: ${recovery.detail?.missedUpdates ?? "?"} missed updates ` +
-                `(${Math.round((recovery.detail?.gapDurationMs ?? 0) / 100) / 10}s gap, accounted)`,
-            );
-          } else {
-            setRecoveryBadge(null);
-          }
-        } catch (err) {
-          setFailure(err instanceof Error ? err.message : String(err));
-          setPhase("failed");
-          stream.close();
-        }
-      });
-
-      stream.addEventListener("close", (event) => {
-        try {
-          setTerminal(JSON.parse((event as MessageEvent<string>).data) as LiveCloseDoc);
-        } catch {
-          setTerminal({ reason: "transport-closed", deliveredFrames: 0, droppedFrames: 0 });
-        }
-        setPhase("closed");
-        stream.close();
-      });
-
-      stream.onerror = () => {
-        stream.close();
-        if (settled && lastOrdinalRef.current !== null) return; // terminal close handled above
-        const nextAttempt = attemptCount + 1;
-        if (nextAttempt <= RECONNECT_BACKOFF_MS.length) {
-          setAttempt(nextAttempt);
-          const timer = setTimeout(
-            () => {
-              cleanup = connect(nextAttempt);
-            },
-            RECONNECT_BACKOFF_MS[nextAttempt - 1],
-          );
-          pendingTimer = timer;
-          return;
-        }
-        setFailure(
-          "the live connection could not be opened (the transport, the session token, or the live-delivery rights refused it) — a real failure, not simulated",
-        );
-        setPhase("failed");
-      };
-
-      return () => {
-        if (pendingTimer !== undefined) clearTimeout(pendingTimer);
-        cleanup?.();
-      };
-    },
-    [source.sessionId],
-  );
-
-  useEffect(() => {
-    const cleanup = connect(0);
-    return () => cleanup?.();
-  }, [connect]);
-
-  // The canvas draw (every frame — the visible response to state changes).
+  // The canvas draw (every frame + selection change — the visible response
+  // to state changes).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas === null) return;
     const ctx = canvas.getContext("2d");
     if (ctx === null) return;
-    const w = canvas.width;
-    const h = canvas.height;
-    // The pitch surface.
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "#0f172a";
-    ctx.fillRect(0, 0, w, h);
-    drawPitch(ctx, w, h);
-    if (frame !== null) {
-      for (const entity of frame.entities) {
-        drawEntity(ctx, w, h, entity);
-      }
+    drawFrame(ctx, canvas.width, canvas.height, frame, selectedRef);
+    // The stalled overlay: the receipt watchdog fired — the picture is NOT
+    // current and says so (never a frozen picture pretending to be live).
+    if (staleness.state === "stalled") {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+      ctx.fillRect(0, h / 2 - 44, w, 88);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `800 ${Math.max(14, Math.round(w / 42))}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillStyle = "#fbbf24";
+      ctx.fillText("stalled — awaiting world state", w / 2, h / 2 - 10);
+      ctx.font = `500 ${Math.max(11, Math.round(w / 70))}px ui-monospace, monospace`;
+      ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
+      ctx.fillText(
+        `no frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (world v${staleness.lastWorldVersion}) — never a frozen picture`,
+        w / 2,
+        h / 2 + 18,
+      );
     }
-  }, [frame]);
+  }, [frame, selectedRef, staleness]);
+
+  // The canvas click → the entity picker (hit-test the projected markers;
+  // the keyboard path is the <select> below — both pin the SAME identity).
+  const onCanvasClick = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (canvas === null || frame === null) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const px = (event.clientX - rect.left) * scaleX;
+      const py = (event.clientY - rect.top) * scaleY;
+      const { markers } = projectTacticalFrame(frame.entities, {
+        width: canvas.width,
+        height: canvas.height,
+      });
+      let best: { ref: string; distance: number } | null = null;
+      for (const marker of markers) {
+        const distance = Math.hypot(marker.x - px, marker.y - py);
+        if (distance <= marker.radius + Math.max(6, canvas.width / 90)) {
+          if (best === null || distance < best.distance) {
+            best = { ref: marker.entityRef, distance };
+          }
+        }
+      }
+      setSelectedRef(best === null ? null : best.ref);
+    },
+    [frame],
+  );
+
+  // The pinned entity's LIVE state (identity continuity made inspectable:
+  // the inspector follows the ENTITY REF across frames, not a position).
+  const selectedEntity = useMemo(() => {
+    if (frame === null || selectedRef === null) return null;
+    return frame.entities.find((entity) => entity.entityRef === selectedRef) ?? null;
+  }, [frame, selectedRef]);
 
   const teamA = frame?.entities.filter(
-    (entity) => entity.teamRef !== undefined && entity.teamRef.endsWith("home"),
+    (entity) => teamRefOf(entity.teamRef) === "team-home",
   ).length;
   const teamB = frame?.entities.filter(
-    (entity) => entity.teamRef !== undefined && entity.teamRef.endsWith("away"),
+    (entity) => teamRefOf(entity.teamRef) === "team-away",
   ).length;
+  const cadenceMs = hello?.cadenceMs ?? 500;
 
   return (
-    <section className="player-surface" data-live-phase={phase} data-surface="live-tactical">
+    <section
+      className="player-surface"
+      data-live-phase={phase}
+      data-surface="live-tactical"
+      data-staleness={staleness.state}
+    >
       <div className="live-stage-header">
         <span className={`live-badge ${phase === "live" ? "is-live" : ""}`} data-phase={phase}>
           {phase === "live" ? "live" : phase}
@@ -379,14 +280,23 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
             height={544}
             className="live-tactical-canvas"
             role="img"
+            onClick={onCanvasClick}
             aria-label={
               frame !== null
-                ? `Live tactical pitch: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s`
+                ? `Live tactical pitch: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s${staleness.state === "stalled" ? " — STALLED, awaiting world state" : ""}`
                 : "Live tactical pitch (connecting)"
             }
           />
         )}
       </div>
+
+      <p className="live-stalled-note" role="status" data-surface="stall-verdict">
+        {staleness.state === "stalled"
+          ? `stalled — no world frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (last world version ${staleness.lastWorldVersion}); the view recovers on the next frame, never fakes one`
+          : staleness.state === "awaiting-first-frame"
+            ? "awaiting the first world frame…"
+            : `receiving world state (tolerance ${Math.round(2.5 * cadenceMs)}ms; ${telemetry.stallEpisodes} stall${telemetry.stallEpisodes === 1 ? "" : "s"} recovered)`}
+      </p>
 
       <div className="player-bar live-stats">
         <dl className="session-card-facts">
@@ -396,7 +306,6 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
               {frame !== null
                 ? `${frame.worldVersion} (rendered ${telemetry.renderedWorldVersion})`
                 : "—"}
-              {telemetry.worldVersionLag > 0 ? ` · ${telemetry.worldVersionLag} behind` : ""}
             </dd>
           </div>
           <div className="fact">
@@ -463,9 +372,90 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
             </dd>
           </div>
         </dl>
+
+        {/* THE IDENTITY INSPECTOR — pin an entity by its canonical ref; the
+            inspector follows the IDENTITY across frames (continuity made
+            inspectable; the picker is keyboard-reachable). */}
+        <div className="live-entity-inspector" data-surface="entity-inspector">
+          <label className="live-entity-picker-label" htmlFor="live-entity-picker">
+            Inspect an entity (identity-continuous by ref)
+          </label>
+          <select
+            id="live-entity-picker"
+            className="live-entity-picker"
+            value={selectedRef ?? ""}
+            onChange={(event) =>
+              setSelectedRef(event.target.value === "" ? null : event.target.value)
+            }
+          >
+            <option value="">— none selected —</option>
+            {(frame?.entities ?? []).map((entity) => (
+              <option key={entity.entityRef} value={entity.entityRef}>
+                {entityMarkerLabel(entity.entityRef)} · {entity.entityRef}
+                {teamRefOf(entity.teamRef) !== null
+                  ? ` (${teamRefOf(entity.teamRef) === "team-home" ? "home" : "away"})`
+                  : ""}
+              </option>
+            ))}
+          </select>
+          {selectedEntity !== null ? (
+            <dl className="session-card-facts">
+              <div className="fact">
+                <dt>Pinned entity</dt>
+                <dd>
+                  <code>{selectedEntity.entityRef}</code> · {selectedEntity.kind}
+                  {selectedEntity.teamRef !== undefined ? ` · ${selectedEntity.teamRef}` : ""}
+                </dd>
+              </div>
+              <div className="fact">
+                <dt>Position (canonical m)</dt>
+                <dd>
+                  x {selectedEntity.xMeters.toFixed(2)} · y {selectedEntity.yMeters.toFixed(2)}
+                </dd>
+              </div>
+              <div className="fact">
+                <dt>Detection</dt>
+                <dd>
+                  <StateChip state={selectedEntity.detected ? "ready" : "degraded"}>
+                    {selectedEntity.detected
+                      ? "detected"
+                      : `last-known (${Math.round(selectedEntity.staleForMs / 100) / 10}s stale)`}
+                  </StateChip>
+                </dd>
+              </div>
+              <div className="fact">
+                <dt>Confidence</dt>
+                <dd>{selectedEntity.confidence.toFixed(2)}</dd>
+              </div>
+            </dl>
+          ) : (
+            <p className="field-hint">
+              Click a marker (or pick above): the pinned entity keeps its identity while its
+              position updates every frame — a tracking miss shows as last-known, never a removal.
+            </p>
+          )}
+        </div>
+
+        {/* THE HONEST EVENT TICKER — the wire's own accounting events, newest
+            first, bounded (never fabricated match events). */}
+        {ticker.length > 0 && (
+          <div className="live-event-ticker" data-surface="event-ticker">
+            <h3 className="studio-subheading">Frame events (the honest accounting)</h3>
+            <ul className="live-event-list">
+              {ticker.map((row) => (
+                <li key={row.key} className="live-event-row">
+                  <span className="live-event-version">v{row.worldVersion}</span>
+                  <span className="live-event-phrase">{row.phrase}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <p className="live-latency-note">
           The renderer consumes live world state over the real SSE transport (the W915 lane,
-          producer re-pointed at the live tactical view-model). Latency is measured per frame (the
+          producer re-pointed at the live tactical view-model). Updates are event-driven (the
+          transport pushes; there is no polling loop). Latency is measured per frame (the
           server&apos;s generation clock → this browser&apos;s receipt clock; unsynchronized clocks
           — a real measurement, never a promise). The source is the L002 deterministic synthetic
           tracking package — honestly labeled, never a real broadcast.
