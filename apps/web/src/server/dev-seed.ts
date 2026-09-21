@@ -486,8 +486,7 @@ export async function seedDevContent(options: SeedOptions): Promise<{
       authorizationPolicy: liveTacticalPolicy,
       sourceLabel: "Synthetic live tracking — finite window (L002 source, L014 replay)",
     });
-    const replaySessionId = (created as { session: { sessionId: string } }).session
-      .sessionId;
+    const replaySessionId = (created as { session: { sessionId: string } }).session.sessionId;
     server.attestations.record(replaySessionId, seedAccount.userId);
     server.publication.set(replaySessionId, "public");
     storyIndex.set(replaySessionId, {
@@ -514,7 +513,8 @@ export async function seedDevContent(options: SeedOptions): Promise<{
           playersPerTeam: 11,
           referees: 1,
         },
-        sourceNote: "a finite 24-tick live window that ends honestly, then replays through the same views",
+        sourceNote:
+          "a finite 24-tick live window that ends honestly, then replays through the same views",
         finiteWindow: true,
       },
     });

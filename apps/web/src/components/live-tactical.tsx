@@ -334,8 +334,8 @@ export function LiveTacticalRenderer({
       {replayActive ? (
         <p className="live-stalled-note" role="status" data-surface="replay-note">
           replaying the recorded live window — the SAME view, the SAME view-model contracts; every
-          scrub step re-renders the RECORDED frame (world version, watermark and event time are
-          the values the live window emitted — never re-stamped, L014).
+          scrub step re-renders the RECORDED frame (world version, watermark and event time are the
+          values the live window emitted — never re-stamped, L014).
         </p>
       ) : (
         <p className="live-stalled-note" role="status" data-surface="stall-verdict">
@@ -423,7 +423,9 @@ export function LiveTacticalRenderer({
               <div className="fact">
                 <dt>p50 / p95 / max</dt>
                 <dd>
-                  {latency !== null ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms` : "—"}
+                  {latency !== null
+                    ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms`
+                    : "—"}
                 </dd>
               </div>
             </>

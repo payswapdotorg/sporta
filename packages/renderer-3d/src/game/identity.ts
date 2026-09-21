@@ -198,11 +198,7 @@ export function animeNprCapability(): RendererCapability {
     rendererId: ANIME_NPR_RENDERER_ID,
     rendererVersion: ANIME_NPR_RENDERER_VERSION,
     rendererClass: "stylized-video",
-    supportedOutputProfiles: [
-      ANIME_MP4_SD_TWOS_PROFILE,
-      GAME_MP4_SD_PROFILE,
-      GAME_MP4_HD_PROFILE,
-    ],
+    supportedOutputProfiles: [ANIME_MP4_SD_TWOS_PROFILE, GAME_MP4_SD_PROFILE, GAME_MP4_HD_PROFILE],
     requiresSourceFrames: false,
     minSnapshotVersion: 0,
   };

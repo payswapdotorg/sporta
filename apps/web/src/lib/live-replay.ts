@@ -51,7 +51,9 @@ export interface ReplayContinuityVerdict {
  * advancing (the view-model's monotone guarantee), event times and
  * watermark sequence/ms non-decreasing (the frozen temporal rules). Pure.
  */
-export function replayContinuityVerdict(frames: readonly LiveWorldFrameDoc[]): ReplayContinuityVerdict {
+export function replayContinuityVerdict(
+  frames: readonly LiveWorldFrameDoc[],
+): ReplayContinuityVerdict {
   const problems: string[] = [];
   for (let index = 1; index < frames.length; index += 1) {
     const previous = frames[index - 1]!;
@@ -179,15 +181,18 @@ export function useLiveReplay(record: LiveReplayRecord | null): LiveReplayContro
 
   useEffect(() => {
     if (!playing || record === null) return;
-    const timer = setInterval(() => {
-      setCursor((current) => {
-        if (current + 1 >= record.frames.length) {
-          setPlaying(false); // the honest end: stop at the last recorded frame
-          return current;
-        }
-        return current + 1;
-      });
-    }, Math.max(100, cadenceMs));
+    const timer = setInterval(
+      () => {
+        setCursor((current) => {
+          if (current + 1 >= record.frames.length) {
+            setPlaying(false); // the honest end: stop at the last recorded frame
+            return current;
+          }
+          return current + 1;
+        });
+      },
+      Math.max(100, cadenceMs),
+    );
     return () => clearInterval(timer);
   }, [playing, record, cadenceMs]);
 

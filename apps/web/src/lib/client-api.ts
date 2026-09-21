@@ -415,11 +415,11 @@ export interface LiveReplayRecordLike {
  * window has not ended, so the caller stays on the live view (honest
  * fallback, never an error surface).
  */
-export async function fetchLiveReplayRecord(sessionId: string): Promise<LiveReplayRecordLike | null> {
+export async function fetchLiveReplayRecord(
+  sessionId: string,
+): Promise<LiveReplayRecordLike | null> {
   try {
-    return await getJson<LiveReplayRecordLike>(
-      `/api/live/${encodeURIComponent(sessionId)}/replay`,
-    );
+    return await getJson<LiveReplayRecordLike>(`/api/live/${encodeURIComponent(sessionId)}/replay`);
   } catch (err) {
     if (err instanceof ApiError && err.status === 409) return null; // the window is still open
     throw err;

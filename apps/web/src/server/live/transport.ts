@@ -387,11 +387,7 @@ class LiveChannel {
     }
     this.framesEmitted += 1;
     this.lastFrameAtMs = this.transport.nowMs();
-    if (
-      this.finiteWindow &&
-      emission.event === "world" &&
-      emission.payload !== undefined
-    ) {
+    if (this.finiteWindow && emission.event === "world" && emission.payload !== undefined) {
       // L014: the presentation-side session record — the emitted world
       // frames VERBATIM (ordinals, world versions, watermarks, event times
       // unchanged; never re-stamped).
@@ -578,12 +574,14 @@ export function createSseLiveTransport(options: SseLiveTransportOptions): LiveTr
       if (!options.active) return null;
       const source = sources.get(sessionId);
       if (source === undefined) return null;
-      return channels.get(sessionId)?.replayRecord() ?? {
-        schemaVersion: "sporta.live-replay/1",
-        sessionId,
-        state: "no-record",
-        frames: [],
-      };
+      return (
+        channels.get(sessionId)?.replayRecord() ?? {
+          schemaVersion: "sporta.live-replay/1",
+          sessionId,
+          state: "no-record",
+          frames: [],
+        }
+      );
     },
     closeAll(): void {
       shutdown = true;

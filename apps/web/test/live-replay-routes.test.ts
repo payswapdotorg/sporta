@@ -218,90 +218,86 @@ describe("the replay route's fail-closed ladder (auth-before-bytes)", () => {
 });
 
 describe("the live window → replay continuity journey (the L014 acceptance, presentation side)", () => {
-  test(
-    "the live window streams, ENDS honestly, and the recorded session replays VERBATIM through the routes",
-    async () => {
-      const parser = createSseParser();
+  test("the live window streams, ENDS honestly, and the recorded session replays VERBATIM through the routes", async () => {
+    const parser = createSseParser();
 
-      // 1. THE LIVE WINDOW: the stream opens (hello) and the world frames
-      //    flow per tick until the scripted window exhausts — the channel
-      //    ends with the honest `live-window-complete` close. Interleaved
-      //    fire/read (the bounded subscriber buffer never drops).
-      const response = await liveStreamRoute(authorized(`/api/live/${finiteSessionId}`), {
-        params: Promise.resolve({ sessionId: finiteSessionId }),
-      });
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toContain("text/event-stream");
-      const reader = response.body!.getReader();
+    // 1. THE LIVE WINDOW: the stream opens (hello) and the world frames
+    //    flow per tick until the scripted window exhausts — the channel
+    //    ends with the honest `live-window-complete` close. Interleaved
+    //    fire/read (the bounded subscriber buffer never drops).
+    const response = await liveStreamRoute(authorized(`/api/live/${finiteSessionId}`), {
+      params: Promise.resolve({ sessionId: finiteSessionId }),
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    const reader = response.body!.getReader();
 
-      // The hello arrives first (the stream's own framing).
-      const helloEvents = await readSseEvents(reader, parser, 1);
-      const hello = ssePayloadOf<LiveHelloDoc>(helloEvents[0]!);
-      expect(hello.sourceKind).toBe("tactical");
-      expect(hello.sessionId).toBe(finiteSessionId);
+    // The hello arrives first (the stream's own framing).
+    const helloEvents = await readSseEvents(reader, parser, 1);
+    const hello = ssePayloadOf<LiveHelloDoc>(helloEvents[0]!);
+    expect(hello.sourceKind).toBe("tactical");
+    expect(hello.sessionId).toBe(finiteSessionId);
 
-      // 24 scripted ticks: fire in batches of 4, read each batch (no drops).
-      const wireFrames: LiveWorldFrameDoc[] = [];
-      for (let batch = 0; batch < 6; batch += 1) {
-        scheduler.fire();
-        scheduler.fire();
-        scheduler.fire();
-        scheduler.fire();
-        const events = await readSseEvents(reader, parser, 4);
-        for (const event of events) {
-          if (event.event === "world") wireFrames.push(ssePayloadOf<LiveWorldFrameDoc>(event));
-        }
-      }
-      expect(wireFrames).toHaveLength(24);
-
-      // The 25th tick: the window exhausts — the terminal close event.
+    // 24 scripted ticks: fire in batches of 4, read each batch (no drops).
+    const wireFrames: LiveWorldFrameDoc[] = [];
+    for (let batch = 0; batch < 6; batch += 1) {
       scheduler.fire();
-      const closeEvents = await readSseEvents(reader, parser, 1);
-      const close = closeEvents
-        .filter((event) => event.event === "close")
-        .map((event) => ssePayloadOf<LiveCloseDoc>(event))[0];
-      expect(close).toBeDefined();
-      expect(close!.reason).toBe("live-window-complete");
-      expect(close!.deliveredFrames).toBe(24);
-      await reader.cancel().catch(() => undefined);
+      scheduler.fire();
+      scheduler.fire();
+      scheduler.fire();
+      const events = await readSseEvents(reader, parser, 4);
+      for (const event of events) {
+        if (event.event === "world") wireFrames.push(ssePayloadOf<LiveWorldFrameDoc>(event));
+      }
+    }
+    expect(wireFrames).toHaveLength(24);
 
-      // 2. THE REPLAY RECORD: the route serves the RECORDED frames —
-      //    VERBATIM (the same ordinals, world versions, watermarks and
-      //    event times the live window emitted; never re-stamped).
-      const replayResponse = await replayRoute(authorized(`/api/live/${finiteSessionId}/replay`), {
-        params: Promise.resolve({ sessionId: finiteSessionId }),
-      });
-      expect(replayResponse.status).toBe(200);
-      const record = (await replayResponse.json()) as LiveReplayRecordDoc;
-      expect(record.state).toBe("complete");
-      expect(record.frames).toHaveLength(24);
-      expect(record.frames).toEqual(wireFrames); // VERBATIM — the continuity proof
-      expect(record.meta?.worldVersionFirst).toBe(1);
-      expect(record.meta?.worldVersionLast).toBe(24);
-      expect(record.meta?.deliveredFrames).toBe(24);
-      expect(record.meta?.droppedFrames).toBe(0);
+    // The 25th tick: the window exhausts — the terminal close event.
+    scheduler.fire();
+    const closeEvents = await readSseEvents(reader, parser, 1);
+    const close = closeEvents
+      .filter((event) => event.event === "close")
+      .map((event) => ssePayloadOf<LiveCloseDoc>(event))[0];
+    expect(close).toBeDefined();
+    expect(close!.reason).toBe("live-window-complete");
+    expect(close!.deliveredFrames).toBe(24);
+    await reader.cancel().catch(() => undefined);
 
-      // 3. THE ALIGNMENT: the recorded timeline's state versions/timecodes
-      //    remain aligned (the pure verdict — the acceptance, asserted).
-      const verdict = replayContinuityVerdict(record.frames);
-      expect(verdict.aligned).toBe(true);
-      expect(verdict.problems).toEqual([]);
+    // 2. THE REPLAY RECORD: the route serves the RECORDED frames —
+    //    VERBATIM (the same ordinals, world versions, watermarks and
+    //    event times the live window emitted; never re-stamped).
+    const replayResponse = await replayRoute(authorized(`/api/live/${finiteSessionId}/replay`), {
+      params: Promise.resolve({ sessionId: finiteSessionId }),
+    });
+    expect(replayResponse.status).toBe(200);
+    const record = (await replayResponse.json()) as LiveReplayRecordDoc;
+    expect(record.state).toBe("complete");
+    expect(record.frames).toHaveLength(24);
+    expect(record.frames).toEqual(wireFrames); // VERBATIM — the continuity proof
+    expect(record.meta?.worldVersionFirst).toBe(1);
+    expect(record.meta?.worldVersionLast).toBe(24);
+    expect(record.meta?.deliveredFrames).toBe(24);
+    expect(record.meta?.droppedFrames).toBe(0);
 
-      // 4. THE HONEST TERMINAL: the stream route answers 410 Gone and
-      //    points at the replay (the live window is over — never a zombie
-      //    stream, never a silent re-run).
-      const after = await liveStreamRoute(authorized(`/api/live/${finiteSessionId}`), {
-        params: Promise.resolve({ sessionId: finiteSessionId }),
-      });
-      expect(after.status).toBe(410);
-      expect(after.headers.get("content-type")).toContain("application/json");
-      const afterBody = (await after.json()) as {
-        error: { failureClass: string; replayPath: string; deliveredFrames: number };
-      };
-      expect(afterBody.error.failureClass).toBe("live-window-complete");
-      expect(afterBody.error.replayPath).toBe(`/api/live/${finiteSessionId}/replay`);
-      expect(afterBody.error.deliveredFrames).toBe(24);
-    },
-    20_000,
-  );
+    // 3. THE ALIGNMENT: the recorded timeline's state versions/timecodes
+    //    remain aligned (the pure verdict — the acceptance, asserted).
+    const verdict = replayContinuityVerdict(record.frames);
+    expect(verdict.aligned).toBe(true);
+    expect(verdict.problems).toEqual([]);
+
+    // 4. THE HONEST TERMINAL: the stream route answers 410 Gone and
+    //    points at the replay (the live window is over — never a zombie
+    //    stream, never a silent re-run).
+    const after = await liveStreamRoute(authorized(`/api/live/${finiteSessionId}`), {
+      params: Promise.resolve({ sessionId: finiteSessionId }),
+    });
+    expect(after.status).toBe(410);
+    expect(after.headers.get("content-type")).toContain("application/json");
+    const afterBody = (await after.json()) as {
+      error: { failureClass: string; replayPath: string; deliveredFrames: number };
+    };
+    expect(afterBody.error.failureClass).toBe("live-window-complete");
+    expect(afterBody.error.replayPath).toBe(`/api/live/${finiteSessionId}/replay`);
+    expect(afterBody.error.deliveredFrames).toBe(24);
+  }, 20_000);
 });

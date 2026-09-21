@@ -289,17 +289,20 @@ export function LiveSurface() {
                 <div className="live-replay-controls">
                   <div className="live-replay-buttons">
                     <button type="button" onClick={replay.play} disabled={replay.playing}>
-                  ▶ play (recorded cadence{" "}
-                  {continuity.facts.cadenceMs !== null ? `${continuity.facts.cadenceMs} ms` : "—"})
+                      ▶ play (recorded cadence{" "}
+                      {continuity.facts.cadenceMs !== null
+                        ? `${continuity.facts.cadenceMs} ms`
+                        : "—"}
+                      )
                     </button>
                     <button type="button" onClick={replay.pause} disabled={!replay.playing}>
-                  ⏸ pause
+                      ⏸ pause
                     </button>
                     <button type="button" onClick={() => replay.step(-1)}>
-                  ⏮ step back
+                      ⏮ step back
                     </button>
                     <button type="button" onClick={() => replay.step(1)}>
-                  step forward ⏭
+                      step forward ⏭
                     </button>
                   </div>
                   <label className="live-replay-scrub">

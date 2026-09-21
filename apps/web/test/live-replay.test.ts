@@ -62,7 +62,11 @@ function alignedRecord(): LiveReplayRecordDoc {
     schemaVersion: "sporta.live-replay/1",
     sessionId: "sess-l014-replay",
     state: "complete",
-    frames: [frame({ ordinal: 1, worldVersion: 1 }), frame({ ordinal: 2, worldVersion: 2 }), frame({ ordinal: 3, worldVersion: 3 })],
+    frames: [
+      frame({ ordinal: 1, worldVersion: 1 }),
+      frame({ ordinal: 2, worldVersion: 2 }),
+      frame({ ordinal: 3, worldVersion: 3 }),
+    ],
     meta: {
       label: "the finite window",
       completedAtMs: 1_888_888_888_000,
@@ -91,10 +95,7 @@ describe("replayContinuityVerdict — the alignment derivation", () => {
   });
 
   test("a non-advancing world version is caught with its specific line", () => {
-    const frames = [
-      frame({ ordinal: 1, worldVersion: 1 }),
-      frame({ ordinal: 2, worldVersion: 1 }),
-    ];
+    const frames = [frame({ ordinal: 1, worldVersion: 1 }), frame({ ordinal: 2, worldVersion: 1 })];
     const verdict = replayContinuityVerdict(frames);
     expect(verdict.aligned).toBe(false);
     expect(verdict.problems).toHaveLength(1);
@@ -131,9 +132,9 @@ describe("replayContinuityVerdict — the alignment derivation", () => {
     ];
     const verdict = replayContinuityVerdict(frames);
     expect(verdict.aligned).toBe(false);
-    expect(verdict.problems.some((line) => line.includes("watermark sequence 0 went backwards"))).toBe(
-      true,
-    );
+    expect(
+      verdict.problems.some((line) => line.includes("watermark sequence 0 went backwards")),
+    ).toBe(true);
     expect(verdict.problems.some((line) => line.includes("watermark ms 90 went backwards"))).toBe(
       true,
     );

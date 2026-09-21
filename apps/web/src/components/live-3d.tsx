@@ -550,7 +550,9 @@ export function Live3dRenderer({
               <div className="fact">
                 <dt>p50 / p95 / max</dt>
                 <dd>
-                  {latency !== null ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms` : "—"}
+                  {latency !== null
+                    ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms`
+                    : "—"}
                 </dd>
               </div>
             </>
