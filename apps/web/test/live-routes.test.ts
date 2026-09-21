@@ -309,9 +309,11 @@ describe("the active transport's wiring", () => {
     expect(body.available).toBe(true);
     expect(body.transportKind).toBe("live-network");
     expect(body.detail).toContain("SSE live transport");
-    // L005: the seed now registers TWO live sources — the derby story
-    // timeline AND the live tactical view-model's session.
-    expect(body.sources).toHaveLength(2);
+    // L005 (full): the seed registers SEVEN live sources — the derby story
+    // timeline plus ONE tactical view-model session per L002 delivery
+    // scenario (normal/jitter/delay/drop/out-of-order/reconnect), so the
+    // full live surface shows every honest delivery behavior.
+    expect(body.sources).toHaveLength(7);
     const derby = body.sources.find((source) => source.sessionId === derbySessionId!);
     expect(derby).toBeDefined();
     expect(derby!.storyKey).toBe("derby");

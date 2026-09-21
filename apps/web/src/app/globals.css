@@ -2300,6 +2300,70 @@ svg {
   font-size: 12px;
 }
 
+/* L005 full — the honest staleness verdict line (never a frozen picture). */
+.live-stalled-note {
+  margin: 8px 14px 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* L005 full — the identity inspector (pin an entity by canonical ref). */
+.live-entity-inspector {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: var(--bg-raised);
+}
+
+.live-entity-picker-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.live-entity-picker {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* L005 full — the honest frame-event ticker (bounded, scrollable). */
+.live-event-ticker {
+  display: grid;
+  gap: 6px;
+}
+
+.live-event-list {
+  margin: 0;
+  padding: 0 4px 0 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.live-event-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.live-event-version {
+  flex: none;
+  font-family: ui-monospace, monospace;
+  color: var(--text-muted);
+}
+
+.live-event-phrase {
+  color: var(--text-body, inherit);
+}
+
 /* ===================================================================== */
 /* W907 — role workspaces (Match Lab, Rights Center, Operations, Jobs)    */
 
