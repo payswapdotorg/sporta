@@ -69,6 +69,12 @@ export {
 export type { RenderSegmentStoreOptions } from "./store";
 export { ANIME_REF_SCHEME, createAnimeOutputPipeline, parseAnimeArtifactRef } from "./pipeline";
 export type { AnimeOutputPipeline, AnimeOutputPipelineOptions } from "./pipeline";
+// The revocation-aware serving seam (J008): retrieval/listing re-resolve the
+// session's CURRENT effective rights and fail closed (the caller-supplied
+// policy trust boundary is composed with — never replaced by — the
+// domain rights resolution).
+export { createRightsAwareSegmentStore, RightsAwareStoreValidationError } from "./rights-aware";
+export type { RightsAwareSegmentStoreOptions, RightsCapabilityResolver } from "./rights-aware";
 export {
   OutputPipelineError,
   PlaybackRightsDeniedError,

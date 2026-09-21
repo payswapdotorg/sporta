@@ -12,7 +12,7 @@ function account(userId: string, roles: PolicyAccount["roles"]): PolicyAccount {
 }
 
 describe("the closed action vocabulary", () => {
-  test("is exactly the seven W902 actions", () => {
+  test("is exactly the W902 actions + the Wave-3 J009/J010 additions", () => {
     const expected: IdentityAction[] = [
       "account.read",
       "account.switch-role",
@@ -21,6 +21,11 @@ describe("the closed action vocabulary", () => {
       "media-session.terminate",
       "provider-health.read",
       "render-output.read",
+      // J009 (Wave 3): the rights/audit discoverability read
+      "rights-audit.read",
+      // J010 (Wave 3): the analyst annotations workspace reads/writes
+      "analyst-annotation.read",
+      "analyst-annotation.write",
     ];
     expect([...IDENTITY_ACTIONS].sort()).toEqual(expected.sort());
   });
@@ -144,6 +149,60 @@ describe("the grants matrix (role-experience-matrix rows)", () => {
     expect(authorize(account("u-2", ["operator"]), "provider-health.read")).toEqual({
       allowed: true,
       via: "grant:operator",
+    });
+  });
+
+  test("rights-audit.read (J009): the OWNER, or an operator — nobody else", () => {
+    const owner = account("u-owner", ["rights-holder"]);
+    const otherRightsHolder = account("u-other", ["rights-holder", "creator"]);
+    const analyst = account("u-an", ["analyst"]);
+    const operator = account("u-op", ["operator"]);
+    expect(authorize(owner, "rights-audit.read", { ownerId: "u-owner" })).toEqual({
+      allowed: true,
+      via: "resource-owner",
+    });
+    expect(authorize(otherRightsHolder, "rights-audit.read", { ownerId: "u-owner" })).toEqual({
+      allowed: false,
+      reason: "not-resource-owner",
+    });
+    expect(authorize(analyst, "rights-audit.read", { ownerId: "u-owner" })).toEqual({
+      allowed: false,
+      reason: "not-resource-owner",
+    });
+    expect(authorize(operator, "rights-audit.read", { ownerId: "u-owner" })).toEqual({
+      allowed: true,
+      via: "grant:operator",
+    });
+  });
+
+  test("analyst-annotation.read/write (J010): the OWNER, an operator, or the analyst grant", () => {
+    const owner = account("u-owner", ["creator"]);
+    const analyst = account("u-an", ["analyst"]);
+    const operator = account("u-op", ["operator"]);
+    const otherViewer = account("u-other", ["viewer", "rights-holder"]);
+    for (const action of ["analyst-annotation.read", "analyst-annotation.write"] as const) {
+      expect(authorize(owner, action, { ownerId: "u-owner" })).toEqual({
+        allowed: true,
+        via: "resource-owner",
+      });
+      expect(authorize(analyst, action, { ownerId: "u-owner" })).toEqual({
+        allowed: true,
+        via: "grant:analyst",
+      });
+      expect(authorize(operator, action, { ownerId: "u-owner" })).toEqual({
+        allowed: true,
+        via: "grant:operator",
+      });
+      expect(authorize(otherViewer, action, { ownerId: "u-owner" })).toEqual({
+        allowed: false,
+        reason: "not-resource-owner",
+      });
+    }
+    // without an ownership record the resource is unknown (uniform —
+    // no existence oracle)
+    expect(authorize(analyst, "analyst-annotation.read", {})).toEqual({
+      allowed: false,
+      reason: "unknown-resource",
     });
   });
 

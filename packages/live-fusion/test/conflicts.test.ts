@@ -157,7 +157,12 @@ describe("the movement-plausibility tolerance (D3)", () => {
   });
 
   test("distanceM is the pitch-plane Euclidean distance", () => {
-    expect(distanceM(row({ entityRef: "p", x: 0, y: 0, observedAtMs: 0 }), row({ entityRef: "p", x: 3, y: 4, observedAtMs: 0 }))).toBe(5);
+    expect(
+      distanceM(
+        row({ entityRef: "p", x: 0, y: 0, observedAtMs: 0 }),
+        row({ entityRef: "p", x: 3, y: 4, observedAtMs: 0 }),
+      ),
+    ).toBe(5);
   });
 });
 
@@ -181,8 +186,16 @@ describe("same-time ties (D5 rule 2 scope)", () => {
 describe("the conflict record minting (D4)", () => {
   test("the record lists EVERY conflicting value with its confidence, resolution none, bridge-scheme ids", () => {
     const rows = [
-      drainRow("tracking-a", 7, row({ entityRef: "p-home-01", x: 40, y: 20, observedAtMs: 5200, confidence: 0.9 })),
-      drainRow("broadcast-1", 12, row({ entityRef: "p-home-01", x: 46, y: 22, observedAtMs: 5200, confidence: 0.55 })),
+      drainRow(
+        "tracking-a",
+        7,
+        row({ entityRef: "p-home-01", x: 40, y: 20, observedAtMs: 5200, confidence: 0.9 }),
+      ),
+      drainRow(
+        "broadcast-1",
+        12,
+        row({ entityRef: "p-home-01", x: 46, y: 22, observedAtMs: 5200, confidence: 0.55 }),
+      ),
     ];
     const group = coObservationGroupsOf("p-home-01", rows, defaultFusionPolicy())[0]!;
     const record = conflictRecordOf(group, 3);
@@ -202,12 +215,21 @@ describe("the conflict record minting (D4)", () => {
   });
 
   test("liveObservationIdOf zero-pads the sequence (the lexicographic id order = the sequence order)", () => {
-    expect(liveObservationIdOf(drainRow("s", 9, row({ entityRef: "e", x: 0, y: 0, observedAtMs: 0 })))).toBe("lo-s-000000000009-e");
-    expect(liveObservationIdOf(drainRow("s", 1000000, row({ entityRef: "e", x: 0, y: 0, observedAtMs: 0 })))).toBe("lo-s-000001000000-e");
+    expect(
+      liveObservationIdOf(drainRow("s", 9, row({ entityRef: "e", x: 0, y: 0, observedAtMs: 0 }))),
+    ).toBe("lo-s-000000000009-e");
+    expect(
+      liveObservationIdOf(
+        drainRow("s", 1000000, row({ entityRef: "e", x: 0, y: 0, observedAtMs: 0 })),
+      ),
+    ).toBe("lo-s-000001000000-e");
   });
 
   test("z-position is carried in the conflict value when present (verbatim evidence)", () => {
-    const withZ = { ...row({ entityRef: "ball-1", kind: "BALL" as const, x: 5, y: 5, observedAtMs: 1 }), position: { xMeters: 5, yMeters: 5, zMeters: 1.5 } };
+    const withZ = {
+      ...row({ entityRef: "ball-1", kind: "BALL" as const, x: 5, y: 5, observedAtMs: 1 }),
+      position: { xMeters: 5, yMeters: 5, zMeters: 1.5 },
+    };
     const rows = [
       drainRow("a", 1, withZ),
       drainRow("b", 1, row({ entityRef: "ball-1", kind: "BALL", x: 9, y: 5, observedAtMs: 1 })),
@@ -221,8 +243,24 @@ describe("the conflict record minting (D4)", () => {
 describe("drainRowsOf", () => {
   test("lifts every applied batch's rows with source identity, in drain order", () => {
     const entries = [
-      { sourceId: "a", batch: batch({ sourceId: "a", sequence: 1, eventTimeMs: 1000, rows: [row({ entityRef: "p-1", x: 1, y: 1, observedAtMs: 1000 })] }) },
-      { sourceId: "b", batch: batch({ sourceId: "b", sequence: 1, eventTimeMs: 1100, rows: [row({ entityRef: "p-2", x: 2, y: 2, observedAtMs: 1100 })] }) },
+      {
+        sourceId: "a",
+        batch: batch({
+          sourceId: "a",
+          sequence: 1,
+          eventTimeMs: 1000,
+          rows: [row({ entityRef: "p-1", x: 1, y: 1, observedAtMs: 1000 })],
+        }),
+      },
+      {
+        sourceId: "b",
+        batch: batch({
+          sourceId: "b",
+          sequence: 1,
+          eventTimeMs: 1100,
+          rows: [row({ entityRef: "p-2", x: 2, y: 2, observedAtMs: 1100 })],
+        }),
+      },
     ];
     const rows = drainRowsOf(entries);
     expect(rows.length).toBe(2);

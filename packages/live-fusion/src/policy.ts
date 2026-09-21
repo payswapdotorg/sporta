@@ -108,9 +108,7 @@ function isFinitePositive(value: unknown, name: string, issues: string[]): boole
  * Validates and normalizes a partial policy onto the defaults. Fail-loud on
  * malformed members (a bad policy NEVER silently becomes the default).
  */
-export function parseFusionPolicy(
-  policy: Partial<LiveFusionPolicy> | undefined,
-): LiveFusionPolicy {
+export function parseFusionPolicy(policy: Partial<LiveFusionPolicy> | undefined): LiveFusionPolicy {
   const merged: LiveFusionPolicy = { ...defaultFusionPolicy(), ...policy };
   const issues: string[] = [];
   if (!Array.isArray(merged.sourcePrecedence)) {
@@ -123,7 +121,9 @@ export function parseFusionPolicy(
         break;
       }
       if (seen.has(id)) {
-        issues.push(`sourcePrecedence lists "${id}" more than once (precedence must be a strict order)`);
+        issues.push(
+          `sourcePrecedence lists "${id}" more than once (precedence must be a strict order)`,
+        );
         break;
       }
       seen.add(id);

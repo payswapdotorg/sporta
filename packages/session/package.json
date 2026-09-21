@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sporta/contracts": "workspace:*"
+    "@sporta/contracts": "workspace:*",
+    "@sporta/capability": "workspace:*",
+    "@sporta/identity": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.2.0"

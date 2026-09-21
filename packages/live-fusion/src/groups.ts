@@ -42,7 +42,9 @@ export interface CoObservationGroup {
  * `(eventTimeMs, sequence, sourceId)`; within a batch, rows keep their
  * array order — the updater's canonical order re-sorts them itself).
  */
-export function drainRowsOf(applied: readonly { sourceId: string; batch: LiveObservation }[]): DrainRow[] {
+export function drainRowsOf(
+  applied: readonly { sourceId: string; batch: LiveObservation }[],
+): DrainRow[] {
   const rows: DrainRow[] = [];
   for (const entry of applied) {
     for (const row of entry.batch.entityObservations) {
@@ -65,8 +67,7 @@ export function coObservationGroupsOf(
   policy: LiveFusionPolicy,
 ): CoObservationGroup[] {
   const sorted = [...rows].sort(
-    (a, b) =>
-      a.row.observedAtMs - b.row.observedAtMs || (a.sourceId < b.sourceId ? -1 : 1),
+    (a, b) => a.row.observedAtMs - b.row.observedAtMs || (a.sourceId < b.sourceId ? -1 : 1),
   );
   const groups: CoObservationGroup[] = [];
   let index = 0;
@@ -132,10 +133,7 @@ export function agreeWithinTolerance(
  * adjacent ones — a group whose endpoints cannot be reconciled by any
  * plausible motion disagrees as a whole (documented; stricter and honest).
  */
-export function groupConflicts(
-  group: CoObservationGroup,
-  policy: LiveFusionPolicy,
-): boolean {
+export function groupConflicts(group: CoObservationGroup, policy: LiveFusionPolicy): boolean {
   for (let i = 0; i < group.rows.length; i += 1) {
     for (let j = i + 1; j < group.rows.length; j += 1) {
       if (!agreeWithinTolerance(group.rows[i]!.row, group.rows[j]!.row, policy)) {

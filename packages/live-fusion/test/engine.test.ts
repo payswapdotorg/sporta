@@ -228,19 +228,51 @@ describe("D1 — coexistence: non-co-observing sources pass VERBATIM", () => {
   test("two sources with disjoint entities: every batch applies, no conflicts, both sources' entities in the ONE engine", () => {
     const session = createSession();
     // The streams: the batch under test + a trailing batch that releases it.
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-home-01", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "track-3", x: 50, y: 30, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-home-01", x: 11, y: 10, observedAtMs: 400 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "track-3", x: 51, y: 30, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-home-01", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "track-3", x: 50, y: 30, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-home-01", x: 11, y: 10, observedAtMs: 400 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "track-3", x: 51, y: 30, observedAtMs: 400 })],
+      }),
+    );
     tick(session, 450);
     const finalized = session.fusion.finalize();
     // Every one of the four batches applied (two admissions + finalize flush).
     const appliedReports = [...session.reports, finalized].flatMap((report) => report.batchReports);
     expect(appliedReports.length).toBe(4);
     expect(appliedReports.every((report) => report.outcome === "applied")).toBe(true);
-    expect(
-      [...session.reports, finalized].every((report) => report.conflicts.length === 0),
-    ).toBe(true);
+    expect([...session.reports, finalized].every((report) => report.conflicts.length === 0)).toBe(
+      true,
+    );
     // The canonical application order: the t=400 rows are the engine state.
     expect(positionOf(session.engine, "p-home-01")).toEqual({ x: 11, y: 10, c: 0.9 });
     expect(positionOf(session.engine, "track-3")).toEqual({ x: 51, y: 30, c: 0.9 });
@@ -257,12 +289,44 @@ describe("D1 — coexistence: non-co-observing sources pass VERBATIM", () => {
 
   test("corroboration: co-observed agreement within tolerance is counted, never a conflict record", () => {
     const session = createSession();
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10.6, y: 10.2, observedAtMs: 0, confidence: 0.7 })] }));
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 11, y: 10, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10.6, y: 10.2, observedAtMs: 0, confidence: 0.7 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 11, y: 10, observedAtMs: 400 })],
+      }),
+    );
     // B(0) releases with A(0) already in the arbitration memory: an agreeing
     // co-observation — the drain row corroborates (counted, no record).
-    const bRelease = admit(session, batchOf({ sourceId: "broadcast-1", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 11.5, y: 10.2, observedAtMs: 400, confidence: 0.7 })] }));
+    const bRelease = admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 11.5, y: 10.2, observedAtMs: 400, confidence: 0.7 })],
+      }),
+    );
     expect(bRelease.conflicts).toEqual([]);
     expect(bRelease.conflictRowsWithheld).toBe(0);
     expect(bRelease.corroborationRows).toBe(1);
@@ -271,15 +335,33 @@ describe("D1 — coexistence: non-co-observing sources pass VERBATIM", () => {
     expect(session.fusion.stats().corroborationRows).toBe(3); // 1 + the 2-row t=400 group
     expect(session.fusion.stats().conflicts).toBe(0);
     expect(session.fusion.stats().conflictRowsWithheld).toBe(0);
-    expect(bRelease.sourceSummary.find((s) => s.sourceId === "broadcast-1")!.rowsCorroborating).toBeGreaterThanOrEqual(1);
+    expect(
+      bRelease.sourceSummary.find((s) => s.sourceId === "broadcast-1")!.rowsCorroborating,
+    ).toBeGreaterThanOrEqual(1);
   });
 });
 
 describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbitration (never a silent winner/average)", () => {
   test("within ONE drain (the finalize flush): the canonical survivor applies verbatim, the loser is withheld + ledger-recorded", () => {
     const session = createSession({ sourcePrecedence: ["broadcast-1", "tracking-a"] });
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0, confidence: 0.9 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 16, y: 12, observedAtMs: 0, confidence: 0.55 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0, confidence: 0.9 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 16, y: 12, observedAtMs: 0, confidence: 0.55 })],
+      }),
+    );
     const drain = session.fusion.finalize(); // BOTH t=0 rows flush in ONE drain
     // The conflict record: BOTH values with confidences, resolution "none".
     expect(drain.conflicts.length).toBe(1);
@@ -317,8 +399,24 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
 
   test("the canonical source order decides every same-time tie (the documented deterministic rule)", () => {
     const session = createSession(); // no precedence configured
-    admit(session, batchOf({ sourceId: "source-b", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "source-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 20, y: 20, observedAtMs: 0 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "source-b",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "source-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 20, y: 20, observedAtMs: 0 })],
+      }),
+    );
     const drain = session.fusion.finalize();
     expect(drain.arbitrationDecisions[0]!.survivorSourceId).toBe("source-b"); // "b" > "a"
     expect(drain.arbitrationDecisions[0]!.rule).toBe("canonical-source-order");
@@ -330,8 +428,24 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
 
   test("same-source same-time rows are the source's OWN sequential updates (no cross-source conflict; the newer emission is the canonical survivor in live AND replay)", () => {
     const session = createSession();
-    admit(session, batchOf({ sourceId: "source-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "source-a", sequence: 2, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 20, y: 20, observedAtMs: 0 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "source-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "source-a",
+        sequence: 2,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 20, y: 20, observedAtMs: 0 })],
+      }),
+    );
     const drain = session.fusion.finalize();
     // Same-source pairs never form a co-observation group (a source's own
     // corrections are its own sequential updates — never a cross-source conflict).
@@ -345,11 +459,43 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
 
   test("event-time authority: a DIFFERENT-time conflicting row applies (the later row is newer evidence — no rewind)", () => {
     const session = createSession({ sourcePrecedence: ["tracking-a", "broadcast-1"] });
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 120, rows: [rowOf({ entityRef: "p-1", x: 30, y: 30, observedAtMs: 120 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 120,
+        rows: [rowOf({ entityRef: "p-1", x: 30, y: 30, observedAtMs: 120 })],
+      }),
+    );
     // The trailing batches release the pair (same positions as their sources' rows).
-    const aDrain = admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 500, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 500 })] }));
-    const bDrain = admit(session, batchOf({ sourceId: "broadcast-1", sequence: 2, eventTimeMs: 600, rows: [rowOf({ entityRef: "p-1", x: 30, y: 30, observedAtMs: 600 })] }));
+    const aDrain = admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 500,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 500 })],
+      }),
+    );
+    const bDrain = admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 2,
+        eventTimeMs: 600,
+        rows: [rowOf({ entityRef: "p-1", x: 30, y: 30, observedAtMs: 600 })],
+      }),
+    );
     // The t=0/t=120 conflict is recorded at B's release drain (beyond
     // tolerance: ~28.3m >> 1.0 + 1.2).
     expect(bDrain.conflicts.length).toBe(1);
@@ -368,15 +514,47 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
     // decides — the late row is withheld unless it is the canonical-max.
     const session = createSession({ sourcePrecedence: ["tracking-a", "broadcast-1"] });
     // A drains FIRST (its own trailing batch releases it, alone).
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 400 })],
+      }),
+    );
     tick(session, 450);
     expect(positionOf(session.engine, "p-1")).toEqual({ x: 10, y: 10, c: 0.9 });
     // B arrives LATER at the SAME event time with a conflicting position.
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 24, y: 24, observedAtMs: 0 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 24, y: 24, observedAtMs: 0 })],
+      }),
+    );
     // B(0) releases at B(400)'s admission: the tie {stored A(0), drain B(0)}
     // is decided by the canonical order — A is the canonical-max → B withheld.
-    const drain = admit(session, batchOf({ sourceId: "broadcast-1", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 24, y: 24, observedAtMs: 400 })] }));
+    const drain = admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 24, y: 24, observedAtMs: 400 })],
+      }),
+    );
     // The conflict is EXPLICIT (the ledger across the arbitration memory).
     expect(drain.conflicts.length).toBe(1);
     expect(drain.conflicts[0]!.values).toHaveLength(2);
@@ -390,14 +568,46 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
 
   test("cross-drain ties: a late-arriving CANONICAL-MAX applies on top (the engine converges arrival-order-free)", () => {
     const session = createSession();
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "broadcast-1", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "broadcast-1",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 400 })],
+      }),
+    );
     tick(session, 450);
     expect(positionOf(session.engine, "p-1")).toEqual({ x: 10, y: 10, c: 0.9 });
     // "tracking-a" is the canonical-max of the tie: its late arrival APPLIES
     // on top (the canonical order — exactly what the store replay would end on).
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 25, y: 25, observedAtMs: 0 })] }));
-    const drain = admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 25, y: 25, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 25, y: 25, observedAtMs: 0 })],
+      }),
+    );
+    const drain = admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 25, y: 25, observedAtMs: 400 })],
+      }),
+    );
     expect(drain.arbitrationDecisions[0]!.survivorSourceId).toBe("tracking-a");
     expect(drain.arbitrationDecisions[0]!.withheldSourceIds).toEqual([]); // the survivor IS the drain row
     expect(drain.conflictRowsWithheld).toBe(0); // nothing withheld: the incumbent was already applied
@@ -408,8 +618,24 @@ describe("D3/D4/D5 — same-time conflicts: explicit ledger + deterministic arbi
 
   test("the survivor's row applies VERBATIM — never averaged into the loser's", () => {
     const session = createSession({ sourcePrecedence: ["hi", "lo"] });
-    admit(session, batchOf({ sourceId: "hi", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 0, y: 0, observedAtMs: 0, confidence: 0.8 })] }));
-    admit(session, batchOf({ sourceId: "lo", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 0, observedAtMs: 0, confidence: 0.4 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "hi",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 0, y: 0, observedAtMs: 0, confidence: 0.8 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "lo",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 0, observedAtMs: 0, confidence: 0.4 })],
+      }),
+    );
     const drain = session.fusion.finalize();
     // The canonical survivor is "lo" ("lo-lo…" > "lo-hi…"): its row, verbatim.
     expect(drain.arbitrationDecisions[0]!.survivorSourceId).toBe("lo");
@@ -426,11 +652,43 @@ describe("D9 — suppressed batches (all rows withheld)", () => {
     // "z-incumbent" is the canonical-max ("lo-z-…" sorts last); the LATER
     // "a-late" row is NOT the canonical survivor → withheld → its whole
     // batch is suppressed.
-    admit(session, batchOf({ sourceId: "z-incumbent", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    admit(session, batchOf({ sourceId: "z-incumbent", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-2", x: 12, y: 10, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "z-incumbent",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    admit(
+      session,
+      batchOf({
+        sourceId: "z-incumbent",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-2", x: 12, y: 10, observedAtMs: 400 })],
+      }),
+    );
     tick(session, 450);
-    admit(session, batchOf({ sourceId: "a-late", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 40, y: 40, observedAtMs: 0 })] }));
-    const drain = admit(session, batchOf({ sourceId: "a-late", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 41, y: 40, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "a-late",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 40, y: 40, observedAtMs: 0 })],
+      }),
+    );
+    const drain = admit(
+      session,
+      batchOf({
+        sourceId: "a-late",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 41, y: 40, observedAtMs: 400 })],
+      }),
+    );
     expect(drain.batchReports.length).toBe(0); // nothing from a-late reached the updater
     expect(drain.suppressedBatches).toBe(1);
     expect(session.fusion.stats().batchesSuppressed).toBe(1);
@@ -443,19 +701,45 @@ describe("D6 — source loss + deterministic fallback (the L004 STALLED latch co
     const session = createSession({ sourcePrecedence: ["tracking-a", "tracking-b"] });
     // Both sources deliver a few ticks (rate 100ms, releases trail by the window).
     for (let t = 0; t <= 300; t += 100) {
-      admit(session, batchOf({ sourceId: "tracking-a", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-a", x: t / 100, y: 0, observedAtMs: t })] }));
-      admit(session, batchOf({ sourceId: "tracking-b", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-b", x: 0, y: t / 100, observedAtMs: t })] }));
+      admit(
+        session,
+        batchOf({
+          sourceId: "tracking-a",
+          sequence: t / 100 + 1,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: "p-a", x: t / 100, y: 0, observedAtMs: t })],
+        }),
+      );
+      admit(
+        session,
+        batchOf({
+          sourceId: "tracking-b",
+          sequence: t / 100 + 1,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: "p-b", x: 0, y: t / 100, observedAtMs: t })],
+        }),
+      );
       tick(session, t + 50);
     }
     // tracking-a DROPS: only tracking-b keeps delivering; the render clock
     // runs past the L004 stall budget (default 3000ms).
     for (let t = 400; t <= 4000; t += 100) {
-      admit(session, batchOf({ sourceId: "tracking-b", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-b", x: 0, y: t / 100, observedAtMs: t })] }));
+      admit(
+        session,
+        batchOf({
+          sourceId: "tracking-b",
+          sequence: t / 100 + 1,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: "p-b", x: 0, y: t / 100, observedAtMs: t })],
+        }),
+      );
       const report = tick(session, t + 50);
       const a = report.sourceSummary.find((s) => s.sourceId === "tracking-a");
       if (a !== undefined && a.state === "lost") {
         // The loss is EXPLICIT: the event, the state, the fallback flag.
-        expect(report.sourceEvents.some((e) => e.kind === "source-lost" && e.sourceId === "tracking-a")).toBe(true);
+        expect(
+          report.sourceEvents.some((e) => e.kind === "source-lost" && e.sourceId === "tracking-a"),
+        ).toBe(true);
         expect(report.fallbackActive).toBe(true);
         expect(session.fusion.stats().sourcesLost).toBe(1);
         // The surviving source keeps the world alive (its rows keep applying).
@@ -463,16 +747,23 @@ describe("D6 — source loss + deterministic fallback (the L004 STALLED latch co
         // tracking-a recovers: the in-window arrival clears the latch (the
         // recovery event fires on the recovery ADMISSION's drain — the
         // state transition is observed the moment the latch clears).
-        const recoveryDrain = admit(session, batchOf({ sourceId: "tracking-a", sequence: 50, eventTimeMs: 4200, rows: [rowOf({ entityRef: "p-a", x: 42, y: 0, observedAtMs: 4200 })] }));
+        const recoveryDrain = admit(
+          session,
+          batchOf({
+            sourceId: "tracking-a",
+            sequence: 50,
+            eventTimeMs: 4200,
+            rows: [rowOf({ entityRef: "p-a", x: 42, y: 0, observedAtMs: 4200 })],
+          }),
+        );
         const after = tick(session, 4300);
         const aAfter = after.sourceSummary.find((s) => s.sourceId === "tracking-a")!;
         expect(aAfter.state).toBe("active");
         expect(
-          [...session.reports, recoveryDrain, after].some(
-            (report) =>
-              report.sourceEvents.some(
-                (e) => e.kind === "source-recovered" && e.sourceId === "tracking-a",
-              ),
+          [...session.reports, recoveryDrain, after].some((report) =>
+            report.sourceEvents.some(
+              (e) => e.kind === "source-recovered" && e.sourceId === "tracking-a",
+            ),
           ),
         ).toBe(true);
         expect(session.fusion.stats().sourceRecoveries).toBe(1);
@@ -480,13 +771,31 @@ describe("D6 — source loss + deterministic fallback (the L004 STALLED latch co
         return;
       }
     }
-    throw new Error("the dropped source was never recorded lost within the stall budget (dishonest source-loss accounting)");
+    throw new Error(
+      "the dropped source was never recorded lost within the stall budget (dishonest source-loss accounting)",
+    );
   });
 
   test("per-source summaries carry the L004 counters VERBATIM (§9 — never double-counted)", () => {
     const session = createSession();
-    admit(session, batchOf({ sourceId: "tracking-a", sequence: 1, eventTimeMs: 0, rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })] }));
-    const report = admit(session, batchOf({ sourceId: "tracking-a", sequence: 2, eventTimeMs: 400, rows: [rowOf({ entityRef: "p-1", x: 11, y: 10, observedAtMs: 400 })] }));
+    admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 1,
+        eventTimeMs: 0,
+        rows: [rowOf({ entityRef: "p-1", x: 10, y: 10, observedAtMs: 0 })],
+      }),
+    );
+    const report = admit(
+      session,
+      batchOf({
+        sourceId: "tracking-a",
+        sequence: 2,
+        eventTimeMs: 400,
+        rows: [rowOf({ entityRef: "p-1", x: 11, y: 10, observedAtMs: 400 })],
+      }),
+    );
     const a = report.sourceSummary.find((s) => s.sourceId === "tracking-a")!;
     expect(a.temporal.appliedBatches).toBe(1); // the L004 counter, verbatim
     expect(a.batchesApplied).toBe(1); // the fusion counter (same value — counted once per layer)
@@ -504,9 +813,33 @@ describe("D8 — replay equality: the arbitrated stream IS the stored stream", (
     // p-1 row is withheld at tied times. Disjoint entities corroborate the
     // coexistence path.
     for (let t = 0; t <= 500; t += 100) {
-      admit(session, batchOf({ sourceId: "tracking-a", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-1", x: 10 + t / 100, y: 0, observedAtMs: t })] }));
-      admit(session, batchOf({ sourceId: "broadcast-1", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-1", x: 60 + t / 100, y: 5, observedAtMs: t })] }));
-      admit(session, batchOf({ sourceId: "broadcast-1", sequence: 1000 + t / 100, eventTimeMs: t, rows: [rowOf({ entityRef: `track-${t}`, x: 3, y: 3, observedAtMs: t })] }));
+      admit(
+        session,
+        batchOf({
+          sourceId: "tracking-a",
+          sequence: t / 100 + 1,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: "p-1", x: 10 + t / 100, y: 0, observedAtMs: t })],
+        }),
+      );
+      admit(
+        session,
+        batchOf({
+          sourceId: "broadcast-1",
+          sequence: t / 100 + 1,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: "p-1", x: 60 + t / 100, y: 5, observedAtMs: t })],
+        }),
+      );
+      admit(
+        session,
+        batchOf({
+          sourceId: "broadcast-1",
+          sequence: 1000 + t / 100,
+          eventTimeMs: t,
+          rows: [rowOf({ entityRef: `track-${t}`, x: 3, y: 3, observedAtMs: t })],
+        }),
+      );
       tick(session, t + 50);
     }
     session.fusion.finalize();
@@ -552,8 +885,24 @@ describe("determinism (the constitution)", () => {
     const run = (): { reportsJson: string; stateJson: string; statsJson: string } => {
       const session = createSession({ sourcePrecedence: ["broadcast-1", "tracking-a"] });
       for (let t = 0; t <= 300; t += 100) {
-        admit(session, batchOf({ sourceId: "tracking-a", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-1", x: 10 + t / 100, y: 0, observedAtMs: t })] }));
-        admit(session, batchOf({ sourceId: "broadcast-1", sequence: t / 100 + 1, eventTimeMs: t, rows: [rowOf({ entityRef: "p-1", x: 50 + t / 100, y: 5, observedAtMs: t })] }));
+        admit(
+          session,
+          batchOf({
+            sourceId: "tracking-a",
+            sequence: t / 100 + 1,
+            eventTimeMs: t,
+            rows: [rowOf({ entityRef: "p-1", x: 10 + t / 100, y: 0, observedAtMs: t })],
+          }),
+        );
+        admit(
+          session,
+          batchOf({
+            sourceId: "broadcast-1",
+            sequence: t / 100 + 1,
+            eventTimeMs: t,
+            rows: [rowOf({ entityRef: "p-1", x: 50 + t / 100, y: 5, observedAtMs: t })],
+          }),
+        );
         tick(session, t + 50);
       }
       session.fusion.finalize();

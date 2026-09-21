@@ -70,11 +70,7 @@ export type { CoObservationGroup, DrainRow } from "./groups";
 // The conflict ledger minting (the batch ConflictRecord shape, live ids)
 export { conflictRecordOf, liveObservationIdOf } from "./conflicts";
 // The report + aggregate accounting
-export {
-  canonicalFusionReportJson,
-  canonicalFusionStatsJson,
-  emptyFusionStats,
-} from "./report";
+export { canonicalFusionReportJson, canonicalFusionStatsJson, emptyFusionStats } from "./report";
 export type {
   FusionArbitrationDecision,
   FusionReport,

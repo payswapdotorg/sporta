@@ -247,7 +247,11 @@ export class LiveFusionEngine {
    * rebuilds the affected batches, applies the stream through the updater,
    * and accounts per source (L004 state transitions → loss/recovery events).
    */
-  private fuse(drain: DrainResult, origin: FusionReport["origin"], renderClockMs: number): FusionReport {
+  private fuse(
+    drain: DrainResult,
+    origin: FusionReport["origin"],
+    renderClockMs: number,
+  ): FusionReport {
     this.statsState.drainsFired += 1;
 
     // -- 1. The arbitration pass (D5) ------------------------------------------
@@ -276,7 +280,9 @@ export class LiveFusionEngine {
       }
       const drainRowIds = new Set(drainRowsForEntity.map((entry) => liveObservationIdOf(entry)));
       for (const group of coObservationGroupsOf(entityRef, candidates, this.policy)) {
-        const groupHasDrainRow = group.rows.some((entry) => drainRowIds.has(liveObservationIdOf(entry)));
+        const groupHasDrainRow = group.rows.some((entry) =>
+          drainRowIds.has(liveObservationIdOf(entry)),
+        );
         if (!groupHasDrainRow) continue; // stored-only group: already accounted
         if (groupConflictsCrossSource(group, this.policy)) {
           // -- D4: the conflict record (every conflicting value listed) ----
@@ -290,9 +296,7 @@ export class LiveFusionEngine {
           }
           // -- D5: same-time tie arbitration (the canonical replay order) --
           for (const tie of sameTimeTiesOf(group)) {
-            const drainTieRows = tie.filter((entry) =>
-              drainRowIds.has(liveObservationIdOf(entry)),
-            );
+            const drainTieRows = tie.filter((entry) => drainRowIds.has(liveObservationIdOf(entry)));
             if (drainTieRows.length === 0) continue; // a stored-only tie: no decision to make
             const survivor = canonicalMaxOf(tie);
             const survivorIsDrainRow = drainRowIds.has(liveObservationIdOf(survivor));
@@ -306,10 +310,9 @@ export class LiveFusionEngine {
               survivorSourceId: survivor.sourceId,
               withheldSourceIds: withheldRows.map((entry) => entry.sourceId),
               conflictId: conflict.conflictId,
-              rule:
-                tie.some((entry) => entry.sourceId !== survivor.sourceId)
-                  ? "canonical-source-order"
-                  : "canonical-sequence-order",
+              rule: tie.some((entry) => entry.sourceId !== survivor.sourceId)
+                ? "canonical-source-order"
+                : "canonical-sequence-order",
               precedencePreferredSourceId: preferred,
               precedenceMatchesSurvivor: preferred === survivor.sourceId,
             });
@@ -335,7 +338,10 @@ export class LiveFusionEngine {
     let suppressedBatches = 0;
     for (const entry of drain.applied) {
       const filtered = entry.batch.entityObservations.filter(
-        (row) => !withheldIds.has(liveObservationIdOf({ sourceId: entry.sourceId, sequence: entry.batch.sequence, row })),
+        (row) =>
+          !withheldIds.has(
+            liveObservationIdOf({ sourceId: entry.sourceId, sequence: entry.batch.sequence, row }),
+          ),
       );
       if (filtered.length === 0) {
         suppressedBatches += 1;
@@ -345,8 +351,12 @@ export class LiveFusionEngine {
       if (filtered.length === entry.batch.entityObservations.length) {
         fusedBatches.push({ sourceId: entry.sourceId, batch: entry.batch }); // VERBATIM (D1)
       } else {
-        const { entityObservations: _omitted, ...rest } = entry.batch;
-        fusedBatches.push({ sourceId: entry.sourceId, batch: { ...rest, entityObservations: filtered } });
+        const { entityObservations: withheld, ...rest } = entry.batch;
+        void withheld; // the arbitration-filtered replacement follows below
+        fusedBatches.push({
+          sourceId: entry.sourceId,
+          batch: { ...rest, entityObservations: filtered },
+        });
       }
     }
 
@@ -383,12 +393,27 @@ export class LiveFusionEngine {
     // -- 4. Update the arbitration memory (applied rows only — D8) --------------
     for (const entry of drain.applied) {
       for (const row of entry.batch.entityObservations) {
-        if (withheldIds.has(liveObservationIdOf({ sourceId: entry.sourceId, sequence: entry.batch.sequence, row }))) {
+        if (
+          withheldIds.has(
+            liveObservationIdOf({ sourceId: entry.sourceId, sequence: entry.batch.sequence, row }),
+          )
+        ) {
           continue; // withheld rows never enter the memory (never the store)
         }
         const memory = this.memory.get(row.entityRef);
-        if (memory === undefined) this.memory.set(row.entityRef, new Map([[entry.sourceId, { sourceId: entry.sourceId, sequence: entry.batch.sequence, row }]]));
-        else memory.set(entry.sourceId, { sourceId: entry.sourceId, sequence: entry.batch.sequence, row });
+        if (memory === undefined)
+          this.memory.set(
+            row.entityRef,
+            new Map([
+              [entry.sourceId, { sourceId: entry.sourceId, sequence: entry.batch.sequence, row }],
+            ]),
+          );
+        else
+          memory.set(entry.sourceId, {
+            sourceId: entry.sourceId,
+            sequence: entry.batch.sequence,
+            row,
+          });
       }
     }
 

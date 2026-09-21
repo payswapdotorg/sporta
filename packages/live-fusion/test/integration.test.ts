@@ -99,7 +99,12 @@ function frameLine(input: {
     frame: input.frame,
     timestamp: input.timestamp,
     period: input.period,
-    ball_data: { x: input.ball.x, y: input.ball.y, z: input.ball.z, is_detected: input.ball.detected },
+    ball_data: {
+      x: input.ball.x,
+      y: input.ball.y,
+      z: input.ball.z,
+      is_detected: input.ball.detected,
+    },
     possession: { player_id: null, group: null },
     image_corners_projection: {
       x_top_left: null,
@@ -121,18 +126,36 @@ function frameLine(input: {
 }
 
 const SKILLCORNER_FIXTURE_JSONL = [
-  frameLine({ frame: 2, timestamp: "00:00:00.20", period: 1, players: [
-    { x: -40.5, y: -10.25, id: 101, detected: true },
-    { x: -20.0, y: 5.5, id: 102, detected: true },
-  ], ball: { x: 0.5, y: 0.25, z: 0.11, detected: true } }),
-  frameLine({ frame: 3, timestamp: "00:00:00.30", period: 1, players: [
-    { x: -40.2, y: -10.1, id: 101, detected: true },
-    { x: -20.1, y: 5.4, id: 102, detected: true },
-  ], ball: { x: 0.7, y: 0.3, z: 0.0, detected: false } }),
-  frameLine({ frame: 4, timestamp: "00:00:00.40", period: 1, players: [
-    { x: -39.9, y: -9.9, id: 101, detected: true },
-    { x: -19.5, y: 5.2, id: 102, detected: true },
-  ], ball: { x: 0.9, y: 0.4, z: 0.0, detected: true } }),
+  frameLine({
+    frame: 2,
+    timestamp: "00:00:00.20",
+    period: 1,
+    players: [
+      { x: -40.5, y: -10.25, id: 101, detected: true },
+      { x: -20.0, y: 5.5, id: 102, detected: true },
+    ],
+    ball: { x: 0.5, y: 0.25, z: 0.11, detected: true },
+  }),
+  frameLine({
+    frame: 3,
+    timestamp: "00:00:00.30",
+    period: 1,
+    players: [
+      { x: -40.2, y: -10.1, id: 101, detected: true },
+      { x: -20.1, y: 5.4, id: 102, detected: true },
+    ],
+    ball: { x: 0.7, y: 0.3, z: 0.0, detected: false },
+  }),
+  frameLine({
+    frame: 4,
+    timestamp: "00:00:00.40",
+    period: 1,
+    players: [
+      { x: -39.9, y: -9.9, id: 101, detected: true },
+      { x: -19.5, y: 5.2, id: 102, detected: true },
+    ],
+    ball: { x: 0.9, y: 0.4, z: 0.0, detected: true },
+  }),
 ].join("\n");
 
 // ---------------------------------------------------------------------------
@@ -200,7 +223,10 @@ interface Composition {
 /** Drives N arrival streams through the ONE fusion composition, then finalizes. */
 function driveComposition(
   arrivals: readonly LiveObservation[],
-  options?: { policy?: Parameters<typeof createLiveFusionEngine>[0]["policy"]; endClockMs?: number },
+  options?: {
+    policy?: Parameters<typeof createLiveFusionEngine>[0]["policy"];
+    endClockMs?: number;
+  },
 ): Composition {
   const engine = WorldModelEngine.create(SESSION_ID, {
     football: makeFootballState(),
@@ -274,121 +300,134 @@ function expectReplayEquality(composition: Composition): void {
 // ---------------------------------------------------------------------------
 
 describe("L012 integration — three REAL sources fused into the ONE canonical engine", () => {
-  test.skipIf(!hasFfmpeg)("L002 tracking + L011 broadcast-perception + L007 SkillCorner replay: coexistence, verbatim provenance, §9 accounting, replay equality", async () => {
-    expect(clipBytes).not.toBeNull();
-    // The three REAL sources (per the acceptance's example composition).
-    const tracking = drainSource(
-      createDeterministicLiveSource({
+  test.skipIf(!hasFfmpeg)(
+    "L002 tracking + L011 broadcast-perception + L007 SkillCorner replay: coexistence, verbatim provenance, §9 accounting, replay equality",
+    async () => {
+      expect(clipBytes).not.toBeNull();
+      // The three REAL sources (per the acceptance's example composition).
+      const tracking = drainSource(
+        createDeterministicLiveSource({
+          sessionId: SESSION_ID,
+          sourceId: "synthetic-tracking-1",
+          seed: 20260921,
+          scenario: "normal",
+          tickCount: 30,
+          playersPerTeam: 4,
+        }),
+      );
+      const perception = await createBroadcastPerceptionClipSource({
         sessionId: SESSION_ID,
-        sourceId: "synthetic-tracking-1",
-        seed: 20260921,
-        scenario: "normal",
-        tickCount: 30,
-        playersPerTeam: 4,
-      }),
-    );
-    const perception = await createBroadcastPerceptionClipSource({
-      sessionId: SESSION_ID,
-      clipBytes: clipBytes!,
-      filename: "pitch-scene.mp4",
-      calibration: FULL_FRAME_CALIBRATION,
-      sourceId: "broadcast-perception-1",
-    });
-    const perceptionArrivals = collectPulls(perception);
-    const skillcorner = collectPulls(
-      createSkillCornerOpenDataReplay({ sessionId: SESSION_ID, jsonl: SKILLCORNER_FIXTURE_JSONL }),
-    );
-    expect(tracking.length).toBeGreaterThan(0);
-    expect(perceptionArrivals.length).toBeGreaterThan(0);
-    expect(skillcorner.length).toBeGreaterThan(0);
+        clipBytes: clipBytes!,
+        filename: "pitch-scene.mp4",
+        calibration: FULL_FRAME_CALIBRATION,
+        sourceId: "broadcast-perception-1",
+      });
+      const perceptionArrivals = collectPulls(perception);
+      const skillcorner = collectPulls(
+        createSkillCornerOpenDataReplay({
+          sessionId: SESSION_ID,
+          jsonl: SKILLCORNER_FIXTURE_JSONL,
+        }),
+      );
+      expect(tracking.length).toBeGreaterThan(0);
+      expect(perceptionArrivals.length).toBeGreaterThan(0);
+      expect(skillcorner.length).toBeGreaterThan(0);
 
-    const composition = driveComposition([...tracking, ...perceptionArrivals, ...skillcorner]);
+      const composition = driveComposition([...tracking, ...perceptionArrivals, ...skillcorner]);
 
-    // COEXISTENCE: no cross-source co-observation (disjoint entity spaces) →
-    // every batch passed VERBATIM, no conflicts, no arbitration, no withholding.
-    expect(composition.fusion.stats().conflicts).toBe(0);
-    expect(composition.fusion.stats().conflictRowsWithheld).toBe(0);
-    expect(composition.fusion.stats().batchesApplied).toBe(
-      tracking.length + perceptionArrivals.length + skillcorner.length,
-    );
-    // All three sources' entities live in the ONE canonical engine.
-    expect(composition.engine.entityIds.length).toBeGreaterThanOrEqual(4 * 2 + 1); // L002 roster
-    expect(composition.engine.entityIds.length).toBeGreaterThan(8); // + perception tracks + SkillCorner players/ball
-    // PER-SOURCE PROVENANCE VERBATIM in the SWM evidence chain: the bridge
-    // store carries every source's componentId, each row with its own
-    // provenance kind (all DERIVED — the sources' own declarations).
-    const bridged = composition.store.all();
-    const componentIds = new Set(bridged.map((obs) => obs.componentId));
-    expect(componentIds.has("synthetic-tracking-1")).toBe(true);
-    expect(componentIds.has("broadcast-perception-1")).toBe(true);
-    expect(componentIds.has(SKILLCORNER_DEFAULT_SOURCE_ID)).toBe(true);
-    expect(bridged.every((obs) => obs.provenance === "DERIVED")).toBe(true);
-    // The §9 multi-source accounting: per-source summaries with the L004
-    // counters verbatim + the fusion counters.
-    const finalReport = composition.reports[composition.reports.length - 1]!;
-    expect(finalReport.sourceSummary.length).toBe(3);
-    for (const summary of finalReport.sourceSummary) {
-      expect(summary.batchesApplied).toBeGreaterThan(0);
-      expect(summary.temporal.appliedBatches).toBe(summary.batchesApplied); // L004 counters, verbatim
-      expect(summary.state).toBe("active"); // no losses in the nominal composition
-    }
-    // The dual-clock §9 latency fields are carried per source (the L004 surface).
-    for (const summary of finalReport.sourceSummary) {
-      expect(summary.temporal.meanSourceToIngestMs).not.toBeNull();
-    }
-    // D8: the multi-source composition replays to the identical final state.
-    expectReplayEquality(composition);
-  });
+      // COEXISTENCE: no cross-source co-observation (disjoint entity spaces) →
+      // every batch passed VERBATIM, no conflicts, no arbitration, no withholding.
+      expect(composition.fusion.stats().conflicts).toBe(0);
+      expect(composition.fusion.stats().conflictRowsWithheld).toBe(0);
+      expect(composition.fusion.stats().batchesApplied).toBe(
+        tracking.length + perceptionArrivals.length + skillcorner.length,
+      );
+      // All three sources' entities live in the ONE canonical engine.
+      expect(composition.engine.entityIds.length).toBeGreaterThanOrEqual(4 * 2 + 1); // L002 roster
+      expect(composition.engine.entityIds.length).toBeGreaterThan(8); // + perception tracks + SkillCorner players/ball
+      // PER-SOURCE PROVENANCE VERBATIM in the SWM evidence chain: the bridge
+      // store carries every source's componentId, each row with its own
+      // provenance kind (all DERIVED — the sources' own declarations).
+      const bridged = composition.store.all();
+      const componentIds = new Set(bridged.map((obs) => obs.componentId));
+      expect(componentIds.has("synthetic-tracking-1")).toBe(true);
+      expect(componentIds.has("broadcast-perception-1")).toBe(true);
+      expect(componentIds.has(SKILLCORNER_DEFAULT_SOURCE_ID)).toBe(true);
+      expect(bridged.every((obs) => obs.provenance === "DERIVED")).toBe(true);
+      // The §9 multi-source accounting: per-source summaries with the L004
+      // counters verbatim + the fusion counters.
+      const finalReport = composition.reports[composition.reports.length - 1]!;
+      expect(finalReport.sourceSummary.length).toBe(3);
+      for (const summary of finalReport.sourceSummary) {
+        expect(summary.batchesApplied).toBeGreaterThan(0);
+        expect(summary.temporal.appliedBatches).toBe(summary.batchesApplied); // L004 counters, verbatim
+        expect(summary.state).toBe("active"); // no losses in the nominal composition
+      }
+      // The dual-clock §9 latency fields are carried per source (the L004 surface).
+      for (const summary of finalReport.sourceSummary) {
+        expect(summary.temporal.meanSourceToIngestMs).not.toBeNull();
+      }
+      // D8: the multi-source composition replays to the identical final state.
+      expectReplayEquality(composition);
+    },
+  );
 
-  test.skipIf(!hasFfmpeg)("a source that stops mid-session is recorded LOST while the survivors carry the world (honest source-loss accounting)", async () => {
-    expect(clipBytes).not.toBeNull();
-    const trackingFull = drainSource(
-      createDeterministicLiveSource({
+  test.skipIf(!hasFfmpeg)(
+    "a source that stops mid-session is recorded LOST while the survivors carry the world (honest source-loss accounting)",
+    async () => {
+      expect(clipBytes).not.toBeNull();
+      const trackingFull = drainSource(
+        createDeterministicLiveSource({
+          sessionId: SESSION_ID,
+          sourceId: "tracking-survivor",
+          seed: 20260921,
+          scenario: "normal",
+          tickCount: 60,
+          playersPerTeam: 4,
+        }),
+      );
+      const perception = await createBroadcastPerceptionClipSource({
         sessionId: SESSION_ID,
-        sourceId: "tracking-survivor",
-        seed: 20260921,
-        scenario: "normal",
-        tickCount: 60,
-        playersPerTeam: 4,
-      }),
-    );
-    const perception = await createBroadcastPerceptionClipSource({
-      sessionId: SESSION_ID,
-      clipBytes: clipBytes!,
-      filename: "pitch-scene.mp4",
-      calibration: FULL_FRAME_CALIBRATION,
-      sourceId: "broadcast-perception-1",
-    });
-    const perceptionArrivals = collectPulls(perception);
-    // The perception stream ENDS early (a finite clip): the L002 stream
-    // continues long past it; the render clock runs past the L004 stall
-    // budget (3000ms) for the perception source — but NOT yet for the
-    // survivor (its own last progress sits 2900ms back at the last tick).
-    const composition = driveComposition([...trackingFull, ...perceptionArrivals], {
-      endClockMs: trackingFull[trackingFull.length - 1]!.ingestTimeMs + 2900,
-    });
-    const finalReport = composition.reports[composition.reports.length - 1]!;
-    const perceptionSummary = finalReport.sourceSummary.find(
-      (s) => s.sourceId === "broadcast-perception-1",
-    );
-    // The finite clip's stream stopped: the L004 STALLED latch fired → the
-    // fusion layer recorded the LOSS (events + state + fallback flag).
-    expect(perceptionSummary!.state).toBe("lost");
-    expect(composition.fusion.stats().sourcesLost).toBeGreaterThanOrEqual(1);
-    expect(finalReport.fallbackActive).toBe(true);
-    expect(
-      composition.reports.some((report) =>
-        report.sourceEvents.some(
-          (event) => event.kind === "source-lost" && event.sourceId === "broadcast-perception-1",
+        clipBytes: clipBytes!,
+        filename: "pitch-scene.mp4",
+        calibration: FULL_FRAME_CALIBRATION,
+        sourceId: "broadcast-perception-1",
+      });
+      const perceptionArrivals = collectPulls(perception);
+      // The perception stream ENDS early (a finite clip): the L002 stream
+      // continues long past it; the render clock runs past the L004 stall
+      // budget (3000ms) for the perception source — but NOT yet for the
+      // survivor (its own last progress sits 2900ms back at the last tick).
+      const composition = driveComposition([...trackingFull, ...perceptionArrivals], {
+        endClockMs: trackingFull[trackingFull.length - 1]!.ingestTimeMs + 2900,
+      });
+      const finalReport = composition.reports[composition.reports.length - 1]!;
+      const perceptionSummary = finalReport.sourceSummary.find(
+        (s) => s.sourceId === "broadcast-perception-1",
+      );
+      // The finite clip's stream stopped: the L004 STALLED latch fired → the
+      // fusion layer recorded the LOSS (events + state + fallback flag).
+      expect(perceptionSummary!.state).toBe("lost");
+      expect(composition.fusion.stats().sourcesLost).toBeGreaterThanOrEqual(1);
+      expect(finalReport.fallbackActive).toBe(true);
+      expect(
+        composition.reports.some((report) =>
+          report.sourceEvents.some(
+            (event) => event.kind === "source-lost" && event.sourceId === "broadcast-perception-1",
+          ),
         ),
-      ),
-    ).toBe(true);
-    // The SURVIVING source carried the world (its rows kept applying).
-    expect(finalReport.sourceSummary.find((s) => s.sourceId === "tracking-survivor")!.state).toBe("active");
-    expect(finalReport.sourceSummary.find((s) => s.sourceId === "tracking-survivor")!.batchesApplied).toBeGreaterThan(0);
-    // D8 still holds for the lossy composition.
-    expectReplayEquality(composition);
-  });
+      ).toBe(true);
+      // The SURVIVING source carried the world (its rows kept applying).
+      expect(finalReport.sourceSummary.find((s) => s.sourceId === "tracking-survivor")!.state).toBe(
+        "active",
+      );
+      expect(
+        finalReport.sourceSummary.find((s) => s.sourceId === "tracking-survivor")!.batchesApplied,
+      ).toBeGreaterThan(0);
+      // D8 still holds for the lossy composition.
+      expectReplayEquality(composition);
+    },
+  );
 });
 
 describe("L012 integration — two REAL L002 tracking sources with the SAME roster ids (genuine cross-source conflicts)", () => {
@@ -417,7 +456,9 @@ describe("L012 integration — two REAL L002 tracking sources with the SAME rost
     );
     // Same roster ids, same tick times, materially different trajectories
     // (different seeds) — genuine same-time cross-source disagreement.
-    expect(sourceA[0]!.entityObservations[0]!.entityRef).toBe(sourceB[0]!.entityObservations[0]!.entityRef);
+    expect(sourceA[0]!.entityObservations[0]!.entityRef).toBe(
+      sourceB[0]!.entityObservations[0]!.entityRef,
+    );
     // sourceB's arrivals admit BEFORE sourceA's at tied ingest times (the
     // driver's stable sort keeps insertion order): B's rows drain first,
     // then A's later-arriving rows are the canonical-MIN of each tie → they
