@@ -446,6 +446,21 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/live-swm": {
+      "name": "@sporta/live-swm",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/fusion": "workspace:*",
+        "@sporta/live-source": "workspace:*",
+        "@sporta/live-temporal": "workspace:*",
+        "@sporta/observation": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/live-temporal": {
       "name": "@sporta/live-temporal",
       "version": "0.1.0",
@@ -1044,6 +1059,8 @@
     "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
     "@sporta/live-source": ["@sporta/live-source@workspace:packages/live-source"],
+
+    "@sporta/live-swm": ["@sporta/live-swm@workspace:packages/live-swm"],
 
     "@sporta/live-temporal": ["@sporta/live-temporal@workspace:packages/live-temporal"],
 
