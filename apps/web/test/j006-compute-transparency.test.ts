@@ -108,7 +108,7 @@ function assertSelectionTransparency(
   const computeSource = transparency.computeSource as Record<string, unknown>;
   expect(computeSource.executionOwnership).toBe("sporta-managed");
   expect(typeof computeSource.provider).toBe("string");
-  expect(computeSource.provider.length).toBeGreaterThan(0);
+  expect((computeSource.provider as string).length).toBeGreaterThan(0);
   expect(typeof computeSource.adapterId).toBe("string");
   // Field 2 — provider (DATA — the selected provider id).
   const provider = transparency.provider as Record<string, unknown>;
@@ -133,7 +133,10 @@ function assertSelectionTransparency(
   }
   // Field 5 — privacy posture (the applied preference + the provider zone).
   const privacy = transparency.privacyPosture as Record<string, unknown>;
-  expect(["privacy-local-only", "privacy-any"]).toContain(privacy.appliedPreference);
+  const appliedPreference = privacy.appliedPreference as string;
+  expect(appliedPreference === "privacy-local-only" || appliedPreference === "privacy-any").toBe(
+    true,
+  );
   expect(privacy.providerZone).toBe(server.selection!.facts.privacyZone);
   // Field 6 — fallback state (the substitution posture, honestly derived).
   const fallback = transparency.fallbackState as Record<string, unknown>;

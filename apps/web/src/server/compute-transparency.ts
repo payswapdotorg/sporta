@@ -164,7 +164,7 @@ export interface PlaneTransparencyView {
     /** How many providers the selection seam registered (a real count). */
     registeredProviders: number;
     /** The deployment's plane shape (honest — one provider is one provider). */
-    posture: "single-provider-plane" | "multi-provider-plane";
+    posture: "no-plane" | "single-provider-plane" | "multi-provider-plane";
     /** The dispatch invariant (enforced at every dispatch — see dispatchRender). */
     dispatchInvariant: string;
     /** The explicit-selection policy (the R407 fail-loud posture). */
