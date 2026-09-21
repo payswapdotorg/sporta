@@ -469,6 +469,63 @@ export async function seedDevContent(options: SeedOptions): Promise<{
     });
   }
 
+  // 3b. L014 (presentation side) — the LIVE/REPLAY CONTINUITY session: the
+  //     SAME L002 deterministic tracking source, but as a FINITE live
+  //     window — the scripted window runs ONCE (24 ticks), the stream ends
+  //     with the honest `live-window-complete` close, and the transport
+  //     retains the RECORDED world frames. After the window, the SAME
+  //     tactical/3D surfaces replay the recorded session state through the
+  //     SAME view-model contracts (the replay record route serves the
+  //     frames verbatim — world versions/watermarks/timecodes unchanged).
+  //     HONEST LABEL: synthetic deterministic tracking (never a real
+  //     broadcast), and the record is THIS transport instance's memory —
+  //     the durable live-session persistence (the platform side of L014)
+  //     is Worker B's lane.
+  {
+    const created = await server.gate.createMediaSession(login.token, {
+      authorizationPolicy: liveTacticalPolicy,
+      sourceLabel: "Synthetic live tracking — finite window (L002 source, L014 replay)",
+    });
+    const replaySessionId = (created as { session: { sessionId: string } }).session.sessionId;
+    server.attestations.record(replaySessionId, seedAccount.userId);
+    server.publication.set(replaySessionId, "public");
+    storyIndex.set(replaySessionId, {
+      source: "dev-seed",
+      storyKey: "live-tactical-synthetic",
+      transcript: [],
+      events: [],
+      waveCount: 0,
+    });
+    server.live.registerSource({
+      sessionId: replaySessionId,
+      label: "Synthetic live tracking — finite window + replay",
+      storyKey: "live-tactical-synthetic",
+      steps: [],
+      policy: liveTacticalPolicy,
+      snapshotVersion: 0,
+      watermarkSequence: 0,
+      tactical: {
+        config: {
+          seed: 20260921,
+          scenario: "normal",
+          tickCount: 24,
+          rateMs: 100,
+          playersPerTeam: 11,
+          referees: 1,
+        },
+        sourceNote:
+          "a finite 24-tick live window that ends honestly, then replays through the same views",
+        finiteWindow: true,
+      },
+    });
+    summary.push({
+      sessionId: replaySessionId,
+      storyKey: "live-tactical-synthetic",
+      renderIds: [],
+      storedSegmentIds: [],
+    });
+  }
+
   return {
     seedAccountUsername: SEED_ACCOUNT_USERNAME,
     demoAccountUsername: DEMO_ACCOUNT_USERNAME,

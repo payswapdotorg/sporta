@@ -85,8 +85,19 @@ export interface LiveWorldStreamState {
 /**
  * Consumes one live session's world frames over the real SSE transport.
  * EVENT-DRIVEN: the transport pushes (there is no polling loop anywhere).
+ *
+ * L014: `connect: false` keeps the hook DORMANT — no EventSource, no
+ * reconnects — for the REPLAY presentation of a session whose live window
+ * has already completed (the replay record is the honest continuation;
+ * opening the stream would only collect the terminal 410s). The phase
+ * stays `connecting` (the stream never opened); replay-mode components do
+ * not render the stream's phase at all — they render the REPLAY state.
  */
-export function useLiveWorldStream(sessionId: string): LiveWorldStreamState {
+export function useLiveWorldStream(
+  sessionId: string,
+  options?: { connect?: boolean },
+): LiveWorldStreamState {
+  const connectEnabled = options?.connect !== false;
   const [phase, setPhase] = useState<LiveWorldPhase>("connecting");
   const [hello, setHello] = useState<LiveHelloDoc | null>(null);
   const [frame, setFrame] = useState<LiveWorldFrameDoc | null>(null);
@@ -262,9 +273,10 @@ export function useLiveWorldStream(sessionId: string): LiveWorldStreamState {
   );
 
   useEffect(() => {
+    if (!connectEnabled) return; // dormant (L014 replay mode): no connection
     const cleanup = connect(0);
     return () => cleanup?.();
-  }, [connect]);
+  }, [connect, connectEnabled]);
 
   // The honest staleness verdict (re-evaluated on every frame, watchdog
   // tick, and phase change — the pure `liveStaleness` projection).

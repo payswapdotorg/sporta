@@ -7,14 +7,15 @@ import {
   createLiveSceneState,
   liveCameraReducer,
   projectLiveScene,
-} from "@sporta/renderer-3d";
-import type { LiveCameraState, LiveSceneState } from "@sporta/renderer-3d";
+} from "@sporta/renderer-3d/live";
+import type { LiveCameraState, LiveSceneState } from "@sporta/renderer-3d/live";
 import { useLiveWorldStream } from "@/lib/use-live-world-stream";
 import {
   TACTICAL_TEAM_COLORS,
   entityMarkerColor,
   entityMarkerLabel,
 } from "@/lib/live-tactical-view";
+import type { LiveReplayPresentation } from "@/components/live-tactical";
 import { StateChip, StatePanel } from "@/components/state-panels";
 
 /**
@@ -57,12 +58,23 @@ const ORBIT_DEG_PER_PX = 0.3;
 /** The wheel zoom sensitivity (per wheel notch — a documented constant). */
 const ZOOM_PER_NOTCH = 1.15;
 
-export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
-  const stream = useLiveWorldStream(source.sessionId);
+export function Live3dRenderer({
+  source,
+  replay,
+  onLiveWindowComplete,
+}: {
+  source: Live3dSourceOption;
+  /** L014: when present, the RECORDED frame replays through this same view. */
+  replay?: LiveReplayPresentation;
+  /** L014: fired when the live window ends (the surface fetches the record). */
+  onLiveWindowComplete?: () => void;
+}) {
+  const replayActive = replay !== undefined;
+  const stream = useLiveWorldStream(source.sessionId, { connect: !replayActive });
   const {
     phase,
     hello,
-    frame,
+    frame: liveFrame,
     telemetry,
     latency,
     terminal,
@@ -72,6 +84,10 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
     ticker,
     staleness,
   } = stream;
+  // L014: the frame this view applies — the RECORDED frame in replay mode
+  // (verbatim), the live frame otherwise. The adapter, the camera, the
+  // projection — all the SAME code paths.
+  const frame = replayActive ? (replay!.frame ?? null) : liveFrame;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // THE CAMERA: a ref the world frames NEVER touch (interactive by design).
   const cameraRef = useRef<LiveCameraState>({ ...LIVE_CAMERA_INITIAL });
@@ -98,10 +114,18 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
 
   // Apply every world frame to the carried scene (update continuity — no
   // restart, no reset; the camera is not an input here, by construction).
+  // L014: in replay mode this applies the RECORDED frame at the scrub
+  // cursor — the same identity-continuous carry, the same honest semantics.
   useEffect(() => {
     if (frame === null) return;
     sceneRef.current = applyLiveFrame(sceneRef.current, frame).state;
   }, [frame]);
+
+  // L014: the live window's own terminal close — the surface continues
+  // into the replay presentation (event-driven, never polled).
+  useEffect(() => {
+    if (terminal?.reason === "live-window-complete") onLiveWindowComplete?.();
+  }, [terminal?.reason, onLiveWindowComplete]);
 
   // The canvas draw: every world frame, camera change, or selection change.
   useEffect(() => {
@@ -378,29 +402,36 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
   return (
     <section
       className="player-surface"
-      data-live-phase={phase}
+      data-live-phase={replayActive ? "replay" : phase}
       data-surface="live-3d"
-      data-staleness={staleness.state}
+      data-staleness={replayActive ? "recorded" : staleness.state}
     >
       <div className="live-stage-header">
-        <span className={`live-badge ${phase === "live" ? "is-live" : ""}`} data-phase={phase}>
-          {phase === "live" ? "live" : phase}
-        </span>
+        {replayActive ? (
+          <span className="live-badge" data-phase="replay">
+            replay
+          </span>
+        ) : (
+          <span className={`live-badge ${phase === "live" ? "is-live" : ""}`} data-phase={phase}>
+            {phase === "live" ? "live" : phase}
+          </span>
+        )}
         <span className="live-source-label">{source.label} — 3D view</span>
         <span className="live-source-note">
-          the SAME live world state as the tactical view, rendered in 3D — the camera is yours:
-          state updates never move it (L013)
+          {replayActive
+            ? "the recorded live window in 3D — the SAME frames, the SAME adapter, your camera (L014 replay)"
+            : "the SAME live world state as the tactical view, rendered in 3D — the camera is yours: state updates never move it (L013)"}
         </span>
       </div>
 
-      {recoveryBadge !== null && (
+      {!replayActive && recoveryBadge !== null && (
         <p className="form-notice" role="status" data-surface="recovery-badge">
           {recoveryBadge}
         </p>
       )}
 
       <div className="player-stage live-stage">
-        {phase === "failed" ? (
+        {!replayActive && phase === "failed" ? (
           <StatePanel
             state="failed"
             title="The live 3D view could not be displayed"
@@ -424,27 +455,34 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
             onClick={onCanvasClick}
             aria-label={
               frame !== null
-                ? `Live 3D pitch view: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s. Drag or use arrow keys to orbit the camera, scroll or plus and minus to zoom, shift-drag to pan, zero to reset.${staleness.state === "stalled" ? " Currently STALLED, awaiting world state." : ""}`
-                : "Live 3D pitch view (connecting)"
+                ? `${replayActive ? "Replay of the recorded live 3D pitch view" : "Live 3D pitch view"}: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s. Drag or use arrow keys to orbit the camera, scroll or plus and minus to zoom, shift-drag to pan, zero to reset.${!replayActive && staleness.state === "stalled" ? " Currently STALLED, awaiting world state." : ""}`
+                : `${replayActive ? "Replay" : "Live"} 3D pitch view (connecting)`
             }
           />
         )}
       </div>
 
-      <p className="live-stalled-note" role="status" data-surface="stall-verdict">
-        {staleness.state === "stalled"
-          ? `stalled — no world frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (last world version ${staleness.lastWorldVersion}); the view recovers on the next frame, never fakes one`
-          : staleness.state === "awaiting-first-frame"
-            ? "awaiting the first world frame…"
-            : `receiving world state (tolerance ${Math.round(2.5 * cadenceMs)}ms; ${telemetry.stallEpisodes} stall${telemetry.stallEpisodes === 1 ? "" : "s"} recovered)`}
-        {" · camera: "}
-        <code>
-          az {Math.round(camera.azimuthDeg)}° · el {Math.round(camera.elevationDeg)}° · d{" "}
-          {Math.round(camera.distanceM)}m · target ({Math.round(camera.target.x)},{" "}
-          {Math.round(camera.target.y)})
-        </code>
-        {cameraNote !== null ? ` · ${cameraNote}` : ""}
-      </p>
+      {replayActive ? (
+        <p className="live-stalled-note" role="status" data-surface="replay-note">
+          replaying the recorded live window in 3D — the SAME adapter applies the RECORDED frames
+          (identity-continuous by ref, world versions verbatim); your camera stays yours (L014)
+        </p>
+      ) : (
+        <p className="live-stalled-note" role="status" data-surface="stall-verdict">
+          {staleness.state === "stalled"
+            ? `stalled — no world frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (last world version ${staleness.lastWorldVersion}); the view recovers on the next frame, never fakes one`
+            : staleness.state === "awaiting-first-frame"
+              ? "awaiting the first world frame…"
+              : `receiving world state (tolerance ${Math.round(2.5 * cadenceMs)}ms; ${telemetry.stallEpisodes} stall${telemetry.stallEpisodes === 1 ? "" : "s"} recovered)`}
+          {" · camera: "}
+          <code>
+            az {Math.round(camera.azimuthDeg)}° · el {Math.round(camera.elevationDeg)}° · d{" "}
+            {Math.round(camera.distanceM)}m · target ({Math.round(camera.target.x)},{" "}
+            {Math.round(camera.target.y)})
+          </code>
+          {cameraNote !== null ? ` · ${cameraNote}` : ""}
+        </p>
+      )}
 
       <div className="player-bar live-stats">
         <dl className="session-card-facts">
@@ -452,7 +490,9 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
             <dt>World version</dt>
             <dd>
               {frame !== null
-                ? `${frame.worldVersion} (rendered ${telemetry.renderedWorldVersion})`
+                ? replayActive
+                  ? `${frame.worldVersion} (recorded — of ${replay!.record.meta?.worldVersionLast ?? "?"})`
+                  : `${frame.worldVersion} (rendered ${telemetry.renderedWorldVersion})`
                 : "—"}
             </dd>
           </div>
@@ -460,7 +500,7 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
             <dt>Event time / watermark</dt>
             <dd>
               {frame !== null
-                ? `${(frame.eventTimeMs / 1000).toFixed(1)}s / ${(frame.watermark.watermarkMs / 1000).toFixed(1)}s (lag ${frame.telemetry.watermarkLagMs}ms)`
+                ? `${(frame.eventTimeMs / 1000).toFixed(1)}s / ${(frame.watermark.watermarkMs / 1000).toFixed(1)}s${replayActive ? " (recorded)" : ` (lag ${frame.telemetry.watermarkLagMs}ms)`}`
                 : "—"}
             </dd>
           </div>
@@ -487,26 +527,36 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
           <div className="fact">
             <dt>Frames</dt>
             <dd>
-              {telemetry.framesReceived}
-              {telemetry.framesDropped > 0
-                ? ` (+${telemetry.framesDropped} dropped — counted)`
-                : ""}
+              {replayActive
+                ? `${replay!.record.frames.length} recorded`
+                : telemetry.framesReceived +
+                  (telemetry.framesDropped > 0
+                    ? ` (+${telemetry.framesDropped} dropped — counted)`
+                    : "")}
             </dd>
           </div>
-          <div className="fact">
-            <dt>Update rate</dt>
-            <dd>{telemetry.updateRateHz > 0 ? `${telemetry.updateRateHz.toFixed(1)} Hz` : "—"}</dd>
-          </div>
-          <div className="fact">
-            <dt>SWM-to-render latency</dt>
-            <dd>{latency !== null ? `${latency.lastMs} ms` : "—"}</dd>
-          </div>
-          <div className="fact">
-            <dt>p50 / p95 / max</dt>
-            <dd>
-              {latency !== null ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms` : "—"}
-            </dd>
-          </div>
+          {!replayActive && (
+            <>
+              <div className="fact">
+                <dt>Update rate</dt>
+                <dd>
+                  {telemetry.updateRateHz > 0 ? `${telemetry.updateRateHz.toFixed(1)} Hz` : "—"}
+                </dd>
+              </div>
+              <div className="fact">
+                <dt>SWM-to-render latency</dt>
+                <dd>{latency !== null ? `${latency.lastMs} ms` : "—"}</dd>
+              </div>
+              <div className="fact">
+                <dt>p50 / p95 / max</dt>
+                <dd>
+                  {latency !== null
+                    ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms`
+                    : "—"}
+                </dd>
+              </div>
+            </>
+          )}
         </dl>
 
         {/* THE IDENTITY INSPECTOR (the 3D view's own, same canonical refs). */}
@@ -569,8 +619,9 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
           )}
         </div>
 
-        {/* THE HONEST EVENT TICKER (the same wire accounting, bounded). */}
-        {ticker.length > 0 && (
+        {/* THE HONEST EVENT TICKER (the same wire accounting, bounded — a
+            live-receipt surface; hidden in replay mode). */}
+        {!replayActive && ticker.length > 0 && (
           <div className="live-event-ticker" data-surface="event-ticker">
             <h3 className="studio-subheading">Frame events (the honest accounting)</h3>
             <ul className="live-event-list">
@@ -585,22 +636,20 @@ export function Live3dRenderer({ source }: { source: Live3dSourceOption }) {
         )}
 
         <p className="live-latency-note">
-          The 3D view consumes the SAME live world frames as the tactical view (one W915 stream, one
-          world shape — projected through the renderer-3d live adapter, the renderer&apos;s own
-          camera math). The camera is interactive state the world never touches; figures update per
-          frame without any restart. The source is the L002 deterministic synthetic tracking package
-          — honestly labeled, never a real broadcast.
+          {replayActive
+            ? "This is the 3D REPLAY of the completed live window (L014): the SAME interactive 3D view applies the RECORDED world frames through the SAME renderer-3d live adapter — one view-model contract, two presentations, zero second world truth. The replay record is this transport instance's own recording; durable live-session persistence is the platform side of L014 (Worker B's lane)."
+            : "The 3D view consumes the SAME live world frames as the tactical view (one W915 stream, one world shape — projected through the renderer-3d live adapter, the renderer's own camera math). The camera is interactive state the world never touches; figures update per frame without any restart. The source is the L002 deterministic synthetic tracking package — honestly labeled, never a real broadcast."}
         </p>
         {source.sourceNote !== undefined && (
           <p className="live-latency-note">{source.sourceNote}</p>
         )}
-        {terminal !== null ? (
+        {!replayActive && terminal !== null ? (
           <p className="live-terminal-note">
             Stream closed ({terminal.reason}) — transport accounting: {terminal.deliveredFrames}{" "}
             delivered, {terminal.droppedFrames} dropped.
           </p>
         ) : null}
-        {attempt > 0 && phase !== "failed" ? (
+        {!replayActive && attempt > 0 && phase !== "failed" ? (
           <p className="live-reconnect-note">reconnecting (attempt {attempt})…</p>
         ) : null}
       </div>

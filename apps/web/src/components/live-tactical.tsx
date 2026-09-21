@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LiveWorldFrameDoc } from "@/lib/live-sse";
+import type { LiveReplayRecord } from "@/lib/live-replay";
 import { useLiveWorldStream } from "@/lib/use-live-world-stream";
 import {
   TACTICAL_PITCH_LINES,
@@ -59,6 +60,16 @@ export interface LiveTacticalSourceOption {
   label: string;
   storyKey: string;
   sourceNote?: string;
+}
+
+/**
+ * L014: the REPLAY presentation input — the recorded frame the SAME view
+ * renders (through the SAME projections — no second presentation path),
+ * with the record for the honest continuity labeling.
+ */
+export interface LiveReplayPresentation {
+  record: LiveReplayRecord;
+  frame: LiveWorldFrameDoc | null;
 }
 
 /** The pure frame-draw (canvas primitives from the view projection). */
@@ -149,12 +160,23 @@ function drawFrame(
   }
 }
 
-export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOption }) {
-  const stream = useLiveWorldStream(source.sessionId);
+export function LiveTacticalRenderer({
+  source,
+  replay,
+  onLiveWindowComplete,
+}: {
+  source: LiveTacticalSourceOption;
+  /** L014: when present, the RECORDED frame replays through this same view. */
+  replay?: LiveReplayPresentation;
+  /** L014: fired when the live window ends (the surface fetches the record). */
+  onLiveWindowComplete?: () => void;
+}) {
+  const replayActive = replay !== undefined;
+  const stream = useLiveWorldStream(source.sessionId, { connect: !replayActive });
   const {
     phase,
     hello,
-    frame,
+    frame: liveFrame,
     telemetry,
     latency,
     terminal,
@@ -164,8 +186,19 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
     ticker,
     staleness,
   } = stream;
+  // L014: the frame this view renders — the RECORDED frame in replay mode
+  // (verbatim: world version, watermark, event time are the recorded
+  // values, never re-stamped), the live frame otherwise. Everything
+  // downstream (the projection, the draw, the inspector) is the SAME code.
+  const frame = replayActive ? (replay!.frame ?? null) : liveFrame;
   const [selectedRef, setSelectedRef] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // L014: the live window's own terminal close — the surface continues
+  // into the replay presentation (event-driven, never polled).
+  useEffect(() => {
+    if (terminal?.reason === "live-window-complete") onLiveWindowComplete?.();
+  }, [terminal?.reason, onLiveWindowComplete]);
 
   // The canvas draw (every frame + selection change — the visible response
   // to state changes).
@@ -244,30 +277,38 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
   return (
     <section
       className="player-surface"
-      data-live-phase={phase}
+      data-live-phase={replayActive ? "replay" : phase}
       data-surface="live-tactical"
-      data-staleness={staleness.state}
+      data-staleness={replayActive ? "recorded" : staleness.state}
     >
       <div className="live-stage-header">
-        <span className={`live-badge ${phase === "live" ? "is-live" : ""}`} data-phase={phase}>
-          {phase === "live" ? "live" : phase}
-        </span>
+        {replayActive ? (
+          // L014: the replay presentation is NEVER labelled live — the
+          // recorded window replays, honestly badged.
+          <span className="live-badge" data-phase="replay">
+            replay
+          </span>
+        ) : (
+          <span className={`live-badge ${phase === "live" ? "is-live" : ""}`} data-phase={phase}>
+            {phase === "live" ? "live" : phase}
+          </span>
+        )}
         <span className="live-source-label">{source.label}</span>
         <span className="live-source-note">
-          synthetic deterministic tracking (L002 source
-          {hello !== null ? `, ${hello.cadenceMs} ms cadence` : ""}) — real SSE network transport,
-          canonical 105 × 68 m pitch
+          {replayActive
+            ? `recorded live window — ${replay!.record.frames.length} world frames replayed VERBATIM through the same view (world versions/watermarks/timecodes unchanged, L014)`
+            : `synthetic deterministic tracking (L002 source${hello !== null ? `, ${hello.cadenceMs} ms cadence` : ""}) — real SSE network transport, canonical 105 × 68 m pitch`}
         </span>
       </div>
 
-      {recoveryBadge !== null && (
+      {!replayActive && recoveryBadge !== null && (
         <p className="form-notice" role="status" data-surface="recovery-badge">
           {recoveryBadge}
         </p>
       )}
 
       <div className="player-stage live-stage">
-        {phase === "failed" ? (
+        {!replayActive && phase === "failed" ? (
           <StatePanel
             state="failed"
             title="The live tactical view could not be displayed"
@@ -283,20 +324,28 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
             onClick={onCanvasClick}
             aria-label={
               frame !== null
-                ? `Live tactical pitch: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s${staleness.state === "stalled" ? " — STALLED, awaiting world state" : ""}`
-                : "Live tactical pitch (connecting)"
+                ? `${replayActive ? "Replay of the recorded live tactical pitch" : "Live tactical pitch"}: world version ${frame.worldVersion}, ${frame.entities.length} entities at event time ${Math.round(frame.eventTimeMs / 1000)}s${!replayActive && staleness.state === "stalled" ? " — STALLED, awaiting world state" : ""}`
+                : `${replayActive ? "Replay" : "Live"} tactical pitch (connecting)`
             }
           />
         )}
       </div>
 
-      <p className="live-stalled-note" role="status" data-surface="stall-verdict">
-        {staleness.state === "stalled"
-          ? `stalled — no world frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (last world version ${staleness.lastWorldVersion}); the view recovers on the next frame, never fakes one`
-          : staleness.state === "awaiting-first-frame"
-            ? "awaiting the first world frame…"
-            : `receiving world state (tolerance ${Math.round(2.5 * cadenceMs)}ms; ${telemetry.stallEpisodes} stall${telemetry.stallEpisodes === 1 ? "" : "s"} recovered)`}
-      </p>
+      {replayActive ? (
+        <p className="live-stalled-note" role="status" data-surface="replay-note">
+          replaying the recorded live window — the SAME view, the SAME view-model contracts; every
+          scrub step re-renders the RECORDED frame (world version, watermark and event time are the
+          values the live window emitted — never re-stamped, L014).
+        </p>
+      ) : (
+        <p className="live-stalled-note" role="status" data-surface="stall-verdict">
+          {staleness.state === "stalled"
+            ? `stalled — no world frame for ${Math.round(staleness.stalledForMs / 100) / 10}s (last world version ${staleness.lastWorldVersion}); the view recovers on the next frame, never fakes one`
+            : staleness.state === "awaiting-first-frame"
+              ? "awaiting the first world frame…"
+              : `receiving world state (tolerance ${Math.round(2.5 * cadenceMs)}ms; ${telemetry.stallEpisodes} stall${telemetry.stallEpisodes === 1 ? "" : "s"} recovered)`}
+        </p>
+      )}
 
       <div className="player-bar live-stats">
         <dl className="session-card-facts">
@@ -304,7 +353,9 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
             <dt>World version</dt>
             <dd>
               {frame !== null
-                ? `${frame.worldVersion} (rendered ${telemetry.renderedWorldVersion})`
+                ? replayActive
+                  ? `${frame.worldVersion} (recorded — of ${replay!.record.meta?.worldVersionLast ?? "?"})`
+                  : `${frame.worldVersion} (rendered ${telemetry.renderedWorldVersion})`
                 : "—"}
             </dd>
           </div>
@@ -312,7 +363,7 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
             <dt>Event time / watermark</dt>
             <dd>
               {frame !== null
-                ? `${(frame.eventTimeMs / 1000).toFixed(1)}s / ${(frame.watermark.watermarkMs / 1000).toFixed(1)}s (lag ${frame.telemetry.watermarkLagMs}ms)`
+                ? `${(frame.eventTimeMs / 1000).toFixed(1)}s / ${(frame.watermark.watermarkMs / 1000).toFixed(1)}s${replayActive ? " (recorded)" : ` (lag ${frame.telemetry.watermarkLagMs}ms)`}`
                 : "—"}
             </dd>
           </div>
@@ -343,26 +394,42 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
           <div className="fact">
             <dt>Frames</dt>
             <dd>
-              {telemetry.framesReceived}
-              {telemetry.framesDropped > 0
-                ? ` (+${telemetry.framesDropped} dropped — counted)`
-                : ""}
+              {replayActive
+                ? `${replay!.record.frames.length} recorded`
+                : telemetry.framesReceived +
+                  (telemetry.framesDropped > 0
+                    ? ` (+${telemetry.framesDropped} dropped — counted)`
+                    : "")}
             </dd>
           </div>
           <div className="fact">
             <dt>Update rate</dt>
-            <dd>{telemetry.updateRateHz > 0 ? `${telemetry.updateRateHz.toFixed(1)} Hz` : "—"}</dd>
-          </div>
-          <div className="fact">
-            <dt>SWM-to-render latency</dt>
-            <dd>{latency !== null ? `${latency.lastMs} ms` : "—"}</dd>
-          </div>
-          <div className="fact">
-            <dt>p50 / p95 / max</dt>
             <dd>
-              {latency !== null ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms` : "—"}
+              {replayActive
+                ? replay!.record.meta?.cadenceMs !== undefined
+                  ? `paced at ${replay!.record.meta.cadenceMs} ms (recorded cadence)`
+                  : "—"
+                : telemetry.updateRateHz > 0
+                  ? `${telemetry.updateRateHz.toFixed(1)} Hz`
+                  : "—"}
             </dd>
           </div>
+          {!replayActive && (
+            <>
+              <div className="fact">
+                <dt>SWM-to-render latency</dt>
+                <dd>{latency !== null ? `${latency.lastMs} ms` : "—"}</dd>
+              </div>
+              <div className="fact">
+                <dt>p50 / p95 / max</dt>
+                <dd>
+                  {latency !== null
+                    ? `${latency.p50Ms} / ${latency.p95Ms} / ${latency.maxMs} ms`
+                    : "—"}
+                </dd>
+              </div>
+            </>
+          )}
           <div className="fact">
             <dt>Confidence (min/mean)</dt>
             <dd>
@@ -437,8 +504,10 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
         </div>
 
         {/* THE HONEST EVENT TICKER — the wire's own accounting events, newest
-            first, bounded (never fabricated match events). */}
-        {ticker.length > 0 && (
+            first, bounded (never fabricated match events). In replay mode
+            the RECORDED frame's own events list rides the inspector instead
+            (the ticker is a live-receipt surface). */}
+        {!replayActive && ticker.length > 0 && (
           <div className="live-event-ticker" data-surface="event-ticker">
             <h3 className="studio-subheading">Frame events (the honest accounting)</h3>
             <ul className="live-event-list">
@@ -453,23 +522,20 @@ export function LiveTacticalRenderer({ source }: { source: LiveTacticalSourceOpt
         )}
 
         <p className="live-latency-note">
-          The renderer consumes live world state over the real SSE transport (the W915 lane,
-          producer re-pointed at the live tactical view-model). Updates are event-driven (the
-          transport pushes; there is no polling loop). Latency is measured per frame (the
-          server&apos;s generation clock → this browser&apos;s receipt clock; unsynchronized clocks
-          — a real measurement, never a promise). The source is the L002 deterministic synthetic
-          tracking package — honestly labeled, never a real broadcast.
+          {replayActive
+            ? "This is the REPLAY of the completed live window (L014): the recorded world frames re-render through the SAME tactical view and the SAME view-model contracts — no second presentation path, no re-stamped versions. The replay record is this transport instance's own recording; durable live-session persistence is the platform side of L014 (Worker B's lane)."
+            : "The renderer consumes live world state over the real SSE transport (the W915 lane, producer re-pointed at the live tactical view-model). Updates are event-driven (the transport pushes; there is no polling loop). Latency is measured per frame (the server's generation clock → this browser's receipt clock; unsynchronized clocks — a real measurement, never a promise). The source is the L002 deterministic synthetic tracking package — honestly labeled, never a real broadcast."}
         </p>
         {source.sourceNote !== undefined && (
           <p className="live-latency-note">{source.sourceNote}</p>
         )}
-        {terminal !== null ? (
+        {!replayActive && terminal !== null ? (
           <p className="live-terminal-note">
             Stream closed ({terminal.reason}) — transport accounting: {terminal.deliveredFrames}{" "}
             delivered, {terminal.droppedFrames} dropped.
           </p>
         ) : null}
-        {attempt > 0 && phase !== "failed" ? (
+        {!replayActive && attempt > 0 && phase !== "failed" ? (
           <p className="live-reconnect-note">reconnecting (attempt {attempt})…</p>
         ) : null}
       </div>

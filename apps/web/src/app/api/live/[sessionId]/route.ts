@@ -37,6 +37,11 @@ export const dynamic = "force-dynamic";
  * real receipt clock (never a promise; the clocks are unsynchronized, which
  * the UI documents wherever the number is shown).
  *
+ * L014: a FINITE live source ends its window with the `live-window-complete`
+ * close reason — after that this route answers 410 Gone and points at the
+ * replay record (the recorded world frames, replayable through the same
+ * views at `/api/live/[sessionId]/replay`).
+ *
  * Vercel boundary (honest): the hosted Hobby deployment does NOT enable
  * this transport (serverless request-duration caps would cut streams);
  * it serves on any real HTTP host (local, bare-metal, an edge worker
@@ -103,7 +108,24 @@ export async function GET(
     });
   }
 
-  // 5. The transport's registered live source for this session.
+  // 5. The transport's registered live source for this session. L014: a
+  //    COMPLETED finite live window is the honest terminal answer — the
+  //    stream is over (410 Gone) and the replay record is the continuation
+  //    (the same session, the same world versions/timecodes, replayable
+  //    through the same views).
+  const replay = live.replayRecord(sessionId);
+  if (replay !== null && replay.state === "complete") {
+    return jsonResponse(410, {
+      error: {
+        failureClass: "live-window-complete",
+        message:
+          "this session's live window has completed — the stream is over, and the recorded session state replays through the same views",
+        replayPath: `/api/live/${encodeURIComponent(sessionId)}/replay`,
+        deliveredFrames: replay.meta?.deliveredFrames ?? 0,
+        worldVersionLast: replay.meta?.worldVersionLast ?? 0,
+      },
+    });
+  }
   const subscriber = live.subscribe(sessionId);
   if (subscriber === null) {
     return jsonResponse(404, {

@@ -431,8 +431,9 @@ describe("reality linkage", () => {
 
   test("the reality-grouped view: one match entry per session, sessionId the constant", async () => {
     const view = await buildRealityGroups(server, ANONYMOUS_REQUESTER);
-    // L005 (full): three story sessions + six live-tactical scenario sessions.
-    expect(view.matches).toHaveLength(9);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(view.matches).toHaveLength(10);
     const derby = view.matches.find((match) => match.sessionId === derbyId)!;
     expect(derby.realityCount).toBe(2);
     expect(derby.realities!.map((reality) => reality.rendererId).sort()).toEqual([
@@ -729,8 +730,9 @@ describe("GET /api/catalog/sessions (requester-scoped, versioned shape)", () => 
     };
     expect(body.catalogSchemaVersion).toBe("1.1");
     expect(body.viewer).toEqual({ state: "anonymous", userId: null, grants: [] });
-    // L005 (full): three story sessions + six live-tactical scenario sessions.
-    expect(body.sessions).toHaveLength(9);
+    // L005 (full) + L014: three story sessions + six live-tactical scenario
+    // sessions + the finite-window continuity session.
+    expect(body.sessions).toHaveLength(10);
     expect(body.catalogSource).toBe("dev-seed");
   });
 

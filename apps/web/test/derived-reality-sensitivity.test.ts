@@ -315,7 +315,12 @@ describe("the J013 premise — materially different clips → materially differe
 const REALITY_MATRIX: ReadonlyArray<{ kind: string; rendererId: string; label: string }> = [
   { kind: "tactical", rendererId: "tactical.prototype", label: "Tactical" },
   { kind: "three-d-game", rendererId: "game-3d.prototype", label: "3D Game" },
-  // anime-npr has its own honest block below: the platform-budget finding.
+  // Anime/NPR GRADUATED into the full gate (Wave-3): the anime-budget
+  // resolution (the renderer's "on twos" default profile — see the dedicated
+  // graduation-record block below) brought the default render under the
+  // compute plane's fail-closed artifact budget, so the leg now runs the SAME
+  // full gate as the other realities.
+  { kind: "anime-npr", rendererId: "anime-npr.prototype", label: "Anime/NPR" },
 ];
 
 for (const { kind, rendererId, label } of REALITY_MATRIX) {
@@ -358,43 +363,45 @@ for (const { kind, rendererId, label } of REALITY_MATRIX) {
   });
 }
 
-describe("the J013 gate — Anime/NPR (anime-npr) — the honest platform-budget finding", () => {
+describe("the J013 anime leg — the platform-budget GRADUATION record (the honest finding, resolved)", () => {
   test(
-    "the cel-shaded render of a POPULATED pitch exceeds the compute plane's fail-closed artifact budget (documented, never faked)",
+    "the cel-shaded render of a POPULATED pitch now fits UNDER the compute plane's fail-closed budget at its DEFAULTS (the slim on-twos profile)",
     async () => {
-      // THE HONEST FINDING (recorded for the TL): with calibration working
-      // (the pitch-marked media), the anime-NPR renderer's DEFAULT render
-      // (4 s × the SD 640x360@25 profile, crf 18 — the platform encoder's
-      // frozen constants) of a populated pitch measures ~1.04 MB — OVER the
-      // hosted compute plane's fail-closed 1 MB per-artifact budget. The
-      // render is REFUSED on both sessions with the SAME typed error — a
-      // budget/content tension between the renderer's documented style and
-      // the compute plane's guardrail, NOT a sensitivity failure (the
-      // renderer-side sensitivity is proven in
-      // packages/renderer-3d/test/sensitivity.test.ts: different SWMs →
-      // different cel-shaded frames, no budget in that path).
+      // THE HONEST HISTORY (recorded, never erased): with calibration working
+      // (the pitch-marked media), the anime-NPR renderer's previous DEFAULT
+      // render (4 s × the SD 640×360@25 profile, crf 18 — the platform
+      // encoder's frozen constants) of a populated pitch measured
+      // 1 038 993–1 082 922 bytes — OVER the hosted compute plane's fail-closed
+      // 1 MB per-artifact budget, so BOTH dispatches resolved `failed` with
+      // the SAME typed `artifact-too-large` refusal (the J013 Wave-2 finding).
+      // THE WAVE-3 RESOLUTION (the TL decision — slim the render, keep the
+      // platform budget): the renderer's DEFAULT profile became the "on
+      // twos" SD profile (640×360 @ 12 fps — the traditional cel-animation
+      // cadence; anime-npr.prototype@0.2.0), halving the default frame budget
+      // (48 frames). The measured default renders now land at 650 036–
+      // 671 203 bytes ≈ 65 % of the budget — real margin, and the leg runs the
+      // full gate above (the SAME matrix as tactical/3D: different SWMs →
+      // different real artifacts). The platform budget itself is untouched
+      // (TL-gated); the codec argv is the frozen template (only the frame-
+      // source framerate input changed).
       const outcomeA = await dispatchExpecting(sessionA, "anime-npr.prototype");
       const outcomeB = await dispatchExpecting(sessionB, "anime-npr.prototype");
       expect(outcomeA.terminal).toBe(true);
       expect(outcomeB.terminal).toBe(true);
-      // The typed failure is the budget class on BOTH sessions (the honest
-      // same-answer; the root cause rides verbatim).
-      expect(outcomeA.failure?.errorClass).toBeDefined();
-      expect(outcomeB.failure?.errorClass).toBeDefined();
-      if (outcomeA.completion?.status === "failed" && outcomeB.completion?.status === "failed") {
-        // The budget class + the measured byte counts, verbatim on both.
-        expect(outcomeA.completion.failure?.errorClass).toBe("artifact-too-large");
-        expect(outcomeB.completion.failure?.errorClass).toBe("artifact-too-large");
-        expect(outcomeA.completion.failure?.message).toContain("fail-closed budget");
-        expect(outcomeB.completion.failure?.message).toContain("fail-closed budget");
-      } else {
-        // If a future wave raises the budget or slims the render, the leg
-        // graduates to the full gate — assert sensitivity then (never a
-        // silent pass on the blocker).
-        const left = await latestArtifactOf(sessionA, "anime-npr");
-        const right = await latestArtifactOf(sessionB, "anime-npr");
-        expect(left.descriptor.integrityHash).not.toBe(right.descriptor.integrityHash);
-      }
+      // The graduation, asserted (never a silent pass): BOTH renders now
+      // SUCCEED through the real compute plane — which itself proves the
+      // budget fit (the plane fails closed above 1 000 000 bytes).
+      expect(outcomeA.completion?.status).toBe("succeeded");
+      expect(outcomeB.completion?.status).toBe("succeeded");
+      // The honest belt-and-braces evidence: the catalog's own byte sizes.
+      const left = await latestArtifactOf(sessionA, "anime-npr");
+      const right = await latestArtifactOf(sessionB, "anime-npr");
+      expect(left.descriptor.byteSize).toBeLessThanOrEqual(1_000_000);
+      expect(right.descriptor.byteSize).toBeLessThanOrEqual(1_000_000);
+      expect(left.descriptor.byteSize).toBeGreaterThan(1024);
+      expect(right.descriptor.byteSize).toBeGreaterThan(1024);
+      // The sensitivity direction, re-asserted at the graduated defaults.
+      expect(left.descriptor.integrityHash).not.toBe(right.descriptor.integrityHash);
     },
     PER_TEST_TIMEOUT_MS,
   );
