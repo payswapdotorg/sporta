@@ -38,9 +38,5 @@ export {
   type LiveTelemetryService,
   type LiveTelemetryServiceOptions,
 } from "./telemetry";
-export {
-  liveReplaySink,
-  withDurableReplayRecord,
-  type LiveReplayPersistence,
-} from "./persistence";
+export { liveReplaySink, withDurableReplayRecord, type LiveReplayPersistence } from "./persistence";
 export { liveCadenceMs, liveTransportActive } from "./env";

@@ -40,9 +40,7 @@ type ConsoleJob = OperationsJobsLike["jobs"][number] & {
  * derivations over the job's real data (no fabricated targets, no
  * guessing URLs). Exported for the route-level battery.
  */
-export function operationsJobContextLinks(job: {
-  sessionId: string;
-}): {
+export function operationsJobContextLinks(job: { sessionId: string }): {
   watch: string;
   create: string;
   providers: string;
@@ -474,10 +472,7 @@ function JobsTable({
                     {job.jobId}
                     <br />
                     <span className="section-lede">
-                      session{" "}
-                      <Link href={links.watch}>
-                        {job.sessionLabel ?? job.sessionId}
-                      </Link>
+                      session <Link href={links.watch}>{job.sessionLabel ?? job.sessionId}</Link>
                     </span>
                   </td>
                   <td>{job.state}</td>
@@ -563,8 +558,7 @@ function JobsTable({
                       <dl className="field-note">
                         <dt>session</dt>
                         <dd>
-                          {job.sessionLabel ?? "(no recorded label)"} —{" "}
-                          <code>{job.sessionId}</code>
+                          {job.sessionLabel ?? "(no recorded label)"} — <code>{job.sessionId}</code>
                         </dd>
                         <dt>dispatched</dt>
                         <dd>
@@ -717,14 +711,14 @@ function AuditPanel({ state }: { state: FetchState<OperationsAuditLike> }) {
                   <>
                     {" "}
                     (session{" "}
-                    <Link
-                      href={`${ROUTES.watch}?session=${encodeURIComponent(record.sessionId)}`}
-                    >
+                    <Link href={`${ROUTES.watch}?session=${encodeURIComponent(record.sessionId)}`}>
                       {record.sessionId}
                     </Link>
                     )
                   </>
-                ) : ""}
+                ) : (
+                  ""
+                )}
               </td>
               <td>
                 {record.outcome}: {record.detail}

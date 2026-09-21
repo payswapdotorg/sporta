@@ -67,9 +67,9 @@ beforeAll(async () => {
   // owner-or-operator rule — the same ladder the console's retry uses), so
   // the jobs ledger the console lists is REAL (the seed's own renders are
   // the synchronous control-plane path, not async jobs).
-  const seeded = (
-    await server.control.listSessions()
-  ).sessions.find((summary) => summary.sourceLabel !== undefined);
+  const seeded = (await server.control.listSessions()).sessions.find(
+    (summary) => summary.sourceLabel !== undefined,
+  );
   expect(seeded).toBeDefined();
   const dispatch = await server.studio.dispatchRender({
     token: operatorToken,

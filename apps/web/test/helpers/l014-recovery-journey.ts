@@ -39,7 +39,9 @@ export {};
 const [, , phaseArg, scratchArg, reportArg] = process.argv;
 
 if (phaseArg !== "live" && phaseArg !== "restarted") {
-  console.error("usage: bun run test/helpers/l014-recovery-journey.ts <live|restarted> <scratchDir> <reportPath>");
+  console.error(
+    "usage: bun run test/helpers/l014-recovery-journey.ts <live|restarted> <scratchDir> <reportPath>",
+  );
   process.exit(2);
 }
 const phase: "live" | "restarted" = phaseArg;
@@ -73,7 +75,13 @@ delete env.DATABASE_URL;
 
 const USERNAME = "l014-recovery-user";
 const PASSWORD = "a-real-l014-recovery-password";
-const OPERATIONS = ["analysis", "liveDelivery", "transformation", "derivativeGeneration", "storage"];
+const OPERATIONS = [
+  "analysis",
+  "liveDelivery",
+  "transformation",
+  "derivativeGeneration",
+  "storage",
+];
 
 /** The shared request builder (the cookie form the browser carries). */
 function withCookie(token: string | null, path: string): Request {
@@ -181,7 +189,11 @@ async function main(): Promise<void> {
       new Request("http://sporta.test/api/auth/register", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username: USERNAME, password: PASSWORD, roles: ["creator", "viewer"] }),
+        body: JSON.stringify({
+          username: USERNAME,
+          password: PASSWORD,
+          roles: ["creator", "viewer"],
+        }),
       }),
     );
     if (register.status !== 200) fail(`register answered ${register.status}`);
@@ -260,7 +272,9 @@ async function main(): Promise<void> {
       if (closeReason !== "") break;
     }
     if (closeReason !== "live-window-complete") {
-      fail(`the completed window's close reason was '${closeReason}' (frames: ${wireFrames.length})`);
+      fail(
+        `the completed window's close reason was '${closeReason}' (frames: ${wireFrames.length})`,
+      );
     }
     if (wireFrames.length !== 24) fail(`expected 24 wire frames, got ${wireFrames.length}`);
     reader.cancel().catch(() => {});
@@ -331,7 +345,7 @@ async function main(): Promise<void> {
   //    live lane; the full identity battery is J014's own).
   const me = await meRoute(withCookie(live.token, "/api/auth/me"));
   if (me.status !== 200) fail(`the old token did not resolve after the restart (${me.status})`);
-    const server = await getSportaServer();
+  const server = await getSportaServer();
   await server.ready;
   if (server.live.state() !== "active") fail("the live transport is not env-active after restart");
 
@@ -397,17 +411,21 @@ async function main(): Promise<void> {
     meStatus: me.status,
     streamStatus,
     streamFailureClass:
-      streamBody !== null ? ((streamBody.error as { failureClass: string })?.failureClass ?? null) : null,
+      streamBody !== null
+        ? ((streamBody.error as { failureClass: string })?.failureClass ?? null)
+        : null,
     streamReplayPath:
-      streamBody !== null ? (((streamBody.error as { replayPath?: string })?.replayPath ?? null)) : null,
+      streamBody !== null
+        ? ((streamBody.error as { replayPath?: string })?.replayPath ?? null)
+        : null,
     streamWorldVersionLast:
       streamBody !== null
-        ? (((streamBody.error as { worldVersionLast?: number })?.worldVersionLast ?? null))
+        ? ((streamBody.error as { worldVersionLast?: number })?.worldVersionLast ?? null)
         : null,
     replayStatus,
-    replayState: replayBody !== null ? ((replayBody as { state: string }).state) : null,
+    replayState: replayBody !== null ? (replayBody as { state: string }).state : null,
     replayFramesLength:
-      replayBody !== null ? ((replayBody as { frames: unknown[] }).frames.length) : 0,
+      replayBody !== null ? (replayBody as { frames: unknown[] }).frames.length : 0,
     replayFramesEqual,
     replayMeta: replayBody !== null ? ((replayBody as { meta?: unknown }).meta ?? null) : null,
     interruptedReplayStatus,

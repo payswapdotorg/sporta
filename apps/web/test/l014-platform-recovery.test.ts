@@ -153,15 +153,15 @@ describe("L014 platform — the live/replay record survives a REAL process resta
     expect(b.freshWindowStatus).toBe(200);
     expect(b.freshWindowOrdinals.length).toBeGreaterThanOrEqual(3);
     expect(b.freshWindowOrdinals[0]).toBe(1);
-    expect(b.freshWindowOrdinals).toEqual(
-      b.freshWindowOrdinals.map((_, index) => index + 1),
-    );
+    expect(b.freshWindowOrdinals).toEqual(b.freshWindowOrdinals.map((_, index) => index + 1));
   }, 240_000);
 
   test("the durable replay record is REAL BYTES on disk (the sqlite rows)", async () => {
     const db = new Database(join(scratch, "live-replay.db"));
     const windows = db
-      .query("SELECT session_id, state, frame_count FROM sporta_live_replay_windows ORDER BY session_id")
+      .query(
+        "SELECT session_id, state, frame_count FROM sporta_live_replay_windows ORDER BY session_id",
+      )
       .all() as { session_id: string; state: string; frame_count: number }[];
     const completed = windows.find((row) => row.session_id === live.completedSessionId);
     expect(completed?.state).toBe("complete");

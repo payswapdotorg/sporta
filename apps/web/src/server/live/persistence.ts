@@ -91,10 +91,7 @@ export interface LiveReplayPersistence {
    * Marks the session's window COMPLETE with the honest meta (the same
    * meta the in-memory replay record serves — verbatim). Idempotent.
    */
-  markWindowComplete(
-    sessionId: string,
-    meta: NonNullable<LiveReplayRecordDoc["meta"]>,
-  ): void;
+  markWindowComplete(sessionId: string, meta: NonNullable<LiveReplayRecordDoc["meta"]>): void;
   /**
    * The persisted COMPLETE record (`null` when the session has no
    * genuinely completed window persisted — partial/interrupted windows

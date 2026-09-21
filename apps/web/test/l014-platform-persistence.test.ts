@@ -1,7 +1,11 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import type { LiveReplayRecordDoc, LiveWorldFrameDoc } from "../src/lib/live-sse";
 import { createSseLiveTransport } from "../src/server/live/transport";
-import type { LiveScheduler, LiveSourceRegistration, LiveTransport } from "../src/server/live/transport";
+import type {
+  LiveScheduler,
+  LiveSourceRegistration,
+  LiveTransport,
+} from "../src/server/live/transport";
 import { liveReplaySink, withDurableReplayRecord } from "../src/server/live/persistence";
 import type { LiveReplayPersistence } from "../src/server/live/persistence";
 import { SqliteLiveReplayStore } from "../src/server/platform/live/sqlite-replay-store";
@@ -129,9 +133,7 @@ async function runWindowToEnd(
         ?.slice(6);
       if (dataLine !== undefined) frames.push(JSON.parse(dataLine) as LiveWorldFrameDoc);
     } else if (block.includes("event: close")) {
-      closeReason = block.includes("live-window-complete")
-        ? "live-window-complete"
-        : "other";
+      closeReason = block.includes("live-window-complete") ? "live-window-complete" : "other";
     }
   }
   subscriber.close();

@@ -102,12 +102,8 @@ export class SqliteLiveReplayStore implements LiveReplayPersistence {
     if (frame.ordinal === 1) {
       // A NEW window supersedes the session's old rows honestly (the
       // newest window the transport actually served is the record).
-      this.#db
-        .query("DELETE FROM sporta_live_replay_windows WHERE session_id = ?")
-        .run(sessionId);
-      this.#db
-        .query("DELETE FROM sporta_live_replay_frames WHERE session_id = ?")
-        .run(sessionId);
+      this.#db.query("DELETE FROM sporta_live_replay_windows WHERE session_id = ?").run(sessionId);
+      this.#db.query("DELETE FROM sporta_live_replay_frames WHERE session_id = ?").run(sessionId);
     }
     this.#db
       .query(
@@ -133,10 +129,7 @@ export class SqliteLiveReplayStore implements LiveReplayPersistence {
       .run(sessionId, sessionId);
   }
 
-  markWindowComplete(
-    sessionId: string,
-    meta: NonNullable<LiveReplayRecordDoc["meta"]>,
-  ): void {
+  markWindowComplete(sessionId: string, meta: NonNullable<LiveReplayRecordDoc["meta"]>): void {
     this.#assertOpen();
     const result = this.#db
       .query(
@@ -186,8 +179,8 @@ export class SqliteLiveReplayStore implements LiveReplayPersistence {
     // Deep-clone-on-read: every parse is a fresh object graph — the served
     // record can never be mutated into the store's state (the J014
     // store's deep-clone-on-read rule, same reason).
-    const frames = frameRows.map((frameRow) =>
-      JSON.parse(frameRow.frame_json) as LiveWorldFrameDoc,
+    const frames = frameRows.map(
+      (frameRow) => JSON.parse(frameRow.frame_json) as LiveWorldFrameDoc,
     );
     return {
       schemaVersion: "sporta.live-replay/1",
@@ -215,7 +208,9 @@ export class SqliteLiveReplayStore implements LiveReplayPersistence {
   listInterruptedWindows(): { sessionId: string; frames: number }[] {
     this.#assertOpen();
     const rows = this.#db
-      .query("SELECT session_id, frame_count FROM sporta_live_replay_windows WHERE state != 'complete'")
+      .query(
+        "SELECT session_id, frame_count FROM sporta_live_replay_windows WHERE state != 'complete'",
+      )
       .all() as { session_id: string; frame_count: number }[];
     return rows.map((row) => ({ sessionId: row.session_id, frames: row.frame_count }));
   }

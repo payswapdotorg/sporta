@@ -748,7 +748,9 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       active: liveTransportActive(),
       nowMs,
       cadenceMs: liveCadenceMs(),
-      ...(options.liveReplay !== undefined ? { recordSink: liveReplaySink(options.liveReplay) } : {}),
+      ...(options.liveReplay !== undefined
+        ? { recordSink: liveReplaySink(options.liveReplay) }
+        : {}),
     });
   const live =
     options.liveReplay !== undefined
