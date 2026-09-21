@@ -80,6 +80,12 @@ import { QueueFullError, RateLimitedError, retryAfterSeconds } from "./platform/
 import { DERBY_STORY, FRIENDLY_STORY, TRAINING_STORY, runFixtureStory } from "./dev-story";
 import type { FixtureStorySpec, StoryRun } from "./dev-story";
 import type { SessionVisibility } from "./publication";
+import {
+  planeTransparencyOf,
+  selectionTransparencyOf,
+  withMeasuredUsage,
+} from "./compute-transparency";
+import type { SelectionTransparencyView, PlaneTransparencyView } from "./compute-transparency";
 
 /**
  * A collision-safe crypto-random id (W921): 16 bytes of REAL platform
@@ -383,11 +389,7 @@ export interface StudioRenderPlan {
    * directive rode the submission and at least one dispatch verified it —
    * the user's sporta-auto or user-explicit choice, explained verbatim).
    */
-  selection?: {
-    providerId: string;
-    mode: "user-explicit" | "sporta-auto";
-    explanation: SelectionExplanation;
-  };
+  selection?: StudioComputeSelectionRecord;
 }
 
 /** The studio's session state (GET /api/create/sessions/[sessionId]). */
@@ -429,11 +431,7 @@ export interface StudioSessionState {
      * executing — provider + user-choice/auto mode + the auditable
      * explanation VERBATIM. Absent when the dispatch carried no directive.
      */
-    selection?: {
-      providerId: string;
-      mode: "user-explicit" | "sporta-auto";
-      explanation: SelectionExplanation;
-    };
+    selection?: StudioComputeSelectionRecord;
   }[];
 }
 
@@ -457,11 +455,7 @@ export interface StudioDispatchView {
    * directive and the auditable explanation document — present when the
    * dispatch carried a compute directive.
    */
-  selection?: {
-    providerId: string;
-    mode: "user-explicit" | "sporta-auto";
-    explanation: SelectionExplanation;
-  };
+  selection?: StudioComputeSelectionRecord;
 }
 
 /** The job progress view (GET /api/create/sessions/[sessionId]/jobs/[jobId]). */
@@ -484,11 +478,7 @@ export interface StudioJobView {
    * explanation VERBATIM. Absent when the dispatch carried no directive
    * (the honest boundary — nothing is invented).
    */
-  selection?: {
-    providerId: string;
-    mode: "user-explicit" | "sporta-auto";
-    explanation: SelectionExplanation;
-  };
+  selection?: StudioComputeSelectionRecord;
   ingest: { status: "pending" | "stored" | "failed" | "none"; error?: string };
   completion?: {
     status: "succeeded" | "failed" | "cancelled";
@@ -535,6 +525,15 @@ export interface StudioComputeStatus {
   quotas: PlatformQuotaState[];
   /** The plane's metered usage totals (`null` = not measured — never a 0). */
   usage: { unitId: string; quantity: number }[] | null;
+  /**
+   * J006 — THE TRANSPARENCY DOCUMENT: the six acceptance fields (compute
+   * source, provider, selection reason, measured allowance/cost, privacy
+   * posture, fallback state) projected from the REAL seams — the exact
+   * shapes the UI lane consumes (docs/status/j006-backend-compute-
+   * transparency.md). `plane`/`quotas`/`usage` stay for compatibility;
+   * `transparency` is where the six fields live as ONE document.
+   */
+  transparency: PlaneTransparencyView;
 }
 
 /** The publication answer (POST /api/create/sessions/[sessionId]/publication). */
@@ -572,7 +571,23 @@ export interface StudioJobRow {
 // R501 — the compute-selection surface (the REAL SelectionDirector)
 // ---------------------------------------------------------------------------
 
-/** The caller's selection directive (the R407 vocabulary, verbatim). */
+/**
+ * The selection record EVERY selection-carrying surface shares (R506 +
+ * J006): the provider/mode/explanation VERBATIM plus the six-field
+ * transparency document computed ONCE at the decision moment (every
+ * surface shows the same document — never a re-derived drift).
+ */
+export interface StudioComputeSelectionRecord {
+  providerId: string;
+  mode: "user-explicit" | "sporta-auto";
+  explanation: SelectionExplanation;
+  /** J006: the six acceptance fields (see ./compute-transparency.ts). */
+  transparency: SelectionTransparencyView;
+}
+
+/**
+ * The caller's selection directive (the R407 vocabulary, verbatim).
+ */
 export interface StudioComputeDirective {
   mode: "user-explicit" | "sporta-auto";
   providerId?: string;
@@ -584,6 +599,14 @@ export interface StudioComputeDirective {
     capabilityClass?: string;
   };
 }
+
+/**
+ * The J006 transparency document that rides EVERY selection-carrying
+ * surface — see {@link StudioComputeSelectionRecord} (the canonical shape)
+ * and `./compute-transparency.ts` (the projection; the shapes doc for the
+ * UI lane lives at `docs/status/j006-backend-compute-transparency.md`).
+ */
+export type StudioSelectionTransparency = StudioComputeSelectionRecord;
 
 /**
  * The compute step's answer (POST /api/create/compute-preview): the REAL
@@ -604,6 +627,12 @@ export interface StudioComputeSelectionView {
   selection: { providerId: string };
   /** The auditable explanation document (the R407 shape, verbatim). */
   explanation: SelectionExplanation;
+  /**
+   * J006: the six-field transparency document for THIS selection (the
+   * acceptance fields the Create compute step renders — the same
+   * projection every selection-carrying surface serves).
+   */
+  transparency: SelectionTransparencyView;
 }
 
 /** One session's jobs with its header (the Jobs workspace row group). */
@@ -760,11 +789,7 @@ export class CreateStudioService {
        * view and the watch surface. Absent when no directive rode the
        * dispatch (never invented).
        */
-      selection?: {
-        providerId: string;
-        mode: "user-explicit" | "sporta-auto";
-        explanation: SelectionExplanation;
-      };
+      selection?: StudioComputeSelectionRecord;
     }
   >();
   private policySeq = 0;
@@ -1751,6 +1776,11 @@ export class CreateStudioService {
       },
       selection: { providerId: outcome.selection.providerId },
       explanation: outcome.explanation,
+      // J006: the six-field transparency document for THIS selection —
+      // the acceptance fields the Create compute step renders (the exact
+      // same projection every other selection-carrying surface serves —
+      // one shape, one truth, no drift between surfaces).
+      transparency: selectionTransparencyOf(server, outcome.explanation),
     };
   }
 
@@ -1791,10 +1821,21 @@ export class CreateStudioService {
               capabilityClasses: [...(server.selection.facts.capabilityClasses ?? [])],
             },
           };
+    const [allowance, measuredUsage] = await Promise.all([
+      server.guardrails.userQuotaStates(account.userId),
+      server.guardrails.computeUsageTotals(),
+    ]);
     return {
       plane,
-      quotas: await server.guardrails.userQuotaStates(account.userId),
-      usage: await server.guardrails.computeUsageTotals(),
+      quotas: allowance,
+      usage: measuredUsage,
+      // J006: the six acceptance fields as ONE document — the same seam
+      // data as `plane`/`quotas`/`usage`, projected into the Create
+      // surface's transparency vocabulary (never a second truth).
+      transparency: planeTransparencyOf(server, {
+        allowance,
+        measuredUsage,
+      }),
     };
   }
 
@@ -1877,6 +1918,11 @@ export class CreateStudioService {
         providerId: outcome.selection.providerId,
         mode: input.compute.mode,
         explanation: outcome.explanation,
+        // J006: the six-field transparency document — computed ONCE at the
+        // decision moment and carried with the selection everywhere it
+        // rides (dispatch answer, job view, session rows, watch provenance):
+        // every surface shows the SAME document, never a re-derived drift.
+        transparency: selectionTransparencyOf(server, outcome.explanation),
       };
     }
 
@@ -2047,11 +2093,25 @@ export class CreateStudioService {
             }),
       })),
       ...(job.renderId !== undefined ? { renderId: job.renderId } : {}),
-      // R506: the compute selection the dispatch carried — whose compute is
-      // executing this job, carried VERBATIM (absent when no directive rode
-      // the dispatch; never invented).
+      // R506 + J006: the compute selection the dispatch carried — whose
+      // compute is executing this job, carried VERBATIM (absent when no
+      // directive rode the dispatch; never invented). At TERMINAL state
+      // the transparency's measured-allowance/cost field gains the job's
+      // own METERED usage (the adapter's measurements, labeled as such —
+      // never mixed with the selection-time estimate).
       ...(this.dispatchesByJob.get(jobId)?.selection !== undefined
-        ? { selection: this.dispatchesByJob.get(jobId)!.selection }
+        ? {
+            selection:
+              job.completion !== undefined
+                ? withMeasuredUsage(
+                    this.dispatchesByJob.get(jobId)!.selection!,
+                    job.completion.usage.costUnits.map((unit) => ({
+                      unitId: unit.unitId,
+                      quantity: unit.quantity,
+                    })),
+                  )
+                : this.dispatchesByJob.get(jobId)!.selection,
+          }
         : {}),
       ingest: job.ingest,
     };
@@ -2146,6 +2206,37 @@ export class CreateStudioService {
       });
     }
     return { sessionId, label, status: session.status, jobs: rows };
+  }
+
+  /**
+   * The session's per-render COMPUTE PROVENANCE (J006 Watch side): the
+   * selection record for every render THIS instance dispatched under a
+   * compute directive, keyed by the control plane's render id. Honest
+   * boundaries: renders whose dispatch carried no directive, or whose
+   * dispatch this instance never saw (a cold restart — the documented
+   * W921 per-instance boundary), carry NO entry — never an invented
+   * provenance. Watch-side viewers see the provider/selection-reason/
+   * privacy/fallback facts (the caller-scoped allowance stays on the
+   * studio's own authenticated surfaces).
+   */
+  async renderComputeProvenance(
+    sessionId: string,
+  ): Promise<Map<string, StudioComputeSelectionRecord>> {
+    const server = this.getServer();
+    const provenance = new Map<string, StudioComputeSelectionRecord>();
+    for (const jobId of this.jobsBySession.get(sessionId) ?? []) {
+      const selection = this.dispatchesByJob.get(jobId)?.selection;
+      if (selection === undefined) continue;
+      try {
+        const job = await server.control.getComputeJob(sessionId, jobId);
+        if (job.renderId !== undefined) {
+          provenance.set(job.renderId, selection);
+        }
+      } catch {
+        // An unreadable job carries no render join — the honest absence.
+      }
+    }
+    return provenance;
   }
 
   /** Publishes or privatizes a session (the real visibility flag). */

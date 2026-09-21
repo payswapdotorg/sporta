@@ -39,7 +39,11 @@
  */
 import type { StudioJobRow } from "./create-studio-service";
 import { AuthFlowError } from "./auth-service";
-import { controlPlaneOverrideOf, platformSnapshot } from "./platform-health";
+import {
+  controlPlaneOverrideOf,
+  identityPlaneOverrideOf,
+  platformSnapshot,
+} from "./platform-health";
 
 import {
   IdentityPermissionDeniedError,
@@ -49,7 +53,14 @@ import {
 import type { Account } from "@sporta/identity";
 import type { ComputeAdapterPort } from "@sporta/compute-adapter";
 import type { SportaServer } from "./composition";
-import { deployMarker, platformEnv, r2Configured, upstashConfigured } from "./platform/env";
+import {
+  authorizedLiveProviderPanel,
+  deployMarker,
+  platformEnv,
+  r2Configured,
+  upstashConfigured,
+} from "./platform/env";
+import type { AuthorizedLiveProviderHealthPanel } from "@sporta/live-authorized";
 import { neonClient } from "./platform/db/pg";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
@@ -183,6 +194,12 @@ export interface OperationsProviderUsageView {
 /** The providers panel's snapshot. */
 export interface OperationsProvidersView {
   providers: OperationsProviderUsageView[];
+  /**
+   * The authorized live provider capability (L009): the honest
+   * blocked/ready panel — binding PRESENCE only (never secret values),
+   * with the exact missing binding names while blocked.
+   */
+  liveAuthorized: AuthorizedLiveProviderHealthPanel;
   notes: string[];
 }
 
@@ -578,9 +595,14 @@ export class OperationsService {
         upstash,
         compute,
       ],
+      // L009: the authorized live provider panel — binding presence only,
+      // honestly `blocked` with the exact missing names until credentials
+      // + feed access exist (secret values never surface).
+      liveAuthorized: authorizedLiveProviderPanel(),
       notes: [
         STORE_LIMITS_NOTE,
         "the W919 ledger evaluates measured usage against the documented free-tier thresholds (checked 2026-09-15 — docs/deployment/free-tier-matrix.md); unmeasured limits are honest unknowns, never estimates",
+        "the authorized live provider panel (liveAuthorized) reports binding PRESENCE only — the L009 record: blocked until SKILLCORNER_USERNAME/PASSWORD/MATCH_ID + contractual feed access exist (docs/status/l009-authorized-provider-adapter.md)",
       ],
     };
   }
@@ -952,7 +974,13 @@ export async function buildOperations(
   server: SportaServer,
   token: string,
 ): Promise<OperationsModel> {
-  const health = await platformSnapshot(controlPlaneOverrideOf(server));
+  // J007/J014: the health board's control-plane AND identity rows report the
+  // RUNNING composition's actual backing (the local sqlite stores the Bun
+  // runtime constructed are invisible to the env-derived rows).
+  const health = await platformSnapshot({
+    ...controlPlaneOverrideOf(server),
+    ...identityPlaneOverrideOf(server),
+  });
   const live = server.live;
 
   // Failed jobs, operator scope: every session's dispatched jobs, read

@@ -4,12 +4,16 @@
  *
  * ⚠️ DEV BACKING, HONESTLY LABELED: everything this root constructs is real
  * (a real control app over a real renderer registry and a real render-output
- * store; real identity stores; the real capability composition) but it is all
- * IN-PROCESS — accounts, sessions, media sessions, renders and stored outputs
- * live in this Node/Bun process and disappear on restart. The hosted backing
- * (Neon control-plane state, R2 artifacts, Upstash queues — W910-W914) is
- * Worker B's wave; the seam for it is EXACTLY this module: route handlers
- * consume {@link SportaServer}'s ports and never construct services, so the
+ * store; real identity stores; the real capability composition). Under the
+ * real Bun runtime the LOCAL planes are DURABLE sqlite files — identity
+ * (J014: accounts + login sessions), control-plane records, media records,
+ * ownership and compute connections all survive restarts/redeploys against
+ * this machine's files; under the bundled Node runtime (no `bun:sqlite`)
+ * those planes fall back to in-process stores with the loud banner (the
+ * W911 doctrine). The hosted backing (Neon control-plane state, R2
+ * artifacts, Upstash queues — W910-W914) remains the production shape; the
+ * seam for it is EXACTLY this module: route handlers consume
+ * {@link SportaServer}'s ports and never construct services, so the
  * backing can be swapped here without touching a single route.
  *
  * Composition (all frozen packages, wired the documented way):
@@ -55,6 +59,7 @@ import type { WorldModelEngine as WorldModelEngineInstance } from "@sporta/world
 import {
   InMemoryAccountStore,
   InMemoryMediaOwnershipStore,
+  SessionService,
   createIdentityControlGate,
   defaultEntropySource,
 } from "@sporta/identity";
@@ -64,7 +69,6 @@ import type {
   IdentityControlGate,
   MediaOwnershipStore,
   PasswordHasher,
-  SessionService,
 } from "@sporta/identity";
 import { argon2PasswordHasher } from "@sporta/identity";
 import {
@@ -85,6 +89,8 @@ import { neonClient } from "./platform/db/pg";
 import { PgControlPlaneRecordStore } from "./platform/control/pg-records";
 import { SqliteControlPlaneRecordStore } from "./platform/control/sqlite-records";
 import { SqliteMediaOwnershipStore } from "./platform/identity/sqlite-ownership";
+import { SqliteAccountStore } from "./platform/identity/sqlite-accounts";
+import { SqliteSessionStore } from "./platform/identity/sqlite-sessions";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
@@ -119,7 +125,8 @@ import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
 import { createRightsGovernedControl } from "./rights-governed-control";
 import { OperationsService } from "./operations-service";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
-import type { LiveTransport } from "./live";
+import { createLiveTelemetryService, withLiveTelemetry } from "./live";
+import type { LiveTelemetryService, LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
@@ -341,6 +348,14 @@ export interface SportaServer {
    * (SPORTA_LIVE_TRANSPORT=sse); the capability response is wired to it.
    */
   live: LiveTransport;
+  /**
+   * The live telemetry service (L006): the frozen live-reality.md §9
+   * counters per live session, collected at the REAL pipeline seams (the
+   * view-model's ingest/SWM/render stage reports + the transport's
+   * delivery stamps and counted frame drops). Served operator-gated at
+   * `GET /api/operations/live-telemetry`.
+   */
+  liveTelemetry: LiveTelemetryService;
   /**
    * The hosted transient state (W913): the bounded render job queue, the
    * quota/rate-limit counters, and the small TTL cache, over the REAL
@@ -689,13 +704,21 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     SPORTA_LIVE_TRANSPORT=sse; the dev seed registers the
   //     live-authorized sessions' story timelines as its live sources. The
   //     composition root is the ONLY env reader (the documented convention).
-  const live =
+  //     L006: the transport is wrapped by the telemetry decorator — tactical
+  //     registrations get the per-session probe injected (the producer's
+  //     stage reports) and every consumer-pulled world frame is stamped at
+  //     the delivery boundary. The wire bytes are unchanged.
+  const liveTelemetry = createLiveTelemetryService({ nowMs });
+  const live = withLiveTelemetry(
     options.liveTransport ??
-    createSseLiveTransport({
-      active: liveTransportActive(),
-      nowMs,
-      cadenceMs: liveCadenceMs(),
-    });
+      createSseLiveTransport({
+        active: liveTransportActive(),
+        nowMs,
+        cadenceMs: liveCadenceMs(),
+      }),
+    liveTelemetry,
+    nowMs,
+  );
 
   // 6a. The transient state (W913): the bounded render queue, the quota
   //     counters, and the small TTL cache. Injected for tests; otherwise the
@@ -880,6 +903,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     operations,
     computeCenter,
     live,
+    liveTelemetry,
     transientState,
     guardrails,
     media,
@@ -983,6 +1007,18 @@ async function buildSingleton(): Promise<SportaServer> {
     // durable path is never silently undurable).
     let controlRecords: ControlPlaneRecordStore | undefined;
     let ownership: MediaOwnershipStore | undefined;
+    // J014 — the LOCAL durable IDENTITY plane: the same gate, closing the
+    // deployment-shape analysis's documented gap ("making identity locally
+    // durable would require sqlite account/session stores"). Accounts AND
+    // login sessions (only SHA-256 token hashes) ride one sqlite file, so a
+    // REAL process restart keeps the signed-in user (the browser's cookie
+    // still resolves) — the acceptance: user/session/artifacts survive
+    // restart/redeploy with zero developer intervention. The bundled Node
+    // runtime cannot construct it (the W911 shim refusal → the honest
+    // in-memory fallback + banner: users re-sign-in after a Node-runtime
+    // restart); the hosted Neon gate remains the production shape.
+    let durableAccounts: AccountStore | undefined;
+    let durableSessions: SessionService | undefined;
     if (runningUnderBun()) {
       const controlDbPath = process.env.SPORTA_CONTROL_DB ?? "db/control-plane.db";
       try {
@@ -1010,10 +1046,26 @@ async function buildSingleton(): Promise<SportaServer> {
             "the Library's ownership records do not persist across restarts under Node",
         );
       }
+      const identityDbPath = process.env.SPORTA_IDENTITY_DB ?? "db/identity.db";
+      try {
+        mkdirSync(dirname(identityDbPath), { recursive: true });
+        durableAccounts = new SqliteAccountStore(identityDbPath);
+        durableSessions = new SessionService({ store: new SqliteSessionStore(identityDbPath) });
+      } catch (error) {
+        if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+          throw error;
+        }
+        console.error(
+          "[sporta] identity (accounts + login sessions) is IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "users must sign in again after a restart — the durable sqlite identity runs under the real Bun runtime",
+        );
+      }
     }
     return createSportaServer({
       nowMs: Date.now,
       passwordHasher: runningUnderBun() ? argon2PasswordHasher : nodeScryptPasswordHasher,
+      ...(durableAccounts !== undefined ? { accounts: durableAccounts } : {}),
+      ...(durableSessions !== undefined ? { sessions: durableSessions } : {}),
       ...(artifacts !== null ? { artifacts } : {}),
       transient,
       seed,

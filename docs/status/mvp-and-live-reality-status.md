@@ -1,6 +1,6 @@
 # Sporta MVP + Live Reality Status
 
-Status: WAVE 2 — WORKER C LANE DELIVERED on branch work/j006ui-j013-l005-l013 (J006 UI + J013 + L005 full + L013; gates: lint/typecheck/format clean, full battery 6374 pass / 0 NEW failures vs the recorded clean-clone baseline); A + B lanes in flight (parallel)
+Status: WAVE 2 — ALL THREE LANES DELIVERED. A lane MERGED on main (L003/L004/L007/L008/L011 @a90ef12, CI green @ae075b5); C lane MERGED (L005/L013/J006-UI/J013 @ae075b5 + the Wave-3 follow-on l014pres-fidelity-anime); B lane DELIVERED on branch work/j006b-j014-l006-l009 (J006 backend + J014 + L006 + L009; L006 TL-verified PASS at its checkpoint; gates on the branch: lint/typecheck/format clean, lane batteries green — the full-battery baseline note below)
 Date: 2026-09-21 (Wave 2)
 
 ## Completed foundation
@@ -39,15 +39,47 @@ J001-J015:
   implementation + sensitivity tests pending (peak-hours capacity churn
   killed the worker's turn; sentinel re-nudges; sandbox TTL expired —
   re-entry law resumes from the branch).
-- J006: UI DELIVERED (Worker C wave 2, branch work/j006ui-j013-l005-l013): the
+- J006: COMPLETE (both halves). UI: Worker C wave 2, MERGED @ae075b5 — the
   compute-transparency panels on Create AND Watch rendering the six facts
   (compute source, provider, selection reason, measured allowance/cost,
   privacy posture, fallback state) from the EXISTING route contracts
   (compute-status + compute-preview + the J004 plan selection + the job
   views), honest unknowns everywhere (never invented numbers), the declared
   no-silent-fallback posture + typed refusal rendering, 22-test
-  pure-derivation battery; the BACKEND surfaces are Worker B's parallel
-  wave-2 lane (TL reconciles when both land).
+  pure-derivation battery. BACKEND: Worker B wave 2, branch
+  work/j006b-j014-l006-l009 (@44525c4 + fixup @c338189) — the six
+  acceptance fields served by the API layer on EVERY compute-carrying
+  route (compute-status `transparency` document; the SAME
+  `StudioComputeSelectionRecord` riding compute-preview/dispatch/jobs/
+  session-state/watch), measured allowance/cost strictly from the existing
+  compute-adapter metering + W901 quota seams (estimates and measurements
+  separately labeled, never conflated), the no-plane fail-closed posture
+  (nulls + posture "no-plane", never invented facts), the refusal posture
+  (explicit selections refuse loudly — the typed 422 with every recorded
+  reason, never a silent substitution), route-level battery 18/18
+  (apps/web/test/j006-compute-transparency.test.ts, 532 lines) + the exact
+  wire-shape handoff doc (docs/status/j006-backend-compute-transparency.md);
+  reconciled additively with C's UI at merge (the UI derives its views from
+  the existing contracts; the backend documents are the same data computed
+  once at the decision moment + the measured/fail-closed increments).
+- J014: COMPLETE (Worker B wave 2, branch work/j006b-j014-l006-l009 @25c238c)
+  — the local durable IDENTITY plane closes J007's documented gap: sqlite
+  account + session stores over `bun:sqlite` (the W911 port shapes
+  mirrored; only SHA-256 token hashes on disk; WAL + busy-timeout), wired
+  at the composition's env gate (the honest in-memory fallback + banner
+  under the bundled Node runtime; Neon remains the production shape), the
+  honest health surface (identity row reports sqlite with a LIVE read —
+  /api/platform/health + the Operations board), and the REAL
+  process-restart battery (apps/web/test/j014-restart-redeploy.test.ts:
+  three REAL child processes over one scratch — fresh journey → restart
+  resolves the STILL-OLD token + Library/Watch/bytes recover → redeploy
+  serves the anonymous public path; bytes-on-disk proof; 4/4 + 38
+  assertions; server+tests in ONE invocation) + the public-route
+  in-memory audit (every family classified durable/reconstructed/
+  ephemeral-by-design/per-instance — no undisclosed in-memory state on the
+  public path; docs/status/j014-restart-redeploy-durability.md). The
+  hosted Neon/R2 redeploy gate remains J007's recorded external
+  dependency.
 - J013: DELIVERED (Worker C wave 2, MERGED @ae075b5) — the sensitivity gate —
   pure verdict/premise derivations (the material-difference measurement + the
   4-verdict truth table incl. the explicit equivalence explanation) + the
@@ -84,10 +116,10 @@ R607: BLOCKED until J001-J015 and final proof conditions pass.
 | L005 live tactical renderer | FULL (Worker C wave 2, MERGED @ae075b5 — TL-verified incl. 777/777 web battery clean-env): the pure view projection (apps/web/src/lib/live-tactical-view.ts — exact-math fixture battery: coordinates, radii, colors, STABLE identity labels, watchdog math) + the full browser surface (identity-continuous markers with stable labels, pinned entity inspector, honest event ticker, receipt-watchdog stall overlay — never a frozen picture) + event-driven updates over W915 (no polling) + one seeded session per L002 delivery scenario (all six: normal/jitter/delay/drop/out-of-order/reconnect) + 21-test battery (fixtures + every scenario's honest signature + identity-continuity pinning across every window) |
 | L003 incremental SWM updater | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-swm — a DRIVER over the injected canonical WorldModelEngine (no second world model), the batch pass's own no-op guard + per-entity replay frontier (beyond-window lates dropped with an explicit counter, never a position rewind), verbatim confidence/provenance/uncertainty, extrapolation marking (§9), the memoryless incremental possession recompute (the batch formula/tie rule, reused verbatim), the D5 LiveUpdateReport, the W005 continuity bridge with replay-equality proven across all six L002 scenarios (36/36 tests) |
 | L004 temporal buffer/watermark | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-temporal — per-source event-time watermarks (frozen shape, conservative + monotone, property-tested), bounded reorder buffer with honest late/duplicate/overflow accounting, recompute-based sequence-hole model, STALLED/DEGRADED latch + flush, verbatim L002 recovery consumption, every §9 counter this stage owns; the D4 six-scenario acceptance matrix pinned (57/57 tests) |
-| L006 live telemetry | NOT_STARTED (Wave 2, Worker B+C) |
+| L006 live telemetry | WORKER-B HALF COMPLETE (Wave 2, branch work/j006b-j014-l006-l009, TL-verified PASS at the L006 checkpoint): packages/live-source/src/telemetry.ts — the frozen §9 counter core (source-to-ingest, ingest-to-SWM, SWM-to-render, end-to-end latency; dropped/extrapolated updates + frame drops; real clocks only at the delivery seams, injectable everywhere) + apps/web server/live/telemetry.ts — the transport decorator (delivery-boundary stamps + per-session producer probe injection; the wire bytes unchanged) + GET /api/operations/live-telemetry (operator-gated ops surface) — 857 lines of deterministic batteries (packages/live-source/test/telemetry.test.ts 568 + apps/web/test/live-telemetry.test.ts 289) driving the L002 delivery scenarios to EXACT counts; the §9 counters ride the same seams L004/L003 already expose. Worker C's UI half lands with C's lane |
 | L007 SkillCorner/open-data replay adapter | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-open-data — the SkillCorner opendata replay adapter (the recorded published schema, fetched 2026-09-21; provider fields normalize at the seam — the possession hypothesis and image-corner projection never reach a product contract) driving the EXACT live path (adapter → L004 → L003 → the canonical engine, with the D6 replay equality); DEV-TIME real-data verification recorded (15 real frames of match 2017461 through the full composition); NO sample data committed (format-fixtures only) (17/17 tests) |
 | L008 live provider TechnologyProfile | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-open-data/src/profiles.ts — SkillCorner opendata registered as the REAL candidate (code+dataset MIT per the repository LICENSE fetched 2026-09-21, blockingLicenseIssues EMPTY) and Metrica sample-data registered as the EXPLICITLY BLOCKED candidate (NO license file — attribution request only — both components unresolved, blockingLicenseIssues non-empty: the R004 fail-closed rule), both through the frozen TechnologyProfile contract with capabilities/data format/rate/provenance/license/failure classes |
-| L009 authorized live provider adapter | BLOCKED UNTIL FEED ACCESS EXISTS |
+| L009 authorized live provider adapter | BLOCKED ON FEED ACCESS — ADAPTER SHAPE DELIVERED (Worker B, Wave 2, branch work/j006b-j014-l006-l009): packages/live-authorized — the env-driven SkillCorner gate (the provider SDK's own binding names SKILLCORNER_USERNAME/PASSWORD/MATCH_ID; incomplete sets = the honest `blocked` with the exact missing names, secrets never surface), the pull-based adapter over the RECORDED endpoint (GET /api/match/{id}/tracking, HTTP Basic, DRF pagination — every transport fact FETCHED 2026-09-21 from the provider's own SDK v3.2.0 + the opendata schema of record), strict-on-consumed/ counting-unknown frame parsing (unknownFieldKinds = the activation verification hook), the §6 TechnologyProfile with the honestly-unresolved DATASET component (blockingLicenseIssues non-empty — R004 fail-closed), and the operator-visible liveAuthorized panel on GET /api/operations/providers (36/36 + 3/3 tests; format-fixtures only, no sample data). Activation = the three bindings + the first-pull schema review + the data-use record — see docs/status/l009-authorized-provider-adapter.md |
 | L010 broadcast-to-live perception benchmark | HARNESS COMPLETE (Worker A wave 1, merged bccf89c); the Wave 2 runtime-backed increment is delivered as the L011 seam evidence (a real decoded clip through the production perception path, per frame, with the L011 integration test measuring the full live composition); real model inference remains W303-blocked (RF-DETR weights never committed) |
 | L011 broadcast perception runtime seam | MERGED @a90ef12 (TL-verified 193/193 + typecheck x5 + lint + format; CI green @ae075b5): packages/live-perception — the per-frame seam (tracked boxes + ball detections + the required pitch calibration → frozen LiveObservation with sourceType BROADCAST_PERCEPTION; the batch-bridge projection imported, not forked; track ids verbatim) + the clip-driven source (decode → the contrast-context production path → track → the seam, incremental); the integration test drives a real generated MP4 through L004 → L003 into the ONE canonical engine with NO renderer changes and NO second SWM (11/11 tests) |
 | L012 multi-source evidence fusion | NOT_STARTED (Wave 3, Worker A) |

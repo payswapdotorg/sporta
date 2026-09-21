@@ -14,7 +14,11 @@
  * credentials (a LIVE read through the real store), or the honest
  * in-memory state.
  */
-import { platformSnapshot, controlPlaneOverrideOf } from "@/server/platform-health";
+import {
+  platformSnapshot,
+  controlPlaneOverrideOf,
+  identityPlaneOverrideOf,
+} from "@/server/platform-health";
 import { getSportaServer } from "@/server/runtime";
 import { jsonRespond, newRequestId } from "@/server/platform/api-utils";
 
@@ -24,6 +28,12 @@ export async function GET(): Promise<Response> {
   const requestId = newRequestId();
   const server = await getSportaServer();
   await server.ready;
-  const snapshot = await platformSnapshot(controlPlaneOverrideOf(server));
+  // J007/J014: the control-plane AND identity rows report the RUNNING
+  // composition's actual backing (the env-derived rows cannot see the local
+  // sqlite stores the Bun runtime constructed).
+  const snapshot = await platformSnapshot({
+    ...controlPlaneOverrideOf(server),
+    ...identityPlaneOverrideOf(server),
+  });
   return jsonRespond(200, snapshot, requestId);
 }

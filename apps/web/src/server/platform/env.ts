@@ -13,6 +13,8 @@
  *   `beta-personal` has all.
  * - Names are the documented ones (DEPLOYMENT.md owns the list).
  */
+import { authorizedLiveProviderHealth } from "@sporta/live-authorized";
+import type { AuthorizedLiveProviderHealthPanel } from "@sporta/live-authorized";
 
 /** Names of the environment variables this module reads (docs surface). */
 export const PLATFORM_ENV_VARS = [
@@ -27,6 +29,10 @@ export const PLATFORM_ENV_VARS = [
   "R2_BUCKET_REGION",
   "UPSTASH_REDIS_REST_URL",
   "UPSTASH_REDIS_REST_TOKEN",
+  "SKILLCORNER_USERNAME",
+  "SKILLCORNER_PASSWORD",
+  "SKILLCORNER_MATCH_ID",
+  "SKILLCORNER_API_BASE",
 ] as const;
 
 /** The deployment environment tier (`docs/architecture/deployment-architecture.md`). */
@@ -107,6 +113,19 @@ export function r2Configured(): boolean {
 /** Whether the Neon binding is present. */
 export function neonConfigured(): boolean {
   return neonDatabaseUrl() !== undefined;
+}
+
+/**
+ * The authorized live provider panel (L009): binding PRESENCE only — the
+ * provider's own env naming convention (`SKILLCORNER_USERNAME` /
+ * `SKILLCORNER_PASSWORD` / `SKILLCORNER_MATCH_ID`, the recorded SDK facts).
+ * Secret values never surface; an incomplete set is the honest `blocked`
+ * with the exact missing binding names. The pure implementation lives in
+ * `@sporta/live-authorized` (fixture-tested there); this is the app's
+ * single process-env read point for it.
+ */
+export function authorizedLiveProviderPanel(): AuthorizedLiveProviderHealthPanel {
+  return authorizedLiveProviderHealth(process.env);
 }
 
 /** Whether BOTH Upstash bindings are present (URL + token). */

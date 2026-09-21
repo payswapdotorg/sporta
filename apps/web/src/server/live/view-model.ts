@@ -45,6 +45,7 @@ import { createDeterministicLiveSource } from "@sporta/live-source";
 import type { LiveScenarioKind, LiveSourcePort } from "@sporta/live-source";
 import type { LiveObservation } from "@sporta/live-source";
 import type { LiveWorldFrameDoc } from "@/lib/live-sse";
+import type { LiveTelemetryProbe } from "./telemetry";
 
 /** The honest label of the L002 adapter (verbatim from its metadata). */
 const SYNTHETIC_SOURCE_NOTE = "L002 deterministic synthetic tracking source";
@@ -72,6 +73,14 @@ export interface LiveTacticalRegistration {
   };
   /** The source's honest metadata line (rides the hello + the UI). */
   sourceNote: string;
+  /**
+   * L006 (additive): the live TELEMETRY probe the producer reports its
+   * stage boundaries through (ingest → world-state projection → frame
+   * render). Injected by the telemetry transport decorator; ABSENT → the
+   * producer's behavior is byte-identical to the un-instrumented path
+   * (zero-cost honesty — never a fabricated measurement).
+   */
+  telemetry?: LiveTelemetryProbe;
   /**
    * L014 (additive, presentation side): when `true` the scripted window
    * runs ONCE — the producer answers `null` at exhaustion and the transport
@@ -134,6 +143,7 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
   readonly delivered: number;
 } {
   const config = options.config;
+  const probe = options.telemetry;
   const finite = options.finiteWindow === true;
   let source = freshSource();
   const carried = new Map<string, CarriedEntity>();
@@ -183,6 +193,17 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
       }
       deliveredCount += 1;
       const events: LiveWorldFrameDoc["eventsSincePreviousFrame"] = [];
+
+      // L006 — THE INGEST SEAM: the observation just entered the pipeline
+      // (the pull is the pull-based source's emission moment; the stamp
+      // after it is the ingest acceptance). Absent probe → no report.
+      if (probe !== undefined) {
+        probe.noteIngested({
+          observation,
+          pulledAtMs: startedAtMs,
+          ingestedAtMs: options.nowMs(),
+        });
+      }
 
       // The honest recovery accounting: the missed window rides the frame's
       // own event list — accounted, never smoothed over.
@@ -271,6 +292,17 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
       worldVersion += 1;
       const confidences = [...carried.values()].map((entity) => entity.confidence);
       const undetectedEntities = [...carried.values()].filter((entity) => !entity.detected).length;
+
+      // L006 — THE SWM STAGE: the world-state projection over this
+      // observation completed (the same seam Worker A's L003/L004 engine
+      // reports through when it lands — the frozen shapes, no shared files).
+      if (probe !== undefined) {
+        probe.noteWorldStateUpdated(observation, {
+          swmAtMs: options.nowMs(),
+          extrapolatedEntityRows: undetectedEntities,
+        });
+      }
+
       const generatedAtMs = options.nowMs();
       const frame: LiveWorldFrameDoc = {
         schemaVersion: "sporta.live-tactical/1",
@@ -312,6 +344,10 @@ export function createTacticalFrameProducer(options: TacticalFrameProducerOption
           replayCycle,
         },
       };
+      // L006 — THE RENDER STAGE: the renderer-consumable frame completed.
+      if (probe !== undefined) {
+        probe.noteFrameRendered(observation, { renderedAtMs: generatedAtMs });
+      }
       return { frame, replayCycle };
     },
   };
