@@ -72,6 +72,44 @@ export function controlPlaneOverrideOf(server: {
   };
 }
 
+/**
+ * The composition's IDENTITY-plane override (J014): the env-derived
+ * availability only knows the Neon gate — it CANNOT see the local durable
+ * sqlite identity (accounts + login sessions) the composition constructed
+ * under the real Bun runtime. When the running composition's account store
+ * is the sqlite one, this override reports `sqlite` with a LIVE read through
+ * BOTH real stores (accounts AND the session-token store — null answers are
+ * fine, the engines answered; a corrupt file fails loudly). `undefined`
+ * otherwise: the env-derived identity row stands (neon or in-memory).
+ */
+export function identityPlaneOverrideOf(server: {
+  accounts: { findByUsername(username: string): Promise<unknown>; providerName?: unknown };
+  auth: { sessions: { store: { findByTokenHash(tokenHash: string): Promise<unknown> } } };
+}): { identity: { provider: "sqlite"; check: () => Promise<ProviderCheck> } } | undefined {
+  if ((server.accounts as { providerName?: unknown }).providerName !== "sqlite") {
+    return undefined;
+  }
+  const accounts = server.accounts;
+  const sessionStore = server.auth.sessions.store;
+  return {
+    identity: {
+      provider: "sqlite",
+      check: async () => {
+        try {
+          // REAL reads through both durable identity stores (the fixed probe
+          // names answer null on a healthy file — the read itself is the
+          // proof; corruption or a locked file fails loudly → `error`).
+          await accounts.findByUsername("__sporta_identity_health_probe__");
+          await sessionStore.findByTokenHash("__sporta_identity_health_probe__");
+          return { state: "ok", detail: "sqlite" };
+        } catch {
+          return { state: "error", detail: "sqlite" };
+        }
+      },
+    },
+  };
+}
+
 async function checkNeon(): Promise<ProviderCheck> {
   const sql = neonClient();
   if (sql === null) return { state: "unconfigured" };
@@ -179,9 +217,20 @@ export async function platformSnapshot(overrides?: {
      */
     check?: () => Promise<ProviderCheck>;
   };
+  /**
+   * The composition's ACTUAL identity-plane backing (J014): `sqlite` when
+   * the running composition constructed the local durable identity stores
+   * (the env-derived row cannot see that shape). When omitted, the
+   * env-derived identity availability stands (neon when DATABASE_URL is
+   * configured, in-memory otherwise).
+   */
+  identity?: {
+    provider: "neon" | "sqlite" | "in-memory";
+    /** The live check through the REAL stores (callers pass a real read). */
+    check?: () => Promise<ProviderCheck>;
+  };
 }) {
-  const [neon, r2, upstash, controlPlaneCheck, renderQueue] = await Promise.all([
-    checkNeon(),
+  const [r2, upstash, controlPlaneCheck, renderQueue, identityCheck] = await Promise.all([
     checkR2(),
     checkUpstash(),
     (async (): Promise<ProviderCheck> => {
@@ -193,6 +242,12 @@ export async function platformSnapshot(overrides?: {
       return { state: "ok", detail: provider };
     })(),
     queueObservation(),
+    (async (): Promise<ProviderCheck> => {
+      // J014: the identity row's live check — the override's real read when
+      // the composition holds the sqlite stores, the Neon probe otherwise.
+      if (overrides?.identity?.check !== undefined) return overrides.identity.check();
+      return checkNeon();
+    })(),
   ]);
   const controlPlaneAvailability =
     overrides?.controlPlane === undefined
@@ -201,11 +256,18 @@ export async function platformSnapshot(overrides?: {
           provider: overrides.controlPlane.provider,
           configured: overrides.controlPlane.provider !== "in-memory",
         };
+  const identityAvailability =
+    overrides?.identity === undefined
+      ? providerAvailability().identity
+      : {
+          provider: overrides.identity.provider,
+          configured: overrides.identity.provider !== "in-memory",
+        };
   return {
     env: platformEnv(),
     deployMarker: deployMarker(),
     providers: {
-      identity: { ...providerAvailability().identity, check: neon },
+      identity: { ...identityAvailability, check: identityCheck },
       artifacts: { ...providerAvailability().artifacts, check: r2 },
       transientState: { ...providerAvailability().transientState, check: upstash },
       controlPlane: { ...controlPlaneAvailability, check: controlPlaneCheck },

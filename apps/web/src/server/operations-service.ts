@@ -39,7 +39,11 @@
  */
 import type { StudioJobRow } from "./create-studio-service";
 import { AuthFlowError } from "./auth-service";
-import { controlPlaneOverrideOf, platformSnapshot } from "./platform-health";
+import {
+  controlPlaneOverrideOf,
+  identityPlaneOverrideOf,
+  platformSnapshot,
+} from "./platform-health";
 
 import {
   IdentityPermissionDeniedError,
@@ -952,7 +956,13 @@ export async function buildOperations(
   server: SportaServer,
   token: string,
 ): Promise<OperationsModel> {
-  const health = await platformSnapshot(controlPlaneOverrideOf(server));
+  // J007/J014: the health board's control-plane AND identity rows report the
+  // RUNNING composition's actual backing (the local sqlite stores the Bun
+  // runtime constructed are invisible to the env-derived rows).
+  const health = await platformSnapshot({
+    ...controlPlaneOverrideOf(server),
+    ...identityPlaneOverrideOf(server),
+  });
   const live = server.live;
 
   // Failed jobs, operator scope: every session's dispatched jobs, read
