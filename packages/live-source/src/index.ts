@@ -84,3 +84,20 @@ export type {
   LiveSourcePort,
   LiveSourceStats,
 } from "./source";
+// The live telemetry core (L006 — the frozen §9 counters)
+export {
+  LIVE_TELEMETRY_COUNTER_IDS,
+  LiveTelemetryCollector,
+  LiveTelemetryValidationError,
+} from "./telemetry";
+export type {
+  LiveIngestReport,
+  LiveLatencyStageView,
+  LivePresentationReport,
+  LiveRenderReport,
+  LiveStageLatencyStats,
+  LiveSwmUpdateReport,
+  LiveTelemetryCollectorOptions,
+  LiveTelemetryCounterId,
+  LiveTelemetrySnapshot,
+} from "./telemetry";

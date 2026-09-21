@@ -30,4 +30,11 @@ export {
   type TacticalFrameProducerOptions,
   type TacticalFrameResult,
 } from "./view-model";
+export {
+  createLiveTelemetryService,
+  withLiveTelemetry,
+  type LiveTelemetryProbe,
+  type LiveTelemetryService,
+  type LiveTelemetryServiceOptions,
+} from "./telemetry";
 export { liveCadenceMs, liveTransportActive } from "./env";

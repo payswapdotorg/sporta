@@ -119,7 +119,8 @@ import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
 import { createRightsGovernedControl } from "./rights-governed-control";
 import { OperationsService } from "./operations-service";
 import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
-import type { LiveTransport } from "./live";
+import { createLiveTelemetryService, withLiveTelemetry } from "./live";
+import type { LiveTelemetryService, LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
 import { seedDevContent } from "./dev-seed";
 import type { SeedStoryMeta } from "./dev-seed";
@@ -341,6 +342,14 @@ export interface SportaServer {
    * (SPORTA_LIVE_TRANSPORT=sse); the capability response is wired to it.
    */
   live: LiveTransport;
+  /**
+   * The live telemetry service (L006): the frozen live-reality.md §9
+   * counters per live session, collected at the REAL pipeline seams (the
+   * view-model's ingest/SWM/render stage reports + the transport's
+   * delivery stamps and counted frame drops). Served operator-gated at
+   * `GET /api/operations/live-telemetry`.
+   */
+  liveTelemetry: LiveTelemetryService;
   /**
    * The hosted transient state (W913): the bounded render job queue, the
    * quota/rate-limit counters, and the small TTL cache, over the REAL
@@ -689,13 +698,21 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     SPORTA_LIVE_TRANSPORT=sse; the dev seed registers the
   //     live-authorized sessions' story timelines as its live sources. The
   //     composition root is the ONLY env reader (the documented convention).
-  const live =
+  //     L006: the transport is wrapped by the telemetry decorator — tactical
+  //     registrations get the per-session probe injected (the producer's
+  //     stage reports) and every consumer-pulled world frame is stamped at
+  //     the delivery boundary. The wire bytes are unchanged.
+  const liveTelemetry = createLiveTelemetryService({ nowMs });
+  const live = withLiveTelemetry(
     options.liveTransport ??
-    createSseLiveTransport({
-      active: liveTransportActive(),
-      nowMs,
-      cadenceMs: liveCadenceMs(),
-    });
+      createSseLiveTransport({
+        active: liveTransportActive(),
+        nowMs,
+        cadenceMs: liveCadenceMs(),
+      }),
+    liveTelemetry,
+    nowMs,
+  );
 
   // 6a. The transient state (W913): the bounded render queue, the quota
   //     counters, and the small TTL cache. Injected for tests; otherwise the
@@ -880,6 +897,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     operations,
     computeCenter,
     live,
+    liveTelemetry,
     transientState,
     guardrails,
     media,
