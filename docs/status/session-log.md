@@ -639,3 +639,40 @@ provisioned session (2e33be84) — J012 implementation + L003/L004
 designs + L010 harness expected as checkpoint pushes on
 work/j012-l003-l004-l010. Sentinel v2 (pid 6720) watching. Next: A's
 checkpoints → TL verify → merge → Wave 2 dispatch.
+
+## Session 2026-09-21 00:10-01:35 UTC — Worker A lane delivered + merged
+
+- Worker A (session 2e33be84, fresh create 23:34 with provisioned sandbox)
+  delivered its FULL lane as 6 branch pushes on
+  work/j012-l003-l004-l010: J012 contrast-context-detector d4ab4b7 (763
+  lines, documented algorithm, measured constants, honest failure
+  classes), L003 + L004 designs af9e569 (authority-mapped: engine-driver
+  incremental SWM updater; event-time per-source watermarks), L010
+  benchmark harness 05bb07b (@sporta/perception-benchmark, 8/8), HF001
+  mapping 47c6e2c, J012 docs addendum 603063e (measured deviations from
+  the checkpoint's literal wording), refinement 45aba5f (no-surface
+  frames REFUSE with the documented off-envelope class).
+- TL verification battery (worktree, scoped): 57+54+14 tests green
+  across perception-adapters / perception-benchmark / real-to-swm /
+  perception-detection; typecheck clean × 3 packages; lint 0 errors;
+  format clean. The initial L010 "failure" was my stale worktree install
+  (bun install fixed it — the worker had committed the lockfile).
+- MERGED --no-ff bccf89c (clean; bun.lock auto-merged both additive
+  workspace entries) → pushed → post-merge battery green → CI pending
+  (the full-suite verifier).
+- Conversation formality: the worker's final 12-field report has not
+  committed server-side (turn uncommitted 60+ min after its last push —
+  final-gates grind or post-delivery stall); the BRANCH is the ground
+  truth and holds every deliverable. Sentinel v2 watches for the report
+  commit and logs it on arrival.
+- Sentinel v2 hardening through the night: tip-move now refreshes
+  activity (frozen conversation DOM during long sandbox tool runs is NOT
+  death evidence — the worker pushed 3 checkpoints while "not busy");
+  tree queries route via the quiet landing tab (the worker tab's CDP
+  evals time out under transcript churn); rc=4 nudge crashes are
+  harmless (they die before the composer).
+
+Session state: main @bccf89c (CI pending), Wave 1 ALL THREE LANES
+delivered (B + C merged earlier; A merged now). Next: CI verdict →
+status evidence → Wave 2 dispatch (A: L007/L010/L011 impl; B: J006
+backend + J014 + L006 + L009; C: J006 UI + J013 + L005 full + L013).
