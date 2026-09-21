@@ -16,6 +16,7 @@
         "@sporta/health": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/observation": "workspace:*",
+        "@sporta/perception-benchmark": "workspace:*",
         "@sporta/perception-tracking": "workspace:*",
         "@sporta/session": "workspace:*",
         "@sporta/spatial-state": "workspace:*",
@@ -501,6 +502,17 @@
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/perception-benchmark": {
+      "name": "@sporta/perception-benchmark",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/decoding": "workspace:*",
+        "@sporta/perception-adapters": "workspace:*",
+        "@sporta/perception-detection": "workspace:*",
+        "@sporta/testing": "workspace:*",
       },
     },
     "packages/perception-detection": {
@@ -1030,6 +1042,8 @@
     "@sporta/output-pipeline": ["@sporta/output-pipeline@workspace:packages/output-pipeline"],
 
     "@sporta/perception-adapters": ["@sporta/perception-adapters@workspace:packages/perception-adapters"],
+
+    "@sporta/perception-benchmark": ["@sporta/perception-benchmark@workspace:packages/perception-benchmark"],
 
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
