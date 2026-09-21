@@ -325,10 +325,21 @@ function frameCountOf(stream: FfprobeStreamJson, durationMs: number, frameRateFp
 }
 
 /**
- * A deterministic tiny-MP4 generator for tests and evidence runs:
- * `ffmpeg -f lavfi -i testsrc=duration=...` — real H.264 MP4 bytes produced
- * by the real ffmpeg (never a committed binary fixture; no license
- * provenance beyond the ffmpeg binary itself). Returns the output path.
+ * A deterministic tiny-MP4 generator for tests and evidence runs —
+ * real H.264 MP4 bytes produced by the real ffmpeg (never a committed
+ * binary fixture; no license provenance beyond the ffmpeg binary itself).
+ * Returns the output path.
+ *
+ * Scenes:
+ * - `"bars"` (default): the legacy `lavfi testsrc` SMPTE color-bars
+ *   pattern — real bytes, no committed fixture; the perception chain
+ *   HONESTLY finds no players on it (uniform bars with thin edge lines:
+ *   surface blocks dominate, aspect gates reject the lines).
+ * - `"pitch"`: a uniform green field with three moving high-contrast
+ *   player rectangles (distinct kit colors, disjoint sin-based motion
+ *   lanes) — the scene the J012 contrast-context production path DETECTS
+ *   (local-contrast outliers standing on a dominant surface, ring-context
+ *   clean); used by the tests that assert real entity continuity.
  */
 export async function generateTestMp4(
   outputPath: string,
@@ -338,30 +349,86 @@ export async function generateTestMp4(
     width?: number;
     height?: number;
     frameRate?: number;
+    /** Visual scene: "bars" (legacy testsrc) | "pitch" (detectable players). */
+    scene?: "bars" | "pitch";
   } = {},
 ): Promise<string> {
   const duration = options.durationSeconds ?? 2;
   const width = options.width ?? 320;
   const height = options.height ?? 240;
   const frameRate = options.frameRate ?? 24;
+  const scene = options.scene ?? "bars";
   const tool = new FfmpegTool();
   if (!(await tool.available())) {
     throw new FfmpegUnavailableError(
       "cannot generate a test MP4 without ffmpeg (the in-test generator requires the real binary)",
     );
   }
-  const argv = [
-    tool.ffmpegPath,
-    "-v",
-    "error",
-    "-y",
-    "-f",
-    "lavfi",
-    "-i",
-    `testsrc=duration=${duration}:size=${width}x${height}:rate=${frameRate}`,
-  ];
-  if (options.withAudio !== false) {
-    argv.push("-f", "lavfi", "-i", `sine=frequency=440:duration=${duration}`);
+  let argv: string[];
+  if (scene === "pitch") {
+    // Three moving kit-colored rectangles on a uniform green field. Player
+    // size scales with the frame (14x34 at the 320x240 default); motion
+    // lanes are disjoint in x so blobs never merge; every ring stays on
+    // the surface (>= a block of green around each player, well inside
+    // the frame edges).
+    const playerW = Math.max(8, Math.round(width * 0.045));
+    const playerH = Math.max(16, Math.round(height * 0.14));
+    const kits = ["0xC62828", "0xF9A825", "0x212121"]; // dark red / amber / near-black
+    argv = [tool.ffmpegPath, "-v", "error", "-y"];
+    for (const kit of kits) {
+      argv.push(
+        "-f",
+        "lavfi",
+        "-i",
+        `color=c=${kit}:s=${playerW}x${playerH}:r=${frameRate}:d=${duration}`,
+      );
+    }
+    argv.push(
+      "-f",
+      "lavfi",
+      "-i",
+      `color=c=0x2E8B57:s=${width}x${height}:r=${frameRate}:d=${duration}`,
+    );
+    if (options.withAudio !== false) {
+      argv.push("-f", "lavfi", "-i", `sine=frequency=440:duration=${duration}`);
+    }
+    // Motion centers/amplitudes in frame fractions: p1 left-lane low,
+    // p2 right-lane low, p3 mid-lane high — x-ranges disjoint.
+    const lanes = [
+      { cx: 0.2, ax: 0.08, cy: 0.45, ay: 0.15, fx: 1.5, fy: 0.9, px: 0, py: 0 },
+      { cx: 0.65, ax: 0.08, cy: 0.55, ay: 0.12, fx: 1.1, fy: 1.3, px: 2, py: 1 },
+      { cx: 0.45, ax: 0.1, cy: 0.3, ay: 0.1, fx: 0.8, fy: 1.7, px: 4, py: 3 },
+    ];
+    const px = (v: number) => Math.round(width * v);
+    const py = (v: number) => Math.round(height * v);
+    const overlayExpr = (lane: (typeof lanes)[number]) =>
+      `x=${px(lane.cx)}+${px(lane.ax)}*sin(t*${lane.fx}+${lane.px}):` +
+      `y=${py(lane.cy)}+${py(lane.ay)}*sin(t*${lane.fy}+${lane.py})`;
+    const filter =
+      `[3:v][0:v]overlay=${overlayExpr(lanes[0]!)}[a1];` +
+      `[a1][1:v]overlay=${overlayExpr(lanes[1]!)}[a2];` +
+      `[a2][2:v]overlay=${overlayExpr(lanes[2]!)}[vout]`;
+    argv.push(
+      "-filter_complex",
+      filter,
+      "-map",
+      "[vout]",
+      ...(options.withAudio !== false ? ["-map", "4:a"] : []),
+    );
+  } else {
+    argv = [
+      tool.ffmpegPath,
+      "-v",
+      "error",
+      "-y",
+      "-f",
+      "lavfi",
+      "-i",
+      `testsrc=duration=${duration}:size=${width}x${height}:rate=${frameRate}`,
+    ];
+    if (options.withAudio !== false) {
+      argv.push("-f", "lavfi", "-i", `sine=frequency=440:duration=${duration}`);
+    }
   }
   argv.push(
     "-c:v",

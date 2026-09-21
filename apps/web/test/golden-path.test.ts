@@ -154,9 +154,14 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
 
   test("step 1 — a REAL MP4 upload becomes the session (the R101/R501 seams)", async () => {
     // REAL ffmpeg generates the clip (320×240, 2s, audio) — no committed fixture.
+    // Pitch scene: three detectable players on a green field — the J012
+    // contrast-context production path honestly finds NO players on the
+    // legacy color-bars pattern (surface-dominated, thin edge lines), and
+    // step 7 asserts the entity continuity substrate the realities share.
     const clipPath = await generateTestMp4(join(scratch, "golden-clip.mp4"), {
       durationSeconds: 2,
       withAudio: true,
+      scene: "pitch",
     });
     const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
     expect(bytes.byteLength).toBeGreaterThan(1024);

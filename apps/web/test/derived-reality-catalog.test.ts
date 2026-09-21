@@ -149,10 +149,14 @@ beforeAll(async () => {
   token = (await server.auth.issueSession({ userId: registered.userId })).token;
 
   // THE REAL UPLOAD: ffmpeg generates the clip; the real pipeline
-  // normalizes it and stores the original-reality artifact.
+  // normalizes it and stores the original-reality artifact. Pitch scene:
+  // detectable players (the J012 contrast-context path honestly reports
+  // zero players on the legacy bars pattern, and this suite asserts the
+  // entity continuity substrate).
   const clipPath = await generateTestMp4(join(scratch, "clip.mp4"), {
     durationSeconds: 2,
     withAudio: true,
+    scene: "pitch",
   });
   const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
   const form = new FormData();
