@@ -597,8 +597,9 @@ export class OperationsService {
       ],
       // L009: the authorized live provider panel — binding presence only,
       // honestly `blocked` with the exact missing names until credentials
-      // + feed access exist (secret values never surface).
-      liveAuthorized: authorizedLiveProviderPanel(),
+      // + feed access exist (secret values never surface; the package
+      // loads lazily HERE — the operator route, never the boot path).
+      liveAuthorized: await authorizedLiveProviderPanel(),
       notes: [
         STORE_LIMITS_NOTE,
         "the W919 ledger evaluates measured usage against the documented free-tier thresholds (checked 2026-09-15 — docs/deployment/free-tier-matrix.md); unmeasured limits are honest unknowns, never estimates",

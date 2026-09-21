@@ -13,7 +13,6 @@
  *   `beta-personal` has all.
  * - Names are the documented ones (DEPLOYMENT.md owns the list).
  */
-import { authorizedLiveProviderHealth } from "@sporta/live-authorized";
 import type { AuthorizedLiveProviderHealthPanel } from "@sporta/live-authorized";
 
 /** Names of the environment variables this module reads (docs surface). */
@@ -122,10 +121,15 @@ export function neonConfigured(): boolean {
  * Secret values never surface; an incomplete set is the honest `blocked`
  * with the exact missing binding names. The pure implementation lives in
  * `@sporta/live-authorized` (fixture-tested there); this is the app's
- * single process-env read point for it.
+ * single process-env read point for it. The package import is LAZY — only
+ * the operator providers route pays the module cost (never the app-boot
+ * path every test file exercises).
  */
-export function authorizedLiveProviderPanel(): AuthorizedLiveProviderHealthPanel {
-  return authorizedLiveProviderHealth(process.env);
+let liveAuthorizedModule: typeof import("@sporta/live-authorized") | null = null;
+
+export async function authorizedLiveProviderPanel(): Promise<AuthorizedLiveProviderHealthPanel> {
+  liveAuthorizedModule ??= await import("@sporta/live-authorized");
+  return liveAuthorizedModule.authorizedLiveProviderHealth(process.env);
 }
 
 /** Whether BOTH Upstash bindings are present (URL + token). */

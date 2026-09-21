@@ -131,6 +131,18 @@ function diagnosticsContentTypeOf(entry: { artifacts: { contentType: string }[] 
   return entry.artifacts[entry.artifacts.length - 1]!.contentType;
 }
 
+/**
+ * The journey's REAL-MEDIA tests (uploads, dispatches, terminal polls,
+ * four-reality byte serving) get an explicit 120s budget: measured under the
+ * full parallel battery, the heavy steps swing from ~30ms (uncontended) to
+ * ~9s (peak contention with the other files' real renders) — bun's 5s
+ * default turned that swing into a schedule-phase coin-flip, never a
+ * product signal. The assertions are UNCHANGED; only the budget is honest.
+ */
+function journeyTest(name: string, fn: () => Promise<void>): void {
+  test(name, fn, 120_000);
+}
+
 describe("the golden path (R507: clean browser → upload → jobs → catalog → watch → switch)", () => {
   test("step 0 — the clean browser registers its own account", async () => {
     const response = await registerRoute(
@@ -152,7 +164,7 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     expect(token.length).toBeGreaterThan(0);
   });
 
-  test("step 1 — a REAL MP4 upload becomes the session (the R101/R501 seams)", async () => {
+  journeyTest("step 1 — a REAL MP4 upload becomes the session (the R101/R501 seams)", async () => {
     // REAL ffmpeg generates the clip (320×240, 2s, audio) — no committed fixture.
     // Pitch scene: three detectable players on a green field — the J012
     // contrast-context production path honestly finds NO players on the
@@ -241,43 +253,16 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     }
   });
 
-  test("step 3 — the render dispatch (with the user's explicit compute choice) is admitted", async () => {
-    const response = await renderRoute(
-      withCookie(
-        token,
-        `/api/create/sessions/${sessionId}/renders`,
-        jsonPost({
-          rendererId: "anime.prototype",
-          styleId: "golden-path",
-          compute: { mode: "user-explicit", providerId },
-        }),
-      ),
-      { params: Promise.resolve({ sessionId }) },
-    );
-    expect(response.status).toBe(202);
-    const body = (await bodyOf(response)) as {
-      disposition: string;
-      jobId: string;
-      selection: { providerId: string; mode: string };
-    };
-    expect(body.disposition).toBe("admitted");
-    expect(body.selection.providerId).toBe(providerId);
-    expect(body.selection.mode).toBe("user-explicit");
-    computeJobId = body.jobId;
-  });
-
-  test("step 3b — the DERIVED-REALITY dispatches: tactical, 3D game, and anime/NPR (R508-R510)", async () => {
-    // The same explicit compute choice, the same session, the SAME canonical
-    // SWM (the control plane materializes one snapshot + one event window
-    // per dispatch from the session's own world model).
-    for (const rendererId of ["tactical.prototype", "game-3d.prototype", "anime-npr.prototype"]) {
+  journeyTest(
+    "step 3 — the render dispatch (with the user's explicit compute choice) is admitted",
+    async () => {
       const response = await renderRoute(
         withCookie(
           token,
           `/api/create/sessions/${sessionId}/renders`,
           jsonPost({
-            rendererId,
-            styleId: "golden-path-derived",
+            rendererId: "anime.prototype",
+            styleId: "golden-path",
             compute: { mode: "user-explicit", providerId },
           }),
         ),
@@ -292,12 +277,45 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
       expect(body.disposition).toBe("admitted");
       expect(body.selection.providerId).toBe(providerId);
       expect(body.selection.mode).toBe("user-explicit");
-      derivedJobIds.push(body.jobId);
-    }
-    expect(derivedJobIds).toHaveLength(3);
-  });
+      computeJobId = body.jobId;
+    },
+  );
 
-  test("step 4 — the honest job states walk to terminal success (R502/R103)", async () => {
+  journeyTest(
+    "step 3b — the DERIVED-REALITY dispatches: tactical, 3D game, and anime/NPR (R508-R510)",
+    async () => {
+      // The same explicit compute choice, the same session, the SAME canonical
+      // SWM (the control plane materializes one snapshot + one event window
+      // per dispatch from the session's own world model).
+      for (const rendererId of ["tactical.prototype", "game-3d.prototype", "anime-npr.prototype"]) {
+        const response = await renderRoute(
+          withCookie(
+            token,
+            `/api/create/sessions/${sessionId}/renders`,
+            jsonPost({
+              rendererId,
+              styleId: "golden-path-derived",
+              compute: { mode: "user-explicit", providerId },
+            }),
+          ),
+          { params: Promise.resolve({ sessionId }) },
+        );
+        expect(response.status).toBe(202);
+        const body = (await bodyOf(response)) as {
+          disposition: string;
+          jobId: string;
+          selection: { providerId: string; mode: string };
+        };
+        expect(body.disposition).toBe("admitted");
+        expect(body.selection.providerId).toBe(providerId);
+        expect(body.selection.mode).toBe("user-explicit");
+        derivedJobIds.push(body.jobId);
+      }
+      expect(derivedJobIds).toHaveLength(3);
+    },
+  );
+
+  journeyTest("step 4 — the honest job states walk to terminal success (R502/R103)", async () => {
     // The compute job: every observed state is the control plane's own.
     let computeTerminal: Record<string, unknown> | null = null;
     for (let attempt = 0; attempt < 400; attempt += 1) {
@@ -404,303 +422,312 @@ describe("the golden path (R507: clean browser → upload → jobs → catalog �
     expect(observedMediaStates.length).toBeGreaterThan(0);
   });
 
-  test("step 5 — the four-reality artifact catalog links the REAL outputs (R503)", async () => {
-    const response = await artifactCatalogRoute(
-      withCookie(token, `/api/catalog/sessions/${sessionId}/artifacts`),
-      { params: Promise.resolve({ sessionId }) },
-    );
-    expect(response.status).toBe(200);
-    const body = (await bodyOf(response)) as {
-      playback: { state: string };
-      readyRealityCount: number;
-      realities: {
-        kind: string;
-        availability: string;
-        artifacts: {
-          artifactId: string;
+  journeyTest(
+    "step 5 — the four-reality artifact catalog links the REAL outputs (R503)",
+    async () => {
+      const response = await artifactCatalogRoute(
+        withCookie(token, `/api/catalog/sessions/${sessionId}/artifacts`),
+        { params: Promise.resolve({ sessionId }) },
+      );
+      expect(response.status).toBe(200);
+      const body = (await bodyOf(response)) as {
+        playback: { state: string };
+        readyRealityCount: number;
+        realities: {
           kind: string;
-          manifestLink: string;
-          integrityHash: string;
-          byteSize: number;
-          contentType: string;
-          producerId: string;
+          availability: string;
+          artifacts: {
+            artifactId: string;
+            kind: string;
+            manifestLink: string;
+            integrityHash: string;
+            byteSize: number;
+            contentType: string;
+            producerId: string;
+          }[];
         }[];
-      }[];
-    };
-    expect(body.playback.state).toBe("authorized");
-    expect(body.realities.map((entry) => entry.kind)).toEqual([
-      "original",
-      "tactical",
-      "three-d-game",
-      "anime-npr",
-    ]);
-    const original = body.realities.find((entry) => entry.kind === "original")!;
-    expect(original.availability).toBe("ready");
-    expect(original.artifacts.length).toBeGreaterThan(0);
-    // The original reality's descriptor is the REAL MP4 artifact.
-    expect(original.artifacts[0]!.contentType).toContain("mp4");
-    expect(original.artifacts[0]!.integrityHash).toMatch(/^[0-9a-f]{64}$/);
-    expect(original.artifacts[0]!.byteSize).toBeGreaterThan(1024);
-    // R508-R510 — THE FOUR-REALITY GATE: every reality is READY and holds a
-    // REAL MP4 descriptor (the acceptance contract §D: Original, Tactical,
-    // 3D Game, and Anime/NPR are actual MP4 videos, integrity-verifiable).
-    expect(body.readyRealityCount).toBe(4);
-    for (const entry of body.realities) {
-      expect(entry.availability, `${entry.kind} must be ready`).toBe("ready");
-      expect(entry.artifacts.length, `${entry.kind} must hold artifacts`).toBeGreaterThan(0);
-      // The descriptor's own video resolution (the player's pure model).
-      const video = entry.artifacts.find(
-        (artifact) =>
-          artifact.contentType === "video/mp4" || artifact.contentType.startsWith("mp4/"),
-      );
-      expect(video, `${entry.kind} must hold a real MP4 descriptor`).toBeDefined();
-      expect(video!.integrityHash).toMatch(/^[0-9a-f]{64}$/);
-      expect(video!.byteSize).toBeGreaterThan(1024);
-    }
-    // The derived realities' primary MP4 descriptors name their producers.
-    expect(
-      body.realities.find((entry) => entry.kind === "tactical")!.artifacts[0]!.producerId,
-    ).toBe("tactical.prototype");
-    expect(
-      body.realities.find((entry) => entry.kind === "three-d-game")!.artifacts[0]!.producerId,
-    ).toBe("game-3d.prototype");
-    expect(
-      body.realities.find((entry) => entry.kind === "anime-npr")!.artifacts[0]!.producerId,
-    ).toBe("anime-npr.prototype");
-    // The anime-npr reality ALSO carries the W504 SVG review segment (the
-    // explicitly-labeled diagnostics surface — listed AFTER the MP4).
-    const anime = body.realities.find((entry) => entry.kind === "anime-npr")!;
-    expect(anime.artifacts.length).toBeGreaterThan(1);
-    expect(diagnosticsContentTypeOf(anime)).toBe("image/svg+xml");
-  });
+      };
+      expect(body.playback.state).toBe("authorized");
+      expect(body.realities.map((entry) => entry.kind)).toEqual([
+        "original",
+        "tactical",
+        "three-d-game",
+        "anime-npr",
+      ]);
+      const original = body.realities.find((entry) => entry.kind === "original")!;
+      expect(original.availability).toBe("ready");
+      expect(original.artifacts.length).toBeGreaterThan(0);
+      // The original reality's descriptor is the REAL MP4 artifact.
+      expect(original.artifacts[0]!.contentType).toContain("mp4");
+      expect(original.artifacts[0]!.integrityHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(original.artifacts[0]!.byteSize).toBeGreaterThan(1024);
+      // R508-R510 — THE FOUR-REALITY GATE: every reality is READY and holds a
+      // REAL MP4 descriptor (the acceptance contract §D: Original, Tactical,
+      // 3D Game, and Anime/NPR are actual MP4 videos, integrity-verifiable).
+      expect(body.readyRealityCount).toBe(4);
+      for (const entry of body.realities) {
+        expect(entry.availability, `${entry.kind} must be ready`).toBe("ready");
+        expect(entry.artifacts.length, `${entry.kind} must hold artifacts`).toBeGreaterThan(0);
+        // The descriptor's own video resolution (the player's pure model).
+        const video = entry.artifacts.find(
+          (artifact) =>
+            artifact.contentType === "video/mp4" || artifact.contentType.startsWith("mp4/"),
+        );
+        expect(video, `${entry.kind} must hold a real MP4 descriptor`).toBeDefined();
+        expect(video!.integrityHash).toMatch(/^[0-9a-f]{64}$/);
+        expect(video!.byteSize).toBeGreaterThan(1024);
+      }
+      // The derived realities' primary MP4 descriptors name their producers.
+      expect(
+        body.realities.find((entry) => entry.kind === "tactical")!.artifacts[0]!.producerId,
+      ).toBe("tactical.prototype");
+      expect(
+        body.realities.find((entry) => entry.kind === "three-d-game")!.artifacts[0]!.producerId,
+      ).toBe("game-3d.prototype");
+      expect(
+        body.realities.find((entry) => entry.kind === "anime-npr")!.artifacts[0]!.producerId,
+      ).toBe("anime-npr.prototype");
+      // The anime-npr reality ALSO carries the W504 SVG review segment (the
+      // explicitly-labeled diagnostics surface — listed AFTER the MP4).
+      const anime = body.realities.find((entry) => entry.kind === "anime-npr")!;
+      expect(anime.artifacts.length).toBeGreaterThan(1);
+      expect(diagnosticsContentTypeOf(anime)).toBe("image/svg+xml");
+    },
+  );
 
-  test("step 6 — WATCH with REAL MP4 PLAYBACK: the byte route serves ALL FOUR realities, integrity-verified (R504/R508-R510)", async () => {
-    // The watch acquisition (the page's own first read).
-    const watchResponse = await watchRoute(withCookie(token, `/api/watch/${sessionId}`), {
-      params: Promise.resolve({ sessionId }),
-    });
-    expect(watchResponse.status).toBe(200);
-    const watch = (await bodyOf(watchResponse)) as {
-      sessionId: string;
-      playback: { state: string };
-      renders: { renderId: string }[] | null;
-    };
-    expect(watch.sessionId).toBe(sessionId);
-    expect(watch.playback.state).toBe("authorized");
-    expect(watch.renders!.length).toBeGreaterThan(0);
-
-    // THE ONE realities acquisition (the switcher + the player's catalog —
-    // steps 6 AND 7 run on this same acquisition; the switch never
-    // re-acquires and never changes the session).
-    const realitiesResponse = await realitiesRoute(
-      withCookie(token, `/api/watch/${sessionId}/realities`),
-      { params: Promise.resolve({ sessionId }) },
-    );
-    expect(realitiesResponse.status).toBe(200);
-    const realities = (await bodyOf(realitiesResponse)) as {
-      sessionId: string;
-      artifacts: SessionArtifactCatalogLike;
-    };
-    expect(realities.sessionId).toBe(sessionId); // the session CONSTANT
-    const catalog = realities.artifacts;
-    expect(catalog.realities).not.toBeNull();
-    acquiredCatalog = catalog; // step 7 switches on THIS acquisition
-
-    // ALL FOUR REALITIES PLAY: the HTML5 player's source resolution + the
-    // byte route's verified read, per reality — Original, Tactical, 3D
-    // Game, and Anime/NPR are REAL MP4s on the SAME session.
-    const kinds = ["original", "tactical", "three-d-game", "anime-npr"] as const;
-    for (const kind of kinds) {
-      const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
-      expect(entry.availability).toBe("ready");
-      const descriptor = videoDescriptorOf(entry);
-      expect(descriptor, `${kind} must hold a video-playable descriptor`).not.toBeNull();
-      const sourceUrl = videoSourceOf(sessionId, kind, descriptor!.artifactId);
-
-      // THE REAL MP4 PLAYBACK: the byte route serves the artifact's bytes.
-      const full = await videoRoute(withCookie(token, sourceUrl), {
-        params: Promise.resolve({
-          sessionId,
-          kind,
-          artifactId: descriptor!.artifactId,
-        }),
+  journeyTest(
+    "step 6 — WATCH with REAL MP4 PLAYBACK: the byte route serves ALL FOUR realities, integrity-verified (R504/R508-R510)",
+    async () => {
+      // The watch acquisition (the page's own first read).
+      const watchResponse = await watchRoute(withCookie(token, `/api/watch/${sessionId}`), {
+        params: Promise.resolve({ sessionId }),
       });
-      expect(full.status, `${kind} must serve 200`).toBe(200);
-      expect(full.headers.get("content-type")).toBe("video/mp4");
-      expect(full.headers.get("accept-ranges")).toBe("bytes");
-      const bytes = new Uint8Array(await full.arrayBuffer());
-      expect(bytes.byteLength).toBe(descriptor!.byteSize);
-      // THE INTEGRITY EVIDENCE: the served bytes' sha-256 EQUALS the catalog
-      // descriptor's integrityHash (the store re-verifies per request).
-      expect(sha256OfBytes(bytes)).toBe(descriptor!.integrityHash);
-      // Real raster video: the MP4 container magic.
-      expect(Buffer.from(bytes.subarray(4, 8)).toString("ascii")).toBe("ftyp");
+      expect(watchResponse.status).toBe(200);
+      const watch = (await bodyOf(watchResponse)) as {
+        sessionId: string;
+        playback: { state: string };
+        renders: { renderId: string }[] | null;
+      };
+      expect(watch.sessionId).toBe(sessionId);
+      expect(watch.playback.state).toBe("authorized");
+      expect(watch.renders!.length).toBeGreaterThan(0);
 
-      // The browser's Range fetch (exactly what <video> issues on seek).
-      const range = await videoRoute(
-        withCookie(token, sourceUrl, { headers: { range: "bytes=0-1023" } }),
-        {
+      // THE ONE realities acquisition (the switcher + the player's catalog —
+      // steps 6 AND 7 run on this same acquisition; the switch never
+      // re-acquires and never changes the session).
+      const realitiesResponse = await realitiesRoute(
+        withCookie(token, `/api/watch/${sessionId}/realities`),
+        { params: Promise.resolve({ sessionId }) },
+      );
+      expect(realitiesResponse.status).toBe(200);
+      const realities = (await bodyOf(realitiesResponse)) as {
+        sessionId: string;
+        artifacts: SessionArtifactCatalogLike;
+      };
+      expect(realities.sessionId).toBe(sessionId); // the session CONSTANT
+      const catalog = realities.artifacts;
+      expect(catalog.realities).not.toBeNull();
+      acquiredCatalog = catalog; // step 7 switches on THIS acquisition
+
+      // ALL FOUR REALITIES PLAY: the HTML5 player's source resolution + the
+      // byte route's verified read, per reality — Original, Tactical, 3D
+      // Game, and Anime/NPR are REAL MP4s on the SAME session.
+      const kinds = ["original", "tactical", "three-d-game", "anime-npr"] as const;
+      for (const kind of kinds) {
+        const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
+        expect(entry.availability).toBe("ready");
+        const descriptor = videoDescriptorOf(entry);
+        expect(descriptor, `${kind} must hold a video-playable descriptor`).not.toBeNull();
+        const sourceUrl = videoSourceOf(sessionId, kind, descriptor!.artifactId);
+
+        // THE REAL MP4 PLAYBACK: the byte route serves the artifact's bytes.
+        const full = await videoRoute(withCookie(token, sourceUrl), {
           params: Promise.resolve({
             sessionId,
             kind,
             artifactId: descriptor!.artifactId,
           }),
-        },
+        });
+        expect(full.status, `${kind} must serve 200`).toBe(200);
+        expect(full.headers.get("content-type")).toBe("video/mp4");
+        expect(full.headers.get("accept-ranges")).toBe("bytes");
+        const bytes = new Uint8Array(await full.arrayBuffer());
+        expect(bytes.byteLength).toBe(descriptor!.byteSize);
+        // THE INTEGRITY EVIDENCE: the served bytes' sha-256 EQUALS the catalog
+        // descriptor's integrityHash (the store re-verifies per request).
+        expect(sha256OfBytes(bytes)).toBe(descriptor!.integrityHash);
+        // Real raster video: the MP4 container magic.
+        expect(Buffer.from(bytes.subarray(4, 8)).toString("ascii")).toBe("ftyp");
+
+        // The browser's Range fetch (exactly what <video> issues on seek).
+        const range = await videoRoute(
+          withCookie(token, sourceUrl, { headers: { range: "bytes=0-1023" } }),
+          {
+            params: Promise.resolve({
+              sessionId,
+              kind,
+              artifactId: descriptor!.artifactId,
+            }),
+          },
+        );
+        expect(range.status, `${kind} must serve a 206 range`).toBe(206);
+        expect(range.headers.get("content-range")).toBe(`bytes 0-1023/${descriptor!.byteSize}`);
+        const slice = new Uint8Array(await range.arrayBuffer());
+        expect(slice.byteLength).toBe(1024);
+        expect(Array.from(slice)).toEqual(Array.from(bytes.slice(0, 1024)));
+      }
+
+      // The HONEST not-video boundary rides the same acquisition: the
+      // anime-npr reality's W504 SVG review segment (the diagnostics
+      // descriptor) still answers the typed 415 — never presented as video.
+      const animeEntry = catalog.realities!.find((entry) => entry.kind === "anime-npr")!;
+      const diagnostics = animeEntry.artifacts.find(
+        (artifact) => artifact.contentType === "image/svg+xml",
       );
-      expect(range.status, `${kind} must serve a 206 range`).toBe(206);
-      expect(range.headers.get("content-range")).toBe(`bytes 0-1023/${descriptor!.byteSize}`);
-      const slice = new Uint8Array(await range.arrayBuffer());
-      expect(slice.byteLength).toBe(1024);
-      expect(Array.from(slice)).toEqual(Array.from(bytes.slice(0, 1024)));
-    }
-
-    // The HONEST not-video boundary rides the same acquisition: the
-    // anime-npr reality's W504 SVG review segment (the diagnostics
-    // descriptor) still answers the typed 415 — never presented as video.
-    const animeEntry = catalog.realities!.find((entry) => entry.kind === "anime-npr")!;
-    const diagnostics = animeEntry.artifacts.find(
-      (artifact) => artifact.contentType === "image/svg+xml",
-    );
-    expect(diagnostics).toBeDefined();
-    const notVideo = await videoRoute(
-      withCookie(token, videoSourceOf(sessionId, "anime-npr", diagnostics!.artifactId)),
-      {
-        params: Promise.resolve({
-          sessionId,
-          kind: "anime-npr",
-          artifactId: diagnostics!.artifactId,
-        }),
-      },
-    );
-    expect(notVideo.status).toBe(415); // typed, never a silent fallback
-  });
-
-  test("step 7 — THE REALITY SWITCH across ALL FOUR: same session, same acquisition, the URL addresses it (R505 + acceptance §E)", async () => {
-    // The switcher runs on the SAME acquisition step 6 captured (no
-    // re-acquisition, no session change — the session is the constant of
-    // every switch; the acceptance contract §F).
-    const catalog = acquiredCatalog!;
-    expect(catalog).not.toBeNull();
-    expect(catalog.sessionId).toBe(sessionId);
-
-    // The deterministic default: the first ready reality (original).
-    const initial = selectedRealityOf(null, catalog);
-    expect(initial.kind).toBe("original");
-
-    // THE FULL SWITCH WALK: original → tactical → three-d-game → anime-npr
-    // → original. Every switch selects the reality's REAL MP4 descriptor,
-    // every deep link addresses the switched state, and every playback
-    // re-serves the SAME bytes (hash-verified) on the SAME session.
-    const switchOrder = ["tactical", "three-d-game", "anime-npr", "original"] as const;
-    for (const kind of switchOrder) {
-      const switched = selectedRealityOf(kind, catalog);
-      expect(switched.kind).toBe(kind);
-      expect(switched.fromUrl).toBe(true);
-      expect(watchUrlOf(sessionId, kind)).toBe(
-        `/watch?session=${encodeURIComponent(sessionId)}&reality=${encodeURIComponent(kind)}`,
-      );
-      const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
-      const descriptor = videoDescriptorOf(entry);
-      expect(descriptor, `${kind} must hold a video descriptor to switch to`).not.toBeNull();
-      const replay = await videoRoute(
-        withCookie(token, videoSourceOf(sessionId, kind, descriptor!.artifactId)),
+      expect(diagnostics).toBeDefined();
+      const notVideo = await videoRoute(
+        withCookie(token, videoSourceOf(sessionId, "anime-npr", diagnostics!.artifactId)),
         {
           params: Promise.resolve({
             sessionId,
-            kind,
-            artifactId: descriptor!.artifactId,
+            kind: "anime-npr",
+            artifactId: diagnostics!.artifactId,
           }),
         },
       );
-      expect(replay.status, `${kind} must re-serve after the switch`).toBe(200);
-      expect(sha256OfBytes(new Uint8Array(await replay.arrayBuffer()))).toBe(
-        descriptor!.integrityHash,
+      expect(notVideo.status).toBe(415); // typed, never a silent fallback
+    },
+  );
+
+  journeyTest(
+    "step 7 — THE REALITY SWITCH across ALL FOUR: same session, same acquisition, the URL addresses it (R505 + acceptance §E)",
+    async () => {
+      // The switcher runs on the SAME acquisition step 6 captured (no
+      // re-acquisition, no session change — the session is the constant of
+      // every switch; the acceptance contract §F).
+      const catalog = acquiredCatalog!;
+      expect(catalog).not.toBeNull();
+      expect(catalog.sessionId).toBe(sessionId);
+
+      // The deterministic default: the first ready reality (original).
+      const initial = selectedRealityOf(null, catalog);
+      expect(initial.kind).toBe("original");
+
+      // THE FULL SWITCH WALK: original → tactical → three-d-game → anime-npr
+      // → original. Every switch selects the reality's REAL MP4 descriptor,
+      // every deep link addresses the switched state, and every playback
+      // re-serves the SAME bytes (hash-verified) on the SAME session.
+      const switchOrder = ["tactical", "three-d-game", "anime-npr", "original"] as const;
+      for (const kind of switchOrder) {
+        const switched = selectedRealityOf(kind, catalog);
+        expect(switched.kind).toBe(kind);
+        expect(switched.fromUrl).toBe(true);
+        expect(watchUrlOf(sessionId, kind)).toBe(
+          `/watch?session=${encodeURIComponent(sessionId)}&reality=${encodeURIComponent(kind)}`,
+        );
+        const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
+        const descriptor = videoDescriptorOf(entry);
+        expect(descriptor, `${kind} must hold a video descriptor to switch to`).not.toBeNull();
+        const replay = await videoRoute(
+          withCookie(token, videoSourceOf(sessionId, kind, descriptor!.artifactId)),
+          {
+            params: Promise.resolve({
+              sessionId,
+              kind,
+              artifactId: descriptor!.artifactId,
+            }),
+          },
+        );
+        expect(replay.status, `${kind} must re-serve after the switch`).toBe(200);
+        expect(sha256OfBytes(new Uint8Array(await replay.arrayBuffer()))).toBe(
+          descriptor!.integrityHash,
+        );
+      }
+
+      // A deep link to an UNRENDERED reality on a fresh session would select
+      // it and show its honest state; here every reality IS rendered — the
+      // honest deep-link selection is the four-reality walk above.
+
+      // ------------------------------------------------------------------
+      // SAME-EVENT INTEGRITY (acceptance contract §E, R605 evidence): the
+      // four realities reference ONE canonical session/SWM. Event ordering,
+      // game clock, and ball/player continuity flow from that ONE SWM; no
+      // renderer invented or changed a canonical event.
+      // ------------------------------------------------------------------
+      const engine = server.engines.get(sessionId)!;
+      const snapshot = engine.snapshot();
+      // (1) The session id is CONSTANT across every reality acquisition (the
+      //     one acquisition + every descriptor's frozen manifest).
+      expect(snapshot.sessionId).toBe(sessionId);
+      const { RenderArtifactManifest } = await import("@sporta/contracts");
+      const derivedKinds = ["tactical", "three-d-game", "anime-npr"] as const;
+      const frozenManifests = derivedKinds.map((kind) => {
+        const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
+        const descriptor = videoDescriptorOf(entry)!;
+        return RenderArtifactManifest.parse(server.media.artifact(descriptor.artifactId));
+      });
+      for (const frozen of frozenManifests) {
+        // (1) The session id is the constant of every reality.
+        expect(frozen.sessionId).toBe(sessionId);
+        // (2) Event ordering: every reality consumed the SAME canonical event
+        //     window (the engine's watermark anchored the window; the
+        //     manifests' lastEventSequence is the highest sequence the
+        //     renderer actually applied — never asserted, never invented).
+        expect(frozen.swm!.lastEventSequence).toBe(frozenManifests[0]!.swm!.lastEventSequence);
+        // (3) The canonical SWM version every reality read is the SAME.
+        expect(frozen.swm!.snapshotVersion).toBe(frozenManifests[0]!.swm!.snapshotVersion);
+      }
+      // The canonical world model's own accounting: the event stream is
+      // strictly ascending (the ordering every reality consumed), and the
+      // derived manifests' provenance is within the world model's own truth.
+      const events = engine.eventsSince(0);
+      for (let i = 1; i < events.length; i += 1) {
+        expect(events[i]!.sequence).toBeGreaterThan(events[i - 1]!.sequence);
+      }
+      expect(frozenManifests[0]!.swm!.lastEventSequence).toBeLessThanOrEqual(
+        Math.max(snapshot.watermark.sequence, events.at(-1)?.sequence ?? 0),
       );
-    }
+      // (4) Game clock: the snapshot's football clock/score state is the ONE
+      //     canonical substrate the realities rendered (the tactical
+      //     overlay, the 3D HUD, and the anime HUD draw it VERBATIM from the
+      //     snapshot — the shared snapshotVersion pins them to the same
+      //     clock state; a renderer never re-derives it).
+      expect(snapshot.football).toBeDefined();
+      expect(snapshot.football!.clock.clockMs).toBeGreaterThanOrEqual(0);
+      expect(Number.isFinite(snapshot.football!.clock.clockMs)).toBe(true);
+      // (5) Ball/player continuity: the snapshot's entity set (the ball via
+      //     the football possession reference + the participants) is the
+      //     shared continuity substrate — the same entity identities every
+      //     reality rendered, held stable by the ONE snapshot version.
+      expect(snapshot.entities.length).toBeGreaterThan(0);
+      const entityIds = snapshot.entities.map((entity) => entity.entityId);
+      expect(new Set(entityIds).size).toBe(entityIds.length); // identities are unique
 
-    // A deep link to an UNRENDERED reality on a fresh session would select
-    // it and show its honest state; here every reality IS rendered — the
-    // honest deep-link selection is the four-reality walk above.
-
-    // ------------------------------------------------------------------
-    // SAME-EVENT INTEGRITY (acceptance contract §E, R605 evidence): the
-    // four realities reference ONE canonical session/SWM. Event ordering,
-    // game clock, and ball/player continuity flow from that ONE SWM; no
-    // renderer invented or changed a canonical event.
-    // ------------------------------------------------------------------
-    const engine = server.engines.get(sessionId)!;
-    const snapshot = engine.snapshot();
-    // (1) The session id is CONSTANT across every reality acquisition (the
-    //     one acquisition + every descriptor's frozen manifest).
-    expect(snapshot.sessionId).toBe(sessionId);
-    const { RenderArtifactManifest } = await import("@sporta/contracts");
-    const derivedKinds = ["tactical", "three-d-game", "anime-npr"] as const;
-    const frozenManifests = derivedKinds.map((kind) => {
-      const entry = catalog.realities!.find((candidate) => candidate.kind === kind)!;
-      const descriptor = videoDescriptorOf(entry)!;
-      return RenderArtifactManifest.parse(server.media.artifact(descriptor.artifactId));
-    });
-    for (const frozen of frozenManifests) {
-      // (1) The session id is the constant of every reality.
-      expect(frozen.sessionId).toBe(sessionId);
-      // (2) Event ordering: every reality consumed the SAME canonical event
-      //     window (the engine's watermark anchored the window; the
-      //     manifests' lastEventSequence is the highest sequence the
-      //     renderer actually applied — never asserted, never invented).
-      expect(frozen.swm!.lastEventSequence).toBe(frozenManifests[0]!.swm!.lastEventSequence);
-      // (3) The canonical SWM version every reality read is the SAME.
-      expect(frozen.swm!.snapshotVersion).toBe(frozenManifests[0]!.swm!.snapshotVersion);
-    }
-    // The canonical world model's own accounting: the event stream is
-    // strictly ascending (the ordering every reality consumed), and the
-    // derived manifests' provenance is within the world model's own truth.
-    const events = engine.eventsSince(0);
-    for (let i = 1; i < events.length; i += 1) {
-      expect(events[i]!.sequence).toBeGreaterThan(events[i - 1]!.sequence);
-    }
-    expect(frozenManifests[0]!.swm!.lastEventSequence).toBeLessThanOrEqual(
-      Math.max(snapshot.watermark.sequence, events.at(-1)?.sequence ?? 0),
-    );
-    // (4) Game clock: the snapshot's football clock/score state is the ONE
-    //     canonical substrate the realities rendered (the tactical
-    //     overlay, the 3D HUD, and the anime HUD draw it VERBATIM from the
-    //     snapshot — the shared snapshotVersion pins them to the same
-    //     clock state; a renderer never re-derives it).
-    expect(snapshot.football).toBeDefined();
-    expect(snapshot.football!.clock.clockMs).toBeGreaterThanOrEqual(0);
-    expect(Number.isFinite(snapshot.football!.clock.clockMs)).toBe(true);
-    // (5) Ball/player continuity: the snapshot's entity set (the ball via
-    //     the football possession reference + the participants) is the
-    //     shared continuity substrate — the same entity identities every
-    //     reality rendered, held stable by the ONE snapshot version.
-    expect(snapshot.entities.length).toBeGreaterThan(0);
-    const entityIds = snapshot.entities.map((entity) => entity.entityId);
-    expect(new Set(entityIds).size).toBe(entityIds.length); // identities are unique
-
-    // The compute provenance rides the switched surface (R506): the
-    // session state's job row for the anime render carries the selection.
-    const sessionState = await sessionStateRoute(
-      withCookie(token, `/api/create/sessions/${sessionId}`),
-      { params: Promise.resolve({ sessionId }) },
-    );
-    expect(sessionState.status).toBe(200);
-    const state = (await bodyOf(sessionState)) as {
-      sessionId: string;
-      jobs: { rendererId: string | null; selection?: { providerId: string; mode: string } }[];
-    };
-    expect(state.sessionId).toBe(sessionId); // the session NEVER changed
-    for (const rendererId of [
-      "anime.prototype",
-      "tactical.prototype",
-      "game-3d.prototype",
-      "anime-npr.prototype",
-    ]) {
-      const job = state.jobs.find((row) => row.rendererId === rendererId);
-      expect(job, `${rendererId}'s job row must exist`).not.toBeUndefined();
-      expect(job!.selection!.providerId).toBe(providerId);
-      expect(job!.selection!.mode).toBe("user-explicit");
-    }
-  });
+      // The compute provenance rides the switched surface (R506): the
+      // session state's job row for the anime render carries the selection.
+      const sessionState = await sessionStateRoute(
+        withCookie(token, `/api/create/sessions/${sessionId}`),
+        { params: Promise.resolve({ sessionId }) },
+      );
+      expect(sessionState.status).toBe(200);
+      const state = (await bodyOf(sessionState)) as {
+        sessionId: string;
+        jobs: { rendererId: string | null; selection?: { providerId: string; mode: string } }[];
+      };
+      expect(state.sessionId).toBe(sessionId); // the session NEVER changed
+      for (const rendererId of [
+        "anime.prototype",
+        "tactical.prototype",
+        "game-3d.prototype",
+        "anime-npr.prototype",
+      ]) {
+        const job = state.jobs.find((row) => row.rendererId === rendererId);
+        expect(job, `${rendererId}'s job row must exist`).not.toBeUndefined();
+        expect(job!.selection!.providerId).toBe(providerId);
+        expect(job!.selection!.mode).toBe("user-explicit");
+      }
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -718,74 +745,77 @@ describe("the J004 one-submission four-reality journey (golden-path extension)",
   let oneShotSessionId = "";
   const oneShotJobIds: string[] = [];
 
-  test("ONE submission with the three derived realities answers 201 with the whole plan", async () => {
-    // REAL ffmpeg generates a fresh clip for the second journey — a
-    // materially distinct submission (not a replay of step 1's session).
-    const clipPath = await generateTestMp4(join(scratch, "one-submission.mp4"), {
-      durationSeconds: 1,
-      withAudio: false,
-    });
-    const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
+  journeyTest(
+    "ONE submission with the three derived realities answers 201 with the whole plan",
+    async () => {
+      // REAL ffmpeg generates a fresh clip for the second journey — a
+      // materially distinct submission (not a replay of step 1's session).
+      const clipPath = await generateTestMp4(join(scratch, "one-submission.mp4"), {
+        durationSeconds: 1,
+        withAudio: false,
+      });
+      const bytes = new Uint8Array(await Bun.file(clipPath).arrayBuffer());
 
-    const form = new FormData();
-    form.append(
-      "file",
-      new File([bytes.slice().buffer as ArrayBuffer], "one-submission.mp4", {
-        type: "video/mp4",
-      }),
-    );
-    form.append(
-      "operations",
-      JSON.stringify(["analysis", "transformation", "derivativeGeneration", "storage"]),
-    );
-    form.append("realities", JSON.stringify(["tactical", "three-d-game", "anime-npr"]));
-    form.append("compute", JSON.stringify({ mode: "user-explicit", providerId }));
-    form.append("styleId", "one-submission-golden");
-    const response = await uploadSessionRoute(
-      withCookie(token, "/api/create/upload-sessions", { method: "POST", body: form }),
-    );
-    expect(response.status).toBe(201);
-    const body = (await bodyOf(response)) as {
-      sessionId: string;
-      renderPlan: {
-        realities: {
-          reality: string;
-          rendererId: string | null;
-          disposition: string;
-          jobId?: string;
-          jobState?: string;
-        }[];
-        selection?: { providerId: string; mode: string };
+      const form = new FormData();
+      form.append(
+        "file",
+        new File([bytes.slice().buffer as ArrayBuffer], "one-submission.mp4", {
+          type: "video/mp4",
+        }),
+      );
+      form.append(
+        "operations",
+        JSON.stringify(["analysis", "transformation", "derivativeGeneration", "storage"]),
+      );
+      form.append("realities", JSON.stringify(["tactical", "three-d-game", "anime-npr"]));
+      form.append("compute", JSON.stringify({ mode: "user-explicit", providerId }));
+      form.append("styleId", "one-submission-golden");
+      const response = await uploadSessionRoute(
+        withCookie(token, "/api/create/upload-sessions", { method: "POST", body: form }),
+      );
+      expect(response.status).toBe(201);
+      const body = (await bodyOf(response)) as {
+        sessionId: string;
+        renderPlan: {
+          realities: {
+            reality: string;
+            rendererId: string | null;
+            disposition: string;
+            jobId?: string;
+            jobState?: string;
+          }[];
+          selection?: { providerId: string; mode: string };
+        };
+        source: { job: { jobId: string; state: string } | null };
+        perception: { frameCount: number };
       };
-      source: { job: { jobId: string; state: string } | null };
-      perception: { frameCount: number };
-    };
-    oneShotSessionId = body.sessionId;
+      oneShotSessionId = body.sessionId;
 
-    // The plan: every derived reality admitted, through the frozen producer
-    // map, under the ONE selection directive.
-    expect(body.renderPlan.realities).toHaveLength(3);
-    const byReality = new Map(body.renderPlan.realities.map((entry) => [entry.reality, entry]));
-    expect(byReality.get("tactical")!.rendererId).toBe("tactical.prototype");
-    expect(byReality.get("three-d-game")!.rendererId).toBe("game-3d.prototype");
-    expect(byReality.get("anime-npr")!.rendererId).toBe("anime-npr.prototype");
-    for (const entry of body.renderPlan.realities) {
-      expect(entry.disposition).toBe("admitted");
-      expect(entry.jobId).toBeTruthy();
-      expect(entry.jobState).toBeTruthy();
-      oneShotJobIds.push(entry.jobId!);
-    }
-    expect(body.renderPlan.selection!.providerId).toBe(providerId);
-    expect(body.renderPlan.selection!.mode).toBe("user-explicit");
+      // The plan: every derived reality admitted, through the frozen producer
+      // map, under the ONE selection directive.
+      expect(body.renderPlan.realities).toHaveLength(3);
+      const byReality = new Map(body.renderPlan.realities.map((entry) => [entry.reality, entry]));
+      expect(byReality.get("tactical")!.rendererId).toBe("tactical.prototype");
+      expect(byReality.get("three-d-game")!.rendererId).toBe("game-3d.prototype");
+      expect(byReality.get("anime-npr")!.rendererId).toBe("anime-npr.prototype");
+      for (const entry of body.renderPlan.realities) {
+        expect(entry.disposition).toBe("admitted");
+        expect(entry.jobId).toBeTruthy();
+        expect(entry.jobState).toBeTruthy();
+        oneShotJobIds.push(entry.jobId!);
+      }
+      expect(body.renderPlan.selection!.providerId).toBe(providerId);
+      expect(body.renderPlan.selection!.mode).toBe("user-explicit");
 
-    // The media job already reached its stored-original state (the plan
-    // dispatched only after it — the contract's sequencing).
-    expect(body.source.job!.state).toBe("succeeded");
-    // The honest perception summary rides unchanged.
-    expect(body.perception.frameCount).toBeGreaterThan(0);
-  });
+      // The media job already reached its stored-original state (the plan
+      // dispatched only after it — the contract's sequencing).
+      expect(body.source.job!.state).toBe("succeeded");
+      // The honest perception summary rides unchanged.
+      expect(body.perception.frameCount).toBeGreaterThan(0);
+    },
+  );
 
-  test("the plan's jobs are real compute jobs (the EXISTING job surface)", async () => {
+  journeyTest("the plan's jobs are real compute jobs (the EXISTING job surface)", async () => {
     for (const jobId of oneShotJobIds) {
       let terminal: Record<string, unknown> | null = null;
       for (let attempt = 0; attempt < 400; attempt += 1) {
@@ -816,6 +846,8 @@ describe("the J004 one-submission four-reality journey (golden-path extension)",
     }
   });
 
+  // (kept on plain `test`: an earlier wave already gave this one its own
+  // explicit 30s budget — the same robustness rationale as journeyTest)
   test("the catalog answers all four realities ready (the single availability truth)", async () => {
     // The plan's compute jobs settled in the previous step; the async
     // output INGESTS (the landing into the playback store) converge within
@@ -854,13 +886,16 @@ describe("the J004 one-submission four-reality journey (golden-path extension)",
     expect(catalog!.readyRealityCount).toBe(4);
   }, 30_000);
 
-  test("Watch serves every one-shot reality's real bytes (the same deep links)", async () => {
-    for (const kind of ["tactical", "three-d-game", "anime-npr"] as const) {
-      const response = await realitiesRoute(
-        withCookie(token, `/api/watch/${oneShotSessionId}/realities?kind=${kind}`),
-        { params: Promise.resolve({ sessionId: oneShotSessionId }) },
-      );
-      expect(response.status).toBe(200);
-    }
-  });
+  journeyTest(
+    "Watch serves every one-shot reality's real bytes (the same deep links)",
+    async () => {
+      for (const kind of ["tactical", "three-d-game", "anime-npr"] as const) {
+        const response = await realitiesRoute(
+          withCookie(token, `/api/watch/${oneShotSessionId}/realities?kind=${kind}`),
+          { params: Promise.resolve({ sessionId: oneShotSessionId }) },
+        );
+        expect(response.status).toBe(200);
+      }
+    },
+  );
 });
