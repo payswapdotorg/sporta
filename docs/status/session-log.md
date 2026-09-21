@@ -941,3 +941,43 @@ follow before the worker report.
 Session state: main @6bd9753 CI GREEN. WAVE 2 COMPLETE (A+B+C all
 merged). Wave 3: C MERGED; A awaiting final evidence; wave-3 B lane
 (J011 + L014 platform) now dispatchable.
+
+## Session 2026-09-21 14:43-20:00 UTC — WAVE 3 WORKER A LANE MERGED (CI green); the capacity-siege close-out diagnosis
+
+- Resident cycle resumed after a context handoff (the handoff summary was
+  wrong about "no prior work" — worklog ground truth corrected it).
+  Stack verified: replayd/console/Chrome/watchdogs/sentinel all up.
+- REAL user-visible defect found + fixed: /api/frame 500/503 (direct AND
+  gateway) — replayd's CDP WebSockets degraded after 26.8h uptime (capture
+  failures since 12:45, stale-frame serving then total failure). Fix:
+  stateless replayd bounce; the custodian auto-resurrected it (fresh CDP
+  connections); frame API 200 everywhere + agent-browser E2E through the
+  preview panel (live image 1439x812 complete, all console controls).
+- wave3-a close-out diagnosis: the staged TL directive landed 13:42:33;
+  the worker's in-flight turn committed its 12-field COMPLETION REPORT at
+  that same second (report fields 9-12 verified in the thread DOM: status
+  rows + design doc + worklog pointers, "branch pushed and up to date");
+  the evidence rows were ALREADY inside c442214 ("full battery 6629/0 vs
+  baseline 6524/0 @3170a6f, env -u DATABASE_URL both sides" in the pushed
+  status doc). The "No response" answer was to the REDUNDANT directive —
+  the work was already complete. Branch + evidence + report = ground
+  truth → merge cycle.
+- MERGE @fd41352 (--no-ff; the two expected doctrine conflicts resolved:
+  bun.lock regenerated via bun install; status doc union — J006/J013/J014
+  rows keep main's current state, J008/J009/J010 rows take A's delivered
+  state, header records the wave-3 state). Post-merge verification on the
+  merged tree: scoped A-lane battery 474/474 PASS (9.3s); full apps/web
+  battery 831 pass / 0 fail / 26 skip under env -u DATABASE_URL (63.8s);
+  typechecks x6 (live-fusion/session/identity/output-pipeline/
+  media-platform/renderer-3d) all clean; eslint 0 errors (1 pre-existing
+  media-platform console warning, not A-lane); prettier clean.
+  **CI GREEN at fd41352.**
+- wave3-a session RETIRED: lane complete + merged; sentinel reconfigured
+  to wave3-b only (no nudges on a closed lane).
+- Wave 3 B lane: the supervisor-guarded recover_capacity loop continues
+  its assault rounds against the platform capacity window (the day's
+  third window, 12:00+, the most severe — 6.5h+; 149 capacity hits).
+
+Session state: main @fd41352 CI GREEN. Wave 3: A MERGED + C MERGED; B lane
+creation still fighting capacity (recover loop running). Wave-4 (J-UI
+surfaces + integration) queues after wave-3 B closes.
