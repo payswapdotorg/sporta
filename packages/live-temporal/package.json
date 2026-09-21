@@ -1,0 +1,20 @@
+{
+  "name": "@sporta/live-temporal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/live-source": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
