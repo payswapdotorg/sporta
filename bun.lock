@@ -452,6 +452,25 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/live-perception": {
+      "name": "@sporta/live-perception",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/decoding": "workspace:*",
+        "@sporta/field-mapping": "workspace:*",
+        "@sporta/live-source": "workspace:*",
+        "@sporta/live-swm": "workspace:*",
+        "@sporta/live-temporal": "workspace:*",
+        "@sporta/media-platform": "workspace:*",
+        "@sporta/perception-adapters": "workspace:*",
+        "@sporta/real-to-swm": "workspace:*",
+        "@sporta/testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/live-source": {
       "name": "@sporta/live-source",
       "version": "0.1.0",
@@ -1076,6 +1095,8 @@
     "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
     "@sporta/live-open-data": ["@sporta/live-open-data@workspace:packages/live-open-data"],
+
+    "@sporta/live-perception": ["@sporta/live-perception@workspace:packages/live-perception"],
 
     "@sporta/live-source": ["@sporta/live-source@workspace:packages/live-source"],
 

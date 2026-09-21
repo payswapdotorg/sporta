@@ -1,0 +1,28 @@
+{
+  "name": "@sporta/live-perception",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/contracts": "workspace:*",
+    "@sporta/decoding": "workspace:*",
+    "@sporta/field-mapping": "workspace:*",
+    "@sporta/live-source": "workspace:*",
+    "@sporta/live-swm": "workspace:*",
+    "@sporta/live-temporal": "workspace:*",
+    "@sporta/media-platform": "workspace:*",
+    "@sporta/perception-adapters": "workspace:*",
+    "@sporta/real-to-swm": "workspace:*",
+    "@sporta/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
