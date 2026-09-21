@@ -869,3 +869,42 @@ Session state: main @ae075b5 CI GREEN. Wave 2: A + C MERGED; B in flight
 Session-end state: branch work/l014pres-fidelity-anime @3ec90e2 pushed
 (FIDELITY 4917fa7 + L014 3ec90e2); the final full-battery + format pass
 follow before the worker report.
+
+## Session 2026-09-21 (Wave 3, continued) — Worker C final gates + the browser verification
+
+- The browser verification (the repo's own e2e posture: production build +
+  `bun --bun run start` + SPORTA_LIVE_TRANSPORT=sse + a real headless
+  browser) surfaced TWO client-side defects, both fixed on the branch
+  (9a6dcdc):
+  1. PRE-EXISTING on main (verified identical on the clean base 3170a6f):
+     /live did not BUNDLE — live-3d.tsx imported the renderer-3d package
+     INDEX, whose re-exported game plugin consumes node:fs, which Turbopack
+     refuses in client chunks. Fix: the additive `./live` subpath export
+     (the PURE L013/L014 adapter) + renderer-3d joins the app's
+     transpilePackages (the one client-importable subpath, documented in
+     the config comment).
+  2. My own hooks-order bug: the Live surface called useLiveReplay/useMemo/
+     useCallback after the capability early returns → React error #310.
+     All hooks now run unconditionally above the early returns.
+- BROWSER EVIDENCE (production build, real register/login, screenshots
+  under the session's evidence): the live window streams over the real SSE
+  route (24 world frames) → the honest `live-window-complete` close → the
+  replay control bar appears (24 frames, world v1→v24) → scrub/step
+  re-render the RECORDED frames through the SAME 2D view → the SAME 3D view
+  replays through the SAME adapter → the paced play advances the cursor →
+  a reload selecting the finite source lands DIRECTLY in the replay
+  presentation (the completed-record pre-check) → the stream route answers
+  410 live-window-complete (verified from the page context).
+- The seed-count test pins updated (518d5d5): the 8th live source changes
+  the seeded-session counts (9→10, the operator workspace 10→11, the sorted
+  story-key lists gain the 7th live-tactical-synthetic entry).
+- FINAL GATES at tip 518d5d5: lint 0 errors (the 1 pre-existing
+  media-platform no-console warning, present on main); typecheck ALL
+  packages exit 0 sequentially (the parallel fan-out OOM-kills on this
+  4 GiB box — the documented environmental family, code 137 re-confirmed);
+  format:check clean; FULL BATTERY per-package sequential under
+  clean-env (env -u DATABASE_URL): 6558 pass / 0 fail / 33 skip across all
+  63 packages + apps/web (832 tests: 806 pass / 0 fail / 26 skip) + the
+  root e2e — ZERO failures (0 NEW failures vs the recorded wave-2 baseline
+  6374/33/18 with its documented environmental families; the sequential
+  protocol also avoids the contention-timeout family entirely).
