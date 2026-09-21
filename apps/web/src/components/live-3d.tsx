@@ -7,8 +7,8 @@ import {
   createLiveSceneState,
   liveCameraReducer,
   projectLiveScene,
-} from "@sporta/renderer-3d";
-import type { LiveCameraState, LiveSceneState } from "@sporta/renderer-3d";
+} from "@sporta/renderer-3d/live";
+import type { LiveCameraState, LiveSceneState } from "@sporta/renderer-3d/live";
 import { useLiveWorldStream } from "@/lib/use-live-world-stream";
 import {
   TACTICAL_TEAM_COLORS,

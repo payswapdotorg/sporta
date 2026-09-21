@@ -86,21 +86,9 @@ export function LiveSurface() {
     );
   }, [transportActive]);
 
-  if (capability.phase === "loading") {
-    return <LoadingPanel label="Live" />;
-  }
-  if (capability.phase === "failed") {
-    return (
-      <StatePanel
-        state="failed"
-        title="The capability state could not be read"
-        reason="The capability request failed — a real failure, not simulated."
-      />
-    );
-  }
-
-  const live = deriveLiveState(capability.data);
-
+  // L014: the sources rows + the default pick are computed WITHOUT hooks so
+  // every hook below runs UNCONDITIONALLY (the hooks-order rule — the early
+  // returns for the loading/failed capability states come after them).
   const rows: LiveSourceRow[] =
     sources.phase === "ready"
       ? sources.data.sources.map((source) => ({
@@ -115,22 +103,16 @@ export function LiveSurface() {
   // The default pick: the FIRST tactical source (the L005 scaffold's live
   // tactical view), else the first source — a deliberate, visible default.
   const selected =
-    rows.find((row) => row.sessionId === picked) ??
-    rows.find((row) => row.sourceKind === "tactical") ??
-    rows[0] ??
-    null;
+    capability.phase === "ready"
+      ? (rows.find((row) => row.sessionId === picked) ??
+        rows.find((row) => row.sourceKind === "tactical") ??
+        rows[0] ??
+        null)
+      : null;
 
   // L014: the replay controller over the record (drives BOTH presentations
   // from one cursor — the same recorded frame renders in either view mode).
   const replay = useLiveReplay(replayRecord);
-  const replayActive = replay !== null && replay.record.state === "complete";
-  const continuity = useMemo(() => {
-    if (replayRecord === null || replayRecord.state !== "complete") return null;
-    return {
-      facts: replayContinuityFacts(replayRecord),
-      verdict: replayContinuityVerdict(replayRecord.frames),
-    };
-  }, [replayRecord]);
 
   // L014: when a tactical source is selected, READ the replay record state
   // first (a completed window replays immediately — including after a page
@@ -180,6 +162,32 @@ export function LiveSurface() {
       (error) => setReplayFetchFailed(String(error)),
     );
   }, [selected?.sessionId]);
+
+  // L014: the visible continuity facts + the alignment verdict (pure
+  // derivations over the record — memoized, still above the early returns).
+  const continuity = useMemo(() => {
+    if (replayRecord === null || replayRecord.state !== "complete") return null;
+    return {
+      facts: replayContinuityFacts(replayRecord),
+      verdict: replayContinuityVerdict(replayRecord.frames),
+    };
+  }, [replayRecord]);
+
+  if (capability.phase === "loading") {
+    return <LoadingPanel label="Live" />;
+  }
+  if (capability.phase === "failed") {
+    return (
+      <StatePanel
+        state="failed"
+        title="The capability state could not be read"
+        reason="The capability request failed — a real failure, not simulated."
+      />
+    );
+  }
+
+  const live = deriveLiveState(capability.data);
+  const replayActive = replay !== null && replay.record.state === "complete";
 
   return (
     <div className="surface-stack">
