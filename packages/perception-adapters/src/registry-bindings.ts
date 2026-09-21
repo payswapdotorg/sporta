@@ -22,6 +22,7 @@ import type {
 import type { PerceptionTaskKind } from "@sporta/contracts";
 import { PERCEPTION_TASK_BINDINGS } from "@sporta/contracts";
 import type { TechnologyBoundedAdapter } from "./adapter";
+import { ContrastContextDetector } from "./detection/contrast-context";
 import { HeuristicColorDetector } from "./detection/heuristic-color";
 import { ModelBackedDetector } from "./detection/model-backed";
 import { BallBlobDetector, ModelBackedBallDetector } from "./ball/ball-blob-detector";
@@ -128,7 +129,7 @@ interface CandidateSpec {
   readonly instantiate: () => TechnologyBoundedAdapter;
 }
 
-/** The eleven shipped candidates, family by family (>= 2 per family). */
+/** The twelve shipped candidates, family by family (>= 2 per family). */
 const FAMILY_CANDIDATES: ReadonlyArray<{
   task: PerceptionTaskKind;
   candidates: readonly CandidateSpec[];
@@ -136,6 +137,18 @@ const FAMILY_CANDIDATES: ReadonlyArray<{
   {
     task: "perception.player-detection",
     candidates: [
+      {
+        displayName: "Contrast-context player detector (surface-agnostic, CPU, deterministic)",
+        notes:
+          "J012 PRODUCTION PATH: local-contrast foreground mask (integral-image " +
+          "local means, surface-agnostic — sand/grass/film gray alike) + 3x3 majority " +
+          "cleanup + dominant-surface restriction + player-shape envelopes + ring-context " +
+          "surface gates; honest confidence = compactness x ring surface fraction. " +
+          "Deterministic, CPU-only, ZERO external components (no weights, no datasets, " +
+          "no assets) — the license-clean default chain head. Documented limits: merged " +
+          "players/shadows, suppressed low-contrast kits, off-envelope framings.",
+        instantiate: () => new ContrastContextDetector(),
+      },
       {
         displayName: "Heuristic color-blob player detector (CPU, deterministic)",
         notes:
@@ -304,7 +317,7 @@ export function describeAdapters(): readonly AdapterFamilySummary[] {
 }
 
 /**
- * The default registration bindings for ALL eleven shipped candidates (the
+ * The default registration bindings for ALL twelve shipped candidates (the
  * instances the descriptors, licenses, failure classes, and resource
  * requirements are read from are the zero-arg default constructions).
  */

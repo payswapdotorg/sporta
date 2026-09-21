@@ -20,6 +20,9 @@
  * - `registry-bindings`: `TechnologyCandidate`-shaped binding-readiness
  *   records + `describeAdapters()` (the runtime registry is another
  *   lane's Wave-1 deliverable)
+ * - `detection/contrast-context`: the J012 production-path candidate
+ *   (surface-agnostic local-contrast + surface/ring context gates; zero
+ *   external license components)
  * - `detection/heuristic-color`: R202 candidate 1 (real pixel-space
  *   CPU-only detector)
  * - `detection/model-backed`: R202 candidate 2 (real open-source detector
@@ -91,6 +94,7 @@ export type { PerceptionAdapterErrorDetails, PerceptionAdapterErrorUnion } from 
 // License records.
 export {
   COLOR_BLOB_BALL_TRACKER_LICENSE,
+  CONTRAST_CONTEXT_DETECTOR_LICENSE,
   GREEDY_IOU_TRACKER_LICENSE,
   HEURISTIC_COLOR_DETECTOR_LICENSE,
   HOMOGRAPHY_FIELD_CALIBRATOR_LICENSE,
@@ -111,6 +115,17 @@ export {
 } from "./registry-bindings";
 export type { AdapterFamilySummary, CandidateBinding, CandidateSummary } from "./registry-bindings";
 // R202 candidates.
+export {
+  CONTRAST_CONTEXT_DETECTOR_ADAPTER_VERSION,
+  CONTRAST_CONTEXT_DETECTOR_FAILURE_CLASSES,
+  CONTRAST_CONTEXT_DETECTOR_ID,
+  CONTRAST_CONTEXT_DETECTOR_RESOURCES,
+  CONTRAST_CONTEXT_DETECTOR_VERSION,
+  ContrastContextDetector,
+  defaultBlockSizePx,
+  defaultContrastRadiusPx,
+} from "./detection/contrast-context";
+export type { ContrastContextDetectorOptions } from "./detection/contrast-context";
 export {
   HEURISTIC_COLOR_DETECTOR_ADAPTER_VERSION,
   HEURISTIC_COLOR_DETECTOR_FAILURE_CLASSES,

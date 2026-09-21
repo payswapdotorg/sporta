@@ -28,6 +28,7 @@
     "@sporta/health": "workspace:*",
     "@sporta/observability": "workspace:*",
     "@sporta/observation": "workspace:*",
+    "@sporta/perception-benchmark": "workspace:*",
     "@sporta/perception-tracking": "workspace:*",
     "@sporta/session": "workspace:*",
     "@sporta/spatial-state": "workspace:*",

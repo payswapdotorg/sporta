@@ -105,6 +105,14 @@ export const MODEL_BACKED_DETECTOR_LICENSE: TechnologyLicenseRecord = {
   },
 };
 
+/** License record: `contrast-context-detector` (the J012 production path). */
+export const CONTRAST_CONTEXT_DETECTOR_LICENSE: TechnologyLicenseRecord = pureCodeLicense(
+  "surface-agnostic local-contrast + morphological cleanup + dominant-surface restriction + " +
+    "ring-context gates; deterministic CPU-only; no model, dataset, or bundled assets — the " +
+    "zero-external-component J012 license-clean path (AGPL-adjacent model candidates excluded " +
+    "by decision; see docs/research/j012-perception-licensing-and-production-path.md)",
+);
+
 /** License record: `greedy-iou-tracker` (R203 candidate 1, W204 baseline wrap). */
 export const GREEDY_IOU_TRACKER_LICENSE: TechnologyLicenseRecord = pureCodeLicense(
   "wraps the W204 GreedyIouTracker; deterministic CPU-only association; no model/dataset/assets",

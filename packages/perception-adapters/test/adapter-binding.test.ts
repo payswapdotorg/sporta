@@ -14,6 +14,7 @@ import {
   perceptionDescriptor,
   BallBlobDetector,
   ColorBlobBallTracker,
+  ContrastContextDetector,
   GreedyIouTrackerAdapter,
   HeuristicColorDetector,
   HomographyFieldCalibratorAdapter,
@@ -100,6 +101,7 @@ describe("fail-closed descriptor binding validation (R201)", () => {
 
 describe("every shipped candidate conforms fail-closed", () => {
   const candidates = [
+    ["contrast-context-detector", () => new ContrastContextDetector()],
     ["heuristic-color-detector", () => new HeuristicColorDetector()],
     ["model-backed-detector", () => new ModelBackedDetector()],
     ["ball-blob-detector", () => new BallBlobDetector()],
@@ -174,7 +176,7 @@ describe("describeAdapters (R201 inventory)", () => {
 describe("registry bindings (TechnologyCandidate-shaped records)", () => {
   test("every shipped candidate maps to a frozen-schema-valid candidate record", () => {
     const bindings = defaultCandidateBindings();
-    expect(bindings.length).toBe(11);
+    expect(bindings.length).toBe(12);
     for (const binding of bindings) {
       const parsed = TechnologyCandidate.safeParse(binding.candidate);
       expect(parsed.success).toBe(true);

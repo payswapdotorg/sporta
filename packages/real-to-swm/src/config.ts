@@ -61,7 +61,12 @@ export interface DecodeWindowConfig {
 export interface RealToSwmPipelineConfig {
   /** The media session id (required, non-empty). */
   readonly sessionId: string;
-  /** Player-detection candidate chain (default: model-backed, heuristic). */
+  /**
+   * Player-detection candidate chain (default: contrast-context,
+   * model-backed, heuristic — the J012 license-clean production path first;
+   * the model-backed candidate keeps its honest refusal posture, the color
+   * baseline stays the final fallback).
+   */
   readonly playerDetection?: CandidateChain;
   /** Player-tracking candidate chain (default: greedy-iou baseline). */
   readonly playerTracking?: CandidateChain;
@@ -123,6 +128,7 @@ export interface ResolvedPipelineConfig {
 
 /** Default candidate chains (the shipped, always-available compositions). */
 export const DEFAULT_PLAYER_DETECTION_CHAIN: CandidateChain = [
+  "contrast-context-detector",
   "model-backed-detector",
   "heuristic-color-detector",
 ];

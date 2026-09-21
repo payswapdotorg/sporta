@@ -1,8 +1,8 @@
 /**
- * Deterministic detection-family benchmark (R202): runs each candidate
- * (heuristic color detector + model-backed detector) against the committed
- * synthetic-diagnostic scenario specs and emits frozen-contract
- * `BenchmarkRun` records.
+ * Deterministic detection-family benchmark (R202 + J012b): runs each
+ * candidate (contrast-context detector + heuristic color detector +
+ * model-backed detector) against the committed synthetic-diagnostic
+ * scenario specs and emits frozen-contract `BenchmarkRun` records.
  *
  * METRICS (wrapped from W201's `runDetectionBenchmark` — the repo's own
  * matcher, never re-implemented): precision, recall, f1 at IoU 0.5 against
@@ -11,11 +11,18 @@
  * refuses per frame with its documented failure class — counted honestly
  * in `failureSummary` (and its quality metrics stay the honest zeros of
  * "nothing was detected", never fabricated); WITH a backend injected it is
- * scored by exactly the same pipeline as the heuristic candidate.
+ * scored by exactly the same pipeline as the other candidates.
  */
 import { runDetectionBenchmark } from "@sporta/perception-detection";
 import type { DetectedBox, LabeledGroundTruth } from "@sporta/perception-detection";
 import type { BenchmarkRun as BenchmarkRunType } from "@sporta/contracts";
+import { ContrastContextDetector } from "../detection/contrast-context";
+import {
+  CONTRAST_CONTEXT_DETECTOR_ADAPTER_VERSION,
+  CONTRAST_CONTEXT_DETECTOR_ID,
+  CONTRAST_CONTEXT_DETECTOR_VERSION,
+} from "../detection/contrast-context";
+import type { ContrastContextDetectorOptions } from "../detection/contrast-context";
 import { HeuristicColorDetector } from "../detection/heuristic-color";
 import {
   HEURISTIC_COLOR_DETECTOR_ADAPTER_VERSION,
@@ -48,6 +55,7 @@ import {
 export interface DetectionFamilyBenchmarkOptions {
   /** Scenario specs (default: the committed detection-scenarios.json set). */
   readonly scenarios?: readonly DetectionFixtureSpec[];
+  readonly contrastContextOptions?: ContrastContextDetectorOptions;
   readonly heuristicOptions?: HeuristicColorDetectorOptions;
   readonly modelBackedOptions?: ModelBackedDetectorOptions;
   /** Injected clock (default: the deterministic constant clock). */
@@ -134,7 +142,10 @@ function evaluateDetectCallable(
 /**
  * Runs the detection-family benchmark over the committed scenario set
  * (or the given scenarios) and returns one frozen-contract
- * `BenchmarkRun` per candidate (heuristic first, model-backed second).
+ * `BenchmarkRun` per candidate (heuristic first, model-backed second,
+ * contrast-context third — the order preserves the historical candidate
+ * indices; chain PREFERENCE is expressed by the pipeline config, not the
+ * benchmark order).
  * Two calls with the same options produce deep-equal records
  * (deterministic candidates + default constant clock).
  */
@@ -147,6 +158,7 @@ export function runDetectionFamilyBenchmark(
 
   const heuristic = new HeuristicColorDetector(options.heuristicOptions);
   const modelBacked = new ModelBackedDetector(options.modelBackedOptions);
+  const contrastContext = new ContrastContextDetector(options.contrastContextOptions);
 
   const heuristicStartedAtMs = clock.now();
   const heuristicOutcome = evaluateDetectCallable(scenarios, (frame) => heuristic.detect(frame));
@@ -156,10 +168,16 @@ export function runDetectionFamilyBenchmark(
     modelBacked.detect(frame),
   );
   const modelBackedCompletedAtMs = clock.now();
+  const contrastStartedAtMs = clock.now();
+  const contrastOutcome = evaluateDetectCallable(scenarios, (frame) =>
+    contrastContext.detect(frame),
+  );
+  const contrastCompletedAtMs = clock.now();
 
   // Internal determinism rerun — the honest rerunDeltaPct evidence.
   const heuristicRerun = evaluateDetectCallable(scenarios, (frame) => heuristic.detect(frame));
   const modelBackedRerun = evaluateDetectCallable(scenarios, (frame) => modelBacked.detect(frame));
+  const contrastRerun = evaluateDetectCallable(scenarios, (frame) => contrastContext.detect(frame));
 
   return [
     buildBenchmarkRun({
@@ -207,6 +225,30 @@ export function runDetectionFamilyBenchmark(
         "fixtures/detection-scenarios.json",
         "packages/perception-adapters/src/benchmark/detection.ts",
         "packages/perception-adapters/assets/README.md",
+      ],
+    }),
+    buildBenchmarkRun({
+      runId: `detection/${CONTRAST_CONTEXT_DETECTOR_ID}/${FIXTURE_SET_VERSION}`,
+      technologyId: CONTRAST_CONTEXT_DETECTOR_ID,
+      technologyVersion: CONTRAST_CONTEXT_DETECTOR_VERSION,
+      adapterVersion: CONTRAST_CONTEXT_DETECTOR_ADAPTER_VERSION,
+      task: "perception.player-detection",
+      fixtureSetVersion: FIXTURE_SET_VERSION,
+      startedAtMs: contrastStartedAtMs,
+      completedAtMs: contrastCompletedAtMs,
+      metrics: contrastOutcome.metrics,
+      resourceUsage: contrastOutcome.resourceUsage,
+      failureSummary: {
+        failures: contrastOutcome.failures,
+        failureExamples: contrastOutcome.failureExamples,
+      },
+      seed,
+      rerunDeltaPct: metricDeltaPct(contrastOutcome.metrics, contrastRerun.metrics),
+      licenseCheck: "not-applicable",
+      artifactRefs: [
+        "fixtures/detection-scenarios.json",
+        "packages/perception-adapters/src/benchmark/detection.ts",
+        "docs/research/j012-perception-licensing-and-production-path.md",
       ],
     }),
   ];
