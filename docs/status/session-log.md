@@ -676,3 +676,56 @@ Session state: main @bccf89c (CI pending), Wave 1 ALL THREE LANES
 delivered (B + C merged earlier; A merged now). Next: CI verdict →
 status evidence → Wave 2 dispatch (A: L007/L010/L011 impl; B: J006
 backend + J014 + L006 + L009; C: J006 UI + J013 + L005 full + L013).
+
+## Session 2026-09-21 — Wave 2 Worker C lane delivered (J006 UI + J013 + L005 full + L013)
+
+- Worker C (branch work/j006ui-j013-l005-l013, base 451766b, tip a459d4d)
+  delivered its full Wave 2 lane as 4 checkpoint pushes:
+  - L005 full (4c03750): the pure view projection + the full browser
+    surface (identity-continuous markers with STABLE labels, pinned entity
+    inspector, honest event ticker, receipt-watchdog stall overlay) +
+    event-driven W915 consumption + one seeded session per L002 scenario
+    (all six) + 21-test battery.
+  - L013 (ff50091): the additive renderer-3d live view-model adapter
+    (identity-continuous carry, pure camera with the canonical look-at
+    equivalence PINNED by test, the renderer's own projection math) + the
+    browser interactive 3D view over the SAME world stream (shared
+    useLiveWorldStream hook; camera never touched by state updates) + the
+    Live 2D/3D toggle + 11-test battery.
+  - J006 UI (6cde4d7): the six compute-transparency facts on Create AND
+    Watch from the EXISTING route contracts (honest unknowns everywhere,
+    the declared no-silent-fallback posture) + 22-test battery.
+  - J013 (a459d4d): the sensitivity gate — pure verdict/premise
+    derivations (4-verdict truth table incl. the explicit equivalence
+    explanation) + the full-pipeline battery over the NEW calibratable
+    pitch-marked test media (generateTestMp4 scene "pitch-marked" — the
+    line-based calibrator's documented envelope; positions project to
+    canonical pitch meters) + tactical + 3D e2e gates PASS + the
+    content-addressed dedup control pair + renderer-side sensitivity for
+    BOTH game realities (5 tests).
+- HONEST FINDINGS recorded for TL reconciliation:
+  1. On the UNMARKED pitch scene, the calibration honestly refuses (no
+     landmarks) → positions stay image-frame → the scene projection
+     omits every entity → the derived renderers (all three) collapse to
+     empty-pitch renders across materially different SWMs. The pitch-marked
+     media fixes the gate; the unmarked finding is the J012-documented
+     fidelity gap, now precisely measured (apps/web battery documents it).
+  2. The anime-NPR e2e leg is BLOCKED by a platform-budget tension: the
+     populated-pitch cel-shaded render at the default 4s SD profile
+     measures ~1.04MB over the compute plane's 1MB fail-closed artifact
+     budget (the honest artifact-too-large refusal fires on both
+     sessions). Cross-lane: renderer content vs budget (B's compute plane
+     / encoding constants). The renderer-side anime sensitivity is proven
+     without the budget in the path (packages/renderer-3d
+     test/sensitivity.test.ts).
+  3. Shared-infra touch flagged: packages/media-platform generateTestMp4
+     gained the ADDITIVE scene "pitch-marked" (existing "bars"/"pitch"
+     byte-identical; all dependent suites re-run green).
+- Gates at tip: lint 0 errors (1 pre-existing warning); sequential
+  per-package typecheck ALL exit 0 incl. web; format:check clean; full
+  battery 6374 pass / 33 skip / 18 fail — IDENTICAL failure set to the
+  recorded clean-clone baseline (451766b: 6301/33/18; the documented
+  contention-timeout families, all passing isolated).
+
+Session-end state: Wave 2 Worker C lane COMPLETE on the branch (TL
+harvests); A + B lanes in flight per the wave plan.
