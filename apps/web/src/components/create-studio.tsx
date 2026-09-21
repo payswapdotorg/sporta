@@ -32,6 +32,7 @@ import {
   previewRights,
   setStudioPublication,
 } from "@/lib/client-api";
+import { CreateComputeTransparency } from "@/components/compute-transparency";
 import {
   CREATE_STEPS,
   DERIVED_REALITY_LABELS,
@@ -1367,7 +1368,18 @@ function ComputeStep({
             <SelectionExplanationPanel selection={preview.data} />
           )}
 
-          <ComputeCostPanel status={status} />
+          <CreateComputeTransparency
+            status={status}
+            selection={
+              preview.phase === "ready"
+                ? {
+                    providerId: preview.data.selection.providerId,
+                    mode: preview.data.explanation.mode,
+                    explanation: preview.data.explanation,
+                  }
+                : null
+            }
+          />
         </>
       )}
     </section>
@@ -1377,81 +1389,6 @@ function ComputeStep({
 // ---------------------------------------------------------------------------
 // R506 — the compute/cost panel (the plane + the caller's allowances)
 // ---------------------------------------------------------------------------
-
-/**
- * The compute/cost panel (R506): whose compute plane this deployment renders
- * on (the operator's declared responsibility boundary), the caller's daily
- * allowance states, and the metered usage totals — every unknown shown as
- * unknown (`not measured`), never as 0. A projection of connection-center
- * state; no invented numbers.
- */
-function ComputeCostPanel({ status }: { status: ComputeCostStatus }) {
-  if (status.phase === "idle") return null;
-  if (status.phase === "loading") {
-    return <LoadingPanel label="Reading the compute plane and your allowances" />;
-  }
-  if (status.phase === "failed") {
-    return (
-      <StatePanel
-        state="failed"
-        title="The compute/cost status could not be read"
-        reason={status.error}
-      />
-    );
-  }
-  const { plane, quotas, usage } = status.data;
-  return (
-    <section className="studio-rights-preview" aria-label="Compute and cost">
-      <h3 className="studio-subheading">Compute &amp; cost</h3>
-      <dl className="session-card-facts">
-        <div className="fact">
-          <dt>Whose compute</dt>
-          <dd>
-            {plane === null ? (
-              "no compute plane is configured"
-            ) : (
-              <>
-                <StateChip
-                  state={plane.executionOwnership === "sporta-managed" ? "ready" : "degraded"}
-                >
-                  {plane.executionOwnership}
-                </StateChip>{" "}
-                <span className="field-hint">
-                  provider <code>{plane.providerId}</code> · zone {plane.facts.privacyZone}
-                </span>
-              </>
-            )}
-          </dd>
-        </div>
-        <div className="fact">
-          <dt>Usage totals</dt>
-          <dd>
-            {usage === null
-              ? "not measured"
-              : usage.map((unit) => `${unit.quantity} ${unit.unitId}`).join(" · ") ||
-                "none metered"}
-          </dd>
-        </div>
-        {quotas.map((quota) => (
-          <div className="fact" key={quota.quotaId}>
-            <dt>{quota.quotaId}</dt>
-            <dd>
-              {quota.used === null || quota.limit === null
-                ? "not measured (unreadable counter — fail-closed)"
-                : `${quota.used} of ${quota.limit} used today · ${
-                    quota.exhausted ? "exhausted" : `${quota.remaining} remaining`
-                  }`}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <p className="field-hint">
-        Allowance states are the platform&rsquo;s own daily quotas (the W919 ledger). Unknown
-        measures are shown as unknown — never as 0.
-      </p>
-    </section>
-  );
-}
 
 /** The compute/cost status fetch state shared by the studio steps. */
 type ComputeCostStatus =
@@ -1851,7 +1788,7 @@ function RenderStep({
         </section>
       )}
 
-      <ComputeCostPanel status={computeStatus} />
+      <CreateComputeTransparency status={computeStatus} selection={plan?.selection ?? null} />
 
       {/* The upload path's source + perception summary (R501) */}
       {submission.perception !== null && (
