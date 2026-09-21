@@ -32,6 +32,7 @@
  *   requester-scoped discoverable set only.
  */
 import type { SportaServer } from "./composition";
+import type { StudioComputeSelectionRecord } from "./create-studio-service";
 import type { SeedStoryMeta } from "./dev-seed";
 import type { ContentVisibilityRecord } from "./publication";
 import { tokenFromRequest } from "./auth-service";
@@ -240,6 +241,16 @@ export interface WatchRenderModel {
   segmentCount: number;
   /** The stored output segments (empty when the render produced none). */
   outputs: { segmentId: string; contentType: string; byteLength: number; contentHash: string }[];
+  /**
+   * J006 — THE RENDER'S COMPUTE PROVENANCE: the dispatch's selection
+   * record (provider, selection reason, privacy posture, fallback state
+   * and the selection-time cost estimate, plus the six-field
+   * transparency document). Present ONLY when THIS instance saw the
+   * dispatch under a compute directive — a cold restart or a
+   * directive-less dispatch honestly carries NO entry (never an
+   * invented provenance).
+   */
+  compute?: StudioComputeSelectionRecord;
 }
 
 /** One entry of the session's real SWM event tail (world-model events). */
@@ -1137,6 +1148,9 @@ export async function buildWatchModel(
   }
 
   const { renders } = await server.control.listRenders(sessionId);
+  // J006: the session's per-render compute provenance (the dispatch
+  // selection records this instance saw — honest absence for the rest).
+  const computeProvenance = await server.studio.renderComputeProvenance(sessionId);
   const renderModels: WatchRenderModel[] = [];
   for (const render of renders) {
     const envelope = await server.control.getRender(sessionId, render.renderId);
@@ -1154,6 +1168,10 @@ export async function buildWatchModel(
         byteLength: segment.byteLength,
         contentHash: segment.contentHash,
       })),
+      // J006: the render's compute provenance joins here (absent honestly).
+      ...(computeProvenance.has(envelope.renderId)
+        ? { compute: computeProvenance.get(envelope.renderId) }
+        : {}),
     });
   }
 
