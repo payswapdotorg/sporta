@@ -50,3 +50,61 @@ export {
 } from "./timeline";
 export type { CalibrateInput, TimelineClock } from "./timeline";
 export { SessionDocumentValidationError, parseSessionDocument } from "./validation";
+// The rights domain (J008/J009 — Wave 3, Worker A): durable effective-policy
+// + audit stores, the grant/widen/narrow/revoke editor service, and the
+// role-gated audit discoverability query seam.
+export {
+  effectiveCapabilitiesOf,
+  InMemoryEffectivePolicyStore,
+  InMemoryRightsAuditStore,
+  RightsStoreValidationError,
+  SqliteRightsStore,
+} from "./rights-store";
+export type {
+  EffectivePolicyStore,
+  PolicyChangeKind,
+  RightsAuditEntry,
+  RightsAuditStore,
+  RightsEditKind,
+} from "./rights-store";
+export { createRightsEditor, RightsEditorValidationError } from "./rights-editor";
+export type {
+  RightsEditor,
+  RightsEditorActor,
+  RightsEditorOptions,
+  RightsEditResult,
+  RightsStateView,
+  SessionLookup,
+} from "./rights-editor";
+export {
+  createRightsAuditQueryService,
+  RightsAuditQueryValidationError,
+} from "./rights-audit-query";
+export type {
+  AuditQueryAccount,
+  RightsAuditQueryOptions,
+  RightsAuditQueryResult,
+  RightsAuditQueryService,
+} from "./rights-audit-query";
+// The analyst annotations domain (J010 — Wave 3, Worker A): media-time
+// markers/clips saved where backed by REAL session timelines, notes
+// attached, revisitable — never fake clip bytes.
+export {
+  createAnalystAnnotationService,
+  AnalystAnnotationValidationError,
+  InMemoryAnalystAnnotationStore,
+  SqliteAnalystAnnotationStore,
+} from "./analyst-annotations";
+export type {
+  AnalystAccount,
+  AnalystAnnotationRefusal,
+  AnalystAnnotationResult,
+  AnalystAnnotationService,
+  AnalystAnnotationServiceOptions,
+  AnalystAnnotationStore,
+  AnalystMarker,
+  AnalystMarkerBacking,
+  AnalystNote,
+  RenderOutputLookup,
+  SessionTimelineLookup,
+} from "./analyst-annotations";

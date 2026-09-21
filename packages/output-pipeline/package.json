@@ -19,6 +19,7 @@
     "@sporta/control-api": "workspace:*",
     "@sporta/observability": "workspace:*",
     "@sporta/renderer-contract": "workspace:*",
+    "@sporta/session": "workspace:*",
     "@types/bun": "^1.2.0"
   }
 }

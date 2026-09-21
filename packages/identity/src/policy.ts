@@ -29,6 +29,17 @@ export const IDENTITY_ACTIONS = [
   "media-session.terminate",
   "render-output.read",
   "provider-health.read",
+  // J009 (rights/audit discoverability): who may READ the rights/policy
+  // audit trails — rights holders reach their OWN sessions' trails (the
+  // resource-owner branch), operators reach every trail (the matrix's
+  // operational view). Every other role denies (role-not-granted);
+  // unauthenticated denies (unauthenticated → the HTTP 401 boundary).
+  "rights-audit.read",
+  // J010 (analyst clips/notes): who may read/write analyst annotations on a
+  // session — the session's owner, operators, and the analyst grant (the
+  // annotations workspace). Every other role denies; unauthenticated denies.
+  "analyst-annotation.read",
+  "analyst-annotation.write",
 ] as const;
 export type IdentityAction = (typeof IDENTITY_ACTIONS)[number];
 
@@ -45,9 +56,11 @@ export type IdentityAllowVia =
   | "authenticated-self"
   | "grant:creator"
   | "grant:rights-holder"
+  | "grant:analyst"
   | "grant:operator"
   | "resource-owner"
-  | "grant:operator-or-resource-owner";
+  | "grant:operator-or-resource-owner"
+  | "grant:operator-or-resource-owner-or-analyst";
 
 /** A policy decision: allow with provenance, or deny with a reason. */
 export type AuthorizationDecision =
@@ -121,6 +134,42 @@ export function authorize(
       return grants.has("operator")
         ? { allowed: true, via: "grant:operator" }
         : { allowed: false, reason: "role-not-granted" };
+    }
+    case "rights-audit.read": {
+      // J009: the rights/policy audit trails — an operator reaches every
+      // trail (the operational view); a rights-holder reaches their OWN
+      // sessions' trails (the resource-owner branch, exactly like
+      // media-session.read); every other role denies.
+      if (resource.ownerId === undefined) {
+        return { allowed: false, reason: "unknown-resource" };
+      }
+      if (resource.ownerId === account.userId) {
+        return { allowed: true, via: "resource-owner" };
+      }
+      if (grants.has("operator")) {
+        return { allowed: true, via: "grant:operator" };
+      }
+      return { allowed: false, reason: "not-resource-owner" };
+    }
+    case "analyst-annotation.read":
+    case "analyst-annotation.write": {
+      // J010: the analyst annotations workspace — the session's owner, an
+      // operator, or the analyst grant (an annotation is authored work on
+      // an accessible session; the role-scoped publication visibility stays
+      // an app-layer composition over this seam).
+      if (resource.ownerId === undefined) {
+        return { allowed: false, reason: "unknown-resource" };
+      }
+      if (resource.ownerId === account.userId) {
+        return { allowed: true, via: "resource-owner" };
+      }
+      if (grants.has("operator")) {
+        return { allowed: true, via: "grant:operator" };
+      }
+      if (grants.has("analyst")) {
+        return { allowed: true, via: "grant:analyst" };
+      }
+      return { allowed: false, reason: "not-resource-owner" };
     }
     default: {
       // Exhaustiveness guard + fail-closed: an action outside the closed

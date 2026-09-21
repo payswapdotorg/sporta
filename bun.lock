@@ -448,6 +448,25 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/live-fusion": {
+      "name": "@sporta/live-fusion",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/contracts": "workspace:*",
+        "@sporta/fusion": "workspace:*",
+        "@sporta/live-open-data": "workspace:*",
+        "@sporta/live-perception": "workspace:*",
+        "@sporta/live-source": "workspace:*",
+        "@sporta/live-swm": "workspace:*",
+        "@sporta/live-temporal": "workspace:*",
+        "@sporta/media-platform": "workspace:*",
+        "@sporta/perception-adapters": "workspace:*",
+        "@sporta/world-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/live-open-data": {
       "name": "@sporta/live-open-data",
       "version": "0.1.0",
@@ -562,6 +581,7 @@
         "@sporta/control-api": "workspace:*",
         "@sporta/observability": "workspace:*",
         "@sporta/renderer-contract": "workspace:*",
+        "@sporta/session": "workspace:*",
         "@types/bun": "^1.2.0",
       },
     },
@@ -796,7 +816,9 @@
       "name": "@sporta/session",
       "version": "0.1.0",
       "dependencies": {
+        "@sporta/capability": "workspace:*",
         "@sporta/contracts": "workspace:*",
+        "@sporta/identity": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "^1.2.0",
@@ -1108,6 +1130,8 @@
     "@sporta/latency-benchmark": ["@sporta/latency-benchmark@workspace:packages/latency-benchmark"],
 
     "@sporta/live-authorized": ["@sporta/live-authorized@workspace:packages/live-authorized"],
+
+    "@sporta/live-fusion": ["@sporta/live-fusion@workspace:packages/live-fusion"],
 
     "@sporta/live-open-data": ["@sporta/live-open-data@workspace:packages/live-open-data"],
 
