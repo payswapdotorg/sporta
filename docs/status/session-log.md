@@ -1290,3 +1290,35 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   plane is the deployment answer). REMAINING: R606 human visual
   acceptance (the operator gate — the evidence pack is ready), then
   R607 public MVP acceptance.
+
+## 2026-09-22 — TL: WAVE 6 OPENED — R606 REOPENED (real-source chain), provenance contract FROZEN
+
+- Operator handoff received: the J015 evidence pack's "Original" was a
+  synthetic MP4, not the operator's real submitted match video —
+  INSUFFICIENT for the R606 human visual gate. R606 reopens as
+  BLOCKED / NEEDS REAL SOURCE EVIDENCE; R607 stays closed behind it.
+- The real source is pinned as a first-class contract input:
+  `https://www.youtube.com/watch?v=93LPZJkCW2w` (oEmbed: "FULL MATCH |
+  BETIS 3 vs 5 FC BARCELONA | LALIGA 2025/26 MD15", official FC
+  Barcelona channel).
+- CONTRACT FROZEN: docs/contracts/real-source-provenance.md — the
+  lineage chain (URL → registered source → acquired bytes → normalized
+  Original → perception → SWM → derived realities), single-run
+  single-SWM descent for all four realities, rights posture (no
+  weakening — the existing user-submitted declaration model covers the
+  YouTube source), acquisition honesty (accepted unblock paths +
+  exhausted-wall record), synchronized-frame comparison, evidence-pack
+  binding, and the human acceptance definition.
+- P0 acquisition investigation concluded (prior resident session,
+  honestly recorded): every unauthenticated datacenter path is
+  bot-walled in the 2026 posture (yt-dlp all clients, innertube + PO
+  tokens, Chrome CDP /watch + TV app, embed player, Invidious/Piped,
+  ZAI egress, GitHub Actions relay). UNBLOCK: operator authenticated
+  session (cookies) or operator byte transfer (file-host URL). The
+  operator ask is published; the console gets an assist surface.
+- Status doc updated: R606 row reopened with the real-source blocker;
+  final-blockers section rewritten; this record.
+- NEXT: Worker B dispatch (P1 ingestion infrastructure — URL-driven
+  source registration + acquisition seam + reproducible normalization,
+  buildable without the bytes); Workers A/C queued behind the bytes;
+  console v6.3 (R606 blocked state + operator source-transfer surface).

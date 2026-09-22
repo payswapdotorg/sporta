@@ -19,8 +19,8 @@ Date: 2026-09-22
 
 | Item | State | Current evidence |
 |---|---|---|
-| R606 | BLOCKED | human visual acceptance remains |
-| R607 | BLOCKED | public hosted durability/cross-instance deployment and final MVP gate remain |
+| R606 | BLOCKED / NEEDS REAL SOURCE EVIDENCE | reopened 2026-09-22 per operator handoff: the J015 evidence pack used a synthetic source MP4 as "Original" — demoted to ENGINEERING EVIDENCE; wave-6 rebuilds the chain on the operator's real submitted source `https://www.youtube.com/watch?v=93LPZJkCW2w` (contract: docs/contracts/real-source-provenance.md); source identified, acquisition blocked on operator assist (authenticated session or byte transfer — every unauthenticated datacenter path exhausted and recorded) |
+| R607 | BLOCKED | public hosted durability/cross-instance deployment and final MVP gate remain; gated behind real-source R606 |
 
 ## Journey items
 
@@ -86,8 +86,11 @@ Date: 2026-09-22
 
 ## Current final blockers
 
-1. R606 operator visual acceptance.
-2. R607 public hosted durability / deployment acceptance.
+1. R606 real-source chain: operator assist needed for acquisition of
+   `https://www.youtube.com/watch?v=93LPZJkCW2w` (authenticated session or
+   byte transfer); ingestion/rebuild infrastructure proceeding in parallel
+   (wave 6, contract frozen in docs/contracts/real-source-provenance.md).
+2. R607 public hosted durability / deployment acceptance — behind R606.
 3. L009 authorized live provider feed access if a real external live feed is required.
 4. L015-L017 final live gates.
 5. Real uploaded-session commentary is not yet a general production path.
