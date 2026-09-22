@@ -13,6 +13,19 @@
  * - The story metadata a seeded session carries is labeled `"dev-seed"` —
  *   it is the real fixture-transcript/events data the real chain produced.
  *
+ * F1 (the J015 finding, fixed): the card's STORED-OUTPUT truth is the SAME
+ * truth the Watch surface's reality catalog tells. A session's renders land
+ * their real outputs in ONE OF TWO stores — the W504 render-output segment
+ * store (the legacy SVG review path) OR the media platform's per-reality
+ * artifact store (the R508-R510 landing the upload path's derived-reality
+ * MP4s and the original reality's normalized MP4 take). The card's
+ * `hasStoredOutputs` / `outputCount` compose BOTH (whichever the session's
+ * renders actually populated), through the SAME media-platform read path
+ * the Watch reality catalog uses (`artifactsOfSession` + the render
+ * envelope's content-addressed `artifact://` resolution) — never a parallel
+ * query vocabulary, and never a fabricated output: a render with outputs in
+ * NEITHER store stays honestly "no stored output".
+ *
  * W916 — the content model, on top of the W906 publication store:
  * - REQUESTER-SCOPED DISCOVERABILITY: `buildCatalogFor` lists what THIS
  *   requester is authorized to discover (anonymous → public only;
@@ -38,6 +51,7 @@ import type { ContentVisibilityRecord } from "./publication";
 import { tokenFromRequest } from "./auth-service";
 import { authorize } from "@sporta/identity";
 import { SessionStatus } from "@sporta/contracts";
+import type { RenderArtifactManifest } from "@sporta/contracts";
 import type { Role } from "@sporta/capability";
 
 // ---------------------------------------------------------------------------
@@ -197,10 +211,20 @@ export interface SessionCardModel {
         renderId: string;
         rendererId: string;
         segmentCount: number;
+        /**
+         * F1: the render's REAL stored-output truth — the W504 segment store
+         * OR the media platform's per-reality artifacts (the R508+ landing),
+         * whichever its outputs populated. False only when BOTH are empty.
+         */
         hasStoredOutputs: boolean;
       }[]
     | null;
-  /** Stored output segments across all renders (`null` when denied). */
+  /**
+   * The session's stored outputs across all renders AND its stored
+   * `original`-reality artifact (the upload path's normalized MP4 — the
+   * Watch surface's `original` reality), composed over the same two stores
+   * `hasStoredOutputs` reads (`null` when playback is denied).
+   */
   outputCount: number | null;
   /**
    * W916 REALITY LINKAGE — the same match session's renderings grouped per
@@ -345,6 +369,57 @@ export function realityGroupsOf(
   }));
 }
 
+/**
+ * F1 (the J015 finding): the media-platform artifact ids this render's
+ * outputs landed as — composed through the SAME read path the Watch
+ * surface's reality catalog uses, never a parallel query vocabulary:
+ *
+ * - the PRIMARY read: the session's own artifact records
+ *   (`server.media.artifactsOfSession` — the R508+ landing), attributed by
+ *   the producing renderer exactly the way the Watch's reality entries
+ *   attribute derived-reality MP4s to their producers;
+ * - the CONTENT-ADDRESSED DEDUP read (only when the primary read sees none,
+ *   mirroring the Watch's dedup branch): the render's OWN control-plane
+ *   record carries its `artifact://<sha256>` reference; resolve it through
+ *   the media platform's artifact store with the same verbatim integrity
+ *   check (renderer id + content hash) — the deterministic bridges produce
+ *   byte-identical MP4s over an identical SWM state, so a duplicate render
+ *   lands as the media platform's counted-duplicate no-op whose record
+ *   keeps the FIRST session's id. Without this branch that render's real
+ *   output would be invisible to its own session's card.
+ *
+ * A render whose outputs landed in NEITHER the segment store NOR the media
+ * platform answers an EMPTY set — never a fabricated output. The ids are
+ * returned (not a count) so the card counts each DISTINCT stored artifact
+ * once even when several renders of the same renderer produced the same
+ * content-addressed bytes.
+ */
+async function attributedMediaArtifactIdsOf(
+  server: SportaServer,
+  sessionId: string,
+  render: { renderId: string; rendererId: string },
+  sessionDerivedArtifacts: readonly RenderArtifactManifest[],
+): Promise<ReadonlySet<string>> {
+  const attributed = new Set<string>();
+  for (const artifact of sessionDerivedArtifacts) {
+    if (artifact.rendererId === render.rendererId) attributed.add(artifact.artifactId);
+  }
+  if (attributed.size > 0) return attributed;
+  // The dedup read: the render envelope's own content-addressed references.
+  const envelope = await server.control.getRender(sessionId, render.renderId);
+  for (const segment of envelope.result.outputSegments) {
+    const match = /^artifact:\/\/([0-9a-f]{64})$/.exec(segment.artifactRef);
+    if (match === null) continue;
+    const artifactId = `mp4-${match[1]!.slice(0, 16)}`;
+    const artifact = server.media.artifact(artifactId);
+    if (artifact === null) continue;
+    if (artifact.rendererId !== render.rendererId) continue;
+    if (artifact.contentHash !== match[1]) continue; // integrity, verbatim
+    attributed.add(artifactId);
+  }
+  return attributed;
+}
+
 /** Builds one session's card from the REAL control-plane state. */
 async function buildCard(
   server: SportaServer,
@@ -396,18 +471,46 @@ async function buildCard(
 
   const { renders } = await server.control.listRenders(sessionId);
   const registered = await registeredRendererIds(server);
+  // F1: the media platform's per-reality artifact records — the SAME read
+  // the Watch surface's reality catalog performs, ONCE per card (the store
+  // clones its answers; the array is shared by every attribution below).
+  // The `original`-reality records are counted at the session level (they
+  // are the upload path's normalized-MP4 landing, no render's output).
+  const sessionArtifacts = server.media.artifactsOfSession(sessionId);
+  const sessionDerivedArtifacts = sessionArtifacts.filter(
+    (artifact) => artifact.reality !== "original",
+  );
   let outputCount = 0;
+  const countedMediaArtifactIds = new Set<string>();
   const renderModels: NonNullable<SessionCardModel["renders"]> = [];
   for (const render of renders) {
     const outputs = await server.control.listRenderOutputs(sessionId, render.renderId);
     outputCount += outputs.segments.length;
+    const attributed = await attributedMediaArtifactIdsOf(
+      server,
+      sessionId,
+      render,
+      sessionDerivedArtifacts,
+    );
+    // Count each DISTINCT stored artifact once — several renders of one
+    // renderer may have produced the same content-addressed bytes.
+    for (const artifactId of attributed) {
+      if (countedMediaArtifactIds.has(artifactId)) continue;
+      countedMediaArtifactIds.add(artifactId);
+      outputCount += 1;
+    }
     renderModels.push({
       renderId: render.renderId,
       rendererId: render.rendererId,
       segmentCount: render.segmentCount,
-      hasStoredOutputs: outputs.segments.length > 0,
+      hasStoredOutputs: outputs.segments.length > 0 || attributed.size > 0,
     });
   }
+  // F1: the upload path's `original`-reality landing — the normalized MP4 is
+  // a REAL stored output of this session (the Watch surface's `original`
+  // reality) even though it is no control-plane render's output; a session
+  // that only uploaded still counts what its upload actually stored.
+  outputCount += sessionArtifacts.filter((artifact) => artifact.reality === "original").length;
   return {
     sessionId,
     label: cardLabel,
