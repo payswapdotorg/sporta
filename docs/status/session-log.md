@@ -1243,3 +1243,50 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   evidence pack (19 screenshots + ffprobe + VLM record).
 - Evidence pack: /home/z/j015-evidence/ (01-19 screenshots, the VLM
   assessment JSON, the extracted frames, the server log with the banners).
+
+## 2026-09-22 — TL: wave-5 F1 fix lane MERGED @fcfd0e0 (CI) — the J015 finding closed
+
+- The J015 finding F1 (the Library/catalog says "0 stored outputs / Not
+  watchable" while the Watch surface serves all four artifacts) closed by
+  the wave-5 F1 fix lane (chat d505f361, branch
+  work/f1-library-stored-outputs, worker delivery @4d15012).
+- THE FIX (narrow, in-scope): apps/web/src/server/catalog-service.ts —
+  the card's `hasStoredOutputs`/`outputCount` now compose the REAL output
+  truth: the render-output SEGMENT store (the W504 legacy path) OR the
+  media platform's per-reality artifact store (the R508+ landing the
+  Watch reality catalog reads), through the SAME read path
+  (`artifactsOfSession` attribution by renderer + the render envelope's
+  content-addressed `artifact://<sha256>` dedup read with the verbatim
+  integrity check — never a parallel query vocabulary). Each DISTINCT
+  stored artifact is counted once; the upload path's original-reality
+  artifacts are counted at the session level; a render with outputs in
+  NEITHER store stays honestly "no stored output". Frozen zones
+  untouched (contracts, Watch surface, rights/audit/analyst, the
+  render-output writer's landing design).
+- THE LANE BATTERY (apps/web/test/f1-library-stored-outputs.test.ts,
+  475 lines, 8 tests / 128 expects): the J004 one-submission journey
+  shows the stored-output truth on the Library/catalog rows (agreeing
+  with the Watch reality catalog), the legacy W504 SVG segment path
+  stays green, the honest negative (a render with no outputs anywhere).
+- TL VERIFICATION (sporta-wc @4d15012): lane battery 8/8 (6.0s); the
+  catalog/derived-reality/reality/watch regression 94/94 (7.9s); eslint
+  0; tsc clean; merge-tree pre-verified conflict-free. The worker's
+  gates (reported): full battery vs its recorded 930/0/26 baseline, the
+  real-browser journey over the production build (register -> real MP4
+  upload -> 4/4 renders -> the LIBRARY CARD shows "Stored outputs = 4",
+  the catalog API rows agree with the Watch reality catalog), lint/
+  typecheck/format clean; the journey-script marker bugs the worker hit
+  (case-sensitive grep, JSON-encoded eval, the compact-snapshot
+  vocabulary miss) were its tooling, not product defects — the final
+  run's library-four-outputs=1.
+- MERGE: --no-ff @fcfd0e0 into main @c8ed965 (conflict-free, branch cut
+  from current main). Post-merge FULL apps/web battery: 938 pass /
+  0 fail / 26 skip (964 total, 67 files, 83s, env -u DATABASE_URL) —
+  the 930 baseline + the 8 F1 lane tests. eslint 0, tsc clean, prettier
+  clean. CI green at fcfd0e0. Evidence rows (this record + the status
+  doc header/J015/R607 updates) pushed.
+- WAVE-5 STATE: J015 executed (findings honest); F1 CLOSED AND MERGED;
+  F2 documented as the honest Next-server redeploy boundary (the hosted
+  plane is the deployment answer). REMAINING: R606 human visual
+  acceptance (the operator gate — the evidence pack is ready), then
+  R607 public MVP acceptance.
