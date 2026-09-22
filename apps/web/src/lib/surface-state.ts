@@ -18,13 +18,31 @@
  */
 import type {
   CapabilityLike,
+  RealityKindLike,
   RenderOutputLike,
   SearchResponseLike,
   SessionCardLike,
+  StudioOptionsLike,
   UxState,
   WatchModelLike,
 } from "./api-types";
 import { UX_STATES } from "./api-types";
+import { REALITY_LABELS } from "./reality-catalog";
+import type { RealityKey } from "./brand";
+
+/**
+ * The Home reality grid's bridge: the brand presentation keys (brand.ts's
+ * REALITIES — the grid's own order, names and descriptions) joined to the
+ * canonical reality kinds (api-types' frozen vocabulary — the kinds the
+ * capability and studio seams speak).
+ */
+export const HOME_REALITY_KIND_BY_KEY: Readonly<Record<RealityKey, RealityKindLike>> =
+  Object.freeze({
+    original: "original",
+    tactical: "tactical",
+    "3d": "three-d-game",
+    anime: "anime-npr",
+  });
 
 /** A derived surface verdict: the UX state + why (human words). */
 export interface SurfaceVerdict {
@@ -423,8 +441,184 @@ export function deriveLibraryState(
     state: "ready",
     reason:
       sessions.length === 0
-        ? "you have not created any sessions yet (Create Studio arrives with W906)"
+        ? "you have not created any sessions yet — open the Create Studio to make your first one"
         : `${sessions.length} session(s) you created`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The Home reality grid (J001 — live capability truth, never static promises)
+// ---------------------------------------------------------------------------
+
+/**
+ * The product's reality → producer renderer ids (the registry's own frozen
+ * vocabulary — composition DATA, mirrored here so the Home grid can derive
+ * per-reality availability from the PUBLIC capability response). The
+ * AVAILABILITY always comes from the live seams (the capability response's
+ * renderer registry and the Create Studio's options); this constant only
+ * names WHICH renderers can serve each reality, and
+ * `test/home-reality-grid.test.ts` pins it against the server composition's
+ * own declarations so it cannot drift.
+ */
+export const HOME_REALITY_PRODUCERS: Readonly<
+  Record<Exclude<RealityKindLike, "original">, readonly string[]>
+> = Object.freeze({
+  tactical: ["tactical.prototype"],
+  "three-d-game": ["game-3d.prototype"],
+  "anime-npr": ["anime-npr.prototype", "anime.prototype"],
+});
+
+/** One Home reality-grid card's derived status. */
+export interface HomeRealityStatus extends SurfaceVerdict {
+  /** The producer renderer serving this reality, when one is registered. */
+  producerRendererId: string | null;
+}
+
+/**
+ * Derives one reality's status for the Home grid (J001): Home reflects the
+ * LIVE capability state — never a static "registered"/"not registered"
+ * promise. Sources, in precedence order:
+ *
+ * 1. the Create Studio's own options (`derivedRealities[]` — the J004 seam:
+ *    the exact offered/not-offered verdict with the server's honest reason,
+ *    read whenever the caller is signed in);
+ * 2. the capability response's renderer registry matched through
+ *    {@link HOME_REALITY_PRODUCERS} (works for anonymous visitors too).
+ *
+ * `original` is not renderer-produced: it IS the authorized source, stored
+ * with every upload (the J004 one-submission contract), so its verdict
+ * derives from the upload answer when readable.
+ */
+export function deriveHomeRealityStatus(
+  reality: RealityKindLike,
+  capability: CapabilityLike,
+  options: StudioOptionsLike | null,
+): HomeRealityStatus {
+  if (reality === "original") {
+    if (options !== null && !options.upload.available) {
+      return { state: "unavailable", reason: options.upload.reason, producerRendererId: null };
+    }
+    return {
+      state: "ready",
+      reason:
+        "the authorized source itself — the Original reality is stored with every Create Studio upload",
+      producerRendererId: null,
+    };
+  }
+
+  const row = options?.derivedRealities.find((entry) => entry.reality === reality);
+  if (row !== undefined) {
+    return {
+      state: row.offered ? "ready" : "unavailable",
+      reason: row.reason,
+      producerRendererId: row.producerRendererId,
+    };
+  }
+
+  // No options (anonymous, or the options could not be read): the public
+  // capability response still tells the renderer truth.
+  const producerIds = HOME_REALITY_PRODUCERS[reality];
+  const registered = capability.renderers.filter((renderer) =>
+    producerIds.includes(renderer.rendererId),
+  );
+  if (registered.length === 0) {
+    return {
+      state: "unavailable",
+      reason: "no renderer is registered on this deployment to produce this reality yet",
+      producerRendererId: null,
+    };
+  }
+  const available = registered.filter((renderer) => renderer.availability === "available");
+  if (available.length === 0) {
+    const first = registered[0]!;
+    return {
+      state: "degraded",
+      reason: `the registered renderer (${first.rendererId}) is currently ${first.availability} (${first.reasonCode})`,
+      producerRendererId: first.rendererId,
+    };
+  }
+  return {
+    state: "ready",
+    reason: `served by ${available.map((renderer) => renderer.rendererId).join(", ")}`,
+    producerRendererId: available[0]!.rendererId,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The Home create shelf (J001 — the real Create entry, capability-driven)
+// ---------------------------------------------------------------------------
+
+/** The Home create shelf's derived status. */
+export interface HomeCreateVerdict extends SurfaceVerdict {
+  /** Labels of the derived realities the studio offers RIGHT NOW. */
+  offeredRealityLabels: string[];
+  /** Whether the real upload path is open (null = not readable). */
+  uploadAvailable: boolean | null;
+}
+
+/**
+ * Derives the Home create shelf's verdict (J001): the shelf's entry is the
+ * REAL Create Studio (`/create`, the W906 surface) — never a deferred
+ * "not available yet" panel — and its state line reflects the live
+ * capability: which realities the studio offers today, and whether the
+ * real upload path is open. The personalized-ideas part of the shelf
+ * remains honestly deferred (there is no recommendation plane) — that
+ * honesty is the SHELF's note, never a reason to hide the real entry.
+ */
+export function deriveHomeCreateState(
+  capability: CapabilityLike,
+  options: StudioOptionsLike | null,
+): HomeCreateVerdict {
+  if (capability.auth.state === "anonymous") {
+    return {
+      state: "ready",
+      reason: "the Create Studio is real — signing in opens it",
+      offeredRealityLabels: [],
+      uploadAvailable: null,
+    };
+  }
+  if (capability.auth.state === "invalid-session") {
+    return {
+      state: "denied",
+      reason: "your session is no longer valid — sign in again to create",
+      offeredRealityLabels: [],
+      uploadAvailable: null,
+    };
+  }
+  if (options === null) {
+    return {
+      state: "degraded",
+      reason:
+        "the studio's live options could not be read — open the Create Studio for the real state",
+      offeredRealityLabels: [],
+      uploadAvailable: null,
+    };
+  }
+  const labels = options.derivedRealities
+    .filter((entry) => entry.offered)
+    .map((entry) => REALITY_LABELS[entry.reality]);
+  if (!options.upload.available) {
+    return {
+      state: "unavailable",
+      reason: options.upload.reason,
+      offeredRealityLabels: labels,
+      uploadAvailable: false,
+    };
+  }
+  if (labels.length === 0) {
+    return {
+      state: "degraded",
+      reason:
+        "the upload path is open but no alternate reality is offered on this deployment — the Original reality still renders from every upload",
+      offeredRealityLabels: labels,
+      uploadAvailable: true,
+    };
+  }
+  return {
+    state: "ready",
+    reason: `the upload path is open and ${labels.length} alternate reality(ies) are offered today`,
+    offeredRealityLabels: labels,
+    uploadAvailable: true,
   };
 }
 

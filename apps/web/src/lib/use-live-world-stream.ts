@@ -67,6 +67,24 @@ export interface LiveWorldTickerRow {
   phrase: string;
 }
 
+/**
+ * Builds one frame's ticker rows (pure — the hook's map, made pinnable).
+ *
+ * The key carries the entry's own per-frame discriminator (its index in
+ * `eventsSincePreviousFrame`): a fresh window's first frame can emit ~24
+ * `entity-appeared` events at the SAME `atMs`, and without the discriminator
+ * those rows would collide on identical React keys (the wave-3 cross-lane
+ * finding). `worldVersion` is unique per delivered frame and the index is
+ * unique within it, so every row's key is unique by construction.
+ */
+export function tickerRowsForFrame(doc: LiveWorldFrameDoc): LiveWorldTickerRow[] {
+  return doc.eventsSincePreviousFrame.map((entry, index) => ({
+    key: `${doc.worldVersion}:${entry.type}:${entry.atMs}:${index}`,
+    worldVersion: doc.worldVersion,
+    phrase: frameEventPhrase(entry),
+  }));
+}
+
 /** The hook's full honest state (everything both renderers render from). */
 export interface LiveWorldStreamState {
   phase: LiveWorldPhase;
@@ -218,11 +236,7 @@ export function useLiveWorldStream(
             setRecoveryBadge(null);
           }
           // The honest event ticker (bounded; the newest first).
-          const rows = doc.eventsSincePreviousFrame.map((entry) => ({
-            key: `${doc.worldVersion}:${entry.type}:${entry.atMs}`,
-            worldVersion: doc.worldVersion,
-            phrase: frameEventPhrase(entry),
-          }));
+          const rows = tickerRowsForFrame(doc);
           if (rows.length > 0) {
             setTicker((prev) => [...rows, ...prev].slice(0, EVENT_TICKER_DEPTH));
           }

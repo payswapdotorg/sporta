@@ -86,9 +86,10 @@ describe("W903 primary navigation model", () => {
     const tabbar = await Bun.file(
       new URL("../src/components/mobile-tabbar.tsx", import.meta.url),
     ).text();
-    // the rendering components must consume the shared model (W907: the
-    // role-aware navForRole, whose no-role fallback IS PRIMARY_NAV)...
-    expect(navLinks).toContain("navForRole");
+    // the rendering components must consume the shared model (J002: the
+    // role-aware navGroupsForRole over navForRole — core navigation first,
+    // the role's workspace as a supplement)...
+    expect(navLinks).toContain("navGroupsForRole");
     // ...and both navigations must be projections of it
     expect(sidebar).toContain('variant="sidebar"');
     expect(tabbar).toContain('variant="tabbar"');

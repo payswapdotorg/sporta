@@ -1013,3 +1013,53 @@ surfaces + integration) queues after wave-3 B closes.
 
 Session state: main @e1c367b CI GREEN. Wave 3 CLOSED 3/3. Wave-4 (J-UI
 surfaces + integration) dispatchable.
+
+## Session 2026-09-22 — WAVE 4 WORKER A: J001+J002+J003 product-truth surfaces + the ticker-key carry (branch work/j001-j002-j003-product-truth, base da2feb0)
+
+- Clean clone @da2feb0 (wave-3 closed 3/3: A @fd41352 + B @e1c367b + C
+  @7d9a375 all present); clean-clone baseline battery recorded FIRST:
+  6774 pass / 0 fail / 33 skip (6807 tests, 340s, env -u DATABASE_URL) —
+  exactly the wave-3 B post-merge record.
+- J001 (Home capability truth): the stale wording removed (the hardcoded
+  reality-grid chips, "Coming to Sporta", the deferred home-create panel,
+  the "(Create Studio arrives with W906)" library line); the grid now
+  derives every card's chip from the LIVE seams (studio derivedRealities
+  rows when signed in; the public capability response via the
+  drift-pinned HOME_REALITY_PRODUCERS vocabulary otherwise); the create
+  shelf exposes the REAL Create entry with live state (offered realities +
+  upload answer); hero CTA → /create click-through verified.
+- J002 (global + workspace navigation): navForRole = core + supplements
+  (every role retains global Home/discovery; the operator trap closed);
+  navGroupsForRole + the grouped sidebar (labeled workspace heading) +
+  the scrollable core-first tabbar; the workspace model + safe-return
+  pins unchanged. Browser-verified over the demo account's real
+  five-grant switcher (operator + analyst).
+- J003 (deferred-surface honesty): real next actions on all four deferred
+  surfaces (click-through verified: clips→Match Lab, audit→rights policy
+  audit, following→Explore); the J009/J010 domain-plane wording honest
+  (backing EXISTS, the PAGE arrives with the named UI lanes — no
+  contradiction of B's incoming wave-4 surfaces); home-create removed
+  (the shelf became real).
+- The ticker-key carry: tickerRowsForFrame with the per-entry
+  discriminator; 7-test pin + browser proof (fresh live window under
+  console observation: zero duplicate-key warnings).
+- Gates: full battery 6814 pass / 0 fail / 33 skip (6847 total — exactly
+  +40 lane tests, 0 new failures vs baseline); lint 0 errors (1
+  pre-existing media-platform warning); typecheck ALL @sporta/* packages
+  sequential + apps/web clean; prettier clean.
+- Browser verification over the production build (next build + bun --bun
+  run start, env -u DATABASE_URL, SPORTA_LIVE_TRANSPORT=sse,
+  SPORTA_DEMO_ACCOUNT_PASSWORD for the store-minted five-role path): the
+  J001 grid/shelf/CTA journey (anonymous + signed-in), the J002 role
+  switcher journey (operator/analyst supplements, core retained,
+  safe-return, mobile tabbar), the J003 panel + next-action journeys,
+  the ticker fix — zero console errors/warnings across the session.
+- Environmental notes honored: the stray DATABASE_URL file-DSN hazard
+  hit once on the first prod-server boot (capability 500 — postgres.js
+  ECONNREFUSED) and was cleared by the documented env -u DATABASE_URL
+  protocol; all batteries + the browser server ran clean-env after.
+
+Session state: branch work/j001-j002-j003-product-truth pushed (tip
+recorded in the lane's completion report); awaiting TL verification +
+merge. Wave-4 Worker B (J008/J009/J010 UI) and the remaining lanes
+dispatchable in parallel — no frozen contracts touched.
