@@ -32,6 +32,7 @@
  * same port.
  */
 import type { AuthorizationPolicy } from "@sporta/contracts";
+import type { RightsEditKind } from "@sporta/session";
 
 /**
  * The per-session policy registry: the creation-time record plus any later
@@ -85,6 +86,15 @@ export interface PolicyAuditEntry {
   sessionId: string;
   /** Which surface changed. */
   changeKind: PolicyChangeKind;
+  /**
+   * What a RIGHTS change DID (the J008 domain vocabulary — ADDITIVE):
+   * `grant | widen | narrow | revoke`, classified by the domain rights
+   * editor from the derived-capability comparison. Present on every
+   * policy/revocation entry (both are written through the domain editor);
+   * absent on publication-visibility entries (a visibility flip is a W916
+   * publication decision, not a rights edit — outside the vocabulary).
+   */
+  editKind?: RightsEditKind;
   /** The change, in the entry's own words (human-readable). */
   summary: string;
   /** The prior decision (policy, visibility record, or both for revocation). */

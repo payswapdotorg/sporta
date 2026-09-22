@@ -9,20 +9,19 @@ import {
 import { isRoutePath, ROUTES } from "../src/lib/navigation";
 
 /**
- * Deferred-surface honesty (W903 → W904/W905 → J003): Home, Live, Explore,
- * Library, Watch, the sign-in surface, Create and J001's Home create shelf
- * are REAL (capability + catalog driven), so this module lists ONLY what is
- * still genuinely deferred. A surface that has a real implementation may
- * never appear here again.
+ * Deferred-surface honesty (W903 → W904/W905 → J003 → wave 4): Home, Live,
+ * Explore, Library, Watch, the sign-in surface, Create and J001's Home
+ * create shelf are REAL (capability + catalog driven), and the wave-4
+ * J009/J010 lanes made Audit, Clips and Notes REAL (the role-gated domain
+ * seams landed in wave 3; the surfaces in wave 4 — their deferred entries
+ * were REMOVED per the module's own doctrine). This module now lists ONLY
+ * what is still genuinely deferred; a surface that has a real
+ * implementation may never appear here again.
  *
- * J003 adds the new pins:
+ * J003's standing pins:
  * - every deferred surface carries a REAL next action (a link to an
  *   existing surface — never a dead end, never a link back to itself);
- * - the wave-3 domain seams are worded honestly (the J009/J010 backing
- *   EXISTS at the domain level — the deferred boundary is the PAGE wiring,
- *   never "no data plane exists");
- * - the incoming UI lanes are named (J009 UI / J010 UI), so the wording
- *   cannot contradict Worker B's wave-4 surfaces.
+ * - no wording ever contradicts a real implementation.
  */
 describe("deferred-surface state machine (post-W904/W905, J003)", () => {
   test("surface ids and keys are 1:1 and unique", () => {
@@ -59,16 +58,19 @@ describe("deferred-surface state machine (post-W904/W905, J003)", () => {
     }
   });
 
-  test("exactly the W904-W908-real routes are marked real — no more, no fewer", () => {
+  test("exactly the real routes are marked real — no more, no fewer (wave 4 added audit/clips/notes)", () => {
     expect([...REAL_SURFACE_ROUTES].sort()).toEqual([
       "/",
+      "/audit",
       "/auth/signin",
+      "/clips",
       "/create",
       "/explore",
       "/jobs",
       "/library",
       "/live",
       "/matchlab",
+      "/notes",
       "/operations",
       "/rights",
       "/search",
@@ -84,34 +86,18 @@ describe("deferred-surface state machine (post-W904/W905, J003)", () => {
     }
   });
 
-  test("the still-deferred pages are following, audit, clips and notes (J001 made the home create shelf real)", () => {
+  test("the only still-deferred page is following (wave 4 made audit/clips/notes real)", () => {
     const routes = DEFERRED_SURFACE_KEYS.map((key) => DEFERRED_SURFACES[key].route).sort();
-    expect(routes).toEqual(["/audit", "/clips", "/following", "/notes"]);
+    expect(routes).toEqual(["/following"]);
     expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("home-create")).toBe(false);
     expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("search")).toBe(false);
+    expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("audit")).toBe(false);
+    expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("clips")).toBe(false);
+    expect((DEFERRED_SURFACE_KEYS as readonly string[]).includes("notes")).toBe(false);
   });
 
-  test("the incoming UI lanes are named exactly (never contradicting wave-4's surfaces)", () => {
+  test("no deferred surface's wording contradicts the wave-4 real surfaces", () => {
     expect(DEFERRED_SURFACES.following.plannedWorkOrder.startsWith("none yet")).toBe(true);
-    expect(DEFERRED_SURFACES.clips.plannedWorkOrder).toBe("J010 UI (wave-4 lane)");
-    expect(DEFERRED_SURFACES.notes.plannedWorkOrder).toBe("J010 UI (wave-4 lane)");
-    expect(DEFERRED_SURFACES.audit.plannedWorkOrder).toBe("J009 UI (wave-4 lane)");
-  });
-
-  test("the wave-3 domain seams are worded honestly (the backing EXISTS; the page wiring is deferred)", () => {
-    // J010: the clips/notes data plane exists at the domain level — the
-    // stale "no clips/notes data plane yet" wording is gone.
-    expect(DEFERRED_SURFACES.clips.detail).toContain("domain level");
-    expect(DEFERRED_SURFACES.clips.detail).toContain("J010");
-    expect(DEFERRED_SURFACES.clips.detail).not.toContain("no clips data plane yet");
-    expect(DEFERRED_SURFACES.notes.detail).toContain("domain level");
-    expect(DEFERRED_SURFACES.notes.detail).toContain("J010");
-    expect(DEFERRED_SURFACES.notes.detail).not.toContain("no notes data plane yet");
-    // J009: the rights-audit query exists at the domain level and two real
-    // audit surfaces already exist — the stale "no audit log is exposed"
-    // wording is gone.
-    expect(DEFERRED_SURFACES.audit.detail).toContain("J009");
-    expect(DEFERRED_SURFACES.audit.detail).not.toContain("No audit log is exposed");
     // Following: still the honest no-follow-graph state.
     expect(DEFERRED_SURFACES.following.detail).toContain("does not include a follow graph");
   });
@@ -153,10 +139,6 @@ describe("J003 — every deferred surface has a useful, REAL next action", () =>
 
   test("the next actions point at today's real surfaces (pinned destinations)", () => {
     expect(DEFERRED_SURFACES.following.nextAction.href).toBe(ROUTES.explore);
-    expect(DEFERRED_SURFACES.clips.nextAction.href).toBe(ROUTES.matchlab);
-    expect(DEFERRED_SURFACES.notes.nextAction.href).toBe(ROUTES.matchlab);
-    // The rights policy audit — a real audit surface that exists today.
-    expect(DEFERRED_SURFACES.audit.nextAction.href).toBe(ROUTES.rightsPolicies);
   });
 
   test("the deferred-surface component renders the next action as a link", async () => {

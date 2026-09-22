@@ -1,27 +1,36 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
+import { NotesSurface } from "@/components/notes-surface";
 
 export const metadata: Metadata = {
   title: "Notes",
 };
 
 /**
- * Notes (W907 → J003) — the Analyst workspace's honest deferred notes
- * surface. The J010 notes data plane EXISTS at the domain level (notes on
- * real timeline-backed markers, durable); this page is not wired to it yet
- * and arrives with the J010 UI lane. Until then nothing is written, stored
- * or simulated HERE, and the panel's next action points at Match Lab.
+ * Notes (J010) — the Analyst workspace's REAL notes surface, live since the
+ * wave-4 UI lane: notes attached to saved media-time markers (which ride
+ * real session timelines), listed and revisitable. Each note is a
+ * first-class domain document — the verified author, the timestamp, the
+ * text. `?session=<id>` pre-selects the session.
  */
-export default function NotesPage() {
+export default async function NotesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const sessionParam = params.session;
+  const sessionId =
+    typeof sessionParam === "string" && sessionParam.length > 0 ? sessionParam : null;
+
   return (
     <>
       <PageHeader
         kicker="Analyst"
         title="Notes"
-        description="Analysis notes — the backing plane exists; this page arrives with the J010 UI lane."
+        description="Analysis notes attached to your saved markers — first-class, persisted, and revisitable."
       />
-      <DeferredSurface surface="notes" />
+      <NotesSurface sessionId={sessionId} />
     </>
   );
 }

@@ -52,6 +52,23 @@ import { SqliteConnectionStore } from "@sporta/connection-center";
 import type { ConnectionPlaneProvider, ConnectionStore } from "@sporta/connection-center";
 import { createAnimeOutputPipeline } from "@sporta/output-pipeline";
 import type { AnimeOutputPipeline } from "@sporta/output-pipeline";
+import { createRightsAwareSegmentStore, InMemoryRenderSegmentStore } from "@sporta/output-pipeline";
+import {
+  effectiveCapabilitiesOf,
+  InMemoryAnalystAnnotationStore,
+  SqliteAnalystAnnotationStore,
+} from "@sporta/session";
+import type { AnalystAnnotationStore, RightsAuditStore, RightsEditor } from "@sporta/session";
+import { asDomainRightsAuditStore, createAppRightsEditor } from "./rights-domain";
+import { buildRightsAuditTrail, buildRightsAuditTrailFor } from "./audit-service";
+import type { RightsAuditTrailModel } from "./audit-service";
+import { attachNote, getMarker, listSessionMarkers, saveMarker } from "./annotations-service";
+import type {
+  AnalystMarkerView,
+  AnalystNoteView,
+  MarkerWithNotesModel,
+  SessionMarkersModel,
+} from "./annotations-service";
 import { RendererRegistry, createTestCardRenderer } from "@sporta/renderer-contract";
 import { createAnimePrototypeRenderer } from "@sporta/renderer-anime";
 import { WorldModelEngine } from "@sporta/world-model";
@@ -224,6 +241,15 @@ export interface SportaServerOptions {
     db?: string;
   };
   /**
+   * The analyst-annotations persistence seam (J010): a sqlite db path (or
+   * `:memory:`). Default: `SPORTA_ANNOTATIONS_DB` or
+   * `db/analyst-annotations.db` under the real Bun runtime; the honest
+   * in-memory fallback under the bundled Node runtime (the W911 doctrine).
+   */
+  annotations?: {
+    db?: string;
+  };
+  /**
    * The Compute Connection Center's seams (J005): the provider plane
    * (default: the REAL plane over the four provider adapters — see
    * ./compute-connection-plane.ts), the connection store (default: the
@@ -305,9 +331,55 @@ export interface SportaServer {
    */
   rightsAudit: PolicyAuditLog;
   /**
+   * The J008 domain rights editor (wave 4): the `@sporta/session` editor
+   * over THIS composition's policy/audit stores — the ONE editor behind
+   * both edit surfaces (the Rights Center's J008 UI and the W917 policy
+   * console). Every edit/revoke is contract-validated, re-attested with
+   * the VERIFIED editor id, and audited with the `editKind`
+   * classification; the override lands in the SAME store the serving
+   * seams re-derive from.
+   */
+  rightsEditor: RightsEditor;
+  /**
+   * The domain-vocabulary view of the append-only rights audit (J009): the
+   * entries the role-gated domain audit query serves (policy/revocation
+   * with `editKind`) over the SAME app-layer log.
+   */
+  domainRightsAudit: RightsAuditStore;
+  /**
+   * The J010 analyst-annotations store (wave 4): durable `bun:sqlite`
+   * under the real Bun runtime (`db/analyst-annotations.db`), the honest
+   * in-memory fallback under the bundled Node runtime. Markers + notes —
+   * time ranges + backing references ONLY, never clip bytes (the domain's
+   * NO-BYTES invariant).
+   */
+  annotationStore: AnalystAnnotationStore;
+  /**
+   * The J009 rights-audit trail composition (wave 4): the role-gated
+   * domain query seam behind the /audit surface (holders reach their own
+   * sessions' trails, operators reach all, everyone else the honest
+   * 401/403).
+   */
+  rightsAuditTrail: {
+    trail(token: string): Promise<RightsAuditTrailModel>;
+    trailFor(token: string, sessionId: string): Promise<RightsAuditTrailModel>;
+  };
+  /**
+   * The J010 analyst-annotations composition (wave 4): the domain service
+   * behind the /clips and /notes surfaces (real timeline-backed markers,
+   * attached notes, revisit — no clip bytes ever).
+   */
+  annotations: {
+    listMarkers(token: string, sessionId: string): Promise<SessionMarkersModel>;
+    saveMarker(token: string, input: unknown): Promise<AnalystMarkerView>;
+    attachNote(token: string, input: unknown): Promise<AnalystNoteView>;
+    getMarker(token: string, markerId: string): Promise<MarkerWithNotesModel>;
+  };
+  /**
    * The Rights Center service (W917): policy inspection, policy editing,
    * visibility editing and revocation for content the caller owns or
-   * controls — over the REAL contracts' semantics.
+   * controls — over the REAL contracts' semantics (policy edits and
+   * revocations delegate to the domain rights editor — the J008 seam).
    */
   rights: RightsCenterService;
   /**
@@ -477,9 +549,39 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       : [...derivedPlane.producers.entries()].map(([rendererId, reality]) => [reality, rendererId]),
   );
 
+  // 2". The W917 rights-policy layer's stores (HOISTED above the pipeline:
+  //     the J008 rights-aware serving seam below resolves current rights
+  //     through the SAME store the rights-governed control plane re-derives
+  //     from — one registry, one audit log, every seam).
+  const rightsPolicies = new EffectivePolicyStore();
+  const rightsAudit = new PolicyAuditLog();
+  // The J008/J009 domain seams (wave 4): the domain-vocabulary audit view
+  //     over the SAME append-only log, and the ONE domain rights editor over
+  //     the SAME effective-policy store (the rights-center service, the J008
+  //     Rights Center UI and the W917 policy console all edit through it).
+  const domainRightsAudit = asDomainRightsAuditStore(rightsAudit);
+  const rightsEditor = createAppRightsEditor({
+    policies: rightsPolicies,
+    audit: domainRightsAudit,
+    nowMs,
+  });
+
   // 3. The real W504 output pipeline (in-process stores) as the control
-  //    plane's render-output store.
-  const pipeline = createAnimeOutputPipeline();
+  //    plane's render-output store — composed through the J008
+  //    REVOCATION-AWARE SERVING SEAM (the output-pipeline's own rights-aware
+  //    decorator): every segment retrieval/listing re-resolves the session's
+  //    CURRENT effective capabilities over the SAME policy store and throws
+  //    `PlaybackRightsDeniedError` BEFORE revealing whether anything exists,
+  //    even when a caller still holds a stale permissive policy (the W504
+  //    store's own caller-supplied gate still runs underneath — belt and
+  //    suspenders, never a replaced gate).
+  const pipeline = createAnimeOutputPipeline({
+    segmentStore: createRightsAwareSegmentStore({
+      inner: new InMemoryRenderSegmentStore(),
+      resolve: (sessionId, atMs) =>
+        effectiveCapabilitiesOf(rightsPolicies, sessionId, new Date(atMs)),
+    }),
+  });
 
   // 4. The compute plane (the W914 seam, env-driven like the worker route):
   //    `in-process` (default) executes REAL render jobs in this process
@@ -607,14 +709,12 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     },
   });
 
-  // 5a. The W917 rights-policy layer: the registry (creation records +
-  //     rights-holder edits) + the append-only audit log, fronting the raw
-  //     control app so every rights-checking read re-derives from the
-  //     EFFECTIVE policy (fail-closed per read). The gate, the studio, the
-  //     catalog and every route below consume this GOVERNED control plane —
-  //     the raw app is never handed out.
-  const rightsPolicies = new EffectivePolicyStore();
-  const rightsAudit = new PolicyAuditLog();
+  // 5a. The W917 rights-policy GOVERNED control plane (the stores were
+  //     hoisted above the pipeline — see 2"): the registry + the append-only
+  //     audit log front the raw control app so every rights-checking read
+  //     re-derives from the EFFECTIVE policy (fail-closed per read). The
+  //     gate, the studio, the catalog and every route below consume this
+  //     GOVERNED control plane — the raw app is never handed out.
   let control: ControlApp = createRightsGovernedControl(rawControl, rightsPolicies, nowMs);
 
   // 6b. The real-media loop (R101-R104): the durable sqlite record store +
@@ -902,6 +1002,30 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   });
   const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
+  // 7a. The J010 analyst-annotations store (wave 4): durable sqlite under
+  //     the real Bun runtime (the media store's exact precedent — the W911
+  //     shim refusal is caught → the honest in-memory fallback + banner;
+  //     any OTHER construction failure fails loud). Markers + notes only:
+  //     time ranges + backing references, never clip bytes.
+  let annotationStore: AnalystAnnotationStore;
+  try {
+    const annotationsDbPath =
+      options.annotations?.db ?? process.env.SPORTA_ANNOTATIONS_DB ?? "db/analyst-annotations.db";
+    if (annotationsDbPath !== ":memory:") {
+      mkdirSync(dirname(annotationsDbPath), { recursive: true });
+    }
+    annotationStore = new SqliteAnalystAnnotationStore(annotationsDbPath);
+  } catch (error) {
+    if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+      throw error;
+    }
+    console.error(
+      "[sporta] analyst annotations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+        "saved markers and notes do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+    );
+    annotationStore = new InMemoryAnalystAnnotationStore();
+  }
+
   // 7'. The renderer → reality declarations (R503): composition DATA over
   //      the REGISTERED renderers only. The anime prototype produces the
   //      anime-npr reality (the product's anime reality — its id and class
@@ -935,6 +1059,21 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     attestations,
     rightsPolicies,
     rightsAudit,
+    rightsEditor,
+    domainRightsAudit,
+    annotationStore,
+    rightsAuditTrail: {
+      trail: (token: string) => buildRightsAuditTrail(server, token),
+      trailFor: (token: string, sessionId: string) =>
+        buildRightsAuditTrailFor(server, token, sessionId),
+    },
+    annotations: {
+      listMarkers: (token: string, sessionId: string) =>
+        listSessionMarkers(server, token, sessionId),
+      saveMarker: (token: string, input: unknown) => saveMarker(server, token, input),
+      attachNote: (token: string, input: unknown) => attachNote(server, token, input),
+      getMarker: (token: string, markerId: string) => getMarker(server, token, markerId),
+    },
     rights,
     compute,
     computeAdapter: computeAdapter ?? null,

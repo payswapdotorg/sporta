@@ -1086,3 +1086,77 @@ dispatchable in parallel — no frozen contracts touched.
 
 Session state: main @70ac991 CI GREEN. Wave 4: A MERGED; B GENERATING
 (J008/J009/J010 UI surfaces over the merged domain seams).
+
+## Session 2026-09-22 — WAVE 4 WORKER B: J008/J009/J010 UI surfaces over the wave-3 domain seams (branch work/j008ui-j009ui-j010ui, base 3a742a9)
+
+- Clean clone @3a742a9 (wave-4 A merged @70ac991 present). PRISTINE
+  clean-clone baseline recorded FIRST in an isolated worktree (the working
+  tree was already being edited): full battery 6814 pass / 0 fail / 33 skip
+  (6847 tests, 481 files, 340s, env -u DATABASE_URL) — exactly the wave-4 A
+  post-merge record.
+- The composition decision (the J006 B/C split precedent, adopted): the
+  app ADOPTS the domain seams instead of mirroring them —
+  `RightsCenterService.setPolicy`/`revoke` now DELEGATE to
+  `@sporta/session`'s rights-editor (`server.rightsEditor`, composed over
+  the SAME EffectivePolicyStore/audit log the serving seams re-derive
+  from), so both edit surfaces (the W917 console routes AND the J008
+  Rights Center panel) run ONE editor with the domain's own validation,
+  W902 re-attestation, narrow-only ceiling and editKind classification.
+  The output-pipeline's rights-aware serving seam
+  (`createRightsAwareSegmentStore`) is composed at the pipeline seam —
+  `PlaybackRightsDeniedError` now fires in the app for a stale-policy
+  read (pinned + served to the UI through the new
+  `/api/rights/policies/[sessionId]/serving` check).
+- J008: the Rights Center's per-session editor panel (narrow-only
+  EXPLAINED in the UI, re-attestation stated, the domain-classified
+  last-change line) + revocation with the honest serving verification
+  (the check renders the watch denial + the PlaybackRightsDeniedError
+  message verbatim). J009: `/audit` real behind `/api/audit/trail` through
+  the role-gated domain query (own/operator scopes, uniform denials with
+  the ownership-sentinel composition, the domain-vocabulary trail with
+  editKind; publication events honestly linked to the policy console).
+  J010: `/clips` + `/notes` real behind `/api/annotations/**` through the
+  analyst-annotations service (real SourceAsset-duration timelines only,
+  the closed refusal vocabulary with next actions, notes attached +
+  revisited, the NO-BYTES pin intact, durable sqlite annotation store
+  under Bun + the W911 fallback under Node).
+- The deferred-surface registry shrank (Worker A's J003 module doctrine —
+  entries are REMOVED as surfaces become real): audit/clips/notes entries
+  gone, REAL_SURFACE_ROUTES += the three; the J003 test battery updated
+  accordingly (the standing invariants preserved).
+- Honest deltas on the W917 pins (documented in the lane rows): a
+  re-revocation sets the domain editor's own now-1ms time-bound (DENY_ALL
+  unchanged), and a revocation records TWO audit entries (the domain
+  rights entry + the app-layer visibility flip — one decision per entry).
+- Gates: full battery 6853 pass / 0 fail / 33 skip (6886 tests, 484
+  files, 348s) vs the pristine baseline 6814/0/33 — +39 lane tests, 0 NEW
+  failures; lint 0 errors (the 1 pre-existing media-platform no-console
+  warning); typecheck (apps/web tsc --noEmit + the lane's per-package
+  surface) clean; prettier clean.
+- Browser verification over the production build (next build + double-
+  fork-detached `bun --bun run start -p 3100`, env -u DATABASE_URL,
+  SPORTA_DEMO_ACCOUNT_PASSWORD set): the demo account's REAL journeys —
+  the Create Studio upload of a REAL ffmpeg-generated MP4 (original
+  artifact stored), /clips with the real 3000ms timeline (moment + clip
+  markers saved, listed, deep-link revisited), /notes (note attached to
+  the marker, listed), the honest no-timeline panel on a story session,
+  /rights (operator scope: the narrow edit applied with storage/sharing
+  denied + the "narrow" last-change line, revocation with reason), the
+  serving-state check rendering the watch DENIED + the verbatim
+  PlaybackRightsDeniedError, /audit (operator trail with the narrow +
+  revoke entries, the focused ?session= view), the revoked /watch "Playback
+  is denied", the anonymous /audit sign-in panel — ZERO console messages
+  and ZERO page errors across the whole session.
+- NOTE (this session's hazard): the platform's capacity events reaped
+  background processes between turns twice (the first baseline run and the
+  first prod server); both were re-run — the baseline in an isolated
+  pristine worktree, the server via a double-fork detach. An earlier
+  dead-session incarnation of this lane had pushed a complete-looking
+  branch tip @fe4fbfb based on the STALE pre-A-merge base da2feb0 (it
+  mirrored the domain classification rule into the app layer — a fork);
+  this lane's continuation re-cloned from the current main per the
+  continuation instruction and force-pushed over it (fe4fbfb remains
+  recoverable by SHA).
+
+Session state: branch work/j008ui-j009ui-j010ui pushed from the current
+main tip; awaiting TL verification + merge. Wave-4 B lane delivered.

@@ -745,6 +745,19 @@ export interface RightsCenterEntryLike {
   };
   visibility: "public" | "private";
   access: "owned" | "operator";
+  /** ADDITIVE (J008): the effective policy document, when one is recorded. */
+  policy: RightsPolicyLike | null;
+  /** ADDITIVE (J008): creation record vs a rights-holder edit. */
+  effectiveSource: "creation" | "edited" | "unrecorded";
+  /** ADDITIVE (J008): whether the effective policy is currently out of force. */
+  revoked: boolean;
+  /** ADDITIVE (J008): the newest rights change, with the domain editKind. */
+  lastChange: {
+    atIso: string;
+    actorUserId: string;
+    changeKind: string;
+    editKind?: "grant" | "widen" | "narrow" | "revoke";
+  } | null;
 }
 
 /** The Rights Center document (/api/rights/center answer). */
@@ -869,6 +882,8 @@ export interface PolicyAuditEntryLike {
   actorUserId: string;
   sessionId: string;
   changeKind: "visibility" | "policy" | "revocation";
+  /** The J008 domain classification, present on rights entries. */
+  editKind?: "grant" | "widen" | "narrow" | "revoke";
   summary: string;
   from: unknown;
   to: unknown;
@@ -1106,4 +1121,114 @@ export interface ComputeVerifyAnswerLike {
 export interface ComputeDisconnectAnswerLike {
   outcome: "disconnected";
   record: ComputeCenterProviderLike["connection"];
+}
+
+// ---------------------------------------------------------------------------
+// J009 — the rights-audit trail (the /audit surface, GET /api/audit/trail)
+// ---------------------------------------------------------------------------
+
+/** One domain-vocabulary rights-audit entry (the /audit trail's rows). */
+export interface RightsAuditTrailEntryLike {
+  atIso: string;
+  actorUserId: string;
+  sessionId: string;
+  changeKind: "policy" | "revocation";
+  /** The J008 classification: what the change DID. */
+  editKind: "grant" | "widen" | "narrow" | "revoke";
+  summary: string;
+  from: unknown;
+  to: unknown;
+}
+
+/** The audit-trail document (GET /api/audit/trail, with or without ?session). */
+export interface RightsAuditTrailLike {
+  /** The caller's standing for this answer (the domain seam's own). */
+  scope: "own" | "operator";
+  /** The focused session (`null` = the whole workspace scope). */
+  sessionId: string | null;
+  entries: RightsAuditTrailEntryLike[];
+  note: string;
+}
+
+// ---------------------------------------------------------------------------
+// J010 — the analyst annotations (the /clips + /notes surfaces,
+// /api/annotations/**)
+// ---------------------------------------------------------------------------
+
+/** The closed refusal vocabulary (every surface renders it the same way). */
+export type AnnotationRefusalLike =
+  | "session-unknown"
+  | "no-timeline"
+  | "out-of-range"
+  | "render-unknown"
+  | "render-lookup-unavailable"
+  | "marker-unknown"
+  | "invalid-input";
+
+/** The backing record naming WHICH real timeline a marker rides. */
+export type AnalystMarkerBackingLike =
+  | { kind: "session-timeline"; durationMs: number }
+  | { kind: "render-output"; renderId: string; durationMs: number };
+
+/** One saved media-time marker (a time range + backing — never bytes). */
+export interface AnalystMarkerLike {
+  markerId: string;
+  sessionId: string;
+  kind: "moment" | "clip";
+  atMs?: number;
+  startMs?: number;
+  endMs?: number;
+  authorUserId: string;
+  createdAtIso: string;
+  backing: AnalystMarkerBackingLike;
+  label?: string;
+}
+
+/** One attached note (first-class, persisted, revisitable). */
+export interface AnalystNoteLike {
+  noteId: string;
+  markerId: string;
+  sessionId: string;
+  text: string;
+  authorUserId: string;
+  createdAtIso: string;
+}
+
+/** The honest state of a session's REAL media timeline. */
+export type SessionTimelineStateLike =
+  | { available: true; durationMs: number }
+  | { available: false; reason: "session-unknown" | "no-timeline" };
+
+/** The per-session markers document (the revisit seam). */
+export interface SessionMarkersLike {
+  sessionId: string;
+  label: string;
+  timeline: SessionTimelineStateLike;
+  markers: AnalystMarkerLike[];
+}
+
+/** One marker with its attached notes (the drill-down answer). */
+export interface MarkerWithNotesLike {
+  marker: AnalystMarkerLike;
+  notes: AnalystNoteLike[];
+}
+
+/** The marker-save input (an omitted backing rides the session's own timeline). */
+export interface AnalystMarkerSaveInput {
+  sessionId: string;
+  kind: "moment" | "clip";
+  atMs?: number;
+  startMs?: number;
+  endMs?: number;
+  label?: string;
+  backing?: "session-timeline" | { kind: "render-output"; renderId: string; durationMs: number };
+}
+
+/** The J008 serving-state check (GET /api/rights/policies/[sessionId]/serving). */
+export interface RightsServingCheckLike {
+  sessionId: string;
+  /** The watch surface's own verdict (the re-derived current rights). */
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  /** The rights-aware serving seam's answer under the creation-time policy. */
+  seam: { denied: boolean; errorClass?: string; message?: string };
 }
