@@ -164,7 +164,7 @@ describe("W907 workspace navigation — presentation context only (J002: supplem
     // visitor away from the global product.
     for (const role of ROLES) {
       const nav = navForRole(role);
-      expect(nav.slice(0, PRIMARY_NAV.length)).toEqual(PRIMARY_NAV);
+      expect(nav.slice(0, PRIMARY_NAV.length)).toEqual([...PRIMARY_NAV]);
     }
   });
 
