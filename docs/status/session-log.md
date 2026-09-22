@@ -1063,3 +1063,26 @@ Session state: branch work/j001-j002-j003-product-truth pushed (tip
 recorded in the lane's completion report); awaiting TL verification +
 merge. Wave-4 Worker B (J008/J009/J010 UI) and the remaining lanes
 dispatchable in parallel — no frozen contracts touched.
+
+## Session 2026-09-22 00:51-02:30 UTC — WAVE 4 WORKER A LANE MERGED (CI green)
+
+- Wave 4 dispatched 00:51-00:54 UTC: wave4-a (J001+J002+J003 + the
+  TL-assigned ticker-key carry) + wave4-b (J008/J009/J010 UI surfaces)
+  — both prompts VERIFIED, insert 100%.
+- wave4-a delivered ALL FOUR items in its first checkpoint @771ee66
+  (40 min in), then a typecheck fixup @db0daf3, then the docs-only
+  evidence commit @b1ee7a8 (the delivery-completion signature). The
+  in-chat 12-field report turn died to a capacity error (the known
+  post-delivery turn-death pattern; branch + evidence = ground truth).
+- TL verification: the four new batteries 78/78 (home-reality-grid 22,
+  role-workspaces, deferred-surfaces 16, live-ticker-keys 7 + existing);
+  regression sample 68/68; eslint on C's hook rc=0. Worker's gates:
+  full battery 891/0/26 clean-env, lint 0, prettier applied.
+- MERGE @70ac991 (--no-ff, CONFLICT-FREE). Post-merge full apps/web
+  battery: 917 tests / 0 fail / 26 skip (63 files, +40 lane tests);
+  typecheck clean; eslint 0 errors. **CI GREEN at 70ac991.**
+- wave4-a session RETIRED (registry + tab). The wave-3 B ticker-key
+  finding is now RESOLVED on main (the per-frame discriminator).
+
+Session state: main @70ac991 CI GREEN. Wave 4: A MERGED; B GENERATING
+(J008/J009/J010 UI surfaces over the merged domain seams).
