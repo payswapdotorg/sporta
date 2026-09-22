@@ -11,9 +11,12 @@
  * DESIGN RULES (the matrix + Simulation C, made structural):
  *
  * - The ACTIVE ROLE is PRESENTATION CONTEXT ONLY: it selects which workspace
- *   (navigation + default destination) the account sees. It NEVER selects
- *   what the account may DO — every protected action is reauthorized
+ *   (navigation supplement + default destination) the account sees. It NEVER
+ *   selects what the account may DO — every protected action is reauthorized
  *   server-side by `@sporta/identity`'s policy against the account's GRANTS.
+ * - J002: the workspace navigation SUPPLEMENTS the core product navigation —
+ *   global Home/discovery stay reachable from every role state; a role
+ *   workspace never replaces (and so never traps) the core product nav.
  * - The switcher offers EXACTLY the account's grants (never all five
  *   roles): a role the account does not hold is never switchable.
  * - Surfaces that have no backing yet (Clips, Notes, Audit) exist as
@@ -251,25 +254,79 @@ export function isRouteInWorkspace(role: Role, pathname: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Role-aware navigation
+// Role-aware navigation (J002 — supplements, never replaces)
 // ---------------------------------------------------------------------------
+
+/** The base path of a nav href (anchors address sections of the same page). */
+function basePathOf(href: string): string {
+  return href.split("#", 1)[0]!;
+}
+
+/**
+ * The role's workspace SUPPLEMENT (J002): the workspace's own surfaces the
+ * core product navigation does not already serve, in the matrix's order.
+ *
+ * The workspace model itself stays the matrix's product surface map
+ * verbatim (entry points, safe-return membership — unchanged); what J002
+ * changes is the PROJECTION: a role's navigation SUPPLEMENTS the core
+ * product navigation instead of replacing it, so Home, Live, Explore,
+ * Library, Following and Create stay reachable from EVERY role state — no
+ * role workspace can trap a visitor away from the global product.
+ */
+export function workspaceSupplements(role: string | null | undefined): readonly NavItem[] {
+  if (role === null || role === undefined) return [];
+  const workspace = ROLE_WORKSPACES[role as Role];
+  if (workspace === undefined) return [];
+  const corePaths = new Set(PRIMARY_NAV.map((item) => basePathOf(item.href)));
+  return workspace
+    .filter((surface) => !corePaths.has(basePathOf(surface.href)))
+    .map((surface) => ({
+      href: surface.href as NavItem["href"],
+      label: surface.label,
+      description: surface.description,
+      icon: surface.icon,
+    }));
+}
 
 /**
  * The navigation items for the given active role (a wire string — validated):
- * a role in the vocabulary narrows navigation to its workspace; no active
- * role (or an unknown wire string — fail-closed) shows the shared
- * navigation. Presentation context only, never authority.
+ * J002 — the CORE product navigation first, then the role's workspace
+ * supplement. A role in the vocabulary never REMOVES a core destination;
+ * no active role (or an unknown wire string — fail-closed) shows the
+ * shared navigation alone. Presentation context only, never authority.
  */
 export function navForRole(role: string | null | undefined): readonly NavItem[] {
-  if (role === null || role === undefined) return PRIMARY_NAV;
-  const workspace = ROLE_WORKSPACES[role as Role];
-  if (workspace === undefined) return PRIMARY_NAV;
-  return workspace.map((surface) => ({
-    href: surface.href as NavItem["href"],
-    label: surface.label,
-    description: surface.description,
-    icon: surface.icon,
-  }));
+  const supplements = workspaceSupplements(role);
+  return supplements.length === 0 ? PRIMARY_NAV : [...PRIMARY_NAV, ...supplements];
+}
+
+/**
+ * One rendered navigation group (J002): the core product group, plus the
+ * labeled workspace supplement group when a role is active.
+ */
+export interface NavGroup {
+  id: "core" | "workspace";
+  /** Visible heading (null for the core group — the product nav needs none). */
+  label: string | null;
+  items: readonly NavItem[];
+}
+
+/**
+ * The grouped navigation model both shells render (J002): the core product
+ * group first, then the active role's labeled workspace supplement group.
+ * The desktop sidebar shows the group heading; the mobile tab bar keeps
+ * the flat scrollable row (the account chip already names the workspace).
+ */
+export function navGroupsForRole(role: string | null | undefined): readonly NavGroup[] {
+  const supplements = workspaceSupplements(role);
+  if (supplements.length === 0) {
+    return [{ id: "core", label: null, items: PRIMARY_NAV }];
+  }
+  const label = ROLE_LABELS[role as Role];
+  return [
+    { id: "core", label: null, items: PRIMARY_NAV },
+    { id: "workspace", label: `${label} workspace`, items: supplements },
+  ];
 }
 
 // ---------------------------------------------------------------------------

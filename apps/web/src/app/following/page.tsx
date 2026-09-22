@@ -7,8 +7,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Following (W903). Needs accounts plus a real follow graph (W902);
- * no activity is simulated.
+ * Following (W903 → J003). Needs accounts plus a real follow graph (W902);
+ * no activity is simulated. The panel carries a real next action
+ * (Explore — the discovery surface that exists today).
  */
 export default function FollowingPage() {
   return (

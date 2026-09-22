@@ -159,7 +159,10 @@ describe("deriveLibraryState over the W901 fixtures", () => {
     const capability = fixtures.get("live-unavailable")!;
     const verdict = deriveLibraryState(capability, []);
     expect(verdict.state).toBe("ready");
-    expect(verdict.reason).toContain("Create Studio arrives with W906");
+    // J001: the stale "(Create Studio arrives with W906)" promise is gone —
+    // the studio is REAL; the empty-library line points at it.
+    expect(verdict.reason).toContain("open the Create Studio to make your first one");
+    expect(verdict.reason).not.toContain("arrives with W906");
   });
 
   test("a granted account with sessions is ready and counts them", () => {

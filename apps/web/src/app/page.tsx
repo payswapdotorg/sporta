@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { DeferredSurface } from "@/components/deferred-surface";
-import { HomeSurface } from "@/components/home-surface";
+import { HomeCreateShelf, HomeRealityGrid, HomeSurface } from "@/components/home-surface";
 import { SportaMark } from "@/components/sporta-mark";
-import { BRAND, REALITIES } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { ROUTES } from "@/lib/navigation";
 
 export const metadata: Metadata = {
@@ -12,11 +11,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Home (W904). The brand story and the four realities Sporta will offer,
- * then the three home categories per ux-architecture — live/upcoming,
- * alternate realities, things you can create — with the first two now REAL
- * (capability + catalog driven) and the create shelf honestly deferred to
- * the Create Studio (W906).
+ * Home (W904 → J001). The brand story and the four realities Sporta
+ * offers, then the three home categories per ux-architecture — live and
+ * upcoming, alternate realities, things you can create — ALL REAL and
+ * capability-driven since J001: the reality grid's availability chips
+ * derive from the live capability/studio seams (never static "registered"
+ * wording), and the create shelf exposes the REAL Create Studio entry
+ * (`/create`, the W906 surface) — never a deferred dead end.
  */
 export default function HomePage() {
   return (
@@ -34,7 +35,10 @@ export default function HomePage() {
             rendering of the same event, all backed by one sports world model.
           </p>
           <div className="hero-actions">
-            <Link className="button-primary" href={ROUTES.explore}>
+            <Link className="button-primary" href={ROUTES.create}>
+              Create a reality
+            </Link>
+            <Link className="button-ghost" href={ROUTES.explore}>
               Explore the catalog
             </Link>
             <Link className="button-ghost" href="#todays-sporta">
@@ -51,7 +55,7 @@ export default function HomePage() {
 
       <section className="realities" aria-labelledby="realities-title">
         <header className="section-head">
-          <p className="page-kicker">Coming to Sporta</p>
+          <p className="page-kicker">The realities of Sporta</p>
           <h2 className="section-title" id="realities-title">
             Four ways to watch the same game
           </h2>
@@ -60,30 +64,7 @@ export default function HomePage() {
             given event is shown honestly, driven by real renderer capabilities and rights.
           </p>
         </header>
-        <ul className="reality-grid" id="coming-to-sporta">
-          {REALITIES.map((reality) => (
-            <li key={reality.key} className="reality-card" data-reality={reality.key}>
-              <span
-                className="reality-swatch"
-                style={
-                  {
-                    "--reality-accent": BRAND.realityAccents[reality.key],
-                  } as React.CSSProperties
-                }
-                aria-hidden="true"
-              />
-              <h3 className="reality-name">{reality.name}</h3>
-              <p className="reality-description">{reality.description}</p>
-              <p className="status-chip subtle" role="status">
-                {reality.key === "anime"
-                  ? "Prototype renderer registered"
-                  : reality.key === "original"
-                    ? "Reference renderer registered"
-                    : "No renderer registered yet"}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <HomeRealityGrid />
       </section>
 
       <div id="todays-sporta">
@@ -93,7 +74,7 @@ export default function HomePage() {
           description="The three home shelves — live and upcoming, alternate realities, and things you can create — driven by the real capability response and control-plane catalog."
         />
         <HomeSurface />
-        <DeferredSurface surface="home-create" />
+        <HomeCreateShelf />
       </div>
     </>
   );

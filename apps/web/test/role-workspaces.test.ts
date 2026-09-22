@@ -6,8 +6,10 @@ import {
   formatPendingWork,
   isRouteInWorkspace,
   navForRole,
+  navGroupsForRole,
   switchableRoles,
   workspaceDefaultPath,
+  workspaceSupplements,
 } from "../src/lib/role-workspaces";
 import { PRIMARY_NAV, ROUTES } from "../src/lib/navigation";
 
@@ -150,21 +152,98 @@ describe("W907 role switcher model — grants-only, context-only", () => {
   });
 });
 
-describe("W907 workspace navigation — presentation context only", () => {
+describe("W907 workspace navigation — presentation context only (J002: supplements, never replaces)", () => {
   test("no active role falls back to the shared navigation (never a fabricated workspace)", () => {
     expect(navForRole(null)).toBe(PRIMARY_NAV);
     expect(navForRole(undefined)).toBe(PRIMARY_NAV);
   });
 
-  test("the active role narrows navigation to its workspace surfaces, in order", () => {
+  test("J002: EVERY role retains the full core product navigation — global Home/discovery first", () => {
+    // The core destinations (Home, Live, Explore, Library, Following,
+    // Create) stay reachable from every role state — no workspace traps a
+    // visitor away from the global product.
+    for (const role of ROLES) {
+      const nav = navForRole(role);
+      expect(nav.slice(0, PRIMARY_NAV.length)).toEqual(PRIMARY_NAV);
+    }
+  });
+
+  test("J002: the active role's nav is the core navigation plus its workspace supplement, in order", () => {
     const nav = navForRole("rights-holder");
-    expect(nav.map((item) => item.label)).toEqual(["Home", "Rights Center", "Catalog", "Audit"]);
+    expect(nav.map((item) => item.label)).toEqual([
+      "Home",
+      "Live",
+      "Explore",
+      "Library",
+      "Following",
+      "Create",
+      "Rights Center",
+      "Audit",
+    ]);
     expect(nav.map((item) => item.href)).toEqual([
       ROUTES.home,
-      ROUTES.rights,
+      ROUTES.live,
       ROUTES.explore,
+      ROUTES.library,
+      ROUTES.following,
+      ROUTES.create,
+      ROUTES.rights,
       ROUTES.audit,
     ]);
+  });
+
+  test("J002: each role's supplement is exactly its workspace's non-core surfaces (matrix order)", () => {
+    expect(workspaceSupplements("viewer").map((item) => item.label)).toEqual(["Watch"]);
+    expect(workspaceSupplements("creator").map((item) => item.label)).toEqual(["Jobs"]);
+    expect(workspaceSupplements("analyst").map((item) => item.label)).toEqual([
+      "Watch",
+      "Match Lab",
+      "Clips",
+      "Notes",
+    ]);
+    expect(workspaceSupplements("rights-holder").map((item) => item.label)).toEqual([
+      "Rights Center",
+      "Audit",
+    ]);
+    // The operator workspace (the one that used to REPLACE the core nav,
+    // hiding Home/discovery entirely) now supplements it.
+    expect(workspaceSupplements("operator").map((item) => item.label)).toEqual([
+      "Operations",
+      "Jobs",
+      "Health",
+      "Providers",
+      "Audit",
+    ]);
+  });
+
+  test("J002: a supplement never duplicates a core destination (no double-listed routes)", () => {
+    for (const role of ROLES) {
+      const hrefs = navForRole(role).map((item) => item.href);
+      expect(new Set(hrefs).size).toBe(hrefs.length);
+      // Surfaces the core already serves (e.g. Creator's Create Studio on
+      // /create, Rights Holder's Catalog on /explore) are deduplicated by
+      // base path — the core entry stays, the workspace copy drops.
+      const core = new Set(PRIMARY_NAV.map((item) => item.href));
+      for (const supplement of workspaceSupplements(role)) {
+        expect(core.has(supplement.href)).toBe(false);
+      }
+    }
+  });
+
+  test("J002: unknown roles supplement nothing (fail-closed, core navigation only)", () => {
+    expect(workspaceSupplements("superuser")).toEqual([]);
+    expect(workspaceSupplements("")).toEqual([]);
+    expect(navForRole("superuser")).toBe(PRIMARY_NAV);
+  });
+
+  test("J002: the grouped model renders the core group plus the labeled workspace group", () => {
+    expect(navGroupsForRole(null)).toEqual([{ id: "core", label: null, items: PRIMARY_NAV }]);
+    const groups = navGroupsForRole("analyst");
+    expect(groups).toHaveLength(2);
+    expect(groups[0]).toEqual({ id: "core", label: null, items: PRIMARY_NAV });
+    expect(groups[1]!.id).toBe("workspace");
+    expect(groups[1]!.label).toBe(`${ROLE_LABELS.analyst} workspace`);
+    expect(groups[1]!.items).toEqual(workspaceSupplements("analyst"));
   });
 
   test("every workspace's first surface is its entry point (safe return target)", () => {

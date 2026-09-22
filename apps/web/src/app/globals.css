@@ -381,11 +381,42 @@ svg {
   left: 0;
   right: 0;
   z-index: 50;
+  display: flex;
   background: color-mix(in srgb, var(--bg-raised) 96%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--surface-border);
   padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* J002 — the supplemented tab bar scrolls horizontally when a role's
+   workspace supplements overflow the viewport (core destinations first). */
+.mobile-tabbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-tabbar .nav-group-workspace {
+  border-left: 1px solid var(--surface-border);
+}
+
+/* J002 — the sidebar's labeled workspace supplement group. */
+.nav-group-label {
+  margin: 18px 14px 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.nav-group {
+  display: flex;
+  align-items: stretch;
 }
 
 .nav-list {
@@ -395,12 +426,12 @@ svg {
 
 .nav-tabbar {
   justify-content: stretch;
-  width: 100%;
+  flex: 1 1 auto;
 }
 
 .nav-tabbar .nav-item {
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: 56px;
 }
 
 .nav-tabbar .nav-link {
@@ -708,6 +739,66 @@ svg {
   min-height: 3.2em;
 }
 
+/* J001 — the reality grid's live capability status (chip + reason). */
+.reality-status {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  margin-top: 12px;
+}
+
+.reality-status-reason {
+  color: var(--text-dim);
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+/* J001 — the home create shelf's REAL Create entry (never a dead end). */
+.create-entry {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.create-entry-link {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--accent) 10%, transparent),
+    transparent
+  );
+  color: var(--text);
+  text-decoration: none;
+}
+
+.create-entry-link:hover {
+  filter: brightness(1.08);
+}
+
+.create-entry-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.create-entry-note {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  max-width: 60ch;
+}
+
+.create-entry-facts {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
 /* ------------------------------------------------------------------ */
 /* Deferred surface (the honest placeholder)                            */
 /* ------------------------------------------------------------------ */
@@ -808,6 +899,27 @@ svg {
   margin-top: 18px;
   color: var(--text-faint);
   font-size: 0.85rem;
+}
+
+/* J003 — a deferred surface's real next action (never a dead end). */
+.deferred-next {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 8px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 999px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.deferred-next:hover {
+  filter: brightness(1.06);
 }
 
 .work-order {
@@ -1990,6 +2102,12 @@ svg {
   .nav-sidebar {
     flex-direction: column;
     gap: 2px;
+  }
+
+  /* J002 — the sidebar's groups stack vertically (heading above the
+     workspace supplement list). */
+  .site-sidebar .nav-group {
+    flex-direction: column;
   }
 
   .nav-sidebar .nav-link {

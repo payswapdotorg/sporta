@@ -7,10 +7,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Audit (W907) — the honest deferred audit surface for the Rights Holder
- * (rights scope) and Operator (system scope) workspaces: no audit log is
- * exposed by the control plane yet (W917/W918), so the page says exactly
- * that instead of fabricating an activity feed.
+ * Audit (W907 → J003) — the honest deferred audit surface for the Rights
+ * Holder (rights scope) and Operator (system scope) workspaces. Audit
+ * trails EXIST today behind two real surfaces (the Rights Center's
+ * policy-change audit and the Operations console's remediation audit) and
+ * the role-gated rights-audit query exists at the domain level (J009);
+ * this page's own unified per-scope view arrives with the J009 UI lane.
+ * The panel's next action points at the rights policy audit that exists.
  */
 export default function AuditPage() {
   return (
@@ -18,7 +21,7 @@ export default function AuditPage() {
       <PageHeader
         kicker="Accountability"
         title="Audit"
-        description="The audit trail for your scope — honestly empty until the control plane exposes one."
+        description="The audit trail for your scope — the trails exist behind the Rights Center and Operations; this page arrives with the J009 UI lane."
       />
       <DeferredSurface surface="audit" />
     </>
