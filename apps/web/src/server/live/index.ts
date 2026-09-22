@@ -16,6 +16,7 @@
 export {
   createSseLiveTransport,
   type LiveChannelStatus,
+  type LiveRecordedWindowSink,
   type LiveScheduler,
   type LiveSourceRegistration,
   type LiveSubscriber,
@@ -37,4 +38,5 @@ export {
   type LiveTelemetryService,
   type LiveTelemetryServiceOptions,
 } from "./telemetry";
+export { liveReplaySink, withDurableReplayRecord, type LiveReplayPersistence } from "./persistence";
 export { liveCadenceMs, liveTransportActive } from "./env";

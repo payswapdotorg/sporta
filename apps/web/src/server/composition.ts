@@ -91,6 +91,7 @@ import { SqliteControlPlaneRecordStore } from "./platform/control/sqlite-records
 import { SqliteMediaOwnershipStore } from "./platform/identity/sqlite-ownership";
 import { SqliteAccountStore } from "./platform/identity/sqlite-accounts";
 import { SqliteSessionStore } from "./platform/identity/sqlite-sessions";
+import { SqliteLiveReplayStore } from "./platform/live/sqlite-replay-store";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
@@ -124,7 +125,14 @@ import { RightsCenterService } from "./rights-center-service";
 import { EffectivePolicyStore, PolicyAuditLog } from "./rights-policy-store";
 import { createRightsGovernedControl } from "./rights-governed-control";
 import { OperationsService } from "./operations-service";
-import { createSseLiveTransport, liveCadenceMs, liveTransportActive } from "./live";
+import {
+  createSseLiveTransport,
+  liveCadenceMs,
+  liveReplaySink,
+  liveTransportActive,
+  withDurableReplayRecord,
+  type LiveReplayPersistence,
+} from "./live";
 import { createLiveTelemetryService, withLiveTelemetry } from "./live";
 import type { LiveTelemetryService, LiveTransport } from "./live";
 import type { StoryEvent } from "./dev-story";
@@ -158,6 +166,21 @@ export interface SportaServerOptions {
    * deterministic one through this seam.
    */
   liveTransport?: LiveTransport;
+  /**
+   * The durable live replay-record persistence (L014 platform side).
+   * Default: none — the transport's own in-memory record (the pre-platform
+   * posture). When injected, the recorded finite-window frames and the
+   * window's completion persist through it, and the `replayRecord` read
+   * falls back to it after a restart (the recovery read). The Bun-gated
+   * production path constructs the sqlite store
+   * (`server/platform/live/sqlite-replay-store.ts`);
+   * `GET /api/live/[sessionId]/replay` and the stream route's 410 then
+   * answer from the PLATFORM state. A test injecting its own transport
+   * wires the write side itself (`recordSink: liveReplaySink(store)` —
+   * the same adapter the default path uses); the decorator read applies
+   * to both paths.
+   */
+  liveReplay?: LiveReplayPersistence;
   /**
    * The hosted R2 artifact store (W912: the private-bucket render-output
    * store when the environment configures it; default: none — the seeded
@@ -708,17 +731,34 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     registrations get the per-session probe injected (the producer's
   //     stage reports) and every consumer-pulled world frame is stamped at
   //     the delivery boundary. The wire bytes are unchanged.
+  //     L014 (platform side): when a durable replay persistence is
+  //     configured, the transport's recorded finite-window frames and the
+  //     window's completion persist through the additive recordSink seam,
+  //     and the durable decorator (OUTSIDE telemetry — the recovery read
+  //     only) answers `replayRecord` from the PLATFORM state after a
+  //     restart: the completed window's record survives the process, the
+  //     stream route 410s instead of re-opening a second live window, and
+  //     the replay route serves the persisted frames VERBATIM. No wire
+  //     change, no route change — the decorator composes under the
+  //     presentation layer exactly as the lane split requires.
   const liveTelemetry = createLiveTelemetryService({ nowMs });
-  const live = withLiveTelemetry(
+  const innerLive =
     options.liveTransport ??
-      createSseLiveTransport({
-        active: liveTransportActive(),
-        nowMs,
-        cadenceMs: liveCadenceMs(),
-      }),
-    liveTelemetry,
-    nowMs,
-  );
+    createSseLiveTransport({
+      active: liveTransportActive(),
+      nowMs,
+      cadenceMs: liveCadenceMs(),
+      ...(options.liveReplay !== undefined
+        ? { recordSink: liveReplaySink(options.liveReplay) }
+        : {}),
+    });
+  const live =
+    options.liveReplay !== undefined
+      ? withDurableReplayRecord(
+          withLiveTelemetry(innerLive, liveTelemetry, nowMs),
+          options.liveReplay,
+        )
+      : withLiveTelemetry(innerLive, liveTelemetry, nowMs);
 
   // 6a. The transient state (W913): the bounded render queue, the quota
   //     counters, and the small TTL cache. Injected for tests; otherwise the
@@ -1019,6 +1059,15 @@ async function buildSingleton(): Promise<SportaServer> {
     // restart); the hosted Neon gate remains the production shape.
     let durableAccounts: AccountStore | undefined;
     let durableSessions: SessionService | undefined;
+    // L014 — the LOCAL durable LIVE REPLAY records: the same gate — the
+    // completed finite live window's RECORDED world frames persist to a
+    // sqlite file, so a restart/redeploy serves the replay record through
+    // the same routes and the stream route 410s instead of re-opening a
+    // second live window over a session that already completed one (the
+    // no-second-canonical-window rule). The bundled Node runtime cannot
+    // construct it (the W911 shim refusal → the transport's own in-memory
+    // record + banner); the hosted Neon gate remains the production shape.
+    let liveReplay: LiveReplayPersistence | undefined;
     if (runningUnderBun()) {
       const controlDbPath = process.env.SPORTA_CONTROL_DB ?? "db/control-plane.db";
       try {
@@ -1060,6 +1109,19 @@ async function buildSingleton(): Promise<SportaServer> {
             "users must sign in again after a restart — the durable sqlite identity runs under the real Bun runtime",
         );
       }
+      const liveReplayDbPath = process.env.SPORTA_LIVE_REPLAY_DB ?? "db/live-replay.db";
+      try {
+        mkdirSync(dirname(liveReplayDbPath), { recursive: true });
+        liveReplay = new SqliteLiveReplayStore(liveReplayDbPath);
+      } catch (error) {
+        if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+          throw error;
+        }
+        console.error(
+          "[sporta] live replay records are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "a completed live window does not survive a restart — the durable sqlite replay store runs under the real Bun runtime",
+        );
+      }
     }
     return createSportaServer({
       nowMs: Date.now,
@@ -1071,6 +1133,7 @@ async function buildSingleton(): Promise<SportaServer> {
       seed,
       ...(controlRecords !== undefined ? { controlRecords } : {}),
       ...(ownership !== undefined ? { ownership } : {}),
+      ...(liveReplay !== undefined ? { liveReplay } : {}),
       ...(httpCompute?.adapter !== undefined && httpCompute.adapter !== null
         ? { computeAdapter: httpCompute.adapter }
         : {}),

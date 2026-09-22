@@ -207,6 +207,13 @@ export interface OperationsProvidersView {
 export interface OperationsJobView {
   jobId: string;
   sessionId: string;
+  /**
+   * J011: the affected session's own label (the control plane's
+   * `sourceLabel`), so the console navigates to the RIGHT session without
+   * guessing — the honest session id when no label was recorded. `null`
+   * only when the session no longer resolves (never invented).
+   */
+  sessionLabel: string | null;
   state: string;
   rendererId: string | null;
   dispatchedByUserId: string | null;
@@ -861,6 +868,16 @@ export class OperationsService {
   private async jobListingInternal(): Promise<OperationsJobsView> {
     const server = this.getServer();
     const ledger = server.studio.jobLedger();
+    // J011: the affected sessions' labels (ONE control-plane listing read,
+    // joined per job row) — the console's contextual navigation targets the
+    // RIGHT session without the operator guessing which id was which.
+    // An unknown session (the control plane no longer resolves it) keeps
+    // `null` — the honest absence, never the id dressed up as a label.
+    const summaries = await server.control.listSessions();
+    const labels = new Map<string, string>();
+    for (const summary of summaries.sessions) {
+      if (summary.sourceLabel !== undefined) labels.set(summary.id, summary.sourceLabel);
+    }
     const jobs: OperationsJobView[] = [];
     for (const entry of ledger) {
       let state = "unknown";
@@ -881,6 +898,7 @@ export class OperationsService {
       jobs.push({
         jobId: entry.jobId,
         sessionId: entry.sessionId,
+        sessionLabel: labels.get(entry.sessionId) ?? null,
         state,
         rendererId: entry.dispatch?.rendererId ?? null,
         dispatchedByUserId: entry.dispatch?.dispatchedByUserId ?? null,
