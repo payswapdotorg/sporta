@@ -1160,3 +1160,34 @@ Session state: main @70ac991 CI GREEN. Wave 4: A MERGED; B GENERATING
 
 Session state: branch work/j008ui-j009ui-j010ui pushed from the current
 main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
+
+## 2026-09-22 — TL merge record: wave-4 B lane MERGED @5f5fa85 (CI green)
+
+- Harvest context: the lane's original session delivered items-complete @fe4fbfb
+  (TL-verified 49/49 by the prior session) but its sandbox recycled during the
+  capacity-sieged close-out; the continuation machinery re-cloned from the
+  CURRENT main (3a742a9) and the worker re-delivered the full lane on the fresh
+  base — force-push 431880b + the docs-only evidence commit 43e1576 (status rows
+  + this session log): the delivery-completion signature per doctrine (branch +
+  evidence = ground truth; the in-chat 12-field report kept fighting capacity,
+  the wave-4 A precedent).
+- TL verification on sporta-wc @43e1576 (checkout + bun install): the three
+  lane batteries 40/40 PASS (j008-rights-editor-surface + j009-audit-trail +
+  j010-analyst-annotations, 3.4s); regression sample 121/121 PASS
+  (rights-center + deferred-surfaces + workspace-routes + golden-path +
+  create-studio, 9s); FULL apps/web battery 930 pass / 0 fail / 26 skip
+  (956 total, 66 files, 80s, env -u DATABASE_URL); typecheck clean; eslint
+  0 errors on the lane surfaces; prettier clean.
+- MERGE: --no-ff @5f5fa85, conflict-free (the branch descends from main
+  3a742a9; bun.lock untouched — built on main's lockfile). Tree-identical to
+  the lane tip. Pushed main 3a742a9 -> 5f5fa85; CI GREEN at 5f5fa85.
+- Evidence rows updated (J008/J009/J010 UI -> MERGED @5f5fa85); header:
+  WAVE 4 CLOSED 2/2. wave4-b session RETIRED.
+- NEXT: wave 5 — the TL-owned final acceptance lane: J015 (final journey
+  acceptance: fresh browser -> sign up -> Creator -> Create -> real upload ->
+  rights -> select realities -> choose/connect compute -> submit once -> real
+  processing -> four outputs -> Watch -> switch realities -> Library/Jobs ->
+  role switch -> refresh/redeploy -> return to result; no developer API calls,
+  manual DB edits or fixture sessions), then R606 (human visual acceptance),
+  then R607 (public MVP acceptance). Workers become fix-only lanes per the
+  handoff doctrine.
