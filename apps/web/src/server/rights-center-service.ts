@@ -35,7 +35,8 @@
  * - every change appends to the {@link PolicyAuditLog} (who/what/when —
  *   in-memory dev backing, documented there).
  */
-import { AuthorizationPolicy, deriveRightsCapabilities } from "@sporta/contracts";
+import { deriveRightsCapabilities } from "@sporta/contracts";
+import { RightsEditorValidationError } from "@sporta/session";
 import type {
   AllowedOperation,
   AuthorizationPolicy as AuthorizationPolicyDoc,
@@ -50,6 +51,7 @@ import { AuthFlowError } from "./auth-service";
 import type { SportaServer } from "./composition";
 import type { ContentVisibilityKind, ContentVisibilityRecord } from "./publication";
 import type { PolicyAuditEntry, PolicyChangeKind } from "./rights-policy-store";
+import type { RightsEditKind } from "@sporta/session";
 
 /** The uniform sentinel for "no mediated session has this id" (no oracle). */
 const NOT_OWNED = "\u0000not-a-user";
@@ -86,7 +88,12 @@ export interface RightsPolicyEntry {
   /** The session's full publication record (`null` = unknown visibility). */
   visibility: ContentVisibilityRecord | null;
   /** The newest policy-change record, when one exists. */
-  lastChange: { atIso: string; actorUserId: string; changeKind: PolicyChangeKind } | null;
+  lastChange: {
+    atIso: string;
+    actorUserId: string;
+    changeKind: PolicyChangeKind;
+    editKind?: RightsEditKind;
+  } | null;
 }
 
 /** The scoped list answer. */
@@ -246,10 +253,22 @@ export class RightsCenterService {
   // -----------------------------------------------------------------------
 
   /**
-   * EDITS the session's rights policy. The input is validated by the REAL
+   * EDITS the session's rights policy — through the J008 DOMAIN EDITOR
+   * (`@sporta/session`'s rights-editor `editPolicy`, wave 4): the ONE editor
+   * behind both edit surfaces (this service's routes and the J008 Rights
+   * Center UI). The domain seam validates the input against the REAL
    * `AuthorizationPolicy` contract schema (a malformed edit is a 400 and is
-   * NEVER applied), re-attested with the editor's verified account id, and
-   * recorded as the session's policy override + one audit entry.
+   * NEVER applied), REFUSES an already-expired edit (use revocation),
+   * RE-ATTESTS with the editor's VERIFIED account id (the W902 rule — a
+   * caller never asserts their own `assertedBy`), stores the override in the
+   * SAME store the serving seams re-derive from (fail-closed on every
+   * subsequent read), and appends ONE classified audit entry (`editKind`:
+   * grant/widen/narrow — the deterministic domain classification).
+   *
+   * W917 narrow-only, unchanged: the effective capabilities remain the
+   * intersection of the creation-time attestation and the current override —
+   * a widening edit is stored + audited honestly (as a widen) but has NO
+   * capability effect at any serving seam.
    */
   async setPolicy(
     token: string,
@@ -261,34 +280,19 @@ export class RightsCenterService {
     await this.requirePolicyAccess(server, account, sessionId);
     await server.control.getSession(sessionId); // existence (the typed 404)
 
-    const parsed = AuthorizationPolicy.safeParse(policyInput);
-    if (!parsed.success) {
-      throw new AuthFlowError(
-        400,
-        "validation",
-        "authorizationPolicy is not a valid AuthorizationPolicy (the contracts package defines the shape — malformed edits are never applied)",
-        {
-          issues: parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
-        },
-      );
+    try {
+      // The domain seam owns every semantic from here (validation,
+      // re-attestation, the override store, the classified audit entry).
+      server.rightsEditor.editPolicy(sessionId, { userId: account.userId }, policyInput);
+    } catch (err) {
+      if (err instanceof RightsEditorValidationError) {
+        // The domain's own refusal, mapped typed: a 400 that never applied.
+        throw new AuthFlowError(400, "validation", err.message, {
+          seam: "rights-editor",
+        });
+      }
+      throw err;
     }
-    // Re-attest with the VERIFIED editor — a caller never asserts `assertedBy`.
-    const next: AuthorizationPolicyDoc = { ...parsed.data, assertedBy: account.userId };
-    if (next.expiresAtIso !== undefined && Date.parse(next.expiresAtIso) <= this.nowMs()) {
-      throw new AuthFlowError(
-        400,
-        "validation",
-        "an authorization policy whose expiresAtIso is already in the past is incoherent — use revocation to take a policy out of force",
-      );
-    }
-
-    const from = server.rightsPolicies.effectiveOf(sessionId);
-    server.rightsPolicies.setOverride(sessionId, next);
-    this.appendAudit(server, account.userId, sessionId, "policy", {
-      summary: `edited rights policy '${next.policyId}' (operations: ${next.allowedOperations.join(", ")})`,
-      from,
-      to: next,
-    });
     return this.inspectPolicy(token, sessionId);
   }
 
@@ -330,18 +334,20 @@ export class RightsCenterService {
   }
 
   /**
-   * REVOKES the session's rights — the core W917 acceptance:
+   * REVOKES the session's rights — the policy half through the J008 DOMAIN
+   * EDITOR (`@sporta/session`'s rights-editor `revoke`, wave 4), the
+   * publication half the app-layer composition it already was:
    *
-   * - the effective policy is taken out of force (`expiresAtIso` = the
-   *   revocation moment — the contracts' own time-bound; every later
-   *   `deriveRightsCapabilities` answers DENY_ALL, so the watch model, the
-   *   playback byte reads, the render dispatch and the live stream all stop
-   *   fail-closed), and
+   * - the domain editor takes the effective policy out of force (its
+   *   `expiresAtIso` = the revocation moment — the contracts' own
+   *   time-bound; every later `deriveRightsCapabilities` answers DENY_ALL,
+   *   so the watch model, the playback byte reads, the render dispatch and
+   *   the live stream all stop fail-closed), re-attests the revoking actor,
+   *   and appends the classified audit entry (`editKind: "revoke"`);
    * - the publication decision becomes `private` (the catalog, search and
    *   the anonymous watch surface stop serving the session — enforced by the
-   *   existing watch gate, byte-identical to an unknown session).
-   *
-   * Both effects are recorded as ONE revocation audit entry.
+   *   existing watch gate, byte-identical to an unknown session), with the
+   *   W921 durable write-through and its OWN visibility audit entry.
    */
   async revoke(token: string, sessionId: string, reason?: string): Promise<RightsCenterInspect> {
     const server = this.getServer();
@@ -349,8 +355,7 @@ export class RightsCenterService {
     await this.requirePolicyAccess(server, account, sessionId);
     await server.control.getSession(sessionId); // existence (the typed 404)
 
-    const current = server.rightsPolicies.effectiveOf(sessionId);
-    if (current === null) {
+    if (server.rightsPolicies.effectiveOf(sessionId) === null) {
       // Unreachable in this composition (every createSession is recorded),
       // but fail closed and honest if it ever happens.
       throw new AuthFlowError(
@@ -359,35 +364,34 @@ export class RightsCenterService {
         "this session has no recorded rights policy — there is nothing to revoke through the rights center",
       );
     }
-    const revokedAtMs = this.nowMs();
-    const revokeAtIso = new Date(revokedAtMs - 1).toISOString();
-    const alreadyOutOfForce =
-      current.expiresAtIso !== undefined && Date.parse(current.expiresAtIso) <= revokedAtMs - 1;
-    const revoked: AuthorizationPolicyDoc = {
-      ...current,
-      assertedBy: account.userId,
-      // Never push an in-force expiry LATER; an already-expired policy stays
-      // expired at its own (earlier) instant.
-      expiresAtIso: alreadyOutOfForce ? (current.expiresAtIso ?? revokeAtIso) : revokeAtIso,
-    };
-
     const visibilityFrom = server.publication.contentOf(sessionId);
-    server.rightsPolicies.setOverride(sessionId, revoked);
+
+    // The RIGHTS half — the domain editor's own semantics (time-bound,
+    // re-attestation, the classified revocation audit entry).
+    try {
+      server.rightsEditor.revoke(sessionId, { userId: account.userId }, reason);
+    } catch (err) {
+      if (err instanceof RightsEditorValidationError) {
+        throw new AuthFlowError(400, "validation", err.message, { seam: "rights-editor" });
+      }
+      throw err;
+    }
+
+    // The PUBLICATION half — the app-layer content model (W916) + the W921
+    // durable write-through, with its own append-only audit entry (each
+    // entry records ONE decision: the rights revocation above, this
+    // visibility flip here).
     server.publication.set(sessionId, { kind: "private", setBy: account.userId });
-    // W921 write-through (fail-loud): revocation's visibility half is durable
-    // (the policy override itself stays per-instance — the documented
-    // W921 boundary in DEPLOYMENT.md §8).
     if (server.durable !== null) {
       await server.durable.noteVisibility(sessionId, { kind: "private", roles: [] });
     }
     const visibilityTo = server.publication.contentOf(sessionId);
-    this.appendAudit(server, account.userId, sessionId, "revocation", {
+    this.appendAudit(server, account.userId, sessionId, "visibility", {
       summary:
-        `revoked — policy '${revoked.policyId}' taken out of force at ` +
-        `${revoked.expiresAtIso} and visibility set to private` +
-        (reason !== undefined ? ` (reason: ${reason})` : ""),
-      from: { policy: current, visibility: visibilityFrom },
-      to: { policy: revoked, visibility: visibilityTo },
+        `revocation set visibility to private` +
+        (reason !== undefined && reason.length > 0 ? ` (revocation reason: ${reason})` : ""),
+      from: visibilityFrom,
+      to: visibilityTo,
     });
     return this.inspectPolicy(token, sessionId);
   }
@@ -505,7 +509,12 @@ export class RightsCenterService {
       lastChange:
         last === null
           ? null
-          : { atIso: last.atIso, actorUserId: last.actorUserId, changeKind: last.changeKind },
+          : {
+              atIso: last.atIso,
+              actorUserId: last.actorUserId,
+              changeKind: last.changeKind,
+              ...(last.editKind !== undefined ? { editKind: last.editKind } : {}),
+            },
     };
   }
 

@@ -112,6 +112,26 @@ export interface RightsCenterEntry {
   visibility: "public" | "private";
   /** Why the record is in this caller's scope. */
   access: "owned" | "operator";
+  /** ADDITIVE (J008): the effective policy document, when one is recorded. */
+  policy: {
+    policyId: string;
+    allowedOperations: string[];
+    assertedBy: string;
+    expiresAtIso?: string;
+    storageDurationDays?: number;
+    sharingScope?: string;
+  } | null;
+  /** ADDITIVE (J008): the creation record vs a rights-holder edit. */
+  effectiveSource: "creation" | "edited" | "unrecorded";
+  /** ADDITIVE (J008): whether the effective policy is currently out of force. */
+  revoked: boolean;
+  /** ADDITIVE (J008): the newest rights change (the domain editKind rides). */
+  lastChange: {
+    atIso: string;
+    actorUserId: string;
+    changeKind: string;
+    editKind?: "grant" | "widen" | "narrow" | "revoke";
+  } | null;
 }
 
 /** The Rights Center document. */
@@ -162,6 +182,9 @@ export async function buildRightsCenter(
     // the session exists (no existence oracle).
     const gated = (await server.gate.getMediaSession(token, sessionId)) as GatedSession;
     const label = sessions.find((entry) => entry.id === sessionId)?.sourceLabel ?? sessionId;
+    const policy = server.rightsPolicies.effectiveOf(sessionId);
+    const edited = server.rightsPolicies.hasOverride(sessionId);
+    const last = server.rightsAudit.lastOf(sessionId);
     entries.push({
       sessionId,
       label,
@@ -171,12 +194,39 @@ export async function buildRightsCenter(
       rightsCapabilities: gated.rightsCapabilities,
       visibility: server.publication.visibilityOf(sessionId),
       access: isOperator ? "operator" : "owned",
+      policy:
+        policy === null
+          ? null
+          : {
+              policyId: policy.policyId,
+              allowedOperations: [...policy.allowedOperations],
+              assertedBy: policy.assertedBy,
+              ...(policy.expiresAtIso !== undefined ? { expiresAtIso: policy.expiresAtIso } : {}),
+              ...(policy.storageDurationDays !== undefined
+                ? { storageDurationDays: policy.storageDurationDays }
+                : {}),
+              ...(policy.sharingScope !== undefined ? { sharingScope: policy.sharingScope } : {}),
+            },
+      effectiveSource: policy === null ? "unrecorded" : edited ? "edited" : "creation",
+      revoked:
+        policy !== null &&
+        policy.expiresAtIso !== undefined &&
+        Date.parse(policy.expiresAtIso) <= server.nowMs(),
+      lastChange:
+        last === null
+          ? null
+          : {
+              atIso: last.atIso,
+              actorUserId: last.actorUserId,
+              changeKind: last.changeKind,
+              ...(last.editKind !== undefined ? { editKind: last.editKind } : {}),
+            },
     });
   }
   return {
     scope,
     entries,
-    note: "Each record is the session's real policy id plus the fail-closed derived capability decision at request time, read through the identity control gate. Editing rights policies (territories, revocation) is W917 scope — this center is read-only by design.",
+    note: "Each record is the session's effective rights policy (the creation record or a rights-holder edit through the domain rights editor) with its fail-closed derived capability decision at request time, read through the identity control gate. Edits narrow only — an edit can never widen past the creation-time attestation — and revocation stops playback and publication fail-closed. Every change is recorded in the append-only audit trail.",
   };
 }
 

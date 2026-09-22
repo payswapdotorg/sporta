@@ -44,6 +44,12 @@ import type {
   StudioSessionStateLike,
   StudioUploadSessionLike,
   WatchModelLike,
+  RightsAuditTrailLike,
+  AnalystMarkerLike,
+  AnalystMarkerSaveInput,
+  AnalystNoteLike,
+  MarkerWithNotesLike,
+  SessionMarkersLike,
 } from "./api-types";
 
 /** A classified API failure. */
@@ -584,4 +590,44 @@ export async function disconnectComputeProvider(
   const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
   if (!response.ok) throw new ApiError(response.status, body as ApiErrorBodyLike | null);
   return body as ComputeDisconnectAnswerLike;
+}
+
+// ---------------------------------------------------------------------------
+// J009 — the rights-audit trail (the /audit surface)
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /api/audit/trail — the caller's rights audit trail through the
+ * role-gated domain seam (holders: own sessions; operators: all; anonymous
+ * the real 401; other roles the real 403).
+ */
+export function fetchRightsAuditTrail(sessionId?: string): Promise<RightsAuditTrailLike> {
+  const query = sessionId === undefined ? "" : `?session=${encodeURIComponent(sessionId)}`;
+  return getJson<RightsAuditTrailLike>(`/api/audit/trail${query}`);
+}
+
+// ---------------------------------------------------------------------------
+// J010 — the analyst annotations (the /clips + /notes surfaces)
+// ---------------------------------------------------------------------------
+
+/** GET /api/annotations/markers?session= — the revisit seam (markers + timeline). */
+export function fetchSessionMarkers(sessionId: string): Promise<SessionMarkersLike> {
+  return getJson<SessionMarkersLike>(
+    `/api/annotations/markers?session=${encodeURIComponent(sessionId)}`,
+  );
+}
+
+/** POST /api/annotations/markers — save one media-time marker (never bytes). */
+export function saveAnalystMarker(input: AnalystMarkerSaveInput): Promise<AnalystMarkerLike> {
+  return postJson<AnalystMarkerLike>("/api/annotations/markers", input);
+}
+
+/** GET /api/annotations/markers/[markerId] — one marker with its notes. */
+export function fetchAnalystMarker(markerId: string): Promise<MarkerWithNotesLike> {
+  return getJson<MarkerWithNotesLike>(`/api/annotations/markers/${encodeURIComponent(markerId)}`);
+}
+
+/** POST /api/annotations/notes — attach one note to a saved marker. */
+export function attachAnalystNote(markerId: string, text: string): Promise<AnalystNoteLike> {
+  return postJson<AnalystNoteLike>("/api/annotations/notes", { markerId, text });
 }

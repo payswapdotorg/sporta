@@ -554,7 +554,7 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
 
   let revokedEntry: Record<string, unknown>;
 
-  test("the owner revokes: both stops recorded, one audit entry", async () => {
+  test("the owner revokes: both stops recorded — the domain revocation entry + the visibility entry", async () => {
     const response = await revokeRoute(
       postRequest(`/api/rights/policies/${derbyId}/revocation`, seedToken, {
         reason: "W917 acceptance test revocation",
@@ -570,18 +570,31 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
     expect(typeof policy.expiresAtIso).toBe("string");
     expect(Date.parse(policy.expiresAtIso as string)).toBeLessThanOrEqual(clock);
     expect((revokedEntry.visibility as Record<string, unknown>).kind).toBe("private");
-    // The audit recorded BOTH effects with who/what/when.
+    // The audit records BOTH decisions — one append-only entry each (the
+    // J008 domain editor owns the RIGHTS half: changeKind "revocation" with
+    // the editKind classification; the app layer owns the PUBLICATION half:
+    // the visibility flip to private).
     const audit = server.rightsAudit.of(derbyId);
-    expect(audit.length).toBe(1);
-    expect(audit[0]!.changeKind).toBe("revocation");
-    expect(audit[0]!.actorUserId).toBe(
+    expect(audit.length).toBe(2);
+    const revocation = audit[0]!;
+    const visibilityFlip = audit[1]!;
+    expect(revocation.changeKind).toBe("revocation");
+    expect(revocation.editKind).toBe("revoke");
+    expect(revocation.actorUserId).toBe(
       (await server.accounts.findByUsername("sporta-dev-seed"))!.userId,
     );
-    const to = audit[0]!.to as Record<string, Record<string, unknown>>;
-    expect((to.policy as Record<string, unknown>).expiresAtIso).toBeTruthy();
-    expect((to.visibility as Record<string, unknown>).kind).toBe("private");
-    expect(audit[0]!.summary).toContain("revoked");
-    expect(audit[0]!.summary).toContain("W917 acceptance test revocation");
+    // The domain entry's from/to are the POLICY documents (the rights half).
+    const to = revocation.to as Record<string, unknown>;
+    expect((to as Record<string, unknown>).expiresAtIso).toBeTruthy();
+    expect(revocation.summary).toContain("REVOKED");
+    expect(revocation.summary).toContain("W917 acceptance test revocation");
+    // The re-attestation rule: the revoking actor's VERIFIED id rides the
+    // stored override (never a caller claim).
+    expect((to as Record<string, unknown>).assertedBy).toBe(
+      (await server.accounts.findByUsername("sporta-dev-seed"))!.userId,
+    );
+    expect(visibilityFlip.changeKind).toBe("visibility");
+    expect(visibilityFlip.summary).toContain("private");
   });
 
   test("anonymous watch → 404 (the uniform unknown-session answer)", async () => {
@@ -673,21 +686,27 @@ describe("revocation: publish → revoke → playback AND publication stop", () 
     expect(card!.renders).toBeNull();
   });
 
-  test("a second revocation never pushes the out-of-force instant later", async () => {
+  test("a second revocation keeps the policy out of force (the domain editor's own time-bound, audited)", async () => {
     const firstExpiry = Date.parse(
       (revokedEntry.policy as Record<string, unknown>).expiresAtIso as string,
     );
+    expect(firstExpiry).toBeLessThanOrEqual(clock); // already out of force
     clock += 60_000;
     const response = await revokeRoute(
       postRequest(`/api/rights/policies/${derbyId}/revocation`, seedToken),
       { params: Promise.resolve({ sessionId: derbyId }) },
     );
     expect(response.status).toBe(200);
-    const policy = ((await bodyOf(response)).entry as Record<string, unknown>).policy as Record<
-      string,
-      unknown
-    >;
-    expect(Date.parse(policy.expiresAtIso as string)).toBe(firstExpiry);
+    const entry = (await bodyOf(response)).entry as Record<string, unknown>;
+    const policy = entry.policy as Record<string, unknown>;
+    // The domain rights editor sets exactly `now - 1ms` on every revocation
+    // (its documented rule): a re-revocation's instant is still in the PAST
+    // of the new clock — the policy stays out of force (DENY_ALL at every
+    // seam), and the re-revocation is audited with its own entry.
+    expect(Date.parse(policy.expiresAtIso as string)).toBeLessThanOrEqual(clock);
+    expect(entry.revoked).toBe(true);
+    const audit = server.rightsAudit.of(derbyId);
+    expect(audit.filter((entry) => entry.changeKind === "revocation").length).toBe(2);
   });
 });
 

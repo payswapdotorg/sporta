@@ -152,6 +152,26 @@ export async function errorResponse(err: unknown): Promise<Response> {
       },
     } satisfies ApiErrorBody);
   }
+  // The J010 analyst-annotations refusals (wave 4): the domain seam's CLOSED
+  // refusal vocabulary, mapped typed (marker-unknown → the honest 404; every
+  // other refusal → 422 with the reason + the useful next action riding in
+  // details). LAZY import for the same build-safety reason (the service's
+  // graph reaches @sporta/session → bun:sqlite).
+  let annotationsService: typeof import("./annotations-service") | null = null;
+  try {
+    annotationsService = await import("./annotations-service");
+  } catch (importErr) {
+    console.error("[api] annotations-service error classes unavailable:", importErr);
+  }
+  if (annotationsService !== null && err instanceof annotationsService.AnnotationRefusedError) {
+    return jsonResponse(err.httpStatus, {
+      error: {
+        failureClass: "annotation-refused",
+        message: err.message,
+        details: { reason: err.reason },
+      },
+    } satisfies ApiErrorBody);
+  }
   // The media platform's typed errors (R101-R104): upload refusals (the
   // violated constraint rides in details), fail-closed rights, integrity
   // failures, and the typed not-found family. The import is LAZY for the

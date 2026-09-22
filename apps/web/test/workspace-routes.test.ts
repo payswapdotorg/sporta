@@ -179,11 +179,11 @@ describe("W907 GET /api/rights/center — the Rights Holder workspace", () => {
     expect(derby.rightsCapabilities.canDeliverLive).toBe(true);
   });
 
-  test("the center's own note is honest about read-only scope", async () => {
+  test("the center's own note is honest about the edit/revoke scope (J008)", async () => {
     const response = await rightsCenterRoute(withCookie(rightsHolderToken, "/api/rights/center"));
     const body = (await bodyOf(response)) as { note: string };
-    expect(body.note).toContain("read-only");
-    expect(body.note).toContain("W917");
+    expect(body.note).toContain("narrow only");
+    expect(body.note).toContain("revocation");
   });
 });
 
