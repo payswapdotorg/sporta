@@ -115,6 +115,23 @@ export interface RightsAuditView {
   entries: PolicyAuditEntry[];
 }
 
+/**
+ * The J008 serving-state check (the revocation's end-to-end proof, run from
+ * the Rights Center's UI): the watch verdict + the pipeline serving seam's
+ * answer under the creation-time (stale) policy.
+ */
+export interface RightsServingCheck {
+  sessionId: string;
+  /** The watch surface's own verdict (the re-derived current rights). */
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  /**
+   * The J008 rights-aware serving seam's answer for a caller still holding
+   * the CREATION-TIME policy: after a revocation the read throws the REAL
+   * `PlaybackRightsDeniedError` (message verbatim); before one it serves.
+   */
+  seam: { denied: boolean; errorClass?: string; message?: string };
+}
+
 /** Options for {@link RightsCenterService}. */
 export interface RightsCenterServiceOptions {
   getServer: () => SportaServer;
@@ -394,6 +411,96 @@ export class RightsCenterService {
       to: visibilityTo,
     });
     return this.inspectPolicy(token, sessionId);
+  }
+
+  // -----------------------------------------------------------------------
+  // The J008 serving verification (the revocation's honest end-to-end proof)
+  // -----------------------------------------------------------------------
+
+  /**
+   * Checks the session's CURRENT serving state — the verification the
+   * Rights Center's "check the serving state" action runs after a
+   * revocation, straight from the UI:
+   *
+   * - `playback` is the watch surface's own verdict (the rights-governed
+   *   control plane's re-derived capabilities at request time);
+   * - `seam` is the J008 REVOCATION-AWARE SERVING SEAM's answer for a
+   *   caller still holding the CREATION-TIME policy (the exact stale-policy
+   *   scenario the rights-aware decorator exists for): after a revocation
+   *   the read throws the REAL `PlaybackRightsDeniedError` BEFORE revealing
+   *   whether anything exists — the message the surface renders verbatim.
+   */
+  async checkServing(token: string, sessionId: string): Promise<RightsServingCheck> {
+    const server = this.getServer();
+    const account = await this.requireAccount(token);
+    await this.requirePolicyAccess(server, account, sessionId);
+    const { rightsCapabilities } = await server.control.getSession(sessionId); // existence + re-derivation
+
+    // The pipeline serving-seam probe under the creation-time policy.
+    const creationPolicy = server.rightsPolicies.recordedOf(sessionId);
+    let seam: RightsServingCheck["seam"];
+    if (creationPolicy === null) {
+      seam = {
+        denied: false,
+        message:
+          "no creation-time policy is recorded for this session — there is no stale-policy read to check",
+      };
+    } else {
+      // A real stored output when one is reachable; after a revocation the
+      // control plane denies the listing itself, so the probe falls back to
+      // opaque ids — the rights-aware seam denies BEFORE the store is ever
+      // consulted (fail-closed, existence-free).
+      let renderId = "probe-render";
+      let segmentId = "probe-segment";
+      try {
+        const { renders } = await server.control.listRenders(sessionId);
+        const first = renders[0];
+        if (first !== undefined) {
+          renderId = first.renderId;
+          const outputs = await server.control.listRenderOutputs(sessionId, first.renderId);
+          const firstSegment = outputs.segments[0];
+          if (firstSegment !== undefined) segmentId = firstSegment.segmentId;
+        }
+      } catch {
+        // The rights-governed plane already denies the listing (revoked or
+        // narrowed) — the probe below answers through the pipeline seam.
+      }
+      try {
+        const served = server.pipeline.getSegment({
+          sessionId,
+          renderId,
+          segmentId,
+          policy: creationPolicy,
+          nowMs: this.nowMs(),
+        });
+        seam = {
+          denied: false,
+          message:
+            served === null
+              ? "the serving seam allowed the read under the creation-time policy (no stored output matched)"
+              : "the serving seam allowed the read under the creation-time policy (a stored output served)",
+        };
+      } catch (err) {
+        if (err instanceof Error && err.name === "PlaybackRightsDeniedError") {
+          seam = {
+            denied: true,
+            errorClass: "PlaybackRightsDeniedError",
+            message: err.message,
+          };
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    return {
+      sessionId,
+      playback: {
+        state: rightsCapabilities.canStoreDerivatives ? "authorized" : "denied",
+        reasonCode: rightsCapabilities.canStoreDerivatives ? "ok" : "rights-denied",
+      },
+      seam,
+    };
   }
 
   // -----------------------------------------------------------------------

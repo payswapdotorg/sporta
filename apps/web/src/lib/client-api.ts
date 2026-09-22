@@ -49,6 +49,7 @@ import type {
   AnalystMarkerSaveInput,
   AnalystNoteLike,
   MarkerWithNotesLike,
+  RightsServingCheckLike,
   SessionMarkersLike,
 } from "./api-types";
 
@@ -630,4 +631,11 @@ export function fetchAnalystMarker(markerId: string): Promise<MarkerWithNotesLik
 /** POST /api/annotations/notes — attach one note to a saved marker. */
 export function attachAnalystNote(markerId: string, text: string): Promise<AnalystNoteLike> {
   return postJson<AnalystNoteLike>("/api/annotations/notes", { markerId, text });
+}
+
+/** GET /api/rights/policies/[sessionId]/serving — the J008 serving-state check. */
+export function fetchRightsServingCheck(sessionId: string): Promise<RightsServingCheckLike> {
+  return getJson<RightsServingCheckLike>(
+    `/api/rights/policies/${encodeURIComponent(sessionId)}/serving`,
+  );
 }

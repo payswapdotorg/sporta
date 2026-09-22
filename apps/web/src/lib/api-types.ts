@@ -1223,3 +1223,12 @@ export interface AnalystMarkerSaveInput {
   label?: string;
   backing?: "session-timeline" | { kind: "render-output"; renderId: string; durationMs: number };
 }
+
+/** The J008 serving-state check (GET /api/rights/policies/[sessionId]/serving). */
+export interface RightsServingCheckLike {
+  sessionId: string;
+  /** The watch surface's own verdict (the re-derived current rights). */
+  playback: { state: "authorized" | "denied"; reasonCode: "ok" | "rights-denied" };
+  /** The rights-aware serving seam's answer under the creation-time policy. */
+  seam: { denied: boolean; errorClass?: string; message?: string };
+}

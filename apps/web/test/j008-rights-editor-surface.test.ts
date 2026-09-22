@@ -12,6 +12,7 @@ import { LocalFilesystemStorage } from "@sporta/media-platform";
 import { GET as centerRoute } from "../src/app/api/rights/center/route";
 import { PATCH as patchPolicyRoute } from "../src/app/api/rights/policies/[sessionId]/route";
 import { POST as revokeRoute } from "../src/app/api/rights/policies/[sessionId]/revocation/route";
+import { GET as servingRoute } from "../src/app/api/rights/policies/[sessionId]/serving/route";
 import { GET as watchRoute } from "../src/app/api/watch/[sessionId]/route";
 
 /**
@@ -244,6 +245,17 @@ describe("J008: the /api/rights/center model carries the additive edit/revoke fi
     expect((entry.lastChange as Record<string, unknown>).editKind).toBe("widen");
     expect((entry.lastChange as Record<string, unknown>).actorUserId).toBe(seedUserId);
   });
+
+  test("the serving-state check (pre-revocation): playback authorized + the seam serves under the creation policy", async () => {
+    const response = await servingRoute(
+      withCookie(`/api/rights/policies/${derbyId}/serving`, seedToken),
+      { params: Promise.resolve({ sessionId: derbyId }) },
+    );
+    expect(response.status).toBe(200);
+    const body = await bodyOf(response);
+    expect(body.playback).toMatchObject({ state: "authorized", reasonCode: "ok" });
+    expect((body.seam as Record<string, unknown>).denied).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -282,6 +294,20 @@ describe("J008: revocation stops the serving seams immediately (verified from th
     expect(revocationEntries.length).toBe(1);
     expect(revocationEntries[0]!.editKind).toBe("revoke");
     expect(revocationEntries[0]!.summary).toContain("J008 surface verification");
+  });
+
+  test("the serving-state check (post-revocation): the REAL PlaybackRightsDeniedError answers, from the surface's own route", async () => {
+    const response = await servingRoute(
+      withCookie(`/api/rights/policies/${derbyId}/serving`, seedToken),
+      { params: Promise.resolve({ sessionId: derbyId }) },
+    );
+    expect(response.status).toBe(200);
+    const body = await bodyOf(response);
+    expect(body.playback).toMatchObject({ state: "denied", reasonCode: "rights-denied" });
+    const seam = body.seam as Record<string, unknown>;
+    expect(seam.denied).toBe(true);
+    expect(seam.errorClass).toBe("PlaybackRightsDeniedError");
+    expect(seam.message).toContain("playback rights denied");
   });
 
   test("the composed J008 rights-aware serving seam denies even a STALE permissive caller policy (PlaybackRightsDeniedError)", async () => {

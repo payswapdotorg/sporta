@@ -6,12 +6,12 @@ import { useAccount } from "@/components/account-provider";
 import {
   ApiError,
   fetchRightsCenter,
-  fetchWatchModel,
+  fetchRightsServingCheck,
   patchRightsPolicy,
   revokeRights,
 } from "@/lib/client-api";
 import type { FetchState } from "@/lib/client-api";
-import type { RightsCenterLike, WatchModelLike } from "@/lib/api-types";
+import type { RightsCenterLike, RightsServingCheckLike } from "@/lib/api-types";
 import { RIGHTS_OPERATIONS } from "@/lib/api-types";
 import { LoadingPanel, StatePanel } from "@/components/state-panels";
 import { deriveReauthState } from "@/lib/surface-state";
@@ -52,10 +52,7 @@ interface EditDraft {
 }
 
 /** The serving-state check answer (the honest live denial). */
-interface ServingCheck {
-  state: "authorized" | "denied";
-  reasonCode: string;
-}
+type ServingCheck = RightsServingCheckLike;
 
 const CAPABILITY_ROWS: {
   key: keyof RightsCenterLike["entries"][number]["rightsCapabilities"];
@@ -142,17 +139,13 @@ export function RightsCenter() {
   const checkServing = useCallback(async (sessionId: string) => {
     setBusy(sessionId);
     try {
-      const watch = (await fetchWatchModel(sessionId)) as Pick<WatchModelLike, "playback">;
+      const check = await fetchRightsServingCheck(sessionId);
       setServingChecks((prior) => ({
         ...prior,
-        [sessionId]: {
-          state: watch.playback.state,
-          reasonCode: watch.playback.reasonCode,
-        },
+        [sessionId]: check,
       }));
     } catch (err) {
-      // The honest failed read (e.g. a private session's 404 for this caller
-      // — the uniform unknown-session posture): shown, never guessed.
+      // The honest failed read: shown, never guessed.
       setServingChecks((prior) => ({
         ...prior,
         [sessionId]: "failed",
@@ -468,13 +461,34 @@ export function RightsCenter() {
                     Check the serving state now
                   </button>
                   {serving !== undefined && (
-                    <p className="field-note" role="status">
-                      {serving === "failed"
-                        ? "The watch surface refused the read (the honest uniform denial — nothing about this session is served anymore)."
-                        : serving.state === "denied"
-                          ? `The watch surface answers: playback DENIED (${serving.reasonCode}) — the serving seam fails closed on the revoked rights.`
-                          : `The watch surface answers: playback ${serving.state} (${serving.reasonCode}).`}
-                    </p>
+                    <div role="status" className="field-note">
+                      {serving === "failed" ? (
+                        <p>
+                          The serving check refused the read (the honest uniform denial — nothing
+                          about this session is served anymore).
+                        </p>
+                      ) : (
+                        <>
+                          <p>
+                            The watch surface answers: playback{" "}
+                            <strong>
+                              {serving.playback.state === "denied"
+                                ? "DENIED"
+                                : serving.playback.state}
+                            </strong>{" "}
+                            ({serving.playback.reasonCode})
+                            {serving.playback.state === "denied"
+                              ? " — the re-derived rights deny it."
+                              : ""}
+                          </p>
+                          <p>
+                            {serving.seam.denied
+                              ? `The serving seam answered with ${serving.seam.errorClass}: ${serving.seam.message}`
+                              : `The serving seam allowed the read under the creation-time policy: ${serving.seam.message ?? ""}`}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               )}

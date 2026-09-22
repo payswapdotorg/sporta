@@ -206,7 +206,9 @@ describe("J009: the workspace audit trail (auditTrailInScope through the route)"
     }
     // The fixture's visibility entry on the creator's session exists in the
     // app-layer log but NOT in the domain trail:
-    expect(entries.some((entry) => entry.summary.includes("publication decision"))).toBe(false);
+    expect(entries.some((entry) => (entry.summary ?? "").includes("publication decision"))).toBe(
+      false,
+    );
   });
 });
 
