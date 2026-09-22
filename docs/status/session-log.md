@@ -981,3 +981,35 @@ merged). Wave 3: C MERGED; A awaiting final evidence; wave-3 B lane
 Session state: main @fd41352 CI GREEN. Wave 3: A MERGED + C MERGED; B lane
 creation still fighting capacity (recover loop running). Wave-4 (J-UI
 surfaces + integration) queues after wave-3 B closes.
+
+## Session 2026-09-21 20:33-01:00 UTC — WAVE 3 WORKER B LANE MERGED (CI green); WAVE 3 CLOSED
+
+- The capacity window broke at 20:33 after ~8.5h (the recover loop's 18th
+  create attempt): chat b270b1a0 created, prompt sent VERIFIED, worker
+  generating immediately.
+- Lane delivery: THREE checkpoints in ~2.5h — L014 platform @d8cb790
+  (durable replay-record seam: recordSink + SqliteLiveReplayStore + the
+  withDurableReplayRecord decorator + the REAL two-process restart
+  battery), J011 @a6d8154 (operator contextual navigation: session-label
+  joins, the Context column, audit references → Watch links), RECOVERY
+  @2a0563e (final gates + honest records + browser verification over the
+  production build).
+- TL verification on sporta-wc: the 20 new tests 20/20 (real restart
+  included, 15.4s); regression sample 90/90; eslint 0; prettier clean
+  (the interim mid-flight flags self-fixed). Worker's own full battery:
+  6774/6807/0-fail (env -u DATABASE_URL).
+- The 12-field completion report delivered in-conversation: "Lane DONE.
+  All three tasks implemented behind frozen contracts, all gates green,
+  restart durability proven by real process death."
+- MERGE @e1c367b (--no-ff, CONFLICT-FREE — the branch was cut from the
+  current main tip 03d79f4). Post-merge full apps/web battery: 851 pass /
+  0 fail / 26 skip (877 total, +20 lane tests); typecheck clean; eslint
+  0 errors; prettier clean. **CI GREEN at e1c367b.**
+- Cross-lane finding recorded (raised not patched): C's
+  use-live-world-stream.ts duplicate React ticker keys on a fresh
+  window's first frame — one-line fix in C's file, queued for wave-4.
+- WAVE 3 FULLY CLOSED: A @fd41352 + B @e1c367b + C @7d9a375, all CI
+  green.
+
+Session state: main @e1c367b CI GREEN. Wave 3 CLOSED 3/3. Wave-4 (J-UI
+surfaces + integration) dispatchable.
