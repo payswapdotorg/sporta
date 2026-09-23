@@ -109,6 +109,13 @@ import { SqliteMediaOwnershipStore } from "./platform/identity/sqlite-ownership"
 import { SqliteAccountStore } from "./platform/identity/sqlite-accounts";
 import { SqliteSessionStore } from "./platform/identity/sqlite-sessions";
 import { SqliteLiveReplayStore } from "./platform/live/sqlite-replay-store";
+import { SqliteUrlSourceStore } from "./platform/url-source/sqlite-url-source-store";
+import {
+  InMemoryUrlSourceStore,
+  UrlSourceService,
+  ValidatingUrlSourceStore,
+} from "./url-source-service";
+import type { UrlOEmbedFetcher, UrlSourceStore } from "./url-source-service";
 import { getHostedIdentity, identityReady } from "./platform/identity/hosted";
 import { nodeScryptPasswordHasher } from "./platform/identity/node-scrypt-hasher";
 import { getHostedRenderOutputStore } from "./platform/r2/hosted";
@@ -241,6 +248,22 @@ export interface SportaServerOptions {
     db?: string;
   };
   /**
+   * The URL-source acquisition machine's seams (W6 Worker B): the
+   * registration store (default: the durable sqlite store under the real
+   * Bun runtime at `SPORTA_URL_SOURCE_DB` or `db/url-source.db`, the
+   * honest in-memory fallback under the bundled Node runtime) and the
+   * oEmbed fetcher (default: the REAL public endpoint with a bounded
+   * timeout; tests inject a hermetic fake so no test ever touches the
+   * network). Injecting `store` directly bypasses the sqlite construction
+   * (the shared-store reconstruction tests do exactly that).
+   */
+  urlSources?: {
+    store?: UrlSourceStore;
+    /** A sqlite db path (or `:memory:`). */
+    db?: string;
+    fetchOEmbed?: UrlOEmbedFetcher;
+  };
+  /**
    * The analyst-annotations persistence seam (J010): a sqlite db path (or
    * `:memory:`). Default: `SPORTA_ANNOTATIONS_DB` or
    * `db/analyst-annotations.db` under the real Bun runtime; the honest
@@ -309,6 +332,13 @@ export interface SportaServer {
   engines: ReadonlyMap<string, WorldModelEngineInstance>;
   /** The Create Studio service (W906 — the guided creation flow). */
   studio: CreateStudioService;
+  /**
+   * The URL-source service (W6 Worker B — the real-source acquisition
+   * machine): registration + the honest acquisition states + THE TRANSFER
+   * SEAM that feeds the studio's own session-creation sequence over the
+   * operator's transferred bytes.
+   */
+  urlSources: UrlSourceService;
   /** The publication store (the real publish/private visibility flag). */
   publication: PublicationStore;
   /**
@@ -784,6 +814,35 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   // now live — derived-reality MP4 ingests can land from here on.
   mediaServiceHolder.service = media;
 
+  // 6c. The URL-source registration store (W6 Worker B): the durable
+  //     sqlite store under the real Bun runtime (the media store's exact
+  //     precedent — WAL, the W911 shim refusal caught → the honest
+  //     in-memory fallback + banner; any OTHER construction failure fails
+  //     loud), wrapped in the VALIDATING store (the structural honesty
+  //     guard: only the transfer seam's integrity+join may ever read
+  //     ACQUIRED). An injected store (tests: the shared-store
+  //     reconstruction rig) bypasses the sqlite construction entirely.
+  let urlSourceStore: UrlSourceStore;
+  if (options.urlSources?.store !== undefined) {
+    urlSourceStore = options.urlSources.store;
+  } else {
+    try {
+      urlSourceStore = new SqliteUrlSourceStore(
+        options.urlSources?.db ?? process.env.SPORTA_URL_SOURCE_DB ?? "db/url-source.db",
+      );
+    } catch (error) {
+      if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+        throw error;
+      }
+      console.error(
+        "[sporta] url-source registrations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+          "the acquisition machine's records do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+      );
+      urlSourceStore = new InMemoryUrlSourceStore();
+    }
+  }
+  const urlSourceRecords = new ValidatingUrlSourceStore(urlSourceStore);
+
   // 7 (hoisted from the studio block — W921): the publication store and the
   //     rights-attestation index are the durable layer's reconstruction
   //     targets (a reconstructed session re-seeds its recorded visibility
@@ -811,6 +870,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
           pipeline,
           artifacts,
           media: { service: media, storage: mediaStorage },
+          urlSources: { store: urlSourceRecords },
           provider: providerOfRecords(options.controlRecords),
           nowMs,
         })
@@ -1000,6 +1060,17 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       noteAdmissionRefusal: (depth, maxDepth) => operations.noteAdmissionRefusal(depth, maxDepth),
     },
   });
+  // W6 Worker B: the URL-source service over the SAME validating store the
+  // durable layer reconstructs through (one registration truth), with the
+  // REAL public oEmbed fetcher unless a test injected a hermetic fake.
+  const urlSources = new UrlSourceService({
+    getServer: () => server,
+    store: urlSourceRecords,
+    nowMs,
+    ...(options.urlSources?.fetchOEmbed !== undefined
+      ? { fetchOEmbed: options.urlSources.fetchOEmbed }
+      : {}),
+  });
   const rights = new RightsCenterService({ getServer: () => server, nowMs });
 
   // 7a. The J010 analyst-annotations store (wave 4): durable sqlite under
@@ -1055,6 +1126,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     storyIndex,
     engines,
     studio,
+    urlSources,
     publication,
     attestations,
     rightsPolicies,

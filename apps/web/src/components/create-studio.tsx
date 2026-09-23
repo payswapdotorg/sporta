@@ -15,6 +15,8 @@ import type {
   StudioSessionLike,
   StudioSessionStateLike,
   StudioUploadSessionLike,
+  UrlOEmbedPreviewLike,
+  UrlSourceRegistrationLike,
   WatchModelLike,
 } from "@/lib/api-types";
 import {
@@ -28,8 +30,11 @@ import {
   fetchRenderOutput,
   fetchStudioJob,
   fetchStudioSession,
+  fetchUrlSource,
   fetchWatchModel,
   previewRights,
+  previewUrlOEmbed,
+  registerUrlSource,
   setStudioPublication,
 } from "@/lib/client-api";
 import { CreateComputeTransparency } from "@/components/compute-transparency";
@@ -45,6 +50,7 @@ import {
   rendererDispatchabilityOf,
   stepSatisfied,
   submissionVerdictOf,
+  urlShapeSatisfied,
 } from "@/lib/create-flow";
 import type { CreateDraft, CreateStep, DerivedRealitySelection } from "@/lib/create-flow";
 import {
@@ -131,6 +137,16 @@ export function CreateStudio() {
     | { phase: "failed"; error: string }
   >({ phase: "idle" });
   const [submission, setSubmission] = useState<SubmissionState | null>(null);
+  /**
+   * W6 Worker B: the URL path's in-flight registration (the acquisition
+   * machine's own state, polled honestly — never an interpolated success).
+   * The `capability` is the ONE-TIME token the registration answer carried
+   * (the owner hands it to the acquisition machine).
+   */
+  const [urlTransfer, setUrlTransfer] = useState<{
+    registration: UrlSourceRegistrationLike;
+    capability: string | null;
+  } | null>(null);
   const [job, setJob] = useState<StudioJobLike | null>(null);
   const [jobError, setJobError] = useState<string | null>(null);
   /** J004: the plan's per-reality job views (jobId → the real projection). */
@@ -228,7 +244,9 @@ export function CreateStudio() {
   // never per-reality re-selection). `null` = nothing dispatches through
   // the compute plane (original-only upload) — the honest skip state.
   const planProducerRendererId =
-    options.phase === "ready" && draft.sourceKind === "upload" && draft.derivedRealities.length > 0
+    options.phase === "ready" &&
+    (draft.sourceKind === "upload" || draft.sourceKind === "url") &&
+    draft.derivedRealities.length > 0
       ? (options.data?.derivedRealities.find((entry) => entry.reality === draft.derivedRealities[0])
           ?.producerRendererId ?? null)
       : null;
@@ -237,7 +255,9 @@ export function CreateStudio() {
       ? (options.data?.renderers.find((entry) => entry.rendererId === draft.rendererId) ?? null)
       : null;
   const computeQuoteRendererId =
-    draft.sourceKind === "upload" ? planProducerRendererId : draft.rendererId;
+    draft.sourceKind === "upload" || draft.sourceKind === "url"
+      ? planProducerRendererId
+      : draft.rendererId;
   const computePreviewKey =
     step === "compute" && computeQuoteRendererId !== null
       ? `${computeQuoteRendererId}|${draft.outputProfileIndex}|${draft.computeMode}|${draft.computeProviderId ?? ""}`
@@ -456,6 +476,30 @@ export function CreateStudio() {
           : {}),
         preference: { privacyPosture: "privacy-any" as const },
       };
+      if (draft.sourceKind === "url" && urlShapeSatisfied(draft)) {
+        // W6 Worker B — THE URL-SOURCE SUBMISSION: the exact URL + the SAME
+        // rights declaration become one registration (born PENDING_TRANSFER
+        // — no video bytes are claimed yet). The transfer step then follows
+        // the acquisition machine's own states; when the operator's real
+        // bytes land through the seam, the session materializes.
+        const registration = await registerUrlSource({
+          url: draft.sourceUrl!.trim(),
+          operations: draft.operations,
+          ...(draft.expiresAtIso !== null ? { expiresAtIso: draft.expiresAtIso } : {}),
+          sharingScope: draft.sharingScope,
+          realities: [...draft.derivedRealities],
+          compute: directive,
+          ...(draft.styleId !== null && draft.styleId.trim().length > 0
+            ? { styleId: draft.styleId }
+            : {}),
+        });
+        setUrlTransfer({
+          registration,
+          capability: registration.acquisitionCapability ?? null,
+        });
+        setStep("render");
+        return;
+      }
       if (draft.sourceKind === "upload" && draft.file !== null) {
         // J004 — THE ONE-SUBMISSION MULTI-REALITY FLOW: the upload carries
         // the file + the declaration + the DERIVED reality selections in
@@ -514,6 +558,71 @@ export function CreateStudio() {
       setSubmitting(false);
     }
   }, [source, renderer, previewReady, draft]);
+
+  // -------------------------------------------------------------------
+  // W6 Worker B — the URL-source registration poll (the machine's own
+  // states; never an interpolated success). FAILED stays visible with its
+  // reason; the poll keeps running because the machine may retry (begin).
+  // -------------------------------------------------------------------
+  const urlRegistrationId = urlTransfer?.registration.registrationId ?? null;
+  useEffect(() => {
+    if (urlRegistrationId === null) return;
+    let cancelled = false;
+    const poll = () => {
+      void fetchUrlSource(urlRegistrationId).then(
+        (next) => {
+          if (cancelled) return;
+          setUrlTransfer((prev) => (prev === null ? prev : { ...prev, registration: next }));
+          if (next.acquisition.state !== "ACQUIRED") {
+            pollTimer.current = setTimeout(poll, 1500);
+          }
+        },
+        () => {
+          if (!cancelled) pollTimer.current = setTimeout(poll, 2500);
+        },
+      );
+    };
+    poll();
+    return () => {
+      cancelled = true;
+    };
+  }, [urlRegistrationId]);
+
+  // -------------------------------------------------------------------
+  // W6 Worker B — once ACQUIRED, the session materializes through the
+  // SEAM's own creation (the studio's upload-path sequence over the
+  // transferred bytes): the session state + watch model are fetched and
+  // polled while any studio job or the media job is still running.
+  // -------------------------------------------------------------------
+  const urlAcquired = urlTransfer?.registration.acquisition.state === "ACQUIRED";
+  const urlSessionId = urlTransfer?.registration.sessionId ?? null;
+  useEffect(() => {
+    if (!urlAcquired || urlSessionId === null) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const [state, model] = await Promise.all([
+          fetchStudioSession(urlSessionId),
+          fetchWatchModel(urlSessionId),
+        ]);
+        if (cancelled) return;
+        setSessionState(state);
+        setWatch(model);
+        const jobsRunning = state.jobs.some((entry) => !jobProgressOf(entry.state).terminal);
+        const mediaJob = state.source?.kind === "url" ? state.source.job : null;
+        const mediaRunning = mediaJob !== null && !mediaJob.terminal;
+        if (jobsRunning || mediaRunning) {
+          pollTimer.current = setTimeout(() => void poll(), 900);
+        }
+      } catch (err) {
+        if (!cancelled) setJobError(err instanceof Error ? err.message : String(err));
+      }
+    };
+    void poll();
+    return () => {
+      cancelled = true;
+    };
+  }, [urlAcquired, urlSessionId]);
 
   const changeVisibility = useCallback(
     async (visibility: "public" | "private") => {
@@ -589,11 +698,16 @@ export function CreateStudio() {
             setDraft((prev) => ({
               ...prev,
               sourceKind: kind,
-              ...(kind === "upload" ? { sourceKey: null } : { file: null }),
+              ...(kind === "upload"
+                ? { sourceKey: null, sourceUrl: null }
+                : kind === "url"
+                  ? { sourceKey: null, file: null }
+                  : { file: null, sourceUrl: null }),
             }))
           }
           onPick={(key) => setDraft((prev) => ({ ...prev, sourceKey: key }))}
           onFile={(file) => setDraft((prev) => ({ ...prev, file }))}
+          onUrl={(url) => setDraft((prev) => ({ ...prev, sourceUrl: url }))}
         />
       )}
 
@@ -662,6 +776,15 @@ export function CreateStudio() {
         />
       )}
 
+      {step === "render" && urlTransfer !== null && (
+        <UrlSourceTransferStep
+          registration={urlTransfer.registration}
+          capability={urlTransfer.capability}
+          sessionState={sessionState}
+          jobError={jobError}
+        />
+      )}
+
       {step === "render" && submission !== null && (
         <RenderStep
           submission={submission}
@@ -714,21 +837,51 @@ function SourceStep({
   onSourceKind,
   onPick,
   onFile,
+  onUrl,
 }: {
   options: StudioOptionsLike;
   draft: CreateDraft;
-  onSourceKind: (kind: "upload" | "fixture") => void;
+  onSourceKind: (kind: "upload" | "fixture" | "url") => void;
   onPick: (key: string) => void;
   onFile: (file: File | null) => void;
+  onUrl: (url: string | null) => void;
 }) {
+  // W6 Worker B — the URL mode's HONEST oEmbed lookup: the host's public
+  // metadata or the real reason it is absent (a bot-walled host, an unknown
+  // endpoint, a timeout). Never a fabricated title.
+  const [urlPreview, setUrlPreview] = useState<{
+    phase: "idle" | "loading" | "ready" | "failed";
+    data: UrlOEmbedPreviewLike | null;
+    error: string | null;
+    lookedUpUrl: string | null;
+  }>({ phase: "idle", data: null, error: null, lookedUpUrl: null });
+
+  const lookupUrl = async () => {
+    const url = draft.sourceUrl?.trim() ?? "";
+    if (url.length === 0) return;
+    setUrlPreview({ phase: "loading", data: null, error: null, lookedUpUrl: url });
+    try {
+      const data = await previewUrlOEmbed({ url });
+      setUrlPreview({ phase: "ready", data, error: null, lookedUpUrl: url });
+    } catch (err) {
+      setUrlPreview({
+        phase: "failed",
+        data: null,
+        error: err instanceof Error ? err.message : String(err),
+        lookedUpUrl: url,
+      });
+    }
+  };
+
   return (
     <section className="studio-step" aria-labelledby="studio-source-heading">
       <h2 id="studio-source-heading" className="studio-step-title">
         Choose an authorized source
       </h2>
       <p className="section-lede">
-        Upload your own clip — the real perception pipeline runs over YOUR frames — or pick from the
-        checked-in fixture library (an explicitly-labeled development surface).
+        Upload your own clip — the real perception pipeline runs over YOUR frames — pick from the
+        checked-in fixture library (an explicitly-labeled development surface), or register a source
+        URL whose real bytes arrive through the acquisition machine.
       </p>
 
       <div className="form-field">
@@ -754,6 +907,21 @@ function SourceStep({
                 <input
                   type="radio"
                   name="studio-source-kind"
+                  checked={draft.sourceKind === "url"}
+                  onChange={() => onSourceKind("url")}
+                />
+                <span className="studio-operation-label">Source URL (transfer)</span>
+                <span className="studio-operation-description">
+                  Register the exact source location — the real bytes arrive out-of-band and the
+                  machine ingests them (W6)
+                </span>
+              </label>
+            </li>
+            <li>
+              <label>
+                <input
+                  type="radio"
+                  name="studio-source-kind"
                   checked={draft.sourceKind === "fixture"}
                   onChange={() => onSourceKind("fixture")}
                 />
@@ -767,7 +935,69 @@ function SourceStep({
         </fieldset>
       </div>
 
-      {draft.sourceKind === "upload" ? (
+      {draft.sourceKind === "url" ? (
+        <div className="studio-upload studio-url-source">
+          <div className="form-field">
+            <label htmlFor="studio-source-url">The exact source URL</label>
+            <input
+              id="studio-source-url"
+              type="url"
+              inputMode="url"
+              placeholder="https://www.youtube.com/watch?v=…"
+              value={draft.sourceUrl ?? ""}
+              onChange={(event) => onUrl(event.target.value === "" ? null : event.target.value)}
+            />
+            <p className="field-hint">
+              Stored VERBATIM. The public metadata is looked up from the host itself — when the host
+              is bot-walled or unknown, the absence is recorded honestly (never a fabricated title).
+              The video bytes are never fetched by this browser: the operator transfers them
+              out-of-band and the acquisition machine ingests them through the server-side seam.
+            </p>
+          </div>
+          <div className="form-field studio-url-lookup">
+            <button
+              type="button"
+              className="button-ghost"
+              disabled={draft.sourceUrl === null || draft.sourceUrl.trim().length === 0}
+              onClick={() => void lookupUrl()}
+            >
+              Look up public metadata
+            </button>
+            {urlPreview.phase === "loading" && (
+              <p className="field-note" role="status">
+                Looking up the host&apos;s public oEmbed endpoint…
+              </p>
+            )}
+            {urlPreview.phase === "ready" && urlPreview.data !== null && (
+              <div className="studio-oembed-answer" role="status">
+                {urlPreview.data.available ? (
+                  <>
+                    <p className="field-note">
+                      <strong>{urlPreview.data.metadata.title}</strong>
+                      {urlPreview.data.metadata.authorName !== null
+                        ? ` — ${urlPreview.data.metadata.authorName}`
+                        : ""}
+                    </p>
+                    <p className="field-hint">
+                      The host&apos;s own public answer (oEmbed). Duration and other facts the
+                      endpoint does not publish stay honestly absent.
+                    </p>
+                  </>
+                ) : (
+                  <p className="field-note" role="note">
+                    <strong>No public metadata.</strong> {urlPreview.data.reason}
+                  </p>
+                )}
+              </div>
+            )}
+            {urlPreview.phase === "failed" && (
+              <p className="field-note" role="alert">
+                The lookup failed: {urlPreview.error}
+              </p>
+            )}
+          </div>
+        </div>
+      ) : draft.sourceKind === "upload" ? (
         <div className="studio-upload">
           {options.upload.available ? (
             <>
@@ -2035,6 +2265,238 @@ function RenderStep({
             sessions start private).
           </p>
         </section>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// W6 Worker B — the URL-source transfer step (the acquisition machine's own
+// honest states; the session materializes only when the real bytes land)
+// ---------------------------------------------------------------------------
+
+function UrlSourceTransferStep({
+  registration,
+  capability,
+  sessionState,
+  jobError,
+}: {
+  registration: UrlSourceRegistrationLike;
+  capability: string | null;
+  sessionState: StudioSessionStateLike | null;
+  jobError: string | null;
+}) {
+  const acquisition = registration.acquisition;
+  const urlSource = sessionState?.source?.kind === "url" ? sessionState.source : null;
+  const mediaPresentation =
+    urlSource?.job !== null && urlSource?.job !== undefined
+      ? honestMediaPresentationOf(urlSource.job.state)
+      : null;
+
+  return (
+    <section className="studio-step" aria-labelledby="studio-transfer-heading">
+      <h2 id="studio-transfer-heading" className="studio-step-title">
+        The real-source transfer
+      </h2>
+      <p className="section-lede">
+        This session&apos;s source is the operator&apos;s real video at the registered URL. The
+        bytes arrive out-of-band (an authenticated cookies session or a file-host transfer — the
+        transfer journal records which) and the acquisition machine ingests them through the
+        server-side seam. Nothing below is simulated: the state you see is the machine&apos;s own
+        record.
+      </p>
+
+      <dl className="session-card-facts">
+        <div className="fact">
+          <dt>Source URL</dt>
+          <dd>
+            <code className="studio-url-verbatim">{registration.url}</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Registration</dt>
+          <dd>
+            <code>{registration.registrationId}</code>
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Public metadata</dt>
+          <dd>
+            {registration.oEmbed.title !== null ? (
+              <>
+                <strong>{registration.oEmbed.title}</strong>
+                {registration.oEmbed.authorName !== null
+                  ? ` — ${registration.oEmbed.authorName}`
+                  : ""}
+              </>
+            ) : (
+              <span className="field-hint">
+                honestly absent — {registration.oEmbed.unavailableReason ?? "no public metadata"}
+              </span>
+            )}
+          </dd>
+        </div>
+        <div className="fact">
+          <dt>Acquisition</dt>
+          <dd>
+            {acquisition.state === "PENDING_TRANSFER" && (
+              <StateChip state="processing">PENDING TRANSFER</StateChip>
+            )}
+            {acquisition.state === "ACQUIRING" && (
+              <StateChip state="processing">ACQUIRING</StateChip>
+            )}
+            {acquisition.state === "ACQUIRED" && <StateChip state="ready">ACQUIRED</StateChip>}
+            {acquisition.state === "FAILED" && <StateChip state="failed">FAILED</StateChip>}{" "}
+            <span className="field-hint">
+              {acquisition.attempts.length} recorded attempt(s)
+              {acquisition.transferredVia !== null
+                ? ` · transferred via ${acquisition.transferredVia.kind}`
+                : ""}
+            </span>
+          </dd>
+        </div>
+      </dl>
+
+      {acquisition.state === "PENDING_TRANSFER" && (
+        <div className="form-notice studio-transfer-notice" role="note">
+          <p>
+            <strong>Waiting for the operator&apos;s transfer.</strong> The video bytes were never
+            fetched by this browser — the source host is bot-walled for automated fetches (the
+            documented honest wall). The operator transfers the real bytes out-of-band and the
+            acquisition machine consumes them:
+          </p>
+          {capability !== null && (
+            <p className="studio-capability">
+              <span className="field-hint">
+                Acquisition capability (hand to the machine, once):
+              </span>
+              <code>{capability}</code>
+            </p>
+          )}
+          <p className="field-hint">
+            On the operator host:{" "}
+            <code>
+              python3 scripts/real-source/acquire.py --registration {"<id>"} --acquisition-token{" "}
+              {"<capability>"}
+            </code>{" "}
+            (the transfer journal at the default path records how the bytes arrive — a cookies
+            session or a file-host URL). This page polls the machine&apos;s own states; it flips the
+            moment the seam records them.
+          </p>
+        </div>
+      )}
+
+      {acquisition.state === "ACQUIRING" && (
+        <p className="field-note" role="status">
+          The machine marked the acquisition ACQUIRING and is moving the real bytes — the in-flight
+          state, recorded before any byte moved. This is not a spinner pretending progress: it is
+          the machine&apos;s own trace.
+        </p>
+      )}
+
+      {acquisition.state === "FAILED" && (
+        <div className="form-notice" role="alert">
+          <p>
+            <strong>The last acquisition attempt failed.</strong> The reason, verbatim:
+          </p>
+          <p className="studio-failure-reason">{acquisition.failureReason ?? "unknown reason"}</p>
+          <p className="field-hint">
+            The registration stays retryable: the machine records a new attempt (begin) and re-runs.
+            No state was invented to paper over this failure.
+          </p>
+        </div>
+      )}
+
+      {acquisition.state === "ACQUIRED" && (
+        <div className="studio-acquired">
+          <dl className="session-card-facts">
+            <div className="fact">
+              <dt>Session</dt>
+              <dd>
+                <code>{registration.sessionId}</code>
+              </dd>
+            </div>
+            <div className="fact">
+              <dt>Integrity (seam-measured)</dt>
+              <dd>
+                {acquisition.integrity !== null ? (
+                  <>
+                    {formatBytes(acquisition.integrity.byteSize)} · sha-256{" "}
+                    <code className="studio-hash">
+                      {acquisition.integrity.sha256.slice(0, 16)}…
+                    </code>
+                  </>
+                ) : (
+                  <span className="field-hint">not recorded</span>
+                )}
+              </dd>
+            </div>
+            {urlSource !== null && (
+              <>
+                <div className="fact">
+                  <dt>Source asset</dt>
+                  <dd>
+                    <code>{urlSource.asset.assetId}</code> · {urlSource.asset.container} ·{" "}
+                    {formatBytes(urlSource.asset.byteSize)}
+                    {urlSource.asset.checksumVerified ? " · checksum verified" : ""}
+                  </dd>
+                </div>
+                <div className="fact">
+                  <dt>Normalization</dt>
+                  <dd>
+                    {urlSource.job !== null
+                      ? `${urlSource.job.state}${urlSource.job.terminal ? "" : " (in flight)"}`
+                      : "no media job recorded"}
+                    {mediaPresentation !== null ? ` — ${mediaPresentation.label}` : ""}
+                  </dd>
+                </div>
+                <div className="fact">
+                  <dt>Stored original</dt>
+                  <dd>
+                    {urlSource.artifact !== null ? (
+                      <StateChip state="ready">READY</StateChip>
+                    ) : (
+                      <span className="field-hint">the media job is still storing it</span>
+                    )}
+                  </dd>
+                </div>
+              </>
+            )}
+          </dl>
+          {sessionState !== null && sessionState.jobs.length > 0 && (
+            <div className="studio-plan-jobs">
+              <h3>The plan&apos;s renders</h3>
+              <ul>
+                {sessionState.jobs.map((entry) => (
+                  <li key={entry.jobId}>
+                    <code>{entry.rendererId ?? "renderer"}</code> — {entry.state}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <p className="field-note" role="status">
+            The session&apos;s world model is derived from the TRANSFERRED bytes — the
+            operator&apos;s real source. Watch serves the normalized original; the Library shows the
+            combined truth (the registration + the real transfer).
+          </p>
+          {registration.sessionId !== null && (
+            <p>
+              <Link
+                className="button-primary"
+                href={`${ROUTES.watch}?session=${encodeURIComponent(registration.sessionId)}`}
+              >
+                Open in Watch
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
+
+      {jobError !== null && (
+        <p className="field-note" role="alert">
+          The session read failed: {jobError}
+        </p>
       )}
     </section>
   );

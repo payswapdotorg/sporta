@@ -3157,3 +3157,81 @@ svg {
   color: var(--accent);
   font-weight: 700;
 }
+
+/* W6 Worker B — the URL-source path (Create Studio source step + transfer step) */
+
+.studio-url-source {
+  display: grid;
+  gap: 14px;
+}
+
+.studio-url-lookup {
+  display: grid;
+  gap: 8px;
+  justify-content: start;
+}
+
+.studio-oembed-answer {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.studio-url-verbatim {
+  word-break: break-all;
+  font-size: 0.82rem;
+}
+
+.studio-transfer-notice {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--text-faint) 35%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.studio-capability {
+  display: grid;
+  gap: 4px;
+}
+
+.studio-capability code {
+  word-break: break-all;
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--text-faint) 18%, transparent);
+}
+
+.studio-failure-reason {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: var(--danger);
+}
+
+.studio-acquired {
+  display: grid;
+  gap: 12px;
+}
+
+.studio-hash {
+  font-size: 0.78rem;
+}
+
+.studio-plan-jobs h3 {
+  font-size: 0.9rem;
+  margin: 0 0 6px;
+}
+
+.studio-plan-jobs ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+}

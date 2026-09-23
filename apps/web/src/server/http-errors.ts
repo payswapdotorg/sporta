@@ -172,6 +172,28 @@ export async function errorResponse(err: unknown): Promise<Response> {
       },
     } satisfies ApiErrorBody);
   }
+  // The URL-source acquisition machine's typed refusals (W6 Worker B): the
+  // closed vocabulary (url-invalid 400, registration-unknown 404,
+  // state-conflict 409, integrity-mismatch 422, rights-denied 403,
+  // transfer-refused 422) with the registration + measured details riding
+  // verbatim — the UI and the acquisition script surface them as-is, never
+  // smoothed. LAZY import for the same build-safety reason (the service's
+  // graph reaches bun:sqlite through the studio/media imports).
+  let urlSourceService: typeof import("./url-source-service") | null = null;
+  try {
+    urlSourceService = await import("./url-source-service");
+  } catch (importErr) {
+    console.error("[api] url-source-service error classes unavailable:", importErr);
+  }
+  if (urlSourceService !== null && err instanceof urlSourceService.UrlSourceError) {
+    return jsonResponse(err.httpStatus, {
+      error: {
+        failureClass: err.failureClass,
+        message: err.message,
+        ...(Object.keys(err.details).length > 0 ? { details: err.details } : {}),
+      },
+    } satisfies ApiErrorBody);
+  }
   // The media platform's typed errors (R101-R104): upload refusals (the
   // violated constraint rides in details), fail-closed rights, integrity
   // failures, and the typed not-found family. The import is LAZY for the
