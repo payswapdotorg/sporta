@@ -21,6 +21,8 @@
  * falls back to the in-memory store with the honest banner there.
  */
 import type { UrlSourceRegistration, UrlSourceStore } from "../../url-source-service";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { Database } from "bun:sqlite";
 
 const CREATE_URL_SOURCE_SQL = `
@@ -50,6 +52,12 @@ export class SqliteUrlSourceStore implements UrlSourceStore {
     // `bun:sqlite` resolves to the W911 shim under the bundled Node runtime;
     // constructing it there fails loudly with the shim's message (the
     // composition catches that specific refusal and falls back honestly).
+    if (typeof dbOrPath === "string" && dbOrPath !== ":memory:") {
+      // A file-backed store creates its parent directory on demand (the
+      // media-platform store's exact precedent — the composition's default
+      // `db/` path must not pre-exist; a fresh checkout has no db/).
+      mkdirSync(dirname(dbOrPath), { recursive: true });
+    }
     this.#db = typeof dbOrPath === "string" ? new Database(dbOrPath) : dbOrPath;
     this.#db.run("PRAGMA journal_mode = WAL;");
     this.#db.run("PRAGMA busy_timeout = 5000;");

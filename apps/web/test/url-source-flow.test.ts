@@ -745,6 +745,29 @@ describe("the url-source acquisition machine (W6 Worker B: register → begin �
       }
     }
   });
+
+  test("W6-m: the sqlite store creates its durable home on demand (a fresh checkout has no db/ — the CI L014 regression)", async () => {
+    // The CI failure shape: the composition's DEFAULT path (db/url-source.db)
+    // on a fresh checkout whose parent directory does not exist. The store
+    // must create the parent (the media-platform store's exact precedent),
+    // never answer SQLITE_CANTOPEN up to the fail-loud composition.
+    const { SqliteUrlSourceStore } =
+      await import("../src/server/platform/url-source/sqlite-url-source-store");
+    const home = await mkdtemp(join(tmpdir(), "w6m-url-source-home-"));
+    try {
+      const nested = join(home, "deeply", "nested", "db", "url-source.db");
+      const store = new SqliteUrlSourceStore(nested);
+      // The store is usable and the file now exists at the exact path.
+      const rows = await store.listByOwner("w6-m-owner");
+      expect(rows).toEqual([]);
+      store.close();
+      const { stat } = await import("node:fs/promises");
+      const info = await stat(nested);
+      expect(info.isFile()).toBe(true);
+    } finally {
+      await rm(home, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("the url-source durable reconstruction (W6 Worker B: the urlsrc: join across instances)", () => {
