@@ -270,8 +270,6 @@ export function formatBytes(bytes: number): string {
  */
 export function urlShapeSatisfied(draft: CreateDraft): boolean {
   return (
-    draft.sourceKind === "url" &&
-    draft.sourceUrl !== null &&
-    draft.sourceUrl.trim().length > 0
+    draft.sourceKind === "url" && draft.sourceUrl !== null && draft.sourceUrl.trim().length > 0
   );
 }

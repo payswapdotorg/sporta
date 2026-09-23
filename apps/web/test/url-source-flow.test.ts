@@ -93,7 +93,7 @@ const SOURCE_URL = "https://www.youtube.com/watch?v=93LPZJkCW2w";
 const OPERATIONS = ["analysis", "transformation", "derivativeGeneration", "storage"];
 
 /** The hermetic oEmbed fake (tests never touch the network). */
-const OEMBED_SUCCESS: UrlOEmbedFetcher = async (url) => ({
+const OEMBED_SUCCESS: UrlOEmbedFetcher = async () => ({
   ok: true,
   metadata: {
     title: "BETIS 3 vs 5 FC BARCELONA | LALIGA 2025/26 MD15 (hermetic fixture answer)",
@@ -171,8 +171,6 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
   let scratch = "";
   let creatorToken = "";
   let outsiderToken = "";
-  /** The walled-oEmbed registration (honest absence). */
-  let walledRegistrationId = "";
   /** The main happy-path registration. */
   let registrationId = "";
   let capability = "";
@@ -275,10 +273,9 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     );
     expect(status).toBe(201);
     expect((body.oEmbed as Record<string, unknown>).title).toBeNull();
-    expect(
-      String((body.oEmbed as Record<string, unknown>).unavailableReason ?? ""),
-    ).toContain("honestly absent");
-    walledRegistrationId = body.registrationId as string;
+    expect(String((body.oEmbed as Record<string, unknown>).unavailableReason ?? "")).toContain(
+      "honestly absent",
+    );
   });
 
   test("W6-c: the honest registration refusals (rights fail-closure, url parse, anonymous)", async () => {
@@ -301,7 +298,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
 
     // Anonymous callers get the real 401.
     const anonymous = await registerRoute(
-      withCookie(null, "/api/create/url-sources", jsonPost({ url: SOURCE_URL, operations: OPERATIONS })),
+      withCookie(
+        null,
+        "/api/create/url-sources",
+        jsonPost({ url: SOURCE_URL, operations: OPERATIONS }),
+      ),
     );
     expect(anonymous.status).toBe(401);
   });
@@ -309,9 +310,13 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
   test("W6-d: THE SEAM â€” begin â†’ ingest binds the real bytes into a real session (ACQUIRED)", async () => {
     // begin (the honest in-flight state, BEFORE any byte moves).
     const begin = await transferRoute(
-      transferRequest(registrationId, capability, { phase: "begin", kind: "file", detail: "test transfer" }),
-         { params: Promise.resolve({ registrationId: registrationId }) },
-       );
+      transferRequest(registrationId, capability, {
+        phase: "begin",
+        kind: "file",
+        detail: "test transfer",
+      }),
+      { params: Promise.resolve({ registrationId: registrationId }) },
+    );
     expect(begin.status).toBe(200);
     expect(((await bodyOf(begin)).registration as Record<string, unknown>).state).toBe("ACQUIRING");
 
@@ -324,8 +329,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         via: { kind: "file", detail: "the operator's transferred file (test stand-in)" },
         claimed: claim,
       }),
-         { params: Promise.resolve({ registrationId: registrationId }) },
-       );
+      { params: Promise.resolve({ registrationId: registrationId }) },
+    );
     expect(ingest.status).toBe(200);
     const ingestBody = (await bodyOf(ingest)) as {
       registration: {
@@ -336,7 +341,12 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
       session: {
         sessionId: string;
         source: {
-          asset: { contentHash: string; uploadState: string; checksumVerified: boolean; container: string };
+          asset: {
+            contentHash: string;
+            uploadState: string;
+            checksumVerified: boolean;
+            container: string;
+          };
           job: { jobId: string; state: string } | null;
         };
         perception: { frameCount: number };
@@ -364,14 +374,23 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     expect(state.status).toBe(200);
     const stateBody = (await bodyOf(state)) as {
       source:
-        | ({ kind: "url"; registration: { url: string; acquisition: { state: string; integrity: { sha256: string } | null } } } & Record<string, unknown>)
+        | ({
+            kind: "url";
+            registration: {
+              url: string;
+              acquisition: { state: string; integrity: { sha256: string } | null };
+            };
+          } & Record<string, unknown>)
         | { kind: string }
         | null;
     };
     expect(stateBody.source).not.toBeNull();
     expect((stateBody.source as { kind: string }).kind).toBe("url");
     const urlSource = stateBody.source as unknown as {
-      registration: { url: string; acquisition: { state: string; integrity: { sha256: string } | null } };
+      registration: {
+        url: string;
+        acquisition: { state: string; integrity: { sha256: string } | null };
+      };
       asset: { contentHash: string; assetId: string };
       job: { state: string } | null;
     };
@@ -412,7 +431,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     planCapability = body.acquisitionCapability as string;
 
     await transferRoute(
-      transferRequest(planRegistrationId, planCapability, { phase: "begin", kind: "file", detail: "plan transfer" }),
+      transferRequest(planRegistrationId, planCapability, {
+        phase: "begin",
+        kind: "file",
+        detail: "plan transfer",
+      }),
       { params: Promise.resolve({ registrationId: planRegistrationId }) },
     );
     const ingest = await transferRoute(
@@ -422,8 +445,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         via: { kind: "file", detail: "the operator's transferred file (test stand-in)" },
         claimed: { byteSize: clipBytes.byteLength, sha256: sha256OfBytes(clipBytes) },
       }),
-         { params: Promise.resolve({ registrationId: planRegistrationId }) },
-       );
+      { params: Promise.resolve({ registrationId: planRegistrationId }) },
+    );
     expect(ingest.status).toBe(200);
     const ingestBody = (await bodyOf(ingest)) as {
       registration: { sessionId: string };
@@ -448,7 +471,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     const mismatchCapability = body.acquisitionCapability as string;
 
     await transferRoute(
-      transferRequest(mismatchId, mismatchCapability, { phase: "begin", kind: "file", detail: "mismatch test" }),
+      transferRequest(mismatchId, mismatchCapability, {
+        phase: "begin",
+        kind: "file",
+        detail: "mismatch test",
+      }),
       { params: Promise.resolve({ registrationId: mismatchId }) },
     );
     // A WRONG sha-256 claim â†’ the seam's measured integrity disagrees.
@@ -459,8 +486,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         via: { kind: "file", detail: "mismatch test" },
         claimed: { byteSize: clipBytes.byteLength, sha256: "0".repeat(64) },
       }),
-         { params: Promise.resolve({ registrationId: mismatchId }) },
-       );
+      { params: Promise.resolve({ registrationId: mismatchId }) },
+    );
     expect(mismatch.status).toBe(422);
     expect(((await bodyOf(mismatch)).error as Record<string, unknown>).failureClass).toBe(
       "integrity-mismatch",
@@ -482,7 +509,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     // Retry: begin again, then a NON-mp4 transfer â€” the R101 boundary's own
     // typed refusal, recorded as FAILED (never a silent fallback).
     await transferRoute(
-      transferRequest(mismatchId, mismatchCapability, { phase: "begin", kind: "file", detail: "non-mp4 retry" }),
+      transferRequest(mismatchId, mismatchCapability, {
+        phase: "begin",
+        kind: "file",
+        detail: "non-mp4 retry",
+      }),
       { params: Promise.resolve({ registrationId: mismatchId }) },
     );
     const textPath = join(scratch, "not-a-video.txt");
@@ -493,17 +524,16 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         bytesPath: textPath,
         via: { kind: "file", detail: "non-mp4 retry" },
       }),
-         { params: Promise.resolve({ registrationId: mismatchId }) },
-       );
+      { params: Promise.resolve({ registrationId: mismatchId }) },
+    );
     expect(nonMp4.status).toBe(400);
     expect(((await bodyOf(nonMp4)).error as Record<string, unknown>).failureClass).toBe(
       "media-invalid",
     );
     const afterNonMp4 = (await bodyOf(
-      await showRoute(
-        withCookie(creatorToken, `/api/create/url-sources/${mismatchId}`),
-        { params: Promise.resolve({ registrationId: mismatchId }) },
-      ),
+      await showRoute(withCookie(creatorToken, `/api/create/url-sources/${mismatchId}`), {
+        params: Promise.resolve({ registrationId: mismatchId }),
+      }),
     )) as { acquisition: { state: string; failureReason: string | null } };
     expect(afterNonMp4.acquisition.state).toBe("FAILED");
     expect(afterNonMp4.acquisition.failureReason ?? "").toContain("container");
@@ -512,25 +542,28 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
   test("W6-g: the capability gate answers UNIFORM 404s (no oracle); ingest requires the begin phase", async () => {
     // A missing capability header, a wrong capability, and an unknown
     // registration all answer the same shape.
-    const missing = await transferRoute(
-      transferRequest(registrationId, null, { phase: "show" }),
-         { params: Promise.resolve({ registrationId: registrationId }) },
-       );
+    const missing = await transferRoute(transferRequest(registrationId, null, { phase: "show" }), {
+      params: Promise.resolve({ registrationId: registrationId }),
+    });
     expect(missing.status).toBe(404);
     const wrong = await transferRoute(
       transferRequest(registrationId, "a-wrong-capability-token", { phase: "show" }),
-         { params: Promise.resolve({ registrationId: registrationId }) },
-       );
+      { params: Promise.resolve({ registrationId: registrationId }) },
+    );
     expect(wrong.status).toBe(404);
     const unknown = await transferRoute(
       transferRequest("urlreg-doesnotexist", capability, { phase: "show" }),
-         { params: Promise.resolve({ registrationId: "urlreg-doesnotexist" }) },
-       );
+      { params: Promise.resolve({ registrationId: "urlreg-doesnotexist" }) },
+    );
     expect(unknown.status).toBe(404);
     // The UNIFORM shape: status + failureClass + message are identical (the
     // registrationId detail rides only for the caller's own correlation).
-    const missingBody = (await bodyOf(missing)) as { error: { failureClass: string; message: string } };
-    const unknownBody = (await bodyOf(unknown)) as { error: { failureClass: string; message: string } };
+    const missingBody = (await bodyOf(missing)) as {
+      error: { failureClass: string; message: string };
+    };
+    const unknownBody = (await bodyOf(unknown)) as {
+      error: { failureClass: string; message: string };
+    };
     expect(missingBody.error.failureClass).toBe(unknownBody.error.failureClass);
     expect(missingBody.error.message).toBe(unknownBody.error.message);
 
@@ -544,8 +577,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         bytesPath: clipPath,
         via: { kind: "file", detail: "no-begin test" },
       }),
-         { params: Promise.resolve({ registrationId: pendingId }) },
-       );
+      { params: Promise.resolve({ registrationId: pendingId }) },
+    );
     expect(noBegin.status).toBe(409);
     expect(((await bodyOf(noBegin)).error as Record<string, unknown>).failureClass).toBe(
       "state-conflict",
@@ -559,8 +592,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         bytesPath: clipPath,
         via: { kind: "file", detail: "re-ingest test" },
       }),
-         { params: Promise.resolve({ registrationId: registrationId }) },
-       );
+      { params: Promise.resolve({ registrationId: registrationId }) },
+    );
     expect(again.status).toBe(409);
     const body = (await bodyOf(again)) as { error: { failureClass: string; message: string } };
     expect(body.error.failureClass).toBe("state-conflict");
@@ -573,7 +606,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     const retryCapability = body.acquisitionCapability as string;
 
     await transferRoute(
-      transferRequest(retryId, retryCapability, { phase: "begin", kind: "cookies", detail: "session attempt" }),
+      transferRequest(retryId, retryCapability, {
+        phase: "begin",
+        kind: "cookies",
+        detail: "session attempt",
+      }),
       { params: Promise.resolve({ registrationId: retryId }) },
     );
     const fail = await transferRoute(
@@ -581,8 +618,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         phase: "fail",
         reason: "the cookies session was rejected by the host (test)",
       }),
-         { params: Promise.resolve({ registrationId: retryId }) },
-       );
+      { params: Promise.resolve({ registrationId: retryId }) },
+    );
     expect(fail.status).toBe(200);
     const failedBody = (await bodyOf(fail)) as {
       registration: { state: string; failureReason: string | null };
@@ -592,7 +629,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
 
     // The retry: begin again â†’ ingest the real bytes â†’ ACQUIRED.
     await transferRoute(
-      transferRequest(retryId, retryCapability, { phase: "begin", kind: "file", detail: "retry transfer" }),
+      transferRequest(retryId, retryCapability, {
+        phase: "begin",
+        kind: "file",
+        detail: "retry transfer",
+      }),
       { params: Promise.resolve({ registrationId: retryId }) },
     );
     const ingest = await transferRoute(
@@ -602,8 +643,8 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
         via: { kind: "file", detail: "retry transfer" },
         claimed: { byteSize: clipBytes.byteLength, sha256: sha256OfBytes(clipBytes) },
       }),
-         { params: Promise.resolve({ registrationId: retryId }) },
-       );
+      { params: Promise.resolve({ registrationId: retryId }) },
+    );
     expect(ingest.status).toBe(200);
     const acquired = (await bodyOf(ingest)) as {
       registration: { acquisition: { state: string }; sessionId: string };
@@ -689,9 +730,11 @@ describe("the url-source acquisition machine (W6 Worker B: register â†’ begin â†
     expect(uploadState.source?.kind).toBe("upload");
 
     const afterList = await listRoute(withCookie(creatorToken, "/api/create/url-sources"));
-    const afterRows = ((await bodyOf(afterList)) as {
-      registrations: { acquisition: { state: string; integrity?: { sha256: string } } }[];
-    }).registrations;
+    const afterRows = (
+      (await bodyOf(afterList)) as {
+        registrations: { acquisition: { state: string; integrity?: { sha256: string } } }[];
+      }
+    ).registrations;
     expect(afterRows.length).toBe(before);
     // Every ACQUIRED row came from THIS test file's seam ingests (each one
     // carries the session + the measured integrity â€” the validating store's
@@ -799,8 +842,8 @@ describe("the url-source durable reconstruction (W6 Worker B: the urlsrc: join a
         via: { kind: "file", detail: "durable test transfer" },
         claimed: claim,
       }),
-         { params: Promise.resolve({ registrationId: registration.registrationId }) },
-       );
+      { params: Promise.resolve({ registrationId: registration.registrationId }) },
+    );
     expect(ingest.status).toBe(200);
     const ingestBody = (await bodyOf(ingest)) as {
       registration: { sessionId: string };

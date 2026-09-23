@@ -46,13 +46,14 @@
  * authorizes THE MACHINE (the acquisition acts), never a user session.
  */
 import { deriveRightsCapabilities } from "@sporta/contracts";
-import { IdentityPermissionDeniedError, IdentityValidationError, authorize } from "@sporta/identity";
+import {
+  IdentityPermissionDeniedError,
+  IdentityValidationError,
+  authorize,
+} from "@sporta/identity";
 import { sha256OfBytes } from "@sporta/media-platform";
 import type { SportaServer } from "./composition";
-import {
-  DERIVED_REALITY_SELECTION_KINDS,
-  studioDeclarationPolicy,
-} from "./create-studio-service";
+import { DERIVED_REALITY_SELECTION_KINDS, studioDeclarationPolicy } from "./create-studio-service";
 import type {
   RightsDeclarationInput,
   StudioComputeDirective,
@@ -610,7 +611,9 @@ export class UrlSourceService {
    */
   async previewOEmbed(input: {
     url: string;
-  }): Promise<{ available: true; metadata: UrlOEmbedMetadata } | { available: false; reason: string }> {
+  }): Promise<
+    { available: true; metadata: UrlOEmbedMetadata } | { available: false; reason: string }
+  > {
     if (parseSourceUrl(input.url) === null) {
       throw new UrlSourceError(
         "url-invalid",
@@ -830,7 +833,10 @@ export class UrlSourceService {
       throw new UrlSourceError(
         "state-conflict",
         "the last acquisition attempt FAILED — the machine must begin a new attempt before ingesting bytes",
-        { registrationId: registration.registrationId, reason: registration.acquisition.failureReason },
+        {
+          registrationId: registration.registrationId,
+          reason: registration.acquisition.failureReason,
+        },
       );
     }
 
@@ -905,8 +911,7 @@ export class UrlSourceService {
         ...(registration.plan.styleId !== undefined ? { styleId: registration.plan.styleId } : {}),
       });
     } catch (err) {
-      const reason =
-        err instanceof Error ? err.message : `the ingestion refused: ${String(err)}`;
+      const reason = err instanceof Error ? err.message : `the ingestion refused: ${String(err)}`;
       await this.#recordFailure(registration, reason, input.via);
       throw err;
     }
@@ -955,7 +960,9 @@ export class UrlSourceService {
   ): Promise<void> {
     const now = this.nowMs();
     const attempts = registration.acquisition.attempts.map((attempt) =>
-      attempt.finishedAtMs === null ? { ...attempt, finishedAtMs: now, outcome: "failed" as const, detail: reason } : attempt,
+      attempt.finishedAtMs === null
+        ? { ...attempt, finishedAtMs: now, outcome: "failed" as const, detail: reason }
+        : attempt,
     );
     await this.store.update({
       ...registration,

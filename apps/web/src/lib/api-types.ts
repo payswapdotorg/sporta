@@ -520,11 +520,7 @@ export interface StudioComputeDirectiveLike {
 // ---------------------------------------------------------------------------
 
 /** The honest acquisition states (the machine's own vocabulary). */
-export type UrlAcquisitionStateLike =
-  | "PENDING_TRANSFER"
-  | "ACQUIRING"
-  | "ACQUIRED"
-  | "FAILED";
+export type UrlAcquisitionStateLike = "PENDING_TRANSFER" | "ACQUIRING" | "ACQUIRED" | "FAILED";
 
 /** The seam-measured integrity of the transferred bytes. */
 export interface UrlTransferIntegrityLike {

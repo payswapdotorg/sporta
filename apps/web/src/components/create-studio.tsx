@@ -572,9 +572,7 @@ export function CreateStudio() {
       void fetchUrlSource(urlRegistrationId).then(
         (next) => {
           if (cancelled) return;
-          setUrlTransfer((prev) =>
-            prev === null ? prev : { ...prev, registration: next },
-          );
+          setUrlTransfer((prev) => (prev === null ? prev : { ...prev, registration: next }));
           if (next.acquisition.state !== "ACQUIRED") {
             pollTimer.current = setTimeout(poll, 1500);
           }
@@ -2344,7 +2342,9 @@ function UrlSourceTransferStep({
             {acquisition.state === "PENDING_TRANSFER" && (
               <StateChip state="processing">PENDING TRANSFER</StateChip>
             )}
-            {acquisition.state === "ACQUIRING" && <StateChip state="processing">ACQUIRING</StateChip>}
+            {acquisition.state === "ACQUIRING" && (
+              <StateChip state="processing">ACQUIRING</StateChip>
+            )}
             {acquisition.state === "ACQUIRED" && <StateChip state="ready">ACQUIRED</StateChip>}
             {acquisition.state === "FAILED" && <StateChip state="failed">FAILED</StateChip>}{" "}
             <span className="field-hint">
@@ -2367,15 +2367,21 @@ function UrlSourceTransferStep({
           </p>
           {capability !== null && (
             <p className="studio-capability">
-              <span className="field-hint">Acquisition capability (hand to the machine, once):</span>
+              <span className="field-hint">
+                Acquisition capability (hand to the machine, once):
+              </span>
               <code>{capability}</code>
             </p>
           )}
           <p className="field-hint">
-            On the operator host: <code>python3 scripts/real-source/acquire.py --registration {"<id>"} --acquisition-token {"<capability>"}</code>{" "}
+            On the operator host:{" "}
+            <code>
+              python3 scripts/real-source/acquire.py --registration {"<id>"} --acquisition-token{" "}
+              {"<capability>"}
+            </code>{" "}
             (the transfer journal at the default path records how the bytes arrive — a cookies
-            session or a file-host URL). This page polls the machine&apos;s own states; it flips
-            the moment the seam records them.
+            session or a file-host URL). This page polls the machine&apos;s own states; it flips the
+            moment the seam records them.
           </p>
         </div>
       )}

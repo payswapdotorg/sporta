@@ -75,9 +75,7 @@ export class SqliteUrlSourceStore implements UrlSourceStore {
         );
     } catch (err) {
       if (String(err).includes("UNIQUE constraint failed")) {
-        throw new Error(
-          `url-source registration '${registration.registrationId}' already exists`,
-        );
+        throw new Error(`url-source registration '${registration.registrationId}' already exists`);
       }
       throw err;
     }
@@ -120,9 +118,7 @@ export class SqliteUrlSourceStore implements UrlSourceStore {
   async findBySession(sessionId: string): Promise<UrlSourceRegistration | null> {
     this.#assertOpen();
     const row = this.#db
-      .query(
-        "SELECT record_json FROM sporta_url_source_registrations WHERE session_id = ? LIMIT 1",
-      )
+      .query("SELECT record_json FROM sporta_url_source_registrations WHERE session_id = ? LIMIT 1")
       .get(sessionId) as { record_json: string } | null;
     return row === null ? null : (JSON.parse(row.record_json) as UrlSourceRegistration);
   }

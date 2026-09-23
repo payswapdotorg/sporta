@@ -1581,9 +1581,14 @@ export class CreateStudioService {
     //    sniffer (the definitive gate is step 5's media.upload).
     const { UploadRejectedError } = await import("@sporta/media-platform");
     if (input.bytes.byteLength === 0) {
-      throw new UploadRejectedError("size-empty", "the transfer carries no bytes", "media-invalid", {
-        byteSize: 0,
-      });
+      throw new UploadRejectedError(
+        "size-empty",
+        "the transfer carries no bytes",
+        "media-invalid",
+        {
+          byteSize: 0,
+        },
+      );
     }
     if (input.bytes.byteLength > UPLOAD_CONSTRAINTS.maxBytes) {
       throw new UploadRejectedError(
@@ -1612,8 +1617,7 @@ export class CreateStudioService {
       provenance: {
         clipId: `urlsrc-${contentSha256.slice(0, 12)}`,
         sourceSha256: contentSha256,
-        normalizationNote:
-          `operator URL-source transfer through the acquisition seam (registration ${input.registration.registrationId})`,
+        normalizationNote: `operator URL-source transfer through the acquisition seam (registration ${input.registration.registrationId})`,
       },
       bytes: input.bytes,
       authorizationPolicy: attested,
@@ -1634,7 +1638,8 @@ export class CreateStudioService {
     // 4. The REAL control-plane creation + ownership + attestation +
     //    fail-closed private publication, then the engine registration.
     const label =
-      input.label ?? `URL source (${this.#hostOfUrl(input.registration.url) ?? "the operator's url"})`;
+      input.label ??
+      `URL source (${this.#hostOfUrl(input.registration.url) ?? "the operator's url"})`;
     const created = await server.control.createSession({
       authorizationPolicy: attested,
       sourceLabel: label,
