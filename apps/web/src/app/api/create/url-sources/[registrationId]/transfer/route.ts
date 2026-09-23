@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { getSportaServer } from "@/server/runtime";
 import { errorResponse, jsonResponse, readJsonBody } from "@/server/http-errors";
-import { UrlSourceError } from "@/server/url-source-service";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +48,9 @@ export async function POST(
   try {
     const server = await getSportaServer();
     await server.ready;
+    // LAZY import (the build-safety convention — the service's graph reaches
+    // bun:sqlite; route modules evaluate in the Node worker at build time).
+    const { UrlSourceError } = await import("@/server/url-source-service");
     const { registrationId } = await context.params;
     const capability = request.headers.get("x-acquisition-token") ?? "";
     if (capability === "") {
