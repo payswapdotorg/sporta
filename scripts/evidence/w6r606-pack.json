@@ -10,14 +10,32 @@
     "processingRun": {
       "jobId": "mjob-2838ee49c705bded56aaf8ba6b3f81f1",
       "state": "succeeded",
-      "stages": ["created", "upload-complete", "normalization-complete", "artifact-stored", "terminal"],
+      "stages": [
+        "created",
+        "upload-complete",
+        "normalization-complete",
+        "artifact-stored",
+        "terminal"
+      ],
       "swmSnapshotVersion": 14188,
       "swmLastEventSequence": 0
     },
     "renderJobs": [
-      {"jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-1", "rendererId": "tactical.prototype", "state": "succeeded"},
-      {"jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-2", "rendererId": "game-3d.prototype", "state": "succeeded"},
-      {"jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-3", "rendererId": "anime-npr.prototype", "state": "succeeded"}
+      {
+        "jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-1",
+        "rendererId": "tactical.prototype",
+        "state": "succeeded"
+      },
+      {
+        "jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-2",
+        "rendererId": "game-3d.prototype",
+        "state": "succeeded"
+      },
+      {
+        "jobId": "render-job-sess-u-3bc85e0edcc60b1286421076a4eae512-3",
+        "rendererId": "anime-npr.prototype",
+        "state": "succeeded"
+      }
     ]
   },
   "source": {
@@ -36,16 +54,37 @@
         "kind": "file",
         "detail": "vpn-egress-ytdlp-hls (see manifests/session.json transferredVia for the verbatim recorded story)"
       },
-      "egress": {"proxy": "a996d235.acsnet.co:443 (HTTPS, gost)", "exitIp": "169.150.210.53 (Frankfurt DE, Datacamp)", "authenticated": false},
+      "egress": {
+        "proxy": "a996d235.acsnet.co:443 (HTTPS, gost)",
+        "exitIp": "169.150.210.53 (Frankfurt DE, Datacamp)",
+        "authenticated": false
+      },
       "tools": {
         "ytdlp": "2026.08.19 (/home/z/.venv, --js-runtimes node)",
         "potProvider": "bgutil-ytdlp-pot-provider v2.0.0 @ localhost:4416"
       },
       "honestRefusals": [
-        {"attempt": 1, "bytes": "1080p itag270 @118.005s", "refusal": "decode budget 1076198400 > 1073741824"},
-        {"attempt": 2, "bytes": "720p itag232 @118.005s", "refusal": "decode budget 1075507200 > 1073741824"},
-        {"attempt": 3, "bytes": "720p itag232 @104.003s", "refusal": "decode budget 1075507200 > 1073741824"},
-        {"attempt": 4, "bytes": "640x360 itag230 @47.44s (9 segments, media time 57.84s-105.28s)", "refusal": null, "result": "ACQUIRED"}
+        {
+          "attempt": 1,
+          "bytes": "1080p itag270 @118.005s",
+          "refusal": "decode budget 1076198400 > 1073741824"
+        },
+        {
+          "attempt": 2,
+          "bytes": "720p itag232 @118.005s",
+          "refusal": "decode budget 1075507200 > 1073741824"
+        },
+        {
+          "attempt": 3,
+          "bytes": "720p itag232 @104.003s",
+          "refusal": "decode budget 1075507200 > 1073741824"
+        },
+        {
+          "attempt": 4,
+          "bytes": "640x360 itag230 @47.44s (9 segments, media time 57.84s-105.28s)",
+          "refusal": null,
+          "result": "ACQUIRED"
+        }
       ],
       "integrity": {
         "byteSize": 3363717,
@@ -55,19 +94,47 @@
     }
   },
   "artifacts": {
-    "original": {"artifactId": "art-c33ab46c49238e9836a5c7023af7c42a", "producer": "media-platform/normalize 0.1.0", "byteSize": 4739686, "sha256": "fdad717df6e27378a17ea177eff8b7559a268d6fe1f44499efcd50f78a029b26", "durationMs": 47440, "container": "mp4/h264"},
-    "tactical": {"artifactId": "tactical-c7e0023c", "producer": "tactical.prototype 0.1.0", "byteSize": 15330, "sha256": "67e4ee0275b923a8d519b62f26a7e1e9afb517f800d2d67b1491542a8dafafad", "durationMs": 4000, "container": "mp4/avc1.42E01E"},
-    "threeDGame": {"artifactId": "mp4-77e1f9c7a301ba84", "producer": "game-3d.prototype 0.1.0", "byteSize": 288485, "sha256": "77e1f9c7a301ba8419f7c01036a7936c9f969a1bcebd0661e759ea51de7a4b6b", "durationMs": 4000, "container": "mp4/avc1.42E01E"},
-    "animeNpr": {"artifactId": "mp4-05835206aeb99fbe", "producer": "anime-npr.prototype 0.2.0", "byteSize": 503707, "sha256": "05835206aeb99fbe363787f9b4c5fd9dadd0458adabf32674d19c5f5be2d2b0e", "durationMs": 4000, "container": "mp4/avc1.42E01E"}
+    "original": {
+      "artifactId": "art-c33ab46c49238e9836a5c7023af7c42a",
+      "producer": "media-platform/normalize 0.1.0",
+      "byteSize": 4739686,
+      "sha256": "fdad717df6e27378a17ea177eff8b7559a268d6fe1f44499efcd50f78a029b26",
+      "durationMs": 47440,
+      "container": "mp4/h264"
+    },
+    "tactical": {
+      "artifactId": "tactical-c7e0023c",
+      "producer": "tactical.prototype 0.1.0",
+      "byteSize": 15330,
+      "sha256": "67e4ee0275b923a8d519b62f26a7e1e9afb517f800d2d67b1491542a8dafafad",
+      "durationMs": 4000,
+      "container": "mp4/avc1.42E01E"
+    },
+    "threeDGame": {
+      "artifactId": "mp4-77e1f9c7a301ba84",
+      "producer": "game-3d.prototype 0.1.0",
+      "byteSize": 288485,
+      "sha256": "77e1f9c7a301ba8419f7c01036a7936c9f969a1bcebd0661e759ea51de7a4b6b",
+      "durationMs": 4000,
+      "container": "mp4/avc1.42E01E"
+    },
+    "animeNpr": {
+      "artifactId": "mp4-05835206aeb99fbe",
+      "producer": "anime-npr.prototype 0.2.0",
+      "byteSize": 503707,
+      "sha256": "05835206aeb99fbe363787f9b4c5fd9dadd0458adabf32674d19c5f5be2d2b0e",
+      "durationMs": 4000,
+      "container": "mp4/avc1.42E01E"
+    }
   },
   "synchronizedComparison": {
     "capture": "artifact-local t=2000ms of each of the four artifacts (the three derived realities are 4.0s render segments of the SWM snapshot 14188; the original is the full 47.44s normalized excerpt)",
     "sourceMediaTimeBase": "the excerpt covers real-match media time 57.84s-105.28s (pre-match/kickoff window); t=2000ms of the original == real-match ~59.84s",
     "frames": [
-      {"reality": "original", "file": "frames/frame_original_t2000.png"},
-      {"reality": "tactical", "file": "frames/frame_tactical_t2000.png"},
-      {"reality": "three-d-game", "file": "frames/frame_3dgame_t2000.png"},
-      {"reality": "anime-npr", "file": "frames/frame_anime_t2000.png"}
+      { "reality": "original", "file": "frames/frame_original_t2000.png" },
+      { "reality": "tactical", "file": "frames/frame_tactical_t2000.png" },
+      { "reality": "three-d-game", "file": "frames/frame_3dgame_t2000.png" },
+      { "reality": "anime-npr", "file": "frames/frame_anime_t2000.png" }
     ],
     "vlmAssessment": "vlm/vlm-four-realities-assessment.json — verdict: all four plausibly derive from the same pre-match scene (LALIGA broadcast vs schematic/3D/anime renderings of the same state)"
   },
@@ -75,7 +142,12 @@
     "surface": "/watch?session=sess-u-3bc85e0edcc60b1286421076a4eae512",
     "realitySwitcher": "Original/Tactical/3D/Anime all READY · 1 ARTIFACT, switching stays on-page",
     "provenanceInspectable": "artifact id, sha-256 (re-verified per request), stored bytes, producer, compute provenance visible in UI",
-    "screenshots": ["ui/w6r606-watch-original.png", "ui/w6r606-watch-tactical.png", "ui/w6r606-watch-3dgame.png", "ui/w6r606-watch-anime.png"],
+    "screenshots": [
+      "ui/w6r606-watch-original.png",
+      "ui/w6r606-watch-tactical.png",
+      "ui/w6r606-watch-3dgame.png",
+      "ui/w6r606-watch-anime.png"
+    ],
     "consoleErrors": "none",
     "vlmWatchCheck": "vlm/vlm-watch-original-ui.json (real LALIGA frame playing at 0:02/0:47), vlm/vlm-watch-anime-ui.json (anime-styled pitch labeled 'Anime')"
   },
