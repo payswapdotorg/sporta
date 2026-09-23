@@ -86,14 +86,26 @@ Date: 2026-09-22
 
 ## Current final blockers
 
-1. R606 real-source chain: operator assist needed for acquisition of
-   `https://www.youtube.com/watch?v=93LPZJkCW2w` (cookies.txt or file-host
-   URL via the console transfer panel); the ingestion machinery is NOW
-   MERGED @80c87c4 (wave-6 Worker B: url-source registration, the
-   acquisition seam, acquire.py) — the real bytes are the sole remaining
-   input, then the run executes end-to-end (contract frozen in
-   docs/contracts/real-source-provenance.md).
+1. R606 verdict (the bytes are IN — acquisition complete 2026-09-23, see the
+   R606 row): (a) the operator ratifies the VPN-egress third-path acquisition
+   (recorded honestly; contract frozen in
+   docs/contracts/real-source-provenance.md) or supplies cookies.txt for a
+   frozen-path re-run; (b) the human four-realities confirmation per
+   provenance contract §7. The console R606 gate (teal panel) presents both;
+   the frozen-path re-run channel and the dormant re-seed runbook
+   (replay2 scripts/reseed_3101.py) are ready.
 2. R607 public hosted durability / deployment acceptance — behind R606.
+   Deployment freshness recon (2026-09-23 21:52Z, TL): the live production
+   alias https://sporta-flame.vercel.app serves marker `w920-beta-1`
+   (W920-era, 2026-09-16 code @edd0953) — a full week behind current main
+   @aa856c0; Neon identity + controlPlane and R2 artifacts verified
+   configured/ok on the live deployment; api.vercel.com + the public URL are
+   reachable from this sandbox. **The VERCEL_TOKEN is NOT present on the
+   current sandbox instance** (the Sep-20 secrets file holds only
+   GITHUB/COMPOSIO keys; the Sep-16 W920 deploys ran from an earlier
+   environment). R607-A therefore needs the operator to supply the token
+   (operator_inbox.jsonl or an env drop) in the same window as the R606
+   ACCEPT.
 3. L009 authorized live provider feed access if a real external live feed is required.
 4. L015-L017 final live gates.
 5. Real uploaded-session commentary is not yet a general production path.
