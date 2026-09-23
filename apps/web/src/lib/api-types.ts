@@ -515,6 +515,98 @@ export interface StudioComputeDirectiveLike {
   };
 }
 
+// ---------------------------------------------------------------------------
+// W6 Worker B — the URL-source acquisition machine (/api/create/url-sources*)
+// ---------------------------------------------------------------------------
+
+/** The honest acquisition states (the machine's own vocabulary). */
+export type UrlAcquisitionStateLike =
+  | "PENDING_TRANSFER"
+  | "ACQUIRING"
+  | "ACQUIRED"
+  | "FAILED";
+
+/** The seam-measured integrity of the transferred bytes. */
+export interface UrlTransferIntegrityLike {
+  byteSize: number;
+  sha256: string;
+  recordedAtMs: number;
+}
+
+/** The registration's honest acquisition record (verbatim fields). */
+export interface UrlAcquisitionLike {
+  state: UrlAcquisitionStateLike;
+  method: string;
+  failureReason: string | null;
+  attempts: {
+    startedAtMs: number;
+    finishedAtMs: number | null;
+    kind: string;
+    outcome: string;
+    detail: string | null;
+  }[];
+  integrity: UrlTransferIntegrityLike | null;
+  transferredVia: { kind: string; detail: string } | null;
+}
+
+/** The registration's oEmbed record (public metadata or honest absence). */
+export interface UrlOEmbedRecordLike {
+  fetchedAtMs: number;
+  title: string | null;
+  authorName: string | null;
+  thumbnailUrl: string | null;
+  providerName: string | null;
+  unavailableReason: string | null;
+}
+
+/** One URL-source registration (the owner's view). */
+export interface UrlSourceRegistrationLike {
+  registrationId: string;
+  /** The operator's source URL, VERBATIM. */
+  url: string;
+  oEmbed: UrlOEmbedRecordLike;
+  declaration: { operations: string[] } & Record<string, unknown>;
+  acquisition: UrlAcquisitionLike;
+  sessionId: string | null;
+  assetId: string | null;
+  /** The ONE-TIME capability (present only in the registration answer). */
+  acquisitionCapability?: string | null;
+  createdAtMs: number;
+  updatedAtMs: number;
+}
+
+/** The oEmbed preview answer (public metadata, or the honest absence). */
+export type UrlOEmbedPreviewLike =
+  | {
+      available: true;
+      metadata: {
+        title: string;
+        authorName: string | null;
+        thumbnailUrl: string | null;
+        providerName: string | null;
+      };
+    }
+  | { available: false; reason: string };
+
+/** The URL-source session's COMBINED source truth (session state read). */
+export interface StudioUrlSourceStateLike {
+  registration: {
+    registrationId: string;
+    url: string;
+    acquisition: {
+      state: UrlAcquisitionStateLike;
+      method: string;
+      failureReason: string | null;
+      integrity: UrlTransferIntegrityLike | null;
+      transferredVia: { kind: string; detail: string } | null;
+      attemptCount: number;
+    };
+  };
+  asset: StudioUploadSourceLike["asset"];
+  job: MediaJobLike | null;
+  artifact: StudioUploadSourceLike["artifact"];
+}
+
 /** One considered provider in the auditable selection explanation. */
 export interface SelectionConsideredLike {
   providerId: string;
@@ -577,9 +669,15 @@ export interface StudioSessionStateLike {
    * The session's SOURCE state (R501): the fixture key the engine chain
    * ran, or the uploaded clip's durable R101 records (asset + media job +
    * stored artifact — the persistent source state a fresh browser sees
-   * after refresh), or `null` when no source is recorded.
+   * after refresh), or the URL-source session's COMBINED truth (W6 Worker
+   * B: the registration's acquisition record + the same R101 records),
+   * or `null` when no source is recorded.
    */
-  source: { kind: "fixture"; key: string } | ({ kind: "upload" } & StudioUploadSourceLike) | null;
+  source:
+    | { kind: "fixture"; key: string }
+    | ({ kind: "upload" } & StudioUploadSourceLike)
+    | ({ kind: "url" } & StudioUrlSourceStateLike)
+    | null;
   renders: {
     renderId: string;
     rendererId: string;

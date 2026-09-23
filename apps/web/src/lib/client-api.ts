@@ -43,6 +43,8 @@ import type {
   StudioSessionLike,
   StudioSessionStateLike,
   StudioUploadSessionLike,
+  UrlOEmbedPreviewLike,
+  UrlSourceRegistrationLike,
   WatchModelLike,
   RightsAuditTrailLike,
   AnalystMarkerLike,
@@ -316,6 +318,53 @@ export function computeSelectionPreview(input: {
   compute: StudioComputeDirectiveLike;
 }): Promise<StudioComputeSelectionLike> {
   return postJson<StudioComputeSelectionLike>("/api/create/compute-preview", input);
+}
+
+// -------------------------------------------------------------------------
+// W6 Worker B — the URL-source acquisition machine's client seams
+// -------------------------------------------------------------------------
+
+/**
+ * POST /api/create/url-source-oembed-preview — the URL mode's pre-
+ * registration lookup: the host's PUBLIC oEmbed metadata, or the HONEST
+ * reason it is absent (never a fabricated title).
+ */
+export function previewUrlOEmbed(input: { url: string }): Promise<UrlOEmbedPreviewLike> {
+  return postJson<UrlOEmbedPreviewLike>("/api/create/url-source-oembed-preview", input);
+}
+
+/**
+ * POST /api/create/url-sources — register the URL source: the exact URL +
+ * the SAME rights declaration vocabulary the upload path uses. The answer
+ * carries the registration (born PENDING_TRANSFER) + the ONE-TIME
+ * acquisition capability the operator hands to the acquisition machine.
+ */
+export function registerUrlSource(input: {
+  url: string;
+  operations: string[];
+  expiresAtIso?: string | null;
+  storageDurationDays?: number;
+  sharingScope?: string;
+  realities?: string[];
+  compute?: StudioComputeDirectiveLike;
+  styleId?: string;
+}): Promise<UrlSourceRegistrationLike> {
+  return postJson<UrlSourceRegistrationLike>("/api/create/url-sources", input);
+}
+
+/** GET /api/create/url-sources/[id] — the owner's registration poll. */
+export function fetchUrlSource(registrationId: string): Promise<UrlSourceRegistrationLike> {
+  return getJson<UrlSourceRegistrationLike>(
+    `/api/create/url-sources/${encodeURIComponent(registrationId)}`,
+  );
+}
+
+/** GET /api/create/url-sources — the caller's registrations. */
+export async function fetchUrlSources(): Promise<UrlSourceRegistrationLike[]> {
+  const body = await getJson<{ registrations: UrlSourceRegistrationLike[] }>(
+    "/api/create/url-sources",
+  );
+  return body.registrations;
 }
 
 /**

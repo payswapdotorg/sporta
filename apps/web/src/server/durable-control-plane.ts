@@ -109,7 +109,9 @@ import {
   studioSourceSpec,
   STUDIO_UPLOAD_DECODE_BUDGET_BYTES,
   STUDIO_UPLOAD_SOURCE_PREFIX,
+  STUDIO_URL_SOURCE_PREFIX,
 } from "./create-studio-service";
+import type { UrlSourceStore } from "./url-source-service";
 import { runFixtureStory } from "./dev-story";
 import type { R2RenderOutputStore } from "./platform/r2/r2-store";
 
@@ -171,6 +173,16 @@ export interface DurableControlPlaneOptions {
    * passes it).
    */
   media: { service: MediaPlatformService; storage: MediaStoragePort };
+  /**
+   * The URL-source registration store (W6 Worker B): `urlsrc:`-keyed
+   * sessions are reconstructed by resolving the recorded registration
+   * (its ACQUIRED acquisition state + its recorded asset id) through THIS
+   * store, then re-running the same R207 replay over the stored bytes.
+   * The composition always passes it (the honest in-memory fallback under
+   * the bundled Node runtime means url-source sessions simply do not
+   * reconstruct there — fail-loud, never a silently fresh engine).
+   */
+  urlSources: { store: UrlSourceStore };
   /**
    * The record store's provider name (health surfaces): `"neon"` for the
    * PostgreSQL adapter, `"in-memory"` for the hermetic store. Defaults to
@@ -263,6 +275,7 @@ export function createDurableControlPlane(
     pipeline,
     artifacts,
     media,
+    urlSources,
     provider = "in-memory",
     nowMs,
   } = options;
@@ -426,6 +439,8 @@ export function createDurableControlPlane(
     let story: SeedStoryMeta | null = null;
     if (record.sourceKey.startsWith(STUDIO_UPLOAD_SOURCE_PREFIX)) {
       engine = await reconstructUploadEngine(record);
+    } else if (record.sourceKey.startsWith(STUDIO_URL_SOURCE_PREFIX)) {
+      engine = await reconstructUrlSourceEngine(record);
     } else {
       const spec = studioSourceSpec(record.sourceKey);
       if (spec === null) {
@@ -546,6 +561,121 @@ export function createDurableControlPlane(
       throw new ControlReconstructionError(
         record.sessionId,
         `durable control plane: the real-to-SWM replay of upload source '${assetId}' ` +
+          `failed (session '${record.sessionId}'): ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+      );
+    }
+  }
+
+  /**
+   * The URL-source engine reconstruction (W6 Worker B): resolve the
+   * recorded registration through the URL-source store (`urlsrc:<id>`),
+   * require its ACQUIRED acquisition state (a pending/failed/lost
+   * registration cannot reconstruct — fail-loud, never a silently fresh
+   * engine), then re-run the SAME R207 replay the upload path uses over
+   * the registration's RECORDED source asset bytes (hash-verified against
+   * the asset's own content hash — and cross-checked against the
+   * seam-measured integrity when the registration carries one). The
+   * provenance mirrors the creation path's (the registration id + the
+   * asset's content hash, with the acquisition-seam normalization note).
+   */
+  async function reconstructUrlSourceEngine(
+    record: ControlSessionRecord,
+  ): Promise<WorldModelEngineInstance> {
+    const registrationId = record.sourceKey.slice(STUDIO_URL_SOURCE_PREFIX.length);
+    const registration = await urlSources.store.find(registrationId);
+    if (registration === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: session '${record.sessionId}' records url source ` +
+          `'${record.sourceKey}' but the url-source store has no such registration ` +
+          "(cannot reconstruct — the registration records ARE the acquisition truth)",
+      );
+    }
+    if (registration.acquisition.state !== "ACQUIRED" || registration.assetId === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: url-source registration '${registrationId}' is ` +
+          `'${registration.acquisition.state}' (not ACQUIRED) or records no source asset — ` +
+          `session '${record.sessionId}' cannot reconstruct (the real transfer is the only ` +
+          "reconstruction input — never a substitute)",
+      );
+    }
+    if (registration.sessionId !== record.sessionId) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: url-source registration '${registrationId}' is joined to ` +
+          `session '${String(registration.sessionId)}' but the durable record says ` +
+          `'${record.sessionId}' (join drift — cannot reconstruct)`,
+      );
+    }
+    const assetId = registration.assetId;
+    const asset = media.service.asset(assetId);
+    if (asset === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: session '${record.sessionId}' records url source ` +
+          `'${record.sourceKey}' but the media store has no such source asset (cannot reconstruct)`,
+      );
+    }
+    const storedBytes = await media.storage.get(sourceAssetKey(assetId));
+    if (storedBytes === null) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the stored bytes of url source '${assetId}' are ` +
+          `unreadable (session '${record.sessionId}' cannot reconstruct)`,
+      );
+    }
+    const verified = await media.storage.verify(sourceAssetKey(assetId), asset.contentHash);
+    if (verified !== asset.contentHash) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the stored bytes of url source '${assetId}' failed ` +
+          `hash verification (session '${record.sessionId}' cannot reconstruct)`,
+      );
+    }
+    // The seam-measured integrity (when the registration carries one) must
+    // still match the stored bytes — the reconstruction cross-checks the
+    // acquisition record against the media records (both must agree).
+    const integrity = registration.acquisition.integrity;
+    if (integrity !== null && integrity.sha256 !== asset.contentHash) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: url-source registration '${registrationId}' records integrity ` +
+          `'${integrity.sha256.slice(0, 12)}…' but the stored asset hashes ` +
+          `'${asset.contentHash.slice(0, 12)}…' (acquisition-record drift — session ` +
+          `'${record.sessionId}' cannot reconstruct)`,
+      );
+    }
+    const source: ClipSource = {
+      provenance: {
+        clipId: registrationId,
+        sourceSha256: asset.contentHash,
+        normalizationNote:
+          "operator URL-source transfer through the acquisition seam (durable reconstruction re-run)",
+      },
+      bytes: storedBytes,
+      authorizationPolicy: record.rightsDeclaration,
+    };
+    try {
+      const pipeline = new RealToSwmPipeline();
+      const result = await pipeline.run({
+        source,
+        config: {
+          sessionId: record.sessionId,
+          // The same deliberate decode bound the studio's creation path
+          // declared (see create-studio-service.ts) — a recorded decision,
+          // never a default.
+          decode: { maxTotalBytes: STUDIO_UPLOAD_DECODE_BUDGET_BYTES },
+          nowMs: 0,
+        },
+      });
+      return result.engine;
+    } catch (err) {
+      throw new ControlReconstructionError(
+        record.sessionId,
+        `durable control plane: the real-to-SWM replay of url source '${registrationId}' ` +
           `failed (session '${record.sessionId}'): ${
             err instanceof Error ? err.message : String(err)
           }`,

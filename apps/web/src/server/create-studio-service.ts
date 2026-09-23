@@ -110,6 +110,16 @@ function randomHexId(prefix: string): string {
 export const STUDIO_UPLOAD_SOURCE_PREFIX = "upload:";
 
 /**
+ * The durable source-key prefix of a URL-SOURCE studio session (W6 Worker
+ * B): `"urlsrc:" + <the registration id>`. The registration id is the
+ * honest join — the durable layer reconstructs the session's engine by
+ * resolving the registration (its ACQUIRED acquisition state + its
+ * recorded asset) and re-running the real-to-SWM pipeline over the STORED
+ * source bytes, exactly like the upload path's `upload:<assetId>` join.
+ */
+export const STUDIO_URL_SOURCE_PREFIX = "urlsrc:";
+
+/**
  * The real-to-SWM pipeline's DELIBERATE decode budget for studio uploads
  * (R501 — a recorded decision, never a default): the same 1 GiB bound the
  * R208 replay-determinism gate declares over the 250-frame reference clip.
@@ -319,6 +329,33 @@ export interface StudioUploadSourceState {
   artifact: { artifactId: string; contentHash: string; reality: string } | null;
 }
 
+/**
+ * The URL-source session's COMBINED truth (W6 Worker B): the registration's
+ * honest acquisition record (the URL verbatim, the state machine, the
+ * seam-measured integrity) JOINED with the same durable R101 records the
+ * upload path serves (asset + media job + stored artifact). The Library
+ * and the studio's session read show BOTH — the operator's declared
+ * source AND the machine's real transfer — never one hiding the other.
+ */
+export interface StudioUrlSourceState {
+  registration: {
+    registrationId: string;
+    /** The operator's source URL, VERBATIM. */
+    url: string;
+    acquisition: {
+      state: "PENDING_TRANSFER" | "ACQUIRING" | "ACQUIRED" | "FAILED";
+      method: string;
+      failureReason: string | null;
+      integrity: { byteSize: number; sha256: string; recordedAtMs: number } | null;
+      transferredVia: { kind: string; detail: string } | null;
+      attemptCount: number;
+    };
+  };
+  asset: StudioUploadSourceState["asset"];
+  job: MediaJobView | null;
+  artifact: StudioUploadSourceState["artifact"];
+}
+
 /** The honest summary of the R207 real-to-SWM run over an uploaded clip. */
 export interface StudioUploadPerceptionSummary {
   frameCount: number;
@@ -362,6 +399,62 @@ export const DERIVED_REALITY_SELECTION_KINDS: readonly StudioDerivedRealityKind[
   "anime-npr",
 ]);
 
+/**
+ * The shared declaration parser (the upload path's own vocabulary, now also
+ * the URL-source path's — W6 Worker B): validates the operations against
+ * the closed {@link RIGHTS_OPERATIONS} vocabulary, the expiry timestamp,
+ * the storage duration, and the sharing scope, and builds the
+ * PRE-ATTESTATION policy (`assertedBy` is a placeholder the caller's gate
+ * overwrites with the verified account id). The URL-source service uses
+ * the SAME parser for its registration validation and its ingestion-time
+ * re-derivation — one rights vocabulary, never a parallel one.
+ */
+export function studioDeclarationPolicy(
+  declaration: RightsDeclarationInput,
+  policyId: string,
+): AuthorizationPolicy {
+  const operations = [...new Set(declaration.operations)];
+  const known: AllowedOperation[] = [];
+  for (const operation of operations) {
+    const found = RIGHTS_OPERATIONS.find((entry) => entry.id === operation);
+    if (found === undefined) {
+      throw new IdentityValidationError(`unknown allowed operation '${String(operation)}'`);
+    }
+    known.push(found.id);
+  }
+  if (known.length === 0) {
+    throw new IdentityValidationError("a rights declaration needs at least one allowed operation");
+  }
+  if (
+    declaration.expiresAtIso !== undefined &&
+    Number.isNaN(Date.parse(declaration.expiresAtIso))
+  ) {
+    throw new IdentityValidationError("expiresAtIso must be an ISO-8601 timestamp");
+  }
+  if (
+    declaration.storageDurationDays !== undefined &&
+    (!Number.isInteger(declaration.storageDurationDays) || declaration.storageDurationDays < 0)
+  ) {
+    throw new IdentityValidationError("storageDurationDays must be a non-negative integer");
+  }
+  const scope = declaration.sharingScope;
+  if (scope !== undefined && scope !== "private" && scope !== "operator-authorized") {
+    throw new IdentityValidationError("sharingScope must be 'private' or 'operator-authorized'");
+  }
+  return {
+    policyId,
+    allowedOperations: known,
+    // Pre-attestation placeholder — the identity gate overwrites this with
+    // the VERIFIED account id before the control plane ever sees it.
+    assertedBy: "create-studio-declaration",
+    ...(declaration.expiresAtIso !== undefined ? { expiresAtIso: declaration.expiresAtIso } : {}),
+    ...(declaration.storageDurationDays !== undefined
+      ? { storageDurationDays: declaration.storageDurationDays }
+      : {}),
+    ...(scope !== undefined ? { sharingScope: scope } : {}),
+  };
+}
+
 /** One reality's entry in the ONE-submission render plan (J004). */
 export interface StudioRealityPlanEntry {
   /** The selected derived reality kind (never "original"). */
@@ -404,10 +497,16 @@ export interface StudioSessionState {
    * The session's SOURCE state (R501, additive): the fixture key the engine
    * chain ran, or the uploaded clip's durable R101 records (asset + media
    * job + stored artifact — the persistent source state a fresh browser
-   * sees after refresh), or `null` when no source is recorded for the
-   * session on this instance. Derived from the REAL stores only.
+   * sees after refresh), or the URL-source session's COMBINED truth (W6
+   * Worker B: the registration's acquisition record + the same R101
+   * records), or `null` when no source is recorded for the session on
+   * this instance. Derived from the REAL stores only.
    */
-  source: { kind: "fixture"; key: string } | ({ kind: "upload" } & StudioUploadSourceState) | null;
+  source:
+    | { kind: "fixture"; key: string }
+    | ({ kind: "upload" } & StudioUploadSourceState)
+    | ({ kind: "url" } & StudioUrlSourceState)
+    | null;
   renders: {
     renderId: string;
     rendererId: string;
@@ -963,48 +1062,7 @@ export class CreateStudioService {
 
   /** Parses a caller declaration into a policy (throws on shape errors). */
   private policyFrom(declaration: RightsDeclarationInput, policyId: string): AuthorizationPolicy {
-    const operations = [...new Set(declaration.operations)];
-    const known: AllowedOperation[] = [];
-    for (const operation of operations) {
-      const found = RIGHTS_OPERATIONS.find((entry) => entry.id === operation);
-      if (found === undefined) {
-        throw new IdentityValidationError(`unknown allowed operation '${String(operation)}'`);
-      }
-      known.push(found.id);
-    }
-    if (known.length === 0) {
-      throw new IdentityValidationError(
-        "a rights declaration needs at least one allowed operation",
-      );
-    }
-    if (
-      declaration.expiresAtIso !== undefined &&
-      Number.isNaN(Date.parse(declaration.expiresAtIso))
-    ) {
-      throw new IdentityValidationError("expiresAtIso must be an ISO-8601 timestamp");
-    }
-    if (
-      declaration.storageDurationDays !== undefined &&
-      (!Number.isInteger(declaration.storageDurationDays) || declaration.storageDurationDays < 0)
-    ) {
-      throw new IdentityValidationError("storageDurationDays must be a non-negative integer");
-    }
-    const scope = declaration.sharingScope;
-    if (scope !== undefined && scope !== "private" && scope !== "operator-authorized") {
-      throw new IdentityValidationError("sharingScope must be 'private' or 'operator-authorized'");
-    }
-    return {
-      policyId,
-      allowedOperations: known,
-      // Pre-attestation placeholder — the identity gate overwrites this with
-      // the VERIFIED account id before the control plane ever sees it.
-      assertedBy: "create-studio-declaration",
-      ...(declaration.expiresAtIso !== undefined ? { expiresAtIso: declaration.expiresAtIso } : {}),
-      ...(declaration.storageDurationDays !== undefined
-        ? { storageDurationDays: declaration.storageDurationDays }
-        : {}),
-      ...(scope !== undefined ? { sharingScope: scope } : {}),
-    };
+    return studioDeclarationPolicy(declaration, policyId);
   }
 
   /** Derives what a declaration really permits (fail-closed, from contracts). */
@@ -1430,6 +1488,285 @@ export class CreateStudioService {
   }
 
   // -----------------------------------------------------------------------
+  // W6 Worker B — the URL-source session creation (THE SEAM's target)
+  // -----------------------------------------------------------------------
+
+  /**
+   * Creates a URL-SOURCE studio session: the EXACT upload-path sequence
+   * (`createUploadSession`'s own steps, in its own order, through its own
+   * vocabulary) over the OPERATOR'S TRANSFERRED BYTES — never a parallel
+   * ingestion path. The acting principal is the registration's VERIFIED
+   * OWNER (resolved by user id — the acquisition capability proved the
+   * machine was authorized by that account; the gate-equivalent sequence
+   * below re-runs the same grant check + policy attestation the upload
+   * path runs).
+   *
+   * Called ONLY by the URL-source service's transfer seam
+   * (`ingestTransferredSource`) after it re-derived the rights posture and
+   * measured the transferred bytes' integrity. Every refusal propagates
+   * typed (the R101 boundary's own classes) — the seam records the honest
+   * FAILED state on top.
+   */
+  async createUrlSourceSession(input: {
+    /** The registration's verified owner (the capability-authorized principal). */
+    principal: { userId: string };
+    registration: {
+      registrationId: string;
+      url: string;
+      declaration: RightsDeclarationInput;
+    };
+    bytes: Uint8Array;
+    label?: string;
+    realities?: readonly string[];
+    compute?: StudioComputeDirective;
+    styleId?: string;
+  }): Promise<StudioUploadSessionView> {
+    const server = this.getServer();
+
+    // 1. The gate's exact attestation sequence, principal-resolved: the
+    //    account must exist (fail-closed — a deleted account's registration
+    //    cannot ingest), the grant must allow media-session creation, the
+    //    declared policy is re-attested to the VERIFIED account id.
+    const account = await server.accounts.findByUserId(input.principal.userId);
+    if (account === null) {
+      throw new IdentityValidationError(
+        `the registration's owner account '${input.principal.userId}' no longer exists — ` +
+          "the transfer cannot be ingested (fail-closed)",
+      );
+    }
+    const decision = authorize(account, "media-session.create");
+    if (!decision.allowed) {
+      throw new IdentityPermissionDeniedError(
+        "media session creation requires a creator, rights-holder, or operator grant",
+        { action: "media-session.create" },
+      );
+    }
+    this.policySeq += 1;
+    const policy = this.policyFrom(
+      input.registration.declaration,
+      `policy-create-studio-url-${input.registration.registrationId}-${this.nowMs()}-${this.policySeq}`,
+    );
+    const capabilities = deriveRightsCapabilities(policy, new Date(this.nowMs()));
+    if (!capabilities.canReferenceSourceFrames) {
+      throw new IdentityValidationError(
+        "a url-source session requires a declaration that allows transformation " +
+          "(the media pipeline references source frames — fail-closed)",
+      );
+    }
+    const attested: AuthorizationPolicy = { ...policy, assertedBy: account.userId };
+
+    // 1b. J004: the same plan validation the upload path runs (the plan's
+    //     selections were validated at registration too; this re-checks).
+    let planKinds: StudioDerivedRealityKind[] | undefined;
+    if (input.realities !== undefined) {
+      const seen = new Set<string>();
+      for (const raw of input.realities) {
+        if (raw === "original") {
+          throw new IdentityValidationError(
+            "'original' is not a reality selection — the admitted media job always produces " +
+              "the original-reality artifact (select only derived realities: tactical, three-d-game, anime-npr)",
+          );
+        }
+        if (!(DERIVED_REALITY_SELECTION_KINDS as readonly string[]).includes(raw)) {
+          throw new IdentityValidationError(
+            `unknown derived reality '${String(raw)}' (the plan selects from: ${DERIVED_REALITY_SELECTION_KINDS.join(", ")})`,
+          );
+        }
+        seen.add(raw);
+      }
+      planKinds = DERIVED_REALITY_SELECTION_KINDS.filter((kind) => seen.has(kind));
+    }
+
+    // 2. The R101 constraint pre-check — the upload path's own constants +
+    //    sniffer (the definitive gate is step 5's media.upload).
+    const { UploadRejectedError } = await import("@sporta/media-platform");
+    if (input.bytes.byteLength === 0) {
+      throw new UploadRejectedError("size-empty", "the transfer carries no bytes", "media-invalid", {
+        byteSize: 0,
+      });
+    }
+    if (input.bytes.byteLength > UPLOAD_CONSTRAINTS.maxBytes) {
+      throw new UploadRejectedError(
+        "size-over-limit",
+        `the transfer measures ${input.bytes.byteLength} bytes, over the ${UPLOAD_CONSTRAINTS.maxBytes} byte bound`,
+        "resource-limit",
+        { byteSize: input.bytes.byteLength, maxBytes: UPLOAD_CONSTRAINTS.maxBytes },
+      );
+    }
+    const sniffed = sniffContainer(input.bytes);
+    if (sniffed.container !== UPLOAD_CONSTRAINTS.container) {
+      throw new UploadRejectedError(
+        "container-not-mp4",
+        `the transfer's container is '${sniffed.container}' (magic-byte sniffed), only 'mp4' is accepted`,
+        "media-invalid",
+        { sniffed: sniffed.container, detectedBy: sniffed.detectedBy },
+      );
+    }
+
+    // 3. The REAL R207 pipeline over the TRANSFERRED bytes — the session's
+    //    world model is derived from the OPERATOR'S REAL SOURCE (the URL
+    //    provenance rides the clip: the registration id + the content hash).
+    const sessionId = randomHexId("sess-u");
+    const contentSha256 = sha256OfBytes(input.bytes);
+    const clip: ClipSource = {
+      provenance: {
+        clipId: `urlsrc-${contentSha256.slice(0, 12)}`,
+        sourceSha256: contentSha256,
+        normalizationNote:
+          `operator URL-source transfer through the acquisition seam (registration ${input.registration.registrationId})`,
+      },
+      bytes: input.bytes,
+      authorizationPolicy: attested,
+      ...(this.#filenameOfUrl(input.registration.url) !== null
+        ? { filename: this.#filenameOfUrl(input.registration.url)! }
+        : {}),
+    };
+    const pipeline = new RealToSwmPipeline();
+    const run = await pipeline.run({
+      source: clip,
+      config: {
+        sessionId,
+        decode: { maxTotalBytes: STUDIO_UPLOAD_DECODE_BUDGET_BYTES },
+        nowMs: 0,
+      },
+    });
+
+    // 4. The REAL control-plane creation + ownership + attestation +
+    //    fail-closed private publication, then the engine registration.
+    const label =
+      input.label ?? `URL source (${this.#hostOfUrl(input.registration.url) ?? "the operator's url"})`;
+    const created = await server.control.createSession({
+      authorizationPolicy: attested,
+      sourceLabel: label,
+      sessionId,
+    });
+    await server.ownership.record(sessionId, account.userId);
+    this.attestations.record(sessionId, account.userId);
+    this.engines.set(sessionId, run.engine);
+    this.publication.set(sessionId, "private");
+
+    // 5. The REAL R101 boundary (the definitive constraint gate): durable
+    //    hash-verified SourceAsset + the admitted media job — VERBATIM the
+    //    upload path's call, over the transferred bytes.
+    const outcome = await server.media.upload({
+      bytes: input.bytes,
+      sessionId,
+      declaredRightsPolicyId: attested.policyId,
+      ...(this.#filenameOfUrl(input.registration.url) !== null
+        ? { filename: this.#filenameOfUrl(input.registration.url)! }
+        : {}),
+    });
+    this.uploadBySession.set(sessionId, {
+      assetId: outcome.asset.assetId,
+      jobId: outcome.job.jobId,
+    });
+
+    // 6. W921 write-through (fail-loud). The source key carries the
+    //    REGISTRATION id — the durable layer's reconstruction join.
+    if (server.durable !== null) {
+      await server.durable.noteSessionCreated({
+        sessionId,
+        ownerUserId: account.userId,
+        sourceKey: `${STUDIO_URL_SOURCE_PREFIX}${input.registration.registrationId}`,
+        label,
+        rightsDeclaration: attested,
+        visibility: { kind: "private", roles: [] },
+        status: created.session.status,
+        publishedAtMs: null,
+        createdAtIso: created.session.createdAtIso,
+        updatedAtMs: this.nowMs(),
+      });
+    }
+
+    // 7. J004 — the ONE-submission multi-reality plan (the registration's
+    //    recorded plan parameters, replayed exactly like the upload path).
+    let renderPlan: StudioRenderPlan | undefined;
+    if (planKinds !== undefined) {
+      renderPlan = await this.dispatchRealityPlan({
+        token: await this.#sessionTokenFor(account.userId),
+        sessionId,
+        mediaJobId: outcome.job.jobId,
+        kinds: planKinds,
+        ...(input.styleId !== undefined && input.styleId.length > 0
+          ? { styleId: input.styleId }
+          : {}),
+        ...(input.compute !== undefined ? { compute: input.compute } : {}),
+      });
+    }
+    const settledMediaJob =
+      renderPlan !== undefined ? server.media.jobView(outcome.job.jobId) : null;
+
+    return {
+      sessionId,
+      label,
+      rightsCapabilities: created.rightsCapabilities,
+      visibility: "private",
+      source: {
+        asset: {
+          assetId: outcome.asset.assetId,
+          contentHash: outcome.asset.contentHash,
+          byteSize: outcome.asset.byteSize,
+          container: outcome.asset.container,
+          durationMs: outcome.asset.durationMs,
+          uploadState: outcome.asset.uploadState,
+          checksumVerified: outcome.asset.checksumVerified,
+          declaredRightsPolicyId: outcome.asset.declaredRightsPolicyId,
+        },
+        job: settledMediaJob ?? outcome.job,
+        artifact: null,
+      },
+      perception: {
+        frameCount: run.clip.frameCount,
+        snapshotCount: run.snapshots.length,
+        eventCount: run.events.length,
+        degradationCount: run.ledger.totalEntries,
+        summary:
+          run.ledger.summary.length === 0
+            ? `no degradations across ${run.ledger.stages.length} pipeline stage(s)`
+            : `${run.ledger.totalEntries} recorded degradation(s) across ${run.ledger.stages.length} pipeline stage(s): ${run.ledger.summary
+                .map((entry) => `${entry.kind}×${entry.count}`)
+                .join(", ")}`,
+      },
+      ...(renderPlan !== undefined ? { renderPlan } : {}),
+    };
+  }
+
+  /** The URL's hostname (label provenance — never a fabricated title). */
+  #hostOfUrl(url: string): string | null {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return null;
+    }
+  }
+
+  /** The URL's last path segment (a stable filename for the R101 record). */
+  #filenameOfUrl(url: string): string | null {
+    try {
+      const parsed = new URL(url);
+      const segments = parsed.pathname.split("/").filter((entry) => entry.length > 0);
+      if (segments.length === 0) return null;
+      const last = segments[segments.length - 1] ?? null;
+      return last === null ? null : `${last}.mp4`;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * The dispatch plan's token need: `dispatchRealityPlan` →
+   * `dispatchRender` re-authenticates through the identity gate. The
+   * machine's principal holds no session token, so the plan's dispatches
+   * ride a REAL session token issued to the VERIFIED owner account
+   * (the same account the policy was attested to — no second identity).
+   */
+  async #sessionTokenFor(userId: string): Promise<string> {
+    const server = this.getServer();
+    const issued = await server.auth.issueSession({ userId });
+    return issued.token;
+  }
+
+  // -----------------------------------------------------------------------
   // J004 — the ONE-submission multi-reality render plan
   // -----------------------------------------------------------------------
 
@@ -1632,6 +1969,55 @@ export class CreateStudioService {
     };
   }
 
+  /**
+   * Resolves one session's URL-source COMBINED truth (W6 Worker B): the
+   * registration joined to the session (the URL-source service's own
+   * store read — the session→registration join is the registration's
+   * recorded `sessionId`, written ONLY by the transfer seam) plus the
+   * same durable R101 records the upload read serves. `null` when the
+   * session has no URL-source registration (never invented).
+   */
+  private async urlSourceOf(sessionId: string): Promise<StudioUrlSourceState | null> {
+    const server = this.getServer();
+    const registration = await server.urlSources.registrationOfSession(sessionId);
+    if (registration === null) return null;
+    const upload = await this.uploadSourceOf(sessionId);
+    const integrity = registration.acquisition.integrity;
+    return {
+      registration: {
+        registrationId: registration.registrationId,
+        url: registration.url,
+        acquisition: {
+          state: registration.acquisition.state,
+          method: registration.acquisition.method,
+          failureReason: registration.acquisition.failureReason,
+          integrity:
+            integrity === null
+              ? null
+              : {
+                  byteSize: integrity.byteSize,
+                  sha256: integrity.sha256,
+                  recordedAtMs: integrity.recordedAtMs,
+                },
+          transferredVia: registration.acquisition.transferredVia,
+          attemptCount: registration.acquisition.attempts.length,
+        },
+      },
+      asset: {
+        assetId: upload?.asset.assetId ?? registration.assetId ?? "",
+        contentHash: upload?.asset.contentHash ?? "",
+        byteSize: upload?.asset.byteSize ?? integrity?.byteSize ?? 0,
+        container: upload?.asset.container ?? "mp4",
+        durationMs: upload?.asset.durationMs ?? 0,
+        uploadState: upload?.asset.uploadState ?? "stored",
+        checksumVerified: upload?.asset.checksumVerified ?? true,
+        declaredRightsPolicyId: upload?.asset.declaredRightsPolicyId ?? "",
+      },
+      job: upload?.job ?? null,
+      artifact: upload?.artifact ?? null,
+    };
+  }
+
   // -----------------------------------------------------------------------
   // Session state / render dispatch / job polling / publication
   // -----------------------------------------------------------------------
@@ -1683,14 +2069,20 @@ export class CreateStudioService {
     // R501: the session's source state — the upload's durable R101 records
     // (asset + media job + artifact) or the fixture key the engine chain
     // ran; `null` when neither resolves on this instance (never invented).
-    const uploadSource = await this.uploadSourceOf(sessionId);
+    // W6 Worker B: a URL-source session answers its COMBINED truth — the
+    // registration's acquisition record JOINED with the same R101 records
+    // (the URL verbatim + the real transfer, both visible).
+    const urlSource = await this.urlSourceOf(sessionId);
+    const uploadSource = urlSource === null ? await this.uploadSourceOf(sessionId) : null;
     const storyKey = this.storyIndex.get(sessionId)?.storyKey ?? null;
     const source: StudioSessionState["source"] =
-      uploadSource !== null
-        ? { kind: "upload", ...uploadSource }
-        : storyKey !== null
-          ? { kind: "fixture", key: storyKey }
-          : null;
+      urlSource !== null
+        ? { kind: "url", ...urlSource }
+        : uploadSource !== null
+          ? { kind: "upload", ...uploadSource }
+          : storyKey !== null
+            ? { kind: "fixture", key: storyKey }
+            : null;
     return {
       sessionId,
       label,

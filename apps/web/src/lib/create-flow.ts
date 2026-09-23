@@ -146,8 +146,10 @@ export function rendererDispatchabilityOf(renderer: StudioOptionsLike["renderers
 // The flow's local draft (what the UI carries between steps)
 // ---------------------------------------------------------------------------
 
-/** Which real source path the flow runs (R501): a browser upload or the fixture library. */
-export type CreateSourceKind = "upload" | "fixture";
+/** Which real source path the flow runs (R501 + W6 Worker B): a browser
+ * upload, the fixture library, or the operator's URL source (the
+ * real-source acquisition machine). */
+export type CreateSourceKind = "upload" | "fixture" | "url";
 
 /** The derived reality kinds the ONE-submission plan can select (J004). */
 export type DerivedRealitySelection = "tactical" | "three-d-game" | "anime-npr";
@@ -175,12 +177,15 @@ export function realityOffered(
 
 /** Everything the guided flow collected before submission. */
 export interface CreateDraft {
-  /** The source path (R501): a real browser upload or the fixture library. */
+  /** The source path (R501 + W6 Worker B): a real browser upload, the fixture
+   * library, or the operator's URL source. */
   sourceKind: CreateSourceKind;
   /** The picked upload file (upload path; held client-side until submission). */
   file: File | null;
   /** The fixture source key (fixture path). */
   sourceKey: string | null;
+  /** The pasted source URL (url path — the EXACT location, verbatim). */
+  sourceUrl: string | null;
   operations: string[];
   expiresAtIso: string | null;
   sharingScope: "private" | "operator-authorized";
@@ -206,6 +211,7 @@ export function emptyDraft(): CreateDraft {
     sourceKind: "upload",
     file: null,
     sourceKey: null,
+    sourceUrl: null,
     operations: ["analysis", "transformation", "derivativeGeneration", "storage"],
     expiresAtIso: null,
     sharingScope: "private",
@@ -222,14 +228,19 @@ export function emptyDraft(): CreateDraft {
 export function stepSatisfied(step: CreateStep, draft: CreateDraft): boolean {
   switch (step) {
     case "source":
-      return draft.sourceKind === "upload" ? draft.file !== null : draft.sourceKey !== null;
+      return urlShapeSatisfied(draft)
+        ? true
+        : draft.sourceKind === "upload"
+          ? draft.file !== null
+          : draft.sourceKey !== null;
     case "rights":
       return draft.operations.length > 0;
     case "renderer":
-      // J004: the upload path selects DERIVED realities for the ONE-submission
-      // plan — zero selections is a valid choice (upload + original only, the
-      // legacy behavior); the fixture path still requires one renderer.
-      return draft.sourceKind === "upload" ? true : draft.rendererId !== null;
+      // J004: the upload/URL paths select DERIVED realities for the
+      // ONE-submission plan — zero selections is a valid choice (upload +
+      // original only, the legacy behavior); the fixture path still
+      // requires one renderer.
+      return draft.sourceKind === "fixture" ? draft.rendererId !== null : true;
     case "recipe":
       return draft.styleId !== null && draft.styleId.trim().length > 0;
     case "compute":
@@ -249,4 +260,18 @@ export function formatBytes(bytes: number): string {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${bytes} B`;
+}
+
+/**
+ * Whether the URL path's draft shape is satisfied (W6 Worker B): the
+ * sourceKind is `url` AND a non-empty pasted URL exists. The server's
+ * fail-closed parse is the real gate — this is only the Continue button's
+ * honest enablement (an unparsable URL is refused by the server, typed).
+ */
+export function urlShapeSatisfied(draft: CreateDraft): boolean {
+  return (
+    draft.sourceKind === "url" &&
+    draft.sourceUrl !== null &&
+    draft.sourceUrl.trim().length > 0
+  );
 }
