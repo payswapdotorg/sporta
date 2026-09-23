@@ -26,7 +26,10 @@ HOW THE TRANSFER IS DECIDED (the journal, last record wins):
           → the bytes are already on this host; ingest that path directly
 
     CLI overrides beat the journal: --bytes-url (kind url), --bytes-file
-    (kind file), --cookies-file (kind cookies).
+    (kind file), --cookies-file (kind cookies). --detail overrides the
+    recorded via.detail with the honest acquisition story (how the bytes
+    reached this host — e.g. a VPN-egress pull of the stream's own HLS
+    segments; recorded verbatim on begin/ingest).
 
 HONESTY CONTRACT (no silent fallback):
     * every failure is RECORDED (phase fail → state FAILED + the reason)
@@ -267,6 +270,12 @@ def main() -> int:
     parser.add_argument("--cookies-file", type=Path, default=DEFAULT_COOKIES)
     parser.add_argument("--bytes-url", help="override: a direct file-host URL")
     parser.add_argument("--bytes-file", type=Path, help="override: bytes already on this host")
+    parser.add_argument(
+        "--detail",
+        help="override: the honest via.detail describing HOW the bytes reached "
+        "this host (recorded on the begin/ingest phases verbatim; without "
+        "this the kind's default detail — e.g. the path — is recorded)",
+    )
     parser.add_argument("--incoming-dir", type=Path, default=DEFAULT_INCOMING)
     args = parser.parse_args()
 
@@ -335,6 +344,8 @@ def main() -> int:
                 "carries no kind, and neither --bytes-url nor --bytes-file was "
                 "given — record the transfer in the journal or pass an override"
             )
+        if args.detail is not None:
+            detail = args.detail
         print(f"[acquire] transfer method: {kind} ({detail})", file=sys.stderr)
 
         # 3. Mark ACQUIRING BEFORE any byte moves (the honest in-flight state).
