@@ -19,7 +19,7 @@ Date: 2026-09-22
 
 | Item | State | Current evidence |
 |---|---|---|
-| R606 | BLOCKED / NEEDS REAL SOURCE EVIDENCE | reopened 2026-09-22 per operator handoff: the J015 evidence pack used a synthetic source MP4 as "Original" — demoted to ENGINEERING EVIDENCE; wave-6 rebuilds the chain on the operator's real submitted source `https://www.youtube.com/watch?v=93LPZJkCW2w` (contract: docs/contracts/real-source-provenance.md); source identified, acquisition blocked on operator assist (authenticated session or byte transfer — every unauthenticated datacenter path exhausted and recorded) |
+| R606 | BLOCKED / NEEDS REAL SOURCE EVIDENCE (machinery landed) | reopened 2026-09-22 per operator handoff: the J015 evidence pack used a synthetic source MP4 as "Original" — demoted to ENGINEERING EVIDENCE; wave-6 rebuilds the chain on the operator's real submitted source `https://www.youtube.com/watch?v=93LPZJkCW2w` (contract: docs/contracts/real-source-provenance.md). 2026-09-23: the URL-source acquisition machine MERGED @80c87c4 (wave-6 Worker B — registration with honest oEmbed, the capability-gated seam PENDING_TRANSFER→ACQUIRING→ACQUIRED/FAILED with server-measured integrity, durable urlsrc: join, acquire.py one-command machine, Create Studio URL mode; 12/12 lane tests). Still blocked: the operator's real bytes (console transfer panel: cookies.txt or file-host URL) — only the seam can write ACQUIRED |
 | R607 | BLOCKED | public hosted durability/cross-instance deployment and final MVP gate remain; gated behind real-source R606 |
 
 ## Journey items
@@ -87,9 +87,12 @@ Date: 2026-09-22
 ## Current final blockers
 
 1. R606 real-source chain: operator assist needed for acquisition of
-   `https://www.youtube.com/watch?v=93LPZJkCW2w` (authenticated session or
-   byte transfer); ingestion/rebuild infrastructure proceeding in parallel
-   (wave 6, contract frozen in docs/contracts/real-source-provenance.md).
+   `https://www.youtube.com/watch?v=93LPZJkCW2w` (cookies.txt or file-host
+   URL via the console transfer panel); the ingestion machinery is NOW
+   MERGED @80c87c4 (wave-6 Worker B: url-source registration, the
+   acquisition seam, acquire.py) — the real bytes are the sole remaining
+   input, then the run executes end-to-end (contract frozen in
+   docs/contracts/real-source-provenance.md).
 2. R607 public hosted durability / deployment acceptance — behind R606.
 3. L009 authorized live provider feed access if a real external live feed is required.
 4. L015-L017 final live gates.
