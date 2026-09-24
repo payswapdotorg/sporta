@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with players and stands visible\n2: wide-broadcast | Wide shot of the pitch with players and stands visible\n3: wide-broadcast | Wide shot of the pitch with players and stands visible\n4: wide-broadcast | Wide shot of the pitch with players and stands visible\n5: wide-broadcast | Wide shot of the pitch with players and stands visible\n6: wide-broadcast | Wide shot of the pitch with players and stands visible\n7: wide-broadcast | Wide shot of the pitch with players and stands visible\n8: wide-broadcast | Wide shot of the pitch with players and stands visible\n9: wide-broadcast | Wide shot of the pitch with players and stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283229,
+  "id": "202609250453468f669ec48ecf41ab",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250453468f669ec48ecf41ab",
+  "usage": {
+    "completion_tokens": 153,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 1915
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Players on the field, medium shot\n2: pitch-action | Players on the field, medium shot\n3: pitch-action | Players on the field, medium shot\n4: wide-broadcast | Wide view of the pitch and players\n5: wide-broadcast | Wide view of the pitch and players\n6: wide-broadcast | Wide view of the pitch and players\n7: wide-broadcast | Wide view of the pitch and players\n8: wide-broadcast | Wide view of the pitch and players\n9: wide-broadcast | Wide view of the pitch and goal area\n10: wide-broadcast | Wide view of the pitch and goal area\n11: pitch-action | Player with the ball in foreground\n12: pitch-action | Player with the ball in action\n13: pitch-action | Players battling for the ball\n14: wide-broadcast | Wide shot of play near goal area\n15: wide-broadcast | Wide shot of play near goal area\n16: wide-broadcast | Wide shot of play near goal area\n17: closeup | Tight shot on goalkeeper and ball near line\n18: pitch-action | Group of players in action\n19: pitch-action | Players in action near sideline\n20: pitch-action | Players in action near goal",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283616,
+  "id": "20260925050011debb2a489983430a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050011debb2a489983430a",
+  "usage": {
+    "completion_tokens": 263,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2025
+  }
+}

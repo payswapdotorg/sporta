@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Team staff on bench\n2: closeup | Team staff on bench\n3: closeup | Team staff on bench\n4: pitch-action | Player dribbling near sideline\n5: pitch-action | Player with ball, defender nearby\n6: pitch-action | Player controlling ball near dugout\n7: pitch-action | Players competing for ball\n8: pitch-action | Player running with ball\n9: pitch-action | Player chasing ball carrier\n10: pitch-action | Loose ball on pitch\n11: pitch-action | Two players battling for ball\n12: wide-broadcast | Wide view of players on field\n13: wide-broadcast | Wide view of players on field\n14: wide-broadcast | Wide view of players on field\n15: wide-broadcast | Wide view of players on field\n16: wide-broadcast | Wide view of players on field\n17: wide-broadcast | Wide view of players on field\n18: wide-broadcast | Wide view of players on field\n19: wide-broadcast | Wide view of players on field\n20: wide-broadcast | Wide view of players on field",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283208,
+  "id": "20260925045323f9759799136e484a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045323f9759799136e484a",
+  "usage": {
+    "completion_tokens": 233,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1995
+  }
+}

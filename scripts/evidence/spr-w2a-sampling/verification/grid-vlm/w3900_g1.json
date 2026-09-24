@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | wide shot of pitch with stands visible\ncell 2: wide-broadcast | wide shot of pitch with stands visible\ncell 3: wide-broadcast | wide shot of pitch with stands visible\ncell 4: wide-broadcast | wide shot of pitch with stands visible\ncell 5: wide-broadcast | wide shot of pitch with stands visible\ncell 6: wide-broadcast | wide shot of pitch with stands visible\ncell 7: wide-broadcast | wide shot of pitch with stands visible\ncell 8: wide-broadcast | wide shot of pitch with stands visible\ncell 9: wide-broadcast | wide shot of pitch with stands visible\ncell 10: wide-broadcast | wide shot of pitch with stands visible\ncell 11: wide-broadcast | wide shot of pitch with stands visible\ncell 12: wide-broadcast | wide shot of pitch with stands visible\ncell 13: wide-broadcast | wide shot of pitch with stands visible\ncell 14: wide-broadcast | wide shot of pitch with stands visible\ncell 15: wide-broadcast | wide shot of pitch with stands visible\ncell 16: wide-broadcast | wide shot of pitch with stands visible\ncell 17: wide-broadcast | wide shot of pitch with stands visible\ncell 18: wide-broadcast | wide shot of pitch with stands visible\ncell 19: wide-broadcast | wide shot of pitch with stands visible\ncell 20: wide-broadcast | wide shot of pitch with stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283704,
+  "id": "20260925050138bad53cabda4c47f2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050138bad53cabda4c47f2",
+  "usage": {
+    "completion_tokens": 320,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2082
+  }
+}

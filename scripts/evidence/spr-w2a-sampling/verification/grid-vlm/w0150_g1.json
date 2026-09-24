@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Studio commentator at desk\ncell 2: closeup | Studio commentator at desk\ncell 3: closeup | Studio commentator at desk\ncell 4: graphics | Player selection overlay on studio shot\ncell 5: closeup | Studio commentator at desk\ncell 6: graphics | Player selection overlay on studio shot\ncell 7: closeup | Studio commentator at desk\ncell 8: closeup | Studio commentator at desk\ncell 9: graphics | Player selection overlay on studio shot\ncell 10: graphics | Player selection overlay on studio shot\ncell 11: closeup | Studio commentator at desk\ncell 12: closeup | Studio commentator at desk\ncell 13: closeup | Studio commentator at desk\ncell 14: wide-broadcast | Wide view of pitch and stands\ncell 15: wide-broadcast | Wide view of pitch and stands\ncell 16: wide-broadcast | Wide view of pitch and player graphic\ncell 17: wide-broadcast | Wide view of pitch and player graphics\ncell 18: wide-broadcast | Wide view of pitch and player graphics\ncell 19: wide-broadcast | Wide view of pitch and player graphics\ncell 20: wide-broadcast | Wide view of pitch and player graphics",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283182,
+  "id": "20260925045257ec5ca672e2e94209",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045257ec5ca672e2e94209",
+  "usage": {
+    "completion_tokens": 270,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2032
+  }
+}

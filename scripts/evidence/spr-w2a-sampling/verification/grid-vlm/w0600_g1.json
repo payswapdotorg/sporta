@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Player in pink running with ball\n2: pitch-action | Player in pink running with ball\n3: pitch-action | Players competing for ball\n4: wide-broadcast | Wide view of goal area and players\n5: wide-broadcast | Wide view of goal area and players\n6: wide-broadcast | Wide view of goal area and players\n7: wide-broadcast | Wide view of goal area and players\n8: wide-broadcast | Wide view of goal area and players\n9: wide-broadcast | Wide view of goal area and players\n10: wide-broadcast | Wide view of goal area and players\n11: wide-broadcast | Wide view of goal area and players\n12: wide-broadcast | Wide view of goal area and players\n13: closeup | Close-up of player's face/upper body\n14: closeup | Close-up of player's face/upper body\n15: closeup | Close-up of player's face/upper body\n16: closeup | Coach standing on sideline\n17: closeup | Coach standing on sideline\n18: closeup | Coach standing on sideline\n19: closeup | Coach walking on sideline\n20: closeup | Coach walking on sideline",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283235,
+  "id": "202609250453508aa26a57d53b41b9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250453508aa26a57d53b41b9",
+  "usage": {
+    "completion_tokens": 255,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2017
+  }
+}

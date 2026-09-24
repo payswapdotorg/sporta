@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n2: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n3: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n4: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n5: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n6: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n7: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n8: wide-broadcast | Wide view of pitch with player lineup graphics and stands visible\n9: wide-broadcast | Wide view of pitch with red tactical overlay and stands visible\n10: wide-broadcast | Wide view of pitch showing center circle and stands visible\n11: closeup | Close-up shot of player Pedri from behind, upper body dominates frame\n12: closeup | Close-up shot of player Pedri from the side, upper body dominates frame\n13: closeup | Close-up shot of player Pedri from the side, upper body dominates frame\n14: closeup | Close-up shot of player Pedri from the side, upper body dominates frame\n15: closeup | Close-up shot of player Pedri touching his face, upper body dominates frame\n16: closeup | Close-up shot of player Pedri looking to the side, upper body dominates frame\n17: closeup | Close-up shot of player Pedri looking forward, upper body dominates frame\n18: closeup | Close-up shot of player Pedri looking forward, upper body dominates frame\n19: closeup | Close-up shot of player Pedri looking forward, upper body dominates frame\n20: closeup | Close-up shot of player Pedri looking forward, upper body dominates frame",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283190,
+  "id": "20260925045302196a9ce7a80e4278",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045302196a9ce7a80e4278",
+  "usage": {
+    "completion_tokens": 385,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2147
+  }
+}

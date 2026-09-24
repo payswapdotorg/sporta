@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Player in orange jersey celebrating\ncell 2: closeup | Player in orange jersey looking up\ncell 3: closeup | Player in orange jersey with fists clenched\ncell 4: closeup | Player in orange jersey jumping/celebrating\ncell 5: closeup | Player in orange jersey, camera operator visible\ncell 6: wide-broadcast | Wide shot of the pitch and players\ncell 7: wide-broadcast | Wide shot of the pitch and players\ncell 8: wide-broadcast | Wide shot of the pitch and players\ncell 9: wide-broadcast | Wide shot of the pitch and players\ncell 10: wide-broadcast | Wide shot of the pitch and players\ncell 11: wide-broadcast | Wide shot of the pitch and players\ncell 12: wide-broadcast | Wide shot of the pitch and players\ncell 13: graphics | Pitch view with player stats overlay\ncell 14: graphics | Pitch view with LaLiga Fantasy ad overlay\ncell 15: graphics | Pitch view with LaLiga Fantasy ad overlay\ncell 16: graphics | Pitch view with LaLiga Fantasy ad overlay",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283641,
+  "id": "20260925050036216dc257af7a4818",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050036216dc257af7a4818",
+  "usage": {
+    "completion_tokens": 249,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2011
+  }
+}

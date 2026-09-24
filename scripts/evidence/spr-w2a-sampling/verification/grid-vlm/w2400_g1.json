@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: pitch-action | Player placing ball on pitch\ncell 2: pitch-action | Player placing ball, opponent nearby\ncell 3: pitch-action | Player standing over ball\ncell 4: closeup | Torso of player in pink kit\ncell 5: closeup | Upper body of player\ncell 6: closeup | Face and upper body of player\ncell 7: closeup | Face of player looking forward\ncell 8: closeup | Side profile of player's face\ncell 9: closeup | Close-up of player's face\ncell 10: closeup | Close-up of player's face\ncell 11: closeup | Close-up of player's face\ncell 12: closeup | Close-up of player's face\ncell 13: wide-broadcast | Wide shot of pitch with players\ncell 14: wide-broadcast | Wide shot of pitch with players\ncell 15: wide-broadcast | Wide shot of pitch with players\ncell 16: graphics | Red graphic overlay covering screen\ncell 17: wide-broadcast | Wide shot of pitch with players\ncell 18: wide-broadcast | Wide shot of pitch with players\ncell 19: wide-broadcast | Wide shot of pitch with players\ncell 20: wide-broadcast | Wide shot of pitch with players",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283340,
+  "id": "202609250455359ce6507554f843bd",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250455359ce6507554f843bd",
+  "usage": {
+    "completion_tokens": 280,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2042
+  }
+}

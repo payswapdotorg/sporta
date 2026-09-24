@@ -1,0 +1,146 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 4221.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a player (Lamine Yamal) holding a ball, with other players in the background; spectators or stands are not visible."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 4222.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a player (the goalkeeper) holding the ball, with spectators only visible as a blurred background."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 4223.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a player, with the background crowd being out of focus and occupying significantly less than half of the total frame area."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 4224.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players and a referee on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 4225.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players and a referee on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 4226.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the green pitch and players/referee on the field, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 4227.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the green pitch and players/referee, with no visible spectators or stands."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 4228.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the pitch and a referee, with no visible spectators or stands."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 4229.88,
+  "verdict": "ERROR",
+  "reason": "vlm call failed after retries"
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 4230.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a player on the pitch, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 4231.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a player on the pitch, with no visible spectators or stands."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 4232.88,
+  "verdict": "YES",
+  "reason": "The frame is a tight shot of spectators in the stands, and they clearly occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 4233.88,
+  "verdict": "YES",
+  "reason": "spectators clearly occupy the entire frame area."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 4234.88,
+  "verdict": "YES",
+  "reason": "spectators and the stands clearly occupy more than half of the frame area, showing a tight crowd shot of fans."
+ },
+ {
+  "frame": "f_015.jpg",
+  "mediaTime": 4235.88,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_016.jpg",
+  "mediaTime": 4236.88,
+  "verdict": "YES",
+  "reason": "The frame is a tight shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_017.jpg",
+  "mediaTime": 4237.88,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, with people and their clothing filling the vast majority of the visual area."
+ },
+ {
+  "frame": "f_018.jpg",
+  "mediaTime": 4238.88,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch where the playing field and players occupy the foreground and a significant portion of the lower half, while the crowd is located in the background and does not occupy more than half of the total frame area."
+ },
+ {
+  "frame": "f_019.jpg",
+  "mediaTime": 4239.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the playing field and players occupy the foreground and a significant portion of the image, while the crowd is located in the background and does not exceed 50% of the total area."
+ },
+ {
+  "frame": "f_020.jpg",
+  "mediaTime": 4240.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the playing field and players occupy the foreground and a significant portion of the image, while the crowd is only visible in the background and does not occupy more than half of the total area."
+ },
+ {
+  "frame": "f_021.jpg",
+  "mediaTime": 4241.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the players, the field, and advertising boards occupy the foreground and midground; while spectators are visible in the background stands, they do not occupy more than half of the total frame area."
+ },
+ {
+  "frame": "f_022.jpg",
+  "mediaTime": 4242.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the playing field and players occupy the foreground and a significant portion of the area, while the crowd is relegated to the background stands."
+ },
+ {
+  "frame": "f_023.jpg",
+  "mediaTime": 4243.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the player and the field of play occupy a significant portion of the foreground, and while spectators are visible in the background, they do not visually dominate more than half of the total frame area."
+ },
+ {
+  "frame": "f_024.jpg",
+  "mediaTime": 4244.88,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level shot where the player and the field of play occupy the foreground, while the crowd is only visible in the background stands."
+ }
+]

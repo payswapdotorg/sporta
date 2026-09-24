@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Goalkeeper in white\ncell 2: closeup | Goalkeeper in white, closer\ncell 3: closeup | Player in green/white stripes\ncell 4: closeup | Player in green/white stripes\ncell 5: crowd | Spectators in stands (faces visible)\ncell 6: crowd | Spectators in stands (child smiling)\ncell 7: closeup | Coach on bench\ncell 8: closeup | Coach on bench\ncell 9: closeup | Coach on bench\ncell 10: crowd | Crowd of spectators in stands\ncell 11: crowd | Crowd of spectators in stands\ncell 12: crowd | Crowd of spectators in stands\ncell 13: closeup | Coach on bench\ncell 14: pitch-action | Players celebrating on field\ncell 15: pitch-action | Players high-fiving on field\ncell 16: pitch-action | Players walking/talking on field\ncell 17: graphics | Scoreboard overlay (60')\ncell 18: pitch-action | Players walking together on field\ncell 19: pitch-action | Players walking on field\ncell 20: pitch-action | Wide shot of players on pitch",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283607,
+  "id": "20260925050002a34fdac6b4d1408c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050002a34fdac6b4d1408c",
+  "usage": {
+    "completion_tokens": 253,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 2015
+  }
+}

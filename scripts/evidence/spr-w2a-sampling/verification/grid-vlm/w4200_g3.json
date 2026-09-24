@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: crowd | Spectators in stands\n2: crowd | Spectators in stands\n3: crowd | Spectators in stands\n4: wide-broadcast | Pitch and sideline\n5: wide-broadcast | Players on pitch with stands\n6: wide-broadcast | Players on pitch with stands\n7: wide-broadcast | Player on pitch with stands\n8: wide-broadcast | Player on pitch with advertising\n9: wide-broadcast | Player walking on pitch\n10: wide-broadcast | Player clapping on pitch\n11: wide-broadcast | Player standing on pitch\n12: closeup | Two players talking\n13: closeup | Two players, one holding ball\n14: closeup | Group of players\n15: closeup | Players facing each other\n16: closeup | Player holding ball\n17: closeup | Player holding ball\n18: closeup | Player looking sideways\n19: wide-broadcast | High angle pitch view\n20: wide-broadcast | High angle pitch view",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283775,
+  "id": "20260925050250d2122c39aa3e46a1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050250d2122c39aa3e46a1",
+  "usage": {
+    "completion_tokens": 208,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1970
+  }
+}

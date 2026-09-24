@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Player in green/white stripes\ncell 2: closeup | Player in green/white stripes\ncell 3: closeup | Player in green/white stripes\ncell 4: closeup | Player in green/white stripes\ncell 5: closeup | Players, one in orange\ncell 6: closeup | Goalkeeper and player\ncell 7: closeup | Goalkeeper and player\ncell 8: closeup | Players in orange jerseys\ncell 9: pitch-action | Group of players on pitch\ncell 10: pitch-action | Group of players on pitch\ncell 11: pitch-action | Group of players on pitch\ncell 12: closeup | Players embracing\ncell 13: closeup | Team huddle celebration\ncell 14: closeup | Team huddle celebration",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283203,
+  "id": "20260925045318304f9e3747e34b21",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045318304f9e3747e34b21",
+  "usage": {
+    "completion_tokens": 178,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1940
+  }
+}

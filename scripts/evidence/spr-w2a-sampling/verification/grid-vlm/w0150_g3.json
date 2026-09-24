@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Players and referee talking\n2: closeup | Handshake between player and referee\n3: closeup | Player in green/white stripes\n4: closeup | Player in orange (Pedri)\n5: closeup | Pedri talking to opponent\n6: closeup | Pedri facing opponent\n7: closeup | Pedri talking to referee\n8: closeup | Group of players and referee\n9: wide-broadcast | Players on pitch with stands visible\n10: wide-broadcast | Group on pitch with stands visible\n11: wide-broadcast | Group on pitch with stands visible\n12: wide-broadcast | Group on pitch with stands visible\n13: wide-broadcast | Group on pitch with stands visible\n14: wide-broadcast | Group on pitch with stands visible\n15: wide-broadcast | Group on pitch with stands visible\n16: wide-broadcast | Group on pitch with stands visible\n17: wide-broadcast | Group on pitch with stands visible\n18: wide-broadcast | Group on pitch with stands visible\n19: wide-broadcast | Group on pitch with stands visible\n20: wide-broadcast | Group on pitch with stands visible\n21: closeup | Coaches/staff on bench\n22: closeup | Coaches/staff on bench\n23: closeup | Coaches/staff on bench\n24: closeup | Coaches/staff on bench",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283196,
+  "id": "2026092504531087ae415bc68845c4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092504531087ae415bc68845c4",
+  "usage": {
+    "completion_tokens": 293,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2055
+  }
+}

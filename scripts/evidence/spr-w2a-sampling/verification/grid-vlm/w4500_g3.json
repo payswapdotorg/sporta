@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Player Pedri hugging coach\n2: closeup | Player Pedri and teammate\n3: closeup | Player Pedri walking alone\n4: wide-broadcast | Wide shot of pitch, players small\n5: wide-broadcast | Wide shot of pitch, players small\n6: wide-broadcast | Wide shot of pitch, players small\n7: wide-broadcast | Wide shot of pitch, players small\n8: wide-broadcast | Wide shot of pitch, players small\n9: wide-broadcast | Wide shot of pitch, players small\n10: wide-broadcast | Wide shot of pitch, players small\n11: wide-broadcast | Wide shot of pitch, players small\n12: wide-broadcast | Wide shot of pitch, players small\n13: wide-broadcast | Wide shot of pitch, players small\n14: wide-broadcast | Wide shot of pitch, players small\n15: graphics | Red screen with LaLiga logo\n16: graphics | Transition graphic with logos\n17: wide-broadcast | Wide shot of pitch, scoreboard visible\n18: wide-broadcast | Wide shot of pitch, scoreboard visible\n19: wide-broadcast | Wide shot of pitch, scoreboard visible\n20: wide-broadcast | Wide shot of pitch, scoreboard visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283827,
+  "id": "2026092505034222ecdd13c7e04fa2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505034222ecdd13c7e04fa2",
+  "usage": {
+    "completion_tokens": 265,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2027
+  }
+}

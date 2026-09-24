@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with players and distant stands\n2: wide-broadcast | Wide shot of the pitch with players and distant stands\n3: wide-broadcast | Wide shot of the pitch with players and distant stands\n4: wide-broadcast | Wide shot of the pitch with players and distant stands\n5: wide-broadcast | Wide shot of the pitch with players and distant stands\n6: wide-broadcast | Wide shot of the pitch with players and distant stands\n7: wide-broadcast | Wide shot of the pitch with players and distant stands\n8: wide-broadcast | Wide shot of the pitch with players and distant stands\n9: wide-broadcast | Wide shot of the pitch with players and visible advertising boards\n10: wide-broadcast | Wide shot of the pitch with players and visible advertising boards\n11: wide-broadcast | Wide shot of the pitch with players and visible advertising boards\n12: wide-broadcast | Wide shot of the pitch with players and visible advertising boards\n13: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n14: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n15: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n16: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n17: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n18: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n19: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background\n20: wide-broadcast | Wide shot of the pitch with players and a prominent crowd in background",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790284219,
+  "id": "2026092505101297a855a680b94361",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505101297a855a680b94361",
+  "usage": {
+    "completion_tokens": 368,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 2130
+  }
+}

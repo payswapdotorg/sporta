@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Coach and staff on the bench\ncell 2: closeup | Coach standing with staff in background\ncell 3: closeup | Coach standing with arms crossed\ncell 4: wide-broadcast | Wide view of the pitch, players visible\ncell 5: wide-broadcast | Wide view of the pitch, players visible\ncell 6: wide-broadcast | Wide view of the pitch, players visible\ncell 7: wide-broadcast | Wide view of the pitch, players visible\ncell 8: wide-broadcast | Wide view of the pitch, players visible\ncell 9: wide-broadcast | Wide view of the pitch, players visible\ncell 10: wide-broadcast | Wide view of the pitch, players visible\ncell 11: wide-broadcast | Wide view of the pitch, players visible\ncell 12: wide-broadcast | Wide view of the pitch, players visible\ncell 13: wide-broadcast | Wide view of the pitch, players visible\ncell 14: wide-broadcast | Wide view of the pitch, players visible\ncell 15: wide-broadcast | Wide view of the pitch, players visible\ncell 16: wide-broadcast | Wide view of the pitch, players visible\ncell 17: wide-broadcast | Wide view of the pitch, players visible\ncell 18: wide-broadcast | Wide view of the pitch, players visible\ncell 19: wide-broadcast | Wide view of the pitch, players visible\ncell 20: wide-broadcast | Wide view of the pitch, players visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285463,
+  "id": "202609250530580ef2945b989f4822",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250530580ef2945b989f4822",
+  "usage": {
+    "completion_tokens": 330,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2092
+  }
+}

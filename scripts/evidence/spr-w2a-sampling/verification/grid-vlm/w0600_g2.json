@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Coach standing on sideline\ncell 2: closeup | Coach standing on sideline\ncell 3: wide-broadcast | Wide shot of pitch and players\ncell 4: wide-broadcast | Wide shot of pitch and players\ncell 5: wide-broadcast | Wide shot of pitch with stands visible\ncell 6: wide-broadcast | Wide shot of pitch with stands visible\ncell 7: wide-broadcast | Wide shot of pitch with stands visible\ncell 8: wide-broadcast | Wide shot of pitch with stands visible\ncell 9: wide-broadcast | Wide shot of pitch with advertising boards\ncell 10: wide-broadcast | Wide shot of pitch with advertising boards\ncell 11: wide-broadcast | Wide shot of pitch with advertising boards\ncell 12: wide-broadcast | Wide shot of pitch with advertising boards\ncell 13: wide-broadcast | Wide shot of pitch with stands visible\ncell 14: wide-broadcast | Wide shot of pitch with advertising boards\ncell 15: wide-broadcast | Wide shot of pitch with advertising boards\ncell 16: wide-broadcast | Wide shot of pitch with advertising boards\ncell 17: wide-broadcast | Wide shot of pitch with advertising boards\ncell 18: wide-broadcast | Wide shot of pitch with advertising boards\ncell 19: wide-broadcast | Wide shot of pitch with stands visible\ncell 20: wide-broadcast | Wide shot of pitch with stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283242,
+  "id": "20260925045355edb02cf360d94154",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045355edb02cf360d94154",
+  "usage": {
+    "completion_tokens": 310,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2072
+  }
+}

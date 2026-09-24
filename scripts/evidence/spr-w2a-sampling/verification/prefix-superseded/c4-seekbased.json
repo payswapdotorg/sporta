@@ -1,0 +1,68 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 4232.5,
+  "verdict": "YES",
+  "reason": "The frame is completely filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 4233.5,
+  "verdict": "YES",
+  "reason": "The frame is completely filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 4234.5,
+  "verdict": "YES",
+  "reason": "The frame is completely filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 4235.5,
+  "verdict": "YES",
+  "reason": "The frame is completely filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 4236.5,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 4237.5,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 4238.5,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying more than half of the image area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 4239.5,
+  "verdict": "NO",
+  "reason": "This is a wide shot of the pitch and players; while the crowd is visible in the background, it does not dominate the frame."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 4240.5,
+  "verdict": "NO",
+  "reason": "The frame is a wide pitch-level shot where the playing field and players occupy the foreground and middle ground, while the crowd is confined to the background stands and does not exceed half the total area."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 4241.5,
+  "verdict": "NO",
+  "reason": "The image shows a wide view of the soccer pitch with players and advertising boards in the lower half; the crowd is visible only in the background stands and occupies less than half of the frame."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 4242.5,
+  "verdict": "NO",
+  "reason": "This is a wide shot focused on the player and the field of play; although the stands are visible in the background, they do not occupy more than 50% of the image area."
+ }
+]

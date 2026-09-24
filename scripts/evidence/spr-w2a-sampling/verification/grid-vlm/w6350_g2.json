@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 2: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 3: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 4: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 5: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 6: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 7: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 8: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 9: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 10: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 11: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 12: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 13: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 14: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 15: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 16: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 17: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 18: wide-broadcast | Wide shot of the pitch with players and visible stands in the background.\ncell 19: closeup | Close-up view of a coach or staff member on the sideline.\ncell 20: closeup | Close-up view of a coach or staff member on the sideline.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285454,
+  "id": "20260925053045991424fb03204895",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925053045991424fb03204895",
+  "usage": {
+    "completion_tokens": 437,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 2199
+  }
+}

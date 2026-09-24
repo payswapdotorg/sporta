@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with players and visible stands\n2: wide-broadcast | Wide shot of the pitch with players and visible stands\n3: wide-broadcast | Wide shot of the pitch with players and visible stands\n4: wide-broadcast | Wide shot of the pitch with players and visible stands\n5: wide-broadcast | Wide shot of the pitch with players and visible stands\n6: wide-broadcast | Wide shot of the pitch with players and visible stands\n7: wide-broadcast | Wide shot of the pitch with players and visible stands\n8: wide-broadcast | Wide shot of the pitch with players and visible stands\n9: closeup | Referee showing a yellow card to a player\n10: closeup | Close-up of the referee standing on the pitch\n11: closeup | Close-up of a player in a green and white striped jersey\n12: closeup | Close-up of a player in a green and white striped jersey\n13: closeup | Close-up of a player in a green and white striped jersey\n14: closeup | Close-up of a player in a green and white striped jersey\n15: closeup | Close-up of a player in a green and white striped jersey\n16: closeup | Close-up of a player in a green and white striped jersey\n17: closeup | Close-up of a player in a green and white striped jersey\n18: closeup | Close-up of a player in a green and white striped jersey\n19: pitch-action | Players competing for the ball near the sideline\n20: pitch-action | Player in pink running with the ball",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285103,
+  "id": "202609250524544fe8d4b14c9f4136",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250524544fe8d4b14c9f4136",
+  "usage": {
+    "completion_tokens": 337,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2099
+  }
+}

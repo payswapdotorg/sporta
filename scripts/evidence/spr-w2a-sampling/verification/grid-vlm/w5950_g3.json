@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | player tackle\n2: pitch-action | player standing over fallen opponent\n3: graphics | transition graphic overlay\n4: wide-broadcast | wide shot of pitch with players\n5: wide-broadcast | wide shot of pitch\n6: wide-broadcast | wide shot of pitch\n7: wide-broadcast | wide shot of pitch\n8: wide-broadcast | wide shot of pitch\n9: wide-broadcast | wide shot of pitch\n10: wide-broadcast | wide shot of pitch\n11: wide-broadcast | wide shot of pitch\n12: wide-broadcast | wide shot of pitch\n13: wide-broadcast | wide shot of pitch\n14: wide-broadcast | wide shot of pitch\n15: wide-broadcast | wide shot of pitch\n16: wide-broadcast | wide shot of pitch\n17: wide-broadcast | wide shot of pitch\n18: closeup | people in stands/dugout area\n19: closeup | person in stands/dugout area\n20: closeup | coach/person in dugout with name overlay",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285499,
+  "id": "20260925053136fbbddcf14c054788",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925053136fbbddcf14c054788",
+  "usage": {
+    "completion_tokens": 223,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 174
+    },
+    "total_tokens": 1985
+  }
+}

@@ -1,0 +1,248 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 4156.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by on-pitch player action (kicking the ball) and a VAR review inset; spectators are only visible in the distant background and do not occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 4157.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by on-pitch player action (kicking the ball) and a VAR review inset; spectators are only visible in the distant background and do not occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 4158.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by on-pitch player action (kicking the ball) and a VAR review inset; spectators are only visible in the distant background and do not occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 4159.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by on-pitch player action (kicking the ball) and a VAR review inset; spectators are only visible in the distant background and do not occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 4160.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a pitch-level wide shot of players and the field, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 4161.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a pitch-level wide shot of players and the field, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 4162.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a pitch-level wide shot of players and the field, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 4163.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by an empty pitch view (goal area), with no crowd visible."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 4164.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 4165.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 4166.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 4167.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 4168.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 4169.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_015.jpg",
+  "mediaTime": 4170.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_016.jpg",
+  "mediaTime": 4171.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_017.jpg",
+  "mediaTime": 4172.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_018.jpg",
+  "mediaTime": 4173.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_019.jpg",
+  "mediaTime": 4174.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_020.jpg",
+  "mediaTime": 4175.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators/stands not visible or occupying a negligible area."
+ },
+ {
+  "frame": "f_021.jpg",
+  "mediaTime": 4176.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators only visible in the small background of the top-right inset."
+ },
+ {
+  "frame": "f_022.jpg",
+  "mediaTime": 4177.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators only visible in the small background of the top-right inset."
+ },
+ {
+  "frame": "f_023.jpg",
+  "mediaTime": 4178.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a wide shot of the soccer pitch and players, with spectators only visible in the small background of the top-right inset."
+ },
+ {
+  "frame": "f_024.jpg",
+  "mediaTime": 4179.88,
+  "verdict": "NO",
+  "reason": "The main view shows players celebrating on the pitch with advertising boards; while the crowd is more visible in the background than previous frames, the pitch and players still occupy the majority of the frame area."
+ },
+ {
+  "frame": "f_025.jpg",
+  "mediaTime": 4180.88,
+  "verdict": "NO",
+  "reason": "The frame is a multi-view broadcast screen where the main view is pitch action (players and goalkeeper) with the crowd only in the background, and the side views show a coach and a VAR room."
+ },
+ {
+  "frame": "f_026.jpg",
+  "mediaTime": 4181.88,
+  "verdict": "NO",
+  "reason": "The main view focuses on pitch action involving players and the goalkeeper, with the crowd visible only in the background stands, not dominating the frame."
+ },
+ {
+  "frame": "f_027.jpg",
+  "mediaTime": 4182.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by two soccer players in action on the pitch, with the crowd barely visible in the distant background."
+ },
+ {
+  "frame": "f_028.jpg",
+  "mediaTime": 4183.88,
+  "verdict": "NO",
+  "reason": "The primary focus of the main view is on the soccer players' action on the field, while the spectators in the stands occupy only a small portion of the upper background."
+ },
+ {
+  "frame": "f_029.jpg",
+  "mediaTime": 4184.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by pitch action (players, ball, goalkeeper) and a VAR studio inset; the crowd in the background occupies less than half of the total area."
+ },
+ {
+  "frame": "f_030.jpg",
+  "mediaTime": 4185.88,
+  "verdict": "NO",
+  "reason": "The main view focuses on players on the pitch with the crowd only visible in the distant background, occupying significantly less than half of the frame."
+ },
+ {
+  "frame": "f_031.jpg",
+  "mediaTime": 4186.88,
+  "verdict": "NO",
+  "reason": "The primary focus is on two players competing for the ball on the field, while spectators are relegated to a small strip in the background."
+ },
+ {
+  "frame": "f_032.jpg",
+  "mediaTime": 4187.88,
+  "verdict": "NO",
+  "reason": "The frame is filled with on-pitch action between an attacker and a defender, with the crowd appearing only as a minor element in the upper background."
+ },
+ {
+  "frame": "f_033.jpg",
+  "mediaTime": 4188.88,
+  "verdict": "NO",
+  "reason": "The frame is a multi-panel view (VAR, referee, VAR room) where the main action is on the pitch and the stands are only a small background element."
+ },
+ {
+  "frame": "f_034.jpg",
+  "mediaTime": 4189.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a referee, with only a tiny, out-of-focus portion of the crowd visible in the background."
+ },
+ {
+  "frame": "f_035.jpg",
+  "mediaTime": 4190.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of the back of a referee's head and shoulders, with no visible crowd."
+ },
+ {
+  "frame": "f_036.jpg",
+  "mediaTime": 4191.88,
+  "verdict": "NO",
+  "reason": "The frame focuses on the referee and a player in the foreground, with the crowd appearing as a blurred strip in the distant background."
+ },
+ {
+  "frame": "f_037.jpg",
+  "mediaTime": 4192.88,
+  "verdict": "NO",
+  "reason": "players in the foreground occupy the majority of the frame, with spectators only in the background."
+ },
+ {
+  "frame": "f_038.jpg",
+  "mediaTime": 4193.88,
+  "verdict": "NO",
+  "reason": "players and a referee are the main focus and take up most of the frame, with the crowd behind them."
+ },
+ {
+  "frame": "f_039.jpg",
+  "mediaTime": 4194.88,
+  "verdict": "NO",
+  "reason": "the frame is dominated by players and a referee, with only a small portion of the crowd visible in the background."
+ },
+ {
+  "frame": "f_040.jpg",
+  "mediaTime": 4195.88,
+  "verdict": "YES",
+  "reason": "the frame is filled with spectators in the stands, occupying more than half of the visual area."
+ },
+ {
+  "frame": "f_041.jpg",
+  "mediaTime": 4196.88,
+  "verdict": "YES",
+  "reason": "The frame is completely filled with spectators in the stands, occupying nearly 100% of the visible area."
+ }
+]

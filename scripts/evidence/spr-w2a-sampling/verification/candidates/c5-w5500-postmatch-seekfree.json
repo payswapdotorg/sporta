@@ -1,0 +1,74 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 5550.96,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two soccer players on the pitch, with no spectators or stands visible."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 5551.96,
+  "verdict": "NO",
+  "reason": "The frame is dominated by two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 5552.96,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, with no visible pitch or players."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 5553.96,
+  "verdict": "YES",
+  "reason": "spectators in the stands clearly occupy the vast majority of the frame area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 5554.96,
+  "verdict": "YES",
+  "reason": "spectators and the stands clearly occupy the entire frame area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 5555.96,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, with no visible pitch or players."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 5556.96,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 5557.96,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, and the people/stands occupy the vast majority of the frame area."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 5558.96,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player (Jofre) in the foreground and the pitch, with the crowd only visible in the background."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 5559.96,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the player in the foreground and the pitch, with the crowd only visible in the background."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 5560.96,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the pitch and players in the foreground and midground, with the crowd/stands only occupying the background area, which is significantly less than half of the total frame."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 5561.96,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the playing field and players occupy the foreground and middle ground, while the crowd is only visible in the background and does not occupy more than half of the total frame area."
+ }
+]

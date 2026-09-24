@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: pitch-action | Goal area, players and goalkeeper\ncell 2: pitch-action | Player near goal, ball in play\ncell 3: pitch-action | Goalkeeper diving for save\ncell 4: pitch-action | Ball crossing goal line\ncell 5: wide-broadcast | Wide shot of pitch, stands visible\ncell 6: wide-broadcast | Wide shot of pitch\ncell 7: wide-broadcast | Wide shot of pitch\ncell 8: wide-broadcast | Wide shot of pitch\ncell 9: wide-broadcast | Wide shot of pitch\ncell 10: wide-broadcast | Wide shot of pitch\ncell 11: wide-broadcast | Wide shot of pitch\ncell 12: wide-broadcast | Wide shot of pitch\ncell 13: pitch-action | Goalkeeper on ground near goal\ncell 14: pitch-action | Goalkeeper on ground in net\ncell 15: pitch-action | Goalkeeper on ground in net\ncell 16: closeup | Coach standing on sideline\ncell 17: closeup | Coach gesturing with arms out\ncell 18: closeup | Coach with hand to face\ncell 19: closeup | Goalkeeper portrait, arms down\ncell 20: closeup | Goalkeeper portrait, arms out\ncell 21: closeup | Goalkeeper portrait, arms out\ncell 22: closeup | Goalkeeper portrait, arms out\ncell 23: closeup | Player in orange looking up",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283632,
+  "id": "20260925050020ee415f13d6e849cb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050020ee415f13d6e849cb",
+  "usage": {
+    "completion_tokens": 311,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2073
+  }
+}

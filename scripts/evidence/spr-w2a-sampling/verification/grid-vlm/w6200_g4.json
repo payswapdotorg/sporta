@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Coach with arms outstretched\n2: closeup | Coach gesturing\n3: closeup | Coach in green jacket\n4: closeup | Coach in green jacket\n5: closeup | Coach looking forward\n6: closeup | Coach looking at camera\n7: closeup | Coach with arms crossed\n8: closeup | Coach profile view\n9: closeup | Coach looking down\n10: wide-broadcast | Players on pitch, stands visible\n11: wide-broadcast | Players on pitch, stands visible\n12: wide-broadcast | Players on pitch, stands visible\n13: wide-broadcast | Players on pitch, stands visible\n14: wide-broadcast | Players on pitch, stands visible\n15: wide-broadcast | Players on pitch, stands visible\n16: wide-broadcast | Players on pitch, stands visible\n17: wide-broadcast | Players on pitch, stands visible\n18: wide-broadcast | Players on pitch, stands visible\n19: wide-broadcast | Players on pitch, stands visible\n20: wide-broadcast | Players on pitch, stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790284237,
+  "id": "202609250510320ee67cd038784975",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250510320ee67cd038784975",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 1993
+  }
+}

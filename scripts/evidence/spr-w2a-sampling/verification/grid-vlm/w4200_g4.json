@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 2: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 3: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 4: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 5: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 6: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 7: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 8: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 9: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 10: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 11: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 12: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 13: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 14: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 15: closeup | Close-up of a player's face in the foreground\ncell 16: closeup | Close-up of a player's face in the foreground\ncell 17: closeup | Close-up of a player's face in the foreground\ncell 18: closeup | Close-up of a player's face in the foreground\ncell 19: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 20: wide-broadcast | Wide shot of the pitch with players and visible stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283786,
+  "id": "20260925050259324081d8f4d44f12",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050259324081d8f4d44f12",
+  "usage": {
+    "completion_tokens": 376,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2138
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Players on bench\n2: closeup | Players on bench\n3: graphics | Large graphic overlay\n4: pitch-action | Player kicking ball\n5: pitch-action | Wide shot of play\n6: pitch-action | Attacking play\n7: pitch-action | Shot on goal\n8: pitch-action | Ball entering net\n9: wide-broadcast | Wide shot of pitch and stands\n10: wide-broadcast | Wide shot of pitch and stands\n11: wide-broadcast | Wide shot of pitch and stands\n12: wide-broadcast | Goal from wide angle\n13: wide-broadcast | Post-goal wide shot\n14: wide-broadcast | Wide shot of pitch\n15: wide-broadcast | Wide shot of pitch\n16: wide-broadcast | Wide shot of pitch\n17: closeup | Players celebrating\n18: closeup | Players shaking hands\n19: closeup | Players interacting\n20: closeup | Players interacting\n21: closeup | Players embracing\n22: closeup | Group hug celebration\n23: closeup | Player clapping\n24: closeup | Player clapping",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283345,
+  "id": "20260925045541799399cb57d94482",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045541799399cb57d94482",
+  "usage": {
+    "completion_tokens": 234,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    },
+    "total_tokens": 1996
+  }
+}

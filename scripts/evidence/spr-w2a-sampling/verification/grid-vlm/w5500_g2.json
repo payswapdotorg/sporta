@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Player in green/white stripes\n2: closeup | Player in green/white stripes\n3: closeup | Player in green/white stripes\n4: pitch-action | Referee on grass\n5: pitch-action | Referee raising hand\n6: pitch-action | Referee raising hand\n7: pitch-action | Referee raising hand\n8: pitch-action | Referee raising hand\n9: wide-broadcast | Players and pitch\n10: wide-broadcast | Players and pitch\n11: wide-broadcast | Players and pitch\n12: wide-broadcast | Players and pitch\n13: wide-broadcast | Players and pitch\n14: wide-broadcast | Players and pitch\n15: wide-broadcast | Players and pitch\n16: wide-broadcast | Players and pitch\n17: wide-broadcast | Players and pitch\n18: wide-broadcast | Players and pitch\n19: wide-broadcast | Players and pitch\n20: wide-broadcast | Substitution board scene",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285052,
+  "id": "20260925052407cbcb53ee757642ad",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925052407cbcb53ee757642ad",
+  "usage": {
+    "completion_tokens": 207,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1969
+  }
+}
