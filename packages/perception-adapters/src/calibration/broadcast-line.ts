@@ -171,8 +171,8 @@ import {
   invertHomography,
   solveHomography,
 } from "@sporta/field-mapping";
-import type { FieldCornerSet, Homography, PitchPoint, Point2D } from "@sporta/field-mapping";
-import type { FieldMappingPayload } from "@sporta/contracts";
+import type { FieldCornerSet, Homography, Point2D } from "@sporta/field-mapping";
+import type { FieldMappingPayload, PitchPoint } from "@sporta/contracts";
 import type { DetectorFrameInput } from "@sporta/perception-detection";
 import { assertDescriptorBinding, CandidateFailureError, perceptionDescriptor } from "../errors";
 import { BROADCAST_LINE_FIELD_CALIBRATOR_LICENSE } from "../licenses";
@@ -656,8 +656,8 @@ function greenProfiles(
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       if (mask[y * width + x] !== 0) {
-        column[x] += 1;
-        row[y] += 1;
+        column[x]! += 1;
+        row[y]! += 1;
       }
     }
   }
@@ -850,7 +850,7 @@ function houghExtractLines(
     const y = staticPixels[p + 1]!;
     for (let theta = 0; theta < HOUGH_THETA_BINS; theta += 1) {
       const rho = Math.round(x * cos[theta]! + y * sin[theta]!);
-      accumulator[theta * rhoBins + rho + diagonal] += 1;
+      accumulator[theta * rhoBins + rho + diagonal]! += 1;
     }
   }
   const lines: HoughLine[] = [];
@@ -1230,7 +1230,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       const compensated = shiftMask(lineMask, width, height, dxs[frame]!, dys[frame]!);
       const dilated = dilate3x3(compensated, width, height, MASK_DILATIONS);
       for (let i = 0; i < counts.length; i += 1) {
-        if (dilated[i] !== 0) counts[i] += 1;
+        if (dilated[i] !== 0) counts[i]! += 1;
       }
     }
     const staticMask = new Uint8Array(width * height);

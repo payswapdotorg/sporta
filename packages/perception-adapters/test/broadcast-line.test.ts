@@ -76,9 +76,16 @@ const MODEL_SEGMENTS: ReadonlyArray<readonly [number, number, number, number]> =
   [99.5, 43.16, 105, 43.16],
 ];
 
-const CENTER_CIRCLE = { cx: 52.5, cy: 34, r: 9.15 };
-const LEFT_PENALTY_ARC = { cx: 11, cy: 34, r: 9.15, xMin: 16.5 };
-const RIGHT_PENALTY_ARC = { cx: 94, cy: 34, r: 9.15, xMax: 88.5 };
+interface TestArc {
+  cx: number;
+  cy: number;
+  r: number;
+  xMin?: number;
+  xMax?: number;
+}
+const CENTER_CIRCLE: TestArc = { cx: 52.5, cy: 34, r: 9.15 };
+const LEFT_PENALTY_ARC: TestArc = { cx: 11, cy: 34, r: 9.15, xMin: 16.5 };
+const RIGHT_PENALTY_ARC: TestArc = { cx: 94, cy: 34, r: 9.15, xMax: 88.5 };
 
 /** Grass / marking / player / background colors (deterministic, flat). */
 const GRASS: readonly [number, number, number] = [90, 120, 50];
