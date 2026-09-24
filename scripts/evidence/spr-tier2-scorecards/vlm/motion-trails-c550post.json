@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, camera angle, and match context are perfectly preserved in both stylized frames.\n2. temporalConsistency - 3: The motion trails shift significantly between frames (red to green), causing visual flickering and inconsistent object persistence.\n3. identityConsistency - 4: Player positions and team colors remain stable despite the heavy overlay of motion artifacts.\n4. motionFidelity - 4: The trails correctly highlight moving players and the ball, though the color change between frames is jarring.\n5. sceneFidelity - 5: The stadium background, advertising boards, and pitch lines remain spatially consistent and undistorted.\n6. stylizationStrength - 5: The intended \"motion-trails\" effect is extremely obvious and dominates the visual output.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=5 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268861,
+  "id": "202609250054177cce22d10f69465c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250054177cce22d10f69465c",
+  "usage": {
+    "completion_tokens": 213,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 269
+    },
+    "total_tokens": 1354
+  }
+}

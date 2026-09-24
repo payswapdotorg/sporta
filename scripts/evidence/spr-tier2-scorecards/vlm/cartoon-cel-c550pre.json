@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core subject (player 14) and goal are present, but the background and other players are heavily abstracted or lost.\n2. temporalConsistency - 3: The main player's shape remains relatively stable, though the background blobs shift noticeably between frames.\n3. identityConsistency - 2: The main player is recognizable by color, but facial features and fine details are completely lost to the style.\n4. motionFidelity - 2: The player's running pose is captured, but the lack of limb definition makes the specific motion ambiguous.\n5. sceneFidelity - 1: The stadium and field lines are almost entirely replaced by abstract color blocks with no spatial accuracy.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=1 ss=5\nARTIFACTS limbs=1 players=1 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269094,
+  "id": "202609250058085a28240e3a3746a9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250058085a28240e3a3746a9",
+  "usage": {
+    "completion_tokens": 224,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1393
+  }
+}

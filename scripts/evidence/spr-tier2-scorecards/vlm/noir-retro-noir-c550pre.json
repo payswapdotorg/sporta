@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Exact match of the broadcast frame, including scoreboard, logos, and camera angle.\n2. temporalConsistency - 4: Smooth transition between frames with only minor background noise variations.\n3. identityConsistency - 5: Player #14 and all other visible players maintain consistent appearance and kit details.\n4. motionFidelity - 5: The 0.2s motion of the player and ball is physically accurate and matches the source.\n5. sceneFidelity - 5: Stadium architecture, advertising boards, and field lines remain perfectly stable.\n6. stylizationStrength - 4: Strong noir-retro-noir aesthetic (grain, desaturation, contrast) is clearly applied.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269391,
+  "id": "20260925010301b39bca534d4740a3",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010301b39bca534d4740a3",
+  "usage": {
+    "completion_tokens": 199,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1370
+  }
+}

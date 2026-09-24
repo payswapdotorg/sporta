@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images perfectly preserve the match context, camera angle, and all visual elements of the original frame.\n2. temporalConsistency: 3 - The main subject's pose and the background players show noticeable shifts and inconsistencies between the two frames.\n3. identityConsistency: 4 - The primary player (Balde) remains visually stable, though some background figures exhibit slight morphing.\n4. motionFidelity: 2 - The movement of the main player's arms and the background players is physically inconsistent and jerky.\n5. sceneFidelity: 4 - The stadium, field lines, and overall spatial layout remain largely intact and recognizable.\n6. stylizationStrength: 4 - The noir-retro aesthetic with high contrast and grain is clearly and effectively applied.\n\nARTIFACTS limbs=1 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1\nAXES sf=5 tc=3 ic=4 mf=2 scf=4 ss=4\nARTIFACTS limbs=1 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267567,
+  "id": "2026092500324322215a77a41f4c89",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092500324322215a77a41f4c89",
+  "usage": {
+    "completion_tokens": 242,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}

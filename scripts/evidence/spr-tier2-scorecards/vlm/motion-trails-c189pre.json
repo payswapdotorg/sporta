@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:15), and camera angle as the original.\n2. temporalConsistency - 3: While the motion trails are present, the background and static elements remain stable between the two frames.\n3. identityConsistency - 4: Player appearances and jersey numbers (e.g., #3, #7) are clearly preserved across all frames.\n4. motionFidelity - 4: The motion trails accurately reflect the running direction and speed of the players relative to the source image.\n5. sceneFidelity - 4: The stadium, pitch lines, and scoreboard remain spatially consistent with the original broadcast frame.\n6. stylizationStrength - 5: The motion-trail effect is very prominent and clearly defines the intended artistic transformation.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269410,
+  "id": "202609250103251c241f2760aa4852",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250103251c241f2760aa4852",
+  "usage": {
+    "completion_tokens": 220,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1388
+  }
+}

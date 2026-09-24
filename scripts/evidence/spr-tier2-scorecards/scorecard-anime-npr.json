@@ -1,0 +1,81 @@
+{
+ "family": "anime-npr",
+ "rendererId": "spr-anime-npr-dc1",
+ "rendererVersion": "0.1.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": null
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9815",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.3895",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9815,
+  "staticRegionInstability": 0.3895,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 2.2,
+   "temporalConsistency": 2.73,
+   "identityConsistency": 1.8,
+   "motionFidelity": 1.87,
+   "sceneFidelity": 2.0,
+   "stylizationStrength": 5.0
+  },
+  "minAxisMean": 1.8,
+  "overallMean": 2.6,
+  "criticalArtifacts": 136,
+  "totalArtifacts": 235,
+  "evidence": [
+   "vlm/anime-npr-t2s.json",
+   "vlm/anime-npr-t8s.json",
+   "vlm/anime-npr-t15s.json",
+   "vlm/anime-npr-t30s.json",
+   "vlm/anime-npr-t45s.json",
+   "vlm/anime-npr-c189pre.json",
+   "vlm/anime-npr-c189post.json",
+   "vlm/anime-npr-c475pre.json",
+   "vlm/anime-npr-c475post.json",
+   "vlm/anime-npr-c550pre.json",
+   "vlm/anime-npr-c550post.json",
+   "vlm/anime-npr-c862pre.json",
+   "vlm/anime-npr-c862post.json",
+   "vlm/anime-npr-c979pre.json",
+   "vlm/anime-npr-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

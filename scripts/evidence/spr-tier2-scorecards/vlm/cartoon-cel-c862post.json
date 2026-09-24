@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and player position are recognizable, but the extreme abstraction and loss of detail make it a loose interpretation.\n2. temporalConsistency - 1: The background and player's arm undergo significant morphing and flickering between the two frames.\n3. identityConsistency - 2: The player's green/white stripes and armband are vaguely present, but facial features and body shape are heavily distorted.\n4. motionFidelity - 1: The stylized motion is inconsistent with the subtle real-world movement, showing erratic shifts in limb and background positions.\n5. sceneFidelity - 1: The stadium background is reduced to unrecognizable, shifting abstract blobs that lack spatial stability.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style with flattened colors is extremely aggressive and obvious.\n\nAXES sf=2 tc=1 ic=2 mf=1 scf=1 ss=5\nARTIFACTS limbs=1 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267415,
+  "id": "2026092500301026964259c95947c2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092500301026964259c95947c2",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1142,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1372
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors match, but extreme abstraction loses most specific details and context.\n2. temporalConsistency - 4: The stylized frames are nearly identical with only minor contour fluctuations, showing high stability.\n3. identityConsistency - 1: Players are reduced to featureless colored blobs, making individual recognition impossible.\n4. motionFidelity - 1: The extreme simplification completely obscures body postures and the ball, rendering motion unreadable.\n5. sceneFidelity - 2: The goal and scoreboard area are vaguely recognizable, but the pitch lines and background are heavily distorted.\n6. stylizationStrength - 5: The transformation to a flat, cartoon-cel aesthetic is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=10 players=0 warped=5 dupes=0 ball=1 bg=3 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267451,
+  "id": "20260925003035218331e364ce4638",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003035218331e364ce4638",
+  "usage": {
+    "completion_tokens": 207,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1142,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1349
+  }
+}

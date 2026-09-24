@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized frames perfectly preserve the match context, camera angle, and scoreboard details of the original.\n2. temporalConsistency - 4: The scene is highly stable between the 0.2s interval with only minor, subtle shifts in player poses.\n3. identityConsistency - 5: All players maintain consistent visual features and jersey numbers across both stylized frames.\n4. motionFidelity - 5: Player and ball positions show natural, incremental movement consistent with the source frame's action.\n5. sceneFidelity - 5: Stadium architecture, advertising boards, and background elements remain spatially accurate and fixed.\n6. stylizationStrength - 3: The noir-retro transformation is applied but appears somewhat subtle, lacking high-contrast dramatic impact.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=3\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267585,
+  "id": "20260925003258385e9a0d5f9b49b0",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003258385e9a0d5f9b49b0",
+  "usage": {
+    "completion_tokens": 213,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1357
+  }
+}

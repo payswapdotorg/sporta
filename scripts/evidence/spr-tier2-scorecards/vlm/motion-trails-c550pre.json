@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 is a perfect match for Image 1 in content, context, and timing.\n2. temporalConsistency - 4: Motion trails correctly evolve between the two timestamps with no flickering or morphing.\n3. identityConsistency - 5: All players, including the main subject and background figures, maintain consistent visual features.\n4. motionFidelity - 5: The motion trails accurately represent the physical displacement of the players over the 0.2s interval.\n5. sceneFidelity - 4: The stadium environment is highly stable; only a minor shift in the advertising board text is visible.\n6. stylizationStrength - 5: The motion-trail effect is clearly applied and visually distinct from the original frame.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269418,
+  "id": "20260925010335a5a2a4ad38764f5d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010335a5a2a4ad38764f5d",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1377
+  }
+}

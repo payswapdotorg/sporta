@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors are present, but extreme abstraction obscures specific player positions and stadium details.\n2. temporalConsistency - 4: The stylized blobs remain in nearly identical positions between the two frames with minimal flickering.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual recognition impossible.\n4. motionFidelity - 1: The extreme simplification completely removes all visual cues of player movement or ball trajectory.\n5. sceneFidelity - 2: The field shape and goal area are vaguely recognizable, but background advertising and stands are unrecognizable noise.\n6. stylizationStrength - 5: The transformation to a high-contrast, abstract cartoon style is extremely aggressive and obvious.\n\nARTIFACTS limbs=10 players=5 warped=3 dupes=0 ball=1 bg=1 tj=0\nAXES sf=2 tc=4 ic=2 mf=1 scf=2 ss=5\nARTIFACTS limbs=10 players=5 warped=3 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267499,
+  "id": "20260925003133f0533725f6404e4e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003133f0533725f6404e4e",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1379
+  }
+}

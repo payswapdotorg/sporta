@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and score are present, but the extreme abstraction loses most specific player details and spatial precision.\n2. temporalConsistency - 4: The stylized blobs remain in nearly identical positions between the two frames with minimal flickering.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual recognition impossible.\n4. motionFidelity - 1: The subtle motion of players and the ball is completely lost in the static, abstract representation.\n5. sceneFidelity - 3: The goal, field lines, and general background shapes are recognizable but heavily distorted and simplified.\n6. stylizationStrength - 5: The transformation to a high-abstraction, cartoonish style is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=2 mf=1 scf=3 ss=5\nARTIFACTS limbs=10 players=6 warped=4 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267487,
+  "id": "20260925003123d1c451be428b44b7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003123d1c451be428b44b7",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1351
+  }
+}

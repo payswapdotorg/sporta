@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The general scene layout and scoreboard are present, but extreme abstraction obscures the specific player's features and the fine details of the original broadcast.\n2. temporalConsistency: 1 - The stylized representation is highly unstable, with significant morphing of shapes and flickering background elements between the two frames.\n3. identityConsistency: 2 - The player's general silhouette and jersey colors remain recognizable as a single entity, though facial features and specific identity markers are lost to the style.\n4. motionFidelity: 1 - The subtle movement of the player's arm and body in the original is replaced by erratic shape-shifting that does not reflect realistic human motion.\n5. sceneFidelity: 2 - The spatial relationship between the player, goal net, and field is roughly maintained, but the background geometry is heavily distorted.\n6. stylizationStrength: 5 - The transformation into a high-contrast, abstract cartoon/anime style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=1 ic=2 mf=1 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=3 dupes=0 ball=0 bg=2 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267533,
+  "id": "20260925003207224a12774111430f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003207224a12774111430f",
+  "usage": {
+    "completion_tokens": 255,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1396
+  }
+}

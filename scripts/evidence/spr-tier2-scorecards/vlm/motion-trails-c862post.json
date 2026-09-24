@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, timestamp, score, and camera angle are perfectly preserved across all frames.\n2. temporalConsistency: 3 - The player's pose is stable, but the motion-trail blobs shift significantly in position and shape between the two frames.\n3. identityConsistency: 4 - The main player's facial features, jersey details, and captain's armband remain clearly recognizable.\n4. motionFidelity: 4 - The stylized trails correctly imply the player's forward movement relative to the static background.\n5. sceneFidelity: 5 - The goal net, stadium background, and on-screen graphics (score/timer) are spatially consistent and unaltered.\n6. stylizationStrength: 5 - The \"motion-trail\" or \"heat-map\" effect is very prominent and clearly defines the intended artistic style.\n\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0\nAXES sf=5 tc=3 ic=4 mf=4 scf=5 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268920,
+  "id": "202609250054271c24461509d54de7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250054271c24461509d54de7",
+  "usage": {
+    "completion_tokens": 256,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1397
+  }
+}

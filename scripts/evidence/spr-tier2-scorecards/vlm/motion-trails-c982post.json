@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are perfectly preserved in the stylized frames.\n2. temporalConsistency - 3: The motion trails shift significantly between frames, causing some flickering of the overlay patterns.\n3. identityConsistency - 4: Player positions and team colors remain clearly identifiable despite the heavy artistic overlay.\n4. motionFidelity - 4: The motion trails accurately reflect the direction of player movement seen in the original frame.\n5. sceneFidelity - 3: The background stadium elements are partially obscured and warped by the shifting stylization blobs.\n6. stylizationStrength - 5: The transformation into a motion-trail/heat-map style is extremely bold and obvious.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=3 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268941,
+  "id": "20260925005537874330b225b84881",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925005537874330b225b84881",
+  "usage": {
+    "completion_tokens": 202,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 269
+    },
+    "total_tokens": 1343
+  }
+}

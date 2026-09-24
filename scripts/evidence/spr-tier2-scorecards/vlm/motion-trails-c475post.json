@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 4 - The match, score, time, and camera angle are identical to the source frame.\n2. temporalConsistency: 3 - The motion trails and player positions evolve logically between the two frames without major flickering.\n3. identityConsistency: 3 - The main players (orange kit) remain visually stable, though background figures are heavily obscured by the style.\n4. motionFidelity: 2 - The stylized blobs obscure fine limb movement, making it hard to verify precise physical consistency with the source.\n5. sceneFidelity: 2 - The stadium and pitch lines are significantly warped and distorted by the heavy stylization effect.\n6. stylizationStrength: 5 - The transformation into a heat-map/motion-trail style is extremely bold and obvious.\n\nARTIFACTS limbs=0 players=0 warped=5 dupes=0 ball=0 bg=5 tj=0\nAXES sf=4 tc=3 ic=3 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=5 dupes=0 ball=0 bg=5 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268851,
+  "id": "20260925005406956fbed8932e4cf2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925005406956fbed8932e4cf2",
+  "usage": {
+    "completion_tokens": 240,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

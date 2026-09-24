@@ -1,0 +1,91 @@
+{
+ "schemaVersion": "2.0",
+ "protocol": "frozen acceptance doc \u00a72 (7-axis) \u2014 v1 4-axis harness was spec-drift, superseded",
+ "samplesPerReality": [
+  "t2s",
+  "t8s",
+  "t15s",
+  "t30s",
+  "t45s",
+  "c189pre",
+  "c189post",
+  "c475pre",
+  "c475post",
+  "c550pre",
+  "c550post",
+  "c862pre",
+  "c862post",
+  "c979pre",
+  "c982post"
+ ],
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ],
+ "perReality": {
+  "cartoon-cel": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 2.13,
+    "temporalConsistency": 3.13,
+    "identityConsistency": 1.53,
+    "motionFidelity": 1.67,
+    "sceneFidelity": 1.93,
+    "stylizationStrength": 5.0
+   },
+   "criticalArtifacts": 99,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-cartoon-cel.json"
+  },
+  "anime-npr": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 2.2,
+    "temporalConsistency": 2.73,
+    "identityConsistency": 1.8,
+    "motionFidelity": 1.87,
+    "sceneFidelity": 2.0,
+    "stylizationStrength": 5.0
+   },
+   "criticalArtifacts": 136,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-anime-npr.json"
+  },
+  "noir-retro-noir": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 5.0,
+    "temporalConsistency": 3.67,
+    "identityConsistency": 4.47,
+    "motionFidelity": 4.0,
+    "sceneFidelity": 4.47,
+    "stylizationStrength": 4.0
+   },
+   "criticalArtifacts": 1,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-noir-retro-noir.json"
+  },
+  "motion-trails": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 4.93,
+    "temporalConsistency": 3.73,
+    "identityConsistency": 4.4,
+    "motionFidelity": 3.67,
+    "sceneFidelity": 4.33,
+    "stylizationStrength": 3.73
+   },
+   "criticalArtifacts": 2,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-motion-trails.json"
+  }
+ }
+}

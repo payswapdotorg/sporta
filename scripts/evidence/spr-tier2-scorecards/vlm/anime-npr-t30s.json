@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and key elements (goal, ads, score) are present, but the extreme abstraction loses most spatial and textural detail.\n2. temporalConsistency - 2: While the overall scene structure remains, the background blobs and player shapes shift noticeably between the two frames.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs with no discernible facial or uniform features to maintain identity.\n4. motionFidelity - 2: Subtle shifts in blob positions suggest some motion, but it is heavily obscured by the stylization noise.\n5. sceneFidelity - 2: The stadium and advertising boards are recognizable as abstract shapes, but lack coherent spatial definition.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoonish NPR style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=2 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=3 warped=5 dupes=0 ball=1 bg=4 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267483,
+  "id": "2026092500311083a0d9296e3a4e80",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092500311083a0d9296e3a4e80",
+  "usage": {
+    "completion_tokens": 229,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1370
+  }
+}

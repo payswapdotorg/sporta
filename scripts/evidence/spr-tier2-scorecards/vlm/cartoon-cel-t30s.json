@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and goal position match, but extreme abstraction obscures specific player positions, the ball, and most text.\n2. temporalConsistency - 4: The stylized frames are highly consistent with each other, showing only subtle shifts in blob shapes without major flickering or morphing.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual identification nearly impossible despite maintaining rough team colors.\n4. motionFidelity - 1: The ball is completely missing, and the abstracted figures do not convey realistic or discernible athletic motion.\n5. sceneFidelity - 3: The background structure (stands, advertising boards) is recognizable in its abstract form and remains spatially stable.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoon-cel style with flattened colors is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=2 mf=1 scf=3 ss=5\nARTIFACTS limbs=5 players=3 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267272,
+  "id": "20260925002738d5beefe770584265",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925002738d5beefe770584265",
+  "usage": {
+    "completion_tokens": 237,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1142,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1379
+  }
+}

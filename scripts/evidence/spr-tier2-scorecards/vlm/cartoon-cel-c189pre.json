@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and main subject (player 3) are present, but the extreme abstraction loses most specific match details and context.\n2. temporalConsistency - 3: The primary shapes remain stable between the two frames, though the background and smaller figures exhibit significant flickering.\n3. identityConsistency - 2: The orange player is recognizable by color, but facial features, numbers, and other players' identities are completely lost.\n4. motionFidelity - 2: The orange player's leg position changes slightly suggesting motion, but the lack of detail makes it hard to verify against the source.\n5. sceneFidelity - 2: The field lines and general horizon are maintained, but the stadium background is reduced to a flat, unrecognizable mass.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoon-cel style with flattened colors is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=4 warped=3 dupes=0 ball=1 bg=3 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269086,
+  "id": "20260925005800f869480243fa4fcf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925005800f869480243fa4fcf",
+  "usage": {
+    "completion_tokens": 243,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1412
+  }
+}

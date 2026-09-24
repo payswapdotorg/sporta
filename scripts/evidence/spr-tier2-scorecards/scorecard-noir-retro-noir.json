@@ -1,0 +1,81 @@
+{
+ "family": "noir-retro-noir",
+ "rendererId": "spr-noir-retro-dc1",
+ "rendererVersion": "0.1.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": null
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9934",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.4774",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9934,
+  "staticRegionInstability": 0.4774,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 5.0,
+   "temporalConsistency": 3.67,
+   "identityConsistency": 4.47,
+   "motionFidelity": 4.0,
+   "sceneFidelity": 4.47,
+   "stylizationStrength": 4.0
+  },
+  "minAxisMean": 3.67,
+  "overallMean": 4.27,
+  "criticalArtifacts": 1,
+  "totalArtifacts": 11,
+  "evidence": [
+   "vlm/noir-retro-noir-t2s.json",
+   "vlm/noir-retro-noir-t8s.json",
+   "vlm/noir-retro-noir-t15s.json",
+   "vlm/noir-retro-noir-t30s.json",
+   "vlm/noir-retro-noir-t45s.json",
+   "vlm/noir-retro-noir-c189pre.json",
+   "vlm/noir-retro-noir-c189post.json",
+   "vlm/noir-retro-noir-c475pre.json",
+   "vlm/noir-retro-noir-c475post.json",
+   "vlm/noir-retro-noir-c550pre.json",
+   "vlm/noir-retro-noir-c550post.json",
+   "vlm/noir-retro-noir-c862pre.json",
+   "vlm/noir-retro-noir-c862post.json",
+   "vlm/noir-retro-noir-c979pre.json",
+   "vlm/noir-retro-noir-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

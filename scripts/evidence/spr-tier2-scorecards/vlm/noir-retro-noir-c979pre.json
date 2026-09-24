@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 is a perfect match for Image 1 in content, timing, and camera angle.\n2. temporalConsistency - 2: Image 3 represents a completely different camera shot rather than a continuous frame from the same sequence.\n3. identityConsistency - 4: Players in Image 2 remain visually identical to the original, though Image 3 introduces a new subject.\n4. motionFidelity - 2: The transition to a close-up in Image 3 breaks the spatial and motion continuity of the wide shot.\n5. sceneFidelity - 3: While Image 2 maintains the background, Image 3 shifts to an entirely different part of the stadium.\n6. stylizationStrength - 5: The noir-retro-noir filter is clearly applied with high contrast, grain, and desaturation.\n\nAXES sf=5 tc=2 ic=4 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269401,
+  "id": "2026092501031693b8b2ef09754421",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092501031693b8b2ef09754421",
+  "usage": {
+    "completion_tokens": 226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1397
+  }
+}

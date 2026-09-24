@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors are recognizable, but the extreme abstraction loses most specific details of the match context.\n2. temporalConsistency - 4: The stylized frames are nearly identical with only minor background contour shifts, showing high stability.\n3. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, making individual identification impossible.\n4. motionFidelity - 1: The extreme simplification completely obscures any player or ball movement between the frames.\n5. sceneFidelity - 3: The overall spatial arrangement of the field and background elements is preserved despite the heavy distortion.\n6. stylizationStrength - 5: The transformation to a flat, cartoonish NPR style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=4 ic=2 mf=1 scf=3 ss=5\nARTIFACTS limbs=11 players=5 warped=5 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267563,
+  "id": "202609250032361d6a39f5fed54a2a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250032361d6a39f5fed54a2a",
+  "usage": {
+    "completion_tokens": 208,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 269
+    },
+    "total_tokens": 1349
+  }
+}

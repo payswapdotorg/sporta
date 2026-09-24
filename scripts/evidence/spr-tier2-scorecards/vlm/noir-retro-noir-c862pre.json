@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, timestamp, and camera angle are identical to the source frame.\n2. temporalConsistency - 4: Player positions shift naturally between the two frames with no flickering or morphing.\n3. identityConsistency - 5: All players maintain their visual identity, uniforms, and relative sizes across the sequence.\n4. motionFidelity - 5: The subtle movement of the players (especially the goalkeeper) is consistent with the 0.2s time gap.\n5. sceneFidelity - 5: The stadium background, advertising boards, and pitch lines remain perfectly stable.\n6. stylizationStrength - 4: The noir-retro transformation is clear, though the contrast could be slightly more dramatic.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269396,
+  "id": "20260925010311300f0fca116b4b74",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010311300f0fca116b4b74",
+  "usage": {
+    "completion_tokens": 204,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1375
+  }
+}

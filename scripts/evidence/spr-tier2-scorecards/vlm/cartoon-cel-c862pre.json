@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The general layout and key elements (scoreboard, ads, goal) are present, but the extreme abstraction loses most specific player details.\n2. temporalConsistency - 5: The stylized frames show almost no flickering or morphing between the 0.2s interval, maintaining a very stable visual representation.\n3. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, making individual identification nearly impossible despite consistent coloring.\n4. motionFidelity - 3: Subtle shifts in blob positions suggest some motion consistency, but the lack of detail makes it hard to verify precise movement fidelity.\n5. sceneFidelity - 4: The background elements like advertising boards and the goal structure maintain their relative positions and shapes well across frames.\n6. stylizationStrength - 5: The cartoon-cel transformation is extremely aggressive and obvious, reducing the entire scene to flat color regions with bold outlines.\n\nAXES sf=3 tc=5 ic=2 mf=3 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269313,
+  "id": "202609250101148b752d3c1bbe4fab",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250101148b752d3c1bbe4fab",
+  "usage": {
+    "completion_tokens": 245,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1414
+  }
+}

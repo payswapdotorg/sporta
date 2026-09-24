@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and camera angle are preserved, but specific details like the score, time, and team logos are heavily distorted or lost.\n2. temporalConsistency - 3: The overall scene structure remains stable between the two frames, though the abstract background shapes and player blobs exhibit some minor shifting.\n3. identityConsistency - 1: Players are reduced to indistinguishable colored blobs with no facial features or recognizable kit details.\n4. motionFidelity - 2: While the relative positions of the main blobs shift slightly, the extreme loss of detail makes it impossible to verify if the motion matches the original football action.\n5. sceneFidelity - 2: The stadium and advertising boards are recognizable only as distorted, warping abstract shapes that lack spatial precision.\n6. stylizationStrength - 5: The transformation into a high-abstraction, cartoonish style is extremely aggressive and immediately obvious.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=11 players=4 warped=3 dupes=0 ball=1 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267521,
+  "id": "20260925003154c00d7e9de6d7452d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003154c00d7e9de6d7452d",
+  "usage": {
+    "completion_tokens": 240,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

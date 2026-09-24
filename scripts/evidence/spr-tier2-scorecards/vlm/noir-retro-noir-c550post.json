@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, moment, camera angle, and scoreboard are perfectly preserved.\n2. temporalConsistency: 3 - The scene is stable, but some background elements and player positions show slight jitter.\n3. identityConsistency: 4 - Players maintain their team colors and general forms across the frames.\n4. motionFidelity: 3 - Player movements are generally consistent with the source, though some appear slightly stiff or shifted.\n5. sceneFidelity: 4 - The stadium, pitch lines, and advertising boards remain spatially consistent.\n6. stylizationStrength: 5 - The noir-retro transformation is very obvious with high contrast and desaturation.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268735,
+  "id": "20260925005210abcaa2ee859f417e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925005210abcaa2ee859f417e",
+  "usage": {
+    "completion_tokens": 192,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1336
+  }
+}

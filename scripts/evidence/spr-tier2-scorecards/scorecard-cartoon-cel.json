@@ -1,0 +1,81 @@
+{
+ "family": "cartoon-cel",
+ "rendererId": "spr-cartoon-cel-dc1",
+ "rendererVersion": "0.1.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": "detector miss on stylization-softened cut resolved by the deep correspondence gate (T2b)"
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9767",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.4033",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9767,
+  "staticRegionInstability": 0.4033,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 2.13,
+   "temporalConsistency": 3.13,
+   "identityConsistency": 1.53,
+   "motionFidelity": 1.67,
+   "sceneFidelity": 1.93,
+   "stylizationStrength": 5.0
+  },
+  "minAxisMean": 1.53,
+  "overallMean": 2.56,
+  "criticalArtifacts": 99,
+  "totalArtifacts": 190,
+  "evidence": [
+   "vlm/cartoon-cel-t2s.json",
+   "vlm/cartoon-cel-t8s.json",
+   "vlm/cartoon-cel-t15s.json",
+   "vlm/cartoon-cel-t30s.json",
+   "vlm/cartoon-cel-t45s.json",
+   "vlm/cartoon-cel-c189pre.json",
+   "vlm/cartoon-cel-c189post.json",
+   "vlm/cartoon-cel-c475pre.json",
+   "vlm/cartoon-cel-c475post.json",
+   "vlm/cartoon-cel-c550pre.json",
+   "vlm/cartoon-cel-c550post.json",
+   "vlm/cartoon-cel-c862pre.json",
+   "vlm/cartoon-cel-c862post.json",
+   "vlm/cartoon-cel-c979pre.json",
+   "vlm/cartoon-cel-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

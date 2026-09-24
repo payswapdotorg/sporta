@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors are preserved, but the extreme abstraction loses most specific player details and spatial precision.\n2. temporalConsistency - 4: The stylized blobs and background patterns remain very stable between the two frames with minimal flickering.\n3. identityConsistency - 1: Players are reduced to featureless colored blobs, making individual identification and visual stability impossible.\n4. motionFidelity - 2: While some blobs shift slightly, the lack of detail makes it impossible to verify if the motion matches the original football action.\n5. sceneFidelity - 3: The stadium background and advertising boards are recognizable as abstract shapes, though heavily distorted.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoonish NPR style is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=3 ss=5\nARTIFACTS limbs=11 players=6 warped=3 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267470,
+  "id": "202609250031047ecb19c21dad4eeb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250031047ecb19c21dad4eeb",
+  "usage": {
+    "completion_tokens": 219,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1141,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1360
+  }
+}

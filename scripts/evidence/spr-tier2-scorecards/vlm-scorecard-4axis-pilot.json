@@ -1,0 +1,178 @@
+{
+ "schemaVersion": "1.0",
+ "perReality": {
+  "cartoon-cel": {
+   "entries": [
+    {
+     "t": 2,
+     "ok": true,
+     "verdict": "(a) stylization obvious + appealing? 3\n(b) players visible + structurally intact (no deformed limbs, no missing players)? 2\n(c) same match moment recognizable (camera, positions, scoreboard)? 4\n(d) colors believable for the style? 2\nSCORES a=3 b=2 c=4 d=2",
+     "scores": {
+      "a": 3,
+      "b": 2,
+      "c": 4,
+      "d": 2,
+      "mean": 2.75
+     }
+    },
+    {
+     "t": 15,
+     "ok": true,
+     "verdict": "(a) stylization obvious + appealing? 3\n(b) players visible + structurally intact (no deformed limbs, no missing players)? 1\n(c) same match moment recognizable (camera, positions, scoreboard)? 2\n(d) colors believable for the style? 3\nSCORES a=3 b=1 c=2 d=3",
+     "scores": {
+      "a": 3,
+      "b": 1,
+      "c": 2,
+      "d": 3,
+      "mean": 2.25
+     }
+    },
+    {
+     "t": 45,
+     "ok": true,
+     "verdict": "(a) 3\n(b) 1\n(c) 2\n(d) 2\n\nSCORES a=3 b=1 c=2 d=2",
+     "scores": {
+      "a": 3,
+      "b": 1,
+      "c": 2,
+      "d": 2,
+      "mean": 2.0
+     }
+    }
+   ],
+   "scoredFrames": 3,
+   "meanOfMeans": 2.33,
+   "tier2Threshold": ">= 4.0 mean AND all axes >= 3 on every frame"
+  },
+  "anime-npr": {
+   "entries": [
+    {
+     "t": 2,
+     "ok": true,
+     "verdict": "(a) 3 (b) 3 (c) 4 (d) 3\nSCORES a=3 b=3 c=4 d=3",
+     "scores": {
+      "a": 3,
+      "b": 3,
+      "c": 4,
+      "d": 3,
+      "mean": 3.25
+     }
+    },
+    {
+     "t": 15,
+     "ok": true,
+     "verdict": "(a) 2 (b) 1 (c) 3 (d) 3\nSCORES a=2 b=1 c=3 d=3",
+     "scores": {
+      "a": 2,
+      "b": 1,
+      "c": 3,
+      "d": 3,
+      "mean": 2.25
+     }
+    },
+    {
+     "t": 45,
+     "ok": true,
+     "verdict": "(a) 3 (b) 1 (c) 2 (d) 2\nSCORES a=3 b=1 c=2 d=2",
+     "scores": {
+      "a": 3,
+      "b": 1,
+      "c": 2,
+      "d": 2,
+      "mean": 2.0
+     }
+    }
+   ],
+   "scoredFrames": 3,
+   "meanOfMeans": 2.5,
+   "tier2Threshold": ">= 4.0 mean AND all axes >= 3 on every frame"
+  },
+  "noir-retro-noir": {
+   "entries": [
+    {
+     "t": 2,
+     "ok": true,
+     "verdict": "(a) 3\n(b) 5\n(c) 5\n(d) 3\n\nSCORES a=3 b=5 c=5 d=3",
+     "scores": {
+      "a": 3,
+      "b": 5,
+      "c": 5,
+      "d": 3,
+      "mean": 4.0
+     }
+    },
+    {
+     "t": 15,
+     "ok": true,
+     "verdict": "(a) 3\n(b) 4\n(c) 5\n(d) 2\n\nSCORES a=3 b=4 c=5 d=2",
+     "scores": {
+      "a": 3,
+      "b": 4,
+      "c": 5,
+      "d": 2,
+      "mean": 3.5
+     }
+    },
+    {
+     "t": 45,
+     "ok": true,
+     "verdict": "(a) 3\n(b) 4\n(c) 5\n(d) 2\n\nSCORES a=3 b=4 c=5 d=2",
+     "scores": {
+      "a": 3,
+      "b": 4,
+      "c": 5,
+      "d": 2,
+      "mean": 3.5
+     }
+    }
+   ],
+   "scoredFrames": 3,
+   "meanOfMeans": 3.67,
+   "tier2Threshold": ">= 4.0 mean AND all axes >= 3 on every frame"
+  },
+  "motion-trails": {
+   "entries": [
+    {
+     "t": 2,
+     "ok": true,
+     "verdict": "(a) 3\n(b) 5\n(c) 5\n(d) 4\n\nSCORES a=3 b=5 c=5 d=4",
+     "scores": {
+      "a": 3,
+      "b": 5,
+      "c": 5,
+      "d": 4,
+      "mean": 4.25
+     }
+    },
+    {
+     "t": 15,
+     "ok": true,
+     "verdict": "(a) 2 (b) 5 (c) 5 (d) 5\nSCORES a=2 b=5 c=5 d=5",
+     "scores": {
+      "a": 2,
+      "b": 5,
+      "c": 5,
+      "d": 5,
+      "mean": 4.25
+     }
+    },
+    {
+     "t": 45,
+     "ok": true,
+     "verdict": "(a) 2 (The stylization is extremely subtle; the \"motion trails\" are barely visible, making it look almost identical to the original rather than a distinct, appealing style.)\n(b) 5 (All players are clearly visible and their structures remain perfectly intact with no deformation.)\n(c) 5 (The camera angle, player positions, scoreboard (1-2, 24:58), and all on-screen graphics are perfectly preserved and instantly recognizable.)\n(d) 4 (The colors are accurate to the original broadcast; while the style doesn't introduce a new color palette, it maintains high fidelity.)\n\nSCORES a=2 b=5 c=5 d=4",
+     "scores": {
+      "a": 2,
+      "b": 5,
+      "c": 5,
+      "d": 4,
+      "mean": 4.0
+     }
+    }
+   ],
+   "scoredFrames": 3,
+   "meanOfMeans": 4.17,
+   "tier2Threshold": ">= 4.0 mean AND all axes >= 3 on every frame"
+  }
+ },
+ "superseded": "v1 4-axis pilot (spec-drift, quota-outage era) \u2014 superseded by the v2 7-axis conformance run; retained as honest history"
+}

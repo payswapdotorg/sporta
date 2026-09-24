@@ -3,7 +3,70 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-1 RECOVERED + RE-VERIFIED (session w6-spr-2) — VLM scorecards still pending quota
+## Current state: WAVE-1 TIERED — VLM scorecards COMPLETE (session w6-spr-3): all realities Tier 0 honest, noir/trails near-miss
+
+### Session w6-spr-3 (2026-09-25, Tier-2 gate execution)
+
+VLM quota returned; the Tier-2 gate executed for real — and the execution
+itself surfaced and fixed two spec/evidence defects:
+
+1. **Harness spec-drift fixed**: the v1 scorecard script (authored during the
+   quota outage, never validated against a live model) implemented a 4-axis
+   prompt that drifted from the frozen acceptance §2 7-axis protocol.
+   Rewritten to conform exactly: sourceFidelity / temporalConsistency /
+   identityConsistency / motionFidelity / sceneFidelity / stylizationStrength
+   (1–5 + justification) + the 7-type artifact checklist with critical =
+   limb-malformation/player-disappearance; sample set t=2/8/15/30/45 +
+   cut-adjacent pre/post (cut-adjacent pairs stay WITHIN the source shot — a
+   pair crossing a broadcast cut would misattribute the preserved source cut
+   as renderer temporal inconsistency; the 979/982 double-cut bounds a
+   3-frame micro-shot that cannot support a 0.2 s pair, so those two samples
+   cluster into one event). 60 conformance calls, all landed; v1 pilot
+   preserved as vlm-scorecard-4axis-pilot.json.
+2. **G-T5 hardened to the full artifact**: the determinism proof lived only
+   on the b12 cut (sha-triple); the b8 renders were single-rendered with an
+   implementation claim — while the status ledger said "byte-identical ×3"
+   for the full realities. Every b8 reality was re-rendered independently
+   this session: **all four byte-identical** (sha pair embedded in
+   renders.json files.b8.determinismDoubleRender). The claim is now measured
+   on the shipped artifact itself.
+3. **Silent gate-consumer bug fixed**: both the product manifest route and
+   the harness read `files.b8.determinismDoubleRender` — absent — instead of
+   the b12 record, so the live lab had been showing hardGatesGreen=false /
+   "Gates pending" for every reality since the recovery. Same class as the
+   playbackUrl bug: an honest-evidence surface that silently degrades.
+   Both consumers now read b8-first/b12-fallback with the source labeled.
+
+**Tier outcome (frozen protocol applied — the bar is never lowered):**
+
+| Reality | Hard gates | VLM axis means (min) | Critical artifacts | Tier |
+|---|---|---|---|---|
+| noir-retro-noir | ALL PASS (incl. b8 double-render) | 5.0 / 4.35 / 4.29 / 3.82 / 4.0 / 3.59 (min 3.59) | **1** (one background-figure "slight morphing" VLM-categorized as limbs) | **Tier 0 — critical blocks Tier 1** |
+| motion-trails | ALL PASS | 4.88 / 4.12 / 4.0 / 3.88 / 3.53 / 3.47 (min 3.47) | **2** (trail streaks on limbs counted as malformation — style-effect conflation, recorded) | **Tier 0** |
+| anime-npr | ALL PASS | min 1.80 (stylization 5.0, identity/motion collapse) | 136 | Tier 0 |
+| cartoon-cel | ALL PASS | min 1.53 (stylization 5.0, identity/motion collapse) | 99 | Tier 0 |
+
+Diagnosis feeding wave-2 (SPR202 neural upgrade): preservation is solved
+(sourceFidelity 4.88–5.0 — the engine's contract holds); the failure mode is
+visual quality of the heuristic stylizers — aggressive styles destroy player
+structure, subtle styles draw borderline limb-morphology counts. Tier 2
+(≥4.0 means + 0 critical + TL approval) is untouched for the neural wave.
+
+**TL visual gate (this session, agent-browser on the live lab)**: playback
++ position-preserving switches verified again under real gestures (noir,
+trails); hold-to-compare round-trips mid-clip with position AND play state
+held (t=22.88→24.77 across the swap); frame strip 12 imgs; mobile 390×844 no
+horizontal overflow, footer naturally pushed on long content; zero console
+errors; honest tier badges + VLM scorecard panel render in the evidence
+panel; VLM UI review of the surface 4/5/4/5. Screenshots:
+qa/tl-visual-*.png (machine-local). TL verdict: mechanics green; visual
+quality honestly matches the Tier-0 outcome above — Tier-2 approval is NOT
+granted (nothing met the criteria; that is the correct result, not a failure
+of the process).
+
+Evidence: `scripts/evidence/spr-tier2-scorecards/` (aggregate + 4 family
+scorecards + 60 per-call VLM JSONs + renders-with-b8-determinism.json);
+harness `scripts/source-preserving/vlm_scorecard.py` (v2, --resume).
 
 ### Session w6-spr-2 (2026-09-24, environment-reset recovery)
 
@@ -146,10 +209,13 @@ qa/cuts-deep-cartoon-cel.json. The raw G-T2 JSON is preserved untouched.
 
 ## Next executable work
 
-0. **PAT re-injection** (operator): the w6-spr-2 commits sit local — push
-   `main` to GitHub when credentials return.
-1. VLM quota reset → run `scripts/source-preserving/vlm_scorecard.py` →
-   scorecards → Tier-2 assignment (needs ≥4.0 mean + TL visual approval).
-2. Wave 2: benchmark corpus completion (b5 86s pull re-acquisition + b2-b7
+0. **PAT re-injection** (operator): the w6-spr-2 AND w6-spr-3 commits sit
+   local — push `main` to GitHub when credentials return.
+1. Wave 2: benchmark corpus completion (b5 86s pull re-acquisition + b2-b7
    discovery/VLM), corpus-wide renders, A's upgrade trials (EbSynth keyframe
-   propagation, Kuwahara, AnimeGANv2 A/B), SPR103/104/107/109/202/205.
+   propagation, Kuwahara, AnimeGANv2 A/B) — now with the Tier-2 diagnosis
+   pointing exactly at stylizer visual quality (preservation already proven).
+2. SPR103/104/107/109/202/205 per the work-items doc.
+3. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
+   axes are recorded as a limitation; full-video review would replace the
+   0.2 s pair judgment.

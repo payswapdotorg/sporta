@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core graphic and general field location match, but the players are completely missing in the stylized versions.\n2. temporalConsistency - 1: The scene undergoes a massive, unexplained inversion (colors flip, orientation rotates) between the two frames.\n3. identityConsistency - 1: All human figures have been abstracted into unrecognizable colored blobs or are entirely absent.\n4. motionFidelity - 1: No discernible player or ball motion can be tracked due to the loss of detail and scene inversion.\n5. sceneFidelity - 1: The background is unrecognizable as a stadium and spatially incoherent between frames.\n6. stylizationStrength - 5: The transformation to a high-contrast, abstract cartoon-cel style is extremely aggressive and obvious.\n\nAXES sf=2 tc=1 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=5 warped=5 dupes=0 ball=0 bg=5 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269319,
+  "id": "202609250101531b30b2a9ccba4a1c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250101531b30b2a9ccba4a1c",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1390
+  }
+}

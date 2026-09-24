@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images perfectly match the original frame's camera angle, player positions, and match context.\n2. temporalConsistency: 4 - The transition between the two frames is smooth with no significant flickering or sudden morphing of objects.\n3. identityConsistency: 4 - Players maintain their visual appearance and team colors (pink/green) consistently across the temporal pair.\n4. motionFidelity: 4 - Player and ball movements between the two frames appear natural and consistent with the original action.\n5. sceneFidelity: 5 - The stadium, goal, and field lines remain spatially stable and accurately represented in both frames.\n6. stylizationStrength: 4 - The noir-retro-noir effect is clearly visible through desaturation, high contrast, and color isolation.\n\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267590,
+  "id": "2026092500330576e7a78eedbf46a1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092500330576e7a78eedbf46a1",
+  "usage": {
+    "completion_tokens": 247,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1391
+  }
+}

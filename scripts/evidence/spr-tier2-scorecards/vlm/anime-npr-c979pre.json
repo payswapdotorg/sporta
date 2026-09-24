@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core layout and scoreboard match, but the stylization is so extreme that spatial context is heavily distorted.\n2. temporalConsistency - 1: The scene completely disintegrates between frames, with massive background shifts and total loss of coherent structure.\n3. identityConsistency - 1: Players are reduced to unrecognizable abstract blobs with no stable visual features across frames.\n4. motionFidelity - 1: No discernible or logical motion is present; the transformation is a chaotic structural collapse rather than movement.\n5. sceneFidelity - 1: The background and field lines are warped into unrecognizable topological maps that bear little resemblance to the original stadium.\n6. stylizationStrength - 5: The anime-NPR transformation is extremely aggressive and unmistakably applied to the entire frame.\n\nAXES sf=2 tc=1 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=5 players=5 warped=5 dupes=0 ball=0 bg=5 tj=5",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269366,
+  "id": "202609250102411b6dd07295134a3e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250102411b6dd07295134a3e",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1389
+  }
+}

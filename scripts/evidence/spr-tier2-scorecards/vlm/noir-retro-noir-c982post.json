@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images perfectly match the original frame's camera angle, player positions, and scoreboard data.\n2. temporalConsistency - 4: Player positions and the background remain stable between the two frames with only minor, expected motion.\n3. identityConsistency - 4: Players maintain their team colors and general silhouettes despite the heavy monochromatic filter.\n4. motionFidelity - 4: The subtle shift in player and ball positions between frames accurately reflects a 0.2-second interval.\n5. sceneFidelity - 5: The pitch markings, goal, and stadium advertising boards are spatially consistent and undistorted.\n6. stylizationStrength - 4: The noir-retro aesthetic is clearly applied through high contrast, desaturation, and a vintage film grain texture.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790268805,
+  "id": "20260925005319ae18d00cfcd549af",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925005319ae18d00cfcd549af",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1365
+  }
+}

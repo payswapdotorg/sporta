@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 matches the exact moment and camera angle of Image 1 perfectly.\n2. temporalConsistency - 2: The transition to Image 3 is a hard cut to a completely different camera shot, causing a total loss of continuity.\n3. identityConsistency - 3: Players in Image 2 are recognizable but heavily distorted; the player in Image 3 is clear but from a different context.\n4. motionFidelity - 2: Motion trails in Image 2 are consistent with the static frame, but the jump to Image 3 breaks all motion logic between the pair.\n5. sceneFidelity - 2: Backgrounds match within individual frames, but there is zero spatial consistency between the wide shot and the close-up.\n6. stylizationStrength - 5: The \"motion-trails\" or liquid-smear effect is extremely pronounced and clearly the intended transformation.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269428,
+  "id": "20260925010342e9516c0ab4c84549",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010342e9516c0ab4c84549",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1406
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The core subject (player 14) and general scene are present, but background details and other players are heavily abstracted or lost.\n2. temporalConsistency: 2 - The main player's pose shifts noticeably between frames, and the background blobs morph significantly.\n3. identityConsistency: 3 - The central player in red is recognizable across frames, though facial and bodily details are extremely simplified.\n4. motionFidelity: 2 - The movement of the main player is somewhat captured but lacks the fluidity and specific limb positions of the original action.\n5. sceneFidelity: 1 - The stadium, crowd, and advertising boards are almost entirely replaced by abstract gray and green shapes.\n6. stylizationStrength: 5 - The transformation to a high-abstraction, cartoonish style is extreme and unmistakable.\n\nAXES sf=2 tc=2 ic=3 mf=2 scf=1 ss=5\nARTIFACTS limbs=2 players=4 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269355,
+  "id": "202609250102186ef05c007c694381",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250102186ef05c007c694381",
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1393
+  }
+}

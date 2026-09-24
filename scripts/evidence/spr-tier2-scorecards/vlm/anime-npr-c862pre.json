@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, score, and general camera angle are preserved, but the background and distant players are heavily abstracted.\n2. temporalConsistency - 4: The stylized frames are very stable with minimal flickering or morphing between the 0.2s interval.\n3. identityConsistency - 2: Players are reduced to simple colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 3: The red blobs (players) show slight positional shifts consistent with time, though detail is lost.\n5. sceneFidelity - 2: The stadium background is almost entirely replaced by abstract gray shapes, losing spatial context.\n6. stylizationStrength - 5: The transformation into a high-contrast, flat-color cartoon style is extremely obvious and aggressive.\n\nAXES sf=3 tc=4 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269361,
+  "id": "20260925010235b4595ca992f3434f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010235b4595ca992f3434f",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1384
+  }
+}

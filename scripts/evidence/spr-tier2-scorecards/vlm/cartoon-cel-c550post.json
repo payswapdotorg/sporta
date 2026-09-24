@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors are present, but the extreme abstraction loses almost all specific details of the match, camera angle, and context.\n2. temporalConsistency - 4: The stylized blobs and background shapes remain remarkably stable between the two frames with minimal flickering or morphing.\n3. identityConsistency - 1: Players are reduced to featureless colored blobs, making individual visual identification completely impossible.\n4. motionFidelity - 2: While some blobs shift position slightly, the lack of detail makes it impossible to verify if the motion matches the original football action accurately.\n5. sceneFidelity - 1: The stadium, advertising boards, and pitch lines are warped into unrecognizable abstract shapes that do not reflect the actual spatial geometry.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style with bold outlines and flat colors is extremely obvious and aggressively applied.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=1 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=5 bg=4 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267405,
+  "id": "20260925002959b2bfa09e09904eae",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925002959b2bfa09e09904eae",
+  "usage": {
+    "completion_tokens": 246,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1142,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1388
+  }
+}

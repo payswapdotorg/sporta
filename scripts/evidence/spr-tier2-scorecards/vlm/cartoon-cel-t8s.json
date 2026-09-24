@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors (red vs. green/white) match, but the extreme abstraction loses almost all specific spatial and contextual detail.\n2. temporalConsistency - 3: The background and static elements remain perfectly stable, though the player blobs exhibit some minor shape-shifting between frames.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual recognition or visual stability of features impossible.\n4. motionFidelity - 2: While the general direction of player movement is vaguely suggested, the lack of clear forms makes precise motion tracking unreliable.\n5. sceneFidelity - 2: The stadium perimeter and scoreboard area are roughly in the correct positions, but the field lines and internal structures are completely lost.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style with bold outlines and flat color regions is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=10 players=4 warped=5 dupes=0 ball=1 bg=1 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267250,
+  "id": "2026092500272408687065520e45fa",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092500272408687065520e45fa",
+  "usage": {
+    "completion_tokens": 245,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1142,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1387
+  }
+}

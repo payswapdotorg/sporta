@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene composition, player positions, and camera angle perfectly match the original broadcast frame.\n2. temporalConsistency - 4: Player positions and shapes remain stable between the two frames with only minor, expected motion.\n3. identityConsistency - 5: All players maintain consistent visual appearances (jersey colors, body types) across the sequence.\n4. motionFidelity - 4: Subtle player movements are logical and follow the trajectory implied by the source image.\n5. sceneFidelity - 5: Stadium lines, advertising boards, and crowd background remain spatially locked and accurate.\n6. stylizationStrength - 3: A clear noir/retro filter is applied (desaturation, contrast boost), though it's somewhat subtle.\n\nAXES sf=5 tc=4 ic=5 mf=4 scf=5 ss=3\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790267578,
+  "id": "20260925003251d7d6befd31394325",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925003251d7d6befd31394325",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1144,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1354
+  }
+}

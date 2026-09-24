@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and score are present, but the extreme abstraction loses most specific details of the match and camera context.\n2. temporalConsistency - 4: The stylized frames show very stable rendering of the scene elements with minimal flickering between the two timestamps.\n3. identityConsistency - 1: Players are reduced to unrecognizable colored blobs, making individual visual stability impossible to assess.\n4. motionFidelity - 3: The subtle shifts in the red blobs suggest some motion, but the lack of detail makes it hard to verify fidelity to the original action.\n5. sceneFidelity - 2: The background is heavily abstracted into amorphous shapes, though the general spatial arrangement of field and ads remains.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoonish NPR style is extremely obvious and aggressively applied.\n\nAXES sf=2 tc=4 ic=1 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=4 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790269338,
+  "id": "20260925010211a0659da5fee24596",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925010211a0659da5fee24596",
+  "usage": {
+    "completion_tokens": 234,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1402
+  }
+}
