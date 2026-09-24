@@ -24,9 +24,12 @@
  *    then the ball-tracking family chain (color-blob → nearest-box over the
  *    ball detections). Interpolated occlusion points are counted (honest
  *    W202 gap semantics).
- * 5. **calibrate** — the pitch-calibration family chain (line-based →
- *    homography-with-supplied-corners). A calibration refusal (e.g. no
- *    pitch-green region — beach sand, archival film) is recorded verbatim
+ * 5. **calibrate** — the pitch-calibration family chain (broadcast-line →
+ *    line-based → homography-with-supplied-corners: the W303-class
+ *    real-broadcast-perspective candidate first, the near-axis-aligned
+ *    and correspondence-driven candidates as the documented fallbacks).
+ *    A calibration refusal (e.g. no pitch-green region — beach sand,
+ *    archival film; a panning camera) is recorded verbatim
  *    and the pipeline degrades to IMAGE-FRAME tracks (never a guessed
  *    mapping).
  * 6. **team** — the team-identity family (jersey-color, seeded): per-track
@@ -60,6 +63,7 @@ import type { ObservationStore } from "@sporta/observation";
 import { EventDerivationService } from "@sporta/observation";
 import {
   BallBlobDetector,
+  BroadcastLineCalibrator,
   ColorBlobBallTracker,
   ContrastContextDetector,
   GreedyIouTrackerAdapter,
@@ -160,6 +164,7 @@ const BALL_TRACKING_FACTORIES: Record<string, () => BallTrackingAdapter> = {
 };
 
 const CALIBRATION_FACTORIES: Record<string, () => PitchCalibrationAdapter> = {
+  "broadcast-line-calibrator": () => new BroadcastLineCalibrator(),
   "line-based-field-calibrator": () => new LineBasedFieldCalibrator(),
   "homography-field-calibrator": () => new HomographyFieldCalibratorAdapter(),
 };
@@ -731,7 +736,8 @@ export class RealToSwmPipeline {
       if (factory === undefined) {
         throw new RangeError(
           `RealToSwmPipeline: unknown calibration candidate "${technologyId}" ` +
-            "(known: line-based-field-calibrator, homography-field-calibrator)",
+            "(known: broadcast-line-calibrator, line-based-field-calibrator, " +
+            "homography-field-calibrator)",
         );
       }
       const candidate = factory();

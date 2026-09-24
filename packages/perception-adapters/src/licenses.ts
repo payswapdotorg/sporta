@@ -143,6 +143,12 @@ export const LINE_BASED_FIELD_CALIBRATOR_LICENSE: TechnologyLicenseRecord = pure
   "pitch-mask + projection-histogram line detection feeding the W203 solver; deterministic CPU-only; no model/dataset/assets",
 );
 
+/** License record: `broadcast-line-calibrator` (the W303-class R606 fix path). */
+export const BROADCAST_LINE_FIELD_CALIBRATOR_LICENSE: TechnologyLicenseRecord = pureCodeLicense(
+  "green-union + local-contrast line evidence + motion-compensated temporal aggregation + Hough + " +
+    "boundary hypothesis search feeding the W203 solver; deterministic CPU-only; no model/dataset/assets",
+);
+
 /** License record: `jersey-color-team-assigner` (R206). */
 export const JERSEY_COLOR_TEAM_ASSIGNER_LICENSE: TechnologyLicenseRecord = pureCodeLicense(
   "per-track dominant-jersey-color k=2 clustering; deterministic CPU-only; no model/dataset/assets",

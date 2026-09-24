@@ -129,6 +129,7 @@ describe("configuration validation (fail loud, repo style)", () => {
     expect(resolved.ballDetection).toEqual(["model-backed-ball-detector", "ball-blob-detector"]);
     expect(resolved.ballTracking).toEqual(["color-blob-ball-tracker", "nearest-box-ball-tracker"]);
     expect(resolved.calibration).toEqual([
+      "broadcast-line-calibrator",
       "line-based-field-calibrator",
       "homography-field-calibrator",
     ]);

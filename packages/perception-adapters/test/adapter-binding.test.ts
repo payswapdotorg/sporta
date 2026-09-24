@@ -176,7 +176,7 @@ describe("describeAdapters (R201 inventory)", () => {
 describe("registry bindings (TechnologyCandidate-shaped records)", () => {
   test("every shipped candidate maps to a frozen-schema-valid candidate record", () => {
     const bindings = defaultCandidateBindings();
-    expect(bindings.length).toBe(12);
+    expect(bindings.length).toBe(13);
     for (const binding of bindings) {
       const parsed = TechnologyCandidate.safeParse(binding.candidate);
       expect(parsed.success).toBe(true);

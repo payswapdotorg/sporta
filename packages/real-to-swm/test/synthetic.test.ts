@@ -57,9 +57,12 @@ describe.skipIf(!available)(
         },
       });
 
-      // The calibration stage SUCCEEDED via the line-based candidate.
+      // The calibration stage SUCCEEDED via the FIRST candidate in the
+      // default chain (broadcast-line since the W303 fix — it calibrates
+      // this synthetic-diagnostic fixture too; line-based remains the
+      // documented fallback right behind it).
       const calibrate = result.ledger.stages.find((s) => s.stage === "calibrate")!;
-      expect(calibrate.attempted[0]!.technologyId).toBe("line-based-field-calibrator");
+      expect(calibrate.attempted[0]!.technologyId).toBe("broadcast-line-calibrator");
       expect(calibrate.attempted[0]!.outcome).toBe("used");
       expect(calibrate.framesOut).toBe(1);
 

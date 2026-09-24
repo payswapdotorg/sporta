@@ -37,6 +37,10 @@
  * - `calibration/homography-adapter`: R205 candidate 1 (W203 DLT wrap)
  * - `calibration/line-based`: R205 candidate 2 (projection-histogram line
  *   detection feeding the W203 solver)
+ * - `calibration/broadcast-line`: the W303-class real-broadcast-perspective
+ *   candidate (green-union + local-contrast line evidence +
+ *   motion-compensated temporal aggregation + Hough + boundary hypothesis
+ *   search + refinement, feeding the W203 solver — the R606 fix path)
  * - `team/jersey-color`: R206 (k=2 jersey-color clustering with explicit
  *   uncertainty)
  * - `benchmark/*`: deterministic family benchmarks emitting frozen-contract
@@ -93,6 +97,7 @@ export {
 export type { PerceptionAdapterErrorDetails, PerceptionAdapterErrorUnion } from "./errors";
 // License records.
 export {
+  BROADCAST_LINE_FIELD_CALIBRATOR_LICENSE,
   COLOR_BLOB_BALL_TRACKER_LICENSE,
   CONTRAST_CONTEXT_DETECTOR_LICENSE,
   GREEDY_IOU_TRACKER_LICENSE,
@@ -233,6 +238,16 @@ export {
   LineBasedFieldCalibrator,
 } from "./calibration/line-based";
 export type { LineBasedFieldCalibratorOptions } from "./calibration/line-based";
+// The W303-class real-broadcast-perspective candidate (the R606 fix path).
+export {
+  BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION,
+  BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES,
+  BROADCAST_LINE_FIELD_CALIBRATOR_ID,
+  BROADCAST_LINE_FIELD_CALIBRATOR_RESOURCES,
+  BROADCAST_LINE_FIELD_CALIBRATOR_VERSION,
+  BroadcastLineCalibrator,
+} from "./calibration/broadcast-line";
+export type { BroadcastLineCalibratorOptions } from "./calibration/broadcast-line";
 // R206 candidate.
 export {
   JERSEY_COLOR_TEAM_ASSIGNER_ADAPTER_VERSION,
