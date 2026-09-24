@@ -74,7 +74,12 @@ export interface RealToSwmPipelineConfig {
   readonly ballDetection?: CandidateChain;
   /** Ball-tracking candidate chain (default: color-blob, nearest-box). */
   readonly ballTracking?: CandidateChain;
-  /** Pitch-calibration candidate chain (default: line-based, homography). */
+  /**
+   * Pitch-calibration candidate chain (default: broadcast-line — the
+   * W303-class real-broadcast-perspective candidate, R606 fix path — then
+   * line-based, then homography: the near-axis-aligned and
+   * correspondence-driven candidates as the documented fallbacks).
+   */
   readonly calibration?: CandidateChain;
   /**
    * Operator-supplied corner correspondences for the homography calibrator
@@ -142,6 +147,7 @@ export const DEFAULT_BALL_TRACKING_CHAIN: CandidateChain = [
   "nearest-box-ball-tracker",
 ];
 export const DEFAULT_CALIBRATION_CHAIN: CandidateChain = [
+  "broadcast-line-calibrator",
   "line-based-field-calibrator",
   "homography-field-calibrator",
 ];

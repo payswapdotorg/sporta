@@ -31,6 +31,7 @@ import { TwoStageHungarianTracker } from "./tracking/hungarian";
 import { NearestBoxBallTrackerAdapter } from "./ball/nearest-box-adapter";
 import { ColorBlobBallTracker } from "./ball/color-blob";
 import { HomographyFieldCalibratorAdapter } from "./calibration/homography-adapter";
+import { BroadcastLineCalibrator } from "./calibration/broadcast-line";
 import { LineBasedFieldCalibrator } from "./calibration/line-based";
 import { JerseyColorTeamAssigner } from "./team/jersey-color";
 
@@ -129,7 +130,7 @@ interface CandidateSpec {
   readonly instantiate: () => TechnologyBoundedAdapter;
 }
 
-/** The twelve shipped candidates, family by family (>= 2 per family). */
+/** The thirteen shipped candidates, family by family (>= 2 per family). */
 const FAMILY_CANDIDATES: ReadonlyArray<{
   task: PerceptionTaskKind;
   candidates: readonly CandidateSpec[];
@@ -236,6 +237,20 @@ const FAMILY_CANDIDATES: ReadonlyArray<{
     task: "perception.pitch-calibration",
     candidates: [
       {
+        displayName: "Broadcast-line field calibrator (real broadcast perspective)",
+        notes:
+          "W303-class R606 FIX PATH: green-union + local-contrast line " +
+          "evidence (brightness vs 13x13 neighborhood — catches real " +
+          "(130-180)-on-(90-120) broadcast lines the bright-white predicate " +
+          "misses) + motion-compensated temporal aggregation (static lines vs " +
+          "moving players) + Hough + boundary-quad hypothesis search + " +
+          "coordinate-descent refinement, feeding the W203 solver. Envelope: " +
+          "static camera (wobble compensated to ±40 px; panning refuses), " +
+          "elevated main-camera geometry, boundary quad anchors visible. " +
+          "Deterministic, CPU-only, no external components.",
+        instantiate: () => new BroadcastLineCalibrator(),
+      },
+      {
         displayName: "Homography field calibrator (W203 DLT wrap)",
         notes:
           "Wraps W203's exact 8-point DLT solver over externally-supplied corner " +
@@ -317,7 +332,7 @@ export function describeAdapters(): readonly AdapterFamilySummary[] {
 }
 
 /**
- * The default registration bindings for ALL twelve shipped candidates (the
+ * The default registration bindings for ALL thirteen shipped candidates (the
  * instances the descriptors, licenses, failure classes, and resource
  * requirements are read from are the zero-arg default constructions).
  */
