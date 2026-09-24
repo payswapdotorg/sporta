@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "VERDICT: YES\nThe first frame shows a player standing at the corner flag with the ball, indicating a corner kick is being taken.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790271732,
+  "id": "2026092501421185c7d96fa1ef4c6d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092501421185c7d96fa1ef4c6d",
+  "usage": {
+    "completion_tokens": 30,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 635,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 665
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "VERDICT: YES\nThe second frame clearly shows a dark sky and bright stadium floodlights illuminating the pitch.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790271733,
+  "id": "2026092501421268e003fc422c477d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092501421268e003fc422c477d",
+  "usage": {
+    "completion_tokens": 25,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 631,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 656
+  }
+}

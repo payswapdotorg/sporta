@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "VERDICT: YES\nThe first frame is a tight close-up of a single player filling the majority of the screen.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790271725,
+  "id": "20260925014202f7be4945192d438d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925014202f7be4945192d438d",
+  "usage": {
+    "completion_tokens": 26,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 638,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 664
+  }
+}

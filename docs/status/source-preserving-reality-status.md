@@ -3,7 +3,7 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-1 TIERED — VLM scorecards COMPLETE (session w6-spr-3): all realities Tier 0 honest, noir/trails near-miss
+## Current state: WAVE-1 TIERED (all Tier 0 honest, noir/trails near-miss) + WAVE-2 CORPUS 5/6 DISCOVERED (b4 pending honestly)
 
 ### Session w6-spr-3 (2026-09-25, Tier-2 gate execution)
 
@@ -67,6 +67,42 @@ of the process).
 Evidence: `scripts/evidence/spr-tier2-scorecards/` (aggregate + 4 family
 scorecards + 60 per-call VLM JSONs + renders-with-b8-determinism.json);
 harness `scripts/source-preserving/vlm_scorecard.py` (v2, --resume).
+
+### Session w6-spr-4 (2026-09-25, wave-2 corpus discovery — same session as w6-spr-3)
+
+Executed immediately after the Tier-2 gate: the wave-2 corpus acquisition
+through the recorded recipe (bgutil + TLS relay alive; the acquisition chain
+survived).
+
+1. **b5 window re-pulled** (86s, media 1979–2065): video itag230 via ffmpeg
+   through the relay, audio 140-5 native. The audio pull carries a truncated
+   final AAC packet at ~79.7s (decode error-spam kills unbounded ffmpeg
+   runs) — bounded decode `-t 79.6` + apad to 86.10s = the b5-86s substrate
+   (2155 frames). Audio is real to 79.6s, padded silence after (recorded).
+2. **Discovery**: 9 windows sampled (~774s total: media 300/900/1979/2065/
+   3300/3500/4600/5000/5800), 1 fps thumbnails, timestamped 4×5 grids,
+   VLM-classified per category (~45 grid calls).
+3. **Clips assembled** (exact-content re-encode — `-c copy` keyframe-snaps
+   up to ~2s on HLS section pulls and desyncs against the exact-window
+   audio; fixed deterministic x264 params; apad normalize; reproducibility
+   re-run BYTE-IDENTICAL on b2):
+   - b2 close-up 3515–3524 (9s, 225f) — VLM YES
+   - b3 fast-action 2046–2058 (12s, 300f) — VLM YES (shot + GK dive)
+   - b5 camera-move 1987–1999 (12s, 300f) — VLM YES (pan following play)
+   - b6 set-piece 5826–5838 (12s, 300f) — VLM YES (corner kick, night)
+   - b7 night 5840–5850 (10s, 250f) — VLM YES + direct day/night frame check
+   - b4 crowd — **PENDING, honestly**: every crowd-flagged grid candidate
+     failed direct per-clip verification (the grids over-called crowd for
+     wide shots with stands visible; direct checks all NO). No 8-12s
+     crowd-dominant passage exists in the 774s sampled. Needs goal
+     timestamps or wider sampling.
+   - night finding: the match runs day→night (daylight at ~30',
+     floodlights at ~97') — b7 is genuinely present, verified.
+   - the 3500-area audio pulls failed (empty stream / ffmpeg exit 8);
+     b6 moved to the 5800 window instead (recorded).
+4. **Corpus updated**: 8 entries (b8/b1/b12/b2/b3/b5/b6/b7) with full
+   provenance, commands, shas, VLM verdicts + the honest b4 note. Mirrored
+   to `scripts/evidence/spr-wave2-corpus/`.
 
 ### Session w6-spr-2 (2026-09-24, environment-reset recovery)
 
@@ -211,10 +247,11 @@ qa/cuts-deep-cartoon-cel.json. The raw G-T2 JSON is preserved untouched.
 
 0. **PAT re-injection** (operator): the w6-spr-2 AND w6-spr-3 commits sit
    local — push `main` to GitHub when credentials return.
-1. Wave 2: benchmark corpus completion (b5 86s pull re-acquisition + b2-b7
-   discovery/VLM), corpus-wide renders, A's upgrade trials (EbSynth keyframe
-   propagation, Kuwahara, AnimeGANv2 A/B) — now with the Tier-2 diagnosis
-   pointing exactly at stylizer visual quality (preservation already proven).
+1. Wave 2 remaining: b4 (crowd) needs goal timestamps or wider sampling;
+   corpus-wide renders (every family × every clip per benchmark §4); A's
+   upgrade trials (EbSynth keyframe propagation, Kuwahara, AnimeGANv2 A/B) —
+   the Tier-2 diagnosis points exactly at stylizer visual quality
+   (preservation already proven: sourceFidelity 4.88–5.0).
 2. SPR103/104/107/109/202/205 per the work-items doc.
 3. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
    axes are recorded as a limitation; full-video review would replace the

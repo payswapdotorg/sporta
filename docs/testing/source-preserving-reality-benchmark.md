@@ -19,12 +19,12 @@ exact command used.
 | ID | Category | Window (source media time) | Length | Status |
 |---|---|---|---|---|
 | b1 | Wide broadcast (players distributed) | 1803.84–1833.84 | ~30s | cut from b8 |
-| b2 | Close-up (1-2 players, pan/zoom) | discover + VLM verify | 8-12s | WAVE-1 |
-| b3 | Fast action (shot/tackle/sprint) | discover + VLM verify | 8-12s | WAVE-1 |
-| b4 | Crowd / dense stadium content | discover + VLM verify | 8-12s | WAVE-1 |
-| b5 | Camera movement (sustained pan/follow) | 1979–2065 subset or discover | 8-12s | WAVE-1 (86s pull already on disk) |
-| b6 | Multi-player interaction / set-piece | discover + VLM verify | 8-12s | WAVE-1 |
-| b7 | Night / difficult lighting | when available | 8-12s | honest: mark ABSENT if the match has none |
+| b2 | Close-up (1-2 players, pan/zoom) | 3515–3524 (disc-3500 t=15-24) | 9s | **READY w6-spr-4** — VLM YES |
+| b3 | Fast action (shot/tackle/sprint) | 2046–2058 (b5 window t=67-79) | 12s | **READY w6-spr-4** — VLM YES (shot + GK dive) |
+| b4 | Crowd / dense stadium content | — | — | **PENDING (honest)** — 9 windows sampled, every candidate failed direct verification; world feed shows no 8-12s crowd-dominant passage in sampled material |
+| b5 | Camera movement (sustained pan/follow) | 1987–1999 (b5 window t=8-20) | 12s | **READY w6-spr-4** — VLM YES (pan following play); 86s window re-pulled as b5-86s substrate |
+| b6 | Multi-player interaction / set-piece | 5826–5838 (disc-5800 t=26-38) | 12s | **READY w6-spr-4** — VLM YES (corner kick; night) |
+| b7 | Night / difficult lighting | 5840–5850 (disc-5800 t=40-50) | 10s | **READY w6-spr-4** — VLM YES; direct frame check: day at ~30', floodlit night at ~97' |
 | b8 | Real in-play R606 source | 1803.84–1851.44 (47.6s) | 47.6s | READY (a13396ec…) |
 
 b8 is the provenance-chained in-play Original from the R606 revalidation

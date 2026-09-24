@@ -1,0 +1,220 @@
+{
+ "schemaVersion": "1.0",
+ "recovery": {
+  "reason": "sandbox environment reset between sessions \u2014 the original corpus bytes (b1/b5/b8) and the 86s pull were lost; b8 and b1 re-acquired from the frozen source through the recorded recipe",
+  "recoverySession": "w6-spr-2 (2026-09-24)",
+  "notes": [
+   "HLS section pulls are not byte-reproducible: segment boundaries and the HLS remux differ per acquisition; content equivalence is verified (same frozen source, same window, same 6 broadcast cuts at frames [189, 475, 550, 862, 979, 982], same envelope 640x360@25fps).",
+   "The original a13396ec substrate was the media-platform NORMALIZED artifact (1190 frames, audio >= video end). The recovery normalization reproduces that envelope: video copied, audio padded with silence to 47.62s so the frozen -shortest encoder passes all 1190 frames and the container duration delta is 20ms.",
+   "b5 (86s window pull 1979-2213s) and b2-b7 remain WAVE-2 acquisition work."
+  ]
+ },
+ "source": {
+  "url": "https://www.youtube.com/watch?v=93LPZJkCW2w",
+  "title": "FULL MATCH | BETIS 3 vs 5 FC BARCELONA | LALIGA 2025/26 MD15",
+  "acquisitionRecipe": "yt-dlp via gost HTTPS proxy a996d235.acsnet.co:443 (Basic auth testuser1/<redacted-in-repo>; see session-log) with local TLS-terminating relay scripts/tls_proxy_relay.py for ffmpeg's HLS segment fetch; client visionos; format itag230 (640x360 HLS) + itag140-5 (en-US original m4a); --download-sections window; -c copy merge; substrate normalization: video stream copy + audio apad to 47.62s",
+  "rightsBasis": "benchmark-candidate (unratified VPN-egress path)"
+ },
+ "clips": [
+  {
+   "clipId": "sprclip-b8-inplay-original",
+   "category": "real-in-play-r606-source",
+   "file": "../bytes/b8p3.mp4",
+   "byteSize": 2705383,
+   "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+   "width": 640,
+   "height": 360,
+   "fps": 25,
+   "frameCount": 1190,
+   "durationMs": 47620,
+   "mediaTimeStartSec": 1803.84,
+   "mediaTimeEndSec": 1851.44,
+   "acquisition": {
+    "method": "yt-dlp-hls-window + normalize",
+    "command": "yt-dlp --proxy http://127.0.0.1:8128 --extractor-args 'youtube:player_client=visionos' -f '230+140-5' --download-sections '*1803.84-1851.44' (video 230 via ffmpeg through relay; audio 140-5 via native downloader) ; ffmpeg -i b8-raw.mp4 -c copy -frames:v 1190 b8.mp4 ; ffmpeg -i b8.mp4 -c:v copy -af apad -c:a aac -b:a 128k -ar 44100 -t 47.62 b8p3.mp4",
+    "fromSha256": "82222a40b6bf6fce149ead8eaecadf3e14159ffc112f57c20e5b7223907bb575"
+   },
+   "vlmVerification": {
+    "file": "vlm/b8.json",
+    "verdict": "PENDING (quota exhausted at session end; prior-session VLM verdict recorded in-play BET 1-2 BAR ~24'; same content window)"
+   },
+   "cuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+   ]
+  },
+  {
+   "clipId": "sprclip-b1-wide-broadcast",
+   "category": "wide-broadcast",
+   "file": "clip-b1-wide-broadcast.mp4",
+   "byteSize": 1772792,
+   "sha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+   "width": 640,
+   "height": 360,
+   "fps": 25,
+   "frameCount": 751,
+   "durationMs": 30040,
+   "mediaTimeStartSec": 1803.84,
+   "mediaTimeEndSec": 1833.84,
+   "acquisition": {
+    "method": "cut-from-b8",
+    "command": "ffmpeg -ss 0 -t 30 -i b8p3.mp4 -c copy clip-b1-wide-broadcast.mp4",
+    "fromSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a"
+   },
+   "vlmVerification": {
+    "file": "vlm/b1.json",
+    "verdict": "PENDING (prefix of the VLM-verified b8 window)"
+   }
+  },
+  {
+   "clipId": "sprclip-b12-determinism-cut",
+   "category": "determinism-review-cut",
+   "file": "../render/b8-b12.mp4",
+   "byteSize": 756609,
+   "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+   "width": 640,
+   "height": 360,
+   "fps": 25,
+   "frameCount": 301,
+   "durationMs": 12040,
+   "mediaTimeStartSec": 1838.32,
+   "mediaTimeEndSec": 1850.32,
+   "acquisition": {
+    "method": "cut-from-b8",
+    "command": "ffmpeg -ss 34.48 -t 12 -i b8p3.mp4 -c copy b8-b12.mp4 (cut-rich window: source cuts at frames 862, 979, 982 fall inside \u2014 the strongest cut-preservation test)",
+    "fromSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a"
+   },
+   "vlmVerification": {
+    "file": "vlm/b12.json",
+    "verdict": "N/A (determinism substrate, not a category clip)"
+   }
+  },
+  {
+   "clipId": "clip-b2-closeup",
+   "category": "closeup",
+   "file": "../bytes/clip-b2-closeup.mp4",
+   "byteSize": 1397995,
+   "sha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+   "width": 640,
+   "height": 360,
+   "fps": "25/1",
+   "frameCount": 225,
+   "durationMs": 9020,
+   "mediaTimeStartSec": 3515.0,
+   "mediaTimeEndSec": 3524.0,
+   "acquisition": {
+    "method": "discovery-window-cut (exact-content re-encode + apad normalize)",
+    "command": "ffmpeg -ss 15 -t 9 -i disc-3500-video.mp4 -t 8.9 -i clip-audio-3515.m4a -map 0:v -map 1:a -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p -af apad -c:a aac -b:a 128k -ar 44100 -t 9.02 out.mp4 (exact-content re-encode; -c copy would keyframe-snap on the HLS section pulls; reproducibility re-run BYTE-IDENTICAL)",
+    "discovery": "disc-3500 grids (3500-3586 window): closeup t=15-24",
+    "fromWindow": "frozen source via yt-dlp HLS itag230 video + itag140-5 audio through the TLS relay (the recorded recipe)"
+   },
+   "vlmVerification": {
+    "file": "clip-verify/vlm-clip-b2-closeup.json",
+    "verdict": "VERDICT YES \u2014 tight close-up of a single player filling the frame"
+   }
+  },
+  {
+   "clipId": "clip-b3-fast-action",
+   "category": "fast-action",
+   "file": "../bytes/clip-b3-fast-action.mp4",
+   "byteSize": 1313606,
+   "sha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+   "width": 640,
+   "height": 360,
+   "fps": "25/1",
+   "frameCount": 300,
+   "durationMs": 12020,
+   "mediaTimeStartSec": 2046.0,
+   "mediaTimeEndSec": 2058.0,
+   "acquisition": {
+    "method": "discovery-window-cut (exact-content re-encode + apad normalize)",
+    "command": "ffmpeg -ss 67 -t 12 -i b5-86s.mp4 -map 0:v -map 0:a -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p -af apad -c:a aac -b:a 128k -ar 44100 -t 12.02 out.mp4",
+    "discovery": "b5-disc grids (1979-2065 window): fastaction t=68-79 + 77-79",
+    "fromWindow": "frozen source via yt-dlp HLS itag230 video + itag140-5 audio through the TLS relay (the recorded recipe)"
+   },
+   "vlmVerification": {
+    "file": "clip-verify/vlm-clip-b3-fast-action.json",
+    "verdict": "VERDICT YES \u2014 shot on goal, player striking, goalkeeper diving"
+   }
+  },
+  {
+   "clipId": "clip-b5-camera-move",
+   "category": "camera-movement",
+   "file": "../bytes/clip-b5-camera-move.mp4",
+   "byteSize": 1293917,
+   "sha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+   "width": 640,
+   "height": 360,
+   "fps": "25/1",
+   "frameCount": 300,
+   "durationMs": 12020,
+   "mediaTimeStartSec": 1987.0,
+   "mediaTimeEndSec": 1999.0,
+   "acquisition": {
+    "method": "discovery-window-cut (exact-content re-encode + apad normalize)",
+    "command": "ffmpeg -ss 8 -t 12 -i b5-86s.mp4 -map 0:v -map 0:a -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p -af apad -c:a aac -b:a 128k -ar 44100 -t 12.02 out.mp4",
+    "discovery": "b5-disc grids: sustained follow camera marked across the window; clip taken t=8-20",
+    "fromWindow": "frozen source via yt-dlp HLS itag230 video + itag140-5 audio through the TLS relay (the recorded recipe)"
+   },
+   "vlmVerification": {
+    "file": "clip-verify/vlm-clip-b5-camera-move.json",
+    "verdict": "VERDICT YES \u2014 camera panning left following play"
+   }
+  },
+  {
+   "clipId": "clip-b6-setpiece",
+   "category": "set-piece",
+   "file": "../bytes/clip-b6-setpiece.mp4",
+   "byteSize": 1539047,
+   "sha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a",
+   "width": 640,
+   "height": 360,
+   "fps": "25/1",
+   "frameCount": 300,
+   "durationMs": 12020,
+   "mediaTimeStartSec": 5826.0,
+   "mediaTimeEndSec": 5838.0,
+   "acquisition": {
+    "method": "discovery-window-cut (exact-content re-encode + apad normalize)",
+    "command": "ffmpeg -ss 26 -t 12 -i disc-5800-video.mp4 -t 11.9 -i clip-audio-5826.m4a -map 0:v -map 1:a -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p -af apad -c:a aac -b:a 128k -ar 44100 -t 12.02 out.mp4",
+    "discovery": "disc-5800 grids: setpiece t=26-31 (also E at 40-44; disc-3500 had E 0-14 but its audio area pulls failed)",
+    "fromWindow": "frozen source via yt-dlp HLS itag230 video + itag140-5 audio through the TLS relay (the recorded recipe)"
+   },
+   "vlmVerification": {
+    "file": "clip-verify/vlm-clip-b6-setpiece.json",
+    "verdict": "VERDICT YES \u2014 corner kick being taken"
+   }
+  },
+  {
+   "clipId": "clip-b7-night",
+   "category": "night-lighting",
+   "file": "../bytes/clip-b7-night.mp4",
+   "byteSize": 1758131,
+   "sha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657",
+   "width": 640,
+   "height": 360,
+   "fps": "25/1",
+   "frameCount": 250,
+   "durationMs": 10020,
+   "mediaTimeStartSec": 5840.0,
+   "mediaTimeEndSec": 5850.0,
+   "acquisition": {
+    "method": "discovery-window-cut (exact-content re-encode + apad normalize)",
+    "command": "ffmpeg -ss 40 -t 10 -i disc-5800-video.mp4 -t 9.9 -i clip-audio-5840.m4a -map 0:v -map 1:a -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p -af apad -c:a aac -b:a 128k -ar 44100 -t 10.02 out.mp4",
+    "discovery": "disc-5800 grids: night F 40-59; direct night-check call verified floodlights/dark sky vs the day-lit b8 window (~30')",
+    "fromWindow": "frozen source via yt-dlp HLS itag230 video + itag140-5 audio through the TLS relay (the recorded recipe)"
+   },
+   "vlmVerification": {
+    "file": "clip-verify/vlm-clip-b7-night.json",
+    "verdict": "VERDICT YES \u2014 dark sky, stadium floodlights illuminating the pitch"
+   }
+  }
+ ],
+ "notes": [
+  "w6-spr-4 (2026-09-25): wave-2 discovery executed \u2014 9 windows sampled (~774s, media 300/900/1979/2065/3300/3500/4600/5000/5800), 1fps timestamped grids, VLM-classified. b2/b3/b5/b6/b7 assembled and per-clip VLM-verified YES. b4 (crowd) PENDING HONESTLY: every crowd-flagged candidate failed direct verification (grid over-called crowd for wide shots with visible stands; direct checks of disc-300 t=54-78 and disc-3300 t=0-19 all NO \u2014 this broadcast's world feed shows no 8-12s crowd-dominant passage in the sampled material; needs goal timestamps or further sampling). b7 night CONFIRMED by direct frame check (day at ~30', floodlit night at ~97'). Assembly reproducibility proven BYTE-IDENTICAL on a re-run (b2)."
+ ]
+}

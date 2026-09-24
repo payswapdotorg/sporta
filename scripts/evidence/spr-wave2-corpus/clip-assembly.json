@@ -1,0 +1,74 @@
+[
+ {
+  "clipId": "clip-b2-closeup",
+  "file": "../bytes/clip-b2-closeup.mp4",
+  "sha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+  "byteSize": 1397995,
+  "frameCount": 225,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 9020,
+  "assembly": "cut disc-3500-video.mp4 t=15-24.0 + audio clip-audio-3515.m4a"
+ },
+ {
+  "clipId": "clip-b3-fast-action",
+  "file": "../bytes/clip-b3-fast-action.mp4",
+  "sha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+  "byteSize": 1313606,
+  "frameCount": 300,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 12020,
+  "assembly": "cut-from-b5-86s t=67-79.0"
+ },
+ {
+  "clipId": "clip-b4-crowd",
+  "file": "../bytes/clip-b4-crowd.mp4",
+  "sha256": "f78e0cdd5dd23ba1f209100e81b2e109f810d73d324b0b86df1e254bcfd54f0a",
+  "byteSize": 1420453,
+  "frameCount": 300,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 12020,
+  "assembly": "cut disc-300-video.mp4 t=54-66.0 + audio clip-audio-354.m4a"
+ },
+ {
+  "clipId": "clip-b5-camera-move",
+  "file": "../bytes/clip-b5-camera-move.mp4",
+  "sha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+  "byteSize": 1293917,
+  "frameCount": 300,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 12020,
+  "assembly": "cut-from-b5-86s t=8-20.0"
+ },
+ {
+  "clipId": "clip-b6-setpiece",
+  "file": "../bytes/clip-b6-setpiece.mp4",
+  "sha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a",
+  "byteSize": 1539047,
+  "frameCount": 300,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 12020,
+  "assembly": "cut disc-5800-video.mp4 t=26-38.0 + audio clip-audio-5826.m4a"
+ },
+ {
+  "clipId": "clip-b7-night",
+  "file": "../bytes/clip-b7-night.mp4",
+  "sha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657",
+  "byteSize": 1758131,
+  "frameCount": 250,
+  "fps": "25/1",
+  "width": 640,
+  "height": 360,
+  "durationMs": 10020,
+  "assembly": "cut disc-5800-video.mp4 t=40-50.0 + audio clip-audio-5840.m4a"
+ }
+]

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "VERDICT: YES\nThe camera is panning left to follow the play as the ball and players shift from the right side of the field toward the left sideline.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790271730,
+  "id": "20260925014209b6e08303518c4e95",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925014209b6e08303518c4e95",
+  "usage": {
+    "completion_tokens": 35,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 635,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 670
+  }
+}

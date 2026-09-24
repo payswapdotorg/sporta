@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "VERDICT: NO\nThe frames show a wide-angle view of the football pitch and players in action, with the crowd only visible as a background element rather than the primary focus.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790271729,
+  "id": "202609250142073b4ec661ad9f4ba6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250142073b4ec661ad9f4ba6",
+  "usage": {
+    "completion_tokens": 38,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 635,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 673
+  }
+}
