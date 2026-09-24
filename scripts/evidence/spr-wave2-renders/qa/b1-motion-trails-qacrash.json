@@ -1,0 +1,47 @@
+{
+  "note": "qa_check.py CRASHED before writing output \u2014 this file is a crash record produced by the W2-B driver, NOT qa_check output",
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+  "output": "/tmp/out/b1/motion-trails-b1.mp4",
+  "returncode": 1,
+  "stderrTail": "Traceback (most recent call last):\n  File \"/home/z/sporta-w2b/scripts/source-preserving/qa_check.py\", line 233, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/z/sporta-w2b/scripts/source-preserving/qa_check.py\", line 181, in main\n    r = float(np.corrcoef(ei, eo)[0, 1]) if len(ei) > 2 else 0.0\n              ^^^^^^^^^^^^^^^^^^^\n  File \"/home/z/sporta-w2b/.venv/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py\", line 3028, in corrcoef\n    c = cov(x, y, rowvar, dtype=dtype)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/z/sporta-w2b/.venv/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py\", line 2836, in cov\n    X = np.concatenate((X, y), axis=0)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: all the input array dimensions except for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 751 and the array at index 1 has size 750\n",
+  "probeFacts": {
+    "input": {
+      "formatDuration": "30.040000",
+      "streams": [
+        {
+          "codec_type": "video",
+          "nb_frames": "751",
+          "duration": "30.040000"
+        },
+        {
+          "codec_type": "audio",
+          "nb_frames": "1293",
+          "duration": "30.000000"
+        }
+      ]
+    },
+    "output": {
+      "formatDuration": "30.000000",
+      "streams": [
+        {
+          "codec_type": "video",
+          "nb_frames": "750",
+          "duration": "30.000000"
+        },
+        {
+          "codec_type": "audio",
+          "nb_frames": "1293",
+          "duration": "30.000000"
+        }
+      ]
+    }
+  },
+  "gateT1ByProbeFacts": {
+    "inputFrameCount": 751,
+    "outputFrameCount": 750,
+    "frameCountEqual": false,
+    "durationDeltaMs": 40,
+    "audioPassthrough": true,
+    "pass": false
+  }
+}

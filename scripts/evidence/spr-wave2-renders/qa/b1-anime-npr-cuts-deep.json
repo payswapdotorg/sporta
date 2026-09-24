@@ -1,0 +1,52 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+  "output": "/tmp/out/b1/anime-npr-b1.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550
+  ],
+  "outputCuts": [
+    189,
+    475
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 25.6,
+      "amplitudeRatio": 0.799,
+      "outputLocalMedian": 4.36,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 19.85,
+      "amplitudeRatio": 0.826,
+      "outputLocalMedian": 4.59,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 15.39,
+      "amplitudeRatio": 0.766,
+      "outputLocalMedian": 1.77,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}
