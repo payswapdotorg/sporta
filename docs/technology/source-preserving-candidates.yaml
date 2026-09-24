@@ -1,0 +1,963 @@
+# Source-Preserving Reality — Technology Candidate Registry
+# Task: spr-w1-a (Worker A, wave-1) · Generated: 2026-09-24
+# Source of truth (narrative): docs/research/source-preserving-technology-landscape.md
+# Contract: docs/contracts/source-preserving-renderer.md · ADR: ADR-012
+# License statements are search-observed (2026-09-24), NOT legal review.
+# Uncertainty is recorded as uncertainty ("verification deferred").
+
+version: 1
+status: candidate
+generated: "2026-09-24"
+generator: spr-w1-a (Worker A — Technology Intelligence)
+
+environment:
+  sandbox_class: cpu-only
+  ram_gb: 4
+  measured_envelope: "55s/1375 frames OOMs; 47.6s/1190 frames practical max (worklog w6-session-r606-reval-1)"
+  provider_keys: none
+  verified_local:
+    ffmpeg: "7.1.5 — filters present: tmix, tblend, feedback, minterpolate, bilateral, guided, median, chromashift, rgbashift, chromaber_vulkan(gpu-only), curves, eq, hue, colorbalance, unsharp, gblur, noise, deband, interlace, il, monochrome, vignette, oscilloscope, showwaves, showspectrum, xbr, hqx, dilation/erosion, deshake, thumbnail"
+    opencv: "4.13.0 — bilateralFilter, CamShift, MeanShift, calcOpticalFlowFarneback, createBackgroundSubtractorMOG2, Subdiv2D, createCLAHE, inpaint, TrackerMIL, TrackerDaSiamRPN, TrackerNano, TrackerVit, TrackerGOTURN, EMD; NO ximgproc, NO TrackerCSRT/KCF"
+    python: "3.12.14 — numpy 2.1.3, scipy 1.14.1, PIL 11.3.0; NO torch, NO mediapipe, NO onnxruntime"
+
+feasibility_vocab:
+  cpu-local-runnable: "runs in this sandbox today (ffmpeg/cv2/numpy/scipy/PIL only)"
+  cpu-local-after-pip: "CPU-capable but needs a pip install / binary / model download"
+  needs-gpu: "requires CUDA-class GPU or impractically slow on this CPU"
+  needs-provider-key: "hosted API; no key exists in sandbox; free tiers never assumed"
+
+classification_vocab:
+  - benchmark-only
+  - experimental
+  - preferred-implementation-candidate
+  - fallback
+  - byok-option
+  - production-candidate
+  - not-recommended
+
+license_red_flags:
+  - id: rvm-weights-ccbync
+    technology: Robust Video Matting weights
+    finding: "CC BY-NC 4.0 — commercial use prohibited (code MIT does not cure weights)"
+    evidence:
+      - https://github.com/PeterL1n/RobustVideoMatting (issue #198)
+    action: benchmark-only; never on commercial path
+  - id: vid2vid-ccbyncsa
+    technology: NVIDIA vid2vid / few-shot-vid2vid
+    finding: "LICENSE.txt: CC BY-NC-SA 4.0 — non-commercial only"
+    evidence:
+      - https://github.com/NVIDIA/vid2vid
+      - https://github.com/NVlabs/few-shot-vid2vid
+    action: benchmark-only
+  - id: tooncrafter-nc
+    technology: ToonCrafter
+    finding: "website content CC BY-NC-SA 4.0; code license verification deferred"
+    evidence:
+      - https://doubiiu.github.io/ToonCrafter/
+    action: treat non-commercial until verified
+  - id: ltx-threshold-license
+    technology: LTX-Video / LTX-2
+    finding: "open-weights license with revenue-threshold-gated commercial terms (contact ltxv-licensing@lightricks.com)"
+    evidence:
+      - https://huggingface.co/Lightricks/LTX-Video
+      - https://www.globenewswire.com
+    action: byok/paid lane only; never architecture
+  - id: animeganv2-weights-provenance
+    technology: AnimeGANv2 weights
+    finding: "trained on artistic film frames; upstream usage terms verification deferred"
+    evidence:
+      - https://github.com/TachibanaYoshino/AnimeGANv2
+      - https://github.com/bryandlee/animegan2-pytorch
+    action: flag before commercial use
+  - id: realesrgan-vsr-variants
+    technology: Real-ESRGAN VSR/BasicVSR++ variants
+    finding: "base repo BSD-3-Clause; vendor analysis warns some VSR variants restrict commercial use — verify per checkpoint"
+    evidence:
+      - https://github.com/xinntao/Real-ESRGAN
+      - https://www.forasoft.com
+    action: verify per checkpoint
+  - id: ebsynth-terms
+    technology: EbSynth
+    finding: "free incl. commercial per beta coverage; 2025 coverage: style-frame-authored videos under EbSynth's own terms — read ebsynth.com terms"
+    evidence:
+      - https://www.skwigly.co.uk
+      - https://www.cgchannel.com
+      - https://ebsynth.com
+    action: read terms before production
+
+enablers:
+  - id: flow.farneback.cv2
+    technology: "Farneback dense optical flow (cv2.calcOpticalFlowFarneback)"
+    source: https://docs.opencv.org
+    version: "OpenCV 4.13.0 (VERIFIED-LOCAL)"
+    license: { code: BSD-3-Clause, weights: none, notes: "OpenCV license, commercial OK" }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false, vram: none }
+    latency: "~real-time at 640x360 with downsampling (CPU)"
+    cost: { value: "0 marginal", free_tier: { status: NONE-NEEDED } }
+    quality: "dense flow adequate for trail masks and temporal smoothing at 640x360"
+    temporal_consistency: exact-deterministic
+    failure_modes: ["large displacements", "camera pans need global-motion compensation"]
+    integration: "SPE-v1 stage (Packet B) + reuse of R606 green-profile cross-correlation stabilizer"
+    replacement: "neural flow (RIFE/RAFT) behind same stage interface"
+    classification: preferred-implementation-candidate
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL, https://docs.opencv.org]
+  - id: flow.rife.practical
+    technology: "RIFE — Real-Time Intermediate Flow Estimation (video frame interpolation + flow)"
+    source: https://github.com/hzwer/Practical-RIFE
+    version: "RIFE 4.25 weights (official release per MLX port card)"
+    license: { code: MIT, weights: MIT, notes: "per PyPI vsrife card and HF mlx-community/RIFE-4.25 card" }
+    commercial_use: allowed-per-cards
+    runtime: { cpu: false, gpu: true, vram: "~2-4 GB class" }
+    latency: "real-time class on GPU; CPU infeasible at 25fps"
+    cost: { value: "0 (self-host)", free_tier: { status: NONE-NEEDED } }
+    quality: "high VFI quality; smoothness artifacts reported on some motion (github issue)"
+    temporal_consistency: good-with-artifacts
+    failure_modes: ["vertical/slow motion smoothness artifacts", "CPU infeasible"]
+    integration: "adapter behind interpolation capability"
+    replacement: "FILM or ffmpeg minterpolate"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence:
+      - https://github.com/hzwer/Practical-RIFE
+      - https://pypi.org/project/vsrife/
+      - https://huggingface.co/mlx-community/RIFE-4.25
+      - https://arxiv.org/abs/2011.06294
+  - id: interp.film.pytorch
+    technology: "FILM: Frame Interpolation for Large Motion (PyTorch ports)"
+    source: https://huggingface.co/jkawamoto/frame-interpolation-pytorch
+    version: "ECCV 2022 (official Google repo license verification deferred; ports Apache-2.0)"
+    license: { code: apache-2.0 (ports) / verification-deferred (official), weights: verification-deferred }
+    commercial_use: ports-allowed
+    runtime: { cpu: false, gpu: true }
+    latency: "GPU-class"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://huggingface.co/jkawamoto/frame-interpolation-pytorch, https://arxiv.org (FILM)]
+  - id: interp.ffmpeg.minterpolate
+    technology: "ffmpeg minterpolate (motion-compensated frame interpolation)"
+    source: https://ffmpeg.org/ffmpeg-filters.html
+    version: "ffmpeg 7.1.5 (VERIFIED-LOCAL)"
+    license: { code: LGPL (ffmpeg build), weights: none }
+    commercial_use: allowed (LGPL build)
+    runtime: { cpu: true, gpu: false }
+    latency: "slow on CPU (motion estimation) — short clips OK"
+    classification: fallback
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL, https://ffmpeg.org/ffmpeg-filters.html]
+  - id: matting.mog2.cv2
+    technology: "MOG2 background subtraction (cv2.createBackgroundSubtractorMOG2)"
+    source: https://docs.opencv.org
+    version: "OpenCV 4.13.0 (VERIFIED-LOCAL)"
+    license: { code: BSD-3-Clause, weights: none }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false }
+    latency: real-time-class CPU
+    quality: "good static-camera masks; broadcast pans corrupt model"
+    temporal_consistency: deterministic
+    failure_modes: ["moving camera", "adaptive bg rate tuning"]
+    integration: "SPE-v1 subject-masking stage + global-motion compensation reuse"
+    replacement: "SAM2 / neural masks behind same interface"
+    classification: preferred-implementation-candidate
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL, https://www.geeksforgeeks.org, https://learnopencv.com]
+  - id: matting.sam2.facebook
+    technology: "SAM 2 — Segment Anything Model 2 (streaming video segmentation)"
+    source: https://github.com/facebookresearch/sam2
+    version: "SAM 2.x (2024 release train)"
+    license: { code: Apache-2.0, weights: Apache-2.0, notes: "checkpoints + demo + training code all Apache 2.0 per README + Meta blog" }
+    commercial_use: allowed
+    runtime: { cpu: marginal, gpu: true, vram: "grows with video length (HF forum)" }
+    latency: "real-time class on GPU (paper claim)"
+    quality: "promptable video masks, strong identity via streaming memory"
+    temporal_consistency: strong-with-vram-cost
+    failure_modes: ["VRAM growth on long videos", "needs GPU for practical fps"]
+    integration: "masking adapter (TechnologyProfile)"
+    replacement: "MOG2 deterministic baseline (already in place)"
+    classification: experimental
+    sandbox_feasibility: needs-gpu
+    evidence:
+      - https://github.com/facebookresearch/sam2
+      - https://ai.meta.com
+      - https://arxiv.org/abs/2408.00714
+      - https://discuss.huggingface.co
+  - id: matting.modnet
+    technology: "MODNet — trimap-free portrait matting"
+    source: https://github.com/ZHKKKe/MODNet
+    version: "photographic weights (HF ports)"
+    license: { code: Apache-2.0, weights: Apache-2.0, notes: "per HF port card 'Model weights are licensed under Apache 2.0 by the original authors'" }
+    commercial_use: allowed
+    runtime: { cpu: marginal, gpu: true }
+    quality: "portrait-biased — weak for distant full-body players"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://huggingface.co (modnet-portrait-matting-apache-license-2.0), https://arxiv.org (MODNet)]
+  - id: matting.rvm
+    technology: "Robust Video Matting (RVM)"
+    source: https://github.com/PeterL1n/RobustVideoMatting
+    version: "rvm pytorch release"
+    license: { code: MIT, weights: "CC-BY-NC-4.0 (RED FLAG)" }
+    commercial_use: "BLOCKED — weights non-commercial"
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    license_red_flag: rvm-weights-ccbync
+    evidence: [https://github.com/PeterL1n/RobustVideoMatting, https://peterl1n.github.io/RobustVideoMatting]
+  - id: matting.mediapipe.selfie
+    technology: "MediaPipe Selfie/Image Segmentation"
+    source: https://developers.google.com/edge/mediapipe
+    version: "MediaPipe Solutions (current)"
+    license: { code: Apache-2.0, weights: Apache-2.0-class }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: optional }
+    latency: real-time-class CPU
+    quality: "person-focused; not pitch-aware"
+    classification: fallback
+    sandbox_feasibility: cpu-local-after-pip
+    evidence: [https://developers.google.com/edge/mediapipe, https://github.com (selfie_segmentation.py)]
+  - id: depth.videodepthanything
+    technology: "Video Depth Anything / Depth Anything V2 (temporally consistent depth)"
+    source: https://github.com/DepthAnything/Video-Depth-Anything
+    version: "CVPR 2025 release train"
+    license: { code: verification-deferred, weights: verification-deferred }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true, notes: "42 fps on A100 per oVDA paper" }
+    quality: "temporally consistent long-video depth"
+    classification: experimental
+    sandbox_feasibility: needs-gpu
+    evidence: [https://github.com/DepthAnything/Video-Depth-Anything, https://arxiv.org (oVDA)]
+  - id: upscale.anime4k
+    technology: "Anime4K real-time anime upscale/restore shader suite"
+    source: https://github.com/bloc97/Anime4K
+    version: "Anime4K 4.0.1 shader sets"
+    license: { code: MIT, weights: none, notes: "GLSL shader headers MIT (c) 2019" }
+    commercial_use: allowed
+    runtime: { cpu: false, gpu: true, notes: "GLSL/mpv GPU path; CPU = reimplementation" }
+    latency: real-time on GPU
+    quality: "line/edge crispening for anime-style content; 'not an upscaler' in the strict sense (redvice analysis)"
+    classification: fallback
+    sandbox_feasibility: needs-gpu
+    evidence: [https://github.com/bloc97/Anime4K, https://redvice.org, https://aur.archlinux.org/packages/anime4k-git]
+  - id: upscale.realesrgan
+    technology: "Real-ESRGAN (image/video restoration upscaler)"
+    source: https://github.com/xinntao/Real-ESRGAN
+    version: "RealESRGAN_x4plus family; REVE variants"
+    license: { code: BSD-3-Clause, weights: "BSD-3 base; VSR/BasicVSR++ variants verify" }
+    commercial_use: allowed-with-variant-caution
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    license_red_flag: realesrgan-vsr-variants
+    evidence: [https://github.com/xinntao/Real-ESRGAN, https://www.forasoft.com, https://replicate.com]
+  - id: upscale.ffmpeg.xbrhqx
+    technology: "ffmpeg xbr + hqx pixel-art upscalers"
+    source: https://ffmpeg.org/ffmpeg-filters.html
+    version: "ffmpeg 7.1.5 (VERIFIED-LOCAL)"
+    license: { code: LGPL (ffmpeg build), weights: none }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false }
+    classification: fallback
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL]
+  - id: upscale.pyxelate
+    technology: "Pyxelate / Super Pyxelate pixel-art downsample+palette"
+    source: https://github.com/sedthh/pyxelate
+    version: "pyxelate (sedthh); bycloudai/pyxelate-video mirror for video"
+    license: { code: verification-deferred, weights: none }
+    commercial_use: unverified
+    runtime: { cpu: true, gpu: false, notes: "640x360 feasible; deps unverified" }
+    classification: experimental
+    sandbox_feasibility: cpu-local-after-pip
+    evidence: [https://github.com/sedthh/pyxelate, https://github.com/bycloudai/pyxelate-video]
+  - id: v2v.vid2vid.nvidia
+    technology: "vid2vid / few-shot-vid2vid (video-to-video synthesis)"
+    source: https://github.com/NVIDIA/vid2vid
+    version: "research releases"
+    license: { code: CC-BY-NC-SA-4.0 (RED FLAG), weights: same }
+    commercial_use: "BLOCKED — non-commercial"
+    runtime: { cpu: false, gpu: true }
+    quality: "pose/segmentation-conditioned photoreal V2V"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    license_red_flag: vid2vid-ccbyncsa
+    evidence: [https://github.com/NVIDIA/vid2vid, https://github.com/NVlabs/few-shot-vid2vid]
+  - id: v2v.pix2video
+    technology: "Pix2Video — text-guided video editing via image diffusion"
+    source: https://duyguceylan.github.io/Pix2Video/
+    version: "CVPR 2023"
+    license: { code: verification-deferred, weights: verification-deferred }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://openaccess.thecvf.com, https://duyguceylan.github.io/Pix2Video/]
+  - id: v2v.flowvid
+    technology: "FlowVid — flow-conditioned consistent V2V synthesis"
+    source: https://arxiv.org/abs/2312.08126
+    version: "2024 paper"
+    license: { code: verification-deferred, weights: verification-deferred }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://arxiv.org/abs/2312.08126]
+  - id: gen.ltxvideo
+    technology: "LTX-Video / LTX-2 (open-weights video generation)"
+    source: https://github.com/Lightricks/LTX-Video
+    version: "LTX-Video / LTX-2 (2025-2026 releases)"
+    license: { code: LTX-Video-Open-Weights-License-0.X, weights: same, notes: "revenue-threshold-gated commercial terms" }
+    commercial_use: restricted-threshold
+    runtime: { cpu: false, gpu: true }
+    classification: byok-option
+    sandbox_feasibility: needs-gpu
+    license_red_flag: ltx-threshold-license
+    evidence: [https://huggingface.co/Lightricks/LTX-Video, https://www.globenewswire.com, https://ltx.io]
+  - id: gen.anisora.v3
+    technology: "Index-AniSora V3 (anime video generation, Bilibili)"
+    source: https://github.com/bilibili/Index-anisora
+    version: "AniSora V3 weights"
+    license: { code: verification-deferred, weights: Apache-2.0, notes: "'Anisora V3 weights are now licensed under Apache 2.0'" }
+    commercial_use: weights-allowed
+    runtime: { cpu: false, gpu: true }
+    quality: "high anime generation quality — BUT generative (new motion), forbidden for source-preserving restyle"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    notes: "external quality reference only; slideshow anti-pattern risk"
+    evidence: [https://github.com/bilibili/Index-anisora, https://huggingface.co/IndexTeam/Index-anisora]
+  - id: gen.dyncrafter
+    technology: "DynamiCrafter (open-domain image animation)"
+    source: https://github.com/Doubiiu/DynamiCrafter
+    version: "2023-2025 releases"
+    license: { code: verification-deferred, weights: verification-deferred, notes: "website content CC BY-NC-SA" }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://github.com/Doubiiu/DynamiCrafter, https://arxiv.org/abs/2310.12190]
+  - id: gen.tooncrafter
+    technology: "ToonCrafter (generative cartoon interpolation)"
+    source: https://doubiiu.github.io/ToonCrafter/
+    version: "2024"
+    license: { code: verification-deferred, weights: verification-deferred, notes: "website content CC BY-NC-SA 4.0" }
+    commercial_use: "treat as non-commercial until verified"
+    runtime: { cpu: false, gpu: true }
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    license_red_flag: tooncrafter-nc
+    evidence: [https://doubiiu.github.io/ToonCrafter/, https://arxiv.org/abs/2405.17333]
+  - id: gen.diffutoon
+    technology: "Diffutoon — high-resolution editable toon shading via diffusion"
+    source: https://ecnu-cilab.github.io/Diffutoon/
+    version: "2024 (arXiv 2402.16092)"
+    license: { code: verification-deferred, weights: verification-deferred }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true }
+    quality: "the most on-mission diffusion restyle found (photoreal→anime, long clips, high-res)"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    notes: "wave-3 quality reference; GPU+cost+temporal risk"
+    evidence: [https://ecnu-cilab.github.io/Diffutoon/, https://arxiv.org/abs/2402.16092]
+  - id: nst.animegan2
+    technology: "AnimeGANv2 (photo→anime appearance transfer)"
+    source: https://github.com/bryandlee/animegan2-pytorch
+    version: "pytorch port of TachibanaYoshino/AnimeGANv2"
+    license: { code: MIT (port), weights: "provenance flag — upstream usage terms verification deferred" }
+    commercial_use: "code allowed; weights flagged"
+    runtime: { cpu: true-slow, gpu: true, notes: "2-3 s/frame CPU per ai-engine.net; ~50min for b8" }
+    latency: "2-3 s/frame (CPU)"
+    quality: "anime appearance; portrait bias; per-frame NST flicker risk"
+    temporal_consistency: poor-unless-flow-mitigated
+    failure_modes: ["per-frame flicker (no temporal conditioning)", "portrait bias", "weights provenance"]
+    integration: "adapter behind appearance capability; add flow-warp temporal smoothing"
+    replacement: "deterministic spr-anime-npr baseline"
+    classification: experimental
+    sandbox_feasibility: cpu-local-after-pip
+    license_red_flag: animeganv2-weights-provenance
+    evidence: [https://github.com/bryandlee/animegan2-pytorch, https://ai-engine.net, https://github.com/TachibanaYoshino/AnimeGANv2]
+  - id: nst.rerevst
+    technology: "ReReVST / CompoundVST — zero-shot temporally-consistent video style transfer"
+    source: https://daooshee.github.io/ReReVST/
+    version: "AAAI/IEEE 2020-2021"
+    license: { code: verification-deferred, weights: verification-deferred }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true }
+    quality: "flow-guided, designed for the temporal problem"
+    classification: experimental
+    sandbox_feasibility: needs-gpu
+    evidence: [https://daooshee.github.io/ReReVST/, https://daooshee.github.io/Compound-VST/, https://ojs.aaai.org]
+  - id: styl.ebsynth
+    technology: "EbSynth — example-based stylization propagation (paint keyframe, propagate)"
+    source: https://github.com/jamriska/ebsynth
+    version: "EbSynth 2.x (2025)"
+    license: { code: proprietary-free, weights: n-a, notes: "free incl. commercial per beta coverage; terms at ebsynth.com" }
+    commercial_use: allowed-terms-permit (read terms)
+    runtime: { cpu: true, gpu: false, notes: "no GPU required" }
+    latency: "fast per-keyframe propagation (patchmatch class)"
+    quality: "hand-painted quality with temporal consistency by construction"
+    temporal_consistency: strong (propagated)
+    failure_modes: ["large motion/occlusion artifacts", "keyframe authoring required (ours can seed it)"]
+    integration: "CLI automation + keyframe pipeline; OUR deterministic frames as examples"
+    replacement: "deterministic painterly stack"
+    classification: experimental
+    sandbox_feasibility: cpu-local-after-pip
+    license_red_flag: ebsynth-terms
+    evidence: [https://github.com/jamriska/ebsynth, https://dcgi.fel.cvut.cz, https://www.skwigly.co.uk, https://www.cgchannel.com, https://ebsynth.com]
+  - id: vision.kornia
+    technology: "Kornia — differentiable cv2 (Kuwahara, bilateral, box-blur, morphology)"
+    source: https://github.com/kornia/kornia
+    version: "kornia 0.7.x"
+    license: { code: Apache-2.0, weights: n-a }
+    commercial_use: allowed
+    runtime: { cpu: true-via-torch-cpu, gpu: true }
+    classification: fallback
+    sandbox_feasibility: cpu-local-after-pip
+    evidence: [https://github.com/kornia/kornia, https://pypi.org/project/kornia/, https://kornia.readthedocs.io]
+  - id: hosted.replicate
+    technology: "Replicate hosted inference (video/image models)"
+    source: https://replicate.com
+    version: current
+    license: { code: n-a, weights: per-model, notes: "provider terms per model" }
+    commercial_use: per-model
+    runtime: { cpu: false, gpu: false, provider: true }
+    cost:
+      value: "Seedance 2.0 $0.10/s 480p, $0.08/s tier; aggregator range $0.04-$0.30 per video second"
+      free_tier: { status: ASSUMED-ABSENT, evidence: "no free video tier documented in pricing pages (search snippets 2026-09-24)" }
+    pricing_verification: VERIFIED-AGAINST-CURRENT-DOCS-search-snippets
+    classification: byok-option
+    sandbox_feasibility: needs-provider-key
+    evidence: [https://replicate.com/seedance, https://www.teamday.ai, https://rangy.ai, https://wise.com]
+  - id: hosted.runway
+    technology: "Runway Gen-4/4.5 (video generation + web video-to-video restyle)"
+    source: https://runway.com
+    version: current
+    license: { code: n-a, weights: proprietary, notes: "provider terms" }
+    commercial_use: paid-plans
+    runtime: { cpu: false, gpu: false, provider: true }
+    cost:
+      value: "Gen-4.5 API ~$0.12/s; Standard $15/mo = 625 credits ≈ 52s Gen-4.5"
+      free_tier: { status: ASSUMED, evidence: "historical free credits unverified" }
+    pricing_verification: VERIFIED-AGAINST-CURRENT-DOCS-search-snippets
+    classification: byok-option
+    sandbox_feasibility: needs-provider-key
+    evidence: [https://runway.com, https://www.therundown.ai, https://kie.ai]
+  - id: hosted.fal
+    technology: "fal.ai hosted inference (600+ models)"
+    source: https://fal.ai
+    version: current
+    license: { code: n-a, weights: per-model }
+    commercial_use: paid
+    runtime: { cpu: false, gpu: false, provider: true }
+    cost:
+      value: "images $0.02-$0.05; video per-second varies by model"
+      free_tier: { status: VERIFIED-AGAINST-CURRENT-DOCS, evidence: "'Get started with a free tier' on fal.ai pricing page (existence verified; quotas unverified)" }
+    classification: byok-option
+    sandbox_feasibility: needs-provider-key
+    evidence: [https://fal.ai, https://www.wireflow.ai, https://www.teamday.ai]
+
+families:
+  - id: SPR101
+    name: cartoon-cel
+    goal: "flat color regions, readable silhouettes, clean dark outlines, low flicker"
+    deterministic_baselines:
+      - id: spr101.det.bilateral-palette-xdog
+        technology: "bilateral flatten + fixed-per-clip LAB palette quantization + XDoG dark lines (Sporta-owned, renderer spr-cartoon-cel-dc1)"
+        source: "Sporta SPE-v1 (Packet B) + classical references"
+        version: "renderer 0.1.0 (contract registry)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3, ffmpeg LGPL build" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "~0.5-2 s/frame-pass at 640x360 (bilateral 2-3 iters)"
+        cost: { value: "0 marginal", free_tier: { status: NONE-NEEDED } }
+        quality: "flat graphic look, strong silhouettes"
+        temporal_consistency: excellent-by-construction (fixed palette, deterministic)
+        failure_modes: ["XDoG line crawl on 640x360 grass noise", "palette banding on sky/stands"]
+        integration: "SPE-v1 stage library (Worker B)"
+        replacement: "neural adapter (AnimeGANv2/Diffutoon) behind same registry row"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, https://www.geeksforgeeks.org, https://datahacker.rs, https://dev.to]
+      - id: spr101.ref.opencv-cartoonify
+        technology: "OpenCV cartoonify pattern (bilateral + adaptive-threshold edges + mask)"
+        source: https://www.geeksforgeeks.org
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        notes: "recipe evidence only; adaptive-threshold edges noisier than XDoG"
+    neural_candidates: [nst.animegan2, gen.diffutoon]
+    enablers_used: [flow.farneback.cv2, upscale.ffmpeg.xbrhqx, vision.kornia]
+    verdict: "deterministic stack sufficient for Tier-1; AnimeGANv2 = cheapest neural A/B"
+  - id: SPR102
+    name: anime-npr
+    goal: "stronger flatten, K≈7 palette, clean line art, saturation lift, subtle bloom"
+    deterministic_baselines:
+      - id: spr102.det.flat-palette-lines
+        technology: "stronger bilateral (median-pool assist) + K≈7 palette + line art + saturation lift + optional bloom (renderer spr-anime-npr-dc1)"
+        source: "Sporta SPE-v1 (Packet B)"
+        version: "renderer 0.1.0"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3, ffmpeg LGPL" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+      - id: spr102.det.anime4k-crispen
+        technology: "Anime4K-style line crispening pass over our anime output"
+        source: https://github.com/bloc97/Anime4K
+        license: { code: MIT }
+        commercial_use: allowed
+        runtime: { cpu: false, gpu: true, notes: "GLSL path; CPU = port work" }
+        classification: fallback
+        sandbox_feasibility: needs-gpu
+        evidence: [https://github.com/bloc97/Anime4K, https://redvice.org]
+    neural_candidates: [nst.animegan2]
+    rejected: [{ id: gen.anisora.v3, reason: "generative new motion — forbidden slideshow anti-pattern" }]
+    verdict: "deterministic + optional crispening = Tier-1; AnimeGANv2 is the best-cost neural trial"
+  - id: SPR103
+    name: watercolor-painterly
+    goal: "soft edge-preserved blots, wet edges, paper grain"
+    deterministic_baselines:
+      - id: spr103.det.medianstack-watercolor
+        technology: "stacked median blur (3/5/7 'oil' stack) + K≈12 LAB palette + fixed paper grain + soft XDoG edge darkening + saturation lift"
+        source: "Sporta SPE-v1 (proposed stage)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        classification: fallback (wave-1 safe baseline)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+      - id: spr103.det.kuwahara-aniso
+        technology: "anisotropic Kuwahara filter (Kyprianidis 2009, published for images AND video) implemented in numpy over flow-aligned windows"
+        source: https://www.kyprianidis.com
+        version: "paper 2009; kornia has a Kuwahara (Apache-2.0) as GPU reference"
+        license: { code: algorithm-public (paper), deps: "own numpy implementation; TD port GPL-3 (do not copy); pykuwahara license verification deferred" }
+        commercial_use: allowed (own implementation)
+        runtime: { cpu: true, gpu: false, notes: "heaviest deterministic stage — O(n·k²), budget-test on b12" }
+        latency: "unknown until budget test; k=8-12 at 640x360 target"
+        quality: "painterly abstraction with edge preservation; anisotropic variant avoids classic-Kuwahara clustering artifacts"
+        temporal_consistency: good (deterministic; edge-flow crawl mitigated by temporal pre-smoothing)
+        failure_modes: ["over-abstraction of ball (small fast object)", "CPU cost"]
+        integration: "SPE-v1 abstraction stage"
+        replacement: "median-stack baseline"
+        classification: preferred-implementation-candidate (wave-2 trial)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [https://onlinelibrary.wiley.com, https://www.kyprianidis.com, https://kornia.readthedocs.io, https://github.com/yeataro/TD-Anisotropic-Kuwahara, https://raymondmcguire.github.io]
+    neural_candidates: [nst.rerevst, styl.ebsynth]
+    verdict: "median-stack now; anisotropic Kuwahara wave-2; EbSynth = the quality leap"
+  - id: SPR104
+    name: ink-manga-comic
+    goal: "monochrome line art, screentone halftones, ink hatching"
+    deterministic_baselines:
+      - id: spr104.det.xdog-halftone
+        technology: "grayscale + XDoG soft-threshold (sketch mode) + 2-3 ink levels + screen-space fixed-lattice Bayer/halftone screentone + paper grain"
+        source: "XDoG paper (Winnemöller) + halftone references"
+        license: { code: algorithm-public, deps: "own numpy implementation; python-halftone license verification deferred" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        quality: "manga-like ink + screentone"
+        temporal_consistency: strong (fixed dot lattice = no dot crawl)
+        failure_modes: ["halftone dot crawl if lattice per-frame adaptive (avoid)", "XDoG noise crawl"]
+        integration: "SPE-v1 ink stage"
+        replacement: "neural keyframe+EbSynth"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [https://www.cs.princeton.edu, https://research.adobe.com, https://github.com/philgyford/python-halftone, https://tabreturn.github.io, https://tips.clip-studio.com]
+      - id: spr104.det.canny-inklines
+        technology: "Canny/Sobel + morphological cleanup + white bg + ink-weight LUT"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+    neural_candidates: [{ id: nn.controlnet-ink-keyframes, technology: "ControlNet lineart/ink on sparse keyframes + EbSynth propagation", classification: experimental, sandbox_feasibility: needs-gpu, evidence: ["https://learnopencv.com (ControlNet guide)"] }]
+    verdict: "fully deterministic family; neural only as keyframe accelerator"
+  - id: SPR105
+    name: clay-toy
+    goal: "plasticine/stop-motion feel"
+    deterministic_baselines:
+      - id: spr105.det.clay-approximation
+        technology: "strong bilateral + wide clay palette (K≈10) + fixed-PRNG clay-noise displacement + 10-12fps 'on twos' quantization (frame duplication re-time) + soft specular fake"
+        source: "Sporta-owned (no turnkey tool exists — honest gap recorded)"
+        license: { code: sporta-owned }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        quality: "honest toy caricature, stop-motion cadence; not true 3D clay"
+        temporal_consistency: strong (deterministic; stutter is intentional)
+        failure_modes: ["can look like posterize rather than clay", "stutter reads as dropped frames if not styled enough"]
+        integration: "SPE-v1 appearance stage (palette + rate-quantize composited)"
+        replacement: "depth-guided shading upgrade"
+        classification: preferred-implementation-candidate (only real baseline)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, https://www.blendernation.com (clay shader references), http://slamatron.com]
+    neural_candidates:
+      - id: spr105.nn.depth-normal-shading
+        technology: "Video Depth Anything → normal map → matte shading multiply → quantize"
+        uses: depth.videodepthanything
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+    rejected: [{ id: hosted.clay-image-tools, reason: "per-frame generative restyle = forbidden slideshow anti-pattern", evidence: ["https://oakgen.ai"] }]
+    verdict: "weakest family vs tech; deterministic approximation is the only wave path"
+  - id: SPR106
+    name: low-poly-voxel
+    goal: "faceted flat-shaded geometry / blocky voxel look, same motion"
+    deterministic_baselines:
+      - id: spr106.det.delaunay-lowpoly
+        technology: "gradient-magnitude-weighted point sampling (temporally smoothed) + Delaunay (cv2.Subdiv2D VERIFIED-LOCAL / scipy.spatial.Delaunay) + per-triangle flat palette color"
+        source: "own implementation; CUDA reference project proves approach"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3, scipy BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false, notes: "~2-5k triangles/frame OK" }
+        quality: "clean facet look"
+        temporal_consistency: good (temporally smoothed sampling suppresses flicker)
+        failure_modes: ["triangle flicker if sampling per-frame (avoid)", "players get muddy at 640x360 if density too low"]
+        integration: "SPE-v1 spatial stage"
+        replacement: "depth-weighted density (GPU)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL (cv2.Subdiv2D, scipy), https://darkforte.github.io]
+      - id: spr106.det.block-voxel
+        technology: "block-downsample nearest (e.g. 96x54) + palette quantization + per-block luma bump + block grid"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, https://collidingscopes.github.io (Video-to-Pixel-Art reference)]
+    neural_candidates:
+      - id: spr106.nn.depth-parallax
+        technology: "Video Depth Anything modulates triangle density / block height"
+        uses: depth.videodepthanything
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+    wrong_modality_recorded: { id: gpu.cuda_voxelizer, reason: "mesh voxelizer (CUDA) — wrong input modality for video", evidence: ["https://github.com/Forceflow/cuda_voxelizer"] }
+    verdict: "fully deterministic family; VERIFIED-LOCAL primitives"
+  - id: SPR107
+    name: neon-cyberpunk
+    goal: "magenta/cyan grade, glowing highlights, scanlines"
+    deterministic_baselines:
+      - id: spr107.det.split-tone-bloom
+        technology: "split-tone LUT (shadows→cyan, highlights→magenta) + threshold-Gaussian bloom (screen-add) + fixed scanlines + numpy channel-shift chromatic aberration + noise + vignette"
+        source: "standard bloom recipe (learnopengl) + own numpy"
+        license: { code: sporta-owned }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        quality: "convincing cyberpunk grade"
+        temporal_consistency: "strong (deterministic LUTs; bloom stable)"
+        failure_modes: ["bloom pumping on scoreboard highlights (hysteresis)", "CA too strong = eye strain"]
+        integration: "SPE-v1 appearance stage (tone-lut + bloom + grain stages)"
+        replacement: "neural restyle (not planned)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, https://learnopengl.com, https://www.brushcue.com]
+      - id: spr107.det.ffmpeg-stack
+        technology: "ffmpeg eq/hue/curves/colorbalance + gblur + noise + vignette filtergraph (all VERIFIED-LOCAL)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL, https://ffmpeg.org/ffmpeg-filters.html]
+    neural_candidates: []
+    rejected: [{ id: nn.controlnet-neon-restyle, reason: "per-frame generative = forbidden anti-pattern" }]
+    verdict: "pure deterministic family"
+  - id: SPR108
+    name: noir-retro-vhs
+    goal: "film noir / 1970s / VHS looks"
+    deterministic_baselines:
+      - id: spr108.det.noir
+        technology: "luma-only + S-curve contrast LUT + fixed-PRNG grain + vignette + optional halation (renderer spr-noir-retro-dc1, profile noir)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+      - id: spr108.det.vhs
+        technology: "chromashift/rgbashift + noise + luma/chroma degrade + tracking-bar wipe + interlace-ish jitter (profile vhs; ffmpeg chromashift/rgbashift VERIFIED-LOCAL)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL, https://zayne.io, https://superuser.com, https://ffmpeg.org/ffmpeg-filters.html]
+      - id: spr108.det.retro-1970s
+        technology: "curves + heavy grain + halation + 2.39:1 + warm LUT (profile 1970s)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+    neural_candidates: []
+    verdict: "cheapest deterministic family; Worker B already owns the renderer"
+  - id: SPR109
+    name: rotoscope
+    goal: "interpolated rotoscope (Waking-Life class)"
+    deterministic_baselines:
+      - id: spr109.det.flatten-stutter
+        technology: "flatten+palette engine at 12fps 'on twos' re-timed by frame duplication (minterpolate variant optional)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+    neural_candidates: [styl.ebsynth, matting.sam2.facebook]
+    byok_candidates:
+      - id: tool.cutie-roto
+        technology: "Cutie-Roto — AI-assisted interactive rotoscoping (fork of Cutie)"
+        source: https://github.com/Zarxrax/Cutie-Roto
+        license: { code: verification-deferred }
+        classification: byok-option
+        sandbox_feasibility: cpu-local-after-pip
+        notes: "GUI artist tool, not headless pipeline"
+        evidence: [https://github.com/Zarxrax/Cutie-Roto, https://borisfx.com]
+      - id: tool.blender-grease-pencil
+        technology: "Blender Grease Pencil rotoscoping (GPL)"
+        classification: byok-option
+        sandbox_feasibility: cpu-local-after-pip
+        evidence: [https://borisfx.com]
+    verdict: "deterministic caricature now; EbSynth for painted rotoscope"
+  - id: SPR201
+    name: motion-trails
+    goal: "flow-weighted player/ball trails, cut-reset, honest motion emphasis"
+    deterministic_baselines:
+      - id: spr201.det.farneback-accumulate
+        technology: "Farneback flow-magnitude → motion mask → exponential trail accumulation with scene-change cut-reset (renderer spr-motion-trails-dc1)"
+        source: "Sporta SPE-v1 (Packet B)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        quality: "readable motion trails"
+        temporal_consistency: trivial (is a temporal signal)
+        failure_modes: ["Farneback fails on big pans → global-motion compensation or honest gating on static-camera segments"]
+        integration: "SPE-v1 trail-accumulate stage"
+        replacement: "neural flow (RIFE/RAFT)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL (calcOpticalFlowFarneback)]
+      - id: spr201.det.ffmpeg-tmix-feedback
+        technology: "ffmpeg tmix/tblend/feedback filters for encoder-side blending and recursive trails (all VERIFIED-LOCAL)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL, https://ffmpeg.org/ffmpeg-filters.html, https://video.stackexchange.com, https://blog.programster.org]
+    neural_candidates: [flow.rife.practical]
+    verdict: "deterministic-first; RIFE only if quality gates fail"
+  - id: SPR202
+    name: silhouette-xray
+    goal: "motion silhouettes / x-ray false-color"
+    deterministic_baselines:
+      - id: spr202.det.mog2-silhouette
+        technology: "MOG2 mask (global-motion-compensated) → threshold → ink fill or thermal-LUT x-ray + rim glow"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        failure_modes: ["camera pans corrupt bg model"]
+        evidence: [VERIFIED-LOCAL (createBackgroundSubtractorMOG2), https://www.geeksforgeeks.org, https://learnopencv.com]
+      - id: spr202.det.framediff
+        technology: "frame-difference motion mask + morphology (pan-robust, weaker semantics)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+    neural_candidates: [matting.sam2.facebook, matting.modnet, matting.rvm]
+    verdict: "MOG2 + compensation; SAM2 is the neural upgrade"
+  - id: SPR203
+    name: tactical-overlay
+    goal: "source-enhancing tactical overlay, honest degradation without SWM"
+    deterministic_baselines:
+      - id: spr203.det.motion-energy-overlay
+        technology: "MOG2/flow blob tracks (image-space) + player markers + possession-heat accumulation + image-space pitch grid + EXPLICIT 'SWM fact unavailable — overlay degraded' note (ADR-012 §8)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling]
+      - id: spr203.swm.calibrated
+        technology: "SWM-guided overlay when W303-class calibrator (BroadcastLineCalibrator v0.1.0, in-repo) lands — config swap"
+        classification: fallback-until-calibrated
+        sandbox_feasibility: cpu-local-runnable
+    neural_candidates:
+      - id: spr203.nn.field-registration
+        technology: "TVCalib / No-Bells-Just-Whistles / keypoint-homography field registration (reconstruction lane enablers)"
+        sources: [https://mm4spa.github.io/TVCalib/, https://github.com (No Bells, SoccerNet-pretrained), https://arxiv.org/abs/2410.06052, https://blog.roboflow.com, https://www.sciencedirect.com]
+        license: { code: verification-deferred }
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+        notes: "belongs to W303 lane, NOT SPR (no calibration precondition)"
+      - id: spr203.nn.player-detection
+        technology: "YOLOv8x football keypoints + soccer tracking pipelines"
+        sources: [https://huggingface.co/martinjolif/yolo-football-pitch-detection, https://github.com/francescopiocirillo/soccer-players-tracking, https://universe.roboflow.com]
+        license: { code: varies (verification deferred), hosted: roboflow terms }
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+    verdict: "honest-degradation overlay first; registration research parked with W303"
+  - id: SPR204
+    name: commentary-reactive
+    goal: "audio/commentary-driven overlay reactance"
+    deterministic_baselines:
+      - id: spr204.det.audio-envelope
+        technology: "RMS/spectral-band energy (numpy FFT over broadcast audio) → hysteresis-gated overlay pulse/glow/bar-ring + waveform strip, frame-locked to timeline"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL (numpy), https://trac.ffmpeg.org/wiki/Waveform, https://www.glitch.cool]
+      - id: spr204.det.ffmpeg-showwaves
+        technology: "ffmpeg showwaves/oscilloscope overlays (VERIFIED-LOCAL filters)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL]
+    neural_or_hosted_candidates:
+      - id: spr204.byok.asr
+        technology: "ASR commentary → reactive captions (repo HF candidates: Qwen3-ASR-1.7B, VibeVoice-ASR-Streaming-1.5B, SoccerChat)"
+        source: docs/technology/hugging-face-candidates.yaml
+        classification: byok-option
+        sandbox_feasibility: needs-gpu
+      - id: spr204.byok.llm-mood
+        technology: "LLM commentary→style intensity mapping (any provider, key required)"
+        classification: byok-option
+        sandbox_feasibility: needs-provider-key
+    verdict: "deterministic audio lane is complete today"
+  - id: SPR205
+    name: player-focus
+    goal: "tracked player zoom-crop focus, same timeline"
+    deterministic_baselines:
+      - id: spr205.det.camshift-zoom
+        technology: "MOG2-blob init ROI + color histogram → CAMSHIFT per frame → critically-damped eased crop → zoom + background dim"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        failure_modes: ["CAMSHIFT drift on kit-color confusion", "crop window must be eased to avoid nausea"]
+        evidence: [VERIFIED-LOCAL (CamShift), https://docs.opencv.org, https://www.geeksforgeeks.org, https://datahacker.rs]
+      - id: spr205.det.blob-zoom
+        technology: "largest MOG2 blob center-weighted crop (no color model)"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+    neural_candidates:
+      - id: spr205.nn.deep-trackers
+        technology: "cv2 TrackerNano / TrackerVit / TrackerDaSiamRPN (VERIFIED-LOCAL classes; ONNX weights download; model licenses verification deferred)"
+        classification: experimental
+        sandbox_feasibility: cpu-local-after-pip
+        notes: "TrackerCSRT/KCF NOT in this opencv-python build (verified) — would need opencv-contrib-python"
+        evidence: [VERIFIED-LOCAL]
+      - id: spr205.nn.yolo-tracking
+        technology: "YOLO player detection + multi-object tracking"
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+        evidence: [https://github.com/francescopiocirillo/soccer-players-tracking]
+    verdict: "CAMSHIFT now; TrackerNano trial in wave-2"
+
+wave2:
+  worth_trial:
+    - rank: 1
+      id: w2.ebsynth-propagation
+      what: "EbSynth propagation seeded by OUR deterministic keyframes (SPR103/104/109)"
+      why: "hand-painted quality + temporal consistency by construction + CPU + commercial-OK terms; consumes our renderer output; provider-neutral"
+      evidence: [https://github.com/jamriska/ebsynth, https://dcgi.fel.cvut.cz, https://www.skwigly.co.uk, https://www.cgchannel.com]
+      trial: "keyframes every ~24th frame (deterministic engine, optional artist pass) → EbSynth propagate → VLM scorecard vs baseline"
+    - rank: 2
+      id: w2.kuwahara-aniso-numpy
+      what: "anisotropic Kuwahara in numpy (SPR103 upgrade)"
+      why: "biggest painterly-quality jump with zero new dependencies; published for video; kornia mainstream viability"
+      evidence: [https://onlinelibrary.wiley.com, https://www.kyprianidis.com, https://kornia.readthedocs.io]
+      trial: "budget-test on b12 first (heaviest deterministic stage)"
+    - rank: 3
+      id: w2.animegan2-ab
+      what: "AnimeGANv2 A/B on b12 (SPR101/102 neural comparison for the ADR-011 promotion gate)"
+      why: "cheapest honest neural comparison; even a loss documents the flicker evidence; 2-3 s/frame CPU feasible for b12 (12s ≈ 300 frames ≈ 12.5 min)"
+      caveats: ["weights provenance flag", "per-frame NST likely fails static-region-instability metric — test flow-warp mitigation", "torch-CPU pip install needed"]
+      evidence: [https://github.com/bryandlee/animegan2-pytorch, https://ai-engine.net]
+    - rank: 4
+      id: w2.trackernano-spr205
+      what: "TrackerNano/TrackerVit tracking hardening for SPR205"
+      why: "VERIFIED-LOCAL classes + small ONNX downloads; contained trial"
+      evidence: [VERIFIED-LOCAL]
+    - rank: 5
+      id: w2.fixed-lattice-halftone-spr104
+      what: "screen-space fixed-lattice halftone for SPR104"
+      why: "contained deterministic; closes manga with zero risk"
+      evidence: [https://tabreturn.github.io, https://github.com/philgyford/python-halftone]
+  not_worth_it:
+    - id: reject.per-frame-generative
+      what: "per-frame generative restyle of ANY kind (img2img per frame, hosted clay/anime image tools, AniSora/ToonCrafter/DynamiCrafter 'restyle' usage)"
+      why: "the FORBIDDEN slideshow anti-pattern (Packet B FORBIDDEN list; ADR-012 compliance) — destroys temporal identity; per-frame cost $0.003-0.12/image or $0.04-0.30/video-second"
+      evidence: [https://www.teamday.ai, https://replicate.com/seedance]
+    - id: reject.full-v2v-diffusion-wave2
+      what: "FlowVid / Pix2Video / Diffutoon / vid2vid in wave-2"
+      why: "needs-gpu + keys; vid2vid & ToonCrafter non-commercial (red flags); Diffutoon stays wave-3 benchmark-only"
+    - id: reject.rife-flow-upgrade
+      what: "RIFE/RAFT flow upgrade for SPR201 trails in wave-2"
+      why: "Farneback adequate for trail masks at 640x360; GPU dep not justified; revisit only if trail gates fail"
+    - id: reject.rvm-matting
+      what: "RVM anywhere (SPR202/109)"
+      why: "weights CC-BY-NC — excluded from commercial path outright"
+    - id: reject.ltx-restyle
+      what: "LTX-Video restyle lane"
+      why: "threshold-gated license + GPU + generative; byok-option at best, never architecture"
+    - id: reject.field-registration-in-spr
+      what: "SoccerNet field-registration models for SPR"
+      why: "wrong lane — SPR must not gate on calibration (R606 lesson); belongs to W303"
+    - id: reject.free-tier-assumptions
+      what: "assuming hosted free tiers"
+      why: "fal.ai documents a free tier (existence verified, quotas unverified); Replicate shows no free video tier; Runway credits ASSUMED; no keys exist in sandbox (ADR-012 compliance)"
+
+verification_deferred:
+  - tvcalib-repo-license
+  - no-bells-just-whistles-repo-license
+  - diffutoon-repo-license
+  - pix2video-repo-license
+  - flowvid-repo-license
+  - rerevst-compoundvst-repo-license
+  - video-nst-repo-license
+  - python-halftone-license
+  - pykuwahara-license
+  - pyxelate-license
+  - ebsynth-full-terms
+  - trackernano-vit-dasiamrpn-model-weights-license
+  - film-official-repo-license
+  - video-depth-anything-repo-license
+  - animeganv2-upstream-weight-terms
+  - "two searches hit HTTP 429 rate limit; AnimeGANv2 license retry returned off-target results"
+
+search_log:
+  date: "2026-09-24"
+  tool: "z-ai web_search CLI (web-search skill)"
+  invocations: 63
+  successful: 61
+  rate_limited: 2
+  raw_results: "/tmp/spr-search/s01..s63.json (session-local)"
+  queries:
+    - "video style transfer temporal consistency github"
+    - "video-to-video diffusion open source github"
+    - "Anime4K anime filter real-time upscaling license"
+    - "XDoG extended difference of gaussians edge filter implementation"
+    - "Kuwahara filter painterly video stylization opencv"
+    - "cartoon filter opencv bilateral edge mask video python"
+    - "RIFE real-time intermediate flow estimation github license"
+    - "flow-based video stylization optical flow propagation paper"
+    - "football player segmentation pitch detection github"
+    - "ControlNet video stylization diffusion open source"
+    - "low poly video conversion algorithm github"
+    - "voxelization video real-time github"
+    - "cel shading toon shading real-time video filter"
+    - "rotoscoping open source interpolated rotoscoping software"
+    - "Replicate video stylization API pricing per second"
+    - "Hugging Face video-to-video transformation models 2025"
+    - "temporal consistency video style transfer paper 2024 2025"
+    - "MODNet RobustVideoMatting video matting license github"
+    - "SAM 2 segment anything video streaming memory"
+    - "EbSynth example-based stylization video github"
+    - "ffmpeg vhs retro effect filters chroma shift grain"
+    - "ffmpeg tmix frame blending motion trails effect"
+    - "opencv background subtraction MOG2 silhouette video python"
+    - "Real-ESRGAN video upscale license commercial use"
+    - "waifu2x anime upscale BSD-3-Clause license"
+    - "Stylized Neural Video animated textures Fischer"
+    - "MediaPipe selfie segmentation license commercial"
+    - "soccer pitch line detection homography calibration github"
+    - "ink manga halftone dot effect image processing python"
+    - "depth anything v2 monocular depth video temporal"
+    - "claymation clay render style filter stop motion shader"
+    - "cyberpunk neon glow filter opencv bloom"
+    - "ffmpeg showwaves audio reactive visualization filter video"
+    - "CAMSHIFT object tracking zoom crop video opencv python"
+    - "DynamiCrafter VideoCrafter2 open-domain video generation license"
+    - "LTX-Video Lightricks open weights license commercial"
+    - "Go2Py soda football player detection tracking github"
+    - "Kornia computer vision differentiable library license"
+    - "FAL AI video stylization pricing API"
+    - "pixel art posterize downsample video effect python"
+    - "RobustVideoMatting model weights license CC-BY-NC commercial"
+    - "MODNet portrait matting license model weights commercial use"
+    - "AnimeGANv2 animegan2-pytorch license commercial"
+    - "Diffutoon anime video stylization github license"
+    - "ToonCrafter generative cartoon github license"
+    - "libku anisotropic kuwahara github license"
+    - "Stylized Neural Video github NVIDIA license"
+    - "SAM 2 checkpoints license commercial use Apache"
+    - "Real-ESRGAN model weights license BSD-3-Clause commercial"
+    - "EbSynth license terms commercial use"
+    - "Runway Gen-4 video-to-video restyle API pricing"
+    - "Index-AniSora anime video generation model license"
+    - "FILM large motion frame interpolation github license"
+    - "vid2vid NVIDIA video to video synthesis github license"
+    - "RIFE Practical-RIFE github MIT license weights"
+    - "bloc97 Anime4K github MIT license"
+    - "Pyxelate pixel art github license MIT"
+    - "kornia kuwahara filter python"
+    - "video depth anything CPU inference speed"
+    - "AnimeGANv2 github license weights non-commercial (retry; off-target)"
+    - "NVIDIA vid2vid license non-commercial CC BY-NC-SA"
+    - "Pix2Video video editing diffusion code github"
+    - "daooshee ReReVST compound video style transfer github"
