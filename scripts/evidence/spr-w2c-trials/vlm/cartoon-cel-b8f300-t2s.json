@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b8-t2s.png",
+  "cartoon-cel-b8f300-t2s.png",
+  "cartoon-cel-b8f300-t2p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - The main player's kit and number are preserved, but background players lose structural detail and facial features, and the \"BALDE\" text is illegible.\n2. motionFidelity: 3 - The subtle arm/ball movement between frames is captured, though the heavy stylization obscures fine motion details in the background.\n3. stylizationStrength: 4 - The cartoon-cel effect is very strong with bold colors and clear outlines, creating a distinct artistic look despite some loss of definition.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

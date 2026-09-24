@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b8-t8s.png",
+  "kuwahara-paint-b8-t8s.png",
+  "kuwahara-paint-b8-t8p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - Players are reduced to indistinct colored blobs, losing all structural detail, limb definition, and kit/number information.\n2. motionFidelity: 3 - The subtle positional shifts of the color blobs between frames are consistent with the expected movement over a short time interval.\n3. stylizationStrength: 4 - The heavy Kuwahara filtering creates a very obvious and uniform painterly abstraction across the entire scene.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

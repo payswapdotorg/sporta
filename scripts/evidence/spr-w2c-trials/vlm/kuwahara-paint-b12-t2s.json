@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b12-t2s.png",
+  "kuwahara-paint-b12-t2s.png",
+  "kuwahara-paint-b12-t2p2s.png"
+ ],
+ "content": "1. identityConsistency: 3 - The main players are recognizable but fine details like kit numbers and facial features are heavily smoothed and distorted by the stylization.\n2. motionFidelity: 4 - The subtle shift in player positions between the stylized frames accurately reflects a small temporal offset in a continuous shot.\n3. stylizationStrength: 4 - The kuwahara-paint effect is clearly applied, creating a distinct painterly look with flattened color regions and softened edges.\nAXES ic=3 mf=4 ss=4",
+ "axes": {
+  "ic": 3,
+  "mf": 4,
+  "ss": 4
+ }
+}

@@ -1,0 +1,42 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "output": "scripts/evidence/spr-w2c-trials/renders/subject-toon-b12.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    117,
+    120
+  ],
+  "outputCuts": [
+    117,
+    120
+  ],
+  "perCut": [
+    {
+      "inputFrame": 117,
+      "inputAmplitude": 34.73,
+      "outputFrame": 120,
+      "outputAmplitude": 58.22,
+      "amplitudeRatio": 1.676,
+      "outputLocalMedian": 9.53,
+      "matched": true
+    },
+    {
+      "inputFrame": 120,
+      "inputAmplitude": 49.34,
+      "outputFrame": 120,
+      "outputAmplitude": 58.22,
+      "amplitudeRatio": 1.18,
+      "outputLocalMedian": 9.53,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

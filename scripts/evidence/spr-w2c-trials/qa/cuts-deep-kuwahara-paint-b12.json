@@ -1,0 +1,43 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "output": "scripts/evidence/spr-w2c-trials/renders/kuwahara-paint-b12.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    117,
+    120
+  ],
+  "outputCuts": [
+    72,
+    116,
+    119
+  ],
+  "perCut": [
+    {
+      "inputFrame": 117,
+      "inputAmplitude": 34.73,
+      "outputFrame": 119,
+      "outputAmplitude": 46.5,
+      "amplitudeRatio": 1.339,
+      "outputLocalMedian": 9.0,
+      "matched": true
+    },
+    {
+      "inputFrame": 120,
+      "inputAmplitude": 49.34,
+      "outputFrame": 119,
+      "outputAmplitude": 46.5,
+      "amplitudeRatio": 0.942,
+      "outputLocalMedian": 9.0,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

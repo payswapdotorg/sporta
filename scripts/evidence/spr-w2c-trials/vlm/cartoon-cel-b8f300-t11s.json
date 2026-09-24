@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b8-t11s.png",
+  "cartoon-cel-b8f300-t11s.png",
+  "cartoon-cel-b8f300-t11p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to indistinct colored blobs, losing all structural detail, kit features, and limb definition.\n2. motionFidelity - 3: The subtle positional shifts of the blobs between the two stylized frames appear consistent with the expected temporal progression.\n3. stylizationStrength - 4: The cartoon-cel-baseline effect is very strong and obvious, creating a clear abstract aesthetic, though it sacrifices too much recognizability.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

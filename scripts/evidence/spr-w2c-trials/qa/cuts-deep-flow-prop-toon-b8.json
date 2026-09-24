@@ -1,0 +1,31 @@
+{
+  "input": "scripts/evidence/spr-w2c-trials/substrate/b8-first300.mp4",
+  "output": "scripts/evidence/spr-w2c-trials/renders/flow-prop-toon-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189
+  ],
+  "outputCuts": [
+    189
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.03,
+      "outputFrame": 189,
+      "outputAmplitude": 28.16,
+      "amplitudeRatio": 0.879,
+      "outputLocalMedian": 4.34,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

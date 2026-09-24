@@ -1,0 +1,88 @@
+{
+ "rendererId": "sprtrial-flow-prop-toon-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "identity": "clip-sha:969af7c6fdb1"
+ },
+ "styleConfig": {
+  "config": {
+   "keyInterval": 10,
+   "flowKnee": 3.5,
+   "trustWeight": 0.85,
+   "reanchorRate": 0.12,
+   "keyMedianK": 5,
+   "keyBilatD": 9,
+   "keyBilatSigma": 75,
+   "keyBilatIters": 3,
+   "keyRegionWindow": 5,
+   "keySaturation": 1.22,
+   "keyLineDilate": 1,
+   "keyLineFloor": 0.3,
+   "lWeight": 0.45,
+   "lightMedianK": 3,
+   "lightBilatD": 9,
+   "lightBilatSigma": 65,
+   "lightBilatIters": 1,
+   "lightSaturation": 1.14,
+   "profile": "default",
+   "frameCount": 300,
+   "maxFrames": 300
+  },
+  "hash": "ead9de70e0368f42124f6613779946d15aa5070298bfaf2334b553a16e391812"
+ },
+ "pipeline": [
+  {
+   "stage": "keyframe stylizer every 10th frame + every cut (median5+bilateral x3+palette K=12 LAB+region-smooth5+boundary-lines floor 0.30+sat 1.18)"
+  },
+  {
+   "stage": "farneback flow on original gray (full res, frozen engine params)"
+  },
+  {
+   "stage": "canvas = 0.85*warp(prev canvas, backward flow) + 0.15*current full stylization (re-anchored propagation; remap BORDER_REPLICATE)"
+  },
+  {
+   "stage": "display blend: canvas*(1-0.85*clip(mag/3.0)) + light pass (median3+bilateral x1+sat 1.14)*0.85*clip(mag/3.0)"
+  },
+  {
+   "stage": "keyframe/cut reset bounds warp drift"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "flow-prop-toon-b8.mp4",
+  "sha256": "d8f5a897959855b5ee47cb3af06da605198eb6b88b35214b247ea82287f6b82f",
+  "byteSize": 1930516,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 300
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial flow-prop-toon --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b8 --max-frames 300"
+ },
+ "telemetry": {
+  "renderWallMs": 89514.0,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T21:01:59.550815+00:00",
+ "runId": "sprrun-217365b397b71589"
+}

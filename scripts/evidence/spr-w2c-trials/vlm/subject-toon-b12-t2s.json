@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b12-t2s.png",
+  "subject-toon-b12-t2s.png",
+  "subject-toon-b12-t2p2s.png"
+ ],
+ "content": "1. identityConsistency - 4: Players' facial features, hairstyles, and kit details (stripes, logos) remain highly recognizable and structurally stable across all frames.\n2. motionFidelity - 3: The subtle forward lean and arm swing of the foreground player in Image 3 aligns with the 0.2s temporal gap, though the motion is minimal.\n3. stylizationStrength - 2: The transformation is very subtle, appearing as a slight softening or painterly filter rather than a distinct \"toon\" style.\nAXES ic=4 mf=3 ss=2",
+ "axes": {
+  "ic": 4,
+  "mf": 3,
+  "ss": 2
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b12-t2s.png",
+  "cartoon-cel-b12-t2s.png",
+  "cartoon-cel-b12-t2p2s.png"
+ ],
+ "content": "1. identityConsistency: 3 - Players are recognizable and maintain general structure, but facial features and kit details are heavily abstracted.\n2. motionFidelity: 4 - The subtle shift in player posture and the appearance of a goalkeeper's arm in the third image align well with the expected motion over 0.2 seconds.\n3. stylizationStrength: 5 - The cartoon-cel-baseline effect is very strong, with clear edge detection, flat color fills, and a distinct artistic transformation.\nAXES ic=3 mf=4 ss=5",
+ "axes": {
+  "ic": 3,
+  "mf": 4,
+  "ss": 5
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b8-t2s.png",
+  "kuwahara-paint-b8-t2s.png",
+  "kuwahara-paint-b8-t2p2s.png"
+ ],
+ "content": "1. identityConsistency: 3 - The main subject (Balde #3) is structurally intact, but background players are heavily distorted and unrecognizable.\n2. motionFidelity: 4 - The subtle shift in arm/ball position between the stylized frames accurately reflects the 0.2s temporal gap.\n3. stylizationStrength: 5 - The kuwahara-paint effect creates a strong, consistent painterly aesthetic across both frames.\nAXES ic=3 mf=4 ss=5",
+ "axes": {
+  "ic": 3,
+  "mf": 4,
+  "ss": 5
+ }
+}

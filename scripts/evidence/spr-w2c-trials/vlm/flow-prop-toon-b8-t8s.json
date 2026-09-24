@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b8-t8s.png",
+  "flow-prop-toon-b8-t8s.png",
+  "flow-prop-toon-b8-t8p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to abstract colored blobs, losing all structural detail like limbs and kit numbers.\n2. motionFidelity - 3: The general spatial arrangement of players shifts plausibly between the two stylized frames.\n3. stylizationStrength - 4: The flow-prop-toon effect is very bold and clearly applied across the entire scene.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

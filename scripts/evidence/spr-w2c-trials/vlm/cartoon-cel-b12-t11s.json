@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b12-t11s.png",
+  "cartoon-cel-b12-t11s.png",
+  "cartoon-cel-b12-t11p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - Players are reduced to unrecognizable colored blobs with no structural detail or kit consistency.\n2. motionFidelity: 3 - Subtle shifts in blob positions are visible, but the extreme abstraction makes precise motion tracking difficult.\n3. stylizationStrength: 4 - The cartoon-cel transformation is very strong and obvious, creating a distinct abstract aesthetic.\n\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

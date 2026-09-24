@@ -1,0 +1,93 @@
+{
+ "rendererId": "sprtrial-subject-toon-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "identity": "clip-sha:969af7c6fdb1"
+ },
+ "styleConfig": {
+  "config": {
+   "motionKnee": 1.8,
+   "mogHistory": 150,
+   "mogVarThreshold": 25.0,
+   "mogLearningRate": 0.05,
+   "maskDecay": 0.9,
+   "maskSoften": 4.0,
+   "bgMedianK": 5,
+   "bgBilatD": 9,
+   "bgBilatSigma": 75,
+   "bgBilatIters": 3,
+   "bgRegionWindow": 5,
+   "bgSaturation": 1.22,
+   "bgLineDilate": 1,
+   "bgLineFloor": 0.3,
+   "lWeight": 0.45,
+   "sjMedianK": 3,
+   "sjBilatD": 7,
+   "sjBilatSigma": 50,
+   "sjBilatIters": 1,
+   "sjXdogSigma": 1.0,
+   "sjXdogK": 1.6,
+   "sjXdogTau": 0.98,
+   "sjXdogEps": 0.01,
+   "sjXdogPhi": 8.0,
+   "sjLineFloor": 0.7,
+   "sjSaturation": 1.1,
+   "profile": "default",
+   "frameCount": 300,
+   "maxFrames": 300
+  },
+  "hash": "d548938eef3db8f0e09715779622ab5a1ce1e69515d63fd9b7d213f1a008bbd5"
+ },
+ "pipeline": [
+  {
+   "stage": "subject_mask(OR[farneback_residual>1.8 @320x180 camera-compensated, MOG2 fg], open3/close5/dilate5, EMA decay=0.90 cut-reset, soften sigma=2.5)"
+  },
+  {
+   "stage": "background_path(median5+bilateral x3+palette K=10 LAB+region-smooth5+boundary-lines floor 0.30+sat 1.22)"
+  },
+  {
+   "stage": "subject_path(median3+bilateral x1+xdog thin lines floor 0.62+sat 1.08, NO palette quantize)"
+  },
+  {
+   "stage": "soft_mask_composite(bg,subj)"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "subject-toon-b8.mp4",
+  "sha256": "f4cb7d1086709718d9b4a052b594e5ba62ef614ff9dd9a258211ada143b93971",
+  "byteSize": 2667498,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 300
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial subject-toon --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b8 --max-frames 300"
+ },
+ "telemetry": {
+  "renderWallMs": 74493.3,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T20:58:52.273979+00:00",
+ "runId": "sprrun-b1d29082264cfc3e"
+}
