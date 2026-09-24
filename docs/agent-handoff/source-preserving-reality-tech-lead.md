@@ -1,7 +1,32 @@
 # Source-Preserving Reality — Tech Lead Operating Doc
 
-Session: w6-spr-1 (2026-09-24) · Repository state: sporta main @84efc98 (pushed);
-worktree `/home/z/sporta-wc` detached @e0b3cd9 (SPR branch: `work/spr-engine`).
+Session: w6-spr-2 (2026-09-24, environment-reset recovery) · Repository state:
+sporta main = w6-spr-1 merge 40dcf60 + local w6-spr-2 commits (push BLOCKED —
+no PAT in this sandbox; re-inject to sync). Worktree `/home/z/sporta` (the
+detached `/home/z/sporta-wc` worktree died with the reset).
+
+## w6-spr-2 state digest (replaces the w6-spr-1 lines below)
+
+- Sandbox was reset; everything machine-local was lost (substrate, renders,
+  QA JSONs, surface, replay stack). GitHub main @40dcf60 survived.
+- b8 re-acquired via the recorded proxy recipe (substrate b8r3 sha 969af7c6…,
+  content-equivalent: same window/cuts/envelope; normalization re-derived —
+  audio apad to 47.62s so the frozen -shortest encoder passes 1190 frames).
+- All five wave-1 renders re-run; determinism triple byte-identical; hard
+  gates re-measured (all PASS except the known cartoon T2-det finding, which
+  the durable repo gate cuts_deep.py resolves — deep coverage 1.0, 0 invented).
+- Realities Lab surface rebuilt in /home/z/my-project and agent-browser
+  verified (playback, position-preserving switching, hold-to-compare, gates
+  chips, frame strip, no errors). One real API bug caught+fixed in E2E.
+- VLM still 429-exhausted; scorecard harness is now the repo script
+  vlm_scorecard.py. Tier 2 blocked on VLM + TL visual approval.
+- Acquisition tooling that must survive resets: the gost proxy needs Basic
+  auth (session-log), ffmpeg needs the local TLS relay for the HTTPS-only
+  proxy (scripts/tls_proxy_relay.py in the evidence root), yt-dlp needs
+  `--js-runtimes node` + `bun` as SEPARATE flags and the bgutil provider at
+  ~/bgutil-ytdlp-pot-provider + ~/.yt-dlp/plugins/bgutil.
+- Next: PAT re-injection (push), VLM quota (scorecards → Tier 2), wave 2
+  (corpus b2-b7 + b5 re-pull, SPR103/104/107/109/202/205, A's upgrade trials).
 
 ## Mandate digest
 

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.0",
+  "recovery": {
+    "reason": "sandbox environment reset between sessions — the original corpus bytes (b1/b5/b8) and the 86s pull were lost; b8 and b1 re-acquired from the frozen source through the recorded recipe",
+    "recoverySession": "w6-spr-2 (2026-09-24)",
+    "notes": [
+      "HLS section pulls are not byte-reproducible: segment boundaries and the HLS remux differ per acquisition; content equivalence is verified (same frozen source, same window, same 6 broadcast cuts at frames [189, 475, 550, 862, 979, 982], same envelope 640x360@25fps).",
+      "The original a13396ec substrate was the media-platform NORMALIZED artifact (1190 frames, audio >= video end). The recovery normalization reproduces that envelope: video copied, audio padded with silence to 47.62s so the frozen -shortest encoder passes all 1190 frames and the container duration delta is 20ms.",
+      "b5 (86s window pull 1979-2213s) and b2-b7 remain WAVE-2 acquisition work."
+    ]
+  },
+  "source": {
+    "url": "https://www.youtube.com/watch?v=93LPZJkCW2w",
+    "title": "FULL MATCH | BETIS 3 vs 5 FC BARCELONA | LALIGA 2025/26 MD15",
+    "acquisitionRecipe": "yt-dlp via gost HTTPS proxy a996d235.acsnet.co:443 (Basic auth testuser1/<redacted-in-repo>; see session-log) with local TLS-terminating relay scripts/tls_proxy_relay.py for ffmpeg's HLS segment fetch; client visionos; format itag230 (640x360 HLS) + itag140-5 (en-US original m4a); --download-sections window; -c copy merge; substrate normalization: video stream copy + audio apad to 47.62s",
+    "rightsBasis": "benchmark-candidate (unratified VPN-egress path)"
+  },
+  "clips": [
+    {
+      "clipId": "sprclip-b8-inplay-original",
+      "category": "real-in-play-r606-source",
+      "file": "../bytes/b8p3.mp4",
+      "byteSize": 2705383,
+      "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "width": 640,
+      "height": 360,
+      "fps": 25,
+      "frameCount": 1190,
+      "durationMs": 47620,
+      "mediaTimeStartSec": 1803.84,
+      "mediaTimeEndSec": 1851.44,
+      "acquisition": {
+        "method": "yt-dlp-hls-window + normalize",
+        "command": "yt-dlp --proxy http://127.0.0.1:8128 --extractor-args 'youtube:player_client=visionos' -f '230+140-5' --download-sections '*1803.84-1851.44' (video 230 via ffmpeg through relay; audio 140-5 via native downloader) ; ffmpeg -i b8-raw.mp4 -c copy -frames:v 1190 b8.mp4 ; ffmpeg -i b8.mp4 -c:v copy -af apad -c:a aac -b:a 128k -ar 44100 -t 47.62 b8p3.mp4",
+        "fromSha256": "82222a40b6bf6fce149ead8eaecadf3e14159ffc112f57c20e5b7223907bb575"
+      },
+      "vlmVerification": {
+        "file": "vlm/b8.json",
+        "verdict": "PENDING (quota exhausted at session end; prior-session VLM verdict recorded in-play BET 1-2 BAR ~24'; same content window)"
+      },
+      "cuts": [189, 475, 550, 862, 979, 982]
+    },
+    {
+      "clipId": "sprclip-b1-wide-broadcast",
+      "category": "wide-broadcast",
+      "file": "clip-b1-wide-broadcast.mp4",
+      "byteSize": 1772792,
+      "sha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+      "width": 640,
+      "height": 360,
+      "fps": 25,
+      "frameCount": 751,
+      "durationMs": 30040,
+      "mediaTimeStartSec": 1803.84,
+      "mediaTimeEndSec": 1833.84,
+      "acquisition": {
+        "method": "cut-from-b8",
+        "command": "ffmpeg -ss 0 -t 30 -i b8p3.mp4 -c copy clip-b1-wide-broadcast.mp4",
+        "fromSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a"
+      },
+      "vlmVerification": {
+        "file": "vlm/b1.json",
+        "verdict": "PENDING (prefix of the VLM-verified b8 window)"
+      }
+    },
+    {
+      "clipId": "sprclip-b12-determinism-cut",
+      "category": "determinism-review-cut",
+      "file": "../render/b8-b12.mp4",
+      "byteSize": 756609,
+      "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+      "width": 640,
+      "height": 360,
+      "fps": 25,
+      "frameCount": 301,
+      "durationMs": 12040,
+      "mediaTimeStartSec": 1838.32,
+      "mediaTimeEndSec": 1850.32,
+      "acquisition": {
+        "method": "cut-from-b8",
+        "command": "ffmpeg -ss 34.48 -t 12 -i b8p3.mp4 -c copy b8-b12.mp4 (cut-rich window: source cuts at frames 862, 979, 982 fall inside — the strongest cut-preservation test)",
+        "fromSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a"
+      },
+      "vlmVerification": {
+        "file": "vlm/b12.json",
+        "verdict": "N/A (determinism substrate, not a category clip)"
+      }
+    }
+  ]
+}

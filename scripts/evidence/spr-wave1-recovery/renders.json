@@ -1,0 +1,204 @@
+{
+ "schemaVersion": "1.0",
+ "engine": "SPE-v1",
+ "generatedAtIso": "2026-09-24T13:48:27Z",
+ "inputSubstrate": {
+  "clipId": "sprclip-b8-inplay-original",
+  "path": "/home/z/spr-evidence/bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "durationMs": 47620,
+  "fps": 25,
+  "frameCount": 1190,
+  "mediaWindow": "1803.84-1851.44s",
+  "source": "https://www.youtube.com/watch?v=93LPZJkCW2w (BETIS 3-5 BARCELONA, LaLiga 25/26 MD15)"
+ },
+ "realities": [
+  {
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "family": "Cartoon / Cel-Shaded Broadcast",
+   "sprId": "SPR101",
+   "engine": "SPE-v1",
+   "implementation": "deterministic-classical",
+   "description": "Flat graphic color regions, clean contours, stable cel look.",
+   "files": {
+    "b8": {
+     "file": "cartoon-cel-b8.mp4",
+     "byteSize": 8238780,
+     "sha256": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+     "frameCount": 1190,
+     "url": "/media/spr/render/cartoon-cel-b8.mp4",
+     "provenance": "cartoon-cel-b8.provenance.json"
+    },
+    "b12": {
+     "file": "cartoon-cel-b12.mp4",
+     "byteSize": 2056805,
+     "sha256": "18d0d3eea64055339ba48c71ea6cd3459aef04340d65d35f4b0c71d58c5a09fc",
+     "frameCount": 300,
+     "url": "/media/spr/render/cartoon-cel-b12.mp4",
+     "determinismDoubleRender": {
+      "shaA": "18d0d3eea64055339ba48c71ea6cd3459aef04340d65d35f4b0c71d58c5a09fc",
+      "shaB": "18d0d3eea64055339ba48c71ea6cd3459aef04340d65d35f4b0c71d58c5a09fc",
+      "shaC": "18d0d3eea64055339ba48c71ea6cd3459aef04340d65d35f4b0c71d58c5a09fc",
+      "byteIdentical": true
+     }
+    }
+   },
+   "frames": [
+    "frames/cartoon-cel-b8-t2s.png",
+    "frames/cartoon-cel-b8-t15s.png",
+    "frames/cartoon-cel-b8-t30s.png",
+    "frames/cartoon-cel-b8-t45s.png"
+   ],
+   "selfQa": null
+  },
+  {
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "family": "Anime / NPR Broadcast",
+   "sprId": "SPR102",
+   "engine": "SPE-v1",
+   "implementation": "deterministic-classical",
+   "description": "Anime broadcast look: flat limited palette, clean line art, soft bloom.",
+   "files": {
+    "b8": {
+     "file": "anime-npr-b8.mp4",
+     "byteSize": 8901661,
+     "sha256": "e5ef768b53f9dd5bb5b0ea3d06db04c7c368a1bd82359fb9301f6f1559058de2",
+     "frameCount": 1190,
+     "url": "/media/spr/render/anime-npr-b8.mp4",
+     "provenance": "anime-npr-b8.provenance.json"
+    },
+    "b12": {
+     "file": "anime-npr-b12.mp4",
+     "byteSize": 2275954,
+     "sha256": "a80640b14a0fec9882b4b538838d6d0ca52f0f1a07b855b7f155541d99dc5e50",
+     "frameCount": 300,
+     "url": "/media/spr/render/anime-npr-b12.mp4",
+     "determinismDoubleRender": {
+      "shaA": "a80640b14a0fec9882b4b538838d6d0ca52f0f1a07b855b7f155541d99dc5e50",
+      "shaB": "a80640b14a0fec9882b4b538838d6d0ca52f0f1a07b855b7f155541d99dc5e50",
+      "shaC": "a80640b14a0fec9882b4b538838d6d0ca52f0f1a07b855b7f155541d99dc5e50",
+      "byteIdentical": true
+     }
+    }
+   },
+   "frames": [
+    "frames/anime-npr-b8-t2s.png",
+    "frames/anime-npr-b8-t15s.png",
+    "frames/anime-npr-b8-t30s.png",
+    "frames/anime-npr-b8-t45s.png"
+   ],
+   "selfQa": null
+  },
+  {
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "family": "Noir / Monochrome / Retro Broadcast",
+   "sprId": "SPR108",
+   "engine": "SPE-v1",
+   "implementation": "deterministic-classical",
+   "description": "Deterministic retro broadcast baselines: film noir and VHS.",
+   "files": {
+    "b8": {
+     "file": "noir-retro-noir-b8.mp4",
+     "byteSize": 39199788,
+     "sha256": "3eedb4238f56900f6b1559ce0f19e0ea1aa2044a453bdd2bce453d4a1b0711a4",
+     "frameCount": 1190,
+     "url": "/media/spr/render/noir-retro-noir-b8.mp4",
+     "provenance": "noir-retro-noir-b8.provenance.json"
+    },
+    "b12": {
+     "file": "noir-retro-noir-b12.mp4",
+     "byteSize": 9566084,
+     "sha256": "2ecf380d706bd235015755cd6e7086731e6243caf3586df0781b6029d3354a1d",
+     "frameCount": 299,
+     "url": "/media/spr/render/noir-retro-noir-b12.mp4",
+     "determinismDoubleRender": {
+      "shaA": "2ecf380d706bd235015755cd6e7086731e6243caf3586df0781b6029d3354a1d",
+      "shaB": "2ecf380d706bd235015755cd6e7086731e6243caf3586df0781b6029d3354a1d",
+      "shaC": "2ecf380d706bd235015755cd6e7086731e6243caf3586df0781b6029d3354a1d",
+      "byteIdentical": true
+     }
+    }
+   },
+   "frames": [
+    "frames/noir-retro-noir-b8-t2s.png",
+    "frames/noir-retro-noir-b8-t15s.png",
+    "frames/noir-retro-noir-b8-t30s.png",
+    "frames/noir-retro-noir-b8-t45s.png"
+   ],
+   "selfQa": null
+  },
+  {
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "family": "Noir / Monochrome / Retro Broadcast",
+   "sprId": "SPR108",
+   "engine": "SPE-v1",
+   "implementation": "deterministic-classical",
+   "description": "Deterministic retro broadcast baselines: film noir and VHS.",
+   "files": {
+    "b12": {
+     "file": "noir-retro-vhs-b12.mp4",
+     "byteSize": 10793230,
+     "sha256": "b33e8c7663c3a95666b6f6623a53ebe70644d89134a0272e460f331986a8d32b",
+     "frameCount": 299,
+     "url": "/media/spr/render/noir-retro-vhs-b12.mp4"
+    }
+   },
+   "frames": [],
+   "selfQa": null
+  },
+  {
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "family": "Motion Trails (source-enhancing)",
+   "sprId": "SPR201",
+   "engine": "SPE-v1",
+   "implementation": "deterministic-classical",
+   "description": "Flow-energy trails over the real broadcast; motion emphasis only.",
+   "files": {
+    "b8": {
+     "file": "motion-trails-b8.mp4",
+     "byteSize": 7180092,
+     "sha256": "ecc278868fa3103186b1e3465b189ef72780a5ad51617c631b5a62a668c13da4",
+     "frameCount": 1190,
+     "url": "/media/spr/render/motion-trails-b8.mp4",
+     "provenance": "motion-trails-b8.provenance.json"
+    },
+    "b12": {
+     "file": "motion-trails-b12.mp4",
+     "byteSize": 1942741,
+     "sha256": "53e310426bc30950e64d70b5e5fb9465b57eea1fba4dac8d32572a384623dcd8",
+     "frameCount": 298,
+     "url": "/media/spr/render/motion-trails-b12.mp4",
+     "determinismDoubleRender": {
+      "shaA": "53e310426bc30950e64d70b5e5fb9465b57eea1fba4dac8d32572a384623dcd8",
+      "shaB": "53e310426bc30950e64d70b5e5fb9465b57eea1fba4dac8d32572a384623dcd8",
+      "shaC": "53e310426bc30950e64d70b5e5fb9465b57eea1fba4dac8d32572a384623dcd8",
+      "byteIdentical": true
+     }
+    }
+   },
+   "frames": [
+    "frames/motion-trails-b8-t2s.png",
+    "frames/motion-trails-b8-t15s.png",
+    "frames/motion-trails-b8-t30s.png",
+    "frames/motion-trails-b8-t45s.png"
+   ],
+   "selfQa": null
+  }
+ ],
+ "selfQaNote": "renderer self-QA deferred to the formal QA harness (qa/metrics + qa/vlm scorecards)"
+}

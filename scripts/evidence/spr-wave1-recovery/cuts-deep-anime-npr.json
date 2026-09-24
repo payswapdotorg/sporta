@@ -1,0 +1,87 @@
+{
+  "input": "/home/z/spr-evidence/bytes/b8p3.mp4",
+  "output": "/home/z/spr-evidence/render/anime-npr-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550,
+    862,
+    934,
+    979,
+    982
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 25.74,
+      "amplitudeRatio": 0.803,
+      "outputLocalMedian": 4.6,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 19.53,
+      "amplitudeRatio": 0.813,
+      "outputLocalMedian": 4.71,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 16.57,
+      "amplitudeRatio": 0.825,
+      "outputLocalMedian": 1.61,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 21.52,
+      "amplitudeRatio": 0.635,
+      "outputLocalMedian": 5.3,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 982,
+      "outputAmplitude": 33.5,
+      "amplitudeRatio": 0.965,
+      "outputLocalMedian": 4.95,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 982,
+      "outputAmplitude": 33.5,
+      "amplitudeRatio": 0.679,
+      "outputLocalMedian": 4.95,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}
