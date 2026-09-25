@@ -1,0 +1,536 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W3-A",
+ "task": "b1 lane re-render on the apad re-cut substrate: 5 realities x double-render determinism + qa_check (the 5 former F1 crashes must complete) + cuts_deep + t=8 frames",
+ "generatedAtIso": "2026-09-25T04:42:48.836706+00:00",
+ "engine": "SPE-v1",
+ "base": "805a5fc",
+ "branch": "spr/w3a/substrate-fix",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0.93 (reports 5.0.0)",
+  "numpy": "2.5.3",
+  "python": "Python 3.12 (project .venv)"
+ },
+ "control": {
+  "check": "b7 x motion-trails re-render on untouched b7 bytes BEFORE substrate judgement",
+  "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality motion-trails --out-dir /tmp/w3a/control/b7 --suffix b7",
+  "outputSha256": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+  "wave2RecordSha256": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+  "match": true
+ },
+ "substrate": {
+  "relocked": [
+   "clip-b1-wide-broadcast.mp4",
+   "b8-b12.mp4"
+  ],
+  "b1NewSha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+  "b12NewSha256": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462",
+  "untouchedClipsAllMatch": true,
+  "detail": "substrate-fix.json"
+ },
+ "realities": [
+  "cartoon-cel",
+  "anime-npr",
+  "noir-retro (noir)",
+  "noir-retro (vhs)",
+  "motion-trails"
+ ],
+ "clips": [
+  "b1"
+ ],
+ "summary": {
+  "renders": 5,
+  "determinismByteIdentical": "5/5",
+  "qaCompletedWithoutCrash": "5/5 (wave-2: 5/5 CRASH)",
+  "frameCount751Preserved": "5/5 (wave-2: 5/5 truncated to 750)",
+  "qaAllPass": "3/5 (noir, vhs, motion-trails)",
+  "cutsDeepPass": "5/5 (coverage 1.0, invented 0)"
+ },
+ "knownFindings": {
+  "F1-RESOLVED": "audio 30.06s >= video 30.04s on the new b1; all 5 renders pipe AND mux 751 frames; qa_check completes on all 5 (no corrcoef crash); G-T1 passes 5/5 with durationDeltaMs 20ms.",
+  "NEW (honest, raw spike-detector T2)": "cartoon-cel and anime-npr show G-T2 coverage 0.667 (2/3): the frame-550 source cut is softened below the spike detector's 2.6x-local-median ratio by the flattening styles (amplitude carried at ~0.78, zero extra cuts). The dispatched deep gate cuts_deep resolves it by correspondence: coverage 1.0, invented 0 on all 5 (out-amp 15.69 vs in-amp 20.09 at frame 550 on cartoon-cel \u2014 the exact boundary case the G-T2b docstring documents). This was invisible in wave-2 because qa_check crashed before T2 ran on any b1 render.",
+  "b12-nb-frames (open)": "nb_frames=338 is the true sample-table count (37 edit-list-hidden pre-roll packets are structurally required by the first 63 real frames); NOT fixable by a packet-preserving remux \u2014 see substrate-fix.json honestNegativeNbFrames. The b12 audio defect IS fixed."
+ },
+ "renders": [
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c0579af4ce30e30dbd9f13023b60e54c6eb0e25cbcbc5fc9d8f78528b1114bff",
+   "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality cartoon-cel --out-dir /tmp/w3a/out/b1 --suffix b1   (pass 2 identical with --out-dir /tmp/w3a/out2/b1)",
+   "outputFile": "cartoon-cel-b1.mp4",
+   "outputSha256Pass1": "bc18a91c2c6ebad1d8d9a6e697fe1896a54d48ba301b2334b84fca741469f6e0",
+   "outputSha256Pass2": "bc18a91c2c6ebad1d8d9a6e697fe1896a54d48ba301b2334b84fca741469f6e0",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 751,
+   "durationMs": 30040,
+   "renderWallMsPass1": 172414.6,
+   "renderWallMsPass2": 174294.9,
+   "qa": {
+    "crashed": false,
+    "returncode": 0,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 751,
+     "frameCountEqual": true,
+     "fpsInput": 25.0,
+     "fpsOutput": 25.0,
+     "durationDeltaMs": 20,
+     "audioPassthrough": true,
+     "pass": true
+    },
+    "G-T2": {
+     "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+     "inputCuts": [
+      189,
+      475,
+      550
+     ],
+     "outputCuts": [
+      189,
+      475
+     ],
+     "preserved": 2,
+     "coverage": 0.667,
+     "extraCuts": 0,
+     "extraPer30s": 0.0,
+     "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputFrames": [
+       189,
+       475
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+     },
+     "pass": false
+    },
+    "G-T3": {
+     "pearsonR": 0.9762,
+     "frames": 751,
+     "pass": true
+    },
+    "G-T4": {
+     "staticRegionMeanDeltaL": 0.9607,
+     "percentOfRange": 0.3768,
+     "inputBaselinePercentOfRange": 0.4728,
+     "sampledPixels": 53892,
+     "pass": true
+    },
+    "allPass": false,
+    "json": "qa/b1-cartoon-cel.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475
+    ],
+    "json": "qa/b1-cartoon-cel-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c95956a23bc0e78cd36eaa9de2cbc04446ad7068b3b0f21314d0fd41f263e224",
+   "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality anime-npr --out-dir /tmp/w3a/out/b1 --suffix b1   (pass 2 identical with --out-dir /tmp/w3a/out2/b1)",
+   "outputFile": "anime-npr-b1.mp4",
+   "outputSha256Pass1": "f0d84c96a2c5e402565a3527b7d6bd141fac91b8fbd4d7540230db653baf677d",
+   "outputSha256Pass2": "f0d84c96a2c5e402565a3527b7d6bd141fac91b8fbd4d7540230db653baf677d",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 751,
+   "durationMs": 30040,
+   "renderWallMsPass1": 168899.1,
+   "renderWallMsPass2": 172043.8,
+   "qa": {
+    "crashed": false,
+    "returncode": 0,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 751,
+     "frameCountEqual": true,
+     "fpsInput": 25.0,
+     "fpsOutput": 25.0,
+     "durationDeltaMs": 20,
+     "audioPassthrough": true,
+     "pass": true
+    },
+    "G-T2": {
+     "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+     "inputCuts": [
+      189,
+      475,
+      550
+     ],
+     "outputCuts": [
+      189,
+      475
+     ],
+     "preserved": 2,
+     "coverage": 0.667,
+     "extraCuts": 0,
+     "extraPer30s": 0.0,
+     "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputFrames": [
+       189,
+       475
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+     },
+     "pass": false
+    },
+    "G-T3": {
+     "pearsonR": 0.969,
+     "frames": 751,
+     "pass": true
+    },
+    "G-T4": {
+     "staticRegionMeanDeltaL": 0.992,
+     "percentOfRange": 0.389,
+     "inputBaselinePercentOfRange": 0.4728,
+     "sampledPixels": 53892,
+     "pass": true
+    },
+    "allPass": false,
+    "json": "qa/b1-anime-npr.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475
+    ],
+    "json": "qa/b1-anime-npr-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "ac8b4ffd90f2bca745caa950d86b31b3ec52e1b278d46dc764dd575fe1f23075",
+   "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality noir-retro --profile noir --out-dir /tmp/w3a/out/b1 --suffix b1   (pass 2 identical with --out-dir /tmp/w3a/out2/b1)",
+   "outputFile": "noir-retro-noir-b1.mp4",
+   "outputSha256Pass1": "2b404847630b9bf3eb88b844c2c0aa22ddd040dc243d02570dad895e70356090",
+   "outputSha256Pass2": "2b404847630b9bf3eb88b844c2c0aa22ddd040dc243d02570dad895e70356090",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 751,
+   "durationMs": 30040,
+   "renderWallMsPass1": 28248.7,
+   "renderWallMsPass2": 27937.7,
+   "qa": {
+    "crashed": false,
+    "returncode": 0,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 751,
+     "frameCountEqual": true,
+     "fpsInput": 25.0,
+     "fpsOutput": 25.0,
+     "durationDeltaMs": 20,
+     "audioPassthrough": true,
+     "pass": true
+    },
+    "G-T2": {
+     "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+     "inputCuts": [
+      189,
+      475,
+      550
+     ],
+     "outputCuts": [
+      189,
+      475,
+      550
+     ],
+     "preserved": 3,
+     "coverage": 1.0,
+     "extraCuts": 0,
+     "extraPer30s": 0.0,
+     "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+     },
+     "pass": true
+    },
+    "G-T3": {
+     "pearsonR": 0.999,
+     "frames": 751,
+     "pass": true
+    },
+    "G-T4": {
+     "staticRegionMeanDeltaL": 1.2053,
+     "percentOfRange": 0.4727,
+     "inputBaselinePercentOfRange": 0.4728,
+     "sampledPixels": 53892,
+     "pass": true
+    },
+    "allPass": true,
+    "json": "qa/b1-noir-retro-noir.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "json": "qa/b1-noir-retro-noir-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c1fa4cd7767a7b474f782e063129b7d28926396b7adb1a149eccad822b4ff19f",
+   "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality noir-retro --profile vhs --out-dir /tmp/w3a/out/b1 --suffix b1   (pass 2 identical with --out-dir /tmp/w3a/out2/b1)",
+   "outputFile": "noir-retro-vhs-b1.mp4",
+   "outputSha256Pass1": "19e8446c3608efd4136ef700d62f3bd4d9438a2a08e8d34a3af7c0c4236af3db",
+   "outputSha256Pass2": "19e8446c3608efd4136ef700d62f3bd4d9438a2a08e8d34a3af7c0c4236af3db",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 751,
+   "durationMs": 30040,
+   "renderWallMsPass1": 28065.4,
+   "renderWallMsPass2": 28027.1,
+   "qa": {
+    "crashed": false,
+    "returncode": 0,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 751,
+     "frameCountEqual": true,
+     "fpsInput": 25.0,
+     "fpsOutput": 25.0,
+     "durationDeltaMs": 20,
+     "audioPassthrough": true,
+     "pass": true
+    },
+    "G-T2": {
+     "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+     "inputCuts": [
+      189,
+      475,
+      550
+     ],
+     "outputCuts": [
+      189,
+      475,
+      550
+     ],
+     "preserved": 3,
+     "coverage": 1.0,
+     "extraCuts": 0,
+     "extraPer30s": 0.0,
+     "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+     },
+     "pass": true
+    },
+    "G-T3": {
+     "pearsonR": 0.8989,
+     "frames": 751,
+     "pass": true
+    },
+    "G-T4": {
+     "staticRegionMeanDeltaL": 2.0892,
+     "percentOfRange": 0.8193,
+     "inputBaselinePercentOfRange": 0.4728,
+     "sampledPixels": 53892,
+     "pass": true
+    },
+    "allPass": true,
+    "json": "qa/b1-noir-retro-vhs.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "json": "qa/b1-noir-retro-vhs-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "1776b4aa3c822904d6e3abda934d027641fa8997aec2cb8c18bffd8f98865a7d",
+   "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality motion-trails --out-dir /tmp/w3a/out/b1 --suffix b1   (pass 2 identical with --out-dir /tmp/w3a/out2/b1)",
+   "outputFile": "motion-trails-b1.mp4",
+   "outputSha256Pass1": "30427316aac02b4d0000fa39aef5bd069681dbb021f1b26db7fe7cb1f4ffeda9",
+   "outputSha256Pass2": "30427316aac02b4d0000fa39aef5bd069681dbb021f1b26db7fe7cb1f4ffeda9",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 751,
+   "durationMs": 30040,
+   "renderWallMsPass1": 22083.0,
+   "renderWallMsPass2": 21573.4,
+   "qa": {
+    "crashed": false,
+    "returncode": 0,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 751,
+     "frameCountEqual": true,
+     "fpsInput": 25.0,
+     "fpsOutput": 25.0,
+     "durationDeltaMs": 20,
+     "audioPassthrough": true,
+     "pass": true
+    },
+    "G-T2": {
+     "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+     "inputCuts": [
+      189,
+      475,
+      550
+     ],
+     "outputCuts": [
+      189,
+      475,
+      550
+     ],
+     "preserved": 3,
+     "coverage": 1.0,
+     "extraCuts": 0,
+     "extraPer30s": 0.0,
+     "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputFrames": [
+       189,
+       475,
+       550
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+     },
+     "pass": true
+    },
+    "G-T3": {
+     "pearsonR": 0.9583,
+     "frames": 751,
+     "pass": true
+    },
+    "G-T4": {
+     "staticRegionMeanDeltaL": 1.3289,
+     "percentOfRange": 0.5211,
+     "inputBaselinePercentOfRange": 0.4728,
+     "sampledPixels": 53892,
+     "pass": true
+    },
+    "allPass": true,
+    "json": "qa/b1-motion-trails.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "json": "qa/b1-motion-trails-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-motion-trails-t8.png"
+  }
+ ]
+}
