@@ -1,0 +1,42 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+  "output": "/tmp/w4b/out/b3/cartoon-cel/cartoon-cel-b3.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    157,
+    226
+  ],
+  "outputCuts": [
+    157,
+    226
+  ],
+  "perCut": [
+    {
+      "inputFrame": 157,
+      "inputAmplitude": 47.68,
+      "outputFrame": 157,
+      "outputAmplitude": 36.51,
+      "amplitudeRatio": 0.766,
+      "outputLocalMedian": 2.02,
+      "matched": true
+    },
+    {
+      "inputFrame": 226,
+      "inputAmplitude": 46.52,
+      "outputFrame": 226,
+      "outputAmplitude": 36.58,
+      "amplitudeRatio": 0.786,
+      "outputLocalMedian": 3.22,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

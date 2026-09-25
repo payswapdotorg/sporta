@@ -1,0 +1,84 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+  "output": "/tmp/w4b/out/b2/noir-retro-vhs/noir-retro-vhs-b2.mp4",
+  "G-T1": {
+    "inputFrameCount": 225,
+    "outputFrameCount": 225,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 20,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [
+      97
+    ],
+    "outputCuts": [
+      97
+    ],
+    "preserved": 1,
+    "coverage": 1.0,
+    "extraCuts": 0,
+    "extraPer30s": 0.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+        1,
+        4,
+        24,
+        27,
+        30,
+        33,
+        37,
+        40,
+        44,
+        86,
+        89,
+        93,
+        96,
+        99
+      ],
+      "outputFrames": [
+        1,
+        4,
+        16,
+        24,
+        27,
+        30,
+        33,
+        36,
+        40,
+        62,
+        66,
+        86,
+        89,
+        93,
+        96,
+        99
+      ],
+      "outputOnlyFrames": [
+        16,
+        62,
+        66
+      ],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": true
+  },
+  "G-T3": {
+    "pearsonR": 0.9862,
+    "frames": 225,
+    "pass": true
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 3.3255,
+    "percentOfRange": 1.3041,
+    "inputBaselinePercentOfRange": 0.9449,
+    "sampledPixels": 9159,
+    "pass": true
+  },
+  "allPass": true
+}

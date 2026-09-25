@@ -1,0 +1,102 @@
+{
+  "input": "/tmp/w4b/gates/b12-first300-gateref-from-old.mp4",
+  "output": "/tmp/w4b/out/b12/noir-retro-noir/noir-retro-noir-b12.mp4",
+  "G-T1": {
+    "inputFrameCount": 300,
+    "outputFrameCount": 300,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 0,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [
+      117,
+      120
+    ],
+    "outputCuts": [
+      117,
+      120
+    ],
+    "preserved": 2,
+    "coverage": 1.0,
+    "extraCuts": 0,
+    "extraPer30s": 0.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+      ],
+      "outputFrames": [
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        111,
+        116,
+        119
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": true
+  },
+  "G-T3": {
+    "pearsonR": 0.99,
+    "frames": 300,
+    "pass": true
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 1.3344,
+    "percentOfRange": 0.5233,
+    "inputBaselinePercentOfRange": 0.4806,
+    "sampledPixels": 21513,
+    "pass": true
+  },
+  "allPass": true
+}

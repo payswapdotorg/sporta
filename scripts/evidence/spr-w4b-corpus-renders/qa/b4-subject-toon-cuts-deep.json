@@ -1,0 +1,42 @@
+{
+  "input": "scripts/evidence/spr-wave3-b4-final/bytes/clip-b4-crowd-montage.mp4",
+  "output": "/tmp/w4b/out/b4/subject-toon/subject-toon-b4.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    150,
+    159
+  ],
+  "outputCuts": [
+    150,
+    159
+  ],
+  "perCut": [
+    {
+      "inputFrame": 150,
+      "inputAmplitude": 41.23,
+      "outputFrame": 150,
+      "outputAmplitude": 34.49,
+      "amplitudeRatio": 0.837,
+      "outputLocalMedian": 3.03,
+      "matched": true
+    },
+    {
+      "inputFrame": 159,
+      "inputAmplitude": 57.74,
+      "outputFrame": 159,
+      "outputAmplitude": 52.47,
+      "amplitudeRatio": 0.909,
+      "outputLocalMedian": 3.48,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

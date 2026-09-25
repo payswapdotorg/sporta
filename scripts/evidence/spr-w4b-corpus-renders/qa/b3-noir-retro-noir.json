@@ -1,0 +1,59 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+  "output": "/tmp/w4b/out/b3/noir-retro-noir/noir-retro-noir-b3.mp4",
+  "G-T1": {
+    "inputFrameCount": 300,
+    "outputFrameCount": 300,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 20,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [
+      157,
+      226
+    ],
+    "outputCuts": [
+      157,
+      226
+    ],
+    "preserved": 2,
+    "coverage": 1.0,
+    "extraCuts": 0,
+    "extraPer30s": 0.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+        157,
+        202,
+        210,
+        213,
+        226
+      ],
+      "outputFrames": [
+        157,
+        226
+      ],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": true
+  },
+  "G-T3": {
+    "pearsonR": 0.9987,
+    "frames": 300,
+    "pass": true
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 1.1902,
+    "percentOfRange": 0.4667,
+    "inputBaselinePercentOfRange": 0.458,
+    "sampledPixels": 19566,
+    "pass": true
+  },
+  "allPass": true
+}
