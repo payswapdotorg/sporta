@@ -1,0 +1,101 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+  "output": "/home/z/my-project/renders-w4c/neon-b2/pass1/neon-cyberpunk-b2.mp4",
+  "G-T1": {
+    "inputFrameCount": 225,
+    "outputFrameCount": 225,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 20,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [
+      97
+    ],
+    "outputCuts": [
+      98
+    ],
+    "preserved": 1,
+    "coverage": 1.0,
+    "extraCuts": 0,
+    "extraPer30s": 0.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+        1,
+        4,
+        24,
+        27,
+        30,
+        33,
+        37,
+        40,
+        44,
+        86,
+        89,
+        93,
+        96,
+        99
+      ],
+      "outputFrames": [
+        1,
+        4,
+        7,
+        10,
+        15,
+        18,
+        23,
+        26,
+        29,
+        32,
+        36,
+        39,
+        42,
+        45,
+        62,
+        65,
+        71,
+        74,
+        77,
+        80,
+        84,
+        87,
+        90,
+        93,
+        96,
+        99
+      ],
+      "outputOnlyFrames": [
+        7,
+        10,
+        15,
+        18,
+        62,
+        65,
+        71,
+        74,
+        77,
+        80
+      ],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": true
+  },
+  "G-T3": {
+    "pearsonR": 0.9985,
+    "frames": 225,
+    "pass": true
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 3.2105,
+    "percentOfRange": 1.259,
+    "inputBaselinePercentOfRange": 0.9449,
+    "sampledPixels": 9159,
+    "pass": true
+  },
+  "allPass": true
+}

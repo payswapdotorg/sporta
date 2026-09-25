@@ -1,0 +1,31 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+  "output": "/home/z/my-project/renders-w4c/neon-b2/pass1/neon-cyberpunk-b2.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    97
+  ],
+  "outputCuts": [
+    98
+  ],
+  "perCut": [
+    {
+      "inputFrame": 97,
+      "inputAmplitude": 44.8,
+      "outputFrame": 99,
+      "outputAmplitude": 62.99,
+      "amplitudeRatio": 1.406,
+      "outputLocalMedian": 13.7,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

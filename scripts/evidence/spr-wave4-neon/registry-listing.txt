@@ -1,0 +1,16 @@
+usage: render.py [-h] --clip CLIP --reality
+                 {anime-npr,cartoon-cel,motion-trails,neon-cyberpunk,noir-retro,subject-toon}
+                 --out-dir OUT_DIR [--profile PROFILE] [--suffix SUFFIX]
+                 [--max-frames MAX_FRAMES] [--frames FRAMES]
+                 [--skip-provenance]
+
+options:
+  -h, --help            show this help message and exit
+  --clip CLIP
+  --reality {anime-npr,cartoon-cel,motion-trails,neon-cyberpunk,noir-retro,subject-toon}
+  --out-dir OUT_DIR
+  --profile PROFILE
+  --suffix SUFFIX
+  --max-frames MAX_FRAMES
+  --frames FRAMES
+  --skip-provenance

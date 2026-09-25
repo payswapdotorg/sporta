@@ -1,0 +1,243 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W4-C",
+ "task": "SPR107 neon-cyberpunk reality: implement, register additively, gate on coverage classes, determinism-proven (Lane N, delegated)",
+ "generatedAtIso": "2026-09-25T10:35:35.418661+00:00",
+ "base": "eb3b404 (wave-4 dispatch base \u2014 the only allowed base)",
+ "branch": "spr/w4c/neon-reality",
+ "engine": "SPE-v1",
+ "tools": {
+  "ffmpeg": "7.1.5-0-deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "substrateVerification": {
+  "method": "sha256sum scripts/evidence/spr-corpus-bytes/* vs README table (+ corpus.json full shas)",
+  "allEightMatch": true,
+  "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "clip-b2-closeup.mp4": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+  "clip-b5-camera-move.mp4": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a"
+ },
+ "promotion": {
+  "declaration": {
+   "file": "scripts/source-preserving/spe/renderers.py",
+   "diffVsDispatchBaseEb3b404": {
+    "insertions": 211,
+    "deletions": 0,
+    "additionsOnly": true
+   },
+   "rendererId": "spr-neon-cyberpunk-dc1",
+   "reality": "neon-cyberpunk",
+   "family": "Neon/Cyberpunk (SPR107)",
+   "sprId": "SPR107",
+   "version": "0.1.0",
+   "profile": "default",
+   "paletteK": null,
+   "usesFlow": false,
+   "designNote": "Fresh implementation per the SPR107 work-item brief (LUT + bloom + edge glow); structural template = the W3-B subject-toon promotion (state class + one elif dispatch branch + RendererSpec row + pure-addition registry append). Pipeline is a PURE per-frame function: baked 256-entry curve LUT + fixed 3x3 BGR channel-mix matrix + soft split-tone (teal shadows / magenta highlights); bloom = max-channel soft threshold + 3-octave pyrDown/pyrUp Gaussian pyramid + additive composite; edge glow = Sobel k=3 magnitude on the graded luma + soft knee + neon-cyan tint alpha composite. ZERO temporal accumulators, ZERO RNG, ZERO frame-index dependence \u2014 the SPR-W3-B T3-diagnosis law holds by construction (no i.i.d. noise, no coherent jitter; measured G-T3 0.9914-0.9985 on the coverage set, incl. 0.998 on b5 the flat-pan worst case where the vhs jitter profile measured 0.7303).",
+   "registryAppend": "REGISTRY[NEON_CYBERPUNK.reality] = NEON_CYBERPUNK (pure-addition append; the frozen four-row construction and all prior declarations are untouched, keeping the whole diff additions-only)",
+   "adapterRegistrationProof": "frozen render.py --reality choices now include neon-cyberpunk (choices=sorted(REGISTRY.keys())); proof: registry-listing.txt"
+  },
+  "config": {
+   "mixMatrix": [
+    [
+     0.86,
+     0.1,
+     0.04
+    ],
+    [
+     0.07,
+     0.84,
+     0.09
+    ],
+    [
+     0.12,
+     0.16,
+     0.72
+    ]
+   ],
+   "curvePivot": 0.44,
+   "curveContrast": 1.28,
+   "lumaWeights": [
+    0.114,
+    0.587,
+    0.299
+   ],
+   "splitKneeLow": 0.38,
+   "splitKneeHigh": 0.72,
+   "shadowTeal": [
+    34,
+    22,
+    -26
+   ],
+   "highlightMagenta": [
+    18,
+    -22,
+    34
+   ],
+   "bloomThrLow": 196,
+   "bloomThrHigh": 244,
+   "bloomLevels": 3,
+   "bloomWeights": [
+    0.42,
+    0.33,
+    0.25
+   ],
+   "bloomStrength": 0.75,
+   "edgeKneeLow": 120,
+   "edgeKneeHigh": 480,
+   "edgeSoften": 1.2,
+   "edgeAlpha": 0.62,
+   "edgeTint": [
+    200,
+    250,
+    90
+   ],
+   "profile": "default",
+   "frameCount": 1190
+  },
+  "styleConfigHashB8": "9743e21b5256b99fc6607e05c2cb69d73f44851a7fbd8255ae5664436d3fa2bc",
+  "styleConfigHashNote": "the frozen adapter hashes spec.config + profile + frameCount, so the hash is per-clip (b2 3ddb0c395d27c180..., b5 8c33c5cceee00b62...) and STABLE across double renders (verified pass1==pass2 on all three clips)"
+ },
+ "renders": [
+  {
+   "artifact": "neon-cyberpunk-b8.mp4",
+   "clip": "scripts/evidence/spr-corpus-bytes/b8p3.mp4 (wide (full in-play window, 1190 frames))",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality neon-cyberpunk --profile default --out-dir <dir> --suffix b8 --frames 2,8",
+   "renderer": "spr-neon-cyberpunk-dc1 0.1.0 (registry row, FROZEN adapter)",
+   "frameCount": 1190,
+   "sha256Pass1": "25508766d39840c227cb8cd8381f2c435e81a784bf5d0f4055fa25ff59c6c8bf",
+   "sha256Pass2": "25508766d39840c227cb8cd8381f2c435e81a784bf5d0f4055fa25ff59c6c8bf",
+   "gT5DoubleRenderByteIdentical": true,
+   "renderWallMsPass1": 61035.8,
+   "renderWallMsPass2": 60906.1,
+   "styleConfigHash": "9743e21b5256b99fc6607e05c2cb69d73f44851a7fbd8255ae5664436d3fa2bc",
+   "gateInput": "scripts/evidence/spr-corpus-bytes/b8p3.mp4 (raw frozen substrate)",
+   "gates": {
+    "G-T1": {
+     "value": "1190==1190, deltaMs 20, audio True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage 1.0, extra/30s 0.0, inputCuts [189, 475, 550, 862, 979, 982] outputCuts [189, 475, 550, 862, 979, 982]",
+     "pass": true
+    },
+    "G-T2b-deep": {
+     "value": "coverage 1.0, invented []",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR 0.9914",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "0.607% of range (input baseline 0.458%)",
+     "pass": true
+    }
+   },
+   "qaAllPassRaw": true,
+   "b5KnownPreexistingFinding": null,
+   "framesEvidence": [
+    "frames/neon-cyberpunk-b8-t2s.png",
+    "frames/neon-cyberpunk-b8-t8s.png"
+   ]
+  },
+  {
+   "artifact": "neon-cyberpunk-b2.mp4",
+   "clip": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 (closeup (225 frames))",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality neon-cyberpunk --profile default --out-dir <dir> --suffix b2 --frames 2,8",
+   "renderer": "spr-neon-cyberpunk-dc1 0.1.0 (registry row, FROZEN adapter)",
+   "frameCount": 225,
+   "sha256Pass1": "57ef6455133d108d4ecd6d9205c1027384869bc5cf54be71261d289125d0a765",
+   "sha256Pass2": "57ef6455133d108d4ecd6d9205c1027384869bc5cf54be71261d289125d0a765",
+   "gT5DoubleRenderByteIdentical": true,
+   "renderWallMsPass1": 12022.7,
+   "renderWallMsPass2": 12130.9,
+   "styleConfigHash": "3ddb0c395d27c1803a2bf605d7af93685649f3c4a55a952073bd057d0b725038",
+   "gateInput": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 (raw frozen substrate)",
+   "gates": {
+    "G-T1": {
+     "value": "225==225, deltaMs 20, audio True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage 1.0, extra/30s 0.0, inputCuts [97] outputCuts [98]",
+     "pass": true
+    },
+    "G-T2b-deep": {
+     "value": "coverage 1.0, invented []",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR 0.9985",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "1.259% of range (input baseline 0.9449%)",
+     "pass": true
+    }
+   },
+   "qaAllPassRaw": true,
+   "b5KnownPreexistingFinding": null,
+   "framesEvidence": [
+    "frames/neon-cyberpunk-b2-t2s.png",
+    "frames/neon-cyberpunk-b2-t8s.png"
+   ]
+  },
+  {
+   "artifact": "neon-cyberpunk-b5.mp4",
+   "clip": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 (camera-move pan (300 frames))",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality neon-cyberpunk --profile default --out-dir <dir> --suffix b5 --frames 2,8",
+   "renderer": "spr-neon-cyberpunk-dc1 0.1.0 (registry row, FROZEN adapter)",
+   "frameCount": 300,
+   "sha256Pass1": "a3d5942ebc0c747a8e34f310322d2eae9778d134120750bc1ad2111a2936c6fc",
+   "sha256Pass2": "a3d5942ebc0c747a8e34f310322d2eae9778d134120750bc1ad2111a2936c6fc",
+   "gT5DoubleRenderByteIdentical": true,
+   "renderWallMsPass1": 16247.0,
+   "renderWallMsPass2": 15958.0,
+   "styleConfigHash": "8c33c5cceee00b6245fd8a2412d7628d0e0029668db967f678764d61b3f5215f",
+   "gateInput": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 (raw frozen substrate)",
+   "gates": {
+    "G-T1": {
+     "value": "300==300, deltaMs 20, audio True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage 0.0, extra/30s 0.0, inputCuts [] outputCuts []",
+     "pass": false
+    },
+    "G-T2b-deep": {
+     "value": "coverage 0.0, invented []",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR 0.998",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "0.4957% of range (input baseline 0.3625%)",
+     "pass": true
+    }
+   },
+   "qaAllPassRaw": false,
+   "b5KnownPreexistingFinding": "F2 zero-cut clip (wave-2 documented class): b5 is a single sustained pan, the spike detector finds ZERO input cuts, so raw G-T2 coverage = 0/max(0,1) = 0.0 fails vacuously with extraPer30s 0.0 and zero output cuts. The dispatched deep gate adjudicates: 0 cuts to preserve, 0 invented -> T2b PASS. Raw JSON kept unedited next to the deep JSON.",
+   "framesEvidence": [
+    "frames/neon-cyberpunk-b5-t2s.png",
+    "frames/neon-cyberpunk-b5-t8s.png"
+   ]
+  }
+ ],
+ "regression": {
+  "check": "re-render cartoon-cel b8 via the FROZEN render.py after the promotion edit; sha must equal the frozen wave-1 record",
+  "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality cartoon-cel --profile default --out-dir <dir> --suffix b8",
+  "sha256ReRender": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+  "sha256Wave1Record": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+  "byteIdentical": true,
+  "renderWallMs": 278847.3,
+  "verdict": "PASS - engine untouched by the promotion edit, proven byte-level"
+ },
+ "scorecardsDeferred": {
+  "omission": "VLM scorecards NOT run \u2014 VLM-free lane (quota strained), deferred BY DESIGN per the wave-4 dispatch. The visual-quality tiering pass happens in a later quota-friendly wave. No tier is claimed or implied; selfTierClaim stays 0 per contract \u00a73/\u00a77 (absent QA -> tier 0).",
+  "numericSmokeProxy": "60-frame b8 smoke render measured (no visual claims): output mean BGR [103.9,111.5,78.5] vs input [71.4,91.4,100.9] (teal cast); frame-diff energy series r=0.9959; static-region |dL| 0.341% vs 0.204% baseline; highlight clip >250 at 11.9% (bloom feed 10.6%) \u2014 pipeline non-degenerate, constants frozen from the declaration without post-hoc tuning."
+ }
+}
