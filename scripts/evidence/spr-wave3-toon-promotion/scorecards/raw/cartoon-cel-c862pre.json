@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and background elements is recognizable, but extreme abstraction obscures specific details and context.\n2. temporalConsistency - 4: The stylized frames are highly consistent with each other, showing only the expected minimal motion over 0.2 seconds.\n3. identityConsistency - 1: Players are reduced to unrecognizable colored blobs with no discernible features or stable forms.\n4. motionFidelity - 3: The slight shift in the red blobs suggests some motion tracking, though it is very coarse and lacks detail.\n5. sceneFidelity - 2: The background and advertising boards maintain a rough spatial consistency but are heavily distorted and lack structural clarity.\n6. stylizationStrength - 5: The transformation into a high-contrast, cel-shaded cartoon style is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=1 mf=3 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=5 bg=4 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312597,
+  "id": "20260925130312d0f591f8ea4b4a2d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130312d0f591f8ea4b4a2d",
+  "usage": {
+    "completion_tokens": 226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1395
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and score match, but extreme abstraction loses most specific details of the original frame.\n2. temporalConsistency - 3: The main subject's pose changes plausibly over the short interval, though background elements shift slightly.\n3. identityConsistency - 2: The main player is recognizable as a red shape, but facial features and kit details are completely lost.\n4. motionFidelity - 4: The transition from a running stance to a kicking motion is logically consistent with the ball's position.\n5. sceneFidelity - 2: The stadium and field lines are represented only as vague, shifting color blobs.\n6. stylizationStrength - 5: The cartoon-cel effect is extremely aggressive and unmistakably transforms the image.\n\nAXES sf=2 tc=3 ic=2 mf=4 scf=2 ss=5\nARTIFACTS limbs=2 players=2 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312566,
+  "id": "202609251302316375629ac2764917",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251302316375629ac2764917",
+  "usage": {
+    "completion_tokens": 211,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1380
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The scene, players, and camera angle are identical to the source frame.\n2. temporalConsistency: 2 - Significant flickering and morphing of player shapes and background between the two stylized frames.\n3. identityConsistency: 3 - Players are recognizable but their forms and colors shift noticeably over the short time interval.\n4. motionFidelity: 4 - The general direction and relative movement of players remain consistent with the source.\n5. sceneFidelity: 2 - The stadium background is heavily abstracted and lacks spatial stability.\n6. stylizationStrength: 5 - The flow-prop-toon effect is very strong and clearly applied across all elements.\n\nAXES sf=5 tc=2 ic=3 mf=4 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313166,
+  "id": "2026092513124033a92c0ae10c4946",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513124033a92c0ae10c4946",
+  "usage": {
+    "completion_tokens": 194,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1363
+  }
+}

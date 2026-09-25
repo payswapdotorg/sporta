@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The subject (Balde), ball position, and stadium context are clearly identical to the source frame.\n2. temporalConsistency - 2: Significant flickering and morphing of background players and lines between the two stylized frames.\n3. identityConsistency - 4: The main player (Balde) remains visually stable, though background identities fluctuate wildly.\n4. motionFidelity - 2: Background player positions and the field markings shift unnaturally between the 0.2s interval.\n5. sceneFidelity - 2: The background stadium and field lines are heavily warped and spatially inconsistent across frames.\n6. stylizationStrength - 5: The kuwahara-paint effect is very strong, creating a distinct painterly/abstract look.\n\nAXES sf=5 tc=2 ic=4 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=2 warped=2 dupes=1 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313051,
+  "id": "2026092513104667fae29f0ef742a1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513104667fae29f0ef742a1",
+  "usage": {
+    "completion_tokens": 215,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}

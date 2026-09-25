@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 4 - Same match, moment, and camera context are clearly preserved despite the heavy abstraction.\n2. temporalConsistency: 3 - The scene is stable, but the background and some players exhibit noticeable flickering or morphing between frames.\n3. identityConsistency: 2 - Players are reduced to abstract blobs of color; individual features are lost, making identity tracking difficult.\n4. motionFidelity: 2 - Motion is suggested by position shifts but is heavily distorted by the stylization's lack of anatomical detail.\n5. sceneFidelity: 3 - Major spatial elements like the goal and pitch lines remain consistent, though the background is highly unstable.\n6. stylizationStrength: 5 - The \"flow-prop-toon\" transformation is extremely aggressive and visually dominant across the entire frame.\n\nAXES sf=4 tc=3 ic=2 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=1 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313757,
+  "id": "20260925132231be4de129e5164fc8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925132231be4de129e5164fc8",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1387
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "output": "/home/z/spr-evidence/render/kuwahara-paint-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550,
+    862,
+    934,
+    978,
+    981
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 28.85,
+      "amplitudeRatio": 0.9,
+      "outputLocalMedian": 2.32,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 20.67,
+      "amplitudeRatio": 0.86,
+      "outputLocalMedian": 2.81,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 16.09,
+      "amplitudeRatio": 0.801,
+      "outputLocalMedian": 0.96,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 27.64,
+      "amplitudeRatio": 0.816,
+      "outputLocalMedian": 4.28,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 981,
+      "outputAmplitude": 46.42,
+      "amplitudeRatio": 1.337,
+      "outputLocalMedian": 9.0,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 981,
+      "outputAmplitude": 46.42,
+      "amplitudeRatio": 0.941,
+      "outputLocalMedian": 9.0,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

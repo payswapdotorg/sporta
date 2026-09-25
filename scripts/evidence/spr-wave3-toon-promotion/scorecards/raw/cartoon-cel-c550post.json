@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors (red vs green) match, but extreme abstraction loses most specific details like the scoreboard text and advertising.\n2. temporalConsistency - 4: The stylized frames are very stable with minimal flickering or morphing between the two time steps.\n3. identityConsistency - 2: Players are reduced to identical colored blobs, making individual identification impossible and visual stability low in detail.\n4. motionFidelity - 3: Subtle shifts in blob positions suggest some motion, but it is heavily abstracted and lacks clear directional fidelity.\n5. sceneFidelity - 2: The background is a dark, amorphous mass that vaguely follows the stadium's horizon but lacks any spatial consistency or recognizable features.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style with flat colors and bold outlines is extremely obvious and aggressive.\n\nAXES sf=2 tc=4 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=5 bg=4 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312592,
+  "id": "2026092513030301e05434d074403d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513030301e05434d074403d",
+  "usage": {
+    "completion_tokens": 241,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1410
+  }
+}

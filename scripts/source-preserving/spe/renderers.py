@@ -140,11 +140,137 @@ class FrameProcessor:
                 )
             self.prev_gray_small = gray_small
 
+        elif reality == "subject-toon":
+            if not hasattr(self, "_subject_toon_state"):
+                self._subject_toon_state = _SubjectToonState(
+                    cfg, self.palette, self.cuts)
+            out = self._subject_toon_state(
+                bgr, self._gray_small(bgr), self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
         self.frame_index += 1
         return out
+
+
+# ---------------------------------------------------------------------------
+# subject-toon streaming state (SPR101 guided variant)
+#
+# Promoted from trial `sprtrial-subject-toon-t1` (SPR-W2-C, Lane C —
+# scripts/source-preserving/spe/trials/subject_toon.py, read-only history).
+# The port RESTATES the trial's tiny helpers (gray-small / cut-start / profile
+# merge already exist on FrameProcessor) instead of importing from
+# spe.trials.common: importing the trials package from the frozen engine would
+# couple renderers.py to a lane write-surface (and pull in every trial module
+# via spe/trials/__init__.py). Stage order and parameters are identical to the
+# trial processor; the frozen stages/encode/provenance libraries are reused
+# read-only so the renderer inherits the bit-exact encoder and
+# contract-shaped provenance.
+# ---------------------------------------------------------------------------
+
+
+class _SubjectToonState:
+    """Streaming state for the segmentation-guided dual-path toon pipeline.
+
+    Subject mask = OR(camera-compensated Farneback residual motion, MOG2
+    foreground), morphology-cleaned (open 3 / close 5 / dilate 5), with
+    temporal persistence (EMA max-decay, cut-reset). MOG2 is re-initialized
+    at every detected cut so no background model bleeds across a source cut
+    (contract §3.4). Deterministic: MOG2 GMM updates and Farneback are
+    deterministic functions of the frame sequence; no RNG in this class.
+    """
+
+    def __init__(self, cfg: dict, palette: Optional[np.ndarray], cuts: set):
+        self.cfg = cfg
+        self.palette = palette
+        self.cuts = cuts
+        self.prev_gray_small: Optional[np.ndarray] = None
+        self.mask_ema: Optional[np.ndarray] = None   # (180, 320) float32
+        self.mog2 = cv2.createBackgroundSubtractorMOG2(
+            history=cfg["mogHistory"], varThreshold=cfg["mogVarThreshold"],
+            detectShadows=False)
+        self._k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        self._k5 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+
+    # -- subject mask --------------------------------------------------------
+
+    def _subject_mask(self, bgr: np.ndarray, gray_small: np.ndarray,
+                      cut: bool) -> np.ndarray:
+        """Soft full-res subject mask in [0,1] (players/ball protected)."""
+        c = self.cfg
+        if self.prev_gray_small is not None and not cut:
+            mag = S.flow_magnitude(self.prev_gray_small, gray_small)
+            motion = (mag > c["motionKnee"]).astype(np.float32)
+        else:
+            motion = np.zeros(gray_small.shape, dtype=np.float32)
+        if cut:
+            # honest cut preservation: rebuild the background model from the
+            # new scene (no cross-cut model bleed)
+            self.mog2 = cv2.createBackgroundSubtractorMOG2(
+                history=c["mogHistory"], varThreshold=c["mogVarThreshold"],
+                detectShadows=False)
+            fg255 = self.mog2.apply(bgr, learningRate=1.0)
+        else:
+            fg255 = self.mog2.apply(bgr, learningRate=c["mogLearningRate"])
+        fg = (fg255 > 0).astype(np.float32)
+        fg_small = cv2.resize(fg, (gray_small.shape[1], gray_small.shape[0]),
+                              interpolation=cv2.INTER_AREA)
+        raw = np.maximum(motion, fg_small)
+        raw = cv2.morphologyEx(raw, cv2.MORPH_OPEN, self._k3)   # kill speckle
+        raw = cv2.morphologyEx(raw, cv2.MORPH_CLOSE, self._k5)  # fill bodies
+        raw = cv2.dilate(raw, self._k5)                          # pad subjects
+        if self.mask_ema is None or cut:
+            self.mask_ema = raw
+        else:
+            self.mask_ema = np.maximum(raw, self.mask_ema * c["maskDecay"])
+        h, w = bgr.shape[:2]
+        m = cv2.resize(self.mask_ema, (w, h), interpolation=cv2.INTER_LINEAR)
+        m = cv2.GaussianBlur(m, (0, 0), c["maskSoften"])         # no cutout seams
+        return np.clip(m, 0.0, 1.0)
+
+    # -- dual stylization paths -----------------------------------------------
+
+    def _background_path(self, bgr: np.ndarray) -> np.ndarray:
+        """Strong cartoon stack (cartoon-cel-class, identity-free zone)."""
+        c = self.cfg
+        out = S.median_pool(bgr, c["bgMedianK"])
+        out = S.bilateral_flatten(out, c["bgBilatD"], c["bgBilatSigma"],
+                                  c["bgBilatSigma"], c["bgBilatIters"])
+        out, idx = S.quantize_lab(out, self.palette,
+                                  l_weight=c.get("lWeight", 0.45),
+                                  return_idx=True)
+        idx = S.smooth_regions(idx, self.palette.shape[0],
+                               window=c["bgRegionWindow"])
+        out = S.recolor(idx, self.palette)
+        out = S.saturation_lift(out, c["bgSaturation"])
+        edges = S.boundary_edge_map(idx, dilate=c["bgLineDilate"])
+        out = S.edge_overlay(out, edges, c["bgLineFloor"])
+        return out
+
+    def _subject_path(self, bgr: np.ndarray) -> np.ndarray:
+        """Gentle identity-preserving pass (no palette quantization)."""
+        c = self.cfg
+        out = S.median_pool(bgr, c["sjMedianK"])
+        out = S.bilateral_flatten(out, c["sjBilatD"], c["sjBilatSigma"],
+                                  c["sjBilatSigma"], c["sjBilatIters"])
+        edges = S.xdog_edge_map(out, sigma=c["sjXdogSigma"], k=c["sjXdogK"],
+                                tau=c["sjXdogTau"], eps=c["sjXdogEps"],
+                                phi=c["sjXdogPhi"])
+        out = S.edge_overlay(out, edges, c["sjLineFloor"])
+        out = S.saturation_lift(out, c["sjSaturation"])
+        return out
+
+    # -- pipeline -------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
+                 cut: bool) -> np.ndarray:
+        m = self._subject_mask(bgr, gray_small, cut)[..., None]     # (H,W,1)
+        bg = self._background_path(bgr).astype(np.float32)
+        sj = self._subject_path(bgr).astype(np.float32)
+        out = bg * (1.0 - m) + sj * m
+        self.prev_gray_small = gray_small
+        return np.clip(out, 0, 255).astype(np.uint8)
 
 
 # ---------------------------------------------------------------------------
@@ -203,3 +329,43 @@ MOTION_TRAILS = RendererSpec(
 )
 
 REGISTRY = {r.reality: r for r in (CARTOON_CEL, ANIME_NPR, NOIR_RETRO, MOTION_TRAILS)}
+
+SUBJECT_TOON = RendererSpec(
+    rendererId="spr-subject-toon-dc1", reality="subject-toon",
+    family="Segmentation-Guided Toon (SPR101 guided variant)", sprId="SPR101",
+    paletteK=10,
+    usesFlow=True,
+    pipeline=[
+        "subject_mask(OR[farneback_residual>1.8 @320x180 camera-compensated, "
+        "MOG2 fg(history=150,var=25,lr=0.05,cut-reinit)], open3/close5/dilate5, "
+        "EMA decay=0.90 cut-reset, soften sigma=4.0)",
+        "background_path(median5+bilateral x3(d9,s75)+palette K=10 LAB "
+        "chroma-weighted+region-smooth5+boundary-lines floor 0.30+sat 1.22)",
+        "subject_path(median3+bilateral x1(d7,s50)+xdog thin lines floor 0.70"
+        "+sat 1.10, NO palette quantize)",
+        "soft_mask_composite(bg,subj)",
+    ],
+    description=("Dual-path toon: strong cartoon stylization on the background, "
+                 "identity-preserving gentle pass on camera-compensated "
+                 "motion/foreground-masked subjects. Promoted from trial "
+                 "sprtrial-subject-toon-t1 (SPR-W2-C) — attacks the Tier-2 "
+                 "diagnosis that aggressive styles destroy player identity."),
+    config={
+        # subject mask
+        "motionKnee": 1.8, "mogHistory": 150, "mogVarThreshold": 25.0,
+        "mogLearningRate": 0.05, "maskDecay": 0.90, "maskSoften": 4.0,
+        # background (strong) path
+        "bgMedianK": 5, "bgBilatD": 9, "bgBilatSigma": 75, "bgBilatIters": 3,
+        "bgRegionWindow": 5, "bgSaturation": 1.22, "bgLineDilate": 1,
+        "bgLineFloor": 0.30, "lWeight": 0.45,
+        # subject (gentle) path
+        "sjMedianK": 3, "sjBilatD": 7, "sjBilatSigma": 50, "sjBilatIters": 1,
+        "sjXdogSigma": 1.0, "sjXdogK": 1.6, "sjXdogTau": 0.98,
+        "sjXdogEps": 0.010, "sjXdogPhi": 8.0,
+        "sjLineFloor": 0.70, "sjSaturation": 1.10,
+    },
+)
+
+# additive registry append (SPR-W3-B): the promoted subject-toon row enters
+# the REGISTRY without modifying the frozen four-row construction above
+REGISTRY[SUBJECT_TOON.reality] = SUBJECT_TOON

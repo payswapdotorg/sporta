@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The camera angle and general layout match, but the stylization is so extreme that many players and details are lost.\n2. temporalConsistency - 4: The toonified frames are very stable with minimal flickering between the 0.2s interval.\n3. identityConsistency - 2: Players are reduced to simple colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 3: The subtle shifts in player positions appear consistent with the original broadcast's flow.\n5. sceneFidelity - 2: The background is heavily abstracted into flat color blocks with significant spatial warping.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-like representation is very pronounced and obvious.\n\nAXES sf=3 tc=4 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=6 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313150,
+  "id": "20260925131225df480ebec1a2485b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131225df480ebec1a2485b",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1378
+  }
+}

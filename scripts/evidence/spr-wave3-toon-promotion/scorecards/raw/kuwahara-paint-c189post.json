@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, camera angle, and match context are clearly identical to the original broadcast frame.\n2. temporalConsistency - 2: The stylized images are extremely blurry and lack detail, making it difficult to track objects and identify motion without significant flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual identification and visual stability nearly impossible.\n4. motionFidelity - 2: While the general positions of the blobs shift slightly between frames, the extreme blur obscures any clear or consistent motion paths.\n5. sceneFidelity - 3: The background (stadium, advertising boards) is present but heavily distorted and lacks spatial definition.\n6. stylizationStrength - 5: The transformation into a very blurry, painterly style with large color blocks is extremely obvious and dominant.\n\nAXES sf=5 tc=2 ic=1 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313091,
+  "id": "20260925131119303694e987b641ab",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131119303694e987b641ab",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1402
+  }
+}

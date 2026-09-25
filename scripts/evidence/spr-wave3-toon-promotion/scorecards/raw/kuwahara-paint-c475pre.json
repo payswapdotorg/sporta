@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and camera angle are preserved, but extreme blurring obscures most identifying details of the match and moment.\n2. temporalConsistency - 3: The stylized frames maintain a consistent level of abstraction, though the heavy blur makes precise object tracking difficult.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual visual identification and stability nearly impossible.\n4. motionFidelity - 2: Subtle shifts in the position of the red blobs suggest some motion, but it is largely obscured by the aggressive filtering.\n5. sceneFidelity - 2: The background and field lines are recognizable as a stadium but are severely warped and lack spatial precision.\n6. stylizationStrength - 5: The transformation is extremely obvious, turning a clear broadcast frame into an almost entirely abstract, painterly composition.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=10 players=6 warped=5 dupes=0 ball=1 bg=3 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313098,
+  "id": "20260925131131361314569514420f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131131361314569514420f",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1402
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core scene (goal, field, players) is recognizable but heavily abstracted and missing significant detail.\n2. temporalConsistency - 4: The stylized frames are extremely stable with no flickering or morphing between the two timestamps.\n3. identityConsistency - 2: Players are reduced to colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 2: Motion is suggested by position shifts but is obscured by the extreme simplification of the figures.\n5. sceneFidelity - 3: The background and field lines maintain a consistent spatial layout despite the heavy filtering.\n6. stylizationStrength - 5: The cartoon-cel effect is very aggressive and clearly defines the visual style.\n\nAXES sf=2 tc=4 ic=2 mf=2 scf=3 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312528,
+  "id": "20260925130203c431a3b01fa34db0",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130203c431a3b01fa34db0",
+  "usage": {
+    "completion_tokens": 204,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1373
+  }
+}

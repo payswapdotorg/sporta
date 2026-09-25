@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 is a clear stylized match of the original frame's content and camera angle.\n2. temporalConsistency - 2: Significant morphing, flickering, and structural instability between frames 2 and 3.\n3. identityConsistency - 3: Main subject (Balde) remains recognizable but background players lose distinct features rapidly.\n4. motionFidelity - 2: The extreme warping of limbs and scene elements makes natural motion interpretation impossible.\n5. sceneFidelity - 2: Background stadium structure dissolves into abstract blobs with poor spatial consistency.\n6. stylizationStrength - 5: The flow-prop-toon effect is extremely aggressive and visually dominant.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313139,
+  "id": "202609251312145c5393ed60fb4e9b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251312145c5393ed60fb4e9b",
+  "usage": {
+    "completion_tokens": 197,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1366
+  }
+}

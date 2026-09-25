@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: Image 3 is a completely different camera shot (close-up) rather than the same wide-angle view.\n2. temporalConsistency - 1: The transition from Image 2 to Image 3 is a hard cut to a different scene, not a temporal progression.\n3. identityConsistency - 2: While a player in red appears in both, the extreme change in distance and angle makes visual tracking unstable.\n4. motionFidelity - 1: No coherent motion can be tracked between the wide shot and the close-up due to the camera cut.\n5. sceneFidelity - 1: The background changes entirely from a wide pitch view to a close-up of stands/advertising.\n6. stylizationStrength - 5: The flow-prop-toon effect is extremely strong, reducing players and the field to abstract colored blobs.\n\nAXES sf=2 tc=1 ic=2 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313673,
+  "id": "2026092513210394838b7d7a2e4b31",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513210394838b7d7a2e4b31",
+  "usage": {
+    "completion_tokens": 227,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1396
+  }
+}

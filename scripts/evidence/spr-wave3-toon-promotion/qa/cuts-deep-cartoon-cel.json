@@ -1,0 +1,86 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "output": "/home/z/spr-evidence/render/cartoon-cel-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    862,
+    934,
+    979,
+    982
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 25.66,
+      "amplitudeRatio": 0.801,
+      "outputLocalMedian": 4.34,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 18.89,
+      "amplitudeRatio": 0.786,
+      "outputLocalMedian": 4.47,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 15.85,
+      "amplitudeRatio": 0.789,
+      "outputLocalMedian": 1.75,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 23.52,
+      "amplitudeRatio": 0.694,
+      "outputLocalMedian": 5.64,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 982,
+      "outputAmplitude": 35.12,
+      "amplitudeRatio": 1.011,
+      "outputLocalMedian": 5.19,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 982,
+      "outputAmplitude": 35.12,
+      "amplitudeRatio": 0.712,
+      "outputLocalMedian": 5.19,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

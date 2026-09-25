@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical across all three images.\n2. temporalConsistency - 3: The background and field lines show significant flickering and warping between the two frames.\n3. identityConsistency - 4: The main subject (Balde) is visually stable, though background players lose some detail.\n4. motionFidelity - 2: The motion of background players and the ball is inconsistent with the 0.2s time gap.\n5. sceneFidelity - 2: The stadium background and pitch markings are heavily distorted and unstable.\n6. stylizationStrength - 5: The toon/cartoon transformation is very strong and clearly applied.\n\nAXES sf=5 tc=3 ic=4 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312086,
+  "id": "202609251254386d0e8ab5f2ea426e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251254386d0e8ab5f2ea426e",
+  "usage": {
+    "completion_tokens": 198,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1366
+  }
+}

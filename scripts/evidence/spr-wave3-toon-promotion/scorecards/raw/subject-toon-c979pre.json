@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 matches the exact camera angle, score, and player positions of the original broadcast frame.\n2. temporalConsistency - 2: The transition to Image 3 is a severe jump, completely changing the scene and zoom level.\n3. identityConsistency - 3: Players in Image 2 are recognizable, but the subject in Image 3 appears as a different individual.\n4. motionFidelity - 2: Motion between Image 2 and 3 is inconsistent with a 0.2s interval due to the cut.\n5. sceneFidelity - 2: While Image 2 preserves the background, Image 3 shows a totally different stadium location.\n6. stylizationStrength - 4: The cartoon/toon effect is very strong, flattening details and altering textures significantly.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=2 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312496,
+  "id": "202609251301332b810fefe7a84080",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251301332b810fefe7a84080",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1389
+  }
+}

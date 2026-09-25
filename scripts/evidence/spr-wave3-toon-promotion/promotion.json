@@ -1,0 +1,203 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W3-B",
+ "task": "subject-toon promotion to first-class reality + formal Tier-2 scorecards + noir-vhs G-T3 diagnosis",
+ "generatedAtIso": "2026-09-25T05:27:04.268817+00:00",
+ "base": "e55ae86 (spr/w2c/stylizer-trials tip, the only allowed base)",
+ "branch": "spr/w3b/toon-promotion",
+ "engine": "SPE-v1",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "substrateVerification": {
+  "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a (matches wave-2 corpus.json)",
+  "b8-b12.mp4": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421 (matches wave-2 corpus.json)"
+ },
+ "promotion": {
+  "declaration": {
+   "file": "scripts/source-preserving/spe/renderers.py",
+   "diffVsOriginSprW2cStylizerTrials": {
+    "insertions": 166,
+    "deletions": 0,
+    "additionsOnly": true
+   },
+   "rendererId": "spr-subject-toon-dc1",
+   "reality": "subject-toon",
+   "family": "Segmentation-Guided Toon (SPR101 guided variant)",
+   "sprId": "SPR101",
+   "version": "0.1.0",
+   "profile": "default",
+   "paletteK": 10,
+   "usesFlow": true,
+   "portingSource": "scripts/source-preserving/spe/trials/subject_toon.py (sprtrial-subject-toon-t1, read-only history)",
+   "portNote": "helpers RESTATED, not imported from trials/common.py: importing spe.trials from the frozen engine would couple renderers.py to the Lane-C write surface (and pull every trial module in via spe/trials/__init__.py). FrameProcessor already carries the identical helpers (_gray_small 320x180 INTER_AREA gray, _is_cut_start same convention, profile merge same semantics). Stage order and parameters identical; port-equivalence PROVEN: 240 frames (incl. the cut-189 MOG2 re-init path) byte-identical between the promoted FrameProcessor branch and the frozen trial processor fed the same palette/cuts/frames.",
+   "registryAppend": "REGISTRY[SUBJECT_TOON.reality] = SUBJECT_TOON (pure-addition append line; the frozen four-row construction is untouched, keeping the whole diff additions-only)",
+   "adapterRegistrationProof": "frozen render.py --reality choices now include subject-toon (choices=sorted(REGISTRY.keys()))"
+  },
+  "config": {
+   "motionKnee": 1.8,
+   "mogHistory": 150,
+   "mogVarThreshold": 25.0,
+   "mogLearningRate": 0.05,
+   "maskDecay": 0.9,
+   "maskSoften": 4.0,
+   "bgMedianK": 5,
+   "bgBilatD": 9,
+   "bgBilatSigma": 75,
+   "bgBilatIters": 3,
+   "bgRegionWindow": 5,
+   "bgSaturation": 1.22,
+   "bgLineDilate": 1,
+   "bgLineFloor": 0.3,
+   "lWeight": 0.45,
+   "sjMedianK": 3,
+   "sjBilatD": 7,
+   "sjBilatSigma": 50,
+   "sjBilatIters": 1,
+   "sjXdogSigma": 1.0,
+   "sjXdogK": 1.6,
+   "sjXdogTau": 0.98,
+   "sjXdogEps": 0.01,
+   "sjXdogPhi": 8.0,
+   "sjLineFloor": 0.7,
+   "sjSaturation": 1.1,
+   "profile": "default",
+   "frameCount": 1190
+  },
+  "styleConfigHashB8": "51f084e86a37c70edf33dfaa149b84a93011c9c634929c5f2feecda60a24d372"
+ },
+ "renders": [
+  {
+   "artifact": "subject-toon-b8.mp4",
+   "clip": "scripts/evidence/spr-corpus-bytes/b8p3.mp4 (full window, 1190 frames)",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality subject-toon --profile default --out-dir <dir> --suffix b8",
+   "renderer": "spr-subject-toon-dc1 v0.1.0 (registry row, FROZEN adapter)",
+   "frameCount": 1190,
+   "sha256Pass1": "503ea271561d770c8482a8e472582aba5b54fd4a889b7eeef2c889d59e960f74",
+   "sha256Pass2": "503ea271561d770c8482a8e472582aba5b54fd4a889b7eeef2c889d59e960f74",
+   "gT5DoubleRenderByteIdentical": true,
+   "renderWallMsPass1": 281075.3,
+   "renderWallMsPass2": 283002.9,
+   "gateInput": "b8p3.mp4 (raw frozen substrate)",
+   "gates": {
+    "G-T1": {
+     "value": "1190==1190, deltaMs 20, audio True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage 1.0, extra/30s 0.0, inputCuts [189, 475, 550, 862, 979, 982] outputCuts [189, 475, 550, 862, 979, 982]",
+     "pass": true
+    },
+    "G-T2b-deep": {
+     "value": "coverage 1.0, invented []",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR 0.9959",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "0.5117% of range (input baseline 0.458%)",
+     "pass": true
+    }
+   },
+   "framesEvidence": [
+    "frames/promotion/subject-toon-b8-t2s.png",
+    "frames/promotion/subject-toon-b8-t8s.png",
+    "frames/promotion/subject-toon-b8-t11s.png"
+   ]
+  },
+  {
+   "artifact": "subject-toon-b12.mp4",
+   "clip": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4 (b12 window, --max-frames 300 per packet = wave-1 baseline convention)",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 --reality subject-toon --profile default --out-dir <dir> --suffix b12 --max-frames 300",
+   "renderer": "spr-subject-toon-dc1 v0.1.0 (registry row, FROZEN adapter)",
+   "frameCount": 300,
+   "sha256Pass1": "edafe79fbe33850ebb5ae96f2648f8314660395569e308c161f0b470bde38246",
+   "sha256Pass2": "edafe79fbe33850ebb5ae96f2648f8314660395569e308c161f0b470bde38246",
+   "gT5DoubleRenderByteIdentical": true,
+   "renderWallMsPass1": 71610.6,
+   "renderWallMsPass2": 71829.3,
+   "gateInput": "derived 300-frame window reference b12-first300-gateref.mp4 (sha256 d19079ca133cbfe02dde534bd74c579818cb9b92e6272a4f7af9f77e1737115b, W2C derived-reference precedent)",
+   "gates": {
+    "G-T1": {
+     "value": "300==300, deltaMs 0, audio True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage 1.0, extra/30s 0.0, inputCuts [117, 120] outputCuts [117, 120]",
+     "pass": true
+    },
+    "G-T2b-deep": {
+     "value": "coverage 1.0, invented []",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR 0.9976",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "0.5751% of range (input baseline 0.4806%)",
+     "pass": true
+    }
+   },
+   "b12KnownPreexistingFindings": [
+    "RAW-substrate qa_check run CRASHES (F1-class, pre-existing): the substrate's stale nb_frames metadata (338 vs 301 decode-true) plus the 300-vs-301 max-frames window make np.corrcoef die before JSON write. Crash log: qa/qa-subject-toon-b12-raw-crash.log. The frozen wave-1 renderer shows the same class of behavior on this substrate (W2C trials report section 1).",
+    "vs the 301-frame metadata-correct gateref (spr-w2c-trials/substrate/b12-gate.mp4): T1 by ffprobe facts = 301 vs 300 frames (the packet's max-frames 300 window convention), deltaMs 40."
+   ],
+   "framesEvidence": [
+    "frames/promotion/subject-toon-b12-t2s.png",
+    "frames/promotion/subject-toon-b12-t8s.png",
+    "frames/promotion/subject-toon-b12-t11s.png"
+   ]
+  }
+ ],
+ "regression": {
+  "check": "re-render cartoon-cel b8 via the FROZEN render.py after the promotion edit; sha must equal the frozen wave-1 record",
+  "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality cartoon-cel --profile default --out-dir <dir> --suffix b8",
+  "sha256ReRender": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+  "sha256Wave1Record": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+  "byteIdentical": true,
+  "verdict": "PASS - engine untouched by the promotion edit, proven byte-level"
+ },
+ "scorecards": {
+  "protocol": "frozen acceptance doc section 2, 7-axis (1-5 + justification + 7-type artifact checklist) via the frozen vlm_scorecard.py harness; sample set t=2/8/15/30/45 s + cut-adjacent pre/post (within source shot), 15 samples per candidate",
+  "candidates": {
+   "subject-toon": {
+    "source": "promoted b8 render (registry row)",
+    "callsLanded": 15,
+    "callsError": 0
+   },
+   "cartoon-cel": {
+    "source": "same-protocol baseline re-run (regression-verified render)",
+    "callsLanded": 15,
+    "callsError": 0
+   },
+   "kuwahara-paint": {
+    "source": "trial driver full-window b8 render (sprtrial-kuwahara-paint-t1)",
+    "callsLanded": 15,
+    "callsError": 0
+   },
+   "flow-prop-toon": {
+    "source": "trial driver full-window b8 render (sprtrial-flow-prop-toon-t1)",
+    "callsLanded": 15,
+    "callsError": 0
+   }
+  },
+  "callsTotal": 60,
+  "callsLanded": 60,
+  "callsErrorFinal": 0,
+  "callIncidents": "one flow-prop-toon c862pre call exhausted its 3 retries with 90 s backoff during a 429 quota window and was recorded ok=False (ERROR, honestly); it LANDED on a post-cooldown retry run \u2014 final count 60/60, zero dropped",
+  "evidence": [
+   "scorecards/aggregate.json",
+   "scorecards/scorecard-<stem>.json",
+   "scorecards/raw/ (60 per-call VLM JSONs)"
+  ]
+ },
+ "noirVhsT3Diagnosis": {
+  "file": "noir-vhs-t3-diagnosis.md",
+  "verdict": "gate-metric design gap for analog-simulation realities (per-frame horizontal jitter is real motion in the pixel field); NOT a stylizer defect - no-jitter counterfactual r=0.999, grain alone r=0.9986; 0.2 s moving-average Pearson passes both unchanged renders (0.9661/0.9594); Spearman and detrending measured and REJECTED"
+ }
+}

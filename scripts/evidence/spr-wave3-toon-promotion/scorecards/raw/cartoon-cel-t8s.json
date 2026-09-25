@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and player positions are roughly preserved, but extreme abstraction loses most match-specific details.\n2. temporalConsistency - 3: The stylized blobs remain relatively stable in position between the two frames, though their shapes fluctuate slightly.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs with no discernible facial or uniform features to maintain identity.\n4. motionFidelity - 2: Subtle shifts in blob positions suggest some motion, but it is impossible to verify if it matches the actual football physics.\n5. sceneFidelity - 2: The background and field lines are heavily warped and abstracted, retaining only a vague sense of the stadium's spatial structure.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style with flattened color regions is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=10 players=3 warped=5 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312517,
+  "id": "20260925130151758af146b89942dd",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130151758af146b89942dd",
+  "usage": {
+    "completion_tokens": 237,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1406
+  }
+}

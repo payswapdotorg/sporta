@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The camera angle and general layout match, but the background (houses) is completely hallucinated and player count/positions are inaccurate.\n2. temporalConsistency - 4: The stylized frames are extremely stable with no flickering or morphing between the two timesteps.\n3. identityConsistency - 1: Players are reduced to featureless red/grey blobs with no discernible facial or uniform details.\n4. motionFidelity - 1: The subtle shifts in player positions do not reflect the actual movement of players or the ball seen in the source.\n5. sceneFidelity - 1: The stadium background has been replaced by a row of houses, failing to preserve the spatial context.\n6. stylizationStrength - 5: The transformation into a high-contrast, cel-shaded cartoon style is very obvious and aggressively applied.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=10 players=4 warped=0 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312523,
+  "id": "2026092513015726c690deb5764e5f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513015726c690deb5764e5f",
+  "usage": {
+    "completion_tokens": 229,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1398
+  }
+}

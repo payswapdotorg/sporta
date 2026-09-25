@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized frame accurately represents the same match, moment, and camera context as the original.\n2. temporalConsistency: 3 - While the overall scene is stable, the heavy flow-based stylization causes significant flickering and morphing of player shapes between the two frames.\n3. identityConsistency: 3 - Players maintain their general team colors and positions, but individual features and limb structures are heavily abstracted and unstable.\n4. motionFidelity: 4 - The subtle shifts in player positions between the 0.2s interval appear consistent with the original broadcast's motion.\n5. sceneFidelity: 4 - The stadium background, advertising boards, and field lines remain spatially consistent across all images.\n6. stylizationStrength: 5 - The \"flow-prop-toon\" transformation is extremely obvious, characterized by bold outlines and simplified color regions.\n\nAXES sf=5 tc=3 ic=3 mf=4 scf=4 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313173,
+  "id": "2026092513124643ec0e5fb03548c1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513124643ec0e5fb03548c1",
+  "usage": {
+    "completion_tokens": 234,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1403
+  }
+}

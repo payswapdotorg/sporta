@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 clearly matches the same frame as Image 1, including the large graphic overlay and player positions.\n2. temporalConsistency - 1: The camera angle and scene content change drastically between images 2 and 3, indicating a cut or extreme instability.\n3. identityConsistency - 3: Players in image 2 are recognizable blobs, but the transition to image 3 breaks visual continuity of specific individuals.\n4. motionFidelity - 2: While image 2 matches image 1's static state, the jump to image 3 makes motion interpretation impossible and inconsistent.\n5. sceneFidelity - 1: The background shifts from a wide pitch view to a close-up of stands/players, showing zero spatial consistency.\n6. stylizationStrength - 4: The kuwahara-paint effect is very strong, turning detailed players into abstract color blocks.\n\nAXES sf=5 tc=1 ic=3 mf=2 scf=1 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313128,
+  "id": "20260925131201c0bf23e06a4e4d9a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131201c0bf23e06a4e4d9a",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 299
+    },
+    "total_tokens": 1409
+  }
+}

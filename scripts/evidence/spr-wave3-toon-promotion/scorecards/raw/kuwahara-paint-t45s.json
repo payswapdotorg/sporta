@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The stylized images are extremely blurry and lack the clear spatial context of the original broadcast frame.\n2. temporalConsistency - 3: While the general positions of players remain similar, the extreme blur makes it difficult to track fine-grained consistency.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual visual stability nearly impossible to verify.\n4. motionFidelity - 2: The heavy filtering obscures the specific trajectories and poses of the players and ball seen in the source.\n5. sceneFidelity - 2: The background and field lines are heavily distorted and lack the sharp definition of the original image.\n6. stylizationStrength - 5: The transformation is very obvious, resulting in a highly abstract, painterly representation of the scene.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=1 bg=4 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313071,
+  "id": "202609251311040b47fe2dc1854c38",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251311040b47fe2dc1854c38",
+  "usage": {
+    "completion_tokens": 220,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1391
+  }
+}

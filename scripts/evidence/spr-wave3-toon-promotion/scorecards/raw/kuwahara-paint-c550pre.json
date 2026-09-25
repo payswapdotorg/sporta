@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, moment, and camera context are recognizable, though heavy blurring obscures fine details.\n2. temporalConsistency - 2: The main player's pose and the background elements shift noticeably between the two stylized frames.\n3. identityConsistency - 2: The primary player is identifiable, but other players and features are heavily distorted or merged.\n4. motionFidelity - 2: The motion of the player and ball is suggested but lacks clear, consistent physical progression.\n5. sceneFidelity - 2: The general layout of the pitch and stadium is present, but spatial relationships are very loose.\n6. stylizationStrength - 5: The Kuwahara-style transformation is extremely aggressive, resulting in a highly abstract, painterly effect.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=3 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313111,
+  "id": "2026092513114639c8b691a83d47ec",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513114639c8b691a83d47ec",
+  "usage": {
+    "completion_tokens": 214,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1385
+  }
+}
