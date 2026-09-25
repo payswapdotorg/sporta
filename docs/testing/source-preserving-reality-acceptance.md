@@ -67,3 +67,22 @@ worker implements → TL integrates → C renders real clip → visual review (V
 ```
 A rejected candidate gets a diagnosis in the scorecard + a research follow-up (A)
 while B keeps the stable interface. Never lower the bar to close the item.
+
+## Amendment A1 (2026-09-25, TL-approved): analog G-T3
+
+Analog-simulation profiles (noir-retro profile vhs) gate G-T3 on the 0.2 s
+moving-average-smoothed motion-energy series (5 frames at 25 fps, centered
+window — the protocol's own temporal-pair granularity); digital realities
+keep the frozen per-frame G-T3 of `qa_check.py`. The 0.80 threshold is
+UNCHANGED for both; both values are reported side-by-side in every
+scorecard. Additive tool: `scripts/source-preserving/qa_analog_t3.py`
+(extraction math reimplemented 1:1 from the frozen harness; per-frame r
+reported alongside the smoothed r). Basis: the noir-vhs T3 diagnosis
+(`scripts/evidence/spr-wave3-toon-promotion/noir-vhs-t3-diagnosis.md`, TL
+decision ACCEPTED — jitter is intended analog character, not corrupted
+motion; b5/b6 pass the smoothed metric at 0.9661/0.9594 with renders
+unchanged). Adjudicated with this amendment (TL: accept + document): the
+b12 container metadata honest-negative — decode-true frame counts stand
+(the 338 stsz sample count is structural: pre-roll GOP packets cannot be
+dropped or re-encoded without corrupting/altering frozen content);
+effective from wave-4.
