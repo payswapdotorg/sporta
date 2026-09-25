@@ -1,0 +1,147 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W4-A",
+ "task": "analog G-T3 gate amendment: 0.2 s smoothed T3 for analog-simulation profiles (additive tool qa_analog_t3.py + append-only doc amendment A1 + full regression proof)",
+ "generatedAtIso": "2026-09-25T10:42:40Z",
+ "base": "eb3b404",
+ "branch": "spr/w4a/gate-amendment",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3",
+  "python": "3.12.14 (project .venv; no new repo dependencies)"
+ },
+ "substrate": {
+  "check": "sha256sum scripts/evidence/spr-corpus-bytes/* vs the README.md table (16-hex prefixes) and corpus.json full shas",
+  "allMatch": true,
+  "clipsVerified": [
+   {"file": "b8p3.mp4", "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a"},
+   {"file": "clip-b1-wide-broadcast.mp4", "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307"},
+   {"file": "b8-b12.mp4", "sha256": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462"},
+   {"file": "clip-b2-closeup.mp4", "sha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062"},
+   {"file": "clip-b3-fast-action.mp4", "sha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb"},
+   {"file": "clip-b5-camera-move.mp4", "sha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a"},
+   {"file": "clip-b6-setpiece.mp4", "sha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a"},
+   {"file": "clip-b7-night.mp4", "sha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657"}
+  ]
+ },
+ "amendment": {
+  "id": "A1",
+  "date": "2026-09-25",
+  "status": "TL-approved (wave-4 dispatch)",
+  "rule": "Analog-simulation profiles (noir-retro profile vhs) gate G-T3 on the 0.2 s moving-average smoothed motion-energy series (5 frames at 25 fps, centered window — the acceptance protocol's own temporal-pair granularity); digital realities keep the frozen per-frame G-T3 of qa_check.py. The 0.80 threshold is UNCHANGED for both classes; both values are reported side-by-side in every scorecard.",
+  "tool": {
+   "path": "scripts/source-preserving/qa_analog_t3.py",
+   "nature": "NEW file, purely additive — the only engine-tree change in this delivery",
+   "cli": "--render <mp4> --source <mp4> --out <json>",
+   "metric": "centered moving average w = round(0.2*fps) frames (5 at 25 fps) via np.convolve(x, ones(w)/w, mode='same') applied to BOTH series, then Pearson r; raw per-frame r reported alongside for side-by-side honesty",
+   "threshold": 0.8,
+   "extraction": "faithful reimplementation of the frozen qa_check.py math (frames_at (64,36) INTER_AREA; Farneback (0.5, 3, 15, 3, 5, 1.2, 0); per-frame magnitude mean) — read from the frozen file, never imported-and-altered"
+  },
+  "doc": {
+   "file": "docs/testing/source-preserving-reality-acceptance.md",
+   "change": "append-only final section '## Amendment A1 (2026-09-25, TL-approved): analog G-T3'",
+   "insertions": 19,
+   "deletions": 0
+  },
+  "diagnosisReference": "scripts/evidence/spr-wave3-toon-promotion/noir-vhs-t3-diagnosis.md (TL decision: ACCEPTED — per-frame horizontal jitter is intended analog character, not corrupted motion; recommendation 1 adopted)",
+  "b12MetadataAdjudication": {
+   "decision": "TL: accept + document",
+   "record": "scripts/evidence/spr-wave3-substrate-fix/substrate-fix.json (honestNegativeNbFrames)",
+   "ruling": "decode-true frame counts stand; the 338 stsz sample count is structural (the track physically carries 338 samples incl. 37 edit-list-hidden pre-roll GOP packets that cannot be dropped or re-encoded without corrupting frozen content); b12 T1 metadata-vs-decode comparison exempted going forward per the recorded option 1"
+  },
+  "effectiveFrom": "wave-4"
+ },
+ "regression": {
+  "3a_engineUntouched": {
+   "command": "git diff eb3b404 -- scripts/source-preserving/",
+   "result": "ONLY the new file scripts/source-preserving/qa_analog_t3.py (pure additions); qa_check.py, render.py, cuts_deep.py, spe/encode.py, spe/renderers.py, spe/stages.py byte-identical (git blob shas equal between eb3b404 and this branch)",
+   "frozenBlobShas": {
+    "scripts/source-preserving/qa_check.py": "b86e2de044c44cd0b0a8fe8a9525910bafae939a",
+    "scripts/source-preserving/render.py": "37a67f2297eec217c89c63ec1c631aa842ab6c77",
+    "scripts/source-preserving/cuts_deep.py": "8bfe47d60d520ad9532d684071245e5128c88312",
+    "scripts/source-preserving/spe/encode.py": "635d7819c8e137730a01cdd2b8203cfc5fd1987e",
+    "scripts/source-preserving/spe/renderers.py": "eabcffdba36221cda6b17f6a74584252b0f5e1a4",
+    "scripts/source-preserving/spe/stages.py": "b7e87b428d3bba2754823bd36a1060fd7a0ea90d"
+   }
+  },
+  "3b_b8_cartoon_cel_control": {
+   "command": ".venv/bin/python scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality cartoon-cel --out-dir <work>/renders/b8 --suffix b8",
+   "expectedSha256Wave1": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+   "measuredSha256": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c",
+   "match": true,
+   "frameCount": 1190,
+   "byteSize": 8238780,
+   "renderWallMs": 267272.8
+  },
+  "3c_b7_motion_trails_control": {
+   "command": ".venv/bin/python scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality motion-trails --out-dir <work>/renders/b7 --suffix b7",
+   "expectedSha256": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+   "measuredSha256": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+   "match": true,
+   "frameCount": 250,
+   "renderWallMs": 7923.4
+  },
+  "3d_b5_vhs_rerender": {
+   "command": ".venv/bin/python scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality noir-retro --profile vhs --out-dir <work>/renders/b5 --suffix b5",
+   "expectedSha256W2B_F4": "05e4e27768a0683d31e87e12574938953d3bc13342c8625ba3870038ad2516e3",
+   "measuredSha256": "05e4e27768a0683d31e87e12574938953d3bc13342c8625ba3870038ad2516e3",
+   "match": true,
+   "frameCount": 300,
+   "renderWallMs": 12177.2
+  },
+  "3e_b6_vhs_rerender": {
+   "command": ".venv/bin/python scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality noir-retro --profile vhs --out-dir <work>/renders/b6 --suffix b6",
+   "expectedSha256W2B_F4": "61cff549fcfd500599d2a0dcec2aea0dd310dfceba1e1f409e14927ce84c4c89",
+   "measuredSha256": "61cff549fcfd500599d2a0dcec2aea0dd310dfceba1e1f409e14927ce84c4c89",
+   "match": true,
+   "frameCount": 300,
+   "renderWallMs": 11973.8
+  },
+  "3f_newMetric_on_exact_b5_b6_artifacts": {
+   "tool": "scripts/source-preserving/qa_analog_t3.py",
+   "b5": {
+    "smoothedR": 0.9661,
+    "diagnosisSmoothedR": 0.9661,
+    "delta": 0.0,
+    "ge95": true,
+    "perFrameR": 0.7303,
+    "wave2FrozenGt3Record": 0.7303,
+    "json": "qa/b5-noir-retro-vhs-analog-t3.json"
+   },
+   "b6": {
+    "smoothedR": 0.9594,
+    "diagnosisSmoothedR": 0.9594,
+    "delta": 0.0,
+    "ge95": true,
+    "perFrameR": 0.7978,
+    "wave2FrozenGt3Record": 0.7978,
+    "json": "qa/b6-noir-retro-vhs-analog-t3.json"
+   },
+   "verdict": "PASS — both smoothed r >= 0.95 and both reproduce the W3B diagnosis values exactly at the recorded 4-decimal precision (no float variance observed on this toolchain)"
+  },
+  "3g_digital_reality_unchanged": {
+   "command": ".venv/bin/python scripts/source-preserving/qa_check.py --input scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --output <work>/renders/b7/motion-trails-b7.mp4 --json qa/b7-motion-trails-control-qacheck.json",
+   "harness": "FROZEN qa_check.py (blob b86e2de044c44cd0b0a8fe8a9525910bafae939a, unmodified)",
+   "G-T3": {"measuredPearsonR": 0.9937, "wave2Record": 0.9937, "match": true},
+   "G-T4": {"measuredPercentOfRange": 0.6586, "wave2Record": 0.6586, "match": true},
+   "G-T1": {"pass": true, "durationDeltaMs": 20, "frameCountEqual": true},
+   "G-T2": {"pass": false, "coverage": 0.0, "inputCuts": [], "outputCuts": [], "note": "vacuous coverage on the zero-cut b7 clip — wave-2 known finding F2, identical behavior to the recorded run; NOT a new failure"},
+   "exitCode": 1,
+   "exitCodeNote": "qa_check.py exits 1 when not allPass; the only failing gate is the F2 metric edge, exactly as in the wave-2 record",
+   "json": "qa/b7-motion-trails-control-qacheck.json"
+  }
+ },
+ "extractionEquivalenceProof": {
+  "claim": "qa_analog_t3.py perFrameT3.pearsonR == frozen qa_check.py G-T3 pearsonR on the same (source, render) pair",
+  "b5_vhs": {"toolPerFrameR": 0.7303, "wave2FrozenRecord": 0.7303},
+  "b6_vhs": {"toolPerFrameR": 0.7978, "wave2FrozenRecord": 0.7978},
+  "b7_motion_trails_control": {"toolPerFrameR": 0.9937, "frozenRunThisSession": 0.9937, "wave2Record": 0.9937},
+  "json": "qa/b7-motion-trails-control-analog-tool.json"
+ },
+ "deviations": [
+  "None material. The smoothing edge handling (np.convolve mode='same', zero-padded edges) was selected because it reproduces the W3B diagnosis reference values exactly (b5 0.966082 -> 0.9661, b6 0.959400 -> 0.9594); the 'valid' (0.9660/0.9590) and shrinking-window (0.9658/0.9592) variants were also measured in a scratch harness and differ by <= 0.0006 — recorded here for full disclosure, not gate-shopping."
+ ],
+ "vlmCalls": 0,
+ "notes": "VLM-free lane as dispatched (account quota preserved). All renders CPU-only, foreground, sequential."
+}
