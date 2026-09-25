@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in yellow vest standing near corner flag\n2: closeup | Player in red jersey raising arm near sideline\n3: pitch-action | Player in red running with ball near corner flag\n4: wide-broadcast | Wide shot of players on field near goal\n5: wide-broadcast | Wide view of players near goal area\n6: wide-broadcast | Wide shot of players in defensive formation\n7: wide-broadcast | Wide view of players in midfield area\n8: wide-broadcast | Wide shot of players spread across field\n9: wide-broadcast | Wide view of players near penalty area\n10: wide-broadcast | Wide shot of players in midfield play\n11: wide-broadcast | Wide view of players across the field\n12: wide-broadcast | Wide shot of players in attacking position\n13: wide-broadcast | Wide view of players in center circle\n14: wide-broadcast | Wide shot of players in midfield area\n15: wide-broadcast | Wide view of players in defensive setup\n16: wide-broadcast | Wide shot of players near center circle\n17: wide-broadcast | Wide view of players in midfield play\n18: wide-broadcast | Wide shot of players in attacking move\n19: wide-broadcast | Wide view of players near goal area\n20: wide-broadcast | Wide shot of players in final third",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314300,
+ "id": "20260925133133b21260918f8e447d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133133b21260918f8e447d",
+ "usage": {
+  "completion_tokens": 282,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2180
+ },
+ "_meta": {
+  "tag": "w4690_g2",
+  "attempt": 1
+ }
+}

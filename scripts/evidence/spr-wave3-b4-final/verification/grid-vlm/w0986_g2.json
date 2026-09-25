@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in formation\n2: wide-broadcast | Wide shot of the soccer pitch showing players moving\n3: wide-broadcast | Wide shot of the soccer pitch with players spread out\n4: wide-broadcast | Wide shot of the soccer pitch with players near the goal\n5: wide-broadcast | Wide shot of the soccer pitch with players in the midfield\n6: wide-broadcast | Wide shot of the soccer pitch with players near the goal area\n7: wide-broadcast | Wide shot of the soccer pitch with players attacking the goal\n8: wide-broadcast | Wide shot of the soccer pitch with players near the goal line\n9: pitch-action | Close-up of a player in green kicking the ball towards a defender\n10: pitch-action | Close-up of a player in green dribbling past a defender\n11: pitch-action | Close-up of a player in green running with the ball\n12: pitch-action | Close-up of a goalkeeper diving to save a shot on goal\n13: pitch-action | Close-up of the ball hitting the back of the net after a goal\n14: pitch-action | Medium shot of players celebrating a goal near the corner\n15: pitch-action | Medium shot of players walking away from the goal area\n16: pitch-action | Medium shot of players in red jerseys on the field\n17: wide-broadcast | Wide shot of the goal area with players and advertising boards\n18: wide-broadcast | Wide shot of the goal area with players and crowd in background\n19: wide-broadcast | Wide shot from behind the goal showing the goalkeeper and field\n20: wide-broadcast | Wide shot from behind the goal showing the goalkeeper preparing for play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311858,
+ "id": "20260925125052dc4ba528439f47e4",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125052dc4ba528439f47e4",
+ "usage": {
+  "completion_tokens": 356,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2254
+ },
+ "_meta": {
+  "tag": "w0986_g2",
+  "attempt": 1
+ }
+}

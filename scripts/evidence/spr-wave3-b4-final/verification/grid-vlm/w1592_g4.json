@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: graphics | Broadcast graphic wipe with red and white design\n2: pitch-action | Player in pink dribbling against defender in green\n3: pitch-action | Player in green attempting to tackle player in pink\n4: pitch-action | Player in pink shooting or passing while falling\n5: pitch-action | Physical challenge for the ball between players\n6: pitch-action | Player in green shielding ball from defenders\n7: pitch-action | Player in pink on ground after a tackle attempt\n8: pitch-action | Players reacting to the fallen player on ground\n9: closeup | Referee talking to player in green striped jersey\n10: closeup | Referee and player in green in conversation\n11: closeup | Referee gesturing to player in green\n12: closeup | Referee with hand on shoulder of player in green\n13: pitch-action | Player in pink standing over fallen teammate\n14: pitch-action | Group of players gathered around injured player\n15: pitch-action | Players in pink attending to teammate on ground\n16: pitch-action | Player number 24 kneeling to check on teammate\n17: pitch-action | Player number 24 interacting with opponents\n18: pitch-action | Players from both teams showing sportsmanship\n19: pitch-action | Players embracing and talking after incident\n20: pitch-action | Players with arms around each other in discussion",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312113,
+ "id": "20260925125506e120326ef6c4473d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125506e120326ef6c4473d",
+ "usage": {
+  "completion_tokens": 278,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2176
+ },
+ "_meta": {
+  "tag": "w1592_g4",
+  "attempt": 1
+ }
+}

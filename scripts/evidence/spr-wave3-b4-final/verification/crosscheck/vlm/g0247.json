@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: celebration | Players in orange jerseys talking and interacting on the pitch\n2: celebration | Players in orange jerseys, including Rashford, interacting closely\n3: closeup | Tight shot of Rashford in an orange jersey\n4: celebration | Rashford with his arm around a teammate\n5: celebration | Group of players in orange huddled together\n6: celebration | Players in orange with arms around each other's shoulders\n7: celebration | Large group of players in orange in a tight team hug\n8: other | Player in green and white stripes holding a framed \"100\" jersey\n9: other | Close-up of the player holding the \"100\" jersey frame\n10: other | Player presenting the \"100\" jersey frame to a man in a jacket\n11: other | Man in jacket looking at the \"100\" jersey frame held by player\n12: celebration | Teammates in green and white clapping for the presentation\n13: play | Wide shot of the soccer pitch with players positioned for play\n14: play | Wide shot of the pitch showing players spread across the field\n15: play | Wide shot of the match continuing from a high angle\n16: play | Wide shot of the field with players in various positions\n17: play | High-angle wide shot of the soccer match in progress\n18: play | Wide shot of the pitch with players near the center circle\n19: play | Wide shot of the game continuing across the field\n20: play | Final wide shot of the soccer match action",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310941,
+ "id": "202609251235375a6825b809d54e02",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251235375a6825b809d54e02",
+ "usage": {
+  "completion_tokens": 312,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 157
+  },
+  "total_tokens": 2201
+ },
+ "_meta": {
+  "tag": "g0247",
+  "attempt": 1
+ }
+}

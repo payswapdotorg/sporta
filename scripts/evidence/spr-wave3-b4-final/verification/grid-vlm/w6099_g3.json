@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | A player with bleached blonde hair in a green jersey is shown from the side.\n2: closeup | A tight shot of the player with bleached blonde hair looking down.\n3: wide-broadcast | A wide view of the soccer pitch showing players near the goal area.\n4: wide-broadcast | A wide view of the pitch showing players preparing for a set piece.\n5: wide-broadcast | A wide view of the pitch with players positioned for a free kick.\n6: wide-broadcast | A wide view of the pitch as the free kick is about to be taken.\n7: wide-broadcast | A wide view of the pitch during the ongoing play after the kick.\n8: wide-broadcast | A wide view of the pitch showing the ball in play near the goal.\n9: wide-broadcast | A wide view of the pitch following the play.\n10: wide-broadcast | A wide view of the pitch as players reposition.\n11: pitch-action | A medium shot of the goalkeeper in a yellow jersey standing ready.\n12: pitch-action | The goalkeeper in yellow remains in a ready stance.\n13: pitch-action | The goalkeeper in yellow continues to watch the play.\n14: closeup | A close-up of the player with bleached blonde hair looking forward.\n15: wide-broadcast | A wide view of the pitch showing players spread across the field.\n16: wide-broadcast | A wide view of the pitch with players moving into position.\n17: wide-broadcast | A wide view of the pitch showing the goalkeeper and defenders.\n18: wide-broadcast | A wide view of the pitch with the ball near the center.\n19: closeup | A close-up of the goalkeeper in the yellow jersey.\n20: closeup | A close-up of the player with bleached blonde hair holding the ball.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314606,
+ "id": "20260925133639e58bccd2267940a7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133639e58bccd2267940a7",
+ "usage": {
+  "completion_tokens": 375,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2273
+ },
+ "_meta": {
+  "tag": "w6099_g3",
+  "attempt": 1
+ }
+}

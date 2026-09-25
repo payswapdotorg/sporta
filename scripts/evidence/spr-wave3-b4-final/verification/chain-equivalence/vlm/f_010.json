@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "NO. The frame is occupied by a coach or team staff member sitting on the bench.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790309374,
+ "id": "20260925120931fa91895f2c6b4da6",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925120931fa91895f2c6b4da6",
+ "usage": {
+  "completion_tokens": 19,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 342,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 361
+ },
+ "_meta": {
+  "tag": "check-c1 f_010 media 2722.84 (w2a-C1 expected 2722.84)",
+  "attempt": 1
+ }
+}

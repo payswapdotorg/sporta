@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players and the goal area\n2: pitch-action | Medium shot of a player in orange dribbling past a defender\n3: pitch-action | Medium shot of the player in orange continuing to control the ball\n4: pitch-action | Medium shot of the player in orange being challenged by a sliding defender\n5: pitch-action | Medium shot showing the result of the tackle with players on the ground\n6: pitch-action | Medium shot of the player in orange moving away from the fallen defender\n7: graphics | Red screen with a white \"L\" logo graphic overlay\n8: closeup | Close-up of a player in an orange jersey with the number 28 on his back\n9: closeup | Close-up side profile of a player in an orange jersey looking towards the field\n10: closeup | Close-up rear view of a player in an orange jersey standing on the field\n11: closeup | Tight shot of two players, one in orange and one in green, facing each other\n12: pitch-action | Medium shot of players in orange and green jerseys interacting on the field\n13: pitch-action | Medium shot of a group of players from both teams gathered together\n14: pitch-action | Medium shot of players walking and positioning themselves on the field\n15: pitch-action | Medium shot of players in green and orange jerseys standing on the pitch\n16: wide-broadcast | Wide elevated view of the soccer pitch showing player positions\n17: wide-broadcast | Wide elevated view of the soccer pitch during active play\n18: wide-broadcast | Wide elevated view of the soccer pitch showing team formations\n19: wide-broadcast | Wide elevated view of the soccer pitch with players spread out\n20: wide-broadcast | Wide elevated view of the soccer pitch showing the field of play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313985,
+ "id": "202609251326139b7e4e59fe764218",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251326139b7e4e59fe764218",
+ "usage": {
+  "completion_tokens": 377,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2275
+ },
+ "_meta": {
+  "tag": "w3794_g2",
+  "attempt": 1
+ }
+}

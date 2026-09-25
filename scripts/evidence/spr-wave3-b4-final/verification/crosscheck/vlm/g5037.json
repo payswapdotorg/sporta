@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch showing players in red and green kits in formation.\n2: play | Wide shot of the match continuing with players moving across the field.\n3: play | Wide shot of the game with players positioned around the center circle.\n4: play | Wide shot of the match as play develops in the midfield area.\n5: play | Wide shot of the game with a scoreboard graphic visible at the top.\n6: play | Wide shot of the match with players spread across the pitch.\n7: closeup | Tight shot following a player in red running with the ball at high speed.\n8: closeup | Close-up action shot of the player in red being challenged by a defender.\n9: closeup | Tight shot of a referee running on the sideline near the corner flag.\n10: closeup | Close-up of a player in a red jersey facing the camera or an opponent.\n11: play | Medium-wide shot of a player taking a shot or crossing the ball near the goal.\n12: play | Wide shot of the match resuming after the previous attacking phase.\n13: play | Wide shot of the game with players resetting their positions on the field.\n14: play | Wide shot of the match continuing with players in the midfield third.\n15: play | Wide shot of the game with players moving towards the attacking half.\n16: play | Wide shot of the match with teams maintaining their tactical shape.\n17: graphics | Shot dominated by a broadcast scoreboard and LaLiga graphic overlay.\n18: play | Wide shot of live match action returning to the field of play.\n19: play | Wide shot of the game with players passing in the center of the pitch.\n20: play | Wide shot of the match continuing with players spread across the field.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311418,
+ "id": "202609251243182e9be789d274415a",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251243182e9be789d274415a",
+ "usage": {
+  "completion_tokens": 362,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2251
+ },
+ "_meta": {
+  "tag": "g5037",
+  "attempt": 1
+ }
+}

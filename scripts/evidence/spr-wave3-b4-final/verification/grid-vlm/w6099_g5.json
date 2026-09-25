@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in green prepares to take a penalty kick\n2: pitch-action | Player in green runs up to strike the ball\n3: pitch-action | Ball flies towards the goal as the keeper dives\n4: wide-broadcast | View of the goal area following the shot\n5: wide-broadcast | Goalkeeper standing dejectedly after missing the save\n6: pitch-action | Goalkeeper diving to his left attempting a save\n7: pitch-action | Goalkeeper on the ground after the dive\n8: crowd | Close-up of fans celebrating enthusiastically\n9: crowd | Fans cheering and waving in the stands\n10: graphics | Large white replay wipe graphic covering the screen\n11: wide-broadcast | Wide view of the pitch showing players positioned\n12: wide-broadcast | Wide view of the pitch with players spread out\n13: wide-broadcast | Wide view of the match with players moving\n14: wide-broadcast | Wide shot with a player statistics graphic overlay\n15: wide-broadcast | Wide shot with a player statistics graphic overlay\n16: wide-broadcast | Wide shot with a player statistics graphic overlay",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314633,
+ "id": "20260925133709003ddedeafc648ce",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133709003ddedeafc648ce",
+ "usage": {
+  "completion_tokens": 233,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2131
+ },
+ "_meta": {
+  "tag": "w6099_g5",
+  "attempt": 1
+ }
+}

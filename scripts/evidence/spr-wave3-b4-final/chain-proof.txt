@@ -1,0 +1,37 @@
+=== SPR-W3-C CHAIN REBUILD + LIVENESS PROOF (gate 1) ===
+
+[provider] bgutil-ytdlp-pot-provider v2.0.0 (server built from Brainicism/bgutil-ytdlp-pot-provider
+  master @ 2026-09-25, npm ci + npx tsc; node v24.21.0); plugin at ~/.yt-dlp/plugins/bgutil
+  server daemonized double-fork on 127.0.0.1:4416 (sandbox reaps tool-shell children)
+
+[provider log] Started POT server (v2.0.0) on address [::1]:4416, 127.0.0.1:4416
+
+[relay] scripts/real-source/tls_proxy_relay.py (repo, unmodified) on 127.0.0.1:8128
+[relay log] [relay] listening on 127.0.0.1:8128 -> tls://a996d235.acsnet.co:443
+
+[exit proof] curl -x http://127.0.0.1:8128 https://ipinfo.io/json:
+{"ip": "169.150.210.53", "hostname": "unn-169-150-210-53.datapacket.com", "city": "Frankfurt am Main", "region": "Hesse", "country": "DE", "org": "AS212238 Datacamp Limited"}
+  = the recorded DE exit class (w2a README: 'DE exit 169.150.210.53')
+
+[yt-dlp -F] through the chain, client visionos (key rows):
+233-5 mp4   audio only        |                  m3u8  | audio only          unknown             [en-US] American English - original (original)
+234-5 mp4   audio only        |                  m3u8  | audio only          unknown             [en-US] American English - original (original)
+140-5 m4a   audio only      2 |  101.72MiB  129k https | audio only          mp4a.40.2  129k 44k [en-US] English (US) original (default), medium, m4a_dash
+229   mp4   426x240     25    | ~248.79MiB  317k m3u8  | avc1.4D4015    317k video only
+230   mp4   640x360     25    | ~635.17MiB  808k m3u8  | avc1.4D401E    808k video only
+
+[po-token provider verification] yt-dlp -v shows:
+  [debug] [pot] PO Token Providers: bgutil:http-2.0.0 (external), bgutil:script-node-2.0.0 (external, unavailable), bgutil:script-deno-2.0.0 (external, unavailable)
+
+[itag-230 media playlist] 1216 segments, total 6590.80s (frozen-source duration)
+
+[chain-equivalence proof] my re-pull of w2a candidate C1 territory (media 2713.84-2739.44)
+  cross-checked per-frame against the immutable w2a c1-w2700-seekfree.json:
+  2720.84 YES/w2a-YES | 2721.84 YES/w2a-YES | 2722.84 NO(coach)/w2a-NO(coach)
+  2725.84 YES/w2a-YES | 2726.84 YES/w2a-YES | 2727.84 YES/w2a-YES | 2728.84 NO(celebrating players)/w2a-NO(celebrating)
+  7/7 verdicts identical -> segment math + seek-free extraction + VLM discipline reproduce the w2a record.
+
+[full-match audio] itag 140-5 m4a, 106666323 B (Content-Range verified),
+  sha256 603806d963f2dca69d64a70dafc0f98f9492561be74716c30063c72e0e500360,
+  ffprobe duration 6590.844807s; parallel ranged pull (8 workers x 2MiB) because
+  single long-lived connections throttle to ~4KB/s after the first burst.

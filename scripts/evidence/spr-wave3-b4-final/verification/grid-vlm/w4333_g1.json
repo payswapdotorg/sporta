@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Free kick setup near the goal area\n2: pitch-action | Player strikes the ball towards the goal\n3: pitch-action | Ball in flight as players react to the shot\n4: pitch-action | Goalkeeper diving to make a save\n5: pitch-action | Ball entering the net for a goal\n6: pitch-action | Players reacting to the goal being scored\n7: closeup | Player celebrating the goal with hands up\n8: wide-broadcast | Wide angle replay of the goal from behind the net\n9: wide-broadcast | Replay showing the ball crossing the goal line\n10: wide-broadcast | Replay showing the goalkeeper's diving attempt\n11: closeup | Close-up of a player in pink looking emotional\n12: closeup | Player covering his face in celebration or emotion\n13: closeup | Player wiping his face while standing on the pitch\n14: closeup | Player holding his face showing strong emotion\n15: closeup | Player with head bowed in an emotional moment\n16: graphics | LaLiga broadcast logo transition graphic\n17: wide-broadcast | Wide shot of the soccer pitch and stadium\n18: wide-broadcast | Wide view of the field during the match\n19: closeup | Two players in green jerseys talking together\n20: closeup | Close-up of two players from behind",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314065,
+ "id": "20260925132737f739752284754a1e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132737f739752284754a1e",
+ "usage": {
+  "completion_tokens": 278,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2176
+ },
+ "_meta": {
+  "tag": "w4333_g1",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "requested": [
+  1318.0,
+  1333.0
+ ],
+ "trueWindow": [
+  1317.84,
+  1333.84
+ ],
+ "segments": 3,
+ "bytes": 512488,
+ "wallSec": 1.8,
+ "segmentDurs": [
+  5.0,
+  7.0,
+  4.0
+ ]
+}

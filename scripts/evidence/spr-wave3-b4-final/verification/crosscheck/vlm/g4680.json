@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players in position\n3: play | Wide shot of the soccer pitch with players in position\n4: play | Wide shot of the soccer pitch with players in position\n5: play | Wide shot of the soccer pitch with players in position\n6: play | Wide shot of the soccer pitch with players in position\n7: play | Wide shot of the soccer pitch with players in position\n8: play | Wide shot of the soccer pitch with players in position\n9: play | Wide shot of the soccer pitch with players in position\n10: play | Wide shot of the soccer pitch with players in position\n11: play | Wide shot of the soccer pitch with players in position\n12: play | Wide shot of the soccer pitch with players in position\n13: play | Wide shot of the soccer pitch with players in position\n14: play | Wide shot of the soccer pitch with players in position\n15: play | Wide shot of the soccer pitch with players in position\n16: play | Wide shot of the soccer pitch with players in position\n17: play | Wide shot of the soccer pitch near the corner area\n18: play | Wide shot of the soccer pitch near the corner area\n19: play | Wide shot of the soccer pitch near the corner area\n20: closeup | Tight shot of a player in a pink jersey",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310815,
+ "id": "20260925123325b96ece73340c473d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123325b96ece73340c473d",
+ "usage": {
+  "completion_tokens": 300,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2189
+ },
+ "_meta": {
+  "tag": "g4680",
+  "attempt": 1
+ }
+}

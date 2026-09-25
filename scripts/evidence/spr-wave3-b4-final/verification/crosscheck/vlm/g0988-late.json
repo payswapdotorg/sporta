@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Coach standing on the sideline\n2: closeup | Coach standing on the sideline\n3: closeup | Coach standing on the sideline\n4: celebration | Player celebrating with teammates\n5: celebration | Players celebrating together\n6: closeup | Player gesturing to teammates\n7: celebration | Player celebrating with arm raised\n8: graphics | Broadcast graphic overlay \"GOOOOL\"\n9: graphics | Broadcast graphic overlay \"GOOOL\"\n10: closeup | Rashford and teammate talking\n11: closeup | Ferran and Rashford talking\n12: closeup | Player looking towards the pitch\n13: closeup | Ferran from behind\n14: closeup | Saltumija from behind\n15: play | Wide shot of players on the field\n16: play | Wide shot of players on the field\n17: play | Wide shot of players on the field\n18: play | Wide shot of players on the field\n19: play | Wide shot of players on the field\n20: play | Wide shot of players on the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310663,
+ "id": "20260925123101fe5f342bc8e84683",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123101fe5f342bc8e84683",
+ "usage": {
+  "completion_tokens": 222,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 2
+  },
+  "total_tokens": 2111
+ },
+ "_meta": {
+  "tag": "g0988-late",
+  "attempt": 1
+ }
+}

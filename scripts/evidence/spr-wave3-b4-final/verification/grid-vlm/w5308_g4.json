@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n2: wide-broadcast | Wide shot of the soccer pitch showing players in the penalty area\n3: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield area\n4: wide-broadcast | Wide shot of the soccer pitch showing players in the attacking third\n5: wide-broadcast | Wide shot of the soccer pitch showing players spread across the field\n6: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n7: wide-broadcast | Wide shot of the soccer pitch showing players in the defensive half\n8: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n9: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield\n10: wide-broadcast | Wide shot of the soccer pitch showing the goalkeeper and defenders\n11: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n12: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield\n13: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n14: closeup | Close-up of the goalkeeper in a yellow jersey with a player in green behind him\n15: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield\n16: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n17: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield\n18: wide-broadcast | Wide shot of the soccer pitch showing players in the center circle\n19: wide-broadcast | Wide shot of the soccer pitch showing players in the midfield\n20: wide-broadcast | Wide shot of the soccer pitch showing players in the attacking half",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314543,
+ "id": "20260925133534374bc917f30f4954",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133534374bc917f30f4954",
+ "usage": {
+  "completion_tokens": 377,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2275
+ },
+ "_meta": {
+  "tag": "w5308_g4",
+  "attempt": 1
+ }
+}

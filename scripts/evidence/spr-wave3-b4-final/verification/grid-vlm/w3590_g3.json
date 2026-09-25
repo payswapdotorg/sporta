@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the soccer pitch during live match play\n4: wide-broadcast | Wide shot of the soccer pitch with players in various positions\n5: wide-broadcast | Wide shot of the soccer pitch showing ongoing match action\n6: wide-broadcast | Wide shot of the soccer pitch with players spread out\n7: wide-broadcast | Wide shot of the soccer pitch during active gameplay\n8: wide-broadcast | Wide shot of the soccer pitch with players moving on the field\n9: wide-broadcast | Wide shot of the soccer pitch with a red progress bar at the bottom\n10: wide-broadcast | Wide shot of the soccer pitch showing player movements\n11: wide-broadcast | Wide shot of the soccer pitch with players in red and green\n12: wide-broadcast | Wide shot of the soccer pitch during match action\n13: wide-broadcast | Wide shot of the soccer pitch with players positioned widely\n14: wide-broadcast | Wide shot of the soccer pitch showing ongoing play\n15: wide-broadcast | Wide shot of the soccer pitch with a red graphic overlay at the top\n16: wide-broadcast | Wide shot of the soccer pitch with an orange graphic overlay at the top\n17: wide-broadcast | Wide shot of the soccer pitch with spectators visible in the stands\n18: wide-broadcast | Wide shot of the soccer pitch with crowd in the background\n19: wide-broadcast | Wide shot of the soccer pitch with a sponsor banner at the top\n20: wide-broadcast | Wide shot of the soccer pitch with a red progress bar at the bottom",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313853,
+ "id": "20260925132407948413dc7fa44b9f",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132407948413dc7fa44b9f",
+ "usage": {
+  "completion_tokens": 368,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2266
+ },
+ "_meta": {
+  "tag": "w3590_g3",
+  "attempt": 1
+ }
+}

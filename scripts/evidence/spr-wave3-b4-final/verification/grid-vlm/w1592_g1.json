@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in red (10) dribbles near the penalty area\n2: pitch-action | Player in red (10) continues to dribble against a defender\n3: pitch-action | Player in red (10) is tackled or challenged by the defender\n4: pitch-action | The ball is loose as players in red and green compete for it\n5: pitch-action | A player in red attempts to play the ball near the goal\n6: pitch-action | A green and white striped player kicks the ball\n7: graphics | Red and white graphic wipe/replay transition overlay\n8: closeup | Close-up of a player's face in a red jersey\n9: closeup | Close-up of a player's face in a red jersey with crowd background\n10: closeup | Medium close-up of a player in a red jersey looking forward\n11: closeup | Extreme close-up of a red jersey fabric\n12: wide-broadcast | Wide shot of the entire soccer pitch showing player positions\n13: wide-broadcast | Wide shot of the soccer pitch from a high angle\n14: wide-broadcast | Wide shot of the soccer pitch showing team formations\n15: wide-broadcast | Wide shot of the soccer pitch with players spread out\n16: wide-broadcast | Wide shot of the soccer pitch during live play\n17: wide-broadcast | Wide shot of the soccer pitch with players moving\n18: wide-broadcast | Wide shot of the soccer pitch with scoreboard visible\n19: wide-broadcast | Wide shot of the soccer pitch with LaLiga graphics\n20: wide-broadcast | Wide shot of the soccer pitch showing ongoing match action",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312069,
+ "id": "202609251254247e921ef45a2b4c4e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251254247e921ef45a2b4c4e",
+ "usage": {
+  "completion_tokens": 341,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2239
+ },
+ "_meta": {
+  "tag": "w1592_g1",
+  "attempt": 1
+ }
+}

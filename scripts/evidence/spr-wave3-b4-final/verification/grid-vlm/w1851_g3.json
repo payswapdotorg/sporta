@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and white kits\n2: wide-broadcast | Wide shot of the soccer pitch with players spread across the field\n3: wide-broadcast | Wide shot of the pitch with players in various positions during play\n4: wide-broadcast | Wide shot of the field with players moving in the midfield area\n5: wide-broadcast | Wide view of the pitch showing players near the center circle\n6: wide-broadcast | Wide shot of the match with players positioned across the field\n7: wide-broadcast | Wide angle of the pitch with players in active play\n8: wide-broadcast | Wide shot showing players and the referee on the field\n9: wide-broadcast | Wide view of the pitch with players in red and white kits\n10: graphics | Red broadcast graphic overlay covering the screen\n11: wide-broadcast | Wide shot of the pitch with a scoreboard graphic at the bottom\n12: wide-broadcast | Wide angle of the field with players and crowd visible in background\n13: wide-broadcast | Wide shot of the match with a lower-third graphic displaying score\n14: wide-broadcast | Wide view of the pitch with players in action and score graphic\n15: wide-broadcast | Wide shot of the field with a detailed scoreboard overlay\n16: wide-broadcast | Wide angle of the match with players and a score graphic at bottom\n17: closeup | Close-up shot of player Aitor Ruibal in a green and white striped jersey\n18: closeup | Tight shot from behind player Aitor Ruibal showing his name and number 24\n19: closeup | Rear close-up of Aitor Ruibal walking on the field\n20: closeup | Side profile close-up of Aitor Ruibal in his green and white kit",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312472,
+ "id": "2026092513010527a531f79adb4e94",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513010527a531f79adb4e94",
+ "usage": {
+  "completion_tokens": 374,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2272
+ },
+ "_meta": {
+  "tag": "w1851_g3",
+  "attempt": 1
+ }
+}

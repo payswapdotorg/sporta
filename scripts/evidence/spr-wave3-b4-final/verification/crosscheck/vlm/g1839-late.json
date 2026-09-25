@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Players moving and passing the ball in the midfield area\n3: play | Ball being played towards the goal area\n4: play | Attack continuing near the penalty box\n5: play | Player preparing to cross or shoot from the wing\n6: closeup | Tight shot of a player in red taking a shot on goal\n7: play | View from behind the goal as the ball enters the net\n8: play | The ball hitting the back of the net for a goal\n9: play | Players reacting immediately after the goal is scored\n10: play | Players turning and looking towards the center of the pitch\n11: play | Players beginning to gather after the goal\n12: celebration | Players in green and red stripes celebrating the goal\n13: celebration | Celebrating players embracing and showing excitement\n14: graphics | Red and white broadcast graphic wipe or transition overlay\n15: play | Wide shot of the pitch as play prepares to restart\n16: play | Players spreading out across the field for the restart\n17: play | Game resuming with players in their defensive and offensive positions",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311267,
+ "id": "20260925124100c96a0087b1d24ecf",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124100c96a0087b1d24ecf",
+ "usage": {
+  "completion_tokens": 242,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2131
+ },
+ "_meta": {
+  "tag": "g1839-late",
+  "attempt": 1
+ }
+}

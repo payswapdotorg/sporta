@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in red taking a shot on goal\n2: pitch-action | Ball entering the net for a goal\n3: closeup | Goalkeeper and defender reacting to the goal\n4: closeup | Close-up of the ball hitting the back of the net\n5: pitch-action | Goalkeeper turning to look at the net\n6: pitch-action | Wide shot of the goal area after the score\n7: pitch-action | Players from both teams near the center circle\n8: pitch-action | Player in green controlling the ball in midfield\n9: pitch-action | Players moving towards the goal area\n10: pitch-action | Goalkeeper diving to make a save\n11: closeup | Group of players in red jerseys walking together\n12: pitch-action | Ball in the air over the midfield\n13: pitch-action | Players positioned around the penalty box\n14: pitch-action | Player in red falling near the penalty spot\n15: pitch-action | Players reacting to a play near the goal\n16: pitch-action | Goalkeeper on the ground after a save attempt\n17: wide-broadcast | Wide view of the entire pitch from behind the goal\n18: wide-broadcast | Wide view of players spread across the field\n19: wide-broadcast | Wide view of the pitch with players in position\n20: wide-broadcast | Wide view of the goalkeeper watching the play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311950,
+ "id": "20260925125225d8888f4ff4134bbf",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125225d8888f4ff4134bbf",
+ "usage": {
+  "completion_tokens": 285,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2183
+ },
+ "_meta": {
+  "tag": "w1091_g3",
+  "attempt": 1
+ }
+}

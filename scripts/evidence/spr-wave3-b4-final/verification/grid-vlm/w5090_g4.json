@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the pitch as players move during active play\n4: wide-broadcast | Wide shot of the field with players continuing the match\n5: wide-broadcast | Wide shot near the goal area with players in red attacking\n6: wide-broadcast | Wide shot of the pitch showing players in various positions\n7: wide-broadcast | Wide shot of the field with players moving towards the goal\n8: wide-broadcast | Wide shot of the pitch with players in red and green kits\n9: wide-broadcast | Wide shot of the goal area with players gathered near the box\n10: wide-broadcast | Wide shot of the pitch showing players in an attacking formation\n11: wide-broadcast | Wide shot of the field with players positioned near the goal\n12: wide-broadcast | Wide shot of the pitch with players in red and green kits\n13: wide-broadcast | Wide shot of the goal area with advertising boards visible\n14: wide-broadcast | Wide shot of the pitch with players moving near the penalty area\n15: wide-broadcast | Wide shot of the field with players in red and green kits\n16: closeup | Closeup of a player in a green and white striped jersey pointing\n17: closeup | Closeup of a player in a green and white jersey looking to the side\n18: closeup | Closeup of a player in a green and white jersey looking forward\n19: closeup | Closeup of a player in a green and white jersey facing right\n20: closeup | Closeup of a player in a green and white jersey gesturing with his hand",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314466,
+ "id": "202609251334186685797a945d48a2",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251334186685797a945d48a2",
+ "usage": {
+  "completion_tokens": 375,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2273
+ },
+ "_meta": {
+  "tag": "w5090_g4",
+  "attempt": 1
+ }
+}

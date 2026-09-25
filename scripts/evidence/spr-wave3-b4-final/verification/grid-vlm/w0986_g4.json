@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Referee and player Ferran on the pitch\n2: closeup | Referee speaking to player Ferran\n3: closeup | Referee gesturing while talking to player\n4: closeup | Referee and player in a discussion\n5: closeup | Referee and player facing each other\n6: closeup | Referee with players from both teams nearby\n7: closeup | Players and referee interacting closely\n8: closeup | Player pointing as referee watches\n9: closeup | Referee gesturing towards the field\n10: closeup | Referee pointing to direct play\n11: closeup | Referee standing on the grass\n12: wide-broadcast | Wide shot of the soccer pitch and stadium\n13: wide-broadcast | Wide view of the field and stands\n14: wide-broadcast | High-angle view of the match\n15: wide-broadcast | Wide shot of players on the pitch\n16: wide-broadcast | Overview of the playing field\n17: graphics | Broadcast graphic overlay at bottom left\n18: graphics | Player info graphic displayed on screen\n19: graphics | Stats graphic for player Ferran\n20: graphics | Player statistics shown during replay",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311887,
+ "id": "2026092512512367c1d8281f7a43b4",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512512367c1d8281f7a43b4",
+ "usage": {
+  "completion_tokens": 252,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 4
+  },
+  "total_tokens": 2150
+ },
+ "_meta": {
+  "tag": "w0986_g4",
+  "attempt": 1
+ }
+}

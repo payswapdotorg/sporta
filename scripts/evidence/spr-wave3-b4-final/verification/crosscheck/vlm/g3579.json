@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits positioned across the field.\n2: play | Players in red and green kits continue to move and position themselves during the match.\n3: play | The ball is in play as players from both teams move towards the center of the field.\n4: play | The play continues with the green team appearing to be on the offensive.\n5: play | A wide view of the field showing the ongoing match action and player movement.\n6: play | The camera follows the play as the ball moves toward the goal area.\n7: play | An attacking move develops near the goal with players converging on the ball.\n8: play | The action remains focused near the goal as the attack continues.\n9: play | The play stays in the final third of the field with an active attack underway.\n10: play | The camera tracks the ball and players as they maneuver near the penalty area.\n11: play | The offensive push continues with players positioning for a cross or shot.\n12: play | The play remains dynamic in the attacking half of the field.\n13: play | The camera angle shifts slightly, following the continued action near the goal.\n14: play | Players are seen regrouping and moving as the play transitions.\n15: play | The match continues with players spread out across the midfield and attacking areas.\n16: play | A wide shot shows players moving back into position during open play.\n17: play | The game progresses with players in red and green kits competing for the ball.\n18: play | The camera follows the flow of the game as it moves through the midfield.\n19: play | Players are actively engaged in the match across the center of the pitch.\n20: play | The sequence ends with a wide view of the ongoing live match action.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310926,
+ "id": "20260925123516e505adeb349347cd",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123516e505adeb349347cd",
+ "usage": {
+  "completion_tokens": 371,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2260
+ },
+ "_meta": {
+  "tag": "g3579",
+  "attempt": 1
+ }
+}

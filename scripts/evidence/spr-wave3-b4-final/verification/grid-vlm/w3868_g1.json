@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: graphics | LaLiga broadcast graphic overlay with match replay\n2: graphics | LaLiga broadcast graphic overlay with match replay\n3: graphics | LaLiga broadcast graphic overlay with match replay\n4: graphics | LaLiga broadcast graphic overlay with match replay\n5: wide-broadcast | Wide shot of soccer pitch showing player positions and formations\n6: wide-broadcast | Wide shot of soccer pitch showing players moving in midfield\n7: wide-broadcast | Wide shot of soccer pitch showing team positioning across field\n8: wide-broadcast | Wide shot of soccer pitch showing players spread across field\n9: wide-broadcast | Wide shot of soccer pitch showing players near center circle\n10: wide-broadcast | Wide shot of soccer pitch showing players in attacking third\n11: wide-broadcast | Wide shot of soccer pitch showing play developing near penalty area\n12: wide-broadcast | Wide shot of soccer pitch showing ball movement toward goal\n13: wide-broadcast | Wide shot of soccer pitch showing players repositioning after attack\n14: wide-broadcast | Wide shot of soccer pitch showing play shifting to opposite flank\n15: wide-broadcast | Wide shot of soccer pitch showing build-up play from defense\n16: wide-broadcast | Wide shot of soccer pitch showing possession in midfield area\n17: wide-broadcast | Wide angle shot of soccer pitch near corner flag and advertising boards\n18: wide-broadcast | Wide angle shot of soccer pitch showing sideline and goal area\n19: wide-broadcast | Wide angle shot of soccer pitch showing players near penalty box\n20: wide-broadcast | Wide angle shot of soccer pitch showing defensive positioning",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314033,
+ "id": "202609251327051eb334c201ad4da9",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251327051eb334c201ad4da9",
+ "usage": {
+  "completion_tokens": 336,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2234
+ },
+ "_meta": {
+  "tag": "w3868_g1",
+  "attempt": 1
+ }
+}

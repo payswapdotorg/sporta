@@ -1,0 +1,182 @@
+[
+ {
+  "name": "w0986",
+  "requested": [
+   990.0,
+   1076.0
+  ],
+  "moment": "g0988",
+  "note": "goal-likely (late graphics); start margined past modeled disc-900 end"
+ },
+ {
+  "name": "w1091",
+  "requested": [
+   1091.0,
+   1181.0
+  ],
+  "moment": "g1101",
+  "note": "confirmed goal (celebration + crowd cells post-peak)"
+ },
+ {
+  "name": "w1299",
+  "requested": [
+   1299.0,
+   1389.0
+  ],
+  "moment": "g1309",
+  "note": "near-miss roar"
+ },
+ {
+  "name": "w1592",
+  "requested": [
+   1591.92,
+   1681.92
+  ],
+  "moment": "g1577",
+  "note": "late-graphics moment; start = w1500 true end (segment-exact)"
+ },
+ {
+  "name": "w1851",
+  "requested": [
+   1851.44,
+   1941.44
+  ],
+  "moment": "g1839",
+  "note": "moment inside b8; tail window from b8 true end"
+ },
+ {
+  "name": "w2609",
+  "requested": [
+   2608.5,
+   2692.0
+  ],
+  "moment": "g2619",
+  "note": "near-miss roar; end margined before w2700"
+ },
+ {
+  "name": "w2839",
+  "requested": [
+   2838.5,
+   2928.5
+  ],
+  "moment": "g2849",
+  "note": "roar with pre-peak graphics"
+ },
+ {
+  "name": "w3418",
+  "requested": [
+   3418.0,
+   3496.0
+  ],
+  "moment": "g3428",
+  "note": "roar with graphics; end margined before modeled disc-3500"
+ },
+ {
+  "name": "w3590",
+  "requested": [
+   3590.0,
+   3650.0
+  ],
+  "moment": "g3579",
+  "note": "tail window; peak inside modeled disc-3500"
+ },
+ {
+  "name": "w3670",
+  "requested": [
+   3669.5,
+   3759.5
+  ],
+  "moment": "g3680",
+  "note": "GOAL: ball in net at 3669.8-3674.8 + LaLiga transition graphic"
+ },
+ {
+  "name": "w3794",
+  "requested": [
+   3793.5,
+   3857.0
+  ],
+  "moment": "g3804",
+  "note": "goal-mouth action + graphics at peak+3.3"
+ },
+ {
+  "name": "w3868",
+  "requested": [
+   3867.5,
+   3896.84
+  ],
+  "moment": "g3878",
+  "note": "TOP roar (6.50 excess), near-miss; onset only - truncated by w3900 boundary"
+ },
+ {
+  "name": "w4333",
+  "requested": [
+   4332.5,
+   4422.5
+  ],
+  "moment": "g4343",
+  "note": "roar with pre-peak graphics"
+ },
+ {
+  "name": "w4690",
+  "requested": [
+   4690.0,
+   4780.0
+  ],
+  "moment": "g4680",
+  "note": "tail window; peak inside modeled disc-4600"
+ },
+ {
+  "name": "w4931",
+  "requested": [
+   4930.5,
+   4996.0
+  ],
+  "moment": "g4941",
+  "note": "near-miss roar; end margined before modeled disc-5000"
+ },
+ {
+  "name": "w5090",
+  "requested": [
+   5090.0,
+   5180.0
+  ],
+  "moment": "g5093",
+  "note": "roar with graphics; start margined past modeled disc-5000"
+ },
+ {
+  "name": "w5308",
+  "requested": [
+   5307.5,
+   5396.0
+  ],
+  "moment": "g5318",
+  "note": "near-miss roar; end margined before w5400"
+ },
+ {
+  "name": "w6099",
+  "requested": [
+   6099.0,
+   6189.0
+  ],
+  "moment": "g6109",
+  "note": "near-miss roar; end margined before w6200"
+ },
+ {
+  "name": "w6548",
+  "requested": [
+   6548.0,
+   6590.0
+  ],
+  "moment": "g6558",
+  "note": "full-time celebration + crowd; end of source (short window)"
+ },
+ {
+  "name": "w0242",
+  "requested": [
+   241.64,
+   296.0
+  ],
+  "moment": "g0247",
+  "note": "roar just past w0150; short window between w0150 and modeled disc-300"
+ }
+]

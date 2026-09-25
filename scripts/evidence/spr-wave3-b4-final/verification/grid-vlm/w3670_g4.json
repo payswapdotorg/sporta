@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in position near the goal area\n2: wide-broadcast | Wide shot of the soccer pitch with players spread across the field\n3: wide-broadcast | Wide shot of the pitch with a red graphic bar appearing at the bottom\n4: wide-broadcast | Wide shot of the soccer pitch with players moving near the goal\n5: wide-broadcast | Wide shot of the pitch with players positioned around the penalty area\n6: wide-broadcast | Wide shot of the field showing players and the goalkeeper in goal\n7: wide-broadcast | Wide elevated view of the entire soccer pitch and stadium stands\n8: closeup | Close-up of player N. Deossa sitting on the grass holding his leg\n9: closeup | Close-up of player N. Deossa stretching his leg on the field\n10: graphics | Close-up of a player with a solid red graphic overlay covering the lower half\n11: closeup | Close-up of player N. Deossa gesturing with his arm while on the ground\n12: pitch-action | Medium shot of a player in a blue training top stretching near the sideline\n13: pitch-action | Medium shot of a player in a blue training top bending over by the corner flag\n14: pitch-action | Medium shot of a player in a blue training top stretching on the sideline\n15: closeup | Close-up from behind of player R.D. Congo standing on the pitch\n16: closeup | Close-up from behind of player R.D. Congo looking towards the field\n17: pitch-action | Medium shot of players in blue training tops warming up on the sideline\n18: pitch-action | Medium shot of players in training gear lined up along the touchline\n19: pitch-action | Medium shot of players in blue tops bending over during warm-ups\n20: wide-broadcast | Wide shot of the soccer pitch showing players scattered across the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313937,
+ "id": "2026092513253267e9bb8d004840d7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513253267e9bb8d004840d7",
+ "usage": {
+  "completion_tokens": 397,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2295
+ },
+ "_meta": {
+  "tag": "w3670_g4",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player holding a framed \"100\" jersey\n2: closeup | Player holding a framed \"100\" jersey\n3: closeup | Player holding a framed \"100\" jersey\n4: closeup | Player holding a framed \"100\" jersey\n5: closeup | Player holding a framed \"100\" jersey\n6: closeup | Player holding a framed \"100\" jersey\n7: wide-broadcast | Wide shot of the soccer pitch and stadium\n8: wide-broadcast | Wide shot of the soccer pitch and stadium\n9: wide-broadcast | Wide shot of the soccer pitch and stadium\n10: wide-broadcast | Wide shot of the soccer pitch and stadium\n11: wide-broadcast | Wide shot of the soccer pitch and stadium\n12: wide-broadcast | Wide shot of the soccer pitch and stadium\n13: wide-broadcast | Wide shot of the soccer pitch and stadium\n14: wide-broadcast | Wide shot of the soccer pitch and stadium\n15: wide-broadcast | Wide shot of the soccer pitch and stadium\n16: wide-broadcast | Wide shot of the soccer pitch and stadium\n17: wide-broadcast | Wide shot of the soccer pitch and stadium\n18: wide-broadcast | Wide shot of the soccer pitch and stadium\n19: wide-broadcast | Wide shot of the soccer pitch and stadium\n20: wide-broadcast | Wide shot of the soccer pitch and stadium",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314688,
+ "id": "20260925133803eabb2ffd6d1f488d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133803eabb2ffd6d1f488d",
+ "usage": {
+  "completion_tokens": 294,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2192
+ },
+ "_meta": {
+  "tag": "w0242_g1",
+  "attempt": 1
+ }
+}

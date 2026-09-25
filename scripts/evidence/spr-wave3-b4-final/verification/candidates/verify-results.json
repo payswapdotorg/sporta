@@ -1,0 +1,458 @@
+[
+ {
+  "candidate": {
+   "window": "w2839",
+   "runStart": 2883.84,
+   "runEnd": 2894.84,
+   "cells": [
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    1,
+    2,
+    3,
+    4
+   ],
+   "gridHints": [
+    3,
+    4
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 16,
+  "verdicts": [
+   {
+    "mediaTime": 2881.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_001.jpg"
+   },
+   {
+    "mediaTime": 2882.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_002.jpg"
+   },
+   {
+    "mediaTime": 2883.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_003.jpg"
+   },
+   {
+    "mediaTime": 2884.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_004.jpg"
+   },
+   {
+    "mediaTime": 2885.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_005.jpg"
+   },
+   {
+    "mediaTime": 2886.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_006.jpg"
+   },
+   {
+    "mediaTime": 2887.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_007.jpg"
+   },
+   {
+    "mediaTime": 2888.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_008.jpg"
+   },
+   {
+    "mediaTime": 2889.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_009.jpg"
+   },
+   {
+    "mediaTime": 2890.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_010.jpg"
+   },
+   {
+    "mediaTime": 2891.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_011.jpg"
+   },
+   {
+    "mediaTime": 2892.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_012.jpg"
+   },
+   {
+    "mediaTime": 2893.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_013.jpg"
+   },
+   {
+    "mediaTime": 2894.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_014.jpg"
+   },
+   {
+    "mediaTime": 2895.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_015.jpg"
+   },
+   {
+    "mediaTime": 2896.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w2839-3_016.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w1091",
+   "runStart": 1118.84,
+   "runEnd": 1120.84,
+   "cells": [
+    10,
+    11,
+    12
+   ],
+   "gridHints": [
+    2
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 7,
+  "verdicts": [
+   {
+    "mediaTime": 1116.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_001.jpg"
+   },
+   {
+    "mediaTime": 1117.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_002.jpg"
+   },
+   {
+    "mediaTime": 1118.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_003.jpg"
+   },
+   {
+    "mediaTime": 1119.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_004.jpg"
+   },
+   {
+    "mediaTime": 1120.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_005.jpg"
+   },
+   {
+    "mediaTime": 1121.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_006.jpg"
+   },
+   {
+    "mediaTime": 1122.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-2_007.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w6548",
+   "runStart": 6562.84,
+   "runEnd": 6564.84,
+   "cells": [
+    18,
+    19,
+    20
+   ],
+   "gridHints": [
+    1
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 7,
+  "verdicts": [
+   {
+    "mediaTime": 6560.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_001.jpg"
+   },
+   {
+    "mediaTime": 6561.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_002.jpg"
+   },
+   {
+    "mediaTime": 6562.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_003.jpg"
+   },
+   {
+    "mediaTime": 6563.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_004.jpg"
+   },
+   {
+    "mediaTime": 6564.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_005.jpg"
+   },
+   {
+    "mediaTime": 6565.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_006.jpg"
+   },
+   {
+    "mediaTime": 6566.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6548-7_007.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w1091",
+   "runStart": 1105.84,
+   "runEnd": 1106.84,
+   "cells": [
+    17,
+    18
+   ],
+   "gridHints": [
+    1
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 6,
+  "verdicts": [
+   {
+    "mediaTime": 1103.84,
+    "verdict": "NO",
+    "reason": "NO The frame is primarily occupied by the soccer players on the field and the pitch itself, with the crowd visible only in a narrow strip along the top background.",
+    "frame": "w1091-1_001.jpg"
+   },
+   {
+    "mediaTime": 1104.84,
+    "verdict": "NO",
+    "reason": "NO. The frame is primarily occupied by players on the field in the foreground, with the crowd and stands visible only as a small portion of the background.",
+    "frame": "w1091-1_002.jpg"
+   },
+   {
+    "mediaTime": 1105.84,
+    "verdict": "YES",
+    "reason": "YES, the frame is almost entirely filled with spectators in the stadium stands.",
+    "frame": "w1091-1_003.jpg"
+   },
+   {
+    "mediaTime": 1106.84,
+    "verdict": "YES",
+    "reason": "YES. The frame is almost entirely filled with spectators in the stands.",
+    "frame": "w1091-1_004.jpg"
+   },
+   {
+    "mediaTime": 1107.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-1_005.jpg"
+   },
+   {
+    "mediaTime": 1108.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w1091-1_006.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w6099",
+   "runStart": 6158.84,
+   "runEnd": 6159.84,
+   "cells": [
+    4,
+    5
+   ],
+   "gridHints": [
+    4
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 6,
+  "verdicts": [
+   {
+    "mediaTime": 6156.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_001.jpg"
+   },
+   {
+    "mediaTime": 6157.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_002.jpg"
+   },
+   {
+    "mediaTime": 6158.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_003.jpg"
+   },
+   {
+    "mediaTime": 6159.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_004.jpg"
+   },
+   {
+    "mediaTime": 6160.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_005.jpg"
+   },
+   {
+    "mediaTime": 6161.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-4_006.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w6099",
+   "runStart": 6182.84,
+   "runEnd": 6183.84,
+   "cells": [
+    8,
+    9
+   ],
+   "gridHints": [
+    5
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 6,
+  "verdicts": [
+   {
+    "mediaTime": 6180.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_001.jpg"
+   },
+   {
+    "mediaTime": 6181.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_002.jpg"
+   },
+   {
+    "mediaTime": 6182.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_003.jpg"
+   },
+   {
+    "mediaTime": 6183.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_004.jpg"
+   },
+   {
+    "mediaTime": 6184.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_005.jpg"
+   },
+   {
+    "mediaTime": 6185.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-6_006.jpg"
+   }
+  ]
+ },
+ {
+  "candidate": {
+   "window": "w6099",
+   "runStart": 6163.84,
+   "runEnd": 6163.84,
+   "cells": [
+    9
+   ],
+   "gridHints": [
+    4
+   ]
+  },
+  "extensionPull": null,
+  "framesChecked": 5,
+  "verdicts": [
+   {
+    "mediaTime": 6161.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-5_001.jpg"
+   },
+   {
+    "mediaTime": 6162.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-5_002.jpg"
+   },
+   {
+    "mediaTime": 6163.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-5_003.jpg"
+   },
+   {
+    "mediaTime": 6164.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-5_004.jpg"
+   },
+   {
+    "mediaTime": 6165.84,
+    "verdict": "ERROR",
+    "reason": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)",
+    "frame": "w6099-5_005.jpg"
+   }
+  ]
+ }
+]

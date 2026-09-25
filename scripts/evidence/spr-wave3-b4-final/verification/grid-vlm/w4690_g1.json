@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in pink kit dribbling the ball, pursued by a defender in green\n2: pitch-action | Pink player continues dribbling as green defender closes in\n3: pitch-action | Pink player controls ball while being challenged by green defender\n4: pitch-action | Pink player moves forward with the ball, green defender trailing\n5: pitch-action | Pink player advances with ball, closely marked by green defender\n6: pitch-action | Pink player dribbles past a green defender near center circle\n7: wide-broadcast | Ball rolling freely on the pitch with players in the background\n8: closeup | Tight shot of pink player controlling the ball at his feet\n9: pitch-action | Pink player dribbling while being challenged by a defender\n10: pitch-action | Pink player running with ball, pursued by two defenders\n11: pitch-action | Pink player attempting to get past the goalkeeper in white\n12: pitch-action | Goalkeeper diving to block the shot from the pink player\n13: pitch-action | Pink player and goalkeeper battling for the ball near goal\n14: wide-broadcast | Wide view of the pitch showing players and crowd in stands\n15: wide-broadcast | Wide shot of the field with players positioned across it\n16: wide-broadcast | Wide angle of the match showing team formations and crowd\n17: closeup | Pink player standing near the corner flag with arm raised\n18: closeup | Same pink player by corner flag, looking towards the field\n19: closeup | View from behind a person in a yellow vest, pink player nearby\n20: closeup | Similar view with yellow vest person and pink player by flag",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314285,
+ "id": "202609251331166df6f7b537a341bf",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251331166df6f7b537a341bf",
+ "usage": {
+  "completion_tokens": 341,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2239
+ },
+ "_meta": {
+  "tag": "w4690_g1",
+  "attempt": 4
+ }
+}

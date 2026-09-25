@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Free kick being taken by a player in red\n2: play | Ball in flight towards the goal after the kick\n3: play | Goalkeeper diving to save the shot\n4: play | Ball entering the net for a goal\n5: play | Players reacting immediately after the goal\n6: play | Scorer running to celebrate the goal\n7: closeup | Tight shot of the celebrating scorer\n8: play | Wide replay angle of the goal from behind the net\n9: play | Replay showing the ball crossing the line\n10: play | Replay showing the goalkeeper's failed dive\n11: closeup | Close-up of the scorer with hands near his chest\n12: closeup | Scorer looking emotional and covering his face\n13: closeup | Scorer still reacting emotionally to the goal\n14: closeup | Scorer wiping his face or eyes\n15: closeup | Scorer looking down with hands on his face\n16: graphics | LaLiga broadcast transition graphic wipe\n17: play | Wide shot of the pitch as play prepares to restart\n18: play | Wide shot of players getting into position\n19: closeup | Two players in green jerseys talking on the pitch\n20: closeup | Close-up of two players in green jerseys from behind",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310895,
+ "id": "20260925123450ca9adbeebc0a4533",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123450ca9adbeebc0a4533",
+ "usage": {
+  "completion_tokens": 268,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2157
+ },
+ "_meta": {
+  "tag": "g4343",
+  "attempt": 1
+ }
+}

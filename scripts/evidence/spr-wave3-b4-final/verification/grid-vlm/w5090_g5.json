@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in green jersey gesturing\n2: wide-broadcast | Wide shot of the soccer pitch with players in formation\n3: pitch-action | Medium shot of players moving on the field\n4: pitch-action | Medium shot of players contesting for the ball\n5: pitch-action | Medium shot of players near the penalty area\n6: pitch-action | Medium shot of players in the midfield area\n7: pitch-action | Medium shot of a player dribbling towards the goal\n8: closeup | Player in green jersey pointing and directing teammates",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314477,
+ "id": "202609251334344913daaed02944aa",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251334344913daaed02944aa",
+ "usage": {
+  "completion_tokens": 116,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2014
+ },
+ "_meta": {
+  "tag": "w5090_g5",
+  "attempt": 1
+ }
+}

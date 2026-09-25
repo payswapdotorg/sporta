@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Coach or manager on the sidelines\n2: pitch-action | Players walking and talking on the field\n3: pitch-action | Players walking on the field\n4: pitch-action | Players celebrating a goal\n5: pitch-action | Players celebrating a goal\n6: pitch-action | Players celebrating a goal with a graphic overlay\n7: pitch-action | Players celebrating a goal with a graphic overlay\n8: pitch-action | Players celebrating a goal with a graphic overlay\n9: pitch-action | Players celebrating a goal with a graphic overlay\n10: crowd | Shot of the crowd in the stands\n11: crowd | Shot of the crowd in the stands\n12: crowd | Shot of the crowd in the stands\n13: closeup | Close-up of a smiling player\n14: closeup | Close-up of a smiling player\n15: closeup | Close-up of a smiling player\n16: pitch-action | Player kicking the ball\n17: wide-broadcast | Wide shot of the field with a player running\n18: wide-broadcast | Wide shot of the match in progress\n19: wide-broadcast | Wide shot of the match in progress\n20: wide-broadcast | Wide shot of the match in progress",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311936,
+ "id": "2026092512520790d484c65edb4ee9",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512520790d484c65edb4ee9",
+ "usage": {
+  "completion_tokens": 252,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2150
+ },
+ "_meta": {
+  "tag": "w1091_g2",
+  "attempt": 1
+ }
+}

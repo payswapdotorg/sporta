@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of players in midfield\n2: play | Wide shot of players in midfield\n3: play | Wide shot of players in midfield\n4: play | Wide shot of players in midfield\n5: play | Wide shot of players in midfield\n6: play | Wide shot of players in midfield\n7: play | Wide shot of players in midfield\n8: play | Wide shot of players in midfield\n9: play | Wide shot of players in midfield\n10: play | Wide shot of players in midfield\n11: play | Wide shot of players attacking near the box\n12: play | Wide shot of players attacking near the box\n13: play | Wide shot of players attacking near the box\n14: play | Wide shot of players attacking near the box\n15: play | Wide shot of players attacking near the box\n16: play | Wide shot of players attacking near the box\n17: play | Wide shot of players attacking near the box\n18: play | Wide shot of players attacking near the box\n19: play | Wide shot of players attacking near the box\n20: play | Wide shot of players attacking near the box",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311395,
+ "id": "2026092512431002dfa68671674306",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512431002dfa68671674306",
+ "usage": {
+  "completion_tokens": 240,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2129
+ },
+ "_meta": {
+  "tag": "g3499",
+  "attempt": 1
+ }
+}

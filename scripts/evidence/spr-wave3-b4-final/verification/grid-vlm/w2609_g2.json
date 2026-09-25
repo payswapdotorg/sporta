@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | close-up of a player in an orange jersey\n2: closeup | extreme close-up of the number 6 on a green jersey\n3: closeup | medium close-up of a player in an orange jersey looking down\n4: closeup | medium close-up of a player in an orange jersey looking to the side\n5: wide-broadcast | wide shot of the pitch from behind the goal\n6: wide-broadcast | wide shot of players positioned for a set piece\n7: wide-broadcast | wide shot showing a player raising his hand\n8: wide-broadcast | wide shot of players on the field\n9: wide-broadcast | wide shot of the field with players in position\n10: wide-broadcast | wide shot of players standing on the pitch\n11: wide-broadcast | wide shot of players near the penalty area\n12: wide-broadcast | wide shot of the field during a pause in play\n13: wide-broadcast | wide shot of players on the field\n14: pitch-action | medium shot of players and a referee gathered together\n15: pitch-action | medium shot of players walking and talking on the field\n16: pitch-action | medium shot of players on the sideline\n17: pitch-action | medium shot of players near the advertising boards\n18: wide-broadcast | high-angle wide shot of the entire pitch\n19: wide-broadcast | high-angle wide shot of the pitch from the stands\n20: wide-broadcast | high-angle wide shot of the field and goal area",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312542,
+ "id": "202609251302162247f561d2944cff",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251302162247f561d2944cff",
+ "usage": {
+  "completion_tokens": 316,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2214
+ },
+ "_meta": {
+  "tag": "w2609_g2",
+  "attempt": 1
+ }
+}

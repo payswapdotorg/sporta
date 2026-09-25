@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n13: pitch-action | Medium shot of a player in a green and white striped jersey\n14: pitch-action | Medium shot of players in green and white and red jerseys\n15: pitch-action | Medium shot of players including a goalkeeper in yellow\n16: closeup | Closeup shot of a player with long hair in a red jersey\n17: closeup | Closeup shot of a player in a red jersey bending over\n18: closeup | Closeup shot of a referee in black on the field\n19: closeup | Closeup shot of a referee in black on the field\n20: closeup | Closeup shot of a player with long hair in a red jersey",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314572,
+ "id": "202609251336053ebc00406f0644b1",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251336053ebc00406f0644b1",
+ "usage": {
+  "completion_tokens": 380,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2278
+ },
+ "_meta": {
+  "tag": "w6099_g1",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in green and red kits positioned for play.\n2: play | Wide shot of the match continuing with players moving near the penalty area.\n3: play | Wide shot of the game in progress with players spread across the field.\n4: play | Wide shot showing the ongoing action and player positioning on the field.\n5: play | Wide view of the match with the ball in play near the center of the pitch.\n6: play | Wide shot capturing the flow of the game and player movements.\n7: play | Wide angle of the field as players continue to compete for the ball.\n8: play | Wide shot of the live match action unfolding on the grass.\n9: play | Wide view of the pitch with players actively engaged in the game.\n10: play | Wide shot showing the tactical positioning of both teams during play.\n11: play | Wide angle of the field capturing the continuous flow of the match.\n12: play | Wide shot of the soccer game in progress with players scattered across the pitch.\n13: closeup | Tight shot focusing on a single player in a green and white striped jersey.\n14: closeup | Close-up of the same player looking towards the camera or the field.\n15: closeup | Tight shot featuring two players, one in green and one with a beard, interacting.\n16: closeup | Close-up of a player wearing a red/pink jersey standing on the pitch.\n17: closeup | Continued tight shot of the player in the red jersey with spectators in the background.\n18: play | The camera cuts back to a wide shot of the full soccer pitch and players.\n19: play | Wide shot of the match resuming with players spread out across the field.\n20: play | Final wide shot of the ongoing live soccer match action.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311260,
+ "id": "202609251240259e238b96517e43cd",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251240259e238b96517e43cd",
+ "usage": {
+  "completion_tokens": 372,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2261
+ },
+ "_meta": {
+  "tag": "g1839",
+  "attempt": 1
+ }
+}

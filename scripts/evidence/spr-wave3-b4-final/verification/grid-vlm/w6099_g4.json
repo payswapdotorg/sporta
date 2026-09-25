@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in green jersey with ball\n2: closeup | Player celebrating with raised arm and ball\n3: closeup | Player running in green and white stripes\n4: crowd | Spectators in the stands\n5: crowd | Spectators watching the match\n6: graphics | \"GOOOOL!\" celebration graphic over crowd\n7: graphics | \"GOOL\" celebration graphic over crowd\n8: graphics | \"GOOL\" celebration graphic over cheering fans\n9: crowd | Fans celebrating enthusiastically in the stands\n10: pitch-action | Attacker in pink dribbling past a defender\n11: pitch-action | Attacker in pink advancing with the ball\n12: pitch-action | Attacker in pink running towards goal\n13: pitch-action | Attacker in pink preparing to shoot\n14: pitch-action | Attacker sliding to shoot as defender tackles\n15: pitch-action | Players on the ground after the shot\n16: wide-broadcast | Wide shot of the goal area\n17: wide-broadcast | Wide shot showing the ball entering the net\n18: wide-broadcast | Wide shot of the goal after the score\n19: wide-broadcast | Wide shot of the pitch near the goal\n20: closeup | Players gathered near the goalpost",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314621,
+ "id": "20260925133654fcae78a2a89844f7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133654fcae78a2a89844f7",
+ "usage": {
+  "completion_tokens": 262,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2160
+ },
+ "_meta": {
+  "tag": "w6099_g4",
+  "attempt": 1
+ }
+}

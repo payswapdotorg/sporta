@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Goalkeeper diving to save a shot\n2: play | Ball hitting the back of the net\n3: play | Player in green controlling the ball near the box\n4: play | Player in red challenging for the ball\n5: play | Close-up of the ball crossing the goal line\n6: play | Goalkeeper on the ground after the save attempt\n7: graphics | LaLiga broadcast transition logo\n8: play | Wide shot of players resetting positions on the field\n9: play | Wide shot of the match in progress\n10: play | Wide shot of the match in progress\n11: play | Wide shot of the match in progress\n12: play | Wide shot of the match in progress\n13: play | Wide shot of the match in progress\n14: play | Wide shot of the match in progress\n15: play | Wide shot of the match in progress\n16: play | Wide shot of the match in progress\n17: play | Wide shot of the match in progress\n18: play | Wide shot of the match in progress\n19: play | Wide shot of the match in progress\n20: play | Wide shot of the match in progress",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310684,
+ "id": "2026092512311734303ab2dbeb4105",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512311734303ab2dbeb4105",
+ "usage": {
+  "completion_tokens": 247,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2136
+ },
+ "_meta": {
+  "tag": "g3680",
+  "attempt": 1
+ }
+}

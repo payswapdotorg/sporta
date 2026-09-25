@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: crowd | Spectators in suits in the stands\n2: crowd | Spectators in suits in the stands\n3: crowd | Spectators in suits in the stands\n4: crowd | Spectators in suits in the stands\n5: crowd | Spectators in suits in the stands\n6: crowd | Spectators in suits in the stands\n7: closeup | Tight shot of a player on the pitch\n8: closeup | Tight shot of a player on the pitch\n9: closeup | Tight shot of a player on the pitch\n10: play | Players on the field during the match\n11: graphics | MVP graphic overlay displayed\n12: graphics | MVP graphic overlay with player\n13: graphics | Scorer stat graphic for Ferran Torres\n14: graphics | Scorer stat graphic for Ferran Torres\n15: graphics | Scorer stat graphic for Ferran Torres\n16: closeup | Tight shot of a player on the pitch\n17: closeup | Tight shot of a player on the pitch\n18: play | Players interacting on the field\n19: play | Players shaking hands on the field\n20: graphics | Subscribe button graphic overlay",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310912,
+ "id": "20260925123506f283bb29898940d6",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123506f283bb29898940d6",
+ "usage": {
+  "completion_tokens": 242,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2131
+ },
+ "_meta": {
+  "tag": "g6558-late",
+  "attempt": 1
+ }
+}

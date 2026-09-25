@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n13: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n14: wide-broadcast | Wide shot of the soccer pitch near the goal area\n15: wide-broadcast | Wide shot of the soccer pitch near the goal area\n16: wide-broadcast | Wide shot of the soccer pitch near the goal area\n17: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n18: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n19: closeup | Closeup of a player wearing a red jersey with the name Rashford and number 14 on the back\n20: closeup | Closeup of a player wearing a red jersey with the name Rashford and number 14 on the back",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312574,
+ "id": "2026092513024741405663606e42b7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513024741405663606e42b7",
+ "usage": {
+  "completion_tokens": 405,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2303
+ },
+ "_meta": {
+  "tag": "w2609_g4",
+  "attempt": 1
+ }
+}

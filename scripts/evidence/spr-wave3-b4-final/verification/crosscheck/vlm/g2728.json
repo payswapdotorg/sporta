@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Goalkeeper in white jersey standing in front of the net\n2: closeup | Goalkeeper looking around, gesturing with his hand\n3: closeup | Player in green and white striped jersey on the field\n4: closeup | Same player in green and white stripes looking forward\n5: crowd | Spectators in the stands, including a young boy\n6: closeup | Coach or manager sitting on the bench looking concerned\n7: closeup | Coach on the bench with hand near his face\n8: closeup | Coach sitting on the bench with hands clasped\n9: closeup | Coach on the bench looking down at something in his hands\n10: crowd | Large crowd of spectators cheering and clapping\n11: crowd | Crowd of fans standing and watching the match intently\n12: crowd | Spectators in the stands, some wearing team scarves\n13: celebration | Players in orange jerseys hugging and celebrating a goal\n14: celebration | Players in orange jerseys congratulating each other\n15: graphics | Broadcast graphic overlay showing \"60:00\" match time\n16: celebration | Players in orange jerseys continuing to celebrate together\n17: celebration | Players in orange jerseys high-fiving and interacting\n18: celebration | Group of players in orange jerseys walking together\n19: graphics | Broadcast graphic overlay showing player number \"7\"\n20: play | Player in an orange jersey walking alone on the pitch",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311349,
+ "id": "2026092512422401643f14d018499d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512422401643f14d018499d",
+ "usage": {
+  "completion_tokens": 297,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2186
+ },
+ "_meta": {
+  "tag": "g2728",
+  "attempt": 1
+ }
+}

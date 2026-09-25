@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Tight shot of a player in a pink jersey\n2: closeup | Close-up of the same player in pink\n3: play | Player in green near the goal net\n4: play | Goalkeeper and players in green near the goal\n5: play | Goalkeeper and players in green standing by the goal\n6: play | Wide shot of players in pink and green on the field\n7: play | Player in pink running towards the ball\n8: play | Player in pink controlling the ball\n9: play | Player in green dribbling the ball\n10: play | Players in green and pink competing for the ball\n11: play | Player in green passing or dribbling\n12: play | Player in pink kicking the ball\n13: play | Player in pink dribbling the ball\n14: closeup | Medium shot of player in pink with the ball\n15: play | Player in pink running with the ball\n16: play | Goalkeeper attempting to block the player in pink\n17: play | Action shot of a shot on goal or tackle\n18: play | Player in pink being challenged by defenders\n19: crowd | Wide shot showing the stadium stands and field\n20: crowd | High-angle wide shot of the entire pitch and stands",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310826,
+ "id": "20260925123338c504f677e0ad4bed",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123338c504f677e0ad4bed",
+ "usage": {
+  "completion_tokens": 265,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2154
+ },
+ "_meta": {
+  "tag": "g4680-late",
+  "attempt": 1
+ }
+}

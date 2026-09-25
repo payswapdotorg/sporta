@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players moving in midfield\n3: wide-broadcast | Wide shot of the pitch as play continues\n4: wide-broadcast | Wide shot of the field with players spread out\n5: wide-broadcast | Wide shot of the pitch near one end\n6: wide-broadcast | Wide shot of the pitch near the goal area\n7: wide-broadcast | Wide shot of the pitch near the goal\n8: wide-broadcast | Wide shot of the goal area with players positioned\n9: wide-broadcast | Wide shot of the pitch near the corner and stands\n10: wide-broadcast | Wide shot of the pitch from a high angle\n11: wide-broadcast | Wide shot of the pitch near the goal line\n12: closeup | Closeup of player number 10 Yamal in a red jersey\n13: closeup | Closeup of players including number 10 and number 2 interacting\n14: pitch-action | Medium shot of player number 28 Rodny on the pitch\n15: closeup | Close-up of player number 28 Rodny from behind\n16: graphics | Red graphic overlay with a white logo\n17: wide-broadcast | Wide shot of the soccer pitch resuming play\n18: wide-broadcast | Wide shot of the pitch with players in motion\n19: wide-broadcast | Wide shot of the pitch with players scattered\n20: wide-broadcast | Wide shot of the pitch from an elevated angle",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313964,
+ "id": "202609251325579e330710c2fa42c6",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251325579e330710c2fa42c6",
+ "usage": {
+  "completion_tokens": 328,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2226
+ },
+ "_meta": {
+  "tag": "w3794_g1",
+  "attempt": 1
+ }
+}

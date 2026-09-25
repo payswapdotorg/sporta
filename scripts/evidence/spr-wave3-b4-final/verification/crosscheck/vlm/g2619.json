@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits positioned for play.\n2: play | Wide shot of the match continuing with players moving across the field.\n3: play | Wide shot of the game in progress, showing player positioning and movement.\n4: play | Wide shot of the match action from a high angle.\n5: play | Wide shot of the field with players spread out during active play.\n6: play | Wide shot of the game continuing with players in various positions.\n7: play | Wide shot of the match showing the flow of the game.\n8: play | Wide shot of the field with players actively engaged in the game.\n9: play | Wide shot of the soccer match in progress.\n10: play | Wide shot of the field with players moving during the game.\n11: play | Wide shot of the match showing players near the goal area.\n12: play | Wide shot of the game continuing with players spread across the pitch.\n13: play | Wide shot of the match in progress near the goal.\n14: play | Wide shot of the game with players positioned on the field.\n15: play | Wide shot of the match action continuing.\n16: closeup | Tight shot focusing on a player in a pink jersey with dreadlocks.\n17: closeup | Close-up of the same player in the pink jersey looking towards the camera.\n18: closeup | Close-up of the player in the pink jersey standing on the field.\n19: closeup | Close-up of the player in the pink jersey looking down.\n20: other | Extreme blurry close-up of a green and white object, likely a jersey or equipment.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310885,
+ "id": "202609251234372598fb44889a43c5",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251234372598fb44889a43c5",
+ "usage": {
+  "completion_tokens": 339,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2228
+ },
+ "_meta": {
+  "tag": "g2619",
+  "attempt": 1
+ }
+}

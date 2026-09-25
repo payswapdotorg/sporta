@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the pitch with players positioned across the field\n3: wide-broadcast | Wide view of the match with players moving in the midfield area\n4: wide-broadcast | Wide angle of the pitch showing player movement and formations\n5: wide-broadcast | High-angle wide shot capturing the overall game flow on the field\n6: wide-broadcast | Wide perspective of the match with players spread across the pitch\n7: wide-broadcast | Wide shot focusing on the center circle and surrounding play\n8: wide-broadcast | Wide view of the field showing players in various positions\n9: wide-broadcast | Wide angle of the match with players actively engaged in play\n10: wide-broadcast | Wide shot showing the ball being played among the players\n11: wide-broadcast | Wide view of the pitch with players moving toward the goal\n12: wide-broadcast | Wide angle showing the tactical positioning of both teams\n13: wide-broadcast | Wide shot of the field with players in the middle third\n14: wide-broadcast | Wide view of the match with players contesting for the ball\n15: wide-broadcast | Wide angle of the pitch showing ongoing game action\n16: wide-broadcast | Wide shot capturing players moving near the center line\n17: wide-broadcast | Wide view of the field with players spread out in formation\n18: wide-broadcast | Wide angle showing players advancing up the pitch\n19: graphics | Broadcast graphic overlay appearing at the bottom of the screen\n20: graphics | Full-screen or lower-third graphic overlay displaying information",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313838,
+ "id": "20260925132350e260965d7795420b",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132350e260965d7795420b",
+ "usage": {
+  "completion_tokens": 345,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2243
+ },
+ "_meta": {
+  "tag": "w3590_g2",
+  "attempt": 1
+ }
+}

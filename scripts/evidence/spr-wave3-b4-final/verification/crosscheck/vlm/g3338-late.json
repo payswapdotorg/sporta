@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of soccer match in progress, players positioned on the field\n2: play | Wide shot of soccer match in progress, players moving on the field\n3: play | Wide shot of soccer match in progress, ball being played forward\n4: play | Wide shot of soccer match in progress, players spread across the pitch\n5: play | Wide shot of soccer match in progress, team in red advancing with the ball\n6: play | Wide shot of soccer match in play, red team attacking near the penalty area\n7: play | Wide shot of soccer match in play, red team continuing their attack\n8: play | Wide shot of soccer match in play, players repositioning on the field\n9: play | Wide shot of soccer match in play, red team building an attack from midfield\n10: play | Wide shot of soccer match in play, red team passing near the center circle\n11: play | Wide shot of soccer match in play, goalkeeper visible in goal as attack develops\n12: play | Wide shot of soccer match in play, shot on goal being taken by a player in red\n13: play | Wide shot of soccer match in play, ball entering or just entered the net for a goal\n14: closeup | Tight shot of a player in green dribbling the ball after the goal\n15: closeup | Tight shot of a player in green kicking the ball upfield\n16: closeup | Tight shot of a player in red controlling the ball\n17: play | Medium-wide shot showing players and goalkeeper near the goal area\n18: play | Shot from behind the goal showing players converging on the penalty spot\n19: graphics | Broadcast graphic overlay displaying \"prima\" sponsor branding prominently over the net\n20: play | Wide shot of the field from a high angle, showing the corner flag and goal area",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311386,
+ "id": "202609251242574db26be10ee44d4e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251242574db26be10ee44d4e",
+ "usage": {
+  "completion_tokens": 384,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2273
+ },
+ "_meta": {
+  "tag": "g3338-late",
+  "attempt": 1
+ }
+}

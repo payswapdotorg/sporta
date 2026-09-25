@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in red jersey (7) running with the ball, challenged by a defender in green\n2: pitch-action | Player in red jersey (7) dribbling past a sliding tackle from a green-clad defender\n3: pitch-action | Player in red jersey (7) controlling the ball while being closely marked by a green defender\n4: pitch-action | Player in red jersey (7) passing or shooting while a green defender attempts to block\n5: pitch-action | Green-clad player falling to the ground after a tackle attempt near the advertising boards\n6: graphics | Red LaLiga broadcast graphic overlay with a white logo\n7: pitch-action | Close-up of players' legs and feet on the pitch, with one player on the ground\n8: pitch-action | Injured player in green lying on the grass as staff and other players gather around\n9: pitch-action | Medical staff attending to the injured player in green on the field\n10: pitch-action | Continued view of medical staff and players surrounding the injured player\n11: closeup | Tight shot of three men on the sidelines, one holding a tablet and talking\n12: closeup | The same three men on the sidelines, one looking down at a tablet\n13: crowd | Spectators in the stands, including a man in a green and white scarf\n14: crowd | Close-up of spectators in the stands watching the match\n15: crowd | Spectators in the stands, focusing on a man in a team scarf\n16: crowd | Similar view of spectators in the stands watching the game\n17: crowd | Group of spectators in the stands, including a woman in a green top\n18: crowd | Spectators in the stands, showing a mix of people watching intently\n19: crowd | View of the crowd in the stands during the match\n20: crowd | Final shot of spectators in the stands watching the game",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313179,
+ "id": "202609251312507cbc77e095294a2e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251312507cbc77e095294a2e",
+ "usage": {
+  "completion_tokens": 393,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2291
+ },
+ "_meta": {
+  "tag": "w2839_g3",
+  "attempt": 1
+ }
+}

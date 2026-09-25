@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Player in green and white stripes dribbling the ball\n2: play | Red team player challenges for the ball\n3: play | Ball is passed towards the goal\n4: play | Players in the penalty area watching the ball\n5: play | Goalkeeper in yellow preparing to defend\n6: play | Red team players reacting to a shot or pass\n7: play | Players from both teams moving towards the ball\n8: play | Red team player controlling the ball near the sideline\n9: play | Red player shielding the ball from a defender\n10: play | Red player running with the ball in open space\n11: play | Group of red players gathered on the field\n12: play | View of the goal and players after a play\n13: play | Wide shot of the goal area during active play\n14: closeup | Coach on the sideline clapping his hands\n15: closeup | Tight shot of a player's shoulder and coach\n16: celebration | Player in red hugging a man in a suit\n17: closeup | People talking on the sideline\n18: crowd | Spectators in formal attire standing and watching\n19: crowd | Close-up of spectators in the stands\n20: crowd | Group of spectators looking towards the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310903,
+ "id": "20260925123458d0c49f94b3224192",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123458d0c49f94b3224192",
+ "usage": {
+  "completion_tokens": 264,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2153
+ },
+ "_meta": {
+  "tag": "g6558",
+  "attempt": 1
+ }
+}

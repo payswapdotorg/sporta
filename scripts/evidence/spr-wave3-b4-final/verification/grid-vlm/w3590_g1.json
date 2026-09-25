@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Referee signaling with players on the pitch\n2: wide-broadcast | Referee signaling with players on the pitch\n3: wide-broadcast | Referee signaling with players on the pitch\n4: closeup | Tight shot of a player in a red jersey\n5: closeup | Tight shot of a player in a red jersey looking left\n6: closeup | Tight shot of a player in a red jersey in profile\n7: closeup | Close-up of the back of player Gerard Martin number 10\n8: pitch-action | Wide shot of active play with the ball in mid-air\n9: pitch-action | Wide shot of players positioned on the field\n10: pitch-action | Wide shot of play continuing on the field\n11: pitch-action | Wide shot of players set for a free kick or corner\n12: pitch-action | Wide shot of players arranged on the field\n13: pitch-action | Wide shot of play from a high angle\n14: pitch-action | Wide shot of play with a graphic overlay on the grass\n15: closeup | Medium close-up of player Gerard Martin number 18\n16: graphics | Bright yellow graphic transition or wipe effect\n17: closeup | Close-up of the back of player Gerard Martin number 18\n18: closeup | Close-up of the back of player Gerard Martin number 10\n19: graphics | Bright yellow graphic transition overlaying a player\n20: wide-broadcast | High-angle wide shot of the entire pitch and stands",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313822,
+ "id": "2026092513233537c0256b491d4f77",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513233537c0256b491d4f77",
+ "usage": {
+  "completion_tokens": 313,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2211
+ },
+ "_meta": {
+  "tag": "w3590_g1",
+  "attempt": 1
+ }
+}

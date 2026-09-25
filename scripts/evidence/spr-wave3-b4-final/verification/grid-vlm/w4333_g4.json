@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n2: wide-broadcast | Wide shot of the pitch showing players positioned near the penalty box.\n3: wide-broadcast | Wide shot of the pitch with the goalkeeper and defenders reacting to play.\n4: wide-broadcast | Wide shot of the pitch showing players moving during active play.\n5: wide-broadcast | Wide shot of the pitch showing players spread out across the field.\n6: wide-broadcast | Wide shot of the pitch with players in various positions on the field.\n7: wide-broadcast | Wide shot of the pitch showing players near the center circle.\n8: graphics | Broadcast graphic overlay with team logos and a replay wipe transition.\n9: wide-broadcast | Wide shot of the pitch showing players in the midfield area.\n10: wide-broadcast | Wide shot of the pitch with players moving towards the attacking third.\n11: closeup | Closeup shot of the goalkeeper in a yellow jersey looking towards the field.\n12: closeup | Closeup shot of the goalkeeper in a yellow jersey standing on the pitch.\n13: closeup | Medium closeup of a referee in black raising his arm to signal.\n14: graphics | Broadcast graphic overlay featuring a large white 'L' logo on a grey background.\n15: wide-broadcast | High-angle wide shot of the entire stadium and pitch with spectators visible.\n16: wide-broadcast | Wide shot of the pitch showing players positioned for a set piece or restart.\n17: wide-broadcast | Wide shot of the pitch showing players spread across the field.\n18: wide-broadcast | Wide shot of the pitch with players in the midfield and defensive areas.\n19: wide-broadcast | Wide shot of the pitch showing players near the center of the field.\n20: wide-broadcast | Wide shot of the pitch showing players in the final third of the field.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314110,
+ "id": "2026092513282133d0ee43642f4d3f",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513282133d0ee43642f4d3f",
+ "usage": {
+  "completion_tokens": 391,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2289
+ },
+ "_meta": {
+  "tag": "w4333_g4",
+  "attempt": 1
+ }
+}

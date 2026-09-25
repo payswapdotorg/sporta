@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of soccer pitch with players in red and black kits\n2: wide-broadcast | Wide shot of soccer pitch with players moving during match\n3: other | Blank black frame with no visual content\n4: other | Blank black frame with no visual content\n5: other | Blank black frame with no visual content\n6: other | Blank black frame with no visual content\n7: other | Blank black frame with no visual content\n8: other | Blank black frame with no visual content\n9: other | Blank black frame with no visual content\n10: other | Blank black frame with no visual content\n11: other | Blank black frame with no visual content\n12: other | Blank black frame with no visual content\n13: other | Blank black frame with no visual content\n14: other | Blank black frame with no visual content\n15: other | Blank black frame with no visual content\n16: other | Blank black frame with no visual content\n17: other | Blank black frame with no visual content\n18: other | Blank black frame with no visual content\n19: other | Blank black frame with no visual content\n20: other | Blank black frame with no visual content",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313864,
+ "id": "2026092513242157cf8f2f908c4bbc",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513242157cf8f2f908c4bbc",
+ "usage": {
+  "completion_tokens": 252,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2150
+ },
+ "_meta": {
+  "tag": "w3590_g4",
+  "attempt": 1
+ }
+}

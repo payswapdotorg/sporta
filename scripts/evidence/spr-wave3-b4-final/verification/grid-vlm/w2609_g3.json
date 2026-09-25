@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n2: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n3: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n4: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n5: wide-broadcast | Wide shot of the soccer pitch showing players in the penalty area\n6: wide-broadcast | Wide shot of the soccer pitch showing players in the penalty area\n7: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n8: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n9: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n10: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n11: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n12: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n13: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n14: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n15: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n16: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n17: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n18: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n19: wide-broadcast | Wide shot of the soccer pitch showing players in midfield\n20: wide-broadcast | Wide shot of the soccer pitch showing players in midfield",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312559,
+ "id": "20260925130230d53f3f01e6324544",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925130230d53f3f01e6324544",
+ "usage": {
+  "completion_tokens": 352,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2250
+ },
+ "_meta": {
+  "tag": "w2609_g3",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the soccer pitch during live match play\n4: wide-broadcast | Wide shot of the soccer pitch with players in various positions\n5: wide-broadcast | Wide shot of the soccer pitch showing ongoing match action\n6: wide-broadcast | Wide shot of the soccer pitch with players moving on the field\n7: wide-broadcast | Wide shot of the soccer pitch during active gameplay\n8: wide-broadcast | Wide shot of the soccer pitch with players spread out\n9: wide-broadcast | Wide shot of the soccer pitch showing match progression\n10: wide-broadcast | Wide shot of the soccer pitch with players in formation\n11: wide-broadcast | Wide shot of the soccer pitch during live action\n12: wide-broadcast | Wide shot of the soccer pitch with players visible\n13: wide-broadcast | Wide shot of the soccer pitch near the goal area\n14: wide-broadcast | Wide shot of the soccer pitch with goalkeeper in position\n15: wide-broadcast | Wide shot of the soccer pitch with crowd visible in background\n16: wide-broadcast | Wide shot of the soccer pitch with advertising boards\n17: wide-broadcast | Wide shot of the soccer pitch showing wide view of field\n18: wide-broadcast | Wide shot of the soccer pitch with players in distance\n19: wide-broadcast | Wide shot of the soccer pitch with crowd in stands\n20: wide-broadcast | Wide shot of the soccer pitch concluding the sequence",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314497,
+ "id": "20260925133447a21ced476fc4449f",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133447a21ced476fc4449f",
+ "usage": {
+  "completion_tokens": 344,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2242
+ },
+ "_meta": {
+  "tag": "w5308_g1",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch showing players in position\n2: play | Wide shot of the soccer pitch with players moving during live action\n3: play | Wide shot of the soccer pitch continuing the match play\n4: play | Wide shot of the soccer pitch with players spread across the field\n5: play | Wide shot of the soccer pitch showing ongoing match action\n6: play | Wide shot of the soccer pitch with players in various positions\n7: play | Wide shot of the soccer pitch during normal live gameplay\n8: play | Wide shot of the soccer pitch with players visible on the field\n9: play | Wide shot of the soccer pitch showing continuous match action\n10: play | Wide shot of the soccer pitch with players moving during play\n11: play | Wide shot of the soccer pitch showing the field and players\n12: play | Wide shot of the soccer pitch with players in action on the field\n13: closeup | Tight shot of a player in a green and white striped jersey\n14: closeup | Tight shot of the same player looking towards the play\n15: closeup | Tight shot of a player in a pink jersey sitting on the grass\n16: closeup | Tight shot of the player in pink sitting on the ground\n17: closeup | Close-up of the player in pink sitting with the ball near his feet\n18: closeup | Close-up of the player in pink sitting on the pitch\n19: closeup | Close-up of the player in pink sitting on the ground looking dejected\n20: play | Wide shot of the soccer pitch returning to the general game view",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311333,
+ "id": "202609251242050837653d72c84c65",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251242050837653d72c84c65",
+ "usage": {
+  "completion_tokens": 336,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2225
+ },
+ "_meta": {
+  "tag": "g1528",
+  "attempt": 1
+ }
+}

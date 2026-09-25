@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Players and staff sitting on the bench\n2: closeup | Players and staff sitting on the bench\n3: closeup | Players and staff sitting on the bench\n4: closeup | Players and staff sitting on the bench\n5: closeup | Spectators in the stands watching the match\n6: closeup | Spectators in the stands watching the match\n7: closeup | Spectators in the stands watching the match\n8: closeup | Spectators in the stands watching the match\n9: pitch-action | Referee and players near the sideline\n10: pitch-action | Referee speaking with player number 4\n11: pitch-action | Player number 4 interacting with staff\n12: pitch-action | Player number 4 holding a ball\n13: pitch-action | Referee and player number 4 near the sideline\n14: pitch-action | Referee and player number 4 facing each other\n15: pitch-action | Player number 4 turning away from the referee\n16: pitch-action | Player number 4 walking towards the field\n17: pitch-action | Close-up of player legs and the referee",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313748,
+ "id": "20260925132223b238f56b65864e97",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132223b238f56b65864e97",
+ "usage": {
+  "completion_tokens": 236,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2134
+ },
+ "_meta": {
+  "tag": "w2839_g5",
+  "attempt": 6
+ }
+}

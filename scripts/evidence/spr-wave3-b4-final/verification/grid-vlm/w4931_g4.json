@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the penalty area\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n3: graphics | Broadcast graphic overlay with a solid red background covering most of the frame\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area\n9: other | Black frame with no visible content\n10: other | Black frame with no visible content\n11: other | Black frame with no visible content\n12: other | Black frame with no visible content\n13: other | Black frame with no visible content\n14: other | Black frame with no visible content\n15: other | Black frame with no visible content\n16: other | Black frame with no visible content\n17: other | Black frame with no visible content\n18: other | Black frame with no visible content\n19: other | Black frame with no visible content\n20: other | Black frame with no visible content",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314397,
+ "id": "20260925133314c407e5f5a84f40cb",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133314c407e5f5a84f40cb",
+ "usage": {
+  "completion_tokens": 318,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2216
+ },
+ "_meta": {
+  "tag": "w4931_g4",
+  "attempt": 1
+ }
+}

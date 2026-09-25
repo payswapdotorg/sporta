@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits\n2: play | Wide shot of the soccer pitch with players in red and green kits\n3: play | Wide shot of the soccer pitch with players in red and green kits\n4: play | Wide shot of the soccer pitch with players in red and green kits\n5: play | Wide shot of the soccer pitch with players in red and green kits\n6: play | Wide shot of the soccer pitch with players in red and green kits\n7: graphics | Broadcast graphic overlay showing \"LALIGA\" across the screen\n8: play | Wide shot of the soccer pitch with players in red and green kits\n9: play | Wide shot of the soccer pitch with players in red and green kits\n10: play | Wide shot of the soccer pitch with players in red and green kits\n11: play | Wide shot of the soccer pitch with players in red and green kits\n12: play | Wide shot of the soccer pitch with players in red and green kits\n13: play | Wide shot of the soccer pitch with players in red and green kits\n14: play | Wide shot of the soccer pitch with players in red and green kits\n15: play | Wide shot of the soccer pitch showing the goal area\n16: play | Wide shot of the soccer pitch showing the goal area\n17: play | Wide shot of the soccer pitch showing the goal area\n18: play | Wide shot of the soccer pitch showing the goal area\n19: play | Wide shot of the soccer pitch showing the goal area\n20: play | Wide shot of the soccer pitch showing the goal area",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310672,
+ "id": "202609251231060bc4443b340c4556",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251231060bc4443b340c4556",
+ "usage": {
+  "completion_tokens": 342,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2231
+ },
+ "_meta": {
+  "tag": "g2849",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Close-up of a shot on goal and the goalkeeper's save\n2: pitch-action | Follow-up action after the save near the penalty area\n3: graphics | Diagonal wipe transition effect over the field\n4: wide-broadcast | Wide shot of players regrouping after the play\n5: wide-broadcast | Wide view of the pitch with players near the center circle\n6: wide-broadcast | Wide shot showing players and referees on the field\n7: wide-broadcast | Wide angle of the pitch with players in the middle third\n8: wide-broadcast | Wide shot of the field with a red card being shown\n9: wide-broadcast | Wide view of the pitch with scoreboard overlay at bottom\n10: wide-broadcast | Wide shot of the field with score and team info displayed\n11: wide-broadcast | Wide angle of the match with lower-third graphics\n12: wide-broadcast | Wide shot of the pitch with broadcast stats at the bottom\n13: wide-broadcast | Wide view of the field with detailed team names in graphics\n14: wide-broadcast | Wide shot with full team names and score displayed\n15: wide-broadcast | Wide angle of the pitch with match information overlay\n16: wide-broadcast | Wide shot of the field with comprehensive broadcast graphics\n17: closeup | Post-match interview with a player in a green jersey\n18: other | High-angle fisheye overview of the entire stadium\n19: other | Fisheye lens shot of the stadium bowl and pitch\n20: other | Wide fisheye view of the emptying stadium stands",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313779,
+ "id": "2026092513225178252aa595fe42dd",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513225178252aa595fe42dd",
+ "usage": {
+  "completion_tokens": 333,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2231
+ },
+ "_meta": {
+  "tag": "w3418_g2",
+  "attempt": 1
+ }
+}

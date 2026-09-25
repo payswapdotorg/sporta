@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in pink jersey looking at camera\n2: closeup | Player in pink jersey looking down\n3: closeup | Player in pink jersey wiping face\n4: closeup | Player in pink jersey looking down\n5: closeup | Player in pink jersey with teammate in background\n6: closeup | Player in pink jersey looking forward\n7: closeup | Player in pink jersey looking down\n8: play | Wide shot of player in green dribbling\n9: play | Player in green running with ball, defenders approaching\n10: play | Attacker in green vs defenders in pink\n11: play | Attacker in green tackled by defender in pink\n12: play | Defender in pink sliding to tackle attacker in green\n13: play | Players on ground after tackle, ball loose\n14: play | Players in green and pink contesting the ball\n15: play | Players battling for possession near sideline\n16: play | Players jostling for position near ball\n17: play | Players on ground and standing near ball\n18: play | Player in pink standing over player in green on ground\n19: play | Players in pink moving as opponent on ground recovers",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310842,
+ "id": "20260925123356f149a6b55fcc44df",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123356f149a6b55fcc44df",
+ "usage": {
+  "completion_tokens": 248,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2137
+ },
+ "_meta": {
+  "tag": "g6109-late",
+  "attempt": 1
+ }
+}

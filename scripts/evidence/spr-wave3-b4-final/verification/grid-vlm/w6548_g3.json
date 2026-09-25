@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: graphics | End screen with subscribe button and abstract background\n2: graphics | End screen with subscribe button and abstract background\n3: graphics | End screen with subscribe button and abstract background\n4: graphics | End screen with subscribe button and abstract background\n5: graphics | End screen with subscribe button and abstract background",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314674,
+ "id": "2026092513375275880511e48144b7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513375275880511e48144b7",
+ "usage": {
+  "completion_tokens": 65,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 1963
+ },
+ "_meta": {
+  "tag": "w6548_g3",
+  "attempt": 1
+ }
+}

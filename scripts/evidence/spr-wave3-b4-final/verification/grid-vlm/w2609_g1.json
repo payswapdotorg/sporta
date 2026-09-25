@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the pitch with players in red and green moving during play\n4: wide-broadcast | Wide shot of the field showing players spread out in their formations\n5: wide-broadcast | Wide view of the match with players near the center circle and goal area\n6: wide-broadcast | Wide shot of the pitch with players in red and green kits visible\n7: wide-broadcast | Wide angle of the soccer field showing ongoing match action\n8: wide-broadcast | Wide shot of the pitch with players moving towards the goal area\n9: wide-broadcast | Wide view of the field showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch with players positioned on the field\n11: wide-broadcast | Wide angle showing players near the goal and penalty area\n12: wide-broadcast | Wide shot of the pitch with a player in red near the goal\n13: wide-broadcast | Wide view of the field with players in red and green kits\n14: wide-broadcast | Wide shot of the soccer pitch showing players in various positions\n15: wide-broadcast | Wide angle of the match with players visible on the field\n16: closeup | Close-up shot of a player in a pink jersey with long hair\n17: closeup | Close-up of the same player in the pink jersey looking to the side\n18: closeup | Close-up of the player in the pink jersey standing on the field\n19: closeup | Close-up of the player in the pink jersey looking down\n20: other | Blurred close-up shot of a green and white object, likely a jersey or equipment",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312528,
+ "id": "2026092513015807ec2505e8ba428e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513015807ec2505e8ba428e",
+ "usage": {
+  "completion_tokens": 383,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2281
+ },
+ "_meta": {
+  "tag": "w2609_g1",
+  "attempt": 1
+ }
+}

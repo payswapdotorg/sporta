@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in white taking a shot on goal\n2: pitch-action | Goalkeeper diving to save the shot\n3: pitch-action | Ball crossing the line as goalkeeper misses\n4: closeup | Players in pink celebrating the goal\n5: closeup | Close-up of celebrating players including number 27\n6: closeup | Celebrating players including number 7\n7: closeup | Dejected player in white looking at camera\n8: closeup | Goalkeeper in white reacting to the goal\n9: closeup | Goalkeeper with arms outstretched in frustration\n10: closeup | Goalkeeper standing in front of the net\n11: wide-broadcast | Wide view of the soccer pitch\n12: wide-broadcast | Wide view of the soccer pitch\n13: wide-broadcast | Wide view of the soccer pitch\n14: wide-broadcast | Wide view of the soccer pitch\n15: wide-broadcast | Wide view of the soccer pitch\n16: closeup | Referee and a player with \"FERRAN\" on his back\n17: closeup | Referee and a player standing together\n18: closeup | Referee and a player standing together\n19: closeup | Referee and a player standing together\n20: closeup | Referee and a player standing together",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311875,
+ "id": "202609251251078bb0865f3c134c80",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251251078bb0865f3c134c80",
+ "usage": {
+  "completion_tokens": 274,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2172
+ },
+ "_meta": {
+  "tag": "w0986_g3",
+  "attempt": 1
+ }
+}

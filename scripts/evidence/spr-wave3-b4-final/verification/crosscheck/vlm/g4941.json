@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Players moving the ball across the midfield area\n3: play | Play continues with players spread out on the field\n4: play | General view of ongoing match action\n5: play | Team in red advancing towards the goal\n6: play | Player dribbling near the center circle\n7: play | Attack building up in the final third of the pitch\n8: play | Players positioning themselves near the penalty box\n9: play | Wide view of the field during active play\n10: play | Ball being played around the midfield\n11: closeup | Tight shot of a player in a red jersey looking serious\n12: closeup | Close-up of the same player covering his mouth with his hand\n13: other | Blurred, out-of-focus shot of the green grass\n14: other | Continuation of the blurred, unfocused camera movement\n15: play | Camera returns to a wide shot of the match\n16: play | Players regrouping and moving on the field\n17: play | Wide angle of the game continuing\n18: play | Players passing and moving in the middle of the park\n19: play | Ongoing live action from a high wide angle\n20: play | Final frame showing general match play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310864,
+ "id": "202609251234180dbee1a23c0043fa",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251234180dbee1a23c0043fa",
+ "usage": {
+  "completion_tokens": 273,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2162
+ },
+ "_meta": {
+  "tag": "g4941",
+  "attempt": 1
+ }
+}
