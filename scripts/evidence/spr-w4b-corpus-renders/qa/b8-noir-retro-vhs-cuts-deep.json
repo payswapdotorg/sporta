@@ -1,0 +1,85 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "output": "/tmp/w4b/out/b8/noir-retro-vhs/noir-retro-vhs-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550,
+    862,
+    980
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 30.45,
+      "amplitudeRatio": 0.95,
+      "outputLocalMedian": 6.68,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 23.61,
+      "amplitudeRatio": 0.982,
+      "outputLocalMedian": 7.3,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 19.26,
+      "amplitudeRatio": 0.959,
+      "outputLocalMedian": 4.19,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 32.4,
+      "amplitudeRatio": 0.956,
+      "outputLocalMedian": 10.54,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 982,
+      "outputAmplitude": 48.1,
+      "amplitudeRatio": 1.385,
+      "outputLocalMedian": 8.57,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 982,
+      "outputAmplitude": 48.1,
+      "amplitudeRatio": 0.975,
+      "outputLocalMedian": 8.57,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

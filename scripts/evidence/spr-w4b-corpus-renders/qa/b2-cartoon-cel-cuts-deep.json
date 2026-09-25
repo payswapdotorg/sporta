@@ -1,0 +1,31 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+  "output": "/tmp/w4b/out/b2/cartoon-cel/cartoon-cel-b2.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    97
+  ],
+  "outputCuts": [
+    97
+  ],
+  "perCut": [
+    {
+      "inputFrame": 97,
+      "inputAmplitude": 44.8,
+      "outputFrame": 99,
+      "outputAmplitude": 38.38,
+      "amplitudeRatio": 0.857,
+      "outputLocalMedian": 7.79,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

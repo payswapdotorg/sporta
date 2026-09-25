@@ -1,0 +1,53 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+  "output": "/tmp/w4b/out/b1/subject-toon/subject-toon-b1.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 32.8,
+      "amplitudeRatio": 1.023,
+      "outputLocalMedian": 6.96,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 26.52,
+      "amplitudeRatio": 1.104,
+      "outputLocalMedian": 6.67,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 25.98,
+      "amplitudeRatio": 1.293,
+      "outputLocalMedian": 2.46,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

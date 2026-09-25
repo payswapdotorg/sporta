@@ -1,0 +1,42 @@
+{
+  "input": "/tmp/w4b/gates/b12-first300-gateref-from-old.mp4",
+  "output": "/tmp/w4b/out/b12/cartoon-cel/cartoon-cel-b12.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    117,
+    120
+  ],
+  "outputCuts": [
+    117,
+    120
+  ],
+  "perCut": [
+    {
+      "inputFrame": 117,
+      "inputAmplitude": 34.71,
+      "outputFrame": 120,
+      "outputAmplitude": 34.77,
+      "amplitudeRatio": 1.002,
+      "outputLocalMedian": 5.01,
+      "matched": true
+    },
+    {
+      "inputFrame": 120,
+      "inputAmplitude": 49.3,
+      "outputFrame": 120,
+      "outputAmplitude": 34.77,
+      "amplitudeRatio": 0.705,
+      "outputLocalMedian": 5.01,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

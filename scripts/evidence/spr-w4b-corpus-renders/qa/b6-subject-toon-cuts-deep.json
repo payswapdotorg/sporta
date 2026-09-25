@@ -1,0 +1,17 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+  "output": "/tmp/w4b/out/b6/subject-toon/subject-toon-b6.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [],
+  "outputCuts": [],
+  "perCut": [],
+  "coverage": 0.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}
