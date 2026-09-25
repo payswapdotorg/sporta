@@ -1,0 +1,4 @@
+{
+ "error": "vlm call failed after retries",
+ "detail": "rate-limited: 429 persisted for 2 attempts over ~0.7 min (budget 1 waits)"
+}

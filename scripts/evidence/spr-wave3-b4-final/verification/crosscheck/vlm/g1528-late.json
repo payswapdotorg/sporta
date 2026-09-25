@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players moving\n3: play | Wide shot of the soccer pitch with players in action\n4: play | Wide shot of the soccer pitch with players moving\n5: play | Wide shot of the soccer pitch with players in action\n6: play | Wide shot of the soccer pitch with players moving\n7: play | Wide shot of the soccer pitch with players in action\n8: play | Wide shot of the soccer pitch with players moving\n9: play | Wide shot of the soccer pitch with players in action\n10: closeup | Tight shot of a player's legs on the ground\n11: closeup | Tight shot of a player's torso and arm\n12: closeup | Tight shot of a player's lower body and hand\n13: closeup | Medium close-up of a player in a red jersey\n14: closeup | Medium close-up of a player gesturing with his hands\n15: play | Medium shot of players competing for the ball\n16: play | Medium shot of players running with the ball\n17: play | Medium shot of a player dribbling the ball\n18: play | Medium shot of a player falling near the ball\n19: play | Medium shot of a player on the ground after a tackle",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311340,
+ "id": "202609251242168486a2a1f7c040a6",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251242168486a2a1f7c040a6",
+ "usage": {
+  "completion_tokens": 281,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 157
+  },
+  "total_tokens": 2170
+ },
+ "_meta": {
+  "tag": "g1528-late",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Wide shot of players on the field\n2: pitch-action | Wide shot of players on the field\n3: pitch-action | Wide shot of players on the field\n4: pitch-action | Wide shot of players on the field\n5: wide-broadcast | Goal area with stands visible in background\n6: wide-broadcast | Goal area with stands visible in background\n7: wide-broadcast | Goal area with stands visible in background\n8: wide-broadcast | Goal area with stands visible in background\n9: wide-broadcast | Goal area with stands visible in background\n10: wide-broadcast | Goal area with stands visible in background\n11: wide-broadcast | Goal area with stands visible in background",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283909,
+  "id": "20260925050506ad596b3bcc7d46fc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050506ad596b3bcc7d46fc",
+  "usage": {
+    "completion_tokens": 150,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1912
+  }
+}

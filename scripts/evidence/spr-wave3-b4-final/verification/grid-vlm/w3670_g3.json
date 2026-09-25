@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in formation\n2: wide-broadcast | Wide shot of the soccer pitch showing players moving\n3: wide-broadcast | Wide shot of the soccer pitch with players spread out\n4: wide-broadcast | Wide shot of the soccer pitch with players in various positions\n5: wide-broadcast | Wide shot of the soccer pitch with players near the center\n6: wide-broadcast | Wide shot of the soccer pitch with players in red and green\n7: wide-broadcast | Wide shot of the soccer pitch with players in motion\n8: graphics | Lower-third graphic overlay appearing at the bottom of the screen\n9: pitch-action | Medium shot of match action with a player name graphic\n10: pitch-action | Medium shot of match action with a player name graphic\n11: pitch-action | Medium shot of match action with a player name graphic\n12: pitch-action | Medium shot of match action with a player name graphic\n13: pitch-action | Medium shot of match action with multiple player name graphics\n14: pitch-action | Medium shot of match action with multiple player name graphics\n15: pitch-action | Medium shot of match action with multiple player name graphics\n16: closeup | Close-up of a goalkeeper in green holding the ball\n17: closeup | Close-up of two players, one in green and one in red, competing for the ball\n18: closeup | Close-up of a player in red controlling the ball\n19: wide-broadcast | Wide shot of the soccer pitch from an angle near the goal\n20: wide-broadcast | Wide shot of the soccer pitch showing play near the goal area",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313924,
+ "id": "20260925132517542a0f4c031e4e8e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132517542a0f4c031e4e8e",
+ "usage": {
+  "completion_tokens": 344,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2242
+ },
+ "_meta": {
+  "tag": "w3670_g3",
+  "attempt": 1
+ }
+}

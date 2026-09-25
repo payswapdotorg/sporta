@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: pitch-action | Wide shot of players on the field\ncell 2: pitch-action | Wide shot of players on the field\ncell 3: pitch-action | Wide shot of players on the field\ncell 4: pitch-action | Wide shot of players on the field\ncell 5: pitch-action | Wide shot of players on the field\ncell 6: pitch-action | Wide shot of players on the field\ncell 7: pitch-action | Wide shot of players on the field\ncell 8: pitch-action | Wide shot of players on the field\ncell 9: pitch-action | Wide shot of players on the field\ncell 10: pitch-action | Wide shot of players on the field\ncell 11: pitch-action | Wide shot of players on the field\ncell 12: pitch-action | Wide shot of players on the field\ncell 13: wide-broadcast | Pitch with visible stands and advertising\ncell 14: wide-broadcast | Pitch with visible stands and advertising\ncell 15: wide-broadcast | Pitch with visible stands and advertising\ncell 16: wide-broadcast | Pitch with visible stands and advertising\ncell 17: closeup | Player in foreground, crowd blurred in background\ncell 18: wide-broadcast | Pitch with visible stands and advertising\ncell 19: wide-broadcast | Pitch with visible stands and advertising\ncell 20: wide-broadcast | Pitch with visible stands and advertising",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283282,
+  "id": "20260925045437d108ac12e5a948c1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045437d108ac12e5a948c1",
+  "usage": {
+    "completion_tokens": 301,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2063
+  }
+}

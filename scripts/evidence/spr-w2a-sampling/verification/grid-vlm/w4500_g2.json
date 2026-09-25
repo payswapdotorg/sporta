@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Player walking on pitch\n2: pitch-action | Player walking on pitch\n3: closeup | Two players interacting\n4: closeup | Two players embracing\n5: closeup | Player looking down\n6: closeup | Single player on pitch\n7: closeup | Single player on pitch\n8: closeup | Player from behind\n9: closeup | Players and coach\n10: closeup | Players talking\n11: closeup | Player looking down\n12: closeup | Player and coach\n13: closeup | Player profile view\n14: closeup | Pedri from behind\n15: closeup | Player running\n16: other | Blurred green object\n17: closeup | Player profile view\n18: closeup | Player profile view\n19: closeup | Pedri near sideline\n20: closeup | Pedri gesturing",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283818,
+  "id": "202609250503339a3ea6d806f34764",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250503339a3ea6d806f34764",
+  "usage": {
+    "completion_tokens": 185,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1947
+  }
+}

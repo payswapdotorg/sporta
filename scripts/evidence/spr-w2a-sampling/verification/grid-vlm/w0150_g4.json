@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Team staff on bench\n2: closeup | Team staff on bench\n3: closeup | Team staff on bench\n4: wide-broadcast | High angle of pitch and stands\n5: wide-broadcast | High angle of pitch and stands\n6: wide-broadcast | High angle of pitch and stands\n7: wide-broadcast | High angle of pitch and stands\n8: wide-broadcast | High angle of pitch and stands\n9: wide-broadcast | High angle of pitch and stands\n10: wide-broadcast | High angle of pitch and stands\n11: wide-broadcast | High angle of pitch and stands\n12: closeup | Coach on sideline\n13: closeup | Coach on sideline\n14: closeup | Coach on sideline\n15: closeup | Coach on sideline\n16: closeup | Coach on sideline\n17: closeup | Coach on sideline\n18: closeup | Coach on sideline\n19: closeup | Coach on sideline\n20: pitch-action | Players celebrating on field",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283198,
+  "id": "202609250453160e6753dac4164599",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250453160e6753dac4164599",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1978
+  }
+}

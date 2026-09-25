@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players in position\n3: play | Wide shot of the soccer pitch with players in position\n4: play | Wide shot of the soccer pitch with players in position\n5: play | Wide shot of the soccer pitch with players in position\n6: closeup | Referee showing a yellow card to a player\n7: closeup | Referee holding up a yellow card\n8: closeup | Referee holding up a yellow card while a player walks by\n9: closeup | Close-up of a player in a red jersey looking off-camera\n10: closeup | Close-up of a player in a red jersey looking off-camera\n11: closeup | Side profile close-up of a player in a red jersey\n12: graphics | Graphic overlay displaying the name \"Gerard Martin\" and number 10\n13: play | Wide shot of the soccer pitch with players moving\n14: play | Wide shot of the soccer pitch with players near the ball\n15: play | Wide shot of the soccer pitch with players in action\n16: play | Wide shot of the soccer pitch with players spread out\n17: play | High wide shot of the soccer pitch with players in position",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310934,
+ "id": "202609251235279292cda84b59405e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251235279292cda84b59405e",
+ "usage": {
+  "completion_tokens": 269,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2158
+ },
+ "_meta": {
+  "tag": "g3579-late",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,926 @@
+{
+ "schemaVersion": "1.0",
+ "method": {
+  "audio": "itag 140-5 full-match m4a (106666323 B, sha256 603806d9...e360), mono 16 kHz PCM decode",
+  "envelope": "RMS loudness in 0.5 s windows (dBFS), rolling-median baseline over +-60 s",
+  "spikeSelection": "top 40 by mean excess over +-1.5 s, min separation 45 s, 20 s edges excluded",
+  "graphicsCrossCheck": "per moment: itag-230 pull [peak-10, peak+20] through the recorded chain; ONE 4x5 grid of the +-10 s envelope (20 frames, 1 fps, media timestamps burned in); ONE single-image VLM call per grid classifying each cell (play/celebration/crowd/graphics/closeup/other); moments with mean15 >= 2.0 and no graphics got ONE follow-up grid [peak+10, peak+19] for late scoreboard/scorer graphics",
+  "goalVerdictLogic": "graphics cells near/after the roar + celebration cells -> GOAL-LIKELY; celebration only -> CELEBRATION-NONGOAL-LIKELY; neither -> NEAR-MISS/OTHER; class-based verdicts enriched by description review (e.g. g3680: ball-in-net descriptions under a play class)",
+  "limitations": "classes can under-call goals (celebrations classified as play/closeup); late graphics beyond +19 s missed (red card at 4161.5 has its graphic at +38 s per the w2a record); LaLiga world feed shows graphics for non-goal events too (cards, VAR, stats) - graphics alone are not proof of a goal",
+  "calibration": "g2728 cross-check independently reproduces the w2a C1 record (crowd 2720.9/2725.9-2726.9, celebration 2728.9+, graphics 2730.9/2734.9) - the method detects known goals correctly"
+ },
+ "candidates": [
+  {
+   "tag": "g3878",
+   "mediaTimePeak": 3877.5,
+   "roar": {
+    "peakDb": -19.66,
+    "excessDb": 9.11,
+    "excessMean15": 6.5
+   },
+   "role": "sweep w3868 (top spike; eruption onset only, truncated by w3900 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 19
+    }
+   },
+   "notes": "Top roar of the match (6.50 dB excess). No graphics/celebration/crowd response in +-19s: consistent with a huge near-miss or disallowed-goal roar-and-groan, not a goal. Sweep window w3868 samples the eruption onset (truncated by w3900 boundary)."
+  },
+  {
+   "tag": "g0988",
+   "mediaTimePeak": 987.5,
+   "roar": {
+    "peakDb": -18.81,
+    "excessDb": 7.3,
+    "excessMean15": 5.29
+   },
+   "role": "sweep w0986 (start clipped by disc-900 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GOAL-LIKELY (late graphics)",
+    "lateGrid": {
+     "graphicsCells": [
+      998.8,
+      999.8
+     ],
+     "celebrationCells": [
+      994.8,
+      995.8,
+      997.8
+     ],
+     "crowdCells": [],
+     "crossCheckVerdict": "GOAL-LIKELY",
+     "gridCellsClassified": 20
+    }
+   },
+   "notes": "GOAL: celebration cells 994.8-995.8 + graphics 998.8-999.8 (late grid). Goal approx media 993. w0986 window placed on the celebration+aftermath."
+  },
+  {
+   "tag": "g3579",
+   "mediaTimePeak": 3578.5,
+   "roar": {
+    "peakDb": -22.37,
+    "excessDb": 5.99,
+    "excessMean15": 5.11
+   },
+   "role": "sweep w3586 (tail; peak inside disc-3500)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION (late)",
+    "lateGrid": {
+     "graphicsCells": [
+      3596.8
+     ],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 17
+    }
+   }
+  },
+  {
+   "tag": "g3084",
+   "mediaTimePeak": 3083.5,
+   "roar": {
+    "peakDb": -22.13,
+    "excessDb": 8.12,
+    "excessMean15": 5.11
+   },
+   "role": "record; inside w3000 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     3090.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION",
+    "lateGrid": {
+     "graphicsCells": [
+      3090.8
+     ],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 20
+    }
+   },
+   "notes": "Graphics at 3090.8 (late grid), no celebration cells. Inside w3000 (already sampled)."
+  },
+  {
+   "tag": "g6558",
+   "mediaTimePeak": 6558.0,
+   "roar": {
+    "peakDb": -22.51,
+    "excessDb": 8.53,
+    "excessMean15": 4.84
+   },
+   "role": "sweep w6548 (short; end of source)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [
+     6560.8
+    ],
+    "crowdCells": [
+     6562.8,
+     6563.8,
+     6564.8
+    ],
+    "verdict": "GOAL-LIKELY (late graphics)",
+    "lateGrid": {
+     "graphicsCells": [
+      6572.8,
+      6573.8,
+      6574.8,
+      6575.8,
+      6576.8,
+      6581.8
+     ],
+     "celebrationCells": [],
+     "crowdCells": [
+      6562.8,
+      6563.8,
+      6564.8,
+      6565.8,
+      6566.8,
+      6567.8
+     ],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 20
+    }
+   },
+   "notes": "FULL-TIME celebration (not a goal): celebration 6560.8 + crowd 6562.8-6564.8 + post-match presentation graphics 6572.8-6581.8. w6548 short window samples it."
+  },
+  {
+   "tag": "g2849",
+   "mediaTimePeak": 2848.5,
+   "roar": {
+    "peakDb": -21.69,
+    "excessDb": 5.74,
+    "excessMean15": 4.17
+   },
+   "role": "sweep w2839",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     2837.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   }
+  },
+  {
+   "tag": "g3680",
+   "mediaTimePeak": 3679.5,
+   "roar": {
+    "peakDb": -22.16,
+    "excessDb": 7.38,
+    "excessMean15": 3.91
+   },
+   "role": "sweep w3670",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     3672.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   },
+   "notes": "GOAL (description-confirmed): grid cells 3669.8-3674.8 describe goalkeeper dive, ball hitting the back of the net, ball crossing the goal line; LaLiga transition graphic 3675.8. w3670 window starts at the goal."
+  },
+  {
+   "tag": "g1309",
+   "mediaTimePeak": 1309.0,
+   "roar": {
+    "peakDb": -23.08,
+    "excessDb": 6.37,
+    "excessMean15": 3.86
+   },
+   "role": "sweep w1299",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 16
+    }
+   }
+  },
+  {
+   "tag": "g3804",
+   "mediaTimePeak": 3803.5,
+   "roar": {
+    "peakDb": -22.15,
+    "excessDb": 7.56,
+    "excessMean15": 3.82
+   },
+   "role": "sweep w3794",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     3806.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   },
+   "notes": "GOAL-MOUTH: build-up -> cross into box -> aftermath at goal line (descriptions) + graphics at peak+3.3. w3794 window placed on it."
+  },
+  {
+   "tag": "g1577",
+   "mediaTimePeak": 1577.0,
+   "roar": {
+    "peakDb": -22.29,
+    "excessDb": 6.43,
+    "excessMean15": 3.68
+   },
+   "role": "sweep w1592 (start clipped by w1500 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION (late)",
+    "lateGrid": {
+     "graphicsCells": [
+      1597.8,
+      1604.8
+     ],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 20
+    }
+   },
+   "notes": "Late graphics 1597.8/1604.8 without celebration cells; goal possible but unconfirmed. w1592 tail window samples the aftermath."
+  },
+  {
+   "tag": "g1101",
+   "mediaTimePeak": 1101.0,
+   "roar": {
+    "peakDb": -18.24,
+    "excessDb": 6.26,
+    "excessMean15": 3.64
+   },
+   "role": "sweep w1091",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     1095.8
+    ],
+    "celebrationCells": [
+     1099.8,
+     1100.8,
+     1103.8,
+     1104.8
+    ],
+    "crowdCells": [
+     1105.8,
+     1106.8
+    ],
+    "verdict": "GOAL-LIKELY"
+   },
+   "notes": "GOAL: celebration 1099.8-1103.8 + crowd cutaway cells 1105.8-1106.8 + pre-peak graphics 1095.8. w1091 window placed peak-11."
+  },
+  {
+   "tag": "g4547",
+   "mediaTimePeak": 4547.0,
+   "roar": {
+    "peakDb": -21.83,
+    "excessDb": 6.4,
+    "excessMean15": 3.62
+   },
+   "role": "record; inside w4500 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     4548.1,
+     4550.1,
+     4552.1,
+     4553.1
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   },
+   "notes": "Graphics cluster 4548.1-4553.1 (4 cells) with no celebration cells: goal-response graphics possible at ~75 min. Inside w4500 (already sampled); w2a grids flagged no crowd cells there."
+  },
+  {
+   "tag": "g1839",
+   "mediaTimePeak": 1839.0,
+   "roar": {
+    "peakDb": -19.4,
+    "excessDb": 7.13,
+    "excessMean15": 3.34
+   },
+   "role": "record; inside b8 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GOAL-LIKELY (late graphics)",
+    "lateGrid": {
+     "graphicsCells": [
+      1859.8
+     ],
+     "celebrationCells": [
+      1857.8,
+      1858.8
+     ],
+     "crowdCells": [],
+     "crossCheckVerdict": "GOAL-LIKELY",
+     "gridCellsClassified": 17
+    }
+   },
+   "notes": "GOAL: late graphics 1859.8 + celebration 1857.8-1858.8. Inside b8 (already sampled); tail window w1851 samples the aftermath."
+  },
+  {
+   "tag": "g5093",
+   "mediaTimePeak": 5093.0,
+   "roar": {
+    "peakDb": -21.22,
+    "excessDb": 5.91,
+    "excessMean15": 3.16
+   },
+   "role": "sweep w5086 (start clipped by disc-5000 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     5091.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   }
+  },
+  {
+   "tag": "g5494",
+   "mediaTimePeak": 5493.5,
+   "roar": {
+    "peakDb": -21.27,
+    "excessDb": 5.84,
+    "excessMean15": 3.08
+   },
+   "role": "record; inside w5400/w5500 boundary (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION (late)",
+    "lateGrid": {
+     "graphicsCells": [
+      5513.2
+     ],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 16
+    }
+   }
+  },
+  {
+   "tag": "g3021",
+   "mediaTimePeak": 3020.5,
+   "roar": {
+    "peakDb": -24.2,
+    "excessDb": 6.05,
+    "excessMean15": 2.9
+   },
+   "role": "record; inside w3000 (w2a C2 crowd run verified here)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     3026.8,
+     3027.8,
+     3028.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [
+     3021.8,
+     3022.8,
+     3023.8
+    ],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   },
+   "notes": "GOAL context of w2a candidate C2: crowd cutaway 3021.8-3023.8 (w2a direct-verified 3s run, REJECTED <8s) + graphics 3026.8-3028.8. Inside w3000 (already sampled)."
+  },
+  {
+   "tag": "g5811",
+   "mediaTimePeak": 5810.5,
+   "roar": {
+    "peakDb": -20.7,
+    "excessDb": 6.72,
+    "excessMean15": 2.86
+   },
+   "role": "record; inside disc-5800 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GOAL-LIKELY (late graphics)",
+    "lateGrid": {
+     "graphicsCells": [
+      5824.6
+     ],
+     "celebrationCells": [
+      5833.6
+     ],
+     "crowdCells": [],
+     "crossCheckVerdict": "GOAL-LIKELY",
+     "gridCellsClassified": 16
+    }
+   },
+   "notes": "GOAL: late graphics 5824.6 + celebration 5833.6. Inside disc-5800 (already sampled; corpus b6 corner-kick clip cut from 5826+ sits in the aftermath)."
+  },
+  {
+   "tag": "g0905",
+   "mediaTimePeak": 905.0,
+   "roar": {
+    "peakDb": -21.27,
+    "excessDb": 6.22,
+    "excessMean15": 2.64
+   },
+   "role": "record; inside disc-900 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     911.3
+    ],
+    "celebrationCells": [
+     904.3,
+     905.3,
+     906.3,
+     907.3
+    ],
+    "crowdCells": [],
+    "verdict": "GOAL-LIKELY"
+   },
+   "notes": "GOAL: celebration 904.3-906.3 + graphics 911.3. Inside disc-900 (already sampled); not resampled."
+  },
+  {
+   "tag": "g4680",
+   "mediaTimePeak": 4680.0,
+   "roar": {
+    "peakDb": -18.98,
+    "excessDb": 6.68,
+    "excessMean15": 2.61
+   },
+   "role": "sweep w4690 (tail; peak inside disc-4600)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [
+      4706.4,
+      4707.4
+     ],
+     "crossCheckVerdict": "CROWD-ONLY",
+     "gridCellsClassified": 20
+    }
+   },
+   "notes": "Near-miss/other with crowd cutaway cells at 4706.4-4707.4 (late grid) - flagged for the sweep; w4690 covers 4706-4707."
+  },
+  {
+   "tag": "g5318",
+   "mediaTimePeak": 5317.5,
+   "roar": {
+    "peakDb": -22.44,
+    "excessDb": 5.78,
+    "excessMean15": 2.59
+   },
+   "role": "sweep w5308",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 20
+    }
+   }
+  },
+  {
+   "tag": "g1528",
+   "mediaTimePeak": 1528.0,
+   "roar": {
+    "peakDb": -22.66,
+    "excessDb": 6.01,
+    "excessMean15": 2.54
+   },
+   "role": "record; inside w1500 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 19
+    }
+   }
+  },
+  {
+   "tag": "g6109",
+   "mediaTimePeak": 6109.0,
+   "roar": {
+    "peakDb": -20.99,
+    "excessDb": 7.32,
+    "excessMean15": 2.44
+   },
+   "role": "sweep w6099",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 19
+    }
+   }
+  },
+  {
+   "tag": "g3428",
+   "mediaTimePeak": 3428.0,
+   "roar": {
+    "peakDb": -23.95,
+    "excessDb": 5.88,
+    "excessMean15": 2.33
+   },
+   "role": "sweep w3418 (end clipped by disc-3500 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     3421.8,
+     3428.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   }
+  },
+  {
+   "tag": "g2728",
+   "mediaTimePeak": 2727.5,
+   "roar": {
+    "peakDb": -20.45,
+    "excessDb": 6.7,
+    "excessMean15": 2.17
+   },
+   "role": "record; inside w2700 (w2a C1 crowd runs verified; players celebrating on pitch)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     2730.9,
+     2734.9
+    ],
+    "celebrationCells": [
+     2728.9,
+     2729.9,
+     2731.9,
+     2732.9,
+     2733.9
+    ],
+    "crowdCells": [
+     2720.9,
+     2725.9,
+     2726.9,
+     2727.9
+    ],
+    "verdict": "GOAL-LIKELY"
+   },
+   "notes": "CALIBRATION GOAL: matches w2a candidate C1 territory (crowd runs 2720.8/2725.8-2727.8 + players celebrating 2728.8, direct-verified by w2a); cross-check independently shows celebration 2728.9-2731.9 + graphics 2730.9/2734.9 + crowd 2720.9/2725.9-2726.9. Method calibrates against the immutable w2a record."
+  },
+  {
+   "tag": "g4941",
+   "mediaTimePeak": 4940.5,
+   "roar": {
+    "peakDb": -21.49,
+    "excessDb": 6.58,
+    "excessMean15": 2.04
+   },
+   "role": "sweep w4931 (end clipped by disc-5000 boundary)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 18
+    }
+   }
+  },
+  {
+   "tag": "g3338",
+   "mediaTimePeak": 3337.5,
+   "roar": {
+    "peakDb": -22.1,
+    "excessDb": 6.1,
+    "excessMean15": 2.04
+   },
+   "role": "record; inside disc-3300 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION (late)",
+    "lateGrid": {
+     "graphicsCells": [
+      3362.0
+     ],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "GRAPHICS-NO-CELEBRATION",
+     "gridCellsClassified": 20
+    }
+   }
+  },
+  {
+   "tag": "g0247",
+   "mediaTimePeak": 246.5,
+   "roar": {
+    "peakDb": -22.26,
+    "excessDb": 6.63,
+    "excessMean15": 2.0
+   },
+   "role": "sweep w0242 (short; between w0150 and disc-300)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [
+     235.1,
+     236.1,
+     238.1,
+     239.1,
+     240.1,
+     241.1,
+     246.1
+    ],
+    "crowdCells": [],
+    "verdict": "CELEBRATION-NONGOAL-LIKELY",
+    "lateGrid": {
+     "graphicsCells": [],
+     "celebrationCells": [],
+     "crowdCells": [],
+     "crossCheckVerdict": "NEAR-MISS/OTHER",
+     "gridCellsClassified": 20
+    }
+   }
+  },
+  {
+   "tag": "g3499",
+   "mediaTimePeak": 3498.5,
+   "roar": {
+    "peakDb": -23.44,
+    "excessDb": 5.59,
+    "excessMean15": 1.94
+   },
+   "role": "record; at disc-3500 boundary",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER"
+   },
+   "notes": "Peak sits ~1.5s before modeled disc-3500 start; eruption itself inside already-sampled territory."
+  },
+  {
+   "tag": "g2619",
+   "mediaTimePeak": 2618.5,
+   "roar": {
+    "peakDb": -22.5,
+    "excessDb": 6.67,
+    "excessMean15": 1.91
+   },
+   "role": "sweep w2609",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER"
+   }
+  },
+  {
+   "tag": "g4343",
+   "mediaTimePeak": 4342.5,
+   "roar": {
+    "peakDb": -20.14,
+    "excessDb": 5.85,
+    "excessMean15": 1.74
+   },
+   "role": "sweep w4333",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     4340.9
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   }
+  },
+  {
+   "tag": "g6379",
+   "mediaTimePeak": 6378.5,
+   "roar": {
+    "peakDb": -22.99,
+    "excessDb": 5.6,
+    "excessMean15": 1.69
+   },
+   "role": "record; inside w6350 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER"
+   },
+   "notes": "Inside w6350 (already sampled). No goal response in grids."
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 333.5,
+   "roar": {
+    "peakDb": -20.83,
+    "excessDb": 6.47,
+    "excessMean15": 1.65
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": "g5037",
+   "mediaTimePeak": 5037.0,
+   "roar": {
+    "peakDb": -21.24,
+    "excessDb": 5.78,
+    "excessMean15": 1.56
+   },
+   "role": "record; inside disc-5000 (already sampled)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [
+     5041.8
+    ],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "GRAPHICS-NO-CELEBRATION"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 4792.0,
+   "roar": {
+    "peakDb": -21.19,
+    "excessDb": 5.5,
+    "excessMean15": 1.0
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 5696.5,
+   "roar": {
+    "peakDb": -22.25,
+    "excessDb": 6.35,
+    "excessMean15": 0.96
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 5393.5,
+   "roar": {
+    "peakDb": -22.84,
+    "excessDb": 6.06,
+    "excessMean15": 0.83
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 807.0,
+   "roar": {
+    "peakDb": -20.31,
+    "excessDb": 6.88,
+    "excessMean15": 0.65
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 184.0,
+   "roar": {
+    "peakDb": -21.45,
+    "excessDb": 5.82,
+    "excessMean15": 0.43
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": null,
+   "mediaTimePeak": 402.0,
+   "roar": {
+    "peakDb": -19.68,
+    "excessDb": 5.82,
+    "excessMean15": 0.17
+   },
+   "role": "below cross-check threshold (weak spike)",
+   "crossCheck": {
+    "verdict": "NOT-CROSS-CHECKED"
+   }
+  },
+  {
+   "tag": "g4162",
+   "mediaTimePeak": 4161.5,
+   "roar": {
+    "peakDb": -19.17,
+    "excessDb": 5.57,
+    "excessMean15": 0.01
+   },
+   "role": "record; inside w4160-wide (red-card graphic seen at ~4199 in w4200_g1)",
+   "crossCheck": {
+    "gridCellsClassified": 20,
+    "graphicsCells": [],
+    "celebrationCells": [],
+    "crowdCells": [],
+    "verdict": "NEAR-MISS/OTHER"
+   },
+   "notes": "Red-card moment: roar at 4161.5; the w2a w4200_g1 grid (immutable record) shows a red-card graphic overlay at ~4199.3 (+38s, outside the +-19s cross-check grids). Inside w4160-wide (already sampled)."
+  }
+ ],
+ "counts": {
+  "total": 40,
+  "crossChecked": 33
+ }
+}

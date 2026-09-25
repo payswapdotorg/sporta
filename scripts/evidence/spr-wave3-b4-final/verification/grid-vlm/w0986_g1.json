@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Coach standing on the sideline\n2: wide-broadcast | Coach standing on the sideline\n3: wide-broadcast | Coach standing on the sideline\n4: closeup | Player in a pink jersey celebrating\n5: closeup | Two players in pink jerseys talking\n6: pitch-action | Player in pink jersey gesturing with his hand\n7: pitch-action | Player in a pink jersey waving\n8: graphics | \"GOOOOOL\" graphic overlay on screen\n9: graphics | \"GOL\" graphic overlay on screen\n10: graphics | \"GOL\" graphic overlay on screen\n11: pitch-action | Two players in pink jerseys on the field\n12: pitch-action | Players in pink jerseys on the field\n13: closeup | Player in a pink jersey from behind\n14: closeup | Player in a green jersey from behind\n15: wide-broadcast | Wide shot of the soccer pitch\n16: wide-broadcast | Wide shot of the soccer pitch\n17: wide-broadcast | Wide shot of the soccer pitch\n18: wide-broadcast | Wide shot of the soccer pitch\n19: wide-broadcast | Wide shot of the soccer pitch\n20: wide-broadcast | Wide shot of the soccer pitch",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311844,
+ "id": "202609251250392e097dd50eed47d4",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251250392e097dd50eed47d4",
+ "usage": {
+  "completion_tokens": 259,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2157
+ },
+ "_meta": {
+  "tag": "w0986_g1",
+  "attempt": 1
+ }
+}

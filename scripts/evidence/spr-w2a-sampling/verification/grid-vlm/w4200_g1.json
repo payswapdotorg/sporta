@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: crowd | Spectators in stands fill the frame\n2: crowd | Spectators in stands fill the frame\n3: crowd | Spectators in stands fill the frame\n4: crowd | Spectators in stands fill the frame\n5: closeup | Coach/manager on sideline\n6: closeup | Coach/manager on sideline\n7: closeup | Spectator/fan in stands (foreground)\n8: closeup | Spectator/fan in stands (foreground)\n9: closeup | Camera operator and coach\n10: closeup | Coach/manager on sideline\n11: graphics | Red card graphic overlay\n12: closeup | Spectator/fan in stands (foreground)\n13: pitch-action | Players and referee on pitch\n14: pitch-action | Players and referee on pitch\n15: pitch-action | Players and referee on pitch\n16: pitch-action | Players and referee on pitch\n17: pitch-action | Players and referee on pitch\n18: pitch-action | Players and referee on pitch\n19: pitch-action | Players and referee on pitch\n20: pitch-action | Players and referee on pitch\n21: pitch-action | Players and referee on pitch\n22: pitch-action | Players and referee on pitch\n23: closeup | Player with spectators behind\n24: closeup | Player with spectators behind",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283755,
+  "id": "202609250502308b27c4039fd4454d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250502308b27c4039fd4454d",
+  "usage": {
+    "completion_tokens": 272,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2034
+  }
+}

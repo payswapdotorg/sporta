@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: closeup | Close-up shot of a player in a green and white striped jersey\n7: closeup | Close-up shot of a player in a green and white striped jersey\n8: closeup | Close-up shot of a player in a pink jersey\n9: closeup | Close-up shot of a player in a pink jersey\n10: pitch-action | Medium shot of players competing for the ball with a replay wipe graphic\n11: pitch-action | Medium shot of players in red and green kits near the sideline\n12: pitch-action | Medium shot of players in red and green kits competing for the ball\n13: pitch-action | Medium shot of players in red and green kits competing for the ball\n14: pitch-action | Medium shot of players in red and green kits competing for the ball\n15: pitch-action | Medium shot of players in red and green kits competing for the ball\n16: pitch-action | Medium shot of players in red and green kits competing for the ball\n17: pitch-action | Medium shot of players in red and green kits competing for the ball\n18: pitch-action | Medium shot of players in red and green kits competing for the ball\n19: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n20: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313908,
+ "id": "20260925132459e69dbbce16314686",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132459e69dbbce16314686",
+ "usage": {
+  "completion_tokens": 380,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2278
+ },
+ "_meta": {
+  "tag": "w3670_g2",
+  "attempt": 1
+ }
+}

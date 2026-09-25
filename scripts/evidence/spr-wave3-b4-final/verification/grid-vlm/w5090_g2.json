@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in position\n2: wide-broadcast | Wide shot of the soccer pitch showing players in position\n3: wide-broadcast | Wide shot of the soccer pitch showing players in position\n4: wide-broadcast | Wide shot of the soccer pitch showing players in position\n5: wide-broadcast | Wide shot of the soccer pitch showing players in position\n6: wide-broadcast | Wide shot of the soccer pitch showing players in position\n7: wide-broadcast | Wide shot of the soccer pitch showing players in position\n8: wide-broadcast | Wide shot of the soccer pitch showing players in position\n9: wide-broadcast | Wide shot of the soccer pitch with LaLiga graphic overlay\n10: wide-broadcast | Wide shot of the soccer pitch with score and time graphic\n11: wide-broadcast | Wide shot of the soccer pitch with score and time graphic\n12: wide-broadcast | Wide shot of the soccer pitch with score and time graphic\n13: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n14: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n15: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n16: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n17: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n18: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n19: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic\n20: wide-broadcast | Wide shot of the soccer pitch with team names and score graphic",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314435,
+ "id": "202609251333475921c1cf32904454",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251333475921c1cf32904454",
+ "usage": {
+  "completion_tokens": 361,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2259
+ },
+ "_meta": {
+  "tag": "w5090_g2",
+  "attempt": 1
+ }
+}

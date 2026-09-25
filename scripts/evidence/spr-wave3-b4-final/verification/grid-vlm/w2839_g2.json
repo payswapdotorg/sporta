@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in green and white stripes lying on the grass holding his leg\n2: closeup | Player in green and white stripes lying on the grass holding his leg\n3: closeup | Player in green and white stripes on the ground as a player in white stands over him\n4: closeup | Close-up of legs and feet of players standing near the player on the ground\n5: closeup | Player in a pink jersey looking towards the camera with a smile\n6: closeup | Player in a pink jersey looking serious\n7: graphics | Player in a pink jersey with a large graphic wipe on the right side of the screen\n8: wide-broadcast | Wide shot of the pitch showing a player in green running with space ahead\n9: pitch-action | Player in a pink jersey dribbling the ball on the field\n10: pitch-action | Player in a pink jersey running with the ball at his feet\n11: pitch-action | Player in a pink jersey being tackled by a player in green\n12: pitch-action | Player in green attempting to tackle the player in pink for the ball\n13: pitch-action | Player in pink advancing past a sliding defender in green\n14: pitch-action | Player in pink controlling the ball while a defender lies on the turf\n15: pitch-action | Player in pink passing the ball while being challenged by a defender in white\n16: wide-broadcast | Wide view showing a player in pink falling after a challenge near a downed opponent\n17: wide-broadcast | Wide shot of the penalty area with players in pink and white positioned for a play\n18: pitch-action | Players in green and pink competing intensely for the ball near advertising boards\n19: pitch-action | Player in green shielding the ball from a challenging player in pink\n20: pitch-action | Player in green maintaining possession of the ball against a defender in pink",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313162,
+ "id": "202609251312295b4fcae6b7ba4313",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251312295b4fcae6b7ba4313",
+ "usage": {
+  "completion_tokens": 386,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2284
+ },
+ "_meta": {
+  "tag": "w2839_g2",
+  "attempt": 6
+ }
+}

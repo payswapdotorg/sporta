@@ -1,0 +1,517 @@
+[
+ {
+  "grid": 1,
+  "file": "w3670_g1.jpg",
+  "trueStart": 3666.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 3666.84,
+    "offsetInWindow": 0.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 3667.84,
+    "offsetInWindow": 1.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 3668.84,
+    "offsetInWindow": 2.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 3669.84,
+    "offsetInWindow": 3.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 3670.84,
+    "offsetInWindow": 4.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 3671.84,
+    "offsetInWindow": 5.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 3672.84,
+    "offsetInWindow": 6.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 3673.84,
+    "offsetInWindow": 7.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 3674.84,
+    "offsetInWindow": 8.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 3675.84,
+    "offsetInWindow": 9.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 3676.84,
+    "offsetInWindow": 10.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 3677.84,
+    "offsetInWindow": 11.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 3678.84,
+    "offsetInWindow": 12.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 3679.84,
+    "offsetInWindow": 13.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 3680.84,
+    "offsetInWindow": 14.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 3681.84,
+    "offsetInWindow": 15.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 3682.84,
+    "offsetInWindow": 16.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 3683.84,
+    "offsetInWindow": 17.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 3684.84,
+    "offsetInWindow": 18.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 3685.84,
+    "offsetInWindow": 19.0
+   }
+  ]
+ },
+ {
+  "grid": 2,
+  "file": "w3670_g2.jpg",
+  "trueStart": 3666.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 3686.84,
+    "offsetInWindow": 20.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 3687.84,
+    "offsetInWindow": 21.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 3688.84,
+    "offsetInWindow": 22.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 3689.84,
+    "offsetInWindow": 23.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 3690.84,
+    "offsetInWindow": 24.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 3691.84,
+    "offsetInWindow": 25.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 3692.84,
+    "offsetInWindow": 26.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 3693.84,
+    "offsetInWindow": 27.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 3694.84,
+    "offsetInWindow": 28.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 3695.84,
+    "offsetInWindow": 29.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 3696.84,
+    "offsetInWindow": 30.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 3697.84,
+    "offsetInWindow": 31.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 3698.84,
+    "offsetInWindow": 32.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 3699.84,
+    "offsetInWindow": 33.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 3700.84,
+    "offsetInWindow": 34.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 3701.84,
+    "offsetInWindow": 35.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 3702.84,
+    "offsetInWindow": 36.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 3703.84,
+    "offsetInWindow": 37.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 3704.84,
+    "offsetInWindow": 38.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 3705.84,
+    "offsetInWindow": 39.0
+   }
+  ]
+ },
+ {
+  "grid": 3,
+  "file": "w3670_g3.jpg",
+  "trueStart": 3666.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 3706.84,
+    "offsetInWindow": 40.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 3707.84,
+    "offsetInWindow": 41.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 3708.84,
+    "offsetInWindow": 42.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 3709.84,
+    "offsetInWindow": 43.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 3710.84,
+    "offsetInWindow": 44.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 3711.84,
+    "offsetInWindow": 45.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 3712.84,
+    "offsetInWindow": 46.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 3713.84,
+    "offsetInWindow": 47.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 3714.84,
+    "offsetInWindow": 48.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 3715.84,
+    "offsetInWindow": 49.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 3716.84,
+    "offsetInWindow": 50.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 3717.84,
+    "offsetInWindow": 51.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 3718.84,
+    "offsetInWindow": 52.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 3719.84,
+    "offsetInWindow": 53.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 3720.84,
+    "offsetInWindow": 54.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 3721.84,
+    "offsetInWindow": 55.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 3722.84,
+    "offsetInWindow": 56.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 3723.84,
+    "offsetInWindow": 57.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 3724.84,
+    "offsetInWindow": 58.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 3725.84,
+    "offsetInWindow": 59.0
+   }
+  ]
+ },
+ {
+  "grid": 4,
+  "file": "w3670_g4.jpg",
+  "trueStart": 3666.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 3726.84,
+    "offsetInWindow": 60.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 3727.84,
+    "offsetInWindow": 61.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 3728.84,
+    "offsetInWindow": 62.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 3729.84,
+    "offsetInWindow": 63.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 3730.84,
+    "offsetInWindow": 64.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 3731.84,
+    "offsetInWindow": 65.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 3732.84,
+    "offsetInWindow": 66.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 3733.84,
+    "offsetInWindow": 67.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 3734.84,
+    "offsetInWindow": 68.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 3735.84,
+    "offsetInWindow": 69.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 3736.84,
+    "offsetInWindow": 70.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 3737.84,
+    "offsetInWindow": 71.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 3738.84,
+    "offsetInWindow": 72.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 3739.84,
+    "offsetInWindow": 73.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 3740.84,
+    "offsetInWindow": 74.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 3741.84,
+    "offsetInWindow": 75.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 3742.84,
+    "offsetInWindow": 76.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 3743.84,
+    "offsetInWindow": 77.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 3744.84,
+    "offsetInWindow": 78.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 3745.84,
+    "offsetInWindow": 79.0
+   }
+  ]
+ },
+ {
+  "grid": 5,
+  "file": "w3670_g5.jpg",
+  "trueStart": 3666.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 3746.84,
+    "offsetInWindow": 80.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 3747.84,
+    "offsetInWindow": 81.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 3748.84,
+    "offsetInWindow": 82.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 3749.84,
+    "offsetInWindow": 83.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 3750.84,
+    "offsetInWindow": 84.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 3751.84,
+    "offsetInWindow": 85.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 3752.84,
+    "offsetInWindow": 86.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 3753.84,
+    "offsetInWindow": 87.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 3754.84,
+    "offsetInWindow": 88.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 3755.84,
+    "offsetInWindow": 89.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 3756.84,
+    "offsetInWindow": 90.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 3757.84,
+    "offsetInWindow": 91.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 3758.84,
+    "offsetInWindow": 92.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 3759.84,
+    "offsetInWindow": 93.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 3760.84,
+    "offsetInWindow": 94.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 3761.84,
+    "offsetInWindow": 95.0
+   }
+  ]
+ }
+]

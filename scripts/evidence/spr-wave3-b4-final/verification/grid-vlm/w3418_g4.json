@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch with a scoreboard graphic at the bottom\n5: wide-broadcast | Wide shot of the soccer pitch with a red graphic overlay in the center\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n13: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n14: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n15: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n16: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313805,
+ "id": "202609251323193b43e3622fb24cf0",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251323193b43e3622fb24cf0",
+ "usage": {
+  "completion_tokens": 321,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2219
+ },
+ "_meta": {
+  "tag": "w3418_g4",
+  "attempt": 1
+ }
+}

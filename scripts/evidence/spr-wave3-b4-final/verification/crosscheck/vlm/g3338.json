@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer field with players in red and green kits\n2: play | Wide shot of the soccer field with players in red and green kits\n3: play | Wide shot of the soccer field with players in red and green kits\n4: play | Wide shot of the soccer field with players in red and green kits\n5: play | Wide shot of the soccer field with players in red and green kits\n6: play | Wide shot of the soccer field with players in red and green kits\n7: play | Wide shot of the soccer field with players in red and green kits\n8: play | Wide shot of the soccer field with players in red and green kits\n9: play | Wide shot of the soccer field with players in red and green kits\n10: play | Wide shot of the soccer field with players in red and green kits\n11: play | Wide shot of the soccer field with players in red and green kits\n12: play | Wide shot of the soccer field with players in red and green kits\n13: closeup | Tight shot of a player's back wearing a green jersey with number 8\n14: closeup | Tight shot of a player in a green jersey covering his face with his hands\n15: closeup | Tight shot of two people, one in a green jersey and one in black, embracing\n16: closeup | Tight shot of two men, one appearing to be a referee and one a player\n17: closeup | Tight shot of a player's back wearing a green jersey with number 9\n18: closeup | Tight shot of two players facing each other, one in green and one in red\n19: play | Wide shot of the soccer field with players in red and green kits\n20: play | Wide shot of the soccer field with players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311374,
+ "id": "20260925124233b65bd290695a4e70",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124233b65bd290695a4e70",
+ "usage": {
+  "completion_tokens": 382,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2271
+ },
+ "_meta": {
+  "tag": "g3338",
+  "attempt": 1
+ }
+}

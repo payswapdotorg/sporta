@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of soccer field with players in the center circle\n2: play | Wide shot of soccer field with players in the center circle\n3: play | Wide shot of soccer field with players in the center circle\n4: play | Wide shot of soccer field with players in the center circle\n5: play | Wide shot of soccer field with players in the center circle\n6: play | Wide shot of soccer field with players in the center circle\n7: play | Wide shot of soccer field with players in the center circle\n8: play | Wide shot of soccer field with players in the center circle\n9: play | Wide shot of soccer field with players in the center circle\n10: play | Wide shot of soccer field with players in the center circle\n11: play | Wide shot of soccer field with players in the center circle\n12: play | Wide shot of soccer field with players in the center circle\n13: play | Wide shot of soccer field with players in the center circle\n14: play | Wide shot of soccer field with players in the center circle\n15: play | Wide shot of soccer field with players in the center circle\n16: play | Wide shot of soccer field with players in the center circle\n17: play | Wide shot of soccer field with players in the center circle\n18: play | Wide shot of soccer field with players in the center circle\n19: play | Wide shot of soccer field with players in the center circle\n20: play | Wide shot of soccer field with players in the center circle",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311768,
+ "id": "20260925124921dbb8a00789994dfb",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124921dbb8a00789994dfb",
+ "usage": {
+  "completion_tokens": 320,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1878,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2198
+ },
+ "_meta": {
+  "tag": "g0247-late rerun",
+  "attempt": 1
+ }
+}

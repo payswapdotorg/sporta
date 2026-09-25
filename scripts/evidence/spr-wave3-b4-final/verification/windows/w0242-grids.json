@@ -1,0 +1,278 @@
+[
+ {
+  "grid": 1,
+  "file": "w0242_g1.jpg",
+  "trueStart": 241.64,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 241.64,
+    "offsetInWindow": 0.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 242.64,
+    "offsetInWindow": 1.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 243.64,
+    "offsetInWindow": 2.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 244.64,
+    "offsetInWindow": 3.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 245.64,
+    "offsetInWindow": 4.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 246.64,
+    "offsetInWindow": 5.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 247.64,
+    "offsetInWindow": 6.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 248.64,
+    "offsetInWindow": 7.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 249.64,
+    "offsetInWindow": 8.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 250.64,
+    "offsetInWindow": 9.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 251.64,
+    "offsetInWindow": 10.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 252.64,
+    "offsetInWindow": 11.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 253.64,
+    "offsetInWindow": 12.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 254.64,
+    "offsetInWindow": 13.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 255.64,
+    "offsetInWindow": 14.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 256.64,
+    "offsetInWindow": 15.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 257.64,
+    "offsetInWindow": 16.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 258.64,
+    "offsetInWindow": 17.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 259.64,
+    "offsetInWindow": 18.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 260.64,
+    "offsetInWindow": 19.0
+   }
+  ]
+ },
+ {
+  "grid": 2,
+  "file": "w0242_g2.jpg",
+  "trueStart": 241.64,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 261.64,
+    "offsetInWindow": 20.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 262.64,
+    "offsetInWindow": 21.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 263.64,
+    "offsetInWindow": 22.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 264.64,
+    "offsetInWindow": 23.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 265.64,
+    "offsetInWindow": 24.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 266.64,
+    "offsetInWindow": 25.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 267.64,
+    "offsetInWindow": 26.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 268.64,
+    "offsetInWindow": 27.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 269.64,
+    "offsetInWindow": 28.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 270.64,
+    "offsetInWindow": 29.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 271.64,
+    "offsetInWindow": 30.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 272.64,
+    "offsetInWindow": 31.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 273.64,
+    "offsetInWindow": 32.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 274.64,
+    "offsetInWindow": 33.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 275.64,
+    "offsetInWindow": 34.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 276.64,
+    "offsetInWindow": 35.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 277.64,
+    "offsetInWindow": 36.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 278.64,
+    "offsetInWindow": 37.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 279.64,
+    "offsetInWindow": 38.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 280.64,
+    "offsetInWindow": 39.0
+   }
+  ]
+ },
+ {
+  "grid": 3,
+  "file": "w0242_g3.jpg",
+  "trueStart": 241.64,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 281.64,
+    "offsetInWindow": 40.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 282.64,
+    "offsetInWindow": 41.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 283.64,
+    "offsetInWindow": 42.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 284.64,
+    "offsetInWindow": 43.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 285.64,
+    "offsetInWindow": 44.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 286.64,
+    "offsetInWindow": 45.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 287.64,
+    "offsetInWindow": 46.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 288.64,
+    "offsetInWindow": 47.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 289.64,
+    "offsetInWindow": 48.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 290.64,
+    "offsetInWindow": 49.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 291.64,
+    "offsetInWindow": 50.0
+   }
+  ]
+ }
+]

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide view of the pitch and players\n2: wide-broadcast | Wide view of the pitch and players\n3: wide-broadcast | Wide view of the pitch and players\n4: wide-broadcast | Wide view of the pitch and players\n5: wide-broadcast | Wide view of the pitch and players\n6: closeup | Player in green sitting on the pitch\n7: closeup | Player in green sitting on the pitch\n8: closeup | Player in red lying on the pitch\n9: closeup | Player in red lying on the pitch\n10: closeup | Player in red lying on the pitch\n11: wide-broadcast | View of the pitch with players and stands visible\n12: wide-broadcast | View of the pitch with players and stands visible\n13: wide-broadcast | View of the pitch with players and stands visible\n14: wide-broadcast | View of the pitch with players and stands visible\n15: wide-broadcast | View of the pitch with players and stands visible\n16: wide-broadcast | View of the pitch with players and stands visible\n17: wide-broadcast | View of the pitch with players and stands visible\n18: graphics | Large graphic overlay covering most of the frame\n19: wide-broadcast | Wide view of the pitch and players\n20: wide-broadcast | Wide view of the pitch and players",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790284228,
+  "id": "20260925051024fd6e1943c9c24570",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925051024fd6e1943c9c24570",
+  "usage": {
+    "completion_tokens": 288,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2050
+  }
+}

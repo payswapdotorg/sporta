@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the goal area showing the goalkeeper and the net\n2: pitch-action | Close-up of the ball hitting the back of the net\n3: closeup | Tight shot of a coach celebrating with arms raised on the sideline\n4: closeup | Tight shot of a coach celebrating with arms raised on the sideline\n5: closeup | Medium shot of a coach gesturing and celebrating near the sideline\n6: wide-broadcast | High wide shot of the entire pitch showing player positions\n7: wide-broadcast | High wide shot of the entire pitch showing player positions\n8: wide-broadcast | High wide shot of the entire pitch showing player positions\n9: wide-broadcast | Wide shot of the pitch with a player stats graphic in the corner\n10: wide-broadcast | Wide shot of the pitch with a player stats graphic in the corner\n11: wide-broadcast | Wide shot of the pitch with a player stats graphic in the corner\n12: wide-broadcast | Wide shot of the pitch with a player stats graphic in the corner\n13: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n14: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n15: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n16: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n17: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n18: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n19: wide-broadcast | Wide shot of the pitch with a sponsor graphic in the corner\n20: wide-broadcast | Wide shot of the pitch with a corner flag visible",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311967,
+ "id": "20260925125239d2af7960c3d34ee0",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125239d2af7960c3d34ee0",
+ "usage": {
+  "completion_tokens": 371,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2269
+ },
+ "_meta": {
+  "tag": "w1091_g4",
+  "attempt": 1
+ }
+}

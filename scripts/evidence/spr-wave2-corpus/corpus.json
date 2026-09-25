@@ -212,10 +212,227 @@
     "file": "clip-verify/vlm-clip-b7-night.json",
     "verdict": "VERDICT YES \u2014 dark sky, stadium floodlights illuminating the pitch"
    }
+  },
+  {
+   "clipId": "sprclip-b4-crowd-montage",
+   "category": "crowd-montage",
+   "designation": "crowd-montage",
+   "file": "../spr-wave3-b4-final/bytes/clip-b4-crowd-montage.mp4",
+   "byteSize": 1144840,
+   "sha256": "6849d5fde6db13870c9ff18a732b9bc950d86e3c89af1ff82f35d66b3f36248f",
+   "width": 640,
+   "height": 360,
+   "fps": 25,
+   "frameCount": 300,
+   "durationMs": 12023,
+   "totalDurationSec": 12.0,
+   "segmentCount": 2,
+   "segments": [
+    {
+     "id": "w2aC4",
+     "mediaStart": 4232.88,
+     "mediaEnd": 4237.88,
+     "durationSec": 6.0,
+     "file": "mon-w2aC4.mp4",
+     "sha256": "00eb329a74688b57a249a8653e691044f5101149c64e51c5aab9ccbcd752dd08",
+     "byteSize": 607184,
+     "sourceWindowMap": "mon-w2aC4-window.json",
+     "sourceSegments": 3,
+     "sourceSegmentDurations": [
+      3.92,
+      6.4,
+      5.68
+     ],
+     "provenance": "w2a rejected candidate C4 (window w4200-mid): direct-verified per-frame 4232.88-4237.88 ALL YES (tight spectators shots), brackets 4231.88 NO / 4238.88 NO; rejected only for 6.0s < 8s (the w2a 2-7s law)",
+     "verification": {
+      "frames": [
+       {
+        "mediaTime": 4231.88,
+        "frameIndex": 76,
+        "verdict": "NO",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a close-up of a player on the pitch, with no visible spectators or stands.",
+        "frame": "w2aC4-x_000.jpg"
+       },
+       {
+        "mediaTime": 4232.88,
+        "frameIndex": 101,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a tight shot of spectators in the stands, and they clearly occupy more than half of the frame area.",
+        "frame": "w2aC4-x_001.jpg"
+       },
+       {
+        "mediaTime": 4233.88,
+        "frameIndex": 126,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: spectators clearly occupy the entire frame area.",
+        "frame": "w2aC4-x_002.jpg"
+       },
+       {
+        "mediaTime": 4234.88,
+        "frameIndex": 151,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: spectators and the stands clearly occupy more than half of the frame area, showing a tight crowd shot of fans.",
+        "frame": "w2aC4-x_003.jpg"
+       },
+       {
+        "mediaTime": 4235.88,
+        "frameIndex": 176,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is filled with spectators in the stands, occupying the vast majority of the visual area.",
+        "frame": "w2aC4-x_004.jpg"
+       },
+       {
+        "mediaTime": 4236.88,
+        "frameIndex": 201,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a tight shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area.",
+        "frame": "w2aC4-x_005.jpg"
+       },
+       {
+        "mediaTime": 4237.88,
+        "frameIndex": 226,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a close-up shot of spectators in the stands, with people and their clothing filling the vast majority of the visual area.",
+        "frame": "w2aC4-x_006.jpg"
+       },
+       {
+        "mediaTime": 4238.88,
+        "frameIndex": 251,
+        "verdict": "NO",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a wide shot of the soccer pitch where the playing field and players occupy the foreground and a significant portion of the lower half, while the ",
+        "frame": "w2aC4-x_007.jpg"
+       }
+      ],
+      "w2aRecord": "c4-w4200-mid-seekfree.json",
+      "w2aRecordSha256": "d31cc6677ce5ab4dc48c989cb7cc89518f67152a35fb03ad78bbe6f3c696e342"
+     }
+    },
+    {
+     "id": "w2aC5",
+     "mediaStart": 5552.96,
+     "mediaEnd": 5557.96,
+     "durationSec": 6.0,
+     "file": "mon-w2aC5.mp4",
+     "sha256": "48795f6889d1c244d7d641496c959ff3793c7337f2bdb5351f78ed0f2512f09e",
+     "byteSize": 539002,
+     "sourceWindowMap": "mon-w2aC5-window.json",
+     "sourceSegments": 3,
+     "sourceSegmentDurations": [
+      3.48,
+      5.64,
+      6.88
+     ],
+     "provenance": "w2a rejected candidate C5 (window w5500-postmatch): direct-verified per-frame 5552.96-5557.96 ALL YES, brackets 5551.96 NO / 5558.96 NO; rejected only for 6.0s < 8s",
+     "verification": {
+      "frames": [
+       {
+        "mediaTime": 5551.96,
+        "frameIndex": 53,
+        "verdict": "NO",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is dominated by two players on the pitch, with no visible crowd or stands.",
+        "frame": "w2aC5-x_000.jpg"
+       },
+       {
+        "mediaTime": 5552.96,
+        "frameIndex": 78,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is entirely filled with spectators in the stands, with no visible pitch or players.",
+        "frame": "w2aC5-x_001.jpg"
+       },
+       {
+        "mediaTime": 5553.96,
+        "frameIndex": 103,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: spectators in the stands clearly occupy the vast majority of the frame area.",
+        "frame": "w2aC5-x_002.jpg"
+       },
+       {
+        "mediaTime": 5554.96,
+        "frameIndex": 128,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: spectators and the stands clearly occupy the entire frame area.",
+        "frame": "w2aC5-x_003.jpg"
+       },
+       {
+        "mediaTime": 5555.96,
+        "frameIndex": 153,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is entirely filled with spectators in the stands, with no visible pitch or players.",
+        "frame": "w2aC5-x_004.jpg"
+       },
+       {
+        "mediaTime": 5556.96,
+        "frameIndex": 178,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a close-up shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area.",
+        "frame": "w2aC5-x_005.jpg"
+       },
+       {
+        "mediaTime": 5557.96,
+        "frameIndex": 203,
+        "verdict": "YES",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is a close-up shot of spectators in the stands, and the people/stands occupy the vast majority of the frame area.",
+        "frame": "w2aC5-x_006.jpg"
+       },
+       {
+        "mediaTime": 5558.96,
+        "frameIndex": 228,
+        "verdict": "NO",
+        "basis": "w2a-record",
+        "reason": "w2a immutable record: The frame is dominated by a player (Jofre) in the foreground and the pitch, with the crowd only visible in the background.",
+        "frame": "w2aC5-x_007.jpg"
+       }
+      ],
+      "w2aRecord": "c5-w5500-postmatch-seekfree.json",
+      "w2aRecordSha256": "acec55d80341d86632e065f54c6f148793ea6fb248f61e4af42a63c1e1ebef25"
+     }
+    }
+   ],
+   "joins": [
+    {
+     "atSegmentBoundary": 1,
+     "from": "w2aC4",
+     "to": "w2aC5",
+     "cutPointAfterMediaSec": 4238.88,
+     "cutPointBeforeMediaSec": 5552.96,
+     "method": "hard cut, concat demuxer over uniformly re-encoded segments (libx264 crf18) \u2014 no transition frames invented"
+    }
+   ],
+   "audio": "full-match itag-140-5 m4a (sha256 603806d9\u2026e360) cut at the same media times per segment, apad-normalized, aac 128k 44100 (corpus recipe)",
+   "acquisition": {
+    "method": "cut-based composite of real broadcast segments re-pulled from the frozen source through the recorded chain",
+    "source": "https://www.youtube.com/watch?v=93LPZJkCW2w (LALIGA 2025/26 MD15 full match, frozen itag-230 640x360 HLS + itag-140-5 audio)",
+    "recipe": "seek-free full decode of the window TS + exact 25fps frame-index select; libx264 crf18 re-encode (corpus recipe; -c copy would keyframe-snap); audio cut from the full-match itag-140-5 m4a at the same media times, apad, aac 128k 44100",
+    "perSegmentProvenance": "segments[].sourceWindowMap + segments[].sourceSegments (exact source-segment math per join)",
+    "verificationBasis": "per frame in segments[].verification.frames[] \u2014 basis 'vlm' (landed single-image call, raw JSON in verification/candidates/vlm/) or 'w2a-record' (immutable w2a per-frame direct-verification record at the exact media time, sha-matched)"
+   },
+   "vlmVerification": {
+    "prompt": "single frame; YES only when spectators/crowd in the stands occupy more than half of the total frame area",
+    "discipline": "one image per call; unlink-before-every-attempt; seek-free extraction; 1 fps sampling (the corpus grid law); both brackets must be clean NOs",
+    "verdict": "every 1 fps frame of every segment verified crowd-dominant with clean brackets; composite designation crowd-montage \u2014 a re-encode of real source segments, no frame invention"
+   },
+   "addendum": "../spr-wave3-b4-final/corpus-b4-addendum.json"
   }
  ],
  "notes": [
   "w6-spr-4 (2026-09-25): wave-2 discovery executed \u2014 9 windows sampled (~774s, media 300/900/1979/2065/3300/3500/4600/5000/5800), 1fps timestamped grids, VLM-classified. b2/b3/b5/b6/b7 assembled and per-clip VLM-verified YES. b4 (crowd) PENDING HONESTLY: every crowd-flagged candidate failed direct verification (grid over-called crowd for wide shots with visible stands; direct checks of disc-300 t=54-78 and disc-3300 t=0-19 all NO \u2014 this broadcast's world feed shows no 8-12s crowd-dominant passage in the sampled material; needs goal timestamps or further sampling). b7 night CONFIRMED by direct frame check (day at ~30', floodlit night at ~97'). Assembly reproducibility proven BYTE-IDENTICAL on a re-run (b2).",
-  "spr-w3a (2026-09-25T04:19:43Z): substrate apad re-cut of b1 and b12 under SPR-W3-A (branch spr/w3a/substrate-fix, base 805a5fc; engine frozen - the substrate adapts, w6-spr-2 precedent). b1 re-cut from the same b8p3 source window (ffmpeg two-step: (1) -ss 0 -t 30 -i b8p3.mp4 -map 0:a:0 -af apad -c:a aac -b:a 128k -ar 44100 -t 30.06; (2) -ss 0 -t 30 -i b8p3.mp4 + padded m4a, -map 0:v:0 -map 1:a:0 -c copy -fflags +bitexact -flags:v +bitexact -map_metadata -1): video packets byte-identical to superseded bytes (raw h264 dump sha af62055d617e382428a0850614703152eb0e14c10a85133e7ec7f8222b3677ee both sides), 751 frames preserved, audio now 30.06s >= video 30.04s - resolves wave-2 F1 (frozen -shortest encoder 751->750 truncation + qa_check crash). New byteSize 1771681, format duration 30.06s (entry byteSize/durationMs fields left at wave-2 values per the gate-7 minimal-diff rule; new values recorded here and in spr-wave3-substrate-fix/substrate-fix.json). Superseded b1 sha256 72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945. b12 remux of the existing bytes (audio: -af apad -c:a aac -b:a 128k -ar 44100 -t 12.06; video + padded audio remuxed -c copy, same bitexact flags): video packets byte-identical (raw h264 dump sha 32a54c637b4cd95fa5ce57a83cd309bf6c046a1352dd2d42a6157ea85bd78f7e both sides), decode-true 301 unchanged, audio now 12.06s >= video 12.04s - resolves the w2c b12 trailing-packet drop under -shortest. New byteSize 731394, format duration 12.06s. Superseded b12 sha256 7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421. HONEST NEGATIVE on the w2c b12 nb_frames finding: the 338 container sample count is NOT stale metadata - the track carries 37 edit-list-hidden pre-roll packets (PTS -1.48..0) whose GOP root keyframe (PTS -1.48) the first 63 real frames ([0,2.52s); next keyframes at 2.52/8.52; 4s GOPs) are predicted from; a packet-preserving remux cannot write nb_frames=301 (stsz must count all 338 samples for decodability), dropping the pre-roll corrupts real content, re-encoding alters frozen pixels. Audio half fixed; nb_frames defect class remains open for TL decision (evidence in spr-wave3-substrate-fix/substrate-fix.json). The other 6 clips' bytes and entries untouched (sha-verified post-edit)."
+  "w2a lane A (2026-09-24): b4 wider-sampling executed and STILL NOT FOUND, honestly \u2014 16 NEW windows (~1520s disjoint coverage, media 150/450/600/1200/1500/2400/2700/3000/3900/4200/4500/5400/5500/5950/6200/6350, avoiding the 9 recorded windows and the 3500 audio dead zone), 80 timestamped 4x5 grids, 26 crowd-flagged cells \u2192 5 candidate passages, ALL direct-verified per-frame (single-image VLM, seek-free extraction) and ALL REJECTED: verified crowd-dominant runs are 2s/2-3s/3s/4s+3s/~6.5s at media ~2720.8+~2725.8, 3021.8-3023.8, 4195.9-4198.9 + 4201.9-4203.9, 4232.9-4237.9 (bracketed), 5552.96-5557.96 (bracketed). The world feed's crowd cutaways run 2-7s, never >=8s. Full evidence + method incidents (TS seek imprecision, VLM multi-image mis-attribution, stale-output 429 poisoning \u2014 all caught and fixed): scripts/evidence/spr-w2a-sampling/. b4 remains PENDING; next lead options: goal-timestamp-targeted sampling or a category-definition decision (shorter b4 / crowd-montage).",
+  "spr-w3a (2026-09-25T04:19:43Z): substrate apad re-cut of b1 and b12 under SPR-W3-A (branch spr/w3a/substrate-fix, base 805a5fc; engine frozen - the substrate adapts, w6-spr-2 precedent). b1 re-cut from the same b8p3 source window (ffmpeg two-step: (1) -ss 0 -t 30 -i b8p3.mp4 -map 0:a:0 -af apad -c:a aac -b:a 128k -ar 44100 -t 30.06; (2) -ss 0 -t 30 -i b8p3.mp4 + padded m4a, -map 0:v:0 -map 1:a:0 -c copy -fflags +bitexact -flags:v +bitexact -map_metadata -1): video packets byte-identical to superseded bytes (raw h264 dump sha af62055d617e382428a0850614703152eb0e14c10a85133e7ec7f8222b3677ee both sides), 751 frames preserved, audio now 30.06s >= video 30.04s - resolves wave-2 F1 (frozen -shortest encoder 751->750 truncation + qa_check crash). New byteSize 1771681, format duration 30.06s (entry byteSize/durationMs fields left at wave-2 values per the gate-7 minimal-diff rule; new values recorded here and in spr-wave3-substrate-fix/substrate-fix.json). Superseded b1 sha256 72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945. b12 remux of the existing bytes (audio: -af apad -c:a aac -b:a 128k -ar 44100 -t 12.06; video + padded audio remuxed -c copy, same bitexact flags): video packets byte-identical (raw h264 dump sha 32a54c637b4cd95fa5ce57a83cd309bf6c046a1352dd2d42a6157ea85bd78f7e both sides), decode-true 301 unchanged, audio now 12.06s >= video 12.04s - resolves the w2c b12 trailing-packet drop under -shortest. New byteSize 731394, format duration 12.06s. Superseded b12 sha256 7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421. HONEST NEGATIVE on the w2c b12 nb_frames finding: the 338 container sample count is NOT stale metadata - the track carries 37 edit-list-hidden pre-roll packets (PTS -1.48..0) whose GOP root keyframe (PTS -1.48) the first 63 real frames ([0,2.52s); next keyframes at 2.52/8.52; 4s GOPs) are predicted from; a packet-preserving remux cannot write nb_frames=301 (stsz must count all 338 samples for decodability), dropping the pre-roll corrupts real content, re-encoding alters frozen pixels. Audio half fixed; nb_frames defect class remains open for TL decision (evidence in spr-wave3-substrate-fix/substrate-fix.json). The other 6 clips' bytes and entries untouched (sha-verified post-edit).",
+  "spr-w3c (2026-09-25T09:42Z): b4 CLOSED - reclassified as crowd-montage per the pre-recorded hard gate (SPR-W3-C, branch spr/w3c/b4-final, base de687ce, commit 8685e16). Gate: no >=8s directly-verified crowd-dominant run exists - 7 candidates directly verified (53 frames, 1fps, seek-free, single-image calls, unlink-before-attempt, both brackets): 49 honest 429-ERROR frames (persistent account-level quota windows; each listed with failure detail in the addendum errorFrames; none load-bearing), 2 NO, 2 YES; the only landed YES-run w1091 1105.84-1106.84 (2.0s) has a burned post-bracket; the 12s grid-flagged w2839 candidate (2883.84-2894.84) burned 16/16 ERROR - honestly not claimed. Sweep: 40 roar-spike goal-moment candidates (33 cross-checked vs scoreboard graphics, 8 GOAL-LIKELY incl. the calibration goal g2728), 20 new disjoint windows (1609.8s), 89 grids, 1608 cells, 25 crowd cells. Delivered: clip-b4-crowd-montage.mp4 - 12.0s/300 frames/640x360/25fps, sha256 6849d5fde6db13870c9ff18a732b9bc950d86e3c89af1ff82f35d66b3f36248f, audio aac 44100 128k from the frozen itag-140-5 full-match m4a (sha 603806d9...e360), apad-normalized (12.023s >= 12.0s). Segments: w2a C4 (4232.88-4237.88) + C5 (5552.96-5557.96), each 6.0s, every 1fps frame crowd-dominant with clean NO brackets (N-YYYYYY-N) - TL audit re-verified both runs and brackets against the immutable w2a records byte-level (record shas d31cc667/acec55d8 match). One hard cut at the verified cut point (4238.88 -> 5552.96), concat demuxer over uniformly re-encoded segments (libx264 crf18, corpus recipe) - no invented frames. designation crowd-montage: an honest NEW category (re-encode of real source segments joined at verified cut points), not a fake single-shot. Chain liveness proven (DE exit 169.150.210.53 match, 7/7 chain-equivalence verdicts vs w2a C1 record). corpus-b4-addendum.json integrated at the corpus site by the TL (read-only law honored: this entry + note are the only corpus edits). Full evidence: scripts/evidence/spr-wave3-b4-final/ (523 files, all additions)."
  ]
 }

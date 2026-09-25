@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Wide view of players on the pitch\n2: closeup | Close-up of player in green jersey\n3: closeup | Close-up of two players, one in orange\n4: closeup | Medium shot of a single player\n5: closeup | Side profile of a player\n6: closeup | Player gesturing with hand\n7: closeup | Rear view of player \"ANTONY 7\"\n8: pitch-action | Wide view of players on pitch\n9: pitch-action | Wide view of players on pitch\n10: pitch-action | Wide view of players on pitch\n11: pitch-action | Wide view of players on pitch\n12: pitch-action | Wide view of players on pitch\n13: pitch-action | Wide view of players on pitch\n14: pitch-action | Wide view of players on pitch\n15: pitch-action | Wide view of players on pitch\n16: pitch-action | Wide view of players on pitch\n17: pitch-action | Wide view of players on pitch\n18: pitch-action | Wide view of players on pitch\n19: pitch-action | Wide view of players on pitch\n20: pitch-action | Wide view of players on pitch",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283685,
+  "id": "202609250501201994f5ee100147ba",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250501201994f5ee100147ba",
+  "usage": {
+    "completion_tokens": 246,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2008
+  }
+}

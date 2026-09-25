@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Close-up of two players, one in a red jersey and the other in green with \"Aitor Ruibal 24\" on the back.\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits positioned across the field.\n3: wide-broadcast | Wide shot of the soccer pitch with players moving and positioning themselves during live play.\n4: wide-broadcast | Wide shot of the soccer pitch showing the ongoing match action from a high angle.\n5: wide-broadcast | Wide shot of the soccer pitch with players spread out across the field of play.\n6: wide-broadcast | Wide shot of the soccer pitch showing players in various positions during the game.\n7: wide-broadcast | Wide shot of the soccer pitch capturing the movement of players in red and green.\n8: wide-broadcast | Wide shot of the soccer pitch showing the tactical positioning of both teams.\n9: wide-broadcast | Wide shot of the soccer pitch with players actively engaged in the match.\n10: wide-broadcast | Wide shot of the soccer pitch showing the flow of the game from a distance.\n11: wide-broadcast | Wide shot of the soccer pitch with players moving towards the ball or into space.\n12: wide-broadcast | Wide shot of the soccer pitch showing the overall state of play on the field.\n13: wide-broadcast | Wide shot of the soccer pitch with players positioned across the grass.\n14: wide-broadcast | Wide shot of the soccer pitch showing the continuation of the match action.\n15: wide-broadcast | Wide shot of the soccer pitch with players in red and green kits visible.\n16: wide-broadcast | Wide shot of the soccer pitch showing the players' movements and positions.\n17: wide-broadcast | Wide shot of the soccer pitch capturing the live action from a wide perspective.\n18: wide-broadcast | Wide shot of the soccer pitch showing players scattered across the field.\n19: wide-broadcast | Wide shot of the soccer pitch with players continuing the match play.\n20: wide-broadcast | Wide shot of the soccer pitch showing the final frame of this sequence.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312495,
+ "id": "2026092513012049423eda3ad74251",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513012049423eda3ad74251",
+ "usage": {
+  "completion_tokens": 433,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2331
+ },
+ "_meta": {
+  "tag": "w1851_g4",
+  "attempt": 1
+ }
+}

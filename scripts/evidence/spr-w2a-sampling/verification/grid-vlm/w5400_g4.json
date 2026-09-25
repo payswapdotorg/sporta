@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: closeup | Player in orange jersey\n2: closeup | Player with number 21 on back\n3: wide-broadcast | Wide view of pitch and stands\n4: wide-broadcast | Wide view of pitch and stands\n5: wide-broadcast | Wide view of pitch and stands\n6: wide-broadcast | Wide view of pitch and stands\n7: wide-broadcast | Wide view of pitch and stands\n8: wide-broadcast | Wide view of pitch and stands\n9: wide-broadcast | Wide view of pitch and stands\n10: wide-broadcast | Wide view of pitch and stands\n11: wide-broadcast | Wide view of pitch and stands\n12: wide-broadcast | Wide view of pitch and stands\n13: wide-broadcast | Wide view of pitch and stands\n14: wide-broadcast | Wide view of pitch and stands\n15: wide-broadcast | Wide view of pitch and stands\n16: wide-broadcast | Wide view of pitch and stands\n17: wide-broadcast | Wide view of pitch and stands\n18: wide-broadcast | Wide view of pitch and stands\n19: wide-broadcast | Wide view of pitch and stands\n20: wide-broadcast | Wide view of pitch and stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283902,
+  "id": "2026092505045884d6ef80fe754225",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505045884d6ef80fe754225",
+  "usage": {
+    "completion_tokens": 257,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 174
+    },
+    "total_tokens": 2019
+  }
+}

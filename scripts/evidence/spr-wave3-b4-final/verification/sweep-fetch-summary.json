@@ -1,0 +1,462 @@
+[
+ {
+  "name": "w0986",
+  "moment": "g0988",
+  "requested": [
+   990.0,
+   1076.0
+  ],
+  "requestedFinal": [
+   991.89,
+   1080.79
+  ],
+  "trueWindow": [
+   991.84,
+   1080.84
+  ],
+  "segments": 15,
+  "bytes": 3621256,
+  "newSeconds": 89.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w1091",
+  "moment": "g1101",
+  "requested": [
+   1091.0,
+   1181.0
+  ],
+  "requestedFinal": [
+   1089.89,
+   1181.79
+  ],
+  "trueWindow": [
+   1089.84,
+   1181.84
+  ],
+  "segments": 18,
+  "bytes": 4350320,
+  "newSeconds": 92.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w1299",
+  "moment": "g1309",
+  "requested": [
+   1299.0,
+   1389.0
+  ],
+  "requestedFinal": [
+   1297.89,
+   1391.79
+  ],
+  "trueWindow": [
+   1297.84,
+   1391.84
+  ],
+  "segments": 18,
+  "bytes": 3201264,
+  "newSeconds": 94.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w1592",
+  "moment": "g1577",
+  "requested": [
+   1591.92,
+   1681.92
+  ],
+  "requestedFinal": [
+   1598.69,
+   1686.07
+  ],
+  "trueWindow": [
+   1598.64,
+   1686.12
+  ],
+  "segments": 16,
+  "bytes": 3621632,
+  "newSeconds": 87.48,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w1851",
+  "moment": "g1839",
+  "requested": [
+   1851.44,
+   1941.44
+  ],
+  "requestedFinal": [
+   1855.89,
+   1946.79
+  ],
+  "trueWindow": [
+   1855.84,
+   1946.84
+  ],
+  "segments": 17,
+  "bytes": 3227960,
+  "newSeconds": 91.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w2609",
+  "moment": "g2619",
+  "requested": [
+   2608.5,
+   2692.0
+  ],
+  "requestedFinal": [
+   2602.89,
+   2693.79
+  ],
+  "trueWindow": [
+   2602.84,
+   2693.84
+  ],
+  "segments": 17,
+  "bytes": 3309176,
+  "newSeconds": 91.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w2839",
+  "moment": "g2849",
+  "requested": [
+   2838.5,
+   2928.5
+  ],
+  "requestedFinal": [
+   2831.89,
+   2928.79
+  ],
+  "trueWindow": [
+   2831.84,
+   2928.84
+  ],
+  "segments": 18,
+  "bytes": 3652464,
+  "newSeconds": 97.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w3418",
+  "moment": "g3428",
+  "requested": [
+   3418.0,
+   3496.0
+  ],
+  "requestedFinal": [
+   3417.89,
+   3493.79
+  ],
+  "trueWindow": [
+   3417.84,
+   3493.84
+  ],
+  "segments": 14,
+  "bytes": 2258256,
+  "newSeconds": 76.0,
+  "shortWindow": false,
+  "grids": 4,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w3590",
+  "moment": "g3579",
+  "requested": [
+   3590.0,
+   3650.0
+  ],
+  "requestedFinal": [
+   3590.69,
+   3652.79
+  ],
+  "trueWindow": [
+   3590.64,
+   3652.84
+  ],
+  "segments": 11,
+  "bytes": 2124776,
+  "newSeconds": 62.2,
+  "shortWindow": false,
+  "grids": 4,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w3670",
+  "moment": "g3680",
+  "requested": [
+   3669.5,
+   3759.5
+  ],
+  "requestedFinal": [
+   3666.89,
+   3763.11
+  ],
+  "trueWindow": [
+   3666.84,
+   3763.16
+  ],
+  "segments": 17,
+  "bytes": 4073208,
+  "newSeconds": 96.32,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w3794",
+  "moment": "g3804",
+  "requested": [
+   3793.5,
+   3857.0
+  ],
+  "requestedFinal": [
+   3791.89,
+   3860.79
+  ],
+  "trueWindow": [
+   3791.84,
+   3860.84
+  ],
+  "segments": 13,
+  "bytes": 3039960,
+  "newSeconds": 69.0,
+  "shortWindow": false,
+  "grids": 4,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w3868",
+  "moment": "g3878",
+  "requested": [
+   3867.5,
+   3896.84
+  ],
+  "requestedFinal": [
+   3860.89,
+   3896.79
+  ],
+  "trueWindow": [
+   3860.84,
+   3896.84
+  ],
+  "segments": 6,
+  "bytes": 1199440,
+  "newSeconds": 36.0,
+  "shortWindow": true,
+  "grids": 2,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w4333",
+  "moment": "g4343",
+  "requested": [
+   4332.5,
+   4422.5
+  ],
+  "requestedFinal": [
+   4325.93,
+   4424.79
+  ],
+  "trueWindow": [
+   4325.88,
+   4424.84
+  ],
+  "segments": 20,
+  "bytes": 4540576,
+  "newSeconds": 98.96,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w4690",
+  "moment": "g4680",
+  "requested": [
+   4690.0,
+   4780.0
+  ],
+  "requestedFinal": [
+   4693.53,
+   4782.79
+  ],
+  "trueWindow": [
+   4693.48,
+   4782.84
+  ],
+  "segments": 17,
+  "bytes": 3964920,
+  "newSeconds": 89.36,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w4931",
+  "moment": "g4941",
+  "requested": [
+   4930.5,
+   4996.0
+  ],
+  "requestedFinal": [
+   4927.89,
+   4995.95
+  ],
+  "trueWindow": [
+   4927.84,
+   4996.0
+  ],
+  "segments": 12,
+  "bytes": 2122144,
+  "newSeconds": 68.16,
+  "shortWindow": false,
+  "grids": 4,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w5090",
+  "moment": "g5093",
+  "requested": [
+   5090.0,
+   5180.0
+  ],
+  "requestedFinal": [
+   5092.89,
+   5180.79
+  ],
+  "trueWindow": [
+   5092.84,
+   5180.84
+  ],
+  "segments": 16,
+  "bytes": 3107264,
+  "newSeconds": 88.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w5308",
+  "moment": "g5318",
+  "requested": [
+   5307.5,
+   5396.0
+  ],
+  "requestedFinal": [
+   5306.89,
+   5398.79
+  ],
+  "trueWindow": [
+   5306.84,
+   5398.84
+  ],
+  "segments": 17,
+  "bytes": 3261048,
+  "newSeconds": 92.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w6099",
+  "moment": "g6109",
+  "requested": [
+   6099.0,
+   6189.0
+  ],
+  "requestedFinal": [
+   6095.89,
+   6191.79
+  ],
+  "trueWindow": [
+   6095.84,
+   6191.84
+  ],
+  "segments": 18,
+  "bytes": 4681200,
+  "newSeconds": 96.0,
+  "shortWindow": false,
+  "grids": 5,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w6548",
+  "moment": "g6558",
+  "requested": [
+   6548.0,
+   6590.0
+  ],
+  "requestedFinal": [
+   6545.89,
+   6590.75
+  ],
+  "trueWindow": [
+   6545.84,
+   6590.8
+  ],
+  "segments": 8,
+  "bytes": 1681472,
+  "newSeconds": 44.96,
+  "shortWindow": true,
+  "grids": 3,
+  "decodeErrors": null,
+  "status": "ok"
+ },
+ {
+  "name": "w0242",
+  "moment": "g0247",
+  "requested": [
+   241.64,
+   296.0
+  ],
+  "requestedFinal": [
+   241.69,
+   292.95
+  ],
+  "trueWindow": [
+   241.64,
+   293.0
+  ],
+  "segments": 10,
+  "bytes": 1447600,
+  "newSeconds": 51.36,
+  "shortWindow": true,
+  "grids": 3,
+  "decodeErrors": null,
+  "status": "ok"
+ }
+]

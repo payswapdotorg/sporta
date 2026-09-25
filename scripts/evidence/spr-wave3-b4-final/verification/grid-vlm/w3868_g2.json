@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the pitch with players moving during the match\n4: wide-broadcast | Wide shot of the field with players in various positions\n5: wide-broadcast | Wide view of the entire soccer pitch and players\n6: wide-broadcast | Wide shot of the pitch centered on the midfield circle\n7: closeup | Close-up of a player in a green and white striped jersey near the ball\n8: closeup | Tight shot of a coach or manager on the sidelines watching the game\n9: closeup | Medium close-up of the coach looking towards the field\n10: closeup | Side profile close-up of the coach observing the play\n11: wide-broadcast | Wide shot of the soccer pitch resuming after the sideline cutaway\n12: wide-broadcast | Wide shot of the field with players spread out in formation\n13: wide-broadcast | High-angle wide shot of the pitch showing team positioning\n14: wide-broadcast | Wide shot of the field with players moving in the middle third\n15: wide-broadcast | Wide shot of the pitch with players near the center circle\n16: wide-broadcast | Wide shot of the field showing players in the defensive and midfield areas",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314048,
+ "id": "20260925132721448c257d021347c0",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132721448c257d021347c0",
+ "usage": {
+  "completion_tokens": 291,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2189
+ },
+ "_meta": {
+  "tag": "w3868_g2",
+  "attempt": 1
+ }
+}

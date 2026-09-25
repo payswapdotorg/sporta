@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players in position\n3: play | Wide shot of the soccer pitch with players in position\n4: closeup | Tight shot of a player in green sitting on the ground and a referee holding up a yellow card\n5: closeup | Close-up of the referee and the player in pink near the seated player in green\n6: closeup | Close-up of the player in pink walking away from the referee\n7: closeup | Tight shot of a player in a green and white striped jersey looking towards the camera\n8: closeup | Side profile close-up of the player in the green and white jersey, number 6\n9: closeup | Rear view close-up of player S. Altimira, number 6, in a green jersey\n10: closeup | Rear view close-up of player S. Altimira, number 6, in a green jersey\n11: closeup | Rear view close-up of player S. Altimira, number 6, in a green jersey\n12: closeup | Rear view close-up of player S. Altimira, number 6, in a green jersey\n13: graphics | Player graphic overlay featuring S. Altimira with a red background and LaLiga logo\n14: play | Wide shot of a player in pink dribbling towards the goal\n15: play | Action shot of the player in pink taking a shot on goal against defenders\n16: play | Follow-through of the shot as the ball moves towards the goal\n17: play | The ball approaching the goal line during active play\n18: play | Players in green and pink battling for the ball near the penalty area\n19: play | A player in green attempting to control or clear the ball under pressure\n20: graphics | Transition graphic wipe with a slanted white edge covering part of the frame",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310759,
+ "id": "202609251232289662007776f2413e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251232289662007776f2413e",
+ "usage": {
+  "completion_tokens": 404,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2293
+ },
+ "_meta": {
+  "tag": "g1577-late",
+  "attempt": 1
+ }
+}

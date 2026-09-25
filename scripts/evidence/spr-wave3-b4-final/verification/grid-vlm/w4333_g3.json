@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Coach and staff on the sidelines\n2: closeup | Coach and player talking on the sideline\n3: closeup | Coach and staff on the sidelines\n4: graphics | Red graphic wipe with logo overlay\n5: pitch-action | Referee showing yellow card to players\n6: pitch-action | Referee and players in a group discussion\n7: pitch-action | Referee holding up a yellow card\n8: pitch-action | Players reacting to the referee's decision\n9: closeup | Two players standing on the field\n10: graphics | Full-screen red graphic with white logo\n11: wide-broadcast | Wide shot of the soccer pitch from above\n12: wide-broadcast | Wide shot of the soccer pitch from above\n13: wide-broadcast | Wide shot of the soccer pitch with crowd visible\n14: wide-broadcast | Wide shot of the soccer pitch with crowd visible\n15: wide-broadcast | Wide shot of the soccer pitch with crowd visible\n16: wide-broadcast | Wide shot of the soccer pitch with crowd visible\n17: wide-broadcast | Wide shot of the soccer pitch with lower-third graphic\n18: wide-broadcast | Wide shot of the soccer pitch with lower-third graphic\n19: wide-broadcast | Wide shot of the soccer pitch with lower-third graphic\n20: wide-broadcast | Wide shot of the soccer pitch with lower-third graphic",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314093,
+ "id": "202609251328093b5c67607cbb4d2b",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251328093b5c67607cbb4d2b",
+ "usage": {
+  "completion_tokens": 287,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2185
+ },
+ "_meta": {
+  "tag": "w4333_g3",
+  "attempt": 1
+ }
+}

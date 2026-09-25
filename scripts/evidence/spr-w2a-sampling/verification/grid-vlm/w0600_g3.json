@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch and goal area\ncell 2: wide-broadcast | Wide shot of the pitch and goal area\ncell 3: wide-broadcast | Wide shot of the pitch and goal area\ncell 4: wide-broadcast | Wide shot of the pitch and goal area\ncell 5: closeup | Close-up of two players in red jerseys\ncell 6: closeup | Close-up of a player in a red jersey\ncell 7: closeup | Close-up of a player in a red jersey\ncell 8: closeup | Close-up of a player in a green/white striped jersey\ncell 9: closeup | Close-up of a player in a green/white striped jersey\ncell 10: closeup | Close-up of a player in a green/white striped jersey\ncell 11: closeup | Close-up of a player in a green/white striped jersey (bent over)\ncell 12: closeup | Close-up of a player holding a ball\ncell 13: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 14: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 15: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 16: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 17: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 18: wide-broadcast | Wide shot of players on the pitch with stands visible\ncell 19: pitch-action | Shot focused on players and the pitch surface\ncell 20: pitch-action | Shot focused on players and the pitch surface",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283249,
+  "id": "20260925045402e40ea34985204093",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045402e40ea34985204093",
+  "usage": {
+    "completion_tokens": 364,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2126
+  }
+}

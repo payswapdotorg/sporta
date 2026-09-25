@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | substitution board shown with players and stands\n2: wide-broadcast | players on pitch with visible stadium background\n3: pitch-action | coach/official on sideline with player nearby\n4: closeup | two players in orange kits on grass\n5: closeup | two players in orange kits standing together\n6: closeup | single player in orange kit on field\n7: closeup | two players in orange kits interacting\n8: closeup | two players shaking hands/talking\n9: closeup | two players in orange kits facing camera\n10: closeup | two players, one clapping hands\n11: closeup | two players high-fiving or celebrating\n12: closeup | player covering face with hands\n13: closeup | two players clapping together\n14: closeup | player clapping near another player\n15: closeup | player with hands clasped near face\n16: closeup | player covering face with both hands\n17: closeup | two players talking on the pitch\n18: closeup | single player standing on pitch\n19: closeup | player walking on pitch with another nearby\n20: closeup | two players standing side by side\n21: crowd | spectators in stands filling the frame\n22: crowd | fans in seats dominate the view\n23: crowd | tight shot of people in the stands\n24: crowd | spectators watching from the stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285060,
+  "id": "2026092505241642f3bbad7b32442c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505241642f3bbad7b32442c",
+  "usage": {
+    "completion_tokens": 295,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 174
+    },
+    "total_tokens": 2057
+  }
+}

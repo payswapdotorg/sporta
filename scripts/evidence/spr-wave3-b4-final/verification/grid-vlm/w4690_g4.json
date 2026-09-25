@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Referee and players in a heated discussion\n2: closeup | Players arguing with the referee\n3: closeup | Players from both teams confronting each other\n4: closeup | Player showing a card to the referee\n5: closeup | Player speaking to the referee\n6: pitch-action | Player running with the ball on the field\n7: pitch-action | Ball rolling towards a player on the field\n8: pitch-action | Player chasing the ball across the field\n9: pitch-action | Player dribbling past an opponent\n10: pitch-action | Player taking a shot at the goal\n11: pitch-action | Player kicking the ball during play\n12: pitch-action | Player attempting to control the ball\n13: pitch-action | Goalkeeper diving to make a save\n14: pitch-action | Player running alone with the ball\n15: pitch-action | Player chasing the ball on the field\n16: pitch-action | Player moving towards the ball\n17: pitch-action | Player falling after a tackle attempt\n18: pitch-action | Player sprinting with the ball\n19: pitch-action | Player lying on the ground after a fall\n20: pitch-action | Player running with the ball near the sideline",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314326,
+ "id": "20260925133202fb856b369fa040f3",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133202fb856b369fa040f3",
+ "usage": {
+  "completion_tokens": 253,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2151
+ },
+ "_meta": {
+  "tag": "w4690_g4",
+  "attempt": 1
+ }
+}

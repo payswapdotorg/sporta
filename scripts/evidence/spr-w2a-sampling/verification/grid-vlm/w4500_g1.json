@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | players and pitch with stands in background\ncell 2: wide-broadcast | players and pitch with stands in background\ncell 3: closeup | single player clapping, upper body\ncell 4: closeup | single player clapping, upper body\ncell 5: closeup | player clapping, medium shot\ncell 6: closeup | group of players talking\ncell 7: closeup | single player walking/looking around\ncell 8: closeup | single player walking, side view\ncell 9: closeup | player running past opponent\ncell 10: graphics | dark blue background with logo\ncell 11: closeup | player from behind showing name/number\ncell 12: closeup | player from behind showing name/number\ncell 13: closeup | player from behind showing name/number\ncell 14: graphics | blurry transition/graphic overlay\ncell 15: closeup | player from behind showing name/number\ncell 16: closeup | player from behind showing name/number\ncell 17: closeup | player from behind showing name/number\ncell 18: closeup | player from behind showing name/number\ncell 19: closeup | player from behind showing name/number\ncell 20: closeup | player from behind showing name/number\ncell 21: closeup | group of players on sideline\ncell 22: closeup | group of players on sideline with graphic overlay\ncell 23: closeup | group of players/coach on sideline\ncell 24: closeup | group of players/coach on sideline",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283809,
+  "id": "20260925050320b18dc7f1f7ad4221",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050320b18dc7f1f7ad4221",
+  "usage": {
+    "completion_tokens": 346,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2108
+  }
+}

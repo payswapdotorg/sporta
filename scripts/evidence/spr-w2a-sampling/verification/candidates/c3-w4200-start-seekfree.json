@@ -1,0 +1,122 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 4189.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a referee, with the background (including the crowd) being out of focus and occupying a small portion of the total area."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 4190.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a close-up of a referee's back and head, with the pitch visible in the background; spectators/stands are not clearly visible or occupying more than half of the frame area."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 4191.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a referee and the soccer pitch, with spectators only visible as a blurred background in the upper portion of the image."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 4192.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by two players in the foreground, with the crowd serving as a background element that occupies less than half of the total area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 4193.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players and a referee on the pitch, with the crowd only visible in the background."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 4194.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players and a referee in the foreground, with the crowd only visible as a blurred background element occupying less than half of the total area."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 4195.88,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, occupying 100% of the visible area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 4196.88,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, with no visible pitch or players, and the crowd occupies more than 90% of the image area."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 4197.88,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, occupying 100% of the visual area."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 4198.88,
+  "verdict": "YES",
+  "reason": "The frame is a tight shot of spectators in the stands, with people occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 4199.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a coach on the sideline, with spectators/stands only visible in the background and not occupying more than half of the frame area."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 4200.88,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a close-up of a coach on the sidelines, with only a few individuals and empty seats visible in the background."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 4201.88,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, with no visible pitch or players."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 4202.88,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying the entire visible area."
+ },
+ {
+  "frame": "f_015.jpg",
+  "mediaTime": 4203.88,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_016.jpg",
+  "mediaTime": 4204.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of players and a referee on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_017.jpg",
+  "mediaTime": 4205.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of players and a referee on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_018.jpg",
+  "mediaTime": 4206.88,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of players and a referee on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_019.jpg",
+  "mediaTime": 4207.88,
+  "verdict": "ERROR",
+  "reason": "vlm call failed after retries"
+ },
+ {
+  "frame": "f_020.jpg",
+  "mediaTime": 4208.88,
+  "verdict": "ERROR",
+  "reason": "vlm call failed after retries"
+ }
+]

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Goalkeeper diving to save a shot on goal\n2: pitch-action | Goalkeeper on the ground after the save\n3: pitch-action | Player in green controlling the ball near an opponent\n4: pitch-action | Player in green dribbling while being challenged\n5: pitch-action | View from behind the goal as the ball approaches\n6: pitch-action | Ball hitting the back of the net for a goal\n7: graphics | LaLiga broadcast logo transition graphic\n8: wide-broadcast | Wide shot of the entire soccer pitch\n9: wide-broadcast | Wide shot of players positioned across the field\n10: wide-broadcast | Wide shot of players moving during play\n11: wide-broadcast | Wide shot of the match from a high angle\n12: wide-broadcast | Wide shot showing team formations on the pitch\n13: wide-broadcast | Wide shot of players during active gameplay\n14: wide-broadcast | Wide shot of the field with players in motion\n15: wide-broadcast | Wide shot of the match from a high vantage point\n16: wide-broadcast | Wide shot of players spread across the pitch\n17: wide-broadcast | Wide shot of the game with advertising boards visible\n18: wide-broadcast | Wide shot of players positioned on the field\n19: wide-broadcast | Wide shot of the match near the goal area\n20: wide-broadcast | Wide shot of players across the soccer pitch",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313891,
+ "id": "20260925132433cc553c99423a4510",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132433cc553c99423a4510",
+ "usage": {
+  "completion_tokens": 300,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2198
+ },
+ "_meta": {
+  "tag": "w3670_g1",
+  "attempt": 1
+ }
+}

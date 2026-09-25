@@ -1,0 +1,135 @@
+[
+ {
+  "window": "w2700",
+  "grid": 2,
+  "cell": 5,
+  "mediaTime": 2720.8,
+  "note": "Spectators in stands (faces visible)"
+ },
+ {
+  "window": "w2700",
+  "grid": 2,
+  "cell": 6,
+  "mediaTime": 2721.8,
+  "note": "Spectators in stands (child smiling)"
+ },
+ {
+  "window": "w2700",
+  "grid": 2,
+  "cell": 10,
+  "mediaTime": 2725.8,
+  "note": "Crowd of spectators in stands"
+ },
+ {
+  "window": "w2700",
+  "grid": 2,
+  "cell": 11,
+  "mediaTime": 2726.8,
+  "note": "Crowd of spectators in stands"
+ },
+ {
+  "window": "w2700",
+  "grid": 2,
+  "cell": 12,
+  "mediaTime": 2727.8,
+  "note": "Crowd of spectators in stands"
+ },
+ {
+  "window": "w3000",
+  "grid": 2,
+  "cell": 6,
+  "mediaTime": 3021.8,
+  "note": "Tight shot of spectators/fans in the stands filling most of the frame"
+ },
+ {
+  "window": "w3000",
+  "grid": 2,
+  "cell": 7,
+  "mediaTime": 3022.8,
+  "note": "Tight shot of spectators/fans in the stands filling most of the frame"
+ },
+ {
+  "window": "w3000",
+  "grid": 2,
+  "cell": 8,
+  "mediaTime": 3023.8,
+  "note": "Tight shot of spectators/fans in the stands filling most of the frame"
+ },
+ {
+  "window": "w4200",
+  "grid": 1,
+  "cell": 1,
+  "mediaTime": 4196.3,
+  "note": "Spectators in stands fill the frame"
+ },
+ {
+  "window": "w4200",
+  "grid": 1,
+  "cell": 2,
+  "mediaTime": 4197.3,
+  "note": "Spectators in stands fill the frame"
+ },
+ {
+  "window": "w4200",
+  "grid": 1,
+  "cell": 3,
+  "mediaTime": 4198.3,
+  "note": "Spectators in stands fill the frame"
+ },
+ {
+  "window": "w4200",
+  "grid": 1,
+  "cell": 4,
+  "mediaTime": 4199.3,
+  "note": "Spectators in stands fill the frame"
+ },
+ {
+  "window": "w4200",
+  "grid": 2,
+  "cell": 21,
+  "mediaTime": 4236.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 2,
+  "cell": 22,
+  "mediaTime": 4237.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 2,
+  "cell": 23,
+  "mediaTime": 4238.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 2,
+  "cell": 24,
+  "mediaTime": 4239.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 3,
+  "cell": 1,
+  "mediaTime": 4236.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 3,
+  "cell": 2,
+  "mediaTime": 4237.3,
+  "note": "Spectators in stands"
+ },
+ {
+  "window": "w4200",
+  "grid": 3,
+  "cell": 3,
+  "mediaTime": 4238.3,
+  "note": "Spectators in stands"
+ }
+]

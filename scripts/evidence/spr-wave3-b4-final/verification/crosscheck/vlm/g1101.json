@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players in position\n3: play | Wide shot of the soccer pitch with players in position\n4: play | Wide shot of the soccer pitch with players in position\n5: play | Wide shot of the soccer pitch showing ongoing match action\n6: play | Wide shot of the soccer pitch showing ongoing match action\n7: graphics | Broadcast graphic overlay displaying the scoreline and scorer information\n8: play | Wide shot of the soccer pitch following a goal\n9: play | Wide shot of the soccer pitch following a goal\n10: closeup | Tight shot of a player in a pink jersey celebrating\n11: celebration | Players in pink jerseys celebrating on the pitch\n12: celebration | Player in a pink jersey celebrating with arms outstretched\n13: play | Wide shot of players walking on the field after the goal\n14: play | Wide shot of players walking on the field after the goal\n15: celebration | Players embracing and celebrating on the sideline\n16: celebration | Players interacting and celebrating on the sideline\n17: crowd | Spectators in the stands, one holding a flag\n18: crowd | Close-up of a spectator waving a large team flag\n19: closeup | Tight shot of a coach or manager on the sidelines\n20: closeup | Tight shot of a coach or manager on the sidelines",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310738,
+ "id": "20260925123210d14b9a0227cc4c94",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123210d14b9a0227cc4c94",
+ "usage": {
+  "completion_tokens": 296,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2185
+ },
+ "_meta": {
+  "tag": "g1101",
+  "attempt": 1
+ }
+}

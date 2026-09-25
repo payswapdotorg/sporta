@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits in the midfield area.\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits in the midfield area.\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits in the midfield area.\n13: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits in the midfield area.\n14: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits in the midfield area.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312055,
+ "id": "202609251254094f98b08d52c44ef4",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251254094f98b08d52c44ef4",
+ "usage": {
+  "completion_tokens": 337,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2235
+ },
+ "_meta": {
+  "tag": "w1299_g5",
+  "attempt": 1
+ }
+}

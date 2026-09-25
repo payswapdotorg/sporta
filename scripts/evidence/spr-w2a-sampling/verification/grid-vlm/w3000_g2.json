@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch and players with stands visible in background\n2: wide-broadcast | Wide shot of the pitch and players, similar to cell 1\n3: closeup | Close-up of a player in green jersey (number 6) clapping\n4: closeup | Close-up of two players, one in green and one in orange (number 24)\n5: closeup | Close-up of player number 6 from behind/side\n6: crowd | Tight shot of spectators/fans in the stands filling most of the frame\n7: crowd | Tight shot of spectators/fans in the stands filling most of the frame\n8: crowd | Tight shot of spectators/fans in the stands filling most of the frame\n9: wide-broadcast | High-angle wide shot of the entire pitch and players\n10: wide-broadcast | Wide shot of the pitch and players\n11: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n12: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n13: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n14: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n15: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n16: graphics | Pitch view dominated by large on-screen graphic/overlay (number 3)\n17: graphics | Pitch view dominated by large on-screen graphic/overlay (number 5)\n18: wide-broadcast | Wide shot of the pitch and players\n19: wide-broadcast | Wide shot of the pitch and players\n20: wide-broadcast | Wide shot of the pitch and players",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283665,
+  "id": "20260925050056962a520953f64b1c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050056962a520953f64b1c",
+  "usage": {
+    "completion_tokens": 363,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2125
+  }
+}

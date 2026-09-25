@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits near the goal area.\n2: wide-broadcast | Wide shot of the pitch with players positioned in the penalty box and near the goal.\n3: wide-broadcast | Wide shot showing players in the attacking third, with the goalkeeper visible.\n4: wide-broadcast | Wide shot of the field with players spread across the midfield and defensive areas.\n5: wide-broadcast | Wide shot of the pitch with players moving towards the center circle.\n6: wide-broadcast | Wide shot showing players in the middle of the field during active play.\n7: wide-broadcast | Wide shot of the pitch with players positioned around the penalty area.\n8: closeup | Tight shot of a player's face and upper body wearing a pink/red jersey.\n9: closeup | Close-up shot of a player looking towards the camera or action.\n10: closeup | Medium close-up of a player standing on the grass.\n11: closeup | Shot from behind a player showing his jersey number 10.\n12: closeup | Rear view of the player wearing the number 10 jersey.\n13: wide-broadcast | Wide shot of the entire pitch with players scattered across the field.\n14: wide-broadcast | Wide shot showing players in various positions across the field.\n15: wide-broadcast | Wide view of the pitch with players near the center and goal areas.\n16: wide-broadcast | Wide shot of the field with players in the final third of play.\n17: wide-broadcast | Wide shot showing players near the goal and in the midfield.\n18: wide-broadcast | Wide shot of the pitch with players actively engaged in play.\n19: wide-broadcast | Wide shot of the field with players moving towards the goal.\n20: wide-broadcast | Wide shot showing players in the attacking half of the pitch.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314526,
+ "id": "20260925133521c5e8382fd87b4a47",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133521c5e8382fd87b4a47",
+ "usage": {
+  "completion_tokens": 384,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2282
+ },
+ "_meta": {
+  "tag": "w5308_g3",
+  "attempt": 1
+ }
+}

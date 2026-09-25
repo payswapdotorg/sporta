@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 2: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 3: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 4: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 5: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 6: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 7: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 8: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 9: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 10: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 11: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 12: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 13: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 14: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 15: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 16: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 17: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 18: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 19: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 20: wide-broadcast | Wide shot of the pitch with players and visible stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283738,
+  "id": "20260925050212ed45db16d14f41ca",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050212ed45db16d14f41ca",
+  "usage": {
+    "completion_tokens": 380,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2142
+  }
+}

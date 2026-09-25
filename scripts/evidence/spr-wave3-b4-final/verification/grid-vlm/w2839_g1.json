@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n13: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n14: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n15: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n16: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n17: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n18: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n19: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n20: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312601,
+ "id": "20260925130314b8c99c7aeaf04f86",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925130314b8c99c7aeaf04f86",
+ "usage": {
+  "completion_tokens": 400,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2298
+ },
+ "_meta": {
+  "tag": "w2839_g1",
+  "attempt": 1
+ }
+}

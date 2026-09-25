@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch during live match action\n3: closeup | Tight shot of a player in a green and white striped jersey\n4: closeup | Tight shot of a coach or manager on the sidelines\n5: closeup | Tight shot of a coach or manager watching the game\n6: closeup | Tight shot of a coach or manager looking towards the field\n7: play | Wide shot of the soccer pitch showing player movement\n8: play | Wide shot of the soccer pitch during live match action\n9: play | Wide shot of the soccer pitch from a high angle\n10: play | Wide shot of the soccer pitch showing players spread out\n11: play | Wide shot of the soccer pitch during live match action\n12: play | Wide shot of the soccer pitch showing players in formation\n13: play | Wide shot of the soccer pitch from a high angle\n14: play | Wide shot of the soccer pitch showing ongoing match play\n15: play | Wide shot of the soccer pitch with players moving\n16: play | Wide shot of the soccer pitch during live match action\n17: play | Wide shot of the soccer pitch from a high angle\n18: play | Wide shot of the soccer pitch showing players in position\n19: play | Wide shot of the soccer pitch during live match action",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310653,
+ "id": "202609251230466d14d9ddeb2d4599",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251230466d14d9ddeb2d4599",
+ "usage": {
+  "completion_tokens": 290,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2179
+ },
+ "_meta": {
+  "tag": "g3878-late",
+  "attempt": 1
+ }
+}

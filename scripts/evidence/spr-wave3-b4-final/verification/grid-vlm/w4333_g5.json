@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing ongoing match play\n3: wide-broadcast | Wide shot of the pitch with the goal and goalkeeper visible\n4: closeup | Close-up shot from behind player R. Deossa wearing number 18\n5: closeup | Close-up of the back of player number 18 in a green jersey\n6: closeup | Close-up of player number 18 from behind, slightly turned\n7: closeup | Side profile close-up of a player in a green jersey\n8: closeup | Rear view close-up of player N. Deossa in a green jersey\n9: closeup | Side view close-up of player N. Deossa looking forward\n10: closeup | Side view close-up of a player in a green jersey in motion\n11: closeup | Close-up of a player's face and upper body in a green jersey\n12: wide-broadcast | Wide shot of the soccer pitch showing players near the goal area\n13: wide-broadcast | Wide shot of the pitch showing players spread across the field\n14: wide-broadcast | Wide shot of the pitch with players in various positions\n15: wide-broadcast | Wide shot of the pitch showing active play between teams\n16: wide-broadcast | Wide shot of the pitch with players moving toward the ball\n17: wide-broadcast | Wide shot of the pitch showing general team positioning\n18: wide-broadcast | Wide shot of the pitch with players in red and green kits\n19: graphics | Broadcast graphic overlay displaying player statistics and names",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314127,
+ "id": "2026092513283873f51e35ca714d37",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513283873f51e35ca714d37",
+ "usage": {
+  "completion_tokens": 344,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2242
+ },
+ "_meta": {
+  "tag": "w4333_g5",
+  "attempt": 1
+ }
+}

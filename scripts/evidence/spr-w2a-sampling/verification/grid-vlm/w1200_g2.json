@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch and stands\ncell 2: wide-broadcast | Wide shot of the pitch and stands\ncell 3: wide-broadcast | Wide shot of the pitch and stands\ncell 4: closeup | Close-up of players' faces\ncell 5: closeup | Close-up of players\ncell 6: closeup | Close-up of a player\ncell 7: closeup | Close-up of a player\ncell 8: closeup | Close-up of players\ncell 9: closeup | Close-up of a player\ncell 10: pitch-action | Medium shot of players on pitch\ncell 11: pitch-action | Medium shot of players on pitch\ncell 12: pitch-action | Medium shot of players on pitch\ncell 13: pitch-action | Player on pitch, medium shot\ncell 14: pitch-action | Player on pitch, medium shot\ncell 15: wide-broadcast | Goal-line view with net and pitch\ncell 16: wide-broadcast | Goal-line view with net and pitch\ncell 17: pitch-action | Player on pitch, medium shot\ncell 18: pitch-action | Player on pitch, medium shot\ncell 19: wide-broadcast | High-angle wide shot of pitch\ncell 20: wide-broadcast | High-angle wide shot of pitch",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283277,
+  "id": "20260925045431746d242a8e6f4b57",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045431746d242a8e6f4b57",
+  "usage": {
+    "completion_tokens": 285,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2047
+  }
+}

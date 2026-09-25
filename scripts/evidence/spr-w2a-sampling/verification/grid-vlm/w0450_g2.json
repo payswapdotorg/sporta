@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with stands visible in background\n2: pitch-action | Players on the pitch, camera zoomed in on play, no stands visible\n3: wide-broadcast | Wide shot of the pitch with crowd visible in the stands\n4: pitch-action | Zoomed in view of players on the field\n5: wide-broadcast | Wide angle showing players and stadium advertising/stands\n6: pitch-action | Mid-range shot focused on players and ball movement\n7: pitch-action | View of players in the center of the field\n8: pitch-action | Shot following the play with players visible\n9: pitch-action | Players positioned across the field\n10: pitch-action | Camera tracking the action between players\n11: wide-broadcast | High/wide angle showing field markings and players\n12: pitch-action | View of players near the center circle\n13: pitch-action | Active play with players running on the pitch\n14: pitch-action | Players moving during open play\n15: pitch-action | Wide view of players spread out on the field\n16: pitch-action | Play continuing near the sideline\n17: wide-broadcast | Shot showing goal area and advertising boards\n18: wide-broadcast | View of the goal and surrounding pitch area\n19: wide-broadcast | Wide shot including the goal net and stands\n20: wide-broadcast | Wide angle of the penalty area and goal",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283215,
+  "id": "20260925045328580180f30f594585",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045328580180f30f594585",
+  "usage": {
+    "completion_tokens": 292,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2054
+  }
+}

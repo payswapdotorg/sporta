@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: closeup | Closeup shot of a player in a red jersey looking forward\n12: closeup | Closeup shot of a player in a red jersey covering his mouth\n13: other | Blurred frame, likely a camera transition or movement\n14: other | Blurred frame, likely a camera transition or movement\n15: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n16: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n17: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n18: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n19: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n20: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314354,
+ "id": "2026092513322776719515386647f5",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513322776719515386647f5",
+ "usage": {
+  "completion_tokens": 387,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2285
+ },
+ "_meta": {
+  "tag": "w4931_g1",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide view of the pitch with players and distant stands\n2: wide-broadcast | Wide view of the pitch with players and distant stands\n3: wide-broadcast | Wide view of the pitch with players and distant stands\n4: wide-broadcast | Wide view of the pitch with players and distant stands\n5: closeup | Close-up of a player in a green and white striped jersey\n6: closeup | Close-up of a player in a green and white striped jersey gesturing\n7: closeup | Close-up of a player in a green and white striped jersey looking forward\n8: pitch-action | Two players competing for the ball on the field\n9: pitch-action | Two players facing each other with the ball between them\n10: pitch-action | Player in pink tackling a player in green\n11: pitch-action | Player in pink on the ground after a tackle\n12: pitch-action | Player in pink on the ground near the ball\n13: wide-broadcast | Wide view of the pitch showing team formations\n14: wide-broadcast | Wide view of the pitch showing team formations\n15: closeup | Close-up of a player in a pink jersey wearing a protective mask\n16: closeup | Close-up of two players in pink jerseys, one wearing a mask\n17: closeup | Close-up of a player in a pink jersey wearing a mask\n18: closeup | Close-up of players in pink and green jerseys interacting\n19: closeup | Close-up of a player in a green jersey with number 18\n20: closeup | Close-up of players in pink and green jerseys talking",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283894,
+  "id": "202609250504488f64e4050b934fdc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250504488f64e4050b934fdc",
+  "usage": {
+    "completion_tokens": 338,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2100
+  }
+}

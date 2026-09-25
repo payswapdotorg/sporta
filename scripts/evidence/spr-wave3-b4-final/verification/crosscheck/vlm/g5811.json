@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Goalkeeper in yellow standing near the goal line\n2: play | Goalkeeper walking away from the goal area\n3: play | Goalkeeper standing and watching the play\n4: play | Goalkeeper looking towards the field of play\n5: play | Players regrouping near the penalty area\n6: closeup | Player number 8 in green jersey from behind\n7: closeup | Player number 8 in green jersey facing sideways\n8: play | Wide shot of the soccer pitch with players\n9: play | Wide shot of players positioned on the field\n10: play | Wide view of the match in progress\n11: play | Players moving across the pitch\n12: play | Wide angle of the game continuing\n13: play | View of the field from a high camera angle\n14: play | Players spread out across the pitch\n15: closeup | Player Fermin number 7 talking to an opponent\n16: closeup | Player Bernal number 2 gesturing with his hand\n17: closeup | Player number 3 in green celebrating\n18: closeup | Player number 3 pointing upwards\n19: closeup | Coach standing with arms crossed\n20: closeup | Coach watching the game intently",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311300,
+ "id": "202609251241349183f5968b034bdf",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251241349183f5968b034bdf",
+ "usage": {
+  "completion_tokens": 260,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2149
+ },
+ "_meta": {
+  "tag": "g5811",
+  "attempt": 1
+ }
+}

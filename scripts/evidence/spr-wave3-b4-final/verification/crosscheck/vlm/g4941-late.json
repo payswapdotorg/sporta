@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of soccer match in progress with players in red and green kits\n2: play | Wide shot of soccer match in progress with players in red and green kits\n3: play | Wide shot of soccer match in progress with players in red and green kits\n4: play | Wide shot of soccer match in progress with players in red and green kits\n5: play | Wide shot of soccer match in progress with players in red and green kits\n6: play | Wide shot of soccer match in progress with players in red and green kits\n7: play | Wide shot of soccer match in progress with players in red and green kits\n8: play | Wide shot of soccer match in progress with players in red and green kits\n9: play | Wide shot of soccer match in progress with players in red and green kits\n10: play | Wide shot of soccer match in progress with players in red and green kits\n11: play | Wide shot of soccer match in progress with players in red and green kits\n12: play | Wide shot of soccer match in progress with players in red and green kits\n13: play | Wide shot of soccer match in progress with players in red and green kits\n14: play | Wide shot of soccer match in progress with players in red and green kits\n15: play | Wide shot of soccer match in progress with players in red and green kits\n16: play | Wide shot of soccer match in progress with players in red and green kits\n17: play | Wide shot of soccer match in progress with players in red and green kits\n18: play | Wide shot of soccer match in progress with players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310872,
+ "id": "2026092512342578541c3232544aeb",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512342578541c3232544aeb",
+ "usage": {
+  "completion_tokens": 342,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2231
+ },
+ "_meta": {
+  "tag": "g4941-late",
+  "attempt": 1
+ }
+}

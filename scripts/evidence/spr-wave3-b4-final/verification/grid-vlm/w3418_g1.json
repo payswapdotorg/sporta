@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n2: wide-broadcast | Wide shot of the soccer pitch with players spread across the field\n3: closeup | Tight close-up shot of a player in a green and white striped jersey\n4: closeup | Blurred close-up shot focusing on a player's upper body and jersey\n5: graphics | Broadcast graphic overlay with a solid red block on the left side\n6: closeup | Medium close-up of a player in a green and white striped jersey looking forward\n7: closeup | Close-up from behind a player wearing a red jersey with the number 18\n8: closeup | Side profile close-up of a player in a red and black jersey\n9: closeup | Side profile close-up of a player in a red jersey against a blurred background\n10: closeup | Side profile close-up of a player in a red jersey with a shallow depth of field\n11: closeup | Side profile close-up of a player in a red jersey looking towards the right\n12: graphics | Large broadcast graphic overlay featuring a white 'L' logo on a red background\n13: pitch-action | Medium shot of live match action with players near the penalty area\n14: pitch-action | Medium shot of players in red and green competing for the ball\n15: pitch-action | Live match action showing an attack on goal with the goalkeeper ready\n16: pitch-action | Live match action showing the goalkeeper diving to make a save\n17: pitch-action | Wide shot of play continuing in the penalty area after the save attempt\n18: pitch-action | Wide shot of players repositioning in the penalty area\n19: pitch-action | Wide shot of players moving in the final third of the pitch\n20: pitch-action | Wide shot of the ongoing play near the goal area",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313763,
+ "id": "2026092513223756e116f8e614419b",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513223756e116f8e614419b",
+ "usage": {
+  "completion_tokens": 383,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2281
+ },
+ "_meta": {
+  "tag": "w3418_g1",
+  "attempt": 1
+ }
+}

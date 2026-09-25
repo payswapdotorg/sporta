@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players in various positions\n3: wide-broadcast | Wide shot of the soccer pitch with players moving across the field\n4: wide-broadcast | Wide shot of the soccer pitch showing ongoing match play\n5: wide-broadcast | Wide shot of the soccer pitch with players spread out\n6: wide-broadcast | Wide shot of the soccer pitch showing players in action\n7: wide-broadcast | Wide shot of the soccer pitch with players near the center circle\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green\n9: wide-broadcast | Wide shot of the soccer pitch with a graphic overlay in the corner\n10: other | Black frame indicating a transition or end of clip\n11: other | Black frame\n12: other | Black frame\n13: other | Black frame\n14: other | Black frame\n15: other | Black frame\n16: other | Black frame\n17: other | Black frame\n18: other | Black frame\n19: other | Black frame\n20: other | Black frame",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311905,
+ "id": "20260925125135e1854e8dbd31473a",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125135e1854e8dbd31473a",
+ "usage": {
+  "completion_tokens": 250,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2148
+ },
+ "_meta": {
+  "tag": "w0986_g5",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n2: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n3: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n4: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n5: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n6: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n7: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n8: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n9: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n10: wide-broadcast | Wide shot of the pitch with stands visible in the background.\n11: wide-broadcast | Wide shot of the pitch with stands visible in the background.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790284245,
+  "id": "202609250510417efc5fab973241d9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250510417efc5fab973241d9",
+  "usage": {
+    "completion_tokens": 199,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1961
+  }
+}

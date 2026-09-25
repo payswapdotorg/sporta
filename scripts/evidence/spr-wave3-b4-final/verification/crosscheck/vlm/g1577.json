@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of soccer match in progress with players in red and green kits\n2: play | Wide shot of soccer match in progress with players in red and green kits\n3: play | Wide shot of soccer match in progress with players in red and green kits\n4: play | Wide shot of soccer match in progress with players in red and green kits\n5: play | Wide shot of soccer match in progress with players in red and green kits\n6: play | Wide shot of soccer match in progress with players in red and green kits\n7: play | Wide shot of soccer match in progress with players in red and green kits\n8: play | Wide shot of soccer match in progress with players in red and green kits\n9: play | Wide shot of soccer match in progress with players in red and green kits\n10: play | Wide shot of soccer match in progress with players in red and green kits\n11: play | Wide shot of soccer match in progress with players in red and green kits\n12: play | Wide shot of soccer match in progress with players in red and green kits\n13: play | Wide shot of soccer match in progress with players in red and green kits\n14: play | Wide shot of soccer match in progress with players in red and green kits\n15: play | Wide shot of soccer match in progress with players in red and green kits\n16: play | Wide shot of soccer match in progress with players in red and green kits\n17: play | Wide shot of soccer match in progress with players in red and green kits\n18: play | Wide shot of soccer match in progress with players in red and green kits\n19: play | Wide shot of soccer match in progress with players in red and green kits\n20: play | Wide shot of soccer match in progress with players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310745,
+ "id": "20260925123221ba7dd4f35b9d42ec",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123221ba7dd4f35b9d42ec",
+ "usage": {
+  "completion_tokens": 380,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 157
+  },
+  "total_tokens": 2269
+ },
+ "_meta": {
+  "tag": "g1577",
+  "attempt": 1
+ }
+}

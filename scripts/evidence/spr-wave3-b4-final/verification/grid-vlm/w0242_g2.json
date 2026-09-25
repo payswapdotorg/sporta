@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players near the center circle\n2: wide-broadcast | Wide shot of the soccer pitch with players in the center circle area\n3: wide-broadcast | Wide shot of the pitch with players gathered at the center circle\n4: wide-broadcast | Wide shot of the pitch showing players near the center circle\n5: wide-broadcast | Wide shot of the pitch with players positioned around the center circle\n6: wide-broadcast | Wide shot of the pitch showing players near the center circle\n7: wide-broadcast | Wide shot of the pitch with players in the center circle area\n8: wide-broadcast | Wide shot of the pitch showing players near the center circle\n9: wide-broadcast | Wide shot of the pitch with players positioned around the center circle\n10: wide-broadcast | Wide shot of the pitch showing players near the center circle\n11: wide-broadcast | Wide shot of the pitch with players in the center circle area\n12: wide-broadcast | Wide shot of the pitch showing players near the center circle\n13: wide-broadcast | Wide shot of the pitch with players positioned around the center circle\n14: wide-broadcast | Wide shot of the pitch showing players near the center circle\n15: closeup | Closeup of two players from behind with arms around each other's shoulders\n16: closeup | Closeup of two players from behind with arms around each other's shoulders\n17: closeup | Closeup of three players from behind with arms around each other's shoulders\n18: closeup | Closeup of three players from behind with arms around each other's shoulders\n19: closeup | Closeup of three players from behind with arms around each other's shoulders\n20: closeup | Closeup of three players from behind with arms around each other's shoulders",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314704,
+ "id": "20260925133816b8c7f28c7443498a",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133816b8c7f28c7443498a",
+ "usage": {
+  "completion_tokens": 381,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2279
+ },
+ "_meta": {
+  "tag": "w0242_g2",
+  "attempt": 1
+ }
+}

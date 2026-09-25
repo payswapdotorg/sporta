@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Back of a player in an orange jersey with arms around teammates\n2: closeup | Back of a player in an orange jersey with arms around teammates\n3: closeup | Back of a player in an orange jersey with arms around teammates\n4: closeup | Back of a player in an orange jersey with arms around teammates\n5: graphics | Broadcast graphic overlay showing five player headshots and stats\n6: graphics | Broadcast graphic overlay showing five player headshots and stats\n7: graphics | Broadcast graphic overlay showing five player headshots and stats\n8: graphics | Broadcast graphic overlay showing five player headshots and stats\n9: graphics | Broadcast graphic overlay showing five player headshots and stats\n10: graphics | Broadcast graphic overlay showing five player headshots and stats\n11: graphics | Broadcast graphic overlay showing five player headshots and stats",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314717,
+ "id": "202609251338320814694753cd4939",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251338320814694753cd4939",
+ "usage": {
+  "completion_tokens": 177,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2075
+ },
+ "_meta": {
+  "tag": "w0242_g3",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,462 @@
+[
+ {
+  "name": "w0986",
+  "requested": [
+   990.0,
+   1076.0
+  ],
+  "moment": "g0988",
+  "note": "goal-likely (late graphics); start margined past modeled disc-900 end",
+  "segments": [
+   182,
+   196
+  ],
+  "requestedFinal": [
+   991.89,
+   1080.79
+  ],
+  "trueRange": [
+   991.84,
+   1080.84
+  ],
+  "newSeconds": 89.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w1091",
+  "requested": [
+   1091.0,
+   1181.0
+  ],
+  "moment": "g1101",
+  "note": "confirmed goal (celebration + crowd cells post-peak)",
+  "segments": [
+   199,
+   216
+  ],
+  "requestedFinal": [
+   1089.89,
+   1181.79
+  ],
+  "trueRange": [
+   1089.84,
+   1181.84
+  ],
+  "newSeconds": 92.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w1299",
+  "requested": [
+   1299.0,
+   1389.0
+  ],
+  "moment": "g1309",
+  "note": "near-miss roar",
+  "segments": [
+   239,
+   256
+  ],
+  "requestedFinal": [
+   1297.89,
+   1391.79
+  ],
+  "trueRange": [
+   1297.84,
+   1391.84
+  ],
+  "newSeconds": 94.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w1592",
+  "requested": [
+   1591.92,
+   1681.92
+  ],
+  "moment": "g1577",
+  "note": "late-graphics moment; start = w1500 true end (segment-exact)",
+  "segments": [
+   292,
+   307
+  ],
+  "requestedFinal": [
+   1598.69,
+   1686.07
+  ],
+  "trueRange": [
+   1598.64,
+   1686.12
+  ],
+  "newSeconds": 87.48,
+  "shortWindow": false
+ },
+ {
+  "name": "w1851",
+  "requested": [
+   1851.44,
+   1941.44
+  ],
+  "moment": "g1839",
+  "note": "moment inside b8; tail window from b8 true end",
+  "segments": [
+   339,
+   355
+  ],
+  "requestedFinal": [
+   1855.89,
+   1946.79
+  ],
+  "trueRange": [
+   1855.84,
+   1946.84
+  ],
+  "newSeconds": 91.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w2609",
+  "requested": [
+   2608.5,
+   2692.0
+  ],
+  "moment": "g2619",
+  "note": "near-miss roar; end margined before w2700",
+  "segments": [
+   480,
+   496
+  ],
+  "requestedFinal": [
+   2602.89,
+   2693.79
+  ],
+  "trueRange": [
+   2602.84,
+   2693.84
+  ],
+  "newSeconds": 91.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w2839",
+  "requested": [
+   2838.5,
+   2928.5
+  ],
+  "moment": "g2849",
+  "note": "roar with pre-peak graphics",
+  "segments": [
+   523,
+   540
+  ],
+  "requestedFinal": [
+   2831.89,
+   2928.79
+  ],
+  "trueRange": [
+   2831.84,
+   2928.84
+  ],
+  "newSeconds": 97.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w3418",
+  "requested": [
+   3418.0,
+   3496.0
+  ],
+  "moment": "g3428",
+  "note": "roar with graphics; end margined before modeled disc-3500",
+  "segments": [
+   630,
+   643
+  ],
+  "requestedFinal": [
+   3417.89,
+   3493.79
+  ],
+  "trueRange": [
+   3417.84,
+   3493.84
+  ],
+  "newSeconds": 76.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w3590",
+  "requested": [
+   3590.0,
+   3650.0
+  ],
+  "moment": "g3579",
+  "note": "tail window; peak inside modeled disc-3500",
+  "segments": [
+   661,
+   671
+  ],
+  "requestedFinal": [
+   3590.69,
+   3652.79
+  ],
+  "trueRange": [
+   3590.64,
+   3652.84
+  ],
+  "newSeconds": 62.2,
+  "shortWindow": false
+ },
+ {
+  "name": "w3670",
+  "requested": [
+   3669.5,
+   3759.5
+  ],
+  "moment": "g3680",
+  "note": "GOAL: ball in net at 3669.8-3674.8 + LaLiga transition graphic",
+  "segments": [
+   675,
+   691
+  ],
+  "requestedFinal": [
+   3666.89,
+   3763.11
+  ],
+  "trueRange": [
+   3666.84,
+   3763.16
+  ],
+  "newSeconds": 96.32,
+  "shortWindow": false
+ },
+ {
+  "name": "w3794",
+  "requested": [
+   3793.5,
+   3857.0
+  ],
+  "moment": "g3804",
+  "note": "goal-mouth action + graphics at peak+3.3",
+  "segments": [
+   698,
+   710
+  ],
+  "requestedFinal": [
+   3791.89,
+   3860.79
+  ],
+  "trueRange": [
+   3791.84,
+   3860.84
+  ],
+  "newSeconds": 69.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w3868",
+  "requested": [
+   3867.5,
+   3896.84
+  ],
+  "moment": "g3878",
+  "note": "TOP roar (6.50 excess), near-miss; onset only - truncated by w3900 boundary",
+  "segments": [
+   711,
+   716
+  ],
+  "requestedFinal": [
+   3860.89,
+   3896.79
+  ],
+  "trueRange": [
+   3860.84,
+   3896.84
+  ],
+  "newSeconds": 36.0,
+  "shortWindow": true
+ },
+ {
+  "name": "w4333",
+  "requested": [
+   4332.5,
+   4422.5
+  ],
+  "moment": "g4343",
+  "note": "roar with pre-peak graphics",
+  "segments": [
+   799,
+   818
+  ],
+  "requestedFinal": [
+   4325.93,
+   4424.79
+  ],
+  "trueRange": [
+   4325.88,
+   4424.84
+  ],
+  "newSeconds": 98.96,
+  "shortWindow": false
+ },
+ {
+  "name": "w4690",
+  "requested": [
+   4690.0,
+   4780.0
+  ],
+  "moment": "g4680",
+  "note": "tail window; peak inside modeled disc-4600",
+  "segments": [
+   868,
+   884
+  ],
+  "requestedFinal": [
+   4693.53,
+   4782.79
+  ],
+  "trueRange": [
+   4693.48,
+   4782.84
+  ],
+  "newSeconds": 89.36,
+  "shortWindow": false
+ },
+ {
+  "name": "w4931",
+  "requested": [
+   4930.5,
+   4996.0
+  ],
+  "moment": "g4941",
+  "note": "near-miss roar; end margined before modeled disc-5000",
+  "segments": [
+   911,
+   922
+  ],
+  "requestedFinal": [
+   4927.89,
+   4995.95
+  ],
+  "trueRange": [
+   4927.84,
+   4996.0
+  ],
+  "newSeconds": 68.16,
+  "shortWindow": false
+ },
+ {
+  "name": "w5090",
+  "requested": [
+   5090.0,
+   5180.0
+  ],
+  "moment": "g5093",
+  "note": "roar with graphics; start margined past modeled disc-5000",
+  "segments": [
+   942,
+   957
+  ],
+  "requestedFinal": [
+   5092.89,
+   5180.79
+  ],
+  "trueRange": [
+   5092.84,
+   5180.84
+  ],
+  "newSeconds": 88.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w5308",
+  "requested": [
+   5307.5,
+   5396.0
+  ],
+  "moment": "g5318",
+  "note": "near-miss roar; end margined before w5400",
+  "segments": [
+   981,
+   997
+  ],
+  "requestedFinal": [
+   5306.89,
+   5398.79
+  ],
+  "trueRange": [
+   5306.84,
+   5398.84
+  ],
+  "newSeconds": 92.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w6099",
+  "requested": [
+   6099.0,
+   6189.0
+  ],
+  "moment": "g6109",
+  "note": "near-miss roar; end margined before w6200",
+  "segments": [
+   1127,
+   1144
+  ],
+  "requestedFinal": [
+   6095.89,
+   6191.79
+  ],
+  "trueRange": [
+   6095.84,
+   6191.84
+  ],
+  "newSeconds": 96.0,
+  "shortWindow": false
+ },
+ {
+  "name": "w6548",
+  "requested": [
+   6548.0,
+   6590.0
+  ],
+  "moment": "g6558",
+  "note": "full-time celebration + crowd; end of source (short window)",
+  "segments": [
+   1208,
+   1215
+  ],
+  "requestedFinal": [
+   6545.89,
+   6590.75
+  ],
+  "trueRange": [
+   6545.84,
+   6590.8
+  ],
+  "newSeconds": 44.96,
+  "shortWindow": true
+ },
+ {
+  "name": "w0242",
+  "requested": [
+   241.64,
+   296.0
+  ],
+  "moment": "g0247",
+  "note": "roar just past w0150; short window between w0150 and modeled disc-300",
+  "segments": [
+   45,
+   54
+  ],
+  "requestedFinal": [
+   241.69,
+   292.95
+  ],
+  "trueRange": [
+   241.64,
+   293.0
+  ],
+  "newSeconds": 51.36,
+  "shortWindow": true
+ }
+]

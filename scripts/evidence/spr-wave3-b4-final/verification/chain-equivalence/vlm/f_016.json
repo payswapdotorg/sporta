@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "NO. The frame is primarily occupied by soccer players celebrating on the field, with the crowd visible only in the background.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790309378,
+ "id": "202609251209376ad7693c7acb452e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251209376ad7693c7acb452e",
+ "usage": {
+  "completion_tokens": 25,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 342,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 367
+ },
+ "_meta": {
+  "tag": "check-c1 f_016 media 2728.84 (w2a-C1 expected 2728.84)",
+  "attempt": 1
+ }
+}

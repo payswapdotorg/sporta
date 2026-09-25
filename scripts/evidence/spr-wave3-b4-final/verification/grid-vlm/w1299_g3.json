@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n13: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n14: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n15: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n16: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n17: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n18: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n19: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n20: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312028,
+ "id": "20260925125342bbc4f13e83bf4e6f",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125342bbc4f13e83bf4e6f",
+ "usage": {
+  "completion_tokens": 400,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2298
+ },
+ "_meta": {
+  "tag": "w1299_g3",
+  "attempt": 1
+ }
+}

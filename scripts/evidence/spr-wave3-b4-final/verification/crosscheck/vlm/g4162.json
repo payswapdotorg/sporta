@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Goalkeeper in red kit preparing to kick the ball\n2: play | Goalkeeper running up to strike the ball\n3: play | Goalkeeper kicking the ball into play\n4: play | Goalkeeper following through on his kick\n5: play | Goalkeeper resetting position after the kick\n6: play | Goalkeeper watching the ball's trajectory\n7: play | Goalkeeper turning to track the play\n8: play | Goalkeeper moving back toward his goal line\n9: play | Goalkeeper adjusting his stance in the box\n10: play | Goalkeeper observing the developing play\n11: play | Defender in green and white stripes positioning himself\n12: play | Defender preparing to receive or clear the ball\n13: play | Player in green and white controlling the ball\n14: play | Player looking upfield for a passing option\n15: play | Wide shot of the pitch showing players near the goal area\n16: play | Players spread out across the field in open play\n17: play | Teammates moving into strategic positions\n18: play | Players continuing the flow of the match\n19: play | General view of ongoing match action\n20: play | Players maintaining formation during live play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311438,
+ "id": "2026092512435234f1545645504538",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512435234f1545645504538",
+ "usage": {
+  "completion_tokens": 252,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2141
+ },
+ "_meta": {
+  "tag": "g4162",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Goalkeeper in green walking on pitch\ncell 2: wide-broadcast | Wide shot of empty pitch area\ncell 3: wide-broadcast | Wide shot of empty pitch area\ncell 4: wide-broadcast | Wide shot of empty pitch area\ncell 5: closeup | Goalkeeper in green standing on pitch\ncell 6: pitch-action | Players positioned on pitch, center circle visible\ncell 7: pitch-action | Players positioned on pitch, center circle visible\ncell 8: pitch-action | Players positioned on pitch, center circle visible\ncell 9: pitch-action | Players positioned on pitch, center circle visible\ncell 10: pitch-action | Players positioned on pitch, center circle visible\ncell 11: pitch-action | Players positioned on pitch, center circle visible\ncell 12: pitch-action | Players positioned on pitch, center circle visible\ncell 13: pitch-action | Players positioned on pitch, center circle visible\ncell 14: pitch-action | Players positioned on pitch, center circle visible\ncell 15: pitch-action | Players positioned on pitch, center circle visible\ncell 16: pitch-action | Players positioned on pitch, center circle visible\ncell 17: pitch-action | Players positioned on pitch, center circle visible\ncell 18: pitch-action | Players positioned on pitch, center circle visible\ncell 19: pitch-action | Players positioned on pitch, center circle visible\ncell 20: pitch-action | Players positioned on pitch, center circle visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283301,
+  "id": "20260925045455eeda30fe0cff408b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045455eeda30fe0cff408b",
+  "usage": {
+    "completion_tokens": 315,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2077
+  }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | A player in a white jersey stands over the ball near the penalty area, preparing for a free kick.\n2: play | The player in white remains stationary, focusing on his run-up for the free kick.\n3: play | The player in white begins to take a few steps back to start his approach.\n4: play | The player in white starts his run-up towards the ball for the free kick.\n5: play | The player in white continues his run-up, closing in on the ball.\n6: play | The player strikes the ball, sending it toward the goal as the defensive wall jumps.\n7: play | The ball is in mid-air, flying past the defensive wall and toward the goal.\n8: play | The camera follows the ball's trajectory as it heads into the net for a goal.\n9: play | A wide shot shows players reacting immediately after the goal is scored.\n10: play | Players from the scoring team begin to turn and move toward each other.\n11: play | The scoring team's players start to gather in a group near the center of the pitch.\n12: play | More players converge as the celebration begins to take shape on the field.\n13: celebration | The players are now huddled together in a clear group celebration of the goal.\n14: celebration | The group of celebrating players remains tightly packed together on the pitch.\n15: celebration | The players continue their celebration, with some jumping and embracing.\n16: celebration | The celebration carries on with players congratulating one another.\n17: closeup | A tight shot focuses on two players interacting closely during the aftermath.\n18: closeup | The camera follows a player in a pink jersey running across the frame.\n19: closeup | A close-up tracks the same player in pink continuing to run on the field.\n20: graphics | A large broadcast graphic wipe with a red and white logo covers the screen.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311322,
+ "id": "2026092512415128a7965ca9b0404b",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512415128a7965ca9b0404b",
+ "usage": {
+  "completion_tokens": 389,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 128
+  },
+  "total_tokens": 2278
+ },
+ "_meta": {
+  "tag": "g0905",
+  "attempt": 1
+ }
+}

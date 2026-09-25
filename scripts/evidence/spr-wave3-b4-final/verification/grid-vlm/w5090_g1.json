@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players positioned across the field\n3: wide-broadcast | Wide shot of the pitch with players moving during the match\n4: wide-broadcast | Wide shot of the field showing the goal area and players\n5: wide-broadcast | Wide shot of the pitch with advertising boards visible\n6: wide-broadcast | Wide shot of the field with players near the center circle\n7: wide-broadcast | Wide shot of the pitch showing the full width of the playing area\n8: wide-broadcast | Wide shot of the field with players near the penalty area\n9: closeup | Closeup of a player in a green and white striped jersey\n10: closeup | Closeup of the same player in green and white looking forward\n11: closeup | Closeup of the green and white player from a different angle\n12: closeup | Closeup of a player in a red jersey with number 7 on the back\n13: closeup | Closeup of the red jersey player from a side angle\n14: closeup | Closeup of the red jersey player looking towards the action\n15: wide-broadcast | Wide shot returning to show the entire pitch and players\n16: wide-broadcast | Wide shot of the field with players spread out\n17: wide-broadcast | Wide shot of the pitch showing the goal and defensive line\n18: wide-broadcast | Wide shot of the field with players in various positions\n19: wide-broadcast | Wide shot of the pitch showing the attacking third\n20: wide-broadcast | Wide shot of the field with players near the center",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314419,
+ "id": "2026092513332649fba0320c144e07",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513332649fba0320c144e07",
+ "usage": {
+  "completion_tokens": 358,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2256
+ },
+ "_meta": {
+  "tag": "w5090_g1",
+  "attempt": 1
+ }
+}

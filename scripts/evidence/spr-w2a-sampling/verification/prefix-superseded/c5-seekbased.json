@@ -1,0 +1,98 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 5550.0,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, with people and stadium seating occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 5551.0,
+  "verdict": "YES",
+  "reason": "spectators and stadium seating occupy the entire frame area."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 5552.0,
+  "verdict": "YES",
+  "reason": "The frame is a tight close-up of spectators in the stands, with people and stadium seating occupying the entire visible area."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 5553.0,
+  "verdict": "YES",
+  "reason": "spectators and the stands clearly occupy more than half of the frame area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 5554.0,
+  "verdict": "YES",
+  "reason": "The frame is a tight close-up of spectators in the stands, with people and seating occupying the entire visible area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 5555.0,
+  "verdict": "YES",
+  "reason": "The frame is a close-up shot of spectators in the stands, with people and their clothing occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 5556.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player (Jofre) in the foreground and the soccer pitch, with the crowd only visible in the background."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 5557.0,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level wide shot where the playing field and players occupy the foreground and middle ground, while the crowd is only visible in the background and does not occupy more than half of the total area."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 5558.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the pitch and players in the foreground, with the crowd only visible as a background element occupying less than half of the total area."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 5559.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the pitch and players in the foreground, with the crowd/stands only occupying the background area."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 5560.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by the soccer pitch and players in the foreground and midground, with the crowd/stands only visible in the background."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 5561.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player in the foreground and the pitch, with the crowd only visible as a blurred background."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 5562.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players on the pitch in the foreground, with the crowd only visible as a small, out-of-focus background element."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 5563.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player and a staff member in the foreground, with the crowd only visible as a dark, indistinct background occupying less than half of the total area."
+ },
+ {
+  "frame": "f_015.jpg",
+  "mediaTime": 5564.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a close-up of two individuals (a coach and a player) in the foreground, with the crowd appearing as a small, out-of-focus background element."
+ },
+ {
+  "frame": "f_016.jpg",
+  "mediaTime": 5565.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player (Eric) in the foreground and the pitch, with the crowd/stands only visible as a small portion of the background."
+ }
+]

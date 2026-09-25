@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch showing players in red and green kits positioned across the field.\n2: play | Wide shot of the match continuing with players moving and passing in the midfield area.\n3: play | Wide shot of the game as the ball is played towards the attacking third of the field.\n4: play | Wide shot showing the build-up of play near the opponent's penalty area.\n5: play | Wide angle view of the attack developing towards the goal on the right side.\n6: play | Wide shot capturing the moment a cross or pass is sent into the penalty box.\n7: play | Wide shot showing players reacting inside the box as the ball approaches the goal.\n8: play | Wide shot of the immediate aftermath of the play near the goal line.\n9: play | Wide shot of the field as players begin to reset their positions after the attack.\n10: play | Wide shot showing the general flow of the game resuming in the middle of the pitch.\n11: play | Wide shot of the match continuing with players spread out across the field.\n12: closeup | Tight shot focusing on Yamal wearing the number 10 red jersey from behind.\n13: closeup | Medium close-up of Yamal interacting with an opposing player in green.\n14: closeup | Tight shot from behind of a player named Rodny wearing number 28.\n15: closeup | Sustained close-up shot of Rodny standing on the pitch.\n16: graphics | Full-screen broadcast graphic overlay featuring the LaLiga logo on a red background.\n17: play | Wide shot of the match resuming with players spread across the entire field.\n18: play | Wide shot of live gameplay continuing with the ball in motion.\n19: play | Wide shot of the match in progress with players actively competing for the ball.\n20: play | Wide shot of the ongoing game with players positioned across the pitch.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310724,
+ "id": "20260925123153bf81c29067ab4856",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123153bf81c29067ab4856",
+ "usage": {
+  "completion_tokens": 390,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2279
+ },
+ "_meta": {
+  "tag": "g3804",
+  "attempt": 1
+ }
+}

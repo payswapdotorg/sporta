@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | coach and bench staff\ncell 2: closeup | coach and bench staff\ncell 3: closeup | coach and bench staff\ncell 4: pitch-action | referee and player on pitch\ncell 5: pitch-action | referee and player talking\ncell 6: pitch-action | referee and player on pitch\ncell 7: wide-broadcast | wide shot of players on field\ncell 8: wide-broadcast | wide shot of players on field\ncell 9: wide-broadcast | wide shot of players on field\ncell 10: wide-broadcast | wide shot of players on field\ncell 11: wide-broadcast | wide shot of players on field\ncell 12: wide-broadcast | wide shot of players on field\ncell 13: wide-broadcast | wide shot of players on field\ncell 14: wide-broadcast | wide shot of players near goal\ncell 15: wide-broadcast | wide shot of players near goal\ncell 16: wide-broadcast | wide shot of players near goal\ncell 17: wide-broadcast | wide shot of players near goal\ncell 18: graphics | large red logo graphic overlay\ncell 19: closeup | two players in foreground\ncell 20: closeup | player in green/white stripes",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285043,
+  "id": "202609250524005a624cc542444690",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250524005a624cc542444690",
+  "usage": {
+    "completion_tokens": 277,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 5
+    },
+    "total_tokens": 2039
+  }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n2: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n3: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n4: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n5: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n6: wide-broadcast | Wide fisheye shot of the entire pitch and stadium\n7: pitch-action | Medium-wide shot of players on the field\n8: pitch-action | Medium-wide shot of players on the field\n9: pitch-action | Live match action with scoreboard graphic overlay\n10: pitch-action | Live match action with scoreboard graphic overlay\n11: pitch-action | Live match action with scoreboard graphic overlay\n12: pitch-action | Live match action with scoreboard graphic overlay\n13: pitch-action | Live match action with lower-third team name graphics\n14: pitch-action | Live match action with lower-third team name graphics\n15: pitch-action | Live match action with lower-third team name graphics\n16: pitch-action | Live match action with lower-third team name graphics\n17: pitch-action | Live match action with LaLiga scoreboard graphic\n18: pitch-action | Live match action with LaLiga scoreboard graphic\n19: pitch-action | Live match action with LaLiga scoreboard graphic\n20: pitch-action | Live match action with LaLiga scoreboard graphic",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313791,
+ "id": "20260925132307659e8c09435a4d6e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925132307659e8c09435a4d6e",
+ "usage": {
+  "completion_tokens": 308,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 2
+  },
+  "total_tokens": 2206
+ },
+ "_meta": {
+  "tag": "w3418_g3",
+  "attempt": 1
+ }
+}

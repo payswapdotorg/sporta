@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits positioned for play\n2: play | Wide shot of the pitch showing players moving and passing the ball during live action\n3: play | Wide shot of the match continuing with players spread across the field\n4: play | Wide shot of the game in progress with players actively participating\n5: play | Wide shot of the field showing ongoing match play and player positioning\n6: play | Wide shot of the pitch with players continuing the game flow\n7: play | Wide shot of the match with players moving and competing for the ball\n8: play | Wide shot of the game in progress on a green soccer field\n9: play | Wide shot of the match continuing with players in various positions\n10: play | Wide shot of the pitch showing active gameplay and player movement\n11: play | Wide shot of the soccer match with players spread across the field\n12: play | Wide shot of the game continuing with players in red and green kits\n13: play | Wide angle shot of the pitch showing players near the goal area\n14: play | Wide shot of the match with the goalkeeper visible near the goal\n15: play | Wide shot of the game with spectators visible in the background stands\n16: play | Wide shot of the pitch showing players and a crowded stand in the background\n17: play | Wide shot of the match continuing with players actively playing\n18: play | Wide shot of the game in progress with players on the field\n19: play | Wide shot of the match with spectators clearly visible in the stands\n20: play | Wide shot of the soccer pitch concluding the sequence of live action",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310791,
+ "id": "20260925123256e5102571354942ac",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123256e5102571354942ac",
+ "usage": {
+  "completion_tokens": 345,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2234
+ },
+ "_meta": {
+  "tag": "g5318",
+  "attempt": 1
+ }
+}

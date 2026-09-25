@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in formation\n2: wide-broadcast | Wide shot of the pitch with players moving during the match\n3: wide-broadcast | Wide shot of the field with players positioned across the pitch\n4: wide-broadcast | Wide shot of the match action from a high angle\n5: wide-broadcast | Wide shot of the field near the goal area\n6: wide-broadcast | Wide shot of the pitch with players near the goal\n7: wide-broadcast | Wide shot of the field with players in the attacking third\n8: wide-broadcast | Wide shot of the match continuing on the pitch\n9: wide-broadcast | Wide shot of players near the goalpost\n10: closeup | Closeup of a player in a pink jersey celebrating\n11: closeup | Closeup of two players in pink jerseys celebrating together\n12: closeup | Closeup of a celebrating player with arms outstretched\n13: wide-broadcast | Wide shot of players walking on the pitch\n14: wide-broadcast | Wide shot of three players in pink jerseys on the field\n15: closeup | Closeup of players embracing in celebration on the sideline\n16: closeup | Closeup of players interacting on the sideline\n17: crowd | Spectators in the stands, one holding a Catalan flag\n18: crowd | Closeup of a spectator waving a large Catalan flag\n19: closeup | Closeup of a coach or manager watching the game intently\n20: closeup | Closeup of the coach with his hand to his face",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311919,
+ "id": "20260925125154bf98f8c6980746aa",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925125154bf98f8c6980746aa",
+ "usage": {
+  "completion_tokens": 330,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2228
+ },
+ "_meta": {
+  "tag": "w1091_g1",
+  "attempt": 1
+ }
+}

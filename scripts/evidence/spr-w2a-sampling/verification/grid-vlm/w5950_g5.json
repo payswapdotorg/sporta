@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Player shooting at goal\n2: closeup | Goalkeeper and defender near goal line\n3: wide-broadcast | Wide shot of goal area with stands\n4: wide-broadcast | Wide shot of play near penalty area\n5: wide-broadcast | Wide shot of players attacking goal\n6: wide-broadcast | Wide shot of goalkeeper on ground\n7: wide-broadcast | Wide shot of ball crossing goal line\n8: wide-broadcast | Wide shot of player dribbling\n9: pitch-action | Player shooting, defender blocking\n10: pitch-action | Shot on goal, keeper diving\n11: pitch-action | Ball hitting back of net\n12: pitch-action | Player taking shot\n13: pitch-action | Keeper diving for save\n14: pitch-action | Ball entering the net",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285424,
+  "id": "20260925053019bf4c038522904470",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925053019bf4c038522904470",
+  "usage": {
+    "completion_tokens": 167,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1929
+  }
+}

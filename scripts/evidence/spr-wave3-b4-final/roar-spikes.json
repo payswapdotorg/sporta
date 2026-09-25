@@ -1,0 +1,292 @@
+{
+ "method": {
+  "audio": "itag 140-5 full-match m4a (recorded recipe), mono 16 kHz PCM",
+  "envelope": "RMS in 0.5 s windows (dBFS)",
+  "baseline": "rolling median over +-60 s",
+  "spikeMetric": "excess dB = envelope - baseline at peak; excessMean15 = mean excess over +-1.5 s",
+  "selection": "top by excessMean15, min separation 45.0s, edges 20s excluded"
+ },
+ "audioDurationSec": 6590.5,
+ "candidates": [
+  {
+   "tPeak": 3877.5,
+   "peakDb": -19.66,
+   "baselineDb": -28.77,
+   "excessDb": 9.11,
+   "excessMean15": 6.5
+  },
+  {
+   "tPeak": 987.5,
+   "peakDb": -18.81,
+   "baselineDb": -26.11,
+   "excessDb": 7.3,
+   "excessMean15": 5.29
+  },
+  {
+   "tPeak": 3083.5,
+   "peakDb": -22.13,
+   "baselineDb": -30.26,
+   "excessDb": 8.12,
+   "excessMean15": 5.11
+  },
+  {
+   "tPeak": 3578.5,
+   "peakDb": -22.37,
+   "baselineDb": -28.37,
+   "excessDb": 5.99,
+   "excessMean15": 5.11
+  },
+  {
+   "tPeak": 6558.0,
+   "peakDb": -22.51,
+   "baselineDb": -31.04,
+   "excessDb": 8.53,
+   "excessMean15": 4.84
+  },
+  {
+   "tPeak": 2848.5,
+   "peakDb": -21.69,
+   "baselineDb": -27.42,
+   "excessDb": 5.74,
+   "excessMean15": 4.17
+  },
+  {
+   "tPeak": 3679.5,
+   "peakDb": -22.16,
+   "baselineDb": -29.54,
+   "excessDb": 7.38,
+   "excessMean15": 3.91
+  },
+  {
+   "tPeak": 1309.0,
+   "peakDb": -23.08,
+   "baselineDb": -29.45,
+   "excessDb": 6.37,
+   "excessMean15": 3.86
+  },
+  {
+   "tPeak": 3803.5,
+   "peakDb": -22.15,
+   "baselineDb": -29.71,
+   "excessDb": 7.56,
+   "excessMean15": 3.82
+  },
+  {
+   "tPeak": 1577.0,
+   "peakDb": -22.29,
+   "baselineDb": -28.71,
+   "excessDb": 6.43,
+   "excessMean15": 3.68
+  },
+  {
+   "tPeak": 1101.0,
+   "peakDb": -18.24,
+   "baselineDb": -24.5,
+   "excessDb": 6.26,
+   "excessMean15": 3.64
+  },
+  {
+   "tPeak": 4547.0,
+   "peakDb": -21.83,
+   "baselineDb": -28.23,
+   "excessDb": 6.4,
+   "excessMean15": 3.62
+  },
+  {
+   "tPeak": 1839.0,
+   "peakDb": -19.4,
+   "baselineDb": -26.53,
+   "excessDb": 7.13,
+   "excessMean15": 3.34
+  },
+  {
+   "tPeak": 5093.0,
+   "peakDb": -21.22,
+   "baselineDb": -27.13,
+   "excessDb": 5.91,
+   "excessMean15": 3.16
+  },
+  {
+   "tPeak": 5493.5,
+   "peakDb": -21.27,
+   "baselineDb": -27.11,
+   "excessDb": 5.84,
+   "excessMean15": 3.08
+  },
+  {
+   "tPeak": 3020.5,
+   "peakDb": -24.2,
+   "baselineDb": -30.25,
+   "excessDb": 6.05,
+   "excessMean15": 2.9
+  },
+  {
+   "tPeak": 5810.5,
+   "peakDb": -20.7,
+   "baselineDb": -27.42,
+   "excessDb": 6.72,
+   "excessMean15": 2.86
+  },
+  {
+   "tPeak": 905.0,
+   "peakDb": -21.27,
+   "baselineDb": -27.49,
+   "excessDb": 6.22,
+   "excessMean15": 2.64
+  },
+  {
+   "tPeak": 4680.0,
+   "peakDb": -18.98,
+   "baselineDb": -25.67,
+   "excessDb": 6.68,
+   "excessMean15": 2.61
+  },
+  {
+   "tPeak": 5317.5,
+   "peakDb": -22.44,
+   "baselineDb": -28.22,
+   "excessDb": 5.78,
+   "excessMean15": 2.59
+  },
+  {
+   "tPeak": 1528.0,
+   "peakDb": -22.66,
+   "baselineDb": -28.67,
+   "excessDb": 6.01,
+   "excessMean15": 2.54
+  },
+  {
+   "tPeak": 6109.0,
+   "peakDb": -20.99,
+   "baselineDb": -28.3,
+   "excessDb": 7.32,
+   "excessMean15": 2.44
+  },
+  {
+   "tPeak": 3428.0,
+   "peakDb": -23.95,
+   "baselineDb": -29.82,
+   "excessDb": 5.88,
+   "excessMean15": 2.33
+  },
+  {
+   "tPeak": 2727.5,
+   "peakDb": -20.45,
+   "baselineDb": -27.16,
+   "excessDb": 6.7,
+   "excessMean15": 2.17
+  },
+  {
+   "tPeak": 4940.5,
+   "peakDb": -21.49,
+   "baselineDb": -28.07,
+   "excessDb": 6.58,
+   "excessMean15": 2.04
+  },
+  {
+   "tPeak": 3337.5,
+   "peakDb": -22.1,
+   "baselineDb": -28.19,
+   "excessDb": 6.1,
+   "excessMean15": 2.04
+  },
+  {
+   "tPeak": 246.5,
+   "peakDb": -22.26,
+   "baselineDb": -28.9,
+   "excessDb": 6.63,
+   "excessMean15": 2.0
+  },
+  {
+   "tPeak": 3498.5,
+   "peakDb": -23.44,
+   "baselineDb": -29.03,
+   "excessDb": 5.59,
+   "excessMean15": 1.94
+  },
+  {
+   "tPeak": 2618.5,
+   "peakDb": -22.5,
+   "baselineDb": -29.18,
+   "excessDb": 6.67,
+   "excessMean15": 1.91
+  },
+  {
+   "tPeak": 4342.5,
+   "peakDb": -20.14,
+   "baselineDb": -25.99,
+   "excessDb": 5.85,
+   "excessMean15": 1.74
+  },
+  {
+   "tPeak": 6378.5,
+   "peakDb": -22.99,
+   "baselineDb": -28.59,
+   "excessDb": 5.6,
+   "excessMean15": 1.69
+  },
+  {
+   "tPeak": 333.5,
+   "peakDb": -20.83,
+   "baselineDb": -27.31,
+   "excessDb": 6.47,
+   "excessMean15": 1.65
+  },
+  {
+   "tPeak": 5037.0,
+   "peakDb": -21.24,
+   "baselineDb": -27.02,
+   "excessDb": 5.78,
+   "excessMean15": 1.56
+  },
+  {
+   "tPeak": 4792.0,
+   "peakDb": -21.19,
+   "baselineDb": -26.69,
+   "excessDb": 5.5,
+   "excessMean15": 1.0
+  },
+  {
+   "tPeak": 5696.5,
+   "peakDb": -22.25,
+   "baselineDb": -28.6,
+   "excessDb": 6.35,
+   "excessMean15": 0.96
+  },
+  {
+   "tPeak": 5393.5,
+   "peakDb": -22.84,
+   "baselineDb": -28.9,
+   "excessDb": 6.06,
+   "excessMean15": 0.83
+  },
+  {
+   "tPeak": 807.0,
+   "peakDb": -20.31,
+   "baselineDb": -27.19,
+   "excessDb": 6.88,
+   "excessMean15": 0.65
+  },
+  {
+   "tPeak": 184.0,
+   "peakDb": -21.45,
+   "baselineDb": -27.27,
+   "excessDb": 5.82,
+   "excessMean15": 0.43
+  },
+  {
+   "tPeak": 402.0,
+   "peakDb": -19.68,
+   "baselineDb": -25.5,
+   "excessDb": 5.82,
+   "excessMean15": 0.17
+  },
+  {
+   "tPeak": 4161.5,
+   "peakDb": -19.17,
+   "baselineDb": -24.74,
+   "excessDb": 5.57,
+   "excessMean15": 0.01
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in green near goal\n2: pitch-action | Players interacting near goal area\n3: pitch-action | Player in green turning near goal\n4: pitch-action | Player in green running with ball\n5: graphics | Red and white replay transition graphic\n6: wide-broadcast | Wide shot of the soccer pitch\n7: wide-broadcast | Wide shot of the soccer pitch\n8: wide-broadcast | Wide shot of the soccer pitch\n9: closeup | Goalkeeper in orange standing by corner flag\n10: closeup | Goalkeeper in orange standing by corner flag\n11: closeup | Goalkeeper in orange gesturing by corner flag\n12: closeup | Goalkeeper in orange raising arm by corner flag\n13: closeup | Goalkeeper in orange looking up by corner flag\n14: closeup | Goalkeeper in orange standing by corner flag\n15: closeup | Goalkeeper in orange leaning forward by corner flag\n16: wide-broadcast | Wide shot showing goalkeeper and field\n17: wide-broadcast | Wide shot of players on the pitch\n18: wide-broadcast | Wide shot of players on the pitch\n19: wide-broadcast | Wide shot of players on the pitch\n20: wide-broadcast | Wide shot of players on the pitch",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312442,
+ "id": "20260925130035711eaa59be6645f1",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925130035711eaa59be6645f1",
+ "usage": {
+  "completion_tokens": 267,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2165
+ },
+ "_meta": {
+  "tag": "w1851_g1",
+  "attempt": 1
+ }
+}

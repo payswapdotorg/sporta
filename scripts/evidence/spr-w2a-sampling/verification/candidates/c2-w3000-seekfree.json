@@ -1,0 +1,74 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 3017.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch where the playing field and players occupy the vast majority of the area, with the crowd/stands only visible in the background."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 3018.84,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player in the foreground, with the crowd only visible in the background."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 3019.84,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a close-up of two soccer players on the pitch, with only a small, out-of-focus portion of the stands visible in the background."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 3020.84,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of players on the pitch, with the crowd appearing only as a blurred background and occupying less than half of the total area."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 3021.84,
+  "verdict": "YES",
+  "reason": "spectators and the stands clearly occupy the entire frame area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 3022.84,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying the entire visible area."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 3023.84,
+  "verdict": "YES",
+  "reason": "The frame is entirely filled with spectators in the stands, occupying 100% of the visual area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 3024.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch, which occupies the majority of the image area; the crowd is visible only in the background and does not dominate the visual space."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 3025.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch where the playing field and players occupy the majority of the area, with the crowd/stands only visible in the background."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 3026.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch, which occupies the majority of the image area, while the crowd is only visible in the background."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 3027.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch, which occupies the majority of the image area, while the crowd is only visible in the background."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 3028.84,
+  "verdict": "NO",
+  "reason": "The frame is a wide shot of the soccer pitch where the playing field and players occupy the vast majority of the area, with the crowd/stands only visible as a relatively thin strip in the background."
+ }
+]

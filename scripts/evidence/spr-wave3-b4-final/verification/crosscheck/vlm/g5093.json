@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Goalkeeper in yellow prepares for a set piece near the goal\n2: play | Goalkeeper jumps to defend the goal from a shot\n3: play | Goalkeeper dives to his left to make a save attempt\n4: play | Ball enters the net as the goalkeeper misses the save\n5: play | Goalkeeper lands on the ground after the diving attempt\n6: play | Goalkeeper remains on the ground as players react to the goal\n7: closeup | Player in green and white stripes looks on with disappointment\n8: closeup | Player holds his head in frustration at the conceded goal\n9: closeup | Player continues to show disappointment with hands on head\n10: graphics | Broadcast replay wipe graphic appears over the player's reaction\n11: play | Wide shot of the pitch showing players regrouping after the goal\n12: play | Players spread out across the field as play prepares to restart\n13: play | Wide view of the stadium with players moving into position\n14: play | Camera follows the general flow of the game from a high angle\n15: play | Players continue to move and position themselves on the field\n16: play | Wide shot of the match continuing with players in various positions\n17: play | Game action continues with players spread across the pitch\n18: play | View of the field near the goal area during live play\n19: closeup | Tight shot of a player in green and white stripes running\n20: closeup | Close-up of the same player looking towards the field of play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310773,
+ "id": "20260925123244aa8e0875311943d1",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123244aa8e0875311943d1",
+ "usage": {
+  "completion_tokens": 319,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2208
+ },
+ "_meta": {
+  "tag": "g5093",
+  "attempt": 1
+ }
+}

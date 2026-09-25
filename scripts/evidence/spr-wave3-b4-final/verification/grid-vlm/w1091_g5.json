@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n3: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n4: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n5: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n6: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n7: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n8: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n9: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n10: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n11: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n12: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311981,
+ "id": "202609251252553b9d247f99744b3e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251252553b9d247f99744b3e",
+ "usage": {
+  "completion_tokens": 240,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2138
+ },
+ "_meta": {
+  "tag": "w1091_g5",
+  "attempt": 1
+ }
+}

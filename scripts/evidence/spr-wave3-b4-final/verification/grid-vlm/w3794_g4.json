@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players moving in open play\n3: wide-broadcast | Wide shot of the pitch with players spread across the field\n4: wide-broadcast | Wide shot of the match with players positioned across the field\n5: wide-broadcast | Wide shot of the pitch showing players near the sideline area\n6: wide-broadcast | Wide shot of the field with players in various positions\n7: wide-broadcast | Wide shot of the pitch with players moving during the game\n8: wide-broadcast | Wide shot of the soccer field with players in action\n9: wide-broadcast | Wide shot of the pitch featuring a small inset replay window\n10: other | Black frame indicating a transition or end of clip segment\n11: other | Black frame continuing the transition or gap in footage\n12: other | Black frame maintaining the blank screen sequence\n13: other | Black frame concluding the empty sequence\n14: other | Black frame at the end of the provided grid\n15: other | Black frame filling the grid position\n16: other | Black frame filling the grid position\n17: other | Black frame filling the grid position\n18: other | Black frame filling the grid position\n19: other | Black frame filling the grid position\n20: other | Black frame filling the grid position",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314016,
+ "id": "202609251326503457bd77891949d2",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251326503457bd77891949d2",
+ "usage": {
+  "completion_tokens": 295,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2193
+ },
+ "_meta": {
+  "tag": "w3794_g4",
+  "attempt": 1
+ }
+}

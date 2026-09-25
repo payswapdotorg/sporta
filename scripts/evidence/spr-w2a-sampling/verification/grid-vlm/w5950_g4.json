@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: graphics | scoreboard and team name overlay\ncell 2: closeup | coach on the bench\ncell 3: closeup | coach on the bench\ncell 4: closeup | coach on the bench\ncell 5: closeup | player talking to coach\ncell 6: closeup | coach and staff on bench\ncell 7: closeup | coach and staff on bench\ncell 8: pitch-action | medical staff attending to player\ncell 9: pitch-action | medical staff attending to player\ncell 10: pitch-action | medical staff attending to player\ncell 11: pitch-action | medical staff attending to player\ncell 12: closeup | coach watching intently\ncell 13: closeup | coach watching intently\ncell 14: pitch-action | players on the field\ncell 15: pitch-action | goalkeeper kicking the ball\ncell 16: wide-broadcast | wide view of the field\ncell 17: closeup | coach watching intently\ncell 18: pitch-action | player dribbling the ball\ncell 19: pitch-action | players running towards the ball\ncell 20: pitch-action | player sliding in for a tackle",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285415,
+  "id": "20260925053008942c1967709545a8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925053008942c1967709545a8",
+  "usage": {
+    "completion_tokens": 252,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2014
+  }
+}

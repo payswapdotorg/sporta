@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Tight shot of players and referee during a break in play\n2: wide-broadcast | Wide shot of the soccer pitch showing player positions\n3: wide-broadcast | Wide shot of the pitch as play continues\n4: wide-broadcast | Wide shot of the field with players moving\n5: wide-broadcast | Wide shot of the goal area and defensive line\n6: pitch-action | Medium shot of a player dribbling the ball\n7: pitch-action | Action shot of players running with motion blur\n8: other | Empty black frame\n9: other | Empty black frame\n10: other | Empty black frame\n11: other | Empty black frame\n12: other | Empty black frame\n13: other | Empty black frame\n14: other | Empty black frame\n15: other | Empty black frame\n16: other | Empty black frame\n17: other | Empty black frame\n18: other | Empty black frame\n19: other | Empty black frame\n20: other | Empty black frame",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312426,
+ "id": "202609251300214d0e09f5440a4e16",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251300214d0e09f5440a4e16",
+ "usage": {
+  "completion_tokens": 212,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2110
+ },
+ "_meta": {
+  "tag": "w1592_g5",
+  "attempt": 5
+ }
+}

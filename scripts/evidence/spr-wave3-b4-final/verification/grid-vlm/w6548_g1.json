@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in green and white stripes dribbling the ball\n2: pitch-action | Player in red attempting to block or tackle the ball carrier\n3: wide-broadcast | Wide shot of the penalty area with players and the goalkeeper\n4: wide-broadcast | Wide shot showing players near the goal line and the goalpost\n5: wide-broadcast | Wide shot of the goal area with defenders and the goalkeeper\n6: wide-broadcast | Wide shot of the penalty box with attacking players in red\n7: pitch-action | Medium shot of a player in red running towards the ball\n8: pitch-action | Two players in red moving together on the field\n9: pitch-action | Player in red controlling the ball while being challenged by a defender\n10: pitch-action | A single player in red running across the field\n11: pitch-action | Group of players in red standing near the center circle\n12: wide-broadcast | Shot of the goal area with the goalkeeper diving and players reacting\n13: wide-broadcast | View of the goal net with the goalkeeper and nearby players\n14: closeup | Coach or manager on the sideline clapping his hands\n15: closeup | Close-up side profile of a player's face\n16: closeup | Two people, likely a coach and player, embracing in a hug\n17: closeup | People on the sideline, including a man in a dark coat with his back to the camera\n18: crowd | Spectators in formal suits sitting in the stands\n19: crowd | Spectators in suits watching the match from the stands\n20: crowd | Crowd of spectators in the stands during the game",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314650,
+ "id": "2026092513372376562f4521884ecb",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513372376562f4521884ecb",
+ "usage": {
+  "completion_tokens": 341,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2239
+ },
+ "_meta": {
+  "tag": "w6548_g1",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Pedri walking on the sideline\n2: closeup | Pedri greeting a coach\n3: closeup | Pedri hugging a coach\n4: closeup | Pedri walking with a coach\n5: closeup | Pedri shaking hands near the dugout\n6: play | Wide shot of the soccer match in progress\n7: play | Wide shot of the soccer match in progress\n8: play | Wide shot of the soccer match in progress\n9: play | Wide shot of the soccer match in progress\n10: play | Wide shot of the soccer match in progress\n11: play | Wide shot of the soccer match in progress\n12: play | Wide shot of the soccer match in progress\n13: play | Wide shot of the soccer match in progress\n14: play | Wide shot of the soccer match in progress\n15: graphics | Scoreboard graphic overlay at bottom of screen\n16: play | Wide shot of the soccer match in progress\n17: graphics | Lower-third graphic showing team names and score\n18: play | Wide shot of the soccer match in progress\n19: graphics | Lower-third graphic showing team names and score\n20: graphics | Lower-third graphic showing team names and score",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311219,
+ "id": "20260925124016666fbd79206d46f0",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124016666fbd79206d46f0",
+ "usage": {
+  "completion_tokens": 256,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 157
+  },
+  "total_tokens": 2145
+ },
+ "_meta": {
+  "tag": "g4547",
+  "attempt": 1
+ }
+}

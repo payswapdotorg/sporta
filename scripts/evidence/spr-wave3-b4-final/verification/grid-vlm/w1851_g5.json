@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green kits\n2: wide-broadcast | Wide shot of the soccer pitch with players moving in the midfield area\n3: wide-broadcast | Wide shot of the pitch with players positioned near the center circle\n4: wide-broadcast | Wide shot of the field showing players spread across the playing surface\n5: wide-broadcast | Wide shot of the match with players visible near the center circle\n6: wide-broadcast | Wide shot of the pitch showing players in the middle third of the field\n7: wide-broadcast | Wide shot of the game with players clustered near the center circle\n8: wide-broadcast | Wide shot of the field showing players moving across the grass\n9: wide-broadcast | Wide shot of the pitch with players positioned across the field\n10: wide-broadcast | Wide shot of the match showing players in various positions on the field\n11: wide-broadcast | Wide shot of the soccer pitch with players visible in the distance",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312509,
+ "id": "20260925130143dd453ca5606848c3",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925130143dd453ca5606848c3",
+ "usage": {
+  "completion_tokens": 212,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2110
+ },
+ "_meta": {
+  "tag": "w1851_g5",
+  "attempt": 1
+ }
+}

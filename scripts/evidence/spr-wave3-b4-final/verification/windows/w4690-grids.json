@@ -1,0 +1,482 @@
+[
+ {
+  "grid": 1,
+  "file": "w4690_g1.jpg",
+  "trueStart": 4693.48,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 4693.48,
+    "offsetInWindow": 0.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 4694.48,
+    "offsetInWindow": 1.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 4695.48,
+    "offsetInWindow": 2.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 4696.48,
+    "offsetInWindow": 3.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 4697.48,
+    "offsetInWindow": 4.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 4698.48,
+    "offsetInWindow": 5.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 4699.48,
+    "offsetInWindow": 6.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 4700.48,
+    "offsetInWindow": 7.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 4701.48,
+    "offsetInWindow": 8.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 4702.48,
+    "offsetInWindow": 9.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 4703.48,
+    "offsetInWindow": 10.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 4704.48,
+    "offsetInWindow": 11.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 4705.48,
+    "offsetInWindow": 12.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 4706.48,
+    "offsetInWindow": 13.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 4707.48,
+    "offsetInWindow": 14.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 4708.48,
+    "offsetInWindow": 15.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 4709.48,
+    "offsetInWindow": 16.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 4710.48,
+    "offsetInWindow": 17.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 4711.48,
+    "offsetInWindow": 18.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 4712.48,
+    "offsetInWindow": 19.0
+   }
+  ]
+ },
+ {
+  "grid": 2,
+  "file": "w4690_g2.jpg",
+  "trueStart": 4693.48,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 4713.48,
+    "offsetInWindow": 20.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 4714.48,
+    "offsetInWindow": 21.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 4715.48,
+    "offsetInWindow": 22.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 4716.48,
+    "offsetInWindow": 23.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 4717.48,
+    "offsetInWindow": 24.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 4718.48,
+    "offsetInWindow": 25.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 4719.48,
+    "offsetInWindow": 26.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 4720.48,
+    "offsetInWindow": 27.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 4721.48,
+    "offsetInWindow": 28.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 4722.48,
+    "offsetInWindow": 29.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 4723.48,
+    "offsetInWindow": 30.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 4724.48,
+    "offsetInWindow": 31.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 4725.48,
+    "offsetInWindow": 32.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 4726.48,
+    "offsetInWindow": 33.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 4727.48,
+    "offsetInWindow": 34.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 4728.48,
+    "offsetInWindow": 35.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 4729.48,
+    "offsetInWindow": 36.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 4730.48,
+    "offsetInWindow": 37.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 4731.48,
+    "offsetInWindow": 38.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 4732.48,
+    "offsetInWindow": 39.0
+   }
+  ]
+ },
+ {
+  "grid": 3,
+  "file": "w4690_g3.jpg",
+  "trueStart": 4693.48,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 4733.48,
+    "offsetInWindow": 40.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 4734.48,
+    "offsetInWindow": 41.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 4735.48,
+    "offsetInWindow": 42.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 4736.48,
+    "offsetInWindow": 43.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 4737.48,
+    "offsetInWindow": 44.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 4738.48,
+    "offsetInWindow": 45.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 4739.48,
+    "offsetInWindow": 46.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 4740.48,
+    "offsetInWindow": 47.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 4741.48,
+    "offsetInWindow": 48.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 4742.48,
+    "offsetInWindow": 49.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 4743.48,
+    "offsetInWindow": 50.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 4744.48,
+    "offsetInWindow": 51.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 4745.48,
+    "offsetInWindow": 52.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 4746.48,
+    "offsetInWindow": 53.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 4747.48,
+    "offsetInWindow": 54.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 4748.48,
+    "offsetInWindow": 55.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 4749.48,
+    "offsetInWindow": 56.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 4750.48,
+    "offsetInWindow": 57.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 4751.48,
+    "offsetInWindow": 58.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 4752.48,
+    "offsetInWindow": 59.0
+   }
+  ]
+ },
+ {
+  "grid": 4,
+  "file": "w4690_g4.jpg",
+  "trueStart": 4693.48,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 4753.48,
+    "offsetInWindow": 60.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 4754.48,
+    "offsetInWindow": 61.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 4755.48,
+    "offsetInWindow": 62.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 4756.48,
+    "offsetInWindow": 63.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 4757.48,
+    "offsetInWindow": 64.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 4758.48,
+    "offsetInWindow": 65.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 4759.48,
+    "offsetInWindow": 66.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 4760.48,
+    "offsetInWindow": 67.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 4761.48,
+    "offsetInWindow": 68.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 4762.48,
+    "offsetInWindow": 69.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 4763.48,
+    "offsetInWindow": 70.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 4764.48,
+    "offsetInWindow": 71.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 4765.48,
+    "offsetInWindow": 72.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 4766.48,
+    "offsetInWindow": 73.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 4767.48,
+    "offsetInWindow": 74.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 4768.48,
+    "offsetInWindow": 75.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 4769.48,
+    "offsetInWindow": 76.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 4770.48,
+    "offsetInWindow": 77.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 4771.48,
+    "offsetInWindow": 78.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 4772.48,
+    "offsetInWindow": 79.0
+   }
+  ]
+ },
+ {
+  "grid": 5,
+  "file": "w4690_g5.jpg",
+  "trueStart": 4693.48,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 4773.48,
+    "offsetInWindow": 80.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 4774.48,
+    "offsetInWindow": 81.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 4775.48,
+    "offsetInWindow": 82.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 4776.48,
+    "offsetInWindow": 83.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 4777.48,
+    "offsetInWindow": 84.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 4778.48,
+    "offsetInWindow": 85.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 4779.48,
+    "offsetInWindow": 86.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 4780.48,
+    "offsetInWindow": 87.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 4781.48,
+    "offsetInWindow": 88.0
+   }
+  ]
+ }
+]

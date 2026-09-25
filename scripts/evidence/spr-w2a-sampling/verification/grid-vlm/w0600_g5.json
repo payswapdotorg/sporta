@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch and stands\ncell 2: wide-broadcast | Wide shot of the pitch and stands\ncell 3: wide-broadcast | Wide shot of the pitch and stands\ncell 4: wide-broadcast | Wide shot of the pitch and stands\ncell 5: wide-broadcast | Wide shot of the pitch and stands\ncell 6: wide-broadcast | Wide shot of the pitch and stands\ncell 7: wide-broadcast | Wide shot of the pitch and stands\ncell 8: closeup | Player celebrating near the sideline\ncell 9: wide-broadcast | Player on pitch with stadium background\ncell 10: wide-broadcast | Player celebrating on the pitch\ncell 11: closeup | Close-up of a player's face and upper body\ncell 12: closeup | Close-up of a player's face and upper body\ncell 13: closeup | Close-up of players hugging/celebrating\ncell 14: closeup | Close-up of players hugging/celebrating\ncell 15: closeup | Close-up of players hugging/celebrating",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283262,
+  "id": "202609250454162315e9b0738a4af5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250454162315e9b0738a4af5",
+  "usage": {
+    "completion_tokens": 244,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2006
+  }
+}

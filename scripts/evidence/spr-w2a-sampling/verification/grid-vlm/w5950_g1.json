@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide shot of the pitch with players and visible stands\n2: wide-broadcast | Wide shot of the pitch with players and visible stands\n3: wide-broadcast | Wide shot of the pitch near the goal with players and stands\n4: wide-broadcast | Wide shot of the pitch with players and visible stands\n5: wide-broadcast | Wide shot of the pitch near the goal with players and stands\n6: wide-broadcast | Wide shot of the pitch near the goal with players and stands\n7: wide-broadcast | Wide shot of the pitch with players and visible stands\n8: wide-broadcast | Wide shot of the pitch near the goal with players and stands\n9: closeup | Close-up of a player in a green and white striped jersey\n10: closeup | Close-up of a player in a green and white striped jersey\n11: closeup | Close-up of a player in a green and white striped jersey\n12: closeup | Close-up of a player in a green and white striped jersey\n13: closeup | Close-up of a player in a green and white striped jersey\n14: closeup | Close-up of a player in a green and white striped jersey\n15: closeup | Close-up of a player in a green and white striped jersey\n16: closeup | Close-up of a player in a green and white striped jersey\n17: closeup | Close-up of a player in a green and white striped jersey\n18: wide-broadcast | Wide shot of the pitch with players and visible stands\n19: wide-broadcast | Wide shot of the pitch with players and visible stands\n20: wide-broadcast | Wide shot of the pitch with players and visible stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285090,
+  "id": "2026092505244242265f8232b94d8f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505244242265f8232b94d8f",
+  "usage": {
+    "completion_tokens": 357,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2119
+  }
+}

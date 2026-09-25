@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: wide-broadcast | Wide shot of the soccer pitch showing players in red and green jerseys\n2: wide-broadcast | Wide shot of the pitch with players positioned near the goal area\n3: wide-broadcast | Wide view of the field showing ongoing match play and advertising boards\n4: wide-broadcast | Wide angle of the pitch capturing player movement near the penalty box\n5: wide-broadcast | Wide shot of the field with players spread across the midfield and defense\n6: wide-broadcast | Wide view of the pitch showing players moving toward the goal\n7: wide-broadcast | Wide shot of the field with players in red attacking near the goal line\n8: wide-broadcast | Wide angle of the pitch showing defensive positioning by the green team\n9: wide-broadcast | Wide shot of the field with players gathered near the center circle\n10: wide-broadcast | Wide view of the pitch showing players transitioning between defense and attack\n11: wide-broadcast | Wide shot of the field with players positioned across the entire width\n12: wide-broadcast | Wide angle of the pitch showing active play near the sideline\n13: wide-broadcast | Wide shot of the field with players moving into the attacking third\n14: wide-broadcast | Wide view of the pitch showing players regrouping in the midfield\n15: wide-broadcast | Wide shot of the field with players positioned near the goal area\n16: wide-broadcast | Wide angle of the pitch showing players spread out in formation\n17: wide-broadcast | Wide shot of the field with players moving toward the opponent's goal\n18: wide-broadcast | Wide view of the pitch showing players in the middle of the field\n19: wide-broadcast | Wide shot of the field with players advancing up the pitch\n20: wide-broadcast | Wide angle of the pitch showing players continuing the attack",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312457,
+ "id": "20260925130050f233b543efea46c9",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925130050f233b543efea46c9",
+ "usage": {
+  "completion_tokens": 381,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2279
+ },
+ "_meta": {
+  "tag": "w1851_g2",
+  "attempt": 1
+ }
+}

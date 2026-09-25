@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits positioned across the field\n2: play | Wide shot of the soccer pitch with players in red and green kits moving during live match action\n3: play | Wide shot of the soccer pitch with players in red and green kits continuing match play\n4: play | Wide shot of the soccer pitch with players in red and green kits in various positions on the field\n5: play | Wide shot of the soccer pitch showing players in red and green kits during ongoing gameplay\n6: play | Wide shot of the soccer pitch with players in red and green kits actively playing\n7: play | Wide shot of the soccer pitch with players in red and green kits spread across the field\n8: play | Wide shot of the soccer pitch with players in red and green kits in motion during the match\n9: play | Wide shot of the soccer pitch near the goal area with players in red and green kits\n10: play | Wide shot of the soccer pitch with players in red and green kits competing for the ball\n11: play | Wide shot of the soccer pitch with players in red and green kits near the goal\n12: play | Wide shot of the soccer pitch with players in red and green kits in defensive and offensive positions\n13: play | Wide shot of the soccer pitch with players in red and green kits moving toward the goal\n14: play | Wide shot of the soccer pitch with players in red and green kits in the midfield area\n15: play | Wide shot of the soccer pitch with players in red and green kits near the penalty area\n16: play | Wide shot of the soccer pitch with players in red and green kits spread out across the field\n17: play | Wide shot of the soccer pitch with players in red and green kits in various tactical positions\n18: play | Wide shot of the soccer pitch with players in red and green kits continuing the game\n19: play | Wide shot of the soccer pitch with players in red and green kits in the center of the field\n20: play | Wide shot of the soccer pitch with players in red and green kits positioned across the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310646,
+ "id": "2026092512303533330e4a858e46c9",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512303533330e4a858e46c9",
+ "usage": {
+  "completion_tokens": 442,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2331
+ },
+ "_meta": {
+  "tag": "g3878",
+  "attempt": 1
+ }
+}

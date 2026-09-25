@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Wide shot of players on the field\n2: pitch-action | Wide shot of players on the field\n3: pitch-action | Wide shot of players on the field\n4: pitch-action | Wide shot of players on the field\n5: wide-broadcast | Pitch and stands visible, goal area\n6: wide-broadcast | Pitch and stands visible, goal area\n7: wide-broadcast | Pitch and stands visible, goal area\n8: wide-broadcast | Pitch and stands visible, goal area\n9: wide-broadcast | Pitch and advertising boards\n10: closeup | Player in green jersey near goalpost\n11: closeup | Player S. Hernandez from behind at goal\n12: closeup | Player S. Hernandez from behind at goal\n13: closeup | Player in green/white stripes\n14: closeup | Player in green/white stripes",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283693,
+  "id": "2026092505012919939192028c4ef6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092505012919939192028c4ef6",
+  "usage": {
+    "completion_tokens": 184,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1946
+  }
+}

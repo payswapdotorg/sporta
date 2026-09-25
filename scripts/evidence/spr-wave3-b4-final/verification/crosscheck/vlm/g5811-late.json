@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Coach on the sideline\n2: closeup | Coach on the sideline\n3: closeup | Coach on the sideline\n4: closeup | Coach on the sideline\n5: closeup | Player in green and white stripes\n6: closeup | Player in green and white stripes\n7: graphics | Goal celebration graphic overlay\n8: play | Wide shot of the pitch after a goal\n9: play | Players regrouping on the field\n10: play | Set piece or free kick near the goal\n11: play | Action near the goal area\n12: play | Players defending near the goal\n13: play | View of the penalty area and bench\n14: play | Ball in play near the center of the pitch\n15: play | Players contesting a header or high ball\n16: celebration | Group of players celebrating a goal",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311308,
+ "id": "202609251241436b0dd66b4d474924",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251241436b0dd66b4d474924",
+ "usage": {
+  "completion_tokens": 181,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2070
+ },
+ "_meta": {
+  "tag": "g5811-late",
+  "attempt": 1
+ }
+}

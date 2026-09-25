@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green jerseys\n2: play | Wide shot of the soccer pitch with players in red and green jerseys\n3: play | Wide shot of the soccer pitch with players in red and green jerseys\n4: play | Wide shot of the soccer pitch with players in red and green jerseys\n5: play | Wide shot of the soccer pitch with players in red and green jerseys\n6: play | Wide shot of the soccer pitch with players in red and green jerseys\n7: play | Wide shot of the soccer pitch with players in red and green jerseys\n8: play | Wide shot of the soccer pitch with players in red and green jerseys\n9: play | Wide shot of the soccer pitch with players in red and green jerseys\n10: closeup | Tight shot of a player in a green jersey looking down at his hands\n11: closeup | Tight shot of two players, one in red and one in green, facing each other\n12: closeup | Tight shot of a player in a green jersey with number 6 on his back\n13: crowd | Shot of spectators in the stands wearing green and white striped shirts\n14: crowd | Shot of spectators in the stands wearing green and white striped shirts\n15: crowd | Shot of spectators in the stands wearing green and white striped shirts\n16: play | Wide shot of the soccer pitch with players in red and green jerseys\n17: play | Wide shot of the soccer pitch with players in red and green jerseys\n18: graphics | Broadcast graphic overlay showing player positions and numbers on the field\n19: graphics | Broadcast graphic overlay showing player positions and numbers on the field\n20: graphics | Broadcast graphic overlay showing player positions and numbers on the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311290,
+ "id": "202609251241241a8118c9a30f4713",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251241241a8118c9a30f4713",
+ "usage": {
+  "completion_tokens": 362,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2251
+ },
+ "_meta": {
+  "tag": "g3021",
+  "attempt": 1
+ }
+}

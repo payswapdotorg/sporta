@@ -1,0 +1,492 @@
+[
+ {
+  "grid": 1,
+  "file": "w1851_g1.jpg",
+  "trueStart": 1855.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 1855.84,
+    "offsetInWindow": 0.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 1856.84,
+    "offsetInWindow": 1.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 1857.84,
+    "offsetInWindow": 2.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 1858.84,
+    "offsetInWindow": 3.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 1859.84,
+    "offsetInWindow": 4.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 1860.84,
+    "offsetInWindow": 5.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 1861.84,
+    "offsetInWindow": 6.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 1862.84,
+    "offsetInWindow": 7.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 1863.84,
+    "offsetInWindow": 8.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 1864.84,
+    "offsetInWindow": 9.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 1865.84,
+    "offsetInWindow": 10.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 1866.84,
+    "offsetInWindow": 11.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 1867.84,
+    "offsetInWindow": 12.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 1868.84,
+    "offsetInWindow": 13.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 1869.84,
+    "offsetInWindow": 14.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 1870.84,
+    "offsetInWindow": 15.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 1871.84,
+    "offsetInWindow": 16.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 1872.84,
+    "offsetInWindow": 17.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 1873.84,
+    "offsetInWindow": 18.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 1874.84,
+    "offsetInWindow": 19.0
+   }
+  ]
+ },
+ {
+  "grid": 2,
+  "file": "w1851_g2.jpg",
+  "trueStart": 1855.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 1875.84,
+    "offsetInWindow": 20.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 1876.84,
+    "offsetInWindow": 21.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 1877.84,
+    "offsetInWindow": 22.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 1878.84,
+    "offsetInWindow": 23.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 1879.84,
+    "offsetInWindow": 24.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 1880.84,
+    "offsetInWindow": 25.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 1881.84,
+    "offsetInWindow": 26.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 1882.84,
+    "offsetInWindow": 27.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 1883.84,
+    "offsetInWindow": 28.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 1884.84,
+    "offsetInWindow": 29.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 1885.84,
+    "offsetInWindow": 30.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 1886.84,
+    "offsetInWindow": 31.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 1887.84,
+    "offsetInWindow": 32.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 1888.84,
+    "offsetInWindow": 33.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 1889.84,
+    "offsetInWindow": 34.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 1890.84,
+    "offsetInWindow": 35.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 1891.84,
+    "offsetInWindow": 36.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 1892.84,
+    "offsetInWindow": 37.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 1893.84,
+    "offsetInWindow": 38.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 1894.84,
+    "offsetInWindow": 39.0
+   }
+  ]
+ },
+ {
+  "grid": 3,
+  "file": "w1851_g3.jpg",
+  "trueStart": 1855.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 1895.84,
+    "offsetInWindow": 40.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 1896.84,
+    "offsetInWindow": 41.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 1897.84,
+    "offsetInWindow": 42.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 1898.84,
+    "offsetInWindow": 43.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 1899.84,
+    "offsetInWindow": 44.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 1900.84,
+    "offsetInWindow": 45.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 1901.84,
+    "offsetInWindow": 46.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 1902.84,
+    "offsetInWindow": 47.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 1903.84,
+    "offsetInWindow": 48.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 1904.84,
+    "offsetInWindow": 49.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 1905.84,
+    "offsetInWindow": 50.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 1906.84,
+    "offsetInWindow": 51.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 1907.84,
+    "offsetInWindow": 52.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 1908.84,
+    "offsetInWindow": 53.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 1909.84,
+    "offsetInWindow": 54.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 1910.84,
+    "offsetInWindow": 55.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 1911.84,
+    "offsetInWindow": 56.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 1912.84,
+    "offsetInWindow": 57.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 1913.84,
+    "offsetInWindow": 58.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 1914.84,
+    "offsetInWindow": 59.0
+   }
+  ]
+ },
+ {
+  "grid": 4,
+  "file": "w1851_g4.jpg",
+  "trueStart": 1855.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 1915.84,
+    "offsetInWindow": 60.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 1916.84,
+    "offsetInWindow": 61.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 1917.84,
+    "offsetInWindow": 62.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 1918.84,
+    "offsetInWindow": 63.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 1919.84,
+    "offsetInWindow": 64.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 1920.84,
+    "offsetInWindow": 65.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 1921.84,
+    "offsetInWindow": 66.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 1922.84,
+    "offsetInWindow": 67.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 1923.84,
+    "offsetInWindow": 68.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 1924.84,
+    "offsetInWindow": 69.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 1925.84,
+    "offsetInWindow": 70.0
+   },
+   {
+    "cell": 12,
+    "mediaTime": 1926.84,
+    "offsetInWindow": 71.0
+   },
+   {
+    "cell": 13,
+    "mediaTime": 1927.84,
+    "offsetInWindow": 72.0
+   },
+   {
+    "cell": 14,
+    "mediaTime": 1928.84,
+    "offsetInWindow": 73.0
+   },
+   {
+    "cell": 15,
+    "mediaTime": 1929.84,
+    "offsetInWindow": 74.0
+   },
+   {
+    "cell": 16,
+    "mediaTime": 1930.84,
+    "offsetInWindow": 75.0
+   },
+   {
+    "cell": 17,
+    "mediaTime": 1931.84,
+    "offsetInWindow": 76.0
+   },
+   {
+    "cell": 18,
+    "mediaTime": 1932.84,
+    "offsetInWindow": 77.0
+   },
+   {
+    "cell": 19,
+    "mediaTime": 1933.84,
+    "offsetInWindow": 78.0
+   },
+   {
+    "cell": 20,
+    "mediaTime": 1934.84,
+    "offsetInWindow": 79.0
+   }
+  ]
+ },
+ {
+  "grid": 5,
+  "file": "w1851_g5.jpg",
+  "trueStart": 1855.84,
+  "cells": [
+   {
+    "cell": 1,
+    "mediaTime": 1935.84,
+    "offsetInWindow": 80.0
+   },
+   {
+    "cell": 2,
+    "mediaTime": 1936.84,
+    "offsetInWindow": 81.0
+   },
+   {
+    "cell": 3,
+    "mediaTime": 1937.84,
+    "offsetInWindow": 82.0
+   },
+   {
+    "cell": 4,
+    "mediaTime": 1938.84,
+    "offsetInWindow": 83.0
+   },
+   {
+    "cell": 5,
+    "mediaTime": 1939.84,
+    "offsetInWindow": 84.0
+   },
+   {
+    "cell": 6,
+    "mediaTime": 1940.84,
+    "offsetInWindow": 85.0
+   },
+   {
+    "cell": 7,
+    "mediaTime": 1941.84,
+    "offsetInWindow": 86.0
+   },
+   {
+    "cell": 8,
+    "mediaTime": 1942.84,
+    "offsetInWindow": 87.0
+   },
+   {
+    "cell": 9,
+    "mediaTime": 1943.84,
+    "offsetInWindow": 88.0
+   },
+   {
+    "cell": 10,
+    "mediaTime": 1944.84,
+    "offsetInWindow": 89.0
+   },
+   {
+    "cell": 11,
+    "mediaTime": 1945.84,
+    "offsetInWindow": 90.0
+   }
+  ]
+ }
+]

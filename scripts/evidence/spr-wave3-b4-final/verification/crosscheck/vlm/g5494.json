@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch, players moving into attack\n3: play | Wide shot of the goal area as a shot is taken\n4: play | Wide shot showing the ball entering the net for a goal\n5: play | Wide shot of players reacting near the goal after the score\n6: play | Wide shot of players regrouping on the field\n7: play | Wide shot of the goalkeeper and defenders near the goal\n8: play | Wide shot of players standing on the pitch\n9: play | Wide shot of the field with players in various positions\n10: closeup | Tight shot of a player holding his head in disappointment\n11: closeup | Tight shot of the same player looking distressed\n12: closeup | Close-up of the player with hands on his head\n13: closeup | Side view of the disappointed player on the field\n14: closeup | Tight shot of a player gesturing with his fist\n15: closeup | Close-up of a player partially obscured by another\n16: other | Shot of the team staff and substitutes on the sideline\n17: other | Shot of the coaching staff standing on the touchline\n18: other | Shot of the bench area with coaches and staff\n19: play | Shot of a referee talking to a player on the field\n20: play | Shot of the referee and player continuing their conversation",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311274,
+ "id": "20260925124111b28447a3f1724587",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124111b28447a3f1724587",
+ "usage": {
+  "completion_tokens": 303,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 157
+  },
+  "total_tokens": 2192
+ },
+ "_meta": {
+  "tag": "g5494",
+  "attempt": 1
+ }
+}

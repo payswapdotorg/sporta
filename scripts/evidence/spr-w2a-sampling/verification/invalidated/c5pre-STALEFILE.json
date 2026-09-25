@@ -1,0 +1,98 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 5535.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 5536.0,
+  "verdict": "NO",
+  "reason": "The frame is a pitch-level shot of players, with the crowd/stands not visible or occupying a negligible portion of the background."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 5537.0,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player in an orange kit on the pitch, with no visible crowd or spectators."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 5538.0,
+  "verdict": "NO",
+  "reason": "reason: The frame is a pitch-level shot focused on two players, with the green field occupying most of the background and no visible crowd or stands."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 5539.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 5540.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 5541.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 5542.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 5543.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 5544.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 5545.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 5546.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 5547.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 5548.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_015.jpg",
+  "mediaTime": 5549.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ },
+ {
+  "frame": "f_016.jpg",
+  "mediaTime": 5550.0,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of two players on the pitch, with no visible crowd or stands."
+ }
+]

@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch showing players in red and green kits positioned across the field\n2: play | Wide shot of the soccer pitch with players moving during live match action\n3: play | Wide shot of the soccer pitch with players spread out in their formations\n4: play | Wide shot of the soccer pitch with players continuing to move during the match\n5: play | Wide shot of the soccer pitch showing players positioned on the field\n6: play | Wide shot of the soccer pitch with players moving during live action\n7: play | Wide shot of the soccer pitch with players in various positions on the field\n8: play | Wide shot of the soccer pitch from a high angle showing player movement\n9: play | Wide shot of the soccer pitch near the goal area with players visible\n10: play | Wide shot of the soccer pitch near the goal with players in position\n11: play | Wide shot of the soccer pitch showing players near the goal area\n12: play | Wide shot of the soccer pitch with players visible near the goal\n13: play | Wide shot of the soccer pitch showing players near the goal area\n14: play | Wide shot of the soccer pitch with players positioned near the goal\n15: closeup | Tight shot of a player in a green jersey with white hair seen from behind\n16: closeup | Tight shot of a player in a green jersey with the name \"CHERNANDEZ\" and number 19 on the back\n17: closeup | Tight shot of the same player \"CHERNANDEZ\" number 19 from behind\n18: closeup | Tight shot of a different player in a green and white striped jersey facing forward\n19: closeup | Tight shot of the same player in the green and white striped jersey\n20: graphics | Broadcast graphic overlay with a large white arrow on a red background transitioning to a wide shot",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311776,
+ "id": "20260925124928e02b11dfda054f48",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124928e02b11dfda054f48",
+ "usage": {
+  "completion_tokens": 391,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1878,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2269
+ },
+ "_meta": {
+  "tag": "g3084 rerun",
+  "attempt": 1
+ }
+}

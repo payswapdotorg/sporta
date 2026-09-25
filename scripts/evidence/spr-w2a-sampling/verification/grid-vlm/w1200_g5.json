@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: pitch-action | players on green pitch, no stands visible\ncell 2: pitch-action | players on green pitch, no stands visible\ncell 3: pitch-action | players on green pitch, no stands visible\ncell 4: pitch-action | players on green pitch, no stands visible\ncell 5: wide-broadcast | pitch and advertising boards/stands visible\ncell 6: wide-broadcast | pitch and advertising boards/stands visible\ncell 7: wide-broadcast | pitch and advertising boards/stands visible\ncell 8: wide-broadcast | pitch and advertising boards/stands visible\ncell 9: wide-broadcast | pitch and advertising boards/stands visible\ncell 10: wide-broadcast | pitch and advertising boards/stands visible\ncell 11: wide-broadcast | pitch and advertising boards/stands visible\ncell 12: wide-broadcast | pitch and advertising boards/stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283295,
+  "id": "20260925045450ba1b0591a772472e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045450ba1b0591a772472e",
+  "usage": {
+    "completion_tokens": 192,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1954
+  }
+}

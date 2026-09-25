@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in pink jersey looking at camera\n2: closeup | Player in pink jersey wiping face\n3: closeup | Player in pink jersey looking down\n4: closeup | Player in pink jersey with opponent in background\n5: closeup | Player in pink jersey looking forward\n6: closeup | Player in pink jersey standing on pitch\n7: pitch-action | Player in green dribbling ball\n8: pitch-action | Players running towards ball\n9: pitch-action | Players battling for ball possession\n10: pitch-action | Player in green controlling ball while falling\n11: pitch-action | Two players sliding for ball on ground\n12: pitch-action | Players on ground after tackle attempt\n13: pitch-action | Players contesting ball near sideline\n14: pitch-action | Multiple players fighting for ball\n15: pitch-action | Players jostling for position near ball\n16: pitch-action | Players tangled up on ground\n17: pitch-action | Players on ground after collision\n18: pitch-action | Players recovering from fall on pitch\n19: pitch-action | Players getting up from ground\n20: closeup | Player in green and white stripes holding ball",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314591,
+ "id": "20260925133620eab83b933af54e32",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925133620eab83b933af54e32",
+ "usage": {
+  "completion_tokens": 243,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2141
+ },
+ "_meta": {
+  "tag": "w6099_g2",
+  "attempt": 1
+ }
+}

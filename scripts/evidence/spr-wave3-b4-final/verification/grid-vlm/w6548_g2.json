@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | spectators in formal attire in the stands\n2: closeup | spectators in formal attire in the stands\n3: closeup | spectators in formal attire in the stands\n4: pitch-action | player in orange jersey on the field\n5: closeup | player in orange jersey on the field\n6: pitch-action | players and staff on the field\n7: pitch-action | players and staff on the field\n8: graphics | MVP graphic overlay with coach and player\n9: graphics | MVP graphic overlay with player Ferran Torres\n10: graphics | MVP graphic overlay with player Ferran Torres\n11: pitch-action | player Ferran Torres walking on the field\n12: graphics | MVP graphic overlay with player Ferran Torres\n13: graphics | MVP graphic overlay with player Ferran Torres\n14: pitch-action | player in orange jersey on the field\n15: pitch-action | player Ferran Torres interacting with others\n16: graphics | MVP graphic overlay with players interacting\n17: graphics | MVP graphic overlay with player on the field\n18: graphics | MVP graphic overlay with player on the field\n19: graphics | MVP graphic overlay with players interacting\n20: graphics | subscribe button end screen",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314664,
+ "id": "2026092513373860ecf80fb6124ecb",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513373860ecf80fb6124ecb",
+ "usage": {
+  "completion_tokens": 250,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2148
+ },
+ "_meta": {
+  "tag": "w6548_g2",
+  "attempt": 1
+ }
+}

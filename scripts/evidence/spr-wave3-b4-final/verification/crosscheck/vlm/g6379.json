@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of soccer match in progress\n2: play | Wide shot of soccer match in progress\n3: play | Wide shot of soccer match in progress\n4: play | Wide shot of soccer match in progress\n5: play | Wide shot of soccer match in progress\n6: play | Wide shot of soccer match in progress\n7: play | Wide shot of soccer match in progress\n8: play | Wide shot of soccer match in progress\n9: play | Wide shot of soccer match in progress\n10: play | Wide shot of soccer match in progress\n11: play | Wide shot of soccer match in progress\n12: play | Wide shot of soccer match in progress\n13: play | Wide shot of soccer match in progress\n14: play | Wide shot of soccer match in progress\n15: play | Wide shot of soccer match in progress\n16: play | Wide shot of soccer match in progress\n17: play | Wide shot of soccer match in progress\n18: play | Wide shot of soccer match in progress\n19: play | Wide shot of soccer match in progress\n20: play | Wide shot of soccer match in progress",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311429,
+ "id": "202609251243446c156121c651471d",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251243446c156121c651471d",
+ "usage": {
+  "completion_tokens": 240,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2129
+ },
+ "_meta": {
+  "tag": "g6379",
+  "attempt": 1
+ }
+}

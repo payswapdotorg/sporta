@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: pitch-action | Player in green and white stripes running with the ball\n2: pitch-action | Player in green and white stripes running with the ball\n3: pitch-action | Player in green and white stripes running with the ball\n4: pitch-action | Player in green and white stripes running with the ball\n5: pitch-action | Player in green and white stripes running with the ball\n6: pitch-action | Player in green and white stripes lying on his back on the grass\n7: pitch-action | Player in green and white stripes lying on his back on the grass\n8: graphics | Broadcast replay wipe graphic with a player visible\n9: closeup | Close-up of a player in a bright yellow jersey",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314338,
+ "id": "202609251332140c50684cf3fd479a",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251332140c50684cf3fd479a",
+ "usage": {
+  "completion_tokens": 147,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2045
+ },
+ "_meta": {
+  "tag": "w4690_g5",
+  "attempt": 1
+ }
+}

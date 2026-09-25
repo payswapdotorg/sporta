@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits positioned across the field\n2: play | Wide shot of the soccer pitch showing players moving and passing during live match action\n3: play | Wide shot of the soccer pitch with players continuing their positions and movements on the field\n4: play | Wide shot of the soccer pitch with players spread out during ongoing match play\n5: play | Wide shot of the soccer pitch with players visible near the center circle and sidelines\n6: play | Wide shot of the soccer pitch showing players in various positions during active gameplay\n7: play | Wide shot of the soccer pitch focusing on players near the sideline and midfield area\n8: play | Wide shot of the soccer pitch with players positioned around the center circle\n9: play | Wide shot of the soccer pitch showing players moving toward the attacking third of the field\n10: play | Wide shot of the soccer pitch with players gathered near the center circle\n11: play | Wide shot of the soccer pitch showing players advancing the ball up the field\n12: play | Wide shot of the soccer pitch with players positioned in the midfield and attacking areas\n13: play | Wide shot of the soccer pitch showing players moving and passing in the middle of the field\n14: play | Wide shot of the soccer pitch with a player in red running with the ball\n15: play | Wide shot of the soccer pitch showing an attacking play developing near the penalty area\n16: play | Wide shot of the soccer pitch with players positioned near the goal and corner area\n17: play | Wide shot of the soccer pitch showing players moving toward the goal during an attack\n18: play | Wide shot of the soccer pitch with players positioned inside and around the penalty box\n19: play | Wide shot of the soccer pitch showing players near the goal as a play develops\n20: play | Wide shot of the soccer pitch with players positioned in the final third of the field",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310701,
+ "id": "202609251231281eb5f88482804c75",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251231281eb5f88482804c75",
+ "usage": {
+  "completion_tokens": 400,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2289
+ },
+ "_meta": {
+  "tag": "g1309",
+  "attempt": 1
+ }
+}

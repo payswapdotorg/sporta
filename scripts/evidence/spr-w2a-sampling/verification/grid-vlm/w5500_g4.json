@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: crowd | Spectators in the stands\ncell 2: crowd | Spectators in the stands\ncell 3: crowd | Spectators in the stands\ncell 4: pitch-action | Player on the field\ncell 5: wide-broadcast | Player and field with stands\ncell 6: pitch-action | Player on the field\ncell 7: pitch-action | Player on the field\ncell 8: pitch-action | Players on the field\ncell 9: wide-broadcast | Player and field with stands\ncell 10: pitch-action | Player on the field\ncell 11: pitch-action | Player on the field\ncell 12: pitch-action | Players on the field\ncell 13: closeup | Coach and player\ncell 14: closeup | Two players talking\ncell 15: closeup | Player and staff member\ncell 16: closeup | Coach and player\ncell 17: closeup | Coach and player\ncell 18: closeup | Player on the field\ncell 19: closeup | Player running\ncell 20: closeup | Player running\ncell 21: closeup | Player running\ncell 22: wide-broadcast | Wide view of the pitch\ncell 23: wide-broadcast | Wide view of the pitch\ncell 24: wide-broadcast | Wide view of the pitch",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285070,
+  "id": "20260925052425ca6be78597e140b4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925052425ca6be78597e140b4",
+  "usage": {
+    "completion_tokens": 288,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2050
+  }
+}

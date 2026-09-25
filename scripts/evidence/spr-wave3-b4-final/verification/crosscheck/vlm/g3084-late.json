@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: graphics | Large white 'L' replay wipe graphic overlay\n2: play | Wide shot of live match play in progress\n3: play | Wide shot of live match play in progress\n4: play | Wide shot of live match play in progress\n5: play | Wide shot of live match play in progress\n6: play | Wide shot of live match play in progress\n7: play | Wide shot of live match play in progress\n8: play | Shot of goalkeeper and players near the goal area\n9: play | Player in red taking a shot on goal\n10: play | Players reacting to the shot near the goal\n11: play | Players moving after the goal attempt\n12: play | Goalkeeper diving as the ball enters the net\n13: play | Goalkeeper on the ground after the goal\n14: closeup | Tight shot of a player in a green and white striped jersey\n15: closeup | Medium shot of the same player looking towards the camera\n16: closeup | The player gesturing with his hand\n17: closeup | Close-up of the player's face and upper body\n18: closeup | Another player in green and white celebrating with an arm gesture\n19: other | Empty black frame\n20: other | Empty black frame",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790311211,
+ "id": "20260925124004eea9d67d9d9647f9",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925124004eea9d67d9d9647f9",
+ "usage": {
+  "completion_tokens": 266,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2155
+ },
+ "_meta": {
+  "tag": "g3084-late",
+  "attempt": 1
+ }
+}

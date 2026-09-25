@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: crowd | Spectators in green and white stripes in the stands\n2: crowd | Spectators in the stands watching the match\n3: crowd | Spectators in the stands, one man in blue jacket visible\n4: crowd | Spectators in the stands looking towards the pitch\n5: closeup | Close-up of a coach or staff member with a scarf\n6: closeup | Close-up of a man in a dark jacket and scarf\n7: closeup | Close-up of a man in a dark hoodie and scarf\n8: closeup | Close-up of a man in a dark hoodie touching his face\n9: closeup | Close-up of a man resting his chin on his hand\n10: pitch-action | Medical staff attending to an injured player on the field\n11: pitch-action | Medical staff and referee around the injured player\n12: pitch-action | Medical staff treating the player on the grass\n13: pitch-action | Medical staff continuing to treat the injured player\n14: pitch-action | Player receiving medical attention on the field\n15: pitch-action | Medical staff and players gathered around the injury\n16: closeup | Players and staff sitting on the substitute bench\n17: closeup | Players on the bench watching the game\n18: closeup | Team members sitting on the bench in dark jackets\n19: closeup | Players on the bench looking towards the pitch\n20: closeup | Players on the bench, one holding a water bottle",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790313194,
+ "id": "2026092513130798951d9092a64f79",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513130798951d9092a64f79",
+ "usage": {
+  "completion_tokens": 302,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2200
+ },
+ "_meta": {
+  "tag": "w2839_g4",
+  "attempt": 1
+ }
+}

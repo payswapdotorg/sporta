@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "NO. The frame is primarily occupied by players on the field in the foreground, with the crowd and stands visible only as a small portion of the background.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314884,
+ "id": "20260925134123634c907e1ec749ea",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925134123634c907e1ec749ea",
+ "usage": {
+  "completion_tokens": 32,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 342,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 374
+ },
+ "_meta": {
+  "tag": "w1091-1-110483",
+  "attempt": 1
+ }
+}

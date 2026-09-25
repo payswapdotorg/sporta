@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 2: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 3: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 4: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 5: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 6: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 7: wide-broadcast | Wide shot of the pitch with players and visible stands\ncell 8: closeup | Close-up of a player's legs on the ground\ncell 9: closeup | Close-up of a player's feet/legs\ncell 10: closeup | Close-up of a player's lower body/torso\ncell 11: closeup | Close-up of a player's upper body and arm\ncell 12: closeup | Medium close-up of a player's upper body\ncell 13: graphics | Full-screen graphic overlay (LaLiga logo)\ncell 14: pitch-action | Medium shot focusing on players competing for the ball\ncell 15: pitch-action | Medium shot focusing on players competing for the ball\ncell 16: pitch-action | Medium shot focusing on players competing for the ball\ncell 17: pitch-action | Medium shot showing a tackle/foul action\ncell 18: pitch-action | Medium shot showing a tackle/foul action\ncell 19: wide-broadcast | Wide shot of the pitch with graphic overlay\ncell 20: wide-broadcast | Wide shot of the pitch with players",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283316,
+  "id": "20260925045508290ab612111541ba",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925045508290ab612111541ba",
+  "usage": {
+    "completion_tokens": 353,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2115
+  }
+}

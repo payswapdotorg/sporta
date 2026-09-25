@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: closeup | Player in red jersey number 14\n2: closeup | Back of player in red jersey number 14\n3: closeup | Players on the bench watching the match\n4: closeup | Players on the bench watching the match\n5: closeup | Players on the bench watching the match\n6: closeup | Players on the bench watching the match\n7: wide-broadcast | Wide shot of the soccer pitch with players\n8: wide-broadcast | Wide shot of the soccer pitch with players\n9: wide-broadcast | Wide shot of the soccer pitch with players\n10: wide-broadcast | Wide shot of the soccer pitch with players\n11: wide-broadcast | Wide shot of the soccer pitch with players",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790312584,
+ "id": "202609251303023eeaffb80bfd4c4e",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "202609251303023eeaffb80bfd4c4e",
+ "usage": {
+  "completion_tokens": 155,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1898,
+  "prompt_tokens_details": {
+   "cached_tokens": 166
+  },
+  "total_tokens": 2053
+ },
+ "_meta": {
+  "tag": "w2609_g5",
+  "attempt": 1
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: pitch-action | Wide shot of players on the field\ncell 2: pitch-action | Wide shot of players on the field\ncell 3: pitch-action | Wide shot of players on the field\ncell 4: pitch-action | Wide shot of players on the field\ncell 5: pitch-action | Wide shot of players on the field\ncell 6: pitch-action | Wide shot of players on the field, one player down\ncell 7: pitch-action | Wide shot of players on the field\ncell 8: pitch-action | Wide shot of players near the goal area\ncell 9: wide-broadcast | Shot showing goal and advertising boards\ncell 10: wide-broadcast | Shot showing goal and advertising boards\ncell 11: wide-broadcast | Shot showing goal and advertising boards\ncell 12: wide-broadcast | Shot showing goal and advertising boards\ncell 13: closeup | Player #14 and others in foreground celebrating\ncell 14: closeup | Player in orange jersey running in foreground\ncell 15: closeup | Player in orange jersey near the goalpost\ncell 16: wide-broadcast | Player running with crowd in background\ncell 17: closeup | Player in orange throwing an object\ncell 18: closeup | Close-up of player FERRAN from behind\ncell 19: closeup | Side profile close-up of a player\ncell 20: closeup | Close-up of player FERRAN from the side",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790284258,
+  "id": "20260925051053d3834500f5764dcf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925051053d3834500f5764dcf",
+  "usage": {
+    "completion_tokens": 311,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2073
+  }
+}

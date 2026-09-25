@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: graphics | Split screen with main view and inset replay\ncell 2: graphics | Split screen with main view and inset replay\ncell 3: pitch-action | Wide shot of players on the field, no stands visible\ncell 4: pitch-action | Wide shot of players on the field, no stands visible\ncell 5: pitch-action | Wide shot of players on the field, no stands visible\ncell 6: pitch-action | Wide shot of players on the field, no stands visible\ncell 7: wide-broadcast | Pitch and stadium stands visible in background\ncell 8: wide-broadcast | Pitch and stadium stands visible in background\ncell 9: wide-broadcast | Pitch and stadium stands visible in background\ncell 10: wide-broadcast | Pitch and stadium stands visible in background\ncell 11: wide-broadcast | Pitch and stadium stands visible in background\ncell 12: closeup | Single player (Gavi) in foreground, blurred background\ncell 13: wide-broadcast | Pitch and stadium stands visible in background\ncell 14: wide-broadcast | Pitch and stadium stands visible in background\ncell 15: wide-broadcast | Pitch and stadium stands visible in background\ncell 16: closeup | Single player (Gavi) in foreground, blurred background\ncell 17: wide-broadcast | Pitch and stadium stands visible in background\ncell 18: wide-broadcast | Pitch and stadium stands visible in background\ncell 19: wide-broadcast | Pitch and stadium stands visible in background\ncell 20: wide-broadcast | Pitch and stadium stands visible in background",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283226,
+  "id": "2026092504534119304dbe8caf4f17",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092504534119304dbe8caf4f17",
+  "usage": {
+    "completion_tokens": 336,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2098
+  }
+}

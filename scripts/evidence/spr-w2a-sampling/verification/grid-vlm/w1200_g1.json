@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: pitch-action | Player with ball in orange vs green\n2: pitch-action | Player dribbling, 1v1 duel\n3: pitch-action | Player shielding ball from defender\n4: pitch-action | Player controlling ball on wing\n5: pitch-action | Wide shot of player running with ball\n6: wide-broadcast | High angle, full pitch and stands visible\n7: wide-broadcast | Wide tactical view of pitch and stadium\n8: wide-broadcast | Wide view showing corner area and stands\n9: wide-broadcast | Wide shot with goal and stand graphics\n10: wide-broadcast | Tactical overview, pitch dominates\n11: wide-broadcast | Wide shot, pitch and crowd in background\n12: wide-broadcast | Wide tactical view, stats overlay\n13: wide-broadcast | High wide angle, goal and stands\n14: closeup | Close-up of player's face/upper body\n15: closeup | Medium close-up of player #8 from behind\n16: closeup | Medium shot of player #8 standing\n17: closeup | Medium shot of player #8 from side/back\n18: closeup | Player #8 pointing, medium shot\n19: pitch-action | Player #8 approaching ball to kick\n20: wide-broadcast | Wide shot of play near sideline",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283270,
+  "id": "202609250454228a556dc08a1946fa",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250454228a556dc08a1946fa",
+  "usage": {
+    "completion_tokens": 271,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2033
+  }
+}

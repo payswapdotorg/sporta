@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 2: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 3: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 4: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 5: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 6: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 7: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 8: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 9: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 10: wide-broadcast | Wide shot of the pitch with players and stands visible\ncell 11: wide-broadcast | Wide shot of the pitch with players and stands visible",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790285078,
+  "id": "20260925052434ee03f0c0a0634f3b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925052434ee03f0c0a0634f3b",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1971
+  }
+}

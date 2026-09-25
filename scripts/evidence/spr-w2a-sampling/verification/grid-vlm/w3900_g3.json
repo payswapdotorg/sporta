@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1: wide-broadcast | Wide view of the pitch with players and visible stands\n2: wide-broadcast | Wide view of the pitch with players and visible stands\n3: wide-broadcast | Wide view of the pitch with players and visible stands\n4: wide-broadcast | Wide view of the pitch with players and visible stands\n5: closeup | Close-up shot of a player's face in the foreground\n6: closeup | Close-up shot of a player's face in the foreground\n7: wide-broadcast | Wide view of the pitch with players warming up and stands\n8: wide-broadcast | Wide view of the pitch with players warming up and stands\n9: closeup | Close-up shot of a player's face in the foreground\n10: closeup | Close-up shot of a player's face in the foreground\n11: pitch-action | Players on the pitch, camera focused on them\n12: pitch-action | Players on the pitch, camera focused on them\n13: pitch-action | Players on the pitch, camera focused on them\n14: pitch-action | Players on the pitch, camera focused on them\n15: pitch-action | Players on the pitch, camera focused on them\n16: pitch-action | Players on the pitch, camera focused on them\n17: pitch-action | Players on the pitch, camera focused on them\n18: pitch-action | Players on the pitch, camera focused on them\n19: wide-broadcast | Wide view of the pitch with players and visible stands\n20: wide-broadcast | Wide view of the pitch with players and visible stands\n21: wide-broadcast | Wide view of the pitch with players and visible stands\n22: wide-broadcast | Wide view of the pitch with players and visible stands\n23: wide-broadcast | Wide view of the pitch with players and visible stands\n24: wide-broadcast | Wide view of the pitch with players and visible stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283728,
+  "id": "20260925050159f87ff3f907064aa7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925050159f87ff3f907064aa7",
+  "usage": {
+    "completion_tokens": 394,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2156
+  }
+}

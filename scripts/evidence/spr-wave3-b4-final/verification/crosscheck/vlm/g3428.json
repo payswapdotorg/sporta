@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in position\n2: play | Wide shot of the soccer pitch with players in position\n3: closeup | Tight shot of a player in a green and white striped jersey\n4: closeup | Tight shot of a player's face and upper body\n5: graphics | Red graphic wipe overlay on screen\n6: closeup | Medium closeup of a player in green and white stripes looking forward\n7: closeup | Tight shot of the back of a player wearing number 18\n8: closeup | Side profile of a player in a red jersey\n9: closeup | Closeup side profile of a player in red\n10: closeup | Closeup side profile of a player in red\n11: closeup | Closeup side profile of a player in red\n12: graphics | Large LaLiga logo graphic overlay\n13: play | Wide shot of players on the field near the goal area\n14: play | Wide shot of players on the field near the goal area\n15: play | Wide shot showing the goalkeeper diving to make a save\n16: play | Wide shot of the goal area with players reacting to the save\n17: play | Wide shot of the field with players regrouping\n18: play | Wide shot of the field with players in formation\n19: play | Wide shot of the field with players moving into position\n20: play | Wide shot of the field with players in active play",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310852,
+ "id": "2026092512340670f68d357e0d4388",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092512340670f68d357e0d4388",
+ "usage": {
+  "completion_tokens": 307,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2196
+ },
+ "_meta": {
+  "tag": "g3428",
+  "attempt": 1
+ }
+}

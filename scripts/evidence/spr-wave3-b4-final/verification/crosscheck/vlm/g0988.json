@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "1: play | Wide shot of the soccer pitch with players in red and green kits\n2: play | Wide shot of the soccer pitch with players in red and green kits\n3: play | Wide shot of the soccer pitch with players in red and green kits\n4: play | Wide shot of the soccer pitch with players in red and green kits\n5: play | Wide shot of the soccer pitch with players in red and green kits\n6: play | Wide shot of the soccer pitch with players in red and green kits\n7: play | Wide shot of the soccer pitch with players in red and green kits\n8: play | Wide shot of the soccer pitch with players in red and green kits\n9: play | Wide shot of the soccer pitch with players in red and green kits\n10: play | Wide shot of the soccer pitch with players in red and green kits\n11: play | Wide shot of the soccer pitch with players in red and green kits\n12: play | Wide shot of the soccer pitch with players in red and green kits\n13: play | Wide shot of the soccer pitch showing an attack near the goal\n14: play | Wide shot of the soccer pitch showing an attack near the goal\n15: play | Wide shot of the soccer pitch showing a shot on goal\n16: play | Wide shot of the soccer pitch after a shot on goal\n17: play | Wide shot of the soccer pitch following the play\n18: closeup | Tight shot of a player in a red jersey celebrating\n19: closeup | Tight shot of a player in a red jersey celebrating\n20: closeup | Tight shot of a player in a red jersey celebrating",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790310660,
+ "id": "20260925123053caddcf75a9e048b7",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925123053caddcf75a9e048b7",
+ "usage": {
+  "completion_tokens": 344,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 1889,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 2233
+ },
+ "_meta": {
+  "tag": "g0988",
+  "attempt": 1
+ }
+}

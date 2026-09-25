@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "NO\nThe frame is primarily occupied by the soccer players on the field and the pitch itself, with the crowd visible only in a narrow strip along the top background.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314877,
+ "id": "20260925134116bb19a2ed018341b2",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "20260925134116bb19a2ed018341b2",
+ "usage": {
+  "completion_tokens": 34,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 342,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 376
+ },
+ "_meta": {
+  "tag": "w1091-1-110383",
+  "attempt": 1
+ }
+}

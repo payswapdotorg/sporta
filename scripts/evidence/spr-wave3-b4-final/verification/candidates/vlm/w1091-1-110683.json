@@ -1,0 +1,32 @@
+{
+ "choices": [
+  {
+   "finish_reason": "stop",
+   "index": 0,
+   "message": {
+    "content": "YES. The frame is almost entirely filled with spectators in the stands.",
+    "role": "assistant"
+   }
+  }
+ ],
+ "created": 1790314899,
+ "id": "2026092513413899df19cc58c445e8",
+ "model": "glm-5v-turbo",
+ "object": "chat.completion",
+ "request_id": "2026092513413899df19cc58c445e8",
+ "usage": {
+  "completion_tokens": 15,
+  "completion_tokens_details": {
+   "reasoning_tokens": 0
+  },
+  "prompt_tokens": 342,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "total_tokens": 357
+ },
+ "_meta": {
+  "tag": "w1091-1-110683",
+  "attempt": 1
+ }
+}

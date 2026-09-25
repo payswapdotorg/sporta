@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "cell 1: closeup | Player in red jersey\ncell 2: closeup | Player holding ball\ncell 3: closeup | Player holding ball\ncell 4: closeup | Player holding ball\ncell 5: closeup | Player holding ball\ncell 6: closeup | Player holding ball\ncell 7: closeup | Player holding ball\ncell 8: closeup | Player looking on\ncell 9: closeup | Player holding ball\ncell 10: closeup | Player holding ball\ncell 11: closeup | Player holding ball\ncell 12: closeup | Player looking on\ncell 13: pitch-action | Referee and players on pitch\ncell 14: pitch-action | Players and referee on pitch\ncell 15: pitch-action | Players and referee on pitch\ncell 16: pitch-action | Players and referee on pitch\ncell 17: pitch-action | Referee on pitch\ncell 18: pitch-action | Referee on pitch\ncell 19: pitch-action | Player walking on pitch\ncell 20: pitch-action | Player walking on pitch\ncell 21: crowd | Spectators in stands\ncell 22: crowd | Spectators in stands\ncell 23: crowd | Spectators in stands\ncell 24: crowd | Spectators in stands",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790283766,
+  "id": "202609250502395523315fd99e47ea",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250502395523315fd99e47ea",
+  "usage": {
+    "completion_tokens": 278,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1762,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2040
+  }
+}

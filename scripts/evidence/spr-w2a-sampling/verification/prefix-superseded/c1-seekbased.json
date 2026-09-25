@@ -1,0 +1,86 @@
+[
+ {
+  "frame": "f_001.jpg",
+  "mediaTime": 2717.5,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a coach on the bench, with only a small portion of the background showing other people."
+ },
+ {
+  "frame": "f_002.jpg",
+  "mediaTime": 2718.5,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a coach on the bench, with only a small portion of the background showing other people."
+ },
+ {
+  "frame": "f_003.jpg",
+  "mediaTime": 2719.5,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a coach on the bench, with only a small portion of the background showing other people."
+ },
+ {
+  "frame": "f_004.jpg",
+  "mediaTime": 2720.5,
+  "verdict": "NO",
+  "reason": "The frame is a close-up of a coach on the bench, with only a small portion of the background showing other people."
+ },
+ {
+  "frame": "f_005.jpg",
+  "mediaTime": 2721.5,
+  "verdict": "YES",
+  "reason": "The frame is filled with spectators in the stands, occupying the vast majority of the visual area."
+ },
+ {
+  "frame": "f_006.jpg",
+  "mediaTime": 2722.5,
+  "verdict": "YES",
+  "reason": "The image is a close-up shot of fans in the stands, with people and stands clearly taking up more than half of the frame."
+ },
+ {
+  "frame": "f_007.jpg",
+  "mediaTime": 2723.5,
+  "verdict": "YES",
+  "reason": "The shot is focused entirely on the crowd in the stands, which dominates the entire frame area."
+ },
+ {
+  "frame": "f_008.jpg",
+  "mediaTime": 2724.5,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players celebrating on the pitch; the crowd is only visible as a small, dark background element."
+ },
+ {
+  "frame": "f_009.jpg",
+  "mediaTime": 2725.5,
+  "verdict": "NO",
+  "reason": "players celebrating on the pitch dominate the frame, with the crowd only visible in the distant background."
+ },
+ {
+  "frame": "f_010.jpg",
+  "mediaTime": 2726.5,
+  "verdict": "NO",
+  "reason": "players on the pitch are the main focus and occupy the majority of the frame area."
+ },
+ {
+  "frame": "f_011.jpg",
+  "mediaTime": 2727.5,
+  "verdict": "NO",
+  "reason": "the frame is filled with players on the field, with no significant crowd presence."
+ },
+ {
+  "frame": "f_012.jpg",
+  "mediaTime": 2728.5,
+  "verdict": "NO",
+  "reason": "players in the foreground and midground occupy most of the frame, leaving little space for the crowd."
+ },
+ {
+  "frame": "f_013.jpg",
+  "mediaTime": 2729.5,
+  "verdict": "NO",
+  "reason": "The frame is dominated by players on the pitch, with the crowd only visible as a small, dark area in the background."
+ },
+ {
+  "frame": "f_014.jpg",
+  "mediaTime": 2730.5,
+  "verdict": "NO",
+  "reason": "The frame is dominated by a player on the pitch, with the crowd only visible in the background."
+ }
+]
