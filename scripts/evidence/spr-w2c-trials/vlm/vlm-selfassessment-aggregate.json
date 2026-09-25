@@ -1,0 +1,442 @@
+{
+ "kuwahara-paint-b12": {
+  "label": "kuwahara-paint",
+  "sub": "b12",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b12-t2s.png",
+     "kuwahara-paint-b12-t2s.png",
+     "kuwahara-paint-b12-t2p2s.png"
+    ],
+    "content": "1. identityConsistency: 3 - The main players are recognizable but fine details like kit numbers and facial features are heavily smoothed and distorted by the stylization.\n2. motionFidelity: 4 - The subtle shift in player positions between the stylized frames accurately reflects a small temporal offset in a continuous shot.\n3. stylizationStrength: 4 - The kuwahara-paint effect is clearly applied, creating a distinct painterly look with flattened color regions and softened edges.\nAXES ic=3 mf=4 ss=4",
+    "axes": {
+     "ic": 3,
+     "mf": 4,
+     "ss": 4
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b12-t8s.png",
+     "kuwahara-paint-b12-t8s.png",
+     "kuwahara-paint-b12-t8p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to blurry, indistinct color blobs with no discernible features or structural integrity.\n2. motionFidelity: 3 - The subtle shift in player positions between the stylized frames is consistent with the expected temporal progression.\n3. stylizationStrength: 4 - The kuwahara-paint effect is very strong and obvious, creating a distinct painterly aesthetic.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b12-t11s.png",
+     "kuwahara-paint-b12-t11s.png",
+     "kuwahara-paint-b12-t11p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to indistinct colored blobs, losing all structural details like limbs, kits, and numbers.\n2. motionFidelity: 3 - The subtle shift in player positions between the two stylized frames is consistent with a short time interval.\n3. stylizationStrength: 4 - The kuwahara-paint effect is very strong and obvious, creating a distinct painterly aesthetic.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.33,
+   "motionFidelity": 3.33,
+   "stylizationStrength": 4
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "kuwahara-paint-b8": {
+  "label": "kuwahara-paint",
+  "sub": "b8",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b8-t2s.png",
+     "kuwahara-paint-b8-t2s.png",
+     "kuwahara-paint-b8-t2p2s.png"
+    ],
+    "content": "1. identityConsistency: 3 - The main subject (Balde #3) is structurally intact, but background players are heavily distorted and unrecognizable.\n2. motionFidelity: 4 - The subtle shift in arm/ball position between the stylized frames accurately reflects the 0.2s temporal gap.\n3. stylizationStrength: 5 - The kuwahara-paint effect creates a strong, consistent painterly aesthetic across both frames.\nAXES ic=3 mf=4 ss=5",
+    "axes": {
+     "ic": 3,
+     "mf": 4,
+     "ss": 5
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b8-t8s.png",
+     "kuwahara-paint-b8-t8s.png",
+     "kuwahara-paint-b8-t8p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to indistinct colored blobs, losing all structural detail, limb definition, and kit/number information.\n2. motionFidelity: 3 - The subtle positional shifts of the color blobs between frames are consistent with the expected movement over a short time interval.\n3. stylizationStrength: 4 - The heavy Kuwahara filtering creates a very obvious and uniform painterly abstraction across the entire scene.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b8-t11s.png",
+     "kuwahara-paint-b8-t11s.png",
+     "kuwahara-paint-b8-t11p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to indistinct colored blobs, losing all structural detail, limb definition, and kit features.\n2. motionFidelity - 3: The subtle positional shifts between the stylized frames appear plausible for a 0.2s interval despite the heavy blur.\n3. stylizationStrength - 4: The transformation is extremely aggressive and obvious, creating a strong painterly/abstract effect, though it sacrifices almost all recognizable content.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.33,
+   "motionFidelity": 3.33,
+   "stylizationStrength": 4.33
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "subject-toon-b12": {
+  "label": "subject-toon",
+  "sub": "b12",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b12-t2s.png",
+     "subject-toon-b12-t2s.png",
+     "subject-toon-b12-t2p2s.png"
+    ],
+    "content": "1. identityConsistency - 4: Players' facial features, hairstyles, and kit details (stripes, logos) remain highly recognizable and structurally stable across all frames.\n2. motionFidelity - 3: The subtle forward lean and arm swing of the foreground player in Image 3 aligns with the 0.2s temporal gap, though the motion is minimal.\n3. stylizationStrength - 2: The transformation is very subtle, appearing as a slight softening or painterly filter rather than a distinct \"toon\" style.\nAXES ic=4 mf=3 ss=2",
+    "axes": {
+     "ic": 4,
+     "mf": 3,
+     "ss": 2
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b12-t8s.png",
+     "subject-toon-b12-t8s.png",
+     "subject-toon-b12-t8p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - The stylization is so aggressive that players lose distinct features, becoming indistinct blobs where kits, numbers, and limb structures are largely unrecognizable.\n2. motionFidelity: 3 - The temporal shift between the two stylized frames is visible and generally follows the expected trajectory of the play, though the heavy abstraction makes precise motion tracking difficult.\n3. stylizationStrength: 4 - The transformation into a bold, cartoon-like aesthetic with flat color regions and thick outlines is very obvious and successfully creates a unique, appealing toon style.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b12-t11s.png",
+     "subject-toon-b12-t11s.png",
+     "subject-toon-b12-t11p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to abstract blobs with no discernible features, kit details, or limb structures, making individual identification impossible.\n2. motionFidelity - 3: The general spatial shift of the player blobs between the two stylized frames aligns with the expected trajectory of the ball and players from the original.\n3. stylizationStrength - 4: The transformation into a bold, high-contrast cartoon style with flat color regions and thick outlines is very obvious and visually striking.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.67,
+   "motionFidelity": 3,
+   "stylizationStrength": 3.33
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "subject-toon-b8": {
+  "label": "subject-toon",
+  "sub": "b8",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b8-t2s.png",
+     "subject-toon-b8-t2s.png",
+     "subject-toon-b8-t2p2s.png"
+    ],
+    "content": "1. identityConsistency - 4: The main subject (Balde) and background players retain their core features, kit numbers, and structural integrity across all frames.\n2. motionFidelity - 5: The subtle shift in Balde's arm position and the movement of the background players (especially the one in green/white stripes) perfectly reflect a 0.2s temporal progression.\n3. stylizationStrength - 4: The toon-style transformation is clear and consistent, effectively simplifying textures while maintaining the scene's readability and appeal.\nAXES ic=4 mf=5 ss=4",
+    "axes": {
+     "ic": 4,
+     "mf": 5,
+     "ss": 4
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b8-t8s.png",
+     "subject-toon-b8-t8s.png",
+     "subject-toon-b8-t8p2s.png"
+    ],
+    "content": "1. identityConsistency - 3: Players and kits are recognizable but heavily simplified, with some loss of fine structural detail like limb definition.\n2. motionFidelity - 4: The subtle shifts in player positions between the stylized frames accurately reflect the expected movement over a 0.2s interval.\n3. stylizationStrength - 4: The toon effect is very distinct and appealing, featuring bold color blocking and clean outlines that clearly transform the original image.\nAXES ic=3 mf=4 ss=4",
+    "axes": {
+     "ic": 3,
+     "mf": 4,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b8-t11s.png",
+     "subject-toon-b8-t11s.png",
+     "subject-toon-b8-t11p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to indistinct, unrecognizable blobs with no discernible kit details or anatomical structure.\n2. motionFidelity: 3 - The subtle shifts in player positions between the two stylized frames appear consistent with the expected movement over a short time interval.\n3. stylizationStrength: 4 - The transformation is very obvious and creates a strong, appealing cartoon-like aesthetic with bold colors and simplified shapes.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 3,
+   "motionFidelity": 4,
+   "stylizationStrength": 4
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "flow-prop-toon-b12": {
+  "label": "flow-prop-toon",
+  "sub": "b12",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b12-t2s.png",
+     "flow-prop-toon-b12-t2s.png",
+     "flow-prop-toon-b12-t2p2s.png"
+    ],
+    "content": "1. identityConsistency - 3: Players are recognizable but facial features and kit details are heavily abstracted and distorted.\n2. motionFidelity - 2: The temporal pair shows significant structural warping and inconsistent limb positions relative to the source.\n3. stylizationStrength - 4: The toon effect is bold, colorful, and clearly transforms the image into a distinct cartoon style.\nAXES ic=3 mf=2 ss=4",
+    "axes": {
+     "ic": 3,
+     "mf": 2,
+     "ss": 4
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b12-t8s.png",
+     "flow-prop-toon-b12-t8s.png",
+     "flow-prop-toon-b12-t8p2s.png"
+    ],
+    "content": "1. identityConsistency: 3 - Players are recognizable by color and general position, but fine details like kit numbers and facial features are lost to the abstraction.\n2. motionFidelity: 4 - The subtle shift in player and ball positions between the two stylized frames accurately reflects the expected movement over a 0.2s interval.\n3. stylizationStrength: 5 - The flow-prop-toon effect is very strong, creating a distinct, appealing cartoon-like aesthetic with bold outlines and simplified color regions.\nAXES ic=3 mf=4 ss=5",
+    "axes": {
+     "ic": 3,
+     "mf": 4,
+     "ss": 5
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b12-t11s.png",
+     "flow-prop-toon-b12-t11s.png",
+     "flow-prop-toon-b12-t11p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to abstract colored blobs, losing all structural detail like limbs and kit numbers.\n2. motionFidelity: 3 - The temporal shift between the stylized frames shows plausible player movement consistent with the original action.\n3. stylizationStrength: 5 - The transformation is a very strong, obvious, and appealing cartoon/toon style with bold outlines and flat colors.\nAXES ic=2 mf=3 ss=5",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 5
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.67,
+   "motionFidelity": 3,
+   "stylizationStrength": 4.67
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "flow-prop-toon-b8": {
+  "label": "flow-prop-toon",
+  "sub": "b8",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b8-t2s.png",
+     "flow-prop-toon-b8-t2s.png",
+     "flow-prop-toon-b8-t2p2s.png"
+    ],
+    "content": "1. identityConsistency: 3 - The main subject (Balde) is recognizable, but background players and the ball suffer from significant structural distortion and loss of detail in the third frame.\n2. motionFidelity: 2 - The motion between frames is inconsistent and unnatural; the player's arms and the ball position shift in a way that suggests temporal incoherence rather than smooth movement.\n3. stylizationStrength: 4 - The toon/flow-prop effect is very strong and clearly applied, creating a distinct artistic look, though it borders on being too aggressive with detail loss.\nAXES ic=3 mf=2 ss=4",
+    "axes": {
+     "ic": 3,
+     "mf": 2,
+     "ss": 4
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b8-t8s.png",
+     "flow-prop-toon-b8-t8s.png",
+     "flow-prop-toon-b8-t8p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to abstract colored blobs, losing all structural detail like limbs and kit numbers.\n2. motionFidelity - 3: The general spatial arrangement of players shifts plausibly between the two stylized frames.\n3. stylizationStrength - 4: The flow-prop-toon effect is very bold and clearly applied across the entire scene.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b8-t11s.png",
+     "flow-prop-toon-b8-t11s.png",
+     "flow-prop-toon-b8-t11p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, losing all structural detail and kit/number information.\n2. motionFidelity - 4: The subtle shifts in player positions between the two stylized frames accurately reflect the expected movement over a 0.2s interval.\n3. stylizationStrength - 4: The flow-prop-toon effect is very strong and clearly applied, creating a distinct, appealing cartoon-like aesthetic with bold color regions.\nAXES ic=2 mf=4 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 4,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.33,
+   "motionFidelity": 3,
+   "stylizationStrength": 4
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "cartoon-cel-b12": {
+  "label": "cartoon-cel-baseline",
+  "sub": "b12",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b12-t2s.png",
+     "cartoon-cel-b12-t2s.png",
+     "cartoon-cel-b12-t2p2s.png"
+    ],
+    "content": "1. identityConsistency: 3 - Players are recognizable and maintain general structure, but facial features and kit details are heavily abstracted.\n2. motionFidelity: 4 - The subtle shift in player posture and the appearance of a goalkeeper's arm in the third image align well with the expected motion over 0.2 seconds.\n3. stylizationStrength: 5 - The cartoon-cel-baseline effect is very strong, with clear edge detection, flat color fills, and a distinct artistic transformation.\nAXES ic=3 mf=4 ss=5",
+    "axes": {
+     "ic": 3,
+     "mf": 4,
+     "ss": 5
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b12-t8s.png",
+     "cartoon-cel-b12-t8s.png",
+     "cartoon-cel-b12-t8p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, losing all structural details like limbs, kits, and numbers.\n2. motionFidelity - 3: The subtle shifts in player positions between the two stylized frames are consistent with the 0.2s time gap, though the extreme abstraction makes precise tracking difficult.\n3. stylizationStrength - 4: The cartoon-cel-baseline transformation is very obvious, creating a bold, high-contrast abstract aesthetic that is visually striking.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b12-t11s.png",
+     "cartoon-cel-b12-t11s.png",
+     "cartoon-cel-b12-t11p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - Players are reduced to unrecognizable colored blobs with no structural detail or kit consistency.\n2. motionFidelity: 3 - Subtle shifts in blob positions are visible, but the extreme abstraction makes precise motion tracking difficult.\n3. stylizationStrength: 4 - The cartoon-cel transformation is very strong and obvious, creating a distinct abstract aesthetic.\n\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2.33,
+   "motionFidelity": 3.33,
+   "stylizationStrength": 4.33
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ },
+ "cartoon-cel-b8f300": {
+  "label": "cartoon-cel-baseline",
+  "sub": "b8f300",
+  "calls": [
+   {
+    "t": 2,
+    "images": [
+     "orig-b8-t2s.png",
+     "cartoon-cel-b8f300-t2s.png",
+     "cartoon-cel-b8f300-t2p2s.png"
+    ],
+    "content": "1. identityConsistency: 2 - The main player's kit and number are preserved, but background players lose structural detail and facial features, and the \"BALDE\" text is illegible.\n2. motionFidelity: 3 - The subtle arm/ball movement between frames is captured, though the heavy stylization obscures fine motion details in the background.\n3. stylizationStrength: 4 - The cartoon-cel effect is very strong with bold colors and clear outlines, creating a distinct artistic look despite some loss of definition.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 8,
+    "images": [
+     "orig-b8-t8s.png",
+     "cartoon-cel-b8f300-t8s.png",
+     "cartoon-cel-b8f300-t8p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, losing all structural details like limbs, kits, and numbers.\n2. motionFidelity - 3: The subtle shifts in player positions between the two stylized frames appear consistent with the expected 0.2s interval.\n3. stylizationStrength - 4: The cartoon-cel transformation is very obvious, bold, and creates a distinct artistic style despite the loss of detail.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   },
+   {
+    "t": 11,
+    "images": [
+     "orig-b8-t11s.png",
+     "cartoon-cel-b8f300-t11s.png",
+     "cartoon-cel-b8f300-t11p2s.png"
+    ],
+    "content": "1. identityConsistency - 2: Players are reduced to indistinct colored blobs, losing all structural detail, kit features, and limb definition.\n2. motionFidelity - 3: The subtle positional shifts of the blobs between the two stylized frames appear consistent with the expected temporal progression.\n3. stylizationStrength - 4: The cartoon-cel-baseline effect is very strong and obvious, creating a clear abstract aesthetic, though it sacrifices too much recognizability.\nAXES ic=2 mf=3 ss=4",
+    "axes": {
+     "ic": 2,
+     "mf": 3,
+     "ss": 4
+    }
+   }
+  ],
+  "meanScores": {
+   "identityConsistency": 2,
+   "motionFidelity": 3,
+   "stylizationStrength": 4
+  },
+  "parsedCalls": 3,
+  "failedCalls": 0
+ }
+}

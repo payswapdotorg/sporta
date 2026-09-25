@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b12-t8s.png",
+  "flow-prop-toon-b12-t8s.png",
+  "flow-prop-toon-b12-t8p2s.png"
+ ],
+ "content": "1. identityConsistency: 3 - Players are recognizable by color and general position, but fine details like kit numbers and facial features are lost to the abstraction.\n2. motionFidelity: 4 - The subtle shift in player and ball positions between the two stylized frames accurately reflects the expected movement over a 0.2s interval.\n3. stylizationStrength: 5 - The flow-prop-toon effect is very strong, creating a distinct, appealing cartoon-like aesthetic with bold outlines and simplified color regions.\nAXES ic=3 mf=4 ss=5",
+ "axes": {
+  "ic": 3,
+  "mf": 4,
+  "ss": 5
+ }
+}

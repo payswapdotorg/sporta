@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b12-t8s.png",
+  "cartoon-cel-b12-t8s.png",
+  "cartoon-cel-b12-t8p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, losing all structural details like limbs, kits, and numbers.\n2. motionFidelity - 3: The subtle shifts in player positions between the two stylized frames are consistent with the 0.2s time gap, though the extreme abstraction makes precise tracking difficult.\n3. stylizationStrength - 4: The cartoon-cel-baseline transformation is very obvious, creating a bold, high-contrast abstract aesthetic that is visually striking.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

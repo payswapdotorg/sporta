@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b12-t11s.png",
+  "flow-prop-toon-b12-t11s.png",
+  "flow-prop-toon-b12-t11p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - Players are reduced to abstract colored blobs, losing all structural detail like limbs and kit numbers.\n2. motionFidelity: 3 - The temporal shift between the stylized frames shows plausible player movement consistent with the original action.\n3. stylizationStrength: 5 - The transformation is a very strong, obvious, and appealing cartoon/toon style with bold outlines and flat colors.\nAXES ic=2 mf=3 ss=5",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 5
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b12-t2s.png",
+  "flow-prop-toon-b12-t2s.png",
+  "flow-prop-toon-b12-t2p2s.png"
+ ],
+ "content": "1. identityConsistency - 3: Players are recognizable but facial features and kit details are heavily abstracted and distorted.\n2. motionFidelity - 2: The temporal pair shows significant structural warping and inconsistent limb positions relative to the source.\n3. stylizationStrength - 4: The toon effect is bold, colorful, and clearly transforms the image into a distinct cartoon style.\nAXES ic=3 mf=2 ss=4",
+ "axes": {
+  "ic": 3,
+  "mf": 2,
+  "ss": 4
+ }
+}

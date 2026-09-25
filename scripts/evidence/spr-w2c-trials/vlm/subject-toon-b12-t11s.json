@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b12-t11s.png",
+  "subject-toon-b12-t11s.png",
+  "subject-toon-b12-t11p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to abstract blobs with no discernible features, kit details, or limb structures, making individual identification impossible.\n2. motionFidelity - 3: The general spatial shift of the player blobs between the two stylized frames aligns with the expected trajectory of the ball and players from the original.\n3. stylizationStrength - 4: The transformation into a bold, high-contrast cartoon style with flat color regions and thick outlines is very obvious and visually striking.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

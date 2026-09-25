@@ -1,0 +1,101 @@
+{
+ "rendererId": "sprtrial-kuwahara-paint-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "identity": "clip-sha:969af7c6fdb1"
+ },
+ "styleConfig": {
+  "config": {
+   "orientations": 8,
+   "blendGamma": 10.0,
+   "preMedianK": 3,
+   "qLong": 3,
+   "qShort": 2,
+   "varSigma": 2.0,
+   "varSoftness": 3.0,
+   "weightSigma": 2.0,
+   "tensorSigma": 2.5,
+   "tensorAlpha": 0.45,
+   "preBilatD": 7,
+   "preBilatSigma": 50,
+   "preBilatIters": 1,
+   "postBilatD": 9,
+   "postBilatSigma": 75,
+   "postBilatIters": 2,
+   "lWeight": 0.45,
+   "xdogSigma": 1.0,
+   "xdogK": 1.6,
+   "xdogTau": 0.98,
+   "xdogEps": 0.01,
+   "xdogPhi": 8.0,
+   "lineFloor": 0.58,
+   "saturation": 1.14,
+   "grain": 1.5,
+   "profile": "default",
+   "frameCount": 300,
+   "maxFrames": 300
+  },
+  "hash": "9bde3246623210a546a88f1e546cab5d5aad0a238f473a3086058cb289759bc7"
+ },
+ "pipeline": [
+  {
+   "stage": "half-res(320x180) abstraction core: median_pool(3) + bilateral x1 (d=7 s=50) pre-consolidation + structure_tensor (sobel+gaussian sigma=2.5, temporal EMA alpha=0.45, cut-reset)"
+  },
+  {
+   "stage": "isophote_orientation_quantized(N=8, doubled-angle soft-blend gamma=10, coherence-gated + weight-map gaussian sigma=2: smooth orientation fields)"
+  },
+  {
+   "stage": "anisotropic_kuwahara(4-quadrant SOFT inverse-variance blend p=3, qLong=3 x qShort=2 at half res = 7x5 at source scale, variance fields gaussian-smoothed sigma=2.0, per-orientation rotate/rotate-back, BORDER_REFLECT_101)"
+  },
+  {
+   "stage": "bilinear upsample to 640x360 (brush-stroke transitions)"
+  },
+  {
+   "stage": "bilateral_flatten(2x d=9 s=75) field consolidation (no palette pass, no XDoG: stage-isolation diagnostics showed both re-amplify blend residue)"
+  },
+  {
+   "stage": "saturation_lift(1.14)"
+  },
+  {
+   "stage": "grain(1.5, frame-index-seeded)"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "kuwahara-paint-b8.mp4",
+  "sha256": "c5cb484664a47425341b0fac962f4ed2a40a5ad44820c886fe9be4d8172be6fc",
+  "byteSize": 1373055,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 300
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial kuwahara-paint --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b8 --max-frames 300"
+ },
+ "telemetry": {
+  "renderWallMs": 46596.7,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T20:56:14.868388+00:00",
+ "runId": "sprrun-00a8de0b1e543a9e"
+}

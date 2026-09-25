@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b8-t8s.png",
+  "subject-toon-b8-t8s.png",
+  "subject-toon-b8-t8p2s.png"
+ ],
+ "content": "1. identityConsistency - 3: Players and kits are recognizable but heavily simplified, with some loss of fine structural detail like limb definition.\n2. motionFidelity - 4: The subtle shifts in player positions between the stylized frames accurately reflect the expected movement over a 0.2s interval.\n3. stylizationStrength - 4: The toon effect is very distinct and appealing, featuring bold color blocking and clean outlines that clearly transform the original image.\nAXES ic=3 mf=4 ss=4",
+ "axes": {
+  "ic": 3,
+  "mf": 4,
+  "ss": 4
+ }
+}

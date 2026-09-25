@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b8-t2s.png",
+  "subject-toon-b8-t2s.png",
+  "subject-toon-b8-t2p2s.png"
+ ],
+ "content": "1. identityConsistency - 4: The main subject (Balde) and background players retain their core features, kit numbers, and structural integrity across all frames.\n2. motionFidelity - 5: The subtle shift in Balde's arm position and the movement of the background players (especially the one in green/white stripes) perfectly reflect a 0.2s temporal progression.\n3. stylizationStrength - 4: The toon-style transformation is clear and consistent, effectively simplifying textures while maintaining the scene's readability and appeal.\nAXES ic=4 mf=5 ss=4",
+ "axes": {
+  "ic": 4,
+  "mf": 5,
+  "ss": 4
+ }
+}

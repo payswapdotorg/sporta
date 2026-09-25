@@ -1,0 +1,101 @@
+{
+ "rendererId": "sprtrial-kuwahara-paint-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+  "identity": "clip-sha:7cb3d728cc34"
+ },
+ "styleConfig": {
+  "config": {
+   "orientations": 8,
+   "blendGamma": 10.0,
+   "preMedianK": 3,
+   "qLong": 3,
+   "qShort": 2,
+   "varSigma": 2.0,
+   "varSoftness": 3.0,
+   "weightSigma": 2.0,
+   "tensorSigma": 2.5,
+   "tensorAlpha": 0.45,
+   "preBilatD": 7,
+   "preBilatSigma": 50,
+   "preBilatIters": 1,
+   "postBilatD": 9,
+   "postBilatSigma": 75,
+   "postBilatIters": 2,
+   "lWeight": 0.45,
+   "xdogSigma": 1.0,
+   "xdogK": 1.6,
+   "xdogTau": 0.98,
+   "xdogEps": 0.01,
+   "xdogPhi": 8.0,
+   "lineFloor": 0.58,
+   "saturation": 1.14,
+   "grain": 1.5,
+   "profile": "default",
+   "frameCount": 301,
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)"
+  },
+  "hash": "a3d844a34a620719ead2844e9e1ac7a958ea06927926139ae02bd10c6e2818b6"
+ },
+ "pipeline": [
+  {
+   "stage": "half-res(320x180) abstraction core: median_pool(3) + bilateral x1 (d=7 s=50) pre-consolidation + structure_tensor (sobel+gaussian sigma=2.5, temporal EMA alpha=0.45, cut-reset)"
+  },
+  {
+   "stage": "isophote_orientation_quantized(N=8, doubled-angle soft-blend gamma=10, coherence-gated + weight-map gaussian sigma=2: smooth orientation fields)"
+  },
+  {
+   "stage": "anisotropic_kuwahara(4-quadrant SOFT inverse-variance blend p=3, qLong=3 x qShort=2 at half res = 7x5 at source scale, variance fields gaussian-smoothed sigma=2.0, per-orientation rotate/rotate-back, BORDER_REFLECT_101)"
+  },
+  {
+   "stage": "bilinear upsample to 640x360 (brush-stroke transitions)"
+  },
+  {
+   "stage": "bilateral_flatten(2x d=9 s=75) field consolidation (no palette pass, no XDoG: stage-isolation diagnostics showed both re-amplify blend residue)"
+  },
+  {
+   "stage": "saturation_lift(1.14)"
+  },
+  {
+   "stage": "grain(1.5, frame-index-seeded)"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "kuwahara-paint-b12.mp4",
+  "sha256": "8b0b3d5d1a0c6ce6e4b597dd3184fea3fa9e8da7de136c6664f1679035320fac",
+  "byteSize": 1417382,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 301
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial kuwahara-paint --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b12"
+ },
+ "telemetry": {
+  "renderWallMs": 45033.3,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T21:19:43.609664+00:00",
+ "runId": "sprrun-d199aa37a73ede97"
+}

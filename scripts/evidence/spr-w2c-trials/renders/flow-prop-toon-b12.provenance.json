@@ -1,0 +1,88 @@
+{
+ "rendererId": "sprtrial-flow-prop-toon-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+  "identity": "clip-sha:7cb3d728cc34"
+ },
+ "styleConfig": {
+  "config": {
+   "keyInterval": 10,
+   "flowKnee": 3.5,
+   "trustWeight": 0.85,
+   "reanchorRate": 0.12,
+   "keyMedianK": 5,
+   "keyBilatD": 9,
+   "keyBilatSigma": 75,
+   "keyBilatIters": 3,
+   "keyRegionWindow": 5,
+   "keySaturation": 1.22,
+   "keyLineDilate": 1,
+   "keyLineFloor": 0.3,
+   "lWeight": 0.45,
+   "lightMedianK": 3,
+   "lightBilatD": 9,
+   "lightBilatSigma": 65,
+   "lightBilatIters": 1,
+   "lightSaturation": 1.14,
+   "profile": "default",
+   "frameCount": 301,
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)"
+  },
+  "hash": "512de7cb35757797c95426e1bb1652468e392ab7d37f5df9ac1874eb8e702afb"
+ },
+ "pipeline": [
+  {
+   "stage": "keyframe stylizer every 10th frame + every cut (median5+bilateral x3+palette K=12 LAB+region-smooth5+boundary-lines floor 0.30+sat 1.18)"
+  },
+  {
+   "stage": "farneback flow on original gray (full res, frozen engine params)"
+  },
+  {
+   "stage": "canvas = 0.85*warp(prev canvas, backward flow) + 0.15*current full stylization (re-anchored propagation; remap BORDER_REPLICATE)"
+  },
+  {
+   "stage": "display blend: canvas*(1-0.85*clip(mag/3.0)) + light pass (median3+bilateral x1+sat 1.14)*0.85*clip(mag/3.0)"
+  },
+  {
+   "stage": "keyframe/cut reset bounds warp drift"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "flow-prop-toon-b12.mp4",
+  "sha256": "c5dfa4a43ebbc5ad89ae6811ab59220e49d46f0acd9787dbb565b4b9bfbb015f",
+  "byteSize": 2059734,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 301
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial flow-prop-toon --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b12"
+ },
+ "telemetry": {
+  "renderWallMs": 90322.7,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T21:22:27.396928+00:00",
+ "runId": "sprrun-cdd62560d6b26cec"
+}

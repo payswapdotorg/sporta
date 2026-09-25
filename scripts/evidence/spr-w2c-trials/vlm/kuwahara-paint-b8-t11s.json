@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b8-t11s.png",
+  "kuwahara-paint-b8-t11s.png",
+  "kuwahara-paint-b8-t11p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to indistinct colored blobs, losing all structural detail, limb definition, and kit features.\n2. motionFidelity - 3: The subtle positional shifts between the stylized frames appear plausible for a 0.2s interval despite the heavy blur.\n3. stylizationStrength - 4: The transformation is extremely aggressive and obvious, creating a strong painterly/abstract effect, though it sacrifices almost all recognizable content.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

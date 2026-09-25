@@ -1,0 +1,14 @@
+{
+ "t": 2,
+ "images": [
+  "orig-b8-t2s.png",
+  "flow-prop-toon-b8-t2s.png",
+  "flow-prop-toon-b8-t2p2s.png"
+ ],
+ "content": "1. identityConsistency: 3 - The main subject (Balde) is recognizable, but background players and the ball suffer from significant structural distortion and loss of detail in the third frame.\n2. motionFidelity: 2 - The motion between frames is inconsistent and unnatural; the player's arms and the ball position shift in a way that suggests temporal incoherence rather than smooth movement.\n3. stylizationStrength: 4 - The toon/flow-prop effect is very strong and clearly applied, creating a distinct artistic look, though it borders on being too aggressive with detail loss.\nAXES ic=3 mf=2 ss=4",
+ "axes": {
+  "ic": 3,
+  "mf": 2,
+  "ss": 4
+ }
+}

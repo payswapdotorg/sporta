@@ -1,0 +1,1001 @@
+{
+ "trials": {
+  "kuwahara-paint-b12": {
+   "file": "renders/kuwahara-paint-b12.mp4",
+   "sha256": "8b0b3d5d1a0c6ce6e4b597dd3184fea3fa9e8da7de136c6664f1679035320fac",
+   "frameCount": 301,
+   "renderWallMs": 45033.3,
+   "resources": {
+    "wallSec": 45.5,
+    "peakRssMb": 111.5
+   },
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)",
+   "determinism": {
+    "shaA": "8b0b3d5d1a0c6ce6e4b597dd3184fea3fa9e8da7de136c6664f1679035320fac",
+    "shaB": "8b0b3d5d1a0c6ce6e4b597dd3184fea3fa9e8da7de136c6664f1679035320fac",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 338,
+      "outputFrameCount": 301,
+      "frameCountEqual": false,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": false
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       72,
+       116,
+       119
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 1,
+      "extraPer30s": 2.492,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        31,
+        34,
+        37,
+        40,
+        44,
+        47,
+        57,
+        60,
+        66,
+        69,
+        72,
+        75,
+        78,
+        111,
+        115,
+        118
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": false
+     },
+     "G-T3": {
+      "pearsonR": 0.9357,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.1724,
+      "percentOfRange": 0.4598,
+      "inputBaselinePercentOfRange": 0.4725,
+      "sampledPixels": 21690,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": {
+     "G-T1": {
+      "inputFrameCount": 301,
+      "outputFrameCount": 301,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       72,
+       116,
+       119
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 1,
+      "extraPer30s": 2.492,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        31,
+        34,
+        37,
+        40,
+        44,
+        47,
+        57,
+        60,
+        66,
+        69,
+        72,
+        75,
+        78,
+        111,
+        115,
+        118
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": false
+     },
+     "G-T3": {
+      "pearsonR": 0.9341,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.1784,
+      "percentOfRange": 0.4621,
+      "inputBaselinePercentOfRange": 0.4779,
+      "sampledPixels": 21679,
+      "pass": true
+     }
+    },
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 2.33,
+     "motionFidelity": 3.33,
+     "stylizationStrength": 4
+    },
+    "calls": 3
+   }
+  },
+  "kuwahara-paint-b8": {
+   "file": "renders/kuwahara-paint-b8.mp4",
+   "sha256": "c5cb484664a47425341b0fac962f4ed2a40a5ad44820c886fe9be4d8172be6fc",
+   "frameCount": 300,
+   "renderWallMs": 46596.7,
+   "resources": {
+    "wallSec": 47.1,
+    "peakRssMb": 116.2
+   },
+   "audioSource": null,
+   "determinism": {
+    "shaA": "c5cb484664a47425341b0fac962f4ed2a40a5ad44820c886fe9be4d8172be6fc",
+    "shaB": "c5cb484664a47425341b0fac962f4ed2a40a5ad44820c886fe9be4d8172be6fc",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 300,
+      "outputFrameCount": 300,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       189
+      ],
+      "outputCuts": [
+       189
+      ],
+      "preserved": 1,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        189
+       ],
+       "outputFrames": [
+        189
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9818,
+      "frames": 300,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.7057,
+      "percentOfRange": 0.6689,
+      "inputBaselinePercentOfRange": 0.6095,
+      "sampledPixels": 15765,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": null,
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 2.33,
+     "motionFidelity": 3.33,
+     "stylizationStrength": 4.33
+    },
+    "calls": 3
+   }
+  },
+  "subject-toon-b12": {
+   "file": "renders/subject-toon-b12.mp4",
+   "sha256": "8dceb34bc35ef9b67b53e4de0e1409402064e6406bce49cb8be972eef6325386",
+   "frameCount": 301,
+   "renderWallMs": 72369.1,
+   "resources": {
+    "wallSec": 72.9,
+    "peakRssMb": 140.1
+   },
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)",
+   "determinism": {
+    "shaA": "8dceb34bc35ef9b67b53e4de0e1409402064e6406bce49cb8be972eef6325386",
+    "shaB": "8dceb34bc35ef9b67b53e4de0e1409402064e6406bce49cb8be972eef6325386",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 338,
+      "outputFrameCount": 301,
+      "frameCountEqual": false,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": false
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       117,
+       120
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        3,
+        6,
+        9,
+        12,
+        15,
+        18,
+        21,
+        24,
+        27,
+        30,
+        33,
+        36,
+        39,
+        42,
+        45,
+        48,
+        51,
+        54,
+        57,
+        60,
+        63,
+        66,
+        69,
+        72,
+        75,
+        78,
+        81,
+        84,
+        87,
+        110,
+        114,
+        117,
+        120
+       ],
+       "outputOnlyFrames": [
+        3,
+        6,
+        9,
+        12
+       ],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9973,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.4584,
+      "percentOfRange": 0.5719,
+      "inputBaselinePercentOfRange": 0.4725,
+      "sampledPixels": 21690,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": {
+     "G-T1": {
+      "inputFrameCount": 301,
+      "outputFrameCount": 301,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       117,
+       120
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        3,
+        6,
+        9,
+        12,
+        15,
+        18,
+        21,
+        24,
+        27,
+        30,
+        33,
+        36,
+        39,
+        42,
+        45,
+        48,
+        51,
+        54,
+        57,
+        60,
+        63,
+        66,
+        69,
+        72,
+        75,
+        78,
+        81,
+        84,
+        87,
+        110,
+        114,
+        117,
+        120
+       ],
+       "outputOnlyFrames": [
+        3,
+        6,
+        9,
+        12
+       ],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9976,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.4571,
+      "percentOfRange": 0.5714,
+      "inputBaselinePercentOfRange": 0.4779,
+      "sampledPixels": 21679,
+      "pass": true
+     }
+    },
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 2.67,
+     "motionFidelity": 3,
+     "stylizationStrength": 3.33
+    },
+    "calls": 3
+   }
+  },
+  "subject-toon-b8": {
+   "file": "renders/subject-toon-b8.mp4",
+   "sha256": "f4cb7d1086709718d9b4a052b594e5ba62ef614ff9dd9a258211ada143b93971",
+   "frameCount": 300,
+   "renderWallMs": 74493.3,
+   "resources": {
+    "wallSec": 75.1,
+    "peakRssMb": 139.0
+   },
+   "audioSource": null,
+   "determinism": {
+    "shaA": "f4cb7d1086709718d9b4a052b594e5ba62ef614ff9dd9a258211ada143b93971",
+    "shaB": "f4cb7d1086709718d9b4a052b594e5ba62ef614ff9dd9a258211ada143b93971",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 300,
+      "outputFrameCount": 300,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       189
+      ],
+      "outputCuts": [
+       189
+      ],
+      "preserved": 1,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        189
+       ],
+       "outputFrames": [
+        189
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.995,
+      "frames": 300,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.585,
+      "percentOfRange": 0.6216,
+      "inputBaselinePercentOfRange": 0.6095,
+      "sampledPixels": 15765,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": null,
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 3,
+     "motionFidelity": 4,
+     "stylizationStrength": 4
+    },
+    "calls": 3
+   }
+  },
+  "flow-prop-toon-b12": {
+   "file": "renders/flow-prop-toon-b12.mp4",
+   "sha256": "c5dfa4a43ebbc5ad89ae6811ab59220e49d46f0acd9787dbb565b4b9bfbb015f",
+   "frameCount": 301,
+   "renderWallMs": 90322.7,
+   "resources": {
+    "wallSec": 90.8,
+    "peakRssMb": 126.1
+   },
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)",
+   "determinism": {
+    "shaA": "c5dfa4a43ebbc5ad89ae6811ab59220e49d46f0acd9787dbb565b4b9bfbb015f",
+    "shaB": "c5dfa4a43ebbc5ad89ae6811ab59220e49d46f0acd9787dbb565b4b9bfbb015f",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 338,
+      "outputFrameCount": 301,
+      "frameCountEqual": false,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": false
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       116,
+       119
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        22,
+        25,
+        28,
+        31,
+        34,
+        37,
+        40,
+        43,
+        46,
+        49,
+        52,
+        55,
+        58,
+        61,
+        64,
+        67,
+        70,
+        73,
+        76,
+        79,
+        82,
+        85,
+        111,
+        114,
+        117,
+        120
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9079,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.3054,
+      "percentOfRange": 0.5119,
+      "inputBaselinePercentOfRange": 0.4725,
+      "sampledPixels": 21690,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": {
+     "G-T1": {
+      "inputFrameCount": 301,
+      "outputFrameCount": 301,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       117,
+       120
+      ],
+      "outputCuts": [
+       116,
+       119
+      ],
+      "preserved": 2,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        17,
+        20,
+        23,
+        26,
+        29,
+        32,
+        35,
+        38,
+        41,
+        44,
+        47,
+        50,
+        53,
+        56,
+        59,
+        62,
+        65,
+        68,
+        71,
+        74,
+        77,
+        80,
+        83,
+        86,
+        111,
+        115,
+        118
+       ],
+       "outputFrames": [
+        22,
+        25,
+        28,
+        31,
+        34,
+        37,
+        40,
+        43,
+        46,
+        49,
+        52,
+        55,
+        58,
+        61,
+        64,
+        67,
+        70,
+        73,
+        76,
+        79,
+        82,
+        85,
+        111,
+        114,
+        117,
+        120
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9053,
+      "frames": 301,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.3116,
+      "percentOfRange": 0.5144,
+      "inputBaselinePercentOfRange": 0.4779,
+      "sampledPixels": 21679,
+      "pass": true
+     }
+    },
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 2.67,
+     "motionFidelity": 3,
+     "stylizationStrength": 4.67
+    },
+    "calls": 3
+   }
+  },
+  "flow-prop-toon-b8": {
+   "file": "renders/flow-prop-toon-b8.mp4",
+   "sha256": "d8f5a897959855b5ee47cb3af06da605198eb6b88b35214b247ea82287f6b82f",
+   "frameCount": 300,
+   "renderWallMs": 89514.0,
+   "resources": {
+    "wallSec": 90.0,
+    "peakRssMb": 123.4
+   },
+   "audioSource": null,
+   "determinism": {
+    "shaA": "d8f5a897959855b5ee47cb3af06da605198eb6b88b35214b247ea82287f6b82f",
+    "shaB": "d8f5a897959855b5ee47cb3af06da605198eb6b88b35214b247ea82287f6b82f",
+    "byteIdentical": true,
+    "matchesShippedArtifact": true
+   },
+   "gates": {
+    "qaCheckRawSubstrate": {
+     "G-T1": {
+      "inputFrameCount": 300,
+      "outputFrameCount": 300,
+      "frameCountEqual": true,
+      "fpsInput": 25.0,
+      "fpsOutput": 25.0,
+      "durationDeltaMs": 0,
+      "audioPassthrough": true,
+      "pass": true
+     },
+     "G-T2": {
+      "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+      "inputCuts": [
+       189
+      ],
+      "outputCuts": [
+       189
+      ],
+      "preserved": 1,
+      "coverage": 1.0,
+      "extraCuts": 0,
+      "extraPer30s": 0.0,
+      "flatThresholdDiagnostic": {
+       "threshold": 16.0,
+       "inputFrames": [
+        189
+       ],
+       "outputFrames": [
+        189
+       ],
+       "outputOnlyFrames": [],
+       "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+      },
+      "pass": true
+     },
+     "G-T3": {
+      "pearsonR": 0.9202,
+      "frames": 300,
+      "pass": true
+     },
+     "G-T4": {
+      "staticRegionMeanDeltaL": 1.4276,
+      "percentOfRange": 0.5598,
+      "inputBaselinePercentOfRange": 0.6095,
+      "sampledPixels": 15765,
+      "pass": true
+     }
+    },
+    "qaCheckGateRef": null,
+    "cutsDeep": {
+     "coverage": 1.0,
+     "inventedCuts": [],
+     "pass": true
+    }
+   },
+   "vlmSelfAssessment": {
+    "meanScores": {
+     "identityConsistency": 2.33,
+     "motionFidelity": 3,
+     "stylizationStrength": 4
+    },
+    "calls": 3
+   }
+  }
+ },
+ "baseline": {
+  "b12": {
+   "file": "baseline/cartoon-cel-b12.mp4",
+   "sha256": "18d0d3eea64055339ba48c71ea6cd3459aef04340d65d35f4b0c71d58c5a09fc",
+   "note": "wave-1 frozen renderer spr-cartoon-cel-dc1 re-rendered for comparison; determinism already proven x3 in wave-1 evidence (not re-proven here). b12 note: decodes to 300/301 frames \u2014 the frozen encoder's -shortest audio-boundary behavior on this substrate (pre-existing, documented)."
+  },
+  "b8f300": {
+   "file": "baseline/cartoon-cel-b8f300.mp4",
+   "sha256": "76c3120ac070adfd0344c098f67af41c7b64ed78eb733d79cca5b9080dc2c9a8",
+   "note": "wave-1 frozen renderer spr-cartoon-cel-dc1 re-rendered for comparison; determinism already proven x3 in wave-1 evidence (not re-proven here). b12 note: decodes to 300/301 frames \u2014 the frozen encoder's -shortest audio-boundary behavior on this substrate (pre-existing, documented)."
+  }
+ },
+ "substrates": {
+  "b12": {
+   "file": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+   "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+   "decodedFrames": 301,
+   "streamMetadataNbFrames": 338,
+   "metadataNote": "stale nb_frames metadata in the frozen substrate (decode-true 301); gate-reference substrate/b12-gate.mp4 carries corrected metadata"
+  },
+  "b8": {
+   "file": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+   "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+   "decodedFrames": 1190,
+   "trialWindow": "first 300 frames (12.0s)"
+  },
+  "b8-first300-gate-ref": {
+   "file": "substrate/b8-first300.mp4",
+   "sha256": "9efa9b99aa74c0e365a4e22417ec3e4eece60633c6e3aac5cdd2cad6e3ec889b",
+   "note": "deterministic 300-frame window reference for b8 gates"
+  },
+  "b12-gate-ref": {
+   "file": "substrate/b12-gate.mp4",
+   "sha256": "00df1574232e2f9e12cbee42ce9bd6120c54758733b356f680a86c069d5a5539",
+   "note": "metadata-normalized (nb_frames 301) full-window reference for b12 T1"
+  }
+ }
+}

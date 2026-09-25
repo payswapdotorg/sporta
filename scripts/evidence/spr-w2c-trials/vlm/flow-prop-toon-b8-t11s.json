@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b8-t11s.png",
+  "flow-prop-toon-b8-t11s.png",
+  "flow-prop-toon-b8-t11p2s.png"
+ ],
+ "content": "1. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, losing all structural detail and kit/number information.\n2. motionFidelity - 4: The subtle shifts in player positions between the two stylized frames accurately reflect the expected movement over a 0.2s interval.\n3. stylizationStrength - 4: The flow-prop-toon effect is very strong and clearly applied, creating a distinct, appealing cartoon-like aesthetic with bold color regions.\nAXES ic=2 mf=4 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 4,
+  "ss": 4
+ }
+}

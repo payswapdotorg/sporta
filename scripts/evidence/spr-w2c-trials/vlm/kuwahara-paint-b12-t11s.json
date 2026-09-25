@@ -1,0 +1,14 @@
+{
+ "t": 11,
+ "images": [
+  "orig-b12-t11s.png",
+  "kuwahara-paint-b12-t11s.png",
+  "kuwahara-paint-b12-t11p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - Players are reduced to indistinct colored blobs, losing all structural details like limbs, kits, and numbers.\n2. motionFidelity: 3 - The subtle shift in player positions between the two stylized frames is consistent with a short time interval.\n3. stylizationStrength: 4 - The kuwahara-paint effect is very strong and obvious, creating a distinct painterly aesthetic.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "rendererId": "spr-cartoon-cel-dc1",
+ "rendererVersion": "0.1.0",
+ "implementation": "deterministic-classical",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "identity": "clip-sha:969af7c6fdb1"
+ },
+ "styleConfig": {
+  "config": {
+   "medianK": 5,
+   "bilatD": 9,
+   "bilatSigma": 75,
+   "bilatIters": 3,
+   "saturation": 1.18,
+   "lWeight": 0.45,
+   "lineDilate": 1,
+   "regionWindow": 5,
+   "lineFloor": 0.3,
+   "profile": "default",
+   "frameCount": 300
+  },
+  "hash": "67ff873c6fd23bb1c050c952ed121165842b4e52334f608459c920f334c8ba89"
+ },
+ "pipeline": [
+  {
+   "stage": "median_pool(5)"
+  },
+  {
+   "stage": "bilateral_flatten(d=9,s=75,iter=3)"
+  },
+  {
+   "stage": "palette_quantize(K=12,chroma-weighted,fixed-per-clip LAB)"
+  },
+  {
+   "stage": "saturation_lift(1.18)"
+  },
+  {
+   "stage": "boundary_lines(palette-region contours)+edge_overlay"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "cartoon-cel-b8f300.mp4",
+  "sha256": "76c3120ac070adfd0344c098f67af41c7b64ed78eb733d79cca5b9080dc2c9a8",
+  "byteSize": 2102814,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 300
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality cartoon-cel --profile default --out-dir scripts/evidence/spr-w2c-trials/baseline --suffix b8f300"
+ },
+ "telemetry": {
+  "renderWallMs": 69442.1,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T20:52:19.995548+00:00",
+ "runId": "sprrun-c24ebbb815849024"
+}

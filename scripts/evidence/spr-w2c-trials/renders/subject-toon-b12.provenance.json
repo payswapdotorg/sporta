@@ -1,0 +1,93 @@
+{
+ "rendererId": "sprtrial-subject-toon-t1",
+ "rendererVersion": "0.1.0-trial",
+ "implementation": "deterministic-classical-trial",
+ "engine": "SPE-v1",
+ "profile": "default",
+ "inputClip": {
+  "path": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+  "identity": "clip-sha:7cb3d728cc34"
+ },
+ "styleConfig": {
+  "config": {
+   "motionKnee": 1.8,
+   "mogHistory": 150,
+   "mogVarThreshold": 25.0,
+   "mogLearningRate": 0.05,
+   "maskDecay": 0.9,
+   "maskSoften": 4.0,
+   "bgMedianK": 5,
+   "bgBilatD": 9,
+   "bgBilatSigma": 75,
+   "bgBilatIters": 3,
+   "bgRegionWindow": 5,
+   "bgSaturation": 1.22,
+   "bgLineDilate": 1,
+   "bgLineFloor": 0.3,
+   "lWeight": 0.45,
+   "sjMedianK": 3,
+   "sjBilatD": 7,
+   "sjBilatSigma": 50,
+   "sjBilatIters": 1,
+   "sjXdogSigma": 1.0,
+   "sjXdogK": 1.6,
+   "sjXdogTau": 0.98,
+   "sjXdogEps": 0.01,
+   "sjXdogPhi": 8.0,
+   "sjLineFloor": 0.7,
+   "sjSaturation": 1.1,
+   "profile": "default",
+   "frameCount": 301,
+   "audioSource": "derived apad audio (b8-b12.apad-audio.m4a): substrate audio ends 33 ms before the rendered video window; the frozen encoder's -shortest otherwise drops trailing video packets (w6-spr-2 substrate-adapts-to-engine precedent; broadcast sound unchanged, one AAC generation)"
+  },
+  "hash": "829ecab812e5fa690671046f6dd09df48961df9bca17fbe517b71268d5511dc7"
+ },
+ "pipeline": [
+  {
+   "stage": "subject_mask(OR[farneback_residual>1.8 @320x180 camera-compensated, MOG2 fg], open3/close5/dilate5, EMA decay=0.90 cut-reset, soften sigma=2.5)"
+  },
+  {
+   "stage": "background_path(median5+bilateral x3+palette K=10 LAB+region-smooth5+boundary-lines floor 0.30+sat 1.22)"
+  },
+  {
+   "stage": "subject_path(median3+bilateral x1+xdog thin lines floor 0.62+sat 1.08, NO palette quantize)"
+  },
+  {
+   "stage": "soft_mask_composite(bg,subj)"
+  }
+ ],
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "output": {
+  "file": "subject-toon-b12.mp4",
+  "sha256": "8dceb34bc35ef9b67b53e4de0e1409402064e6406bce49cb8be972eef6325386",
+  "byteSize": 2507410,
+  "container": "mp4/h264+aac(passthrough)",
+  "width": 640,
+  "height": 360,
+  "fps": 25.0,
+  "frameCount": 301
+ },
+ "reproducibility": {
+  "deterministic": true,
+  "verifiedByDoubleRender": null,
+  "command": "python3 scripts/source-preserving/spe/trials/driver.py --trial subject-toon --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 --profile default --out-dir scripts/evidence/spr-w2c-trials/renders --suffix b12"
+ },
+ "telemetry": {
+  "renderWallMs": 72369.1,
+  "retries": 0
+ },
+ "degradations": [
+  {
+   "stage": "swm-guidance",
+   "reason": "no SWM snapshot supplied (source-preserving lane)",
+   "effect": "optional semantic emphasis inactive; visual reality complete"
+  }
+ ],
+ "generatedAtIso": "2026-09-24T21:20:56.537352+00:00",
+ "runId": "sprrun-ab709312459b529d"
+}

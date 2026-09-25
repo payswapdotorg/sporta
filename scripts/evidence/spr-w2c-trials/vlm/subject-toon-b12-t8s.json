@@ -1,0 +1,14 @@
+{
+ "t": 8,
+ "images": [
+  "orig-b12-t8s.png",
+  "subject-toon-b12-t8s.png",
+  "subject-toon-b12-t8p2s.png"
+ ],
+ "content": "1. identityConsistency: 2 - The stylization is so aggressive that players lose distinct features, becoming indistinct blobs where kits, numbers, and limb structures are largely unrecognizable.\n2. motionFidelity: 3 - The temporal shift between the two stylized frames is visible and generally follows the expected trajectory of the play, though the heavy abstraction makes precise motion tracking difficult.\n3. stylizationStrength: 4 - The transformation into a bold, cartoon-like aesthetic with flat color regions and thick outlines is very obvious and successfully creates a unique, appealing toon style.\nAXES ic=2 mf=3 ss=4",
+ "axes": {
+  "ic": 2,
+  "mf": 3,
+  "ss": 4
+ }
+}
