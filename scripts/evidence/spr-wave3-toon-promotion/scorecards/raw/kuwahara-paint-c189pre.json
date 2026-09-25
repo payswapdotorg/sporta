@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, and player positions clearly match the original frame.\n2. temporalConsistency - 2: Significant flickering and morphing of shapes between the two stylized frames.\n3. identityConsistency - 2: Players lose distinct features and merge into blurry color blobs, making identification unstable.\n4. motionFidelity - 2: While general direction is maintained, the extreme blur obscures specific limb and ball trajectories.\n5. sceneFidelity - 3: The background stadium structure is recognizable but heavily distorted and lacks spatial precision.\n6. stylizationStrength - 5: The Kuwahara-style painterly transformation is very strong and obvious throughout.\n\nAXES sf=5 tc=2 ic=2 mf=2 scf=3 ss=5\nARTIFACTS limbs=4 players=0 warped=2 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313078,
+  "id": "20260925131111ec04adfac09b4eec",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131111ec04adfac09b4eec",
+  "usage": {
+    "completion_tokens": 194,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1365
+  }
+}

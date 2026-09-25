@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:47), and camera angle as the original.\n2. temporalConsistency - 2: Significant flickering and morphing of the field texture and player shapes occur between the two frames.\n3. identityConsistency - 3: Players maintain their general team colors and positions, but their specific features and body shapes are unstable.\n4. motionFidelity - 3: Player and ball positions show plausible movement consistent with the 0.2s interval, despite the visual noise.\n5. sceneFidelity - 2: The background stadium elements remain, but the pitch lines and grass texture are heavily warped and inconsistent.\n6. stylizationStrength - 4: The toon/cartoon transformation is very obvious, though it suffers from temporal instability.\n\nAXES sf=5 tc=2 ic=3 mf=3 scf=2 ss=4\nARTIFACTS limbs=2 players=0 warped=3 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312505,
+  "id": "20260925130137e2ba7aade3a245aa",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130137e2ba7aade3a245aa",
+  "usage": {
+    "completion_tokens": 222,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1390
+  }
+}

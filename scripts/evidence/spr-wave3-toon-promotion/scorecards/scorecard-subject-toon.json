@@ -1,0 +1,81 @@
+{
+ "family": "subject-toon",
+ "rendererId": "spr-subject-toon-dc1",
+ "rendererVersion": "0.1.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": null
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9959",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.5117",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9959,
+  "staticRegionInstability": 0.5117,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 4.73,
+   "temporalConsistency": 2.87,
+   "identityConsistency": 3.2,
+   "motionFidelity": 3.13,
+   "sceneFidelity": 2.73,
+   "stylizationStrength": 4.6
+  },
+  "minAxisMean": 2.73,
+  "overallMean": 3.54,
+  "criticalArtifacts": 15,
+  "totalArtifacts": 75,
+  "evidence": [
+   "vlm/subject-toon-t2s.json",
+   "vlm/subject-toon-t8s.json",
+   "vlm/subject-toon-t15s.json",
+   "vlm/subject-toon-t30s.json",
+   "vlm/subject-toon-t45s.json",
+   "vlm/subject-toon-c189pre.json",
+   "vlm/subject-toon-c189post.json",
+   "vlm/subject-toon-c475pre.json",
+   "vlm/subject-toon-c475post.json",
+   "vlm/subject-toon-c550pre.json",
+   "vlm/subject-toon-c550post.json",
+   "vlm/subject-toon-c862pre.json",
+   "vlm/subject-toon-c862post.json",
+   "vlm/subject-toon-c979pre.json",
+   "vlm/subject-toon-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The subject, camera angle, and background (goal net, scoreboard) are identical to the original frame.\n2. temporalConsistency: 3 - The player's pose and background remain stable, but the stylization causes noticeable flickering in edge definitions and textures.\n3. identityConsistency: 4 - The player's facial features and jersey details are clearly preserved and recognizable across all frames.\n4. motionFidelity: 4 - The subtle shift in the player's arm position between images 2 and 3 reflects natural, consistent movement.\n5. sceneFidelity: 4 - The goal net and stadium background maintain their spatial relationship, though stylized with blocky artifacts.\n6. stylizationStrength: 5 - The \"flow-prop-toon\" effect is very prominent, creating a distinct painterly/cartoonish look with flattened colors.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313662,
+  "id": "20260925132056f2c1872330524c5c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925132056f2c1872330524c5c",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1399
+  }
+}

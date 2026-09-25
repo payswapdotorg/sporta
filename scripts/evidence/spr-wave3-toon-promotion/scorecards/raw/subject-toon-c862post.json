@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical to the source.\n2. temporalConsistency - 2: Significant flickering and morphing of the player's body and background between the two frames.\n3. identityConsistency - 3: The player is recognizable but facial features and limb structure shift noticeably between frames.\n4. motionFidelity - 2: The player's pose changes unnaturally (arm disappears, body rotates) inconsistent with a 0.2s interval.\n5. sceneFidelity - 2: Background elements like the goal net and grass texture are unstable and warp significantly.\n6. stylizationStrength - 4: A clear, heavy painterly/cartoon filter is applied across all elements.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=2 ss=4\nARTIFACTS limbs=1 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312493,
+  "id": "20260925130128c3cce985ccbe423e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130128c3cce985ccbe423e",
+  "usage": {
+    "completion_tokens": 206,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1374
+  }
+}

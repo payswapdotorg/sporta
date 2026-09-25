@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: Correct match, moment, and camera context are clearly preserved despite heavy abstraction.\n2. temporalConsistency - 2: Significant flickering and morphing of shapes and background elements between the two frames.\n3. identityConsistency - 3: The main player (14) is recognizable, but facial features and body details shift noticeably.\n4. motionFidelity - 3: General forward motion is captured, but specific limb positions and ball interaction are inconsistent.\n5. sceneFidelity - 2: Background elements like the goal and stands are highly abstracted and drift spatially.\n6. stylizationStrength - 5: The transformation to a bold, cartoon-like aesthetic is very strong and obvious.\n\nAXES sf=4 tc=2 ic=3 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=1 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312122,
+  "id": "20260925125518313888031e2f46b8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925125518313888031e2f46b8",
+  "usage": {
+    "completion_tokens": 199,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1367
+  }
+}

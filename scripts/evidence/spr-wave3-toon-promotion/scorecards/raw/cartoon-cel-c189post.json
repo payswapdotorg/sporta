@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The camera angle and general layout match, but the extreme abstraction loses almost all specific match details and context.\n2. temporalConsistency - 4: The stylized blobs remain very stable in position between the two frames with minimal flickering.\n3. identityConsistency - 1: Players are reduced to indistinguishable colored blobs, losing all individual visual features.\n4. motionFidelity - 2: While some blobs shift slightly suggesting motion, the lack of detail makes it impossible to verify realistic player or ball trajectories.\n5. sceneFidelity - 2: The background is a highly abstracted mass of color that vaguely suggests a stadium but lacks any spatial precision.\n6. stylizationStrength - 5: The transformation to an extreme cartoon-cel style is unmistakable and aggressively applied.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=10 players=6 warped=3 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312545,
+  "id": "202609251302197171e363d6624aad",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251302197171e363d6624aad",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1387
+  }
+}

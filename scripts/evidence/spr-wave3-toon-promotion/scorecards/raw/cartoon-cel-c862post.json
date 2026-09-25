@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, moment, and camera context are preserved, but the extreme abstraction makes it hard to verify fine details.\n2. temporalConsistency - 2: Significant flickering and morphing of shapes occur between the two stylized frames, especially in the background and limbs.\n3. identityConsistency - 2: The player's identity is barely recognizable due to the heavy simplification and loss of facial/physical features.\n4. motionFidelity - 2: While a slight shift is visible, the motion is obscured by the heavy morphing and instability of the stylized forms.\n5. sceneFidelity - 2: The background elements (goal net, field) are spatially inconsistent and heavily distorted between frames.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style is extremely obvious and aggressively applied.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=3 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312602,
+  "id": "2026092513031790cccfd8f6e34a29",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513031790cccfd8f6e34a29",
+  "usage": {
+    "completion_tokens": 232,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1401
+  }
+}

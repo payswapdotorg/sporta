@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are clearly identical to the source frame.\n2. temporalConsistency - 2: Significant flickering, morphing of shapes, and unstable background elements between the two stylized frames.\n3. identityConsistency - 2: The main player's form is heavily abstracted and changes shape noticeably between frames.\n4. motionFidelity - 2: While the general direction of movement is preserved, the specific limb positions and ball trajectory are inconsistent.\n5. sceneFidelity - 2: The stadium background is extremely blurred and lacks spatial stability or clear definition.\n6. stylizationStrength - 5: The kuwahara-paint effect is very strong, resulting in a highly abstract, painterly appearance.\n\nAXES sf=5 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313106,
+  "id": "2026092513113948e22f0b1dad414a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513113948e22f0b1dad414a",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

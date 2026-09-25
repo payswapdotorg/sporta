@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images clearly represent the same match, moment (24:50), and camera angle as the original.\n2. temporalConsistency: 2 - Significant flickering and morphing of the field and background elements between the two frames.\n3. identityConsistency: 2 - The main player's form and the other players' appearances shift noticeably in shape and clarity.\n4. motionFidelity: 3 - The general forward motion of the player is preserved, though the specific limb positions are unstable.\n5. sceneFidelity: 2 - The stadium background and advertising boards are heavily abstracted and drift significantly.\n6. stylizationStrength: 5 - The \"flow-prop-toon\" style is very obvious with bold outlines and flat color regions.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=3 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313200,
+  "id": "20260925131310762fc3f285fb45b5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131310762fc3f285fb45b5",
+  "usage": {
+    "completion_tokens": 212,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

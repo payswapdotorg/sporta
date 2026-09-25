@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "AXES sf=5 tc=3 ic=2 mf=4 scf=4 ss=5\nARTIFACTS limbs=1 players=0 warped=1 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312088,
+  "id": "2026092512544701676c6edd4d4be0",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092512544701676c6edd4d4be0",
+  "usage": {
+    "completion_tokens": 49,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1217
+  }
+}

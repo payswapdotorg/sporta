@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:42), and camera angle as the original.\n2. temporalConsistency - 2: Significant flickering and morphing of the player's limbs and body shape between the two frames.\n3. identityConsistency - 2: The main player's facial features and body proportions shift noticeably between frames.\n4. motionFidelity - 3: The general direction of movement is preserved, but limb positions are inconsistent.\n5. sceneFidelity - 4: The background elements like the goal net and field remain spatially consistent despite the blur.\n6. stylizationStrength - 5: The heavy Kuwahara-style smoothing and color blocking is very obvious.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=4 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313121,
+  "id": "20260925131158bb0bbcfefa6f4167",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131158bb0bbcfefa6f4167",
+  "usage": {
+    "completion_tokens": 205,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1376
+  }
+}

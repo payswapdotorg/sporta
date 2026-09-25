@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:47), and camera angle as the original.\n2. temporalConsistency - 4: Player positions shift subtly between frames 2 and 3 consistent with real-time motion, with no jarring flickers.\n3. identityConsistency - 3: Players in red are visually stable, but the green/white team players often blend into the background or lose definition.\n4. motionFidelity - 3: General player movement is present, but fine details like the ball's specific interaction with the player are lost.\n5. sceneFidelity - 4: The pitch markings and stadium background remain spatially coherent across all frames.\n6. stylizationStrength - 5: The heavy Kuwahara-style smoothing and color blocking is extremely pronounced and obvious.\n\nAXES sf=5 tc=4 ic=3 mf=3 scf=4 ss=5\nARTIFACTS limbs=0 players=1 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313134,
+  "id": "2026092513120811ef1ea2d8bd4495",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513120811ef1ea2d8bd4495",
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1396
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core graphic and score elements are present, but the field and players are heavily abstracted.\n2. temporalConsistency - 1: The scene undergoes a massive structural shift, with the background inverting and the foreground graphic changing position.\n3. identityConsistency - 1: Players are reduced to unrecognizable colored blobs, losing all individual features.\n4. motionFidelity - 1: The extreme distortion makes it impossible to verify any logical physical movement between the frames.\n5. sceneFidelity - 1: The spatial relationship between the field, graphics, and background is completely broken and inconsistent.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoon-cel style is extremely aggressive and obvious.\n\nAXES sf=2 tc=1 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=3 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312610,
+  "id": "202609251303222e056d620f5147e9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251303222e056d620f5147e9",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "total_tokens": 1378
+  }
+}

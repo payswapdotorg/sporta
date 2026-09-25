@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core subject (player 14) and goal are present, but the background is heavily abstracted, losing most spatial context.\n2. temporalConsistency - 3: The main player's pose shifts slightly as expected for 0.2s, though the background blobs are somewhat unstable.\n3. identityConsistency - 2: The main player is recognizable by color/shape, but facial features and fine details are lost to the abstraction.\n4. motionFidelity - 3: The progression of the kick between frames is visible and physically plausible.\n5. sceneFidelity - 1: The stadium, lines, and advertising boards are almost entirely replaced by abstract color blocks.\n6. stylizationStrength - 5: The transformation into a cartoon-cel style is extreme and unmistakable.\n\nAXES sf=2 tc=3 ic=2 mf=3 scf=1 ss=5\nARTIFACTS limbs=2 players=1 warped=0 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312582,
+  "id": "202609251302472a9c7bb5715841ac",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251302472a9c7bb5715841ac",
+  "usage": {
+    "completion_tokens": 219,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1388
+  }
+}

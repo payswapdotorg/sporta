@@ -1,0 +1,81 @@
+{
+ "family": "flow-prop-toon",
+ "rendererId": "sprtrial-flow-prop-toon-t1",
+ "rendererVersion": "0.1.0-trial",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": "detector miss on stylization-softened cut resolved by the deep correspondence gate (T2b)"
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9154",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.5097",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9154,
+  "staticRegionInstability": 0.5097,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 4.33,
+   "temporalConsistency": 2.73,
+   "identityConsistency": 2.67,
+   "motionFidelity": 2.8,
+   "sceneFidelity": 2.53,
+   "stylizationStrength": 5.0
+  },
+  "minAxisMean": 2.53,
+  "overallMean": 3.34,
+  "criticalArtifacts": 46,
+  "totalArtifacts": 120,
+  "evidence": [
+   "vlm/flow-prop-toon-t2s.json",
+   "vlm/flow-prop-toon-t8s.json",
+   "vlm/flow-prop-toon-t15s.json",
+   "vlm/flow-prop-toon-t30s.json",
+   "vlm/flow-prop-toon-t45s.json",
+   "vlm/flow-prop-toon-c189pre.json",
+   "vlm/flow-prop-toon-c189post.json",
+   "vlm/flow-prop-toon-c475pre.json",
+   "vlm/flow-prop-toon-c475post.json",
+   "vlm/flow-prop-toon-c550pre.json",
+   "vlm/flow-prop-toon-c550post.json",
+   "vlm/flow-prop-toon-c862pre.json",
+   "vlm/flow-prop-toon-c862post.json",
+   "vlm/flow-prop-toon-c979pre.json",
+   "vlm/flow-prop-toon-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

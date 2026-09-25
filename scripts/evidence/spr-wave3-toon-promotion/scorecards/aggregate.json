@@ -1,0 +1,91 @@
+{
+ "schemaVersion": "2.0",
+ "protocol": "frozen acceptance doc \u00a72 (7-axis) \u2014 v1 4-axis harness was spec-drift, superseded",
+ "samplesPerReality": [
+  "t2s",
+  "t8s",
+  "t15s",
+  "t30s",
+  "t45s",
+  "c189pre",
+  "c189post",
+  "c475pre",
+  "c475post",
+  "c550pre",
+  "c550post",
+  "c862pre",
+  "c862post",
+  "c979pre",
+  "c982post"
+ ],
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ],
+ "perReality": {
+  "subject-toon": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 4.73,
+    "temporalConsistency": 2.87,
+    "identityConsistency": 3.2,
+    "motionFidelity": 3.13,
+    "sceneFidelity": 2.73,
+    "stylizationStrength": 4.6
+   },
+   "criticalArtifacts": 15,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-subject-toon.json"
+  },
+  "cartoon-cel": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 2.47,
+    "temporalConsistency": 3.27,
+    "identityConsistency": 1.73,
+    "motionFidelity": 2.33,
+    "sceneFidelity": 2.0,
+    "stylizationStrength": 5.0
+   },
+   "criticalArtifacts": 111,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-cartoon-cel.json"
+  },
+  "kuwahara-paint": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 4.13,
+    "temporalConsistency": 2.53,
+    "identityConsistency": 2.0,
+    "motionFidelity": 2.07,
+    "sceneFidelity": 2.67,
+    "stylizationStrength": 4.87
+   },
+   "criticalArtifacts": 50,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-kuwahara-paint.json"
+  },
+  "flow-prop-toon": {
+   "tierClaim": 0,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 4.33,
+    "temporalConsistency": 2.73,
+    "identityConsistency": 2.67,
+    "motionFidelity": 2.8,
+    "sceneFidelity": 2.53,
+    "stylizationStrength": 5.0
+   },
+   "criticalArtifacts": 46,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-flow-prop-toon.json"
+  }
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:27), and camera angle as the original.\n2. temporalConsistency - 3: The main player's motion is consistent, but background players and the field texture show significant flickering and morphing between frames.\n3. identityConsistency - 4: The primary subject (player in orange) maintains a stable visual identity across all frames.\n4. motionFidelity - 4: The progression of the player's kick from Image 2 to Image 3 is physically plausible and matches the source context.\n5. sceneFidelity - 2: While the general stadium layout remains, the background players are heavily distorted and the field lines/texture are unstable.\n6. stylizationStrength - 5: The \"flow-prop-toon\" effect is very pronounced, with heavy edge detection and color blocking.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=2 ss=5\nARTIFACTS limbs=0 players=1 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313189,
+  "id": "20260925131257bed79f959d814dad",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131257bed79f959d814dad",
+  "usage": {
+    "completion_tokens": 234,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1403
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, time, and camera angle are preserved, but extreme blurring obscures most identifying details.\n2. temporalConsistency - 4: The stylized frames are very stable relative to each other with minimal flickering.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making visual identification nearly impossible.\n4. motionFidelity - 2: Motion is suggested by position shifts but is heavily distorted by the blur and loss of detail.\n5. sceneFidelity - 2: The stadium background is recognizable only as a vague smear of color and light.\n6. stylizationStrength - 5: The transformation is extremely aggressive, resulting in a near-abstract painterly effect.\n\nAXES sf=3 tc=4 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313117,
+  "id": "202609251311539d564037604d4e6b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609251311539d564037604d4e6b",
+  "usage": {
+    "completion_tokens": 205,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1171,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1376
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "input": "/home/z/w3b-gates/b12-first300-gateref.mp4",
+  "output": "/home/z/w3b-out/st-a12/subject-toon-b12.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    117,
+    120
+  ],
+  "outputCuts": [
+    117,
+    120
+  ],
+  "perCut": [
+    {
+      "inputFrame": 117,
+      "inputAmplitude": 34.71,
+      "outputFrame": 120,
+      "outputAmplitude": 58.22,
+      "amplitudeRatio": 1.677,
+      "outputLocalMedian": 9.53,
+      "matched": true
+    },
+    {
+      "inputFrame": 120,
+      "inputAmplitude": 49.3,
+      "outputFrame": 120,
+      "outputAmplitude": 58.22,
+      "amplitudeRatio": 1.181,
+      "outputLocalMedian": 9.53,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

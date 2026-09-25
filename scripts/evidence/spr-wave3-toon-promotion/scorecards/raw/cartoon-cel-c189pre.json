@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The stylized output captures the general layout and key elements (scoreboard, player positions) but loses significant detail and spatial accuracy.\n2. temporalConsistency - 3: The main subjects (players, background) remain relatively stable between the two frames despite the heavy abstraction.\n3. identityConsistency - 2: Players are reduced to colored blobs, making individual identification nearly impossible and visually unstable.\n4. motionFidelity - 2: The motion of the orange player is vaguely suggested but lacks clear anatomical or physical consistency with the source.\n5. sceneFidelity - 2: The stadium background is heavily simplified into abstract shapes, losing most spatial context.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoon-cel style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=2 warped=5 dupes=0 ball=1 bg=4 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312539,
+  "id": "2026092513021229cb7826c4324193",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092513021229cb7826c4324193",
+  "usage": {
+    "completion_tokens": 220,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1389
+  }
+}

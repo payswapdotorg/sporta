@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Same match and camera context, but significant loss of detail and spatial distortion.\n2. temporalConsistency - 2: Severe flickering of players, lines, and background elements between the two frames.\n3. identityConsistency - 2: Players are reduced to abstract blobs with unstable colors and shapes across frames.\n4. motionFidelity - 2: Player positions shift inconsistently, and the ball is completely lost or hallucinated.\n5. sceneFidelity - 2: Stadium background and field lines are heavily warped and lack spatial stability.\n6. stylizationStrength - 5: The flow-prop-toon transformation is extremely aggressive and visually dominant.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=10 players=4 warped=5 dupes=0 ball=1 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313144,
+  "id": "20260925131219ba25592ecdb8408a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131219ba25592ecdb8408a",
+  "usage": {
+    "completion_tokens": 191,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1360
+  }
+}

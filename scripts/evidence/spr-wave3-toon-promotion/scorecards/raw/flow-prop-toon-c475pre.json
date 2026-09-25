@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly represent the same match, moment (24:27), and camera angle as the original broadcast frame.\n2. temporalConsistency - 4: The stylized frames show smooth motion with no flickering or disappearing objects between the 0.2s interval.\n3. identityConsistency - 4: Players maintain their visual identities and team colors consistently across the original and both stylized frames.\n4. motionFidelity - 4: Player positions and movements are consistent with the expected physics and trajectory from the source frame to the temporal pair.\n5. sceneFidelity - 3: While the stadium structure is stable, the background advertising boards and field lines are heavily warped by the stylization effect.\n6. stylizationStrength - 5: The \"flow-prop-toon\" transformation is very obvious, featuring bold outlines, simplified color regions, and significant geometric distortion.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790313176,
+  "id": "20260925131253947c4ad870944b68",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925131253947c4ad870944b68",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1407
+  }
+}

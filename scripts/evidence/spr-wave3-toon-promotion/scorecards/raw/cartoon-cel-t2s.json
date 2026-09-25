@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (Balde holding the ball), and camera angle as the original.\n2. temporalConsistency - 3: The main subject is stable, but background elements like the field lines and distant players shift noticeably between the two frames.\n3. identityConsistency - 4: The central player (Balde #3) maintains a consistent visual identity, though fine details are lost to the style.\n4. motionFidelity - 3: The primary action is preserved, but the lack of smooth intermediate movement in the background suggests some temporal instability.\n5. sceneFidelity - 2: The stadium background is heavily abstracted and the spatial layout of the pitch lines changes significantly between frames.\n6. stylizationStrength - 5: The cartoon-cel aesthetic is very strong, with bold outlines and flat color regions dominating the image.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790312511,
+  "id": "20260925130145a804cfa7d0004eea",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925130145a804cfa7d0004eea",
+  "usage": {
+    "completion_tokens": 236,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1405
+  }
+}
