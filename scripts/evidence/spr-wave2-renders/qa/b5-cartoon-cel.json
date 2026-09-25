@@ -1,0 +1,44 @@
+{
+  "input": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+  "output": "/tmp/out/b5/cartoon-cel-b5.mp4",
+  "G-T1": {
+    "inputFrameCount": 300,
+    "outputFrameCount": 300,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 20,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [],
+    "outputCuts": [],
+    "preserved": 0,
+    "coverage": 0.0,
+    "extraCuts": 0,
+    "extraPer30s": 0.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [],
+      "outputFrames": [],
+      "outputOnlyFrames": [],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": false
+  },
+  "G-T3": {
+    "pearsonR": 0.9842,
+    "frames": 300,
+    "pass": true
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 1.1359,
+    "percentOfRange": 0.4454,
+    "inputBaselinePercentOfRange": 0.3625,
+    "sampledPixels": 23281,
+    "pass": true
+  },
+  "allPass": false
+}

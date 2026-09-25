@@ -1,0 +1,1647 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W2-B",
+ "task": "corpus-wide renders (5 realities x 6 corpus clips) with qa_check self-gates, double-render determinism proofs, and cuts_deep on the cut-bearing clip (b1)",
+ "generatedAtIso": "2026-09-24T21:12:55.757588+00:00",
+ "engine": "SPE-v1",
+ "base": "805a5fc",
+ "branch": "spr/w2b/corpus-renders",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3",
+  "python": "Python 3.12.14"
+ },
+ "substrate": {
+  "allMatch": true,
+  "clips": [
+   {
+    "file": "b8p3.mp4",
+    "expectedSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+    "observedSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+    "match": true
+   },
+   {
+    "file": "clip-b1-wide-broadcast.mp4",
+    "expectedSha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+    "observedSha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+    "match": true
+   },
+   {
+    "file": "b8-b12.mp4",
+    "expectedSha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+    "observedSha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+    "match": true
+   },
+   {
+    "file": "clip-b2-closeup.mp4",
+    "expectedSha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+    "observedSha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+    "match": true
+   },
+   {
+    "file": "clip-b3-fast-action.mp4",
+    "expectedSha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+    "observedSha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+    "match": true
+   },
+   {
+    "file": "clip-b5-camera-move.mp4",
+    "expectedSha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+    "observedSha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+    "match": true
+   },
+   {
+    "file": "clip-b6-setpiece.mp4",
+    "expectedSha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a",
+    "observedSha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a",
+    "match": true
+   },
+   {
+    "file": "clip-b7-night.mp4",
+    "expectedSha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657",
+    "observedSha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657",
+    "match": true
+   }
+  ],
+  "method": "sha256sum of scripts/evidence/spr-corpus-bytes/* vs scripts/evidence/spr-wave2-corpus/corpus.json full shas (and the 16-hex prefixes in spr-corpus-bytes/README.md)"
+ },
+ "realities": [
+  {
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1"
+  },
+  {
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1"
+  },
+  {
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1"
+  },
+  {
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1"
+  },
+  {
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1"
+  }
+ ],
+ "clips": [
+  "b1",
+  "b2",
+  "b3",
+  "b5",
+  "b6",
+  "b7"
+ ],
+ "summary": {
+  "pairsTotal": 30,
+  "rendersComplete": 30,
+  "determinismByteIdentical": 30,
+  "qaAllPass": 8,
+  "gatePassCounts": {
+   "G-T1": 25,
+   "G-T2": 8,
+   "G-T3": 23,
+   "G-T4": 25
+  },
+  "qaCrashed": 5
+ },
+ "knownFindings": [
+  {
+   "id": "b1-substrate-audio-short",
+   "severity": "blocker-for-b1-QA",
+   "finding": "clip-b1-wide-broadcast.mp4 video stream is 751 frames (30.04 s) but its audio stream ends at 30.00 s. The frozen encoder's -shortest (contract-mandated audio-passthrough encode) trims every b1 render to 750 frames: output 750 != input 751 -> G-T1 fails by the numbers, and qa_check.py then crashes in G-T3 (np.corrcoef ValueError, 751 vs 750 motion-energy samples) before writing any JSON.",
+   "scope": "all 5 b1 renders (cartoon-cel, anime-npr, noir-retro noir, noir-retro vhs, motion-trails)",
+   "wave1Precedent": "identical class to the w6-spr-2 b8 raw-merge defect (1191 frames > audio), resolved then by apad-normalizing the SUBSTRATE (engine frozen). The b1 substrate is sha-pinned in corpus.json and outside lane B's write surface, so it is recorded here, not worked around.",
+   "evidence": "qa/b1-*-qacrash.json (5 crash records with ffprobe facts: input 751f/30.04s, output 750f/30.00s, audio passthrough true, durationDelta 40 ms)"
+  },
+  {
+   "id": "gt2-vacuous-coverage-zero-cut-clips",
+   "severity": "metric-edge",
+   "finding": "b5 (camera-move pan), b6 (set-piece) and b7 (night) have ZERO spike-detected input cuts (continuous camera). qa_check computes coverage = preserved / max(len(inputCuts), 1) = 0/1 = 0.0 < 0.95 -> G-T2 pass=false although 0 cuts were missed and 0 extra cuts exist (extraPer30s = 0.0). The cut-preservation property is vacuously satisfied; the gate formula cannot express that.",
+   "scope": "15 pairs (all realities on b5/b6/b7)",
+   "spotCheck": "cuts_deep on b5/noir-retro-vhs: inputCuts=[], outputCuts=[], inventedCuts=[], pass=true (vacuous) \u2014 qa/b5-noir-retro-vhs-cuts-deep.json"
+  },
+  {
+   "id": "gt2-extra-cut-split-b2",
+   "severity": "detector-boundary-artifact",
+   "finding": "b2's single source cut (frame 97) splits into two adjacent spikes (96 and 99) in the anime-npr and motion-trails outputs: coverage 1.0 (the source cut IS preserved) but 1 extra detected cut in a 9.02 s clip -> extraPer30s 3.326 > 1.0 -> G-T2 fail.",
+   "resolution": "cuts_deep proves correspondence: input 97 (amp 44.8) -> output 99 (amp 43.68, ratio 0.975) for anime; -> 96 (amp 55.61, ratio 1.241) for trails; coverage 1.0, invented 0 on both. The second spike is the same source discontinuity cluster, not an invented cut. Raw G-T2 JSONs stay untouched with pass=false.",
+   "evidence": "qa/b2-anime-npr-cuts-deep.json, qa/b2-motion-trails-cuts-deep.json"
+  },
+  {
+   "id": "gt3-vhs-motion-correlation",
+   "severity": "real-gate-failure",
+   "finding": "noir-retro profile vhs fails G-T3 on the two continuous-motion clips: b5 r=0.7303, b6 r=0.7978 (threshold 0.80; b7 r=0.8749 passes; b1/b2/b3 pass). The vhs profile's grain/scanline noise decorrelates the per-frame motion-energy time series on uniform pans where the input energy series is nearly flat.",
+   "scope": "b5/noir-retro-vhs, b6/noir-retro-vhs"
+  }
+ ],
+ "renders": [
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c0579af4ce30e30dbd9f13023b60e54c6eb0e25cbcbc5fc9d8f78528b1114bff",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality cartoon-cel --out-dir /tmp/out/b1 --suffix b1",
+   "outputFile": "cartoon-cel-b1.mp4",
+   "outputSha256Pass1": "200b39fe6ad48f5c9627d837a8d4f21a53c1024dbd4b8acadaa45cecd96d1cc6",
+   "outputSha256Pass2": "200b39fe6ad48f5c9627d837a8d4f21a53c1024dbd4b8acadaa45cecd96d1cc6",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 750,
+   "durationMs": 30040,
+   "renderWallMsPass1": 175701.9,
+   "renderWallMsPass2": 176849.4,
+   "qa": {
+    "crashed": true,
+    "returncode": 1,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 750,
+     "frameCountEqual": false,
+     "durationDeltaMs": 40,
+     "audioPassthrough": true,
+     "pass": false
+    },
+    "G-T2": null,
+    "G-T3": null,
+    "G-T4": null,
+    "allPass": false,
+    "note": "qa_check.py crashed (G-T3 corrcoef ValueError, frame-count mismatch 751 vs 750). T1 evaluated from ffprobe facts by the driver; T2/T3/T4 not produced. Crash record: qa/b1-cartoon-cel-qacrash.json",
+    "json": "qa/b1-cartoon-cel-qacrash.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475
+    ],
+    "exit": 0,
+    "json": "qa/b1-cartoon-cel-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c95956a23bc0e78cd36eaa9de2cbc04446ad7068b3b0f21314d0fd41f263e224",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality anime-npr --out-dir /tmp/out/b1 --suffix b1",
+   "outputFile": "anime-npr-b1.mp4",
+   "outputSha256Pass1": "88915ee191ce0b6ce90013a2f48126551fbfd7246035f15f48656e41b611982b",
+   "outputSha256Pass2": "88915ee191ce0b6ce90013a2f48126551fbfd7246035f15f48656e41b611982b",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 750,
+   "durationMs": 30040,
+   "renderWallMsPass1": 168213.0,
+   "renderWallMsPass2": 168680.7,
+   "qa": {
+    "crashed": true,
+    "returncode": 1,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 750,
+     "frameCountEqual": false,
+     "durationDeltaMs": 40,
+     "audioPassthrough": true,
+     "pass": false
+    },
+    "G-T2": null,
+    "G-T3": null,
+    "G-T4": null,
+    "allPass": false,
+    "note": "qa_check.py crashed (G-T3 corrcoef ValueError, frame-count mismatch 751 vs 750). T1 evaluated from ffprobe facts by the driver; T2/T3/T4 not produced. Crash record: qa/b1-anime-npr-qacrash.json",
+    "json": "qa/b1-anime-npr-qacrash.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475
+    ],
+    "exit": 0,
+    "json": "qa/b1-anime-npr-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "ac8b4ffd90f2bca745caa950d86b31b3ec52e1b278d46dc764dd575fe1f23075",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b1 --suffix b1",
+   "outputFile": "noir-retro-noir-b1.mp4",
+   "outputSha256Pass1": "c589f8c8266e8173e8b137d0eea8ac151e4c4fb8c4a812a72e28e294c894410b",
+   "outputSha256Pass2": "c589f8c8266e8173e8b137d0eea8ac151e4c4fb8c4a812a72e28e294c894410b",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 750,
+   "durationMs": 30040,
+   "renderWallMsPass1": 27850.6,
+   "renderWallMsPass2": 29965.9,
+   "qa": {
+    "crashed": true,
+    "returncode": 1,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 750,
+     "frameCountEqual": false,
+     "durationDeltaMs": 40,
+     "audioPassthrough": true,
+     "pass": false
+    },
+    "G-T2": null,
+    "G-T3": null,
+    "G-T4": null,
+    "allPass": false,
+    "note": "qa_check.py crashed (G-T3 corrcoef ValueError, frame-count mismatch 751 vs 750). T1 evaluated from ffprobe facts by the driver; T2/T3/T4 not produced. Crash record: qa/b1-noir-retro-noir-qacrash.json",
+    "json": "qa/b1-noir-retro-noir-qacrash.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "exit": 0,
+    "json": "qa/b1-noir-retro-noir-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "c1fa4cd7767a7b474f782e063129b7d28926396b7adb1a149eccad822b4ff19f",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b1 --suffix b1",
+   "outputFile": "noir-retro-vhs-b1.mp4",
+   "outputSha256Pass1": "45d983ab170f915f284f014c9ea5f8d8580fa46290c74225c9fee072856f8a2f",
+   "outputSha256Pass2": "45d983ab170f915f284f014c9ea5f8d8580fa46290c74225c9fee072856f8a2f",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 750,
+   "durationMs": 30040,
+   "renderWallMsPass1": 28407.4,
+   "renderWallMsPass2": 28519.9,
+   "qa": {
+    "crashed": true,
+    "returncode": 1,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 750,
+     "frameCountEqual": false,
+     "durationDeltaMs": 40,
+     "audioPassthrough": true,
+     "pass": false
+    },
+    "G-T2": null,
+    "G-T3": null,
+    "G-T4": null,
+    "allPass": false,
+    "note": "qa_check.py crashed (G-T3 corrcoef ValueError, frame-count mismatch 751 vs 750). T1 evaluated from ffprobe facts by the driver; T2/T3/T4 not produced. Crash record: qa/b1-noir-retro-vhs-qacrash.json",
+    "json": "qa/b1-noir-retro-vhs-qacrash.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "exit": 0,
+    "json": "qa/b1-noir-retro-vhs-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b1",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "1776b4aa3c822904d6e3abda934d027641fa8997aec2cb8c18bffd8f98865a7d",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4 --reality motion-trails --out-dir /tmp/out/b1 --suffix b1",
+   "outputFile": "motion-trails-b1.mp4",
+   "outputSha256Pass1": "e46d75c259979b1923cad5e80bbf00ddbb6fde3efc582f9002edf2c0a1e07890",
+   "outputSha256Pass2": "e46d75c259979b1923cad5e80bbf00ddbb6fde3efc582f9002edf2c0a1e07890",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 751,
+   "frameCountOutput": 750,
+   "durationMs": 30040,
+   "renderWallMsPass1": 22536.7,
+   "renderWallMsPass2": 22054.3,
+   "qa": {
+    "crashed": true,
+    "returncode": 1,
+    "G-T1": {
+     "inputFrameCount": 751,
+     "outputFrameCount": 750,
+     "frameCountEqual": false,
+     "durationDeltaMs": 40,
+     "audioPassthrough": true,
+     "pass": false
+    },
+    "G-T2": null,
+    "G-T3": null,
+    "G-T4": null,
+    "allPass": false,
+    "note": "qa_check.py crashed (G-T3 corrcoef ValueError, frame-count mismatch 751 vs 750). T1 evaluated from ffprobe facts by the driver; T2/T3/T4 not produced. Crash record: qa/b1-motion-trails-qacrash.json",
+    "json": "qa/b1-motion-trails-qacrash.json"
+   },
+   "cutsDeep": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "inputCuts": [
+     189,
+     475,
+     550
+    ],
+    "outputCuts": [
+     189,
+     475,
+     550
+    ],
+    "exit": 0,
+    "json": "qa/b1-motion-trails-cuts-deep.json"
+   },
+   "frameEvidence": "frames/b1-motion-trails-t8.png"
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "cc1e3bf5b61162651e543d4d7325d0ed194ad530e5ce961ccfa2782f47b290f2",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality cartoon-cel --out-dir /tmp/out/b2 --suffix b2",
+   "outputFile": "cartoon-cel-b2.mp4",
+   "outputSha256Pass1": "239febf946ea41faeafee1c4e323c2e8a1c06b1e68f8f8bff35fb8b6d06e85c9",
+   "outputSha256Pass2": "239febf946ea41faeafee1c4e323c2e8a1c06b1e68f8f8bff35fb8b6d06e85c9",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "frameCountOutput": 225,
+   "durationMs": 9020,
+   "renderWallMsPass1": 53618.7,
+   "renderWallMsPass2": 53812.6,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 225,
+     "outputFrameCount": 225,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 1,
+     "outputCutCount": 1
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9919
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8001,
+     "inputBaselinePercentOfRange": 0.9449
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b2-cartoon-cel.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b2-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "5b7682e5460bd41b6b5c87ecdfec2dc0fdaddb5c6866c7fcdcd2687390369ccc",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality anime-npr --out-dir /tmp/out/b2 --suffix b2",
+   "outputFile": "anime-npr-b2.mp4",
+   "outputSha256Pass1": "eb454f94a5e3de98dd247890a6d6c1dba7480fbe9941b3e5f9b75b06ccbf4076",
+   "outputSha256Pass2": "eb454f94a5e3de98dd247890a6d6c1dba7480fbe9941b3e5f9b75b06ccbf4076",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "frameCountOutput": 225,
+   "durationMs": 9020,
+   "renderWallMsPass1": 52336.6,
+   "renderWallMsPass2": 51402.3,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 225,
+     "outputFrameCount": 225,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 1.0,
+     "extraPer30s": 3.326,
+     "inputCutCount": 1,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.987
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8172,
+     "inputBaselinePercentOfRange": 0.9449
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b2-anime-npr.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b2-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "1baa46f9f3ed9dc5bd5b1ad0f0c7a090dc218116854cadb38ed98ecd511bc43e",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b2 --suffix b2",
+   "outputFile": "noir-retro-noir-b2.mp4",
+   "outputSha256Pass1": "19b01356b8ec3750e963723dfdd71c2446509bdc8dd51502b08713665521499b",
+   "outputSha256Pass2": "19b01356b8ec3750e963723dfdd71c2446509bdc8dd51502b08713665521499b",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "frameCountOutput": 225,
+   "durationMs": 9020,
+   "renderWallMsPass1": 9326.3,
+   "renderWallMsPass2": 9350.9,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 225,
+     "outputFrameCount": 225,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 1,
+     "outputCutCount": 1
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9974
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8446,
+     "inputBaselinePercentOfRange": 0.9449
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b2-noir-retro-noir.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b2-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "a120a99cbaa06a70e013e828db46f636875a6196e247b0ebba1568efbccb5842",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b2 --suffix b2",
+   "outputFile": "noir-retro-vhs-b2.mp4",
+   "outputSha256Pass1": "4595ac7368a745021ccc575285ddd9febcf19190e0cb9996d4b393278ef75ab8",
+   "outputSha256Pass2": "4595ac7368a745021ccc575285ddd9febcf19190e0cb9996d4b393278ef75ab8",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "frameCountOutput": 225,
+   "durationMs": 9020,
+   "renderWallMsPass1": 9276.7,
+   "renderWallMsPass2": 9376.9,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 225,
+     "outputFrameCount": 225,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 1,
+     "outputCutCount": 1
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9862
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.3041,
+     "inputBaselinePercentOfRange": 0.9449
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b2-noir-retro-vhs.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b2-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "14af13e8e0c22f534e6e7178992b053428ba1b6ae9839924c729a86ffc451947",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 --reality motion-trails --out-dir /tmp/out/b2 --suffix b2",
+   "outputFile": "motion-trails-b2.mp4",
+   "outputSha256Pass1": "65a02ed594a0ec106af15f71a131ba6c05c7fd59581323187a42f305038273a8",
+   "outputSha256Pass2": "65a02ed594a0ec106af15f71a131ba6c05c7fd59581323187a42f305038273a8",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "frameCountOutput": 225,
+   "durationMs": 9020,
+   "renderWallMsPass1": 7645.6,
+   "renderWallMsPass2": 7793.6,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 225,
+     "outputFrameCount": 225,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 1.0,
+     "extraPer30s": 3.326,
+     "inputCutCount": 1,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9232
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.1524,
+     "inputBaselinePercentOfRange": 0.9449
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b2-motion-trails.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b2-motion-trails-t8.png"
+  },
+  {
+   "clipId": "b3",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "67ff873c6fd23bb1c050c952ed121165842b4e52334f608459c920f334c8ba89",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4 --reality cartoon-cel --out-dir /tmp/out/b3 --suffix b3",
+   "outputFile": "cartoon-cel-b3.mp4",
+   "outputSha256Pass1": "0d8007450636b77ab9fbad3db581b66f4e7cf395f923f6d408d6a8acd0eb8409",
+   "outputSha256Pass2": "0d8007450636b77ab9fbad3db581b66f4e7cf395f923f6d408d6a8acd0eb8409",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 71534.1,
+   "renderWallMsPass2": 69511.9,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 2,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9794
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.5222,
+     "inputBaselinePercentOfRange": 0.458
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b3-cartoon-cel.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b3-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b3",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "775e78ce7875c754fe2f5867fb1245e6f2e0f3e1089ccd78f16742b6c2030c31",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4 --reality anime-npr --out-dir /tmp/out/b3 --suffix b3",
+   "outputFile": "anime-npr-b3.mp4",
+   "outputSha256Pass1": "a00a4673f2a2eb44b757aa9bc0c155677f273b9935376fb4dfe1250dd3784198",
+   "outputSha256Pass2": "a00a4673f2a2eb44b757aa9bc0c155677f273b9935376fb4dfe1250dd3784198",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 66604.0,
+   "renderWallMsPass2": 68403.9,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 2,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9807
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.518,
+     "inputBaselinePercentOfRange": 0.458
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b3-anime-npr.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b3-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b3",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "19683d4b0d35dfdab972a6af7aef7566723d44276d576fbb2b48f3e39a55bbdf",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b3 --suffix b3",
+   "outputFile": "noir-retro-noir-b3.mp4",
+   "outputSha256Pass1": "ef0b91147c6095b744d04d1bacc209a7b5fad42ecc5a52cd7d2827b7ae9ba021",
+   "outputSha256Pass2": "ef0b91147c6095b744d04d1bacc209a7b5fad42ecc5a52cd7d2827b7ae9ba021",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 11936.6,
+   "renderWallMsPass2": 11808.5,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 2,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9987
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4667,
+     "inputBaselinePercentOfRange": 0.458
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b3-noir-retro-noir.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b3-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b3",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "ce50b7c1c61963831b709fb699758101c61ba0996c23af23ffc90aa27f07c34c",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b3 --suffix b3",
+   "outputFile": "noir-retro-vhs-b3.mp4",
+   "outputSha256Pass1": "d61fdbc533021a3be1f4be5a5172fe404015ff6b3bcef9b9ec749545c4c308a7",
+   "outputSha256Pass2": "d61fdbc533021a3be1f4be5a5172fe404015ff6b3bcef9b9ec749545c4c308a7",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 12184.3,
+   "renderWallMsPass2": 12077.1,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 2,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9343
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.824,
+     "inputBaselinePercentOfRange": 0.458
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b3-noir-retro-vhs.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b3-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b3",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "cb66020dc04adadacfb91832ca442aa83dfffe434789c1989920479cd26f9dd3",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b3-fast-action.mp4 --reality motion-trails --out-dir /tmp/out/b3 --suffix b3",
+   "outputFile": "motion-trails-b3.mp4",
+   "outputSha256Pass1": "610472e7965a68fe1b2677c67161ca75019097fde43bef66ea407eb85efa9bb0",
+   "outputSha256Pass2": "610472e7965a68fe1b2677c67161ca75019097fde43bef66ea407eb85efa9bb0",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 8936.0,
+   "renderWallMsPass2": 9122.8,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 2,
+     "outputCutCount": 2
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9474
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.5402,
+     "inputBaselinePercentOfRange": 0.458
+    },
+    "allPass": true,
+    "qaCheckExit": 0,
+    "json": "qa/b3-motion-trails.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b3-motion-trails-t8.png"
+  },
+  {
+   "clipId": "b5",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "67ff873c6fd23bb1c050c952ed121165842b4e52334f608459c920f334c8ba89",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality cartoon-cel --out-dir /tmp/out/b5 --suffix b5",
+   "outputFile": "cartoon-cel-b5.mp4",
+   "outputSha256Pass1": "af84c033e1d2952dd7101359b497acc5d64fa04203af66b0b3c938f8ca908149",
+   "outputSha256Pass2": "af84c033e1d2952dd7101359b497acc5d64fa04203af66b0b3c938f8ca908149",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 71761.2,
+   "renderWallMsPass2": 70490.3,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9842
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4454,
+     "inputBaselinePercentOfRange": 0.3625
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b5-cartoon-cel.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b5-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b5",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "775e78ce7875c754fe2f5867fb1245e6f2e0f3e1089ccd78f16742b6c2030c31",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality anime-npr --out-dir /tmp/out/b5 --suffix b5",
+   "outputFile": "anime-npr-b5.mp4",
+   "outputSha256Pass1": "2d044706366519a96576d00bf7217295305abc2ea564727c5cba20262370fafd",
+   "outputSha256Pass2": "2d044706366519a96576d00bf7217295305abc2ea564727c5cba20262370fafd",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 68840.7,
+   "renderWallMsPass2": 68921.1,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9832
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.3765,
+     "inputBaselinePercentOfRange": 0.3625
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b5-anime-npr.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b5-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b5",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "19683d4b0d35dfdab972a6af7aef7566723d44276d576fbb2b48f3e39a55bbdf",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b5 --suffix b5",
+   "outputFile": "noir-retro-noir-b5.mp4",
+   "outputSha256Pass1": "fb04dbbacb393c2565c0d27fec34bca8605293307a1aba36d4e059bb7d5e4e87",
+   "outputSha256Pass2": "fb04dbbacb393c2565c0d27fec34bca8605293307a1aba36d4e059bb7d5e4e87",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 12307.5,
+   "renderWallMsPass2": 12335.2,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9985
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4181,
+     "inputBaselinePercentOfRange": 0.3625
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b5-noir-retro-noir.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b5-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b5",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "ce50b7c1c61963831b709fb699758101c61ba0996c23af23ffc90aa27f07c34c",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b5 --suffix b5",
+   "outputFile": "noir-retro-vhs-b5.mp4",
+   "outputSha256Pass1": "05e4e27768a0683d31e87e12574938953d3bc13342c8625ba3870038ad2516e3",
+   "outputSha256Pass2": "05e4e27768a0683d31e87e12574938953d3bc13342c8625ba3870038ad2516e3",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 12116.0,
+   "renderWallMsPass2": 12235.2,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.7303
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.686,
+     "inputBaselinePercentOfRange": 0.3625
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b5-noir-retro-vhs.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b5-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b5",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "cb66020dc04adadacfb91832ca442aa83dfffe434789c1989920479cd26f9dd3",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b5-camera-move.mp4 --reality motion-trails --out-dir /tmp/out/b5 --suffix b5",
+   "outputFile": "motion-trails-b5.mp4",
+   "outputSha256Pass1": "f72d64708e19d760b0909c7d0cc8af4aa14efef4caebf5e74e1b533ba593fe7a",
+   "outputSha256Pass2": "f72d64708e19d760b0909c7d0cc8af4aa14efef4caebf5e74e1b533ba593fe7a",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 9018.8,
+   "renderWallMsPass2": 8852.1,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9985
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.3692,
+     "inputBaselinePercentOfRange": 0.3625
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b5-motion-trails.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b5-motion-trails-t8.png"
+  },
+  {
+   "clipId": "b6",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "67ff873c6fd23bb1c050c952ed121165842b4e52334f608459c920f334c8ba89",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality cartoon-cel --out-dir /tmp/out/b6 --suffix b6",
+   "outputFile": "cartoon-cel-b6.mp4",
+   "outputSha256Pass1": "d16656ff07afc44f7a746bf4ab63368cb935b3a56c418f950c953f620b787e17",
+   "outputSha256Pass2": "d16656ff07afc44f7a746bf4ab63368cb935b3a56c418f950c953f620b787e17",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 70330.2,
+   "renderWallMsPass2": 71257.2,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9712
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4766,
+     "inputBaselinePercentOfRange": 0.4409
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b6-cartoon-cel.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b6-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b6",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "775e78ce7875c754fe2f5867fb1245e6f2e0f3e1089ccd78f16742b6c2030c31",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality anime-npr --out-dir /tmp/out/b6 --suffix b6",
+   "outputFile": "anime-npr-b6.mp4",
+   "outputSha256Pass1": "bb6e8c2d10796cd5245905b14b161643b2e9046577850b9f50604b516dad85ed",
+   "outputSha256Pass2": "bb6e8c2d10796cd5245905b14b161643b2e9046577850b9f50604b516dad85ed",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 68789.3,
+   "renderWallMsPass2": 68680.9,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9716
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4691,
+     "inputBaselinePercentOfRange": 0.4409
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b6-anime-npr.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b6-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b6",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "19683d4b0d35dfdab972a6af7aef7566723d44276d576fbb2b48f3e39a55bbdf",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b6 --suffix b6",
+   "outputFile": "noir-retro-noir-b6.mp4",
+   "outputSha256Pass1": "3606a22022e28a1a0a02e0e49a7ce108f502510f2e38321f824e2393920cc982",
+   "outputSha256Pass2": "3606a22022e28a1a0a02e0e49a7ce108f502510f2e38321f824e2393920cc982",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 11873.4,
+   "renderWallMsPass2": 11973.7,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9988
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4879,
+     "inputBaselinePercentOfRange": 0.4409
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b6-noir-retro-noir.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b6-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b6",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "ce50b7c1c61963831b709fb699758101c61ba0996c23af23ffc90aa27f07c34c",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b6 --suffix b6",
+   "outputFile": "noir-retro-vhs-b6.mp4",
+   "outputSha256Pass1": "61cff549fcfd500599d2a0dcec2aea0dd310dfceba1e1f409e14927ce84c4c89",
+   "outputSha256Pass2": "61cff549fcfd500599d2a0dcec2aea0dd310dfceba1e1f409e14927ce84c4c89",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 11920.2,
+   "renderWallMsPass2": 12020.8,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.7978
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.9477,
+     "inputBaselinePercentOfRange": 0.4409
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b6-noir-retro-vhs.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b6-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b6",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "cb66020dc04adadacfb91832ca442aa83dfffe434789c1989920479cd26f9dd3",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b6-setpiece.mp4 --reality motion-trails --out-dir /tmp/out/b6 --suffix b6",
+   "outputFile": "motion-trails-b6.mp4",
+   "outputSha256Pass1": "0082e6d69fe3c1103da616e75bc2f93b0cc2499b988fdb307b8c67d5541a5b55",
+   "outputSha256Pass2": "0082e6d69fe3c1103da616e75bc2f93b0cc2499b988fdb307b8c67d5541a5b55",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "frameCountOutput": 300,
+   "durationMs": 12020,
+   "renderWallMsPass1": 9050.9,
+   "renderWallMsPass2": 9385.5,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 300,
+     "outputFrameCount": 300,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9985
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.4512,
+     "inputBaselinePercentOfRange": 0.4409
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b6-motion-trails.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b6-motion-trails-t8.png"
+  },
+  {
+   "clipId": "b7",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4",
+   "reality": "cartoon-cel",
+   "profile": "default",
+   "rendererId": "spr-cartoon-cel-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "fdfad54799b5c93b06abe679f3dbcfbea1e50ff3a3a67da1c0d50aafa7b316b9",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality cartoon-cel --out-dir /tmp/out/b7 --suffix b7",
+   "outputFile": "cartoon-cel-b7.mp4",
+   "outputSha256Pass1": "95c40acd0fa52874cb6c31a6517be74c77ef418b2beeee72011408fde03941b1",
+   "outputSha256Pass2": "95c40acd0fa52874cb6c31a6517be74c77ef418b2beeee72011408fde03941b1",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 250,
+   "frameCountOutput": 250,
+   "durationMs": 10020,
+   "renderWallMsPass1": 58767.4,
+   "renderWallMsPass2": 57780.2,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 250,
+     "outputFrameCount": 250,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9951
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.5476,
+     "inputBaselinePercentOfRange": 0.6398
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b7-cartoon-cel.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b7-cartoon-cel-t8.png"
+  },
+  {
+   "clipId": "b7",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4",
+   "reality": "anime-npr",
+   "profile": "default",
+   "rendererId": "spr-anime-npr-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "cf9b2b70745dcad448f212ef20b0a5075e52245114bc711fa37798f20e3fe3b4",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality anime-npr --out-dir /tmp/out/b7 --suffix b7",
+   "outputFile": "anime-npr-b7.mp4",
+   "outputSha256Pass1": "d9c52bd534bc90af182730721ce650d76e7c05cd80a1f8c82578f54e838a540e",
+   "outputSha256Pass2": "d9c52bd534bc90af182730721ce650d76e7c05cd80a1f8c82578f54e838a540e",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 250,
+   "frameCountOutput": 250,
+   "durationMs": 10020,
+   "renderWallMsPass1": 57121.0,
+   "renderWallMsPass2": 56998.6,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 250,
+     "outputFrameCount": 250,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.994
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.5693,
+     "inputBaselinePercentOfRange": 0.6398
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b7-anime-npr.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b7-anime-npr-t8.png"
+  },
+  {
+   "clipId": "b7",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4",
+   "reality": "noir-retro",
+   "profile": "noir",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "fc3f22a7ed003ea171e2aa952d7e755c0f247ef17d93807be5a77218fcfac222",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality noir-retro --profile noir --out-dir /tmp/out/b7 --suffix b7",
+   "outputFile": "noir-retro-noir-b7.mp4",
+   "outputSha256Pass1": "a081cee17f3a2012aacea50a0072ec10340f6c965212e25a29176f2c54d0bbf3",
+   "outputSha256Pass2": "a081cee17f3a2012aacea50a0072ec10340f6c965212e25a29176f2c54d0bbf3",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 250,
+   "frameCountOutput": 250,
+   "durationMs": 10020,
+   "renderWallMsPass1": 9719.1,
+   "renderWallMsPass2": 9737.0,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 250,
+     "outputFrameCount": 250,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9995
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.5776,
+     "inputBaselinePercentOfRange": 0.6398
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b7-noir-retro-noir.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b7-noir-retro-noir-t8.png"
+  },
+  {
+   "clipId": "b7",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4",
+   "reality": "noir-retro",
+   "profile": "vhs",
+   "rendererId": "spr-noir-retro-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "e7dc7a16b0c6b5811beef1760c83bd813dfc29da7763aecaa2906144cb942a3b",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality noir-retro --profile vhs --out-dir /tmp/out/b7 --suffix b7",
+   "outputFile": "noir-retro-vhs-b7.mp4",
+   "outputSha256Pass1": "02a4e7f8c856cd6aa99beeb84f1d7dcaf36631a02298cf30c9e11584721764de",
+   "outputSha256Pass2": "02a4e7f8c856cd6aa99beeb84f1d7dcaf36631a02298cf30c9e11584721764de",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 250,
+   "frameCountOutput": 250,
+   "durationMs": 10020,
+   "renderWallMsPass1": 9901.6,
+   "renderWallMsPass2": 9749.3,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 250,
+     "outputFrameCount": 250,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8749
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.2104,
+     "inputBaselinePercentOfRange": 0.6398
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b7-noir-retro-vhs.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b7-noir-retro-vhs-t8.png"
+  },
+  {
+   "clipId": "b7",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4",
+   "reality": "motion-trails",
+   "profile": "default",
+   "rendererId": "spr-motion-trails-dc1",
+   "rendererVersion": "0.1.0",
+   "styleConfigHash": "349d7d6711472b9524da6ea21b84181b62a971c8c3786dcfbdbad06b125fc77e",
+   "command": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality motion-trails --out-dir /tmp/out/b7 --suffix b7",
+   "outputFile": "motion-trails-b7.mp4",
+   "outputSha256Pass1": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+   "outputSha256Pass2": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 250,
+   "frameCountOutput": 250,
+   "durationMs": 10020,
+   "renderWallMsPass1": 8149.0,
+   "renderWallMsPass2": 7795.7,
+   "qa": {
+    "G-T1": {
+     "pass": true,
+     "durationDeltaMs": 20,
+     "inputFrameCount": 250,
+     "outputFrameCount": 250,
+     "audioPassthrough": true
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 0.0,
+     "extraPer30s": 0.0,
+     "inputCutCount": 0,
+     "outputCutCount": 0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.9937
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.6586,
+     "inputBaselinePercentOfRange": 0.6398
+    },
+    "allPass": false,
+    "qaCheckExit": 1,
+    "json": "qa/b7-motion-trails.json"
+   },
+   "cutsDeep": null,
+   "frameEvidence": "frames/b7-motion-trails-t8.png"
+  }
+ ]
+}
