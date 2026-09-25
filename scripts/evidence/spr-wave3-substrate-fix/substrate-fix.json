@@ -1,0 +1,241 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W3-A",
+ "task": "substrate fix: b1 apad re-cut (F1) + b12 normalization (w2c findings) + corpus re-lock",
+ "generatedAtIso": "2026-09-25T04:25:05.251643+00:00",
+ "base": "805a5fc",
+ "branch": "spr/w3a/substrate-fix",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0.93 (reports 5.0.0)",
+  "numpy": "2.5.3",
+  "python": "3.12 (project .venv, no new repo dependencies)"
+ },
+ "control": {
+  "check": "frozen-engine reproduction before substrate judgement",
+  "command": ".venv/bin/python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b7-night.mp4 --reality motion-trails --out-dir /tmp/w3a/control/b7 --suffix b7",
+  "outputSha256": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+  "expectedSha256Wave2": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9",
+  "match": true
+ },
+ "b1": {
+  "file": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+  "defectClass": "wave-2 F1: video 751 frames / 30.04s vs audio 30.00s; frozen -shortest encode truncated 751->750; qa_check crashed (np.corrcoef 751 vs 750)",
+  "old": {
+   "sha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+   "byteSize": 1772792,
+   "ffprobe": {
+    "formatDuration": "30.040000",
+    "sizeBytes": "1772792",
+    "streams": [
+     {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 640,
+      "height": 360,
+      "r_frame_rate": "25/1",
+      "nb_frames": "751",
+      "duration": "30.040000",
+      "sample_rate": null,
+      "channels": null
+     },
+     {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "r_frame_rate": "0/0",
+      "nb_frames": "1293",
+      "duration": "30.000000",
+      "sample_rate": "44100",
+      "channels": 2
+     }
+    ],
+    "decodeTrueFrames": 751
+   }
+  },
+  "new": {
+   "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+   "byteSize": 1771681,
+   "ffprobe": {
+    "formatDuration": "30.060000",
+    "sizeBytes": "1771681",
+    "streams": [
+     {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 640,
+      "height": 360,
+      "r_frame_rate": "25/1",
+      "nb_frames": "751",
+      "duration": "30.040000",
+      "sample_rate": null,
+      "channels": null
+     },
+     {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "r_frame_rate": "0/0",
+      "nb_frames": "1296",
+      "duration": "30.060000",
+      "sample_rate": "44100",
+      "channels": 2
+     }
+    ],
+    "decodeTrueFrames": 751
+   }
+  },
+  "commands": [
+   "ffmpeg -y -ss 0 -t 30 -i scripts/evidence/spr-corpus-bytes/b8p3.mp4 -map 0:a:0 -af apad -c:a aac -b:a 128k -ar 44100 -t 30.06 /tmp/w3a/b1-audio.m4a",
+   "ffmpeg -y -ss 0 -t 30 -i scripts/evidence/spr-corpus-bytes/b8p3.mp4 -i /tmp/w3a/b1-audio.m4a -map 0:v:0 -map 1:a:0 -c:v copy -c:a copy -fflags +bitexact -flags:v +bitexact -map_metadata -1 scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4"
+  ],
+  "commandNotes": "two-step is REQUIRED: a single combined command (video copy + -af apad + output -t) never lets apad's tail reach the muxer when a copied video stream is present (measured: audio always stops at the encoder-flush packet ~30.02s); -frames:v 751 also drops the padded audio tail. Input -ss 0 -t 30 mirrors the recorded wave-2 acquisition input options (video packets DTS<30 = exactly the 751-frame window; audio window EOFs at 30s so apad engages). Audio target -t 30.06 = video 30.04 + 0.02s, mirroring the w6-spr-2 b8p3 normalization precedent (audio 47.62 vs video 47.60).",
+  "provenance": {
+   "sourceWindow": "same frozen b8p3 source window [0,30) (corpus.json b1 acquisition: cut-from-b8)",
+   "videoPacketsUntouched": true,
+   "videoIdentityProof": "raw h264 elementary-stream dump (ffmpeg -map 0:v:0 -c copy -f h264) sha256 af62055d617e382428a0850614703152eb0e14c10a85133e7ec7f8222b3677ee on BOTH superseded and new bytes",
+   "audio": "one AAC generation: b8p3 window audio [0,30) decoded, apad'ed with a silent tail to 30.06s, re-encoded aac 128k 44100 stereo (same normalize settings as the recorded b8p3 recipe); real broadcast sound to ~30.02s, silence [~30.02, 30.06]",
+   "remuxDeterminism": "re-cut double-run byte-identical (both runs sha256 3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307)"
+  },
+  "resolved": true
+ },
+ "b12": {
+  "file": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+  "defectClass": "w2c findings: (a) container nb_frames 338 vs decode-true 301 (qa_check T1 spurious fail); (b) audio 12.007s < video 12.04s so frozen -shortest drops trailing video packets",
+  "old": {
+   "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+   "byteSize": 756609,
+   "ffprobe": {
+    "formatDuration": "12.040000",
+    "sizeBytes": "755609",
+    "streams": [
+     {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 640,
+      "height": 360,
+      "r_frame_rate": "25/1",
+      "nb_frames": "338",
+      "duration": "12.040000",
+      "sample_rate": null,
+      "channels": null
+     },
+     {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "r_frame_rate": "0/0",
+      "nb_frames": "583",
+      "duration": "12.007007",
+      "sample_rate": "44100",
+      "channels": 2
+     }
+    ],
+    "decodeTrueFrames": 301
+   }
+  },
+  "new": {
+   "sha256": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462",
+   "byteSize": 731394,
+   "ffprobe": {
+    "formatDuration": "12.060000",
+    "sizeBytes": "731394",
+    "streams": [
+     {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 640,
+      "height": 360,
+      "r_frame_rate": "25/1",
+      "nb_frames": "338",
+      "duration": "12.040000",
+      "sample_rate": null,
+      "channels": null
+     },
+     {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "r_frame_rate": "0/0",
+      "nb_frames": "521",
+      "duration": "12.060000",
+      "sample_rate": "44100",
+      "channels": 2
+     }
+    ],
+    "decodeTrueFrames": 301
+   }
+  },
+  "commands": [
+   "ffmpeg -y -i scripts/evidence/spr-corpus-bytes/b8-b12.mp4 -map 0:a:0 -af apad -c:a aac -b:a 128k -ar 44100 -t 12.06 /tmp/w3a/b12-audio.m4a",
+   "ffmpeg -y -i scripts/evidence/spr-corpus-bytes/b8-b12.mp4 -i /tmp/w3a/b12-audio.m4a -map 0:v:0 -map 1:a:0 -c:v copy -c:a copy -fflags +bitexact -flags:v +bitexact -map_metadata -1 scripts/evidence/spr-corpus-bytes/b8-b12.mp4"
+  ],
+  "commandNotes": "step 1 audio EOFs naturally at 12.007s (< -t 12.06) so apad engages; audio target 12.06 = video 12.04 + 0.02s (b8p3 precedent). Step 2 is a pure remux of the existing bytes.",
+  "provenance": {
+   "videoPacketsUntouched": true,
+   "videoIdentityProof": "raw h264 dump sha256 32a54c637b4cd95fa5ce57a83cd309bf6c046a1352dd2d42a6157ea85bd78f7e on BOTH superseded and new bytes (all 338 samples incl. the 37 edit-list-hidden pre-roll packets)",
+   "audio": "one AAC generation: existing b12 audio [0,12.007) decoded, apad'ed silent tail to 12.06s, re-encoded aac 128k 44100 stereo (w2c apad-derivative precedent)",
+   "remuxDeterminism": "double-run byte-identical (both runs sha256 b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462)"
+  },
+  "resolved": {
+   "audioShortDefect": true,
+   "nbFramesMetadata": false
+  },
+  "honestNegativeNbFrames": {
+   "finding": "nb_frames=338 CANNOT be corrected to 301 by any packet-preserving remux; the dispatch's 'stale metadata' framing is factually wrong for this file",
+   "evidence": {
+    "sampleTableFact": "ffprobe nb_frames for mp4 = stsz entry count; the track physically carries 338 samples (ffprobe -show_packets: 338 video packets, first 37 at PTS [-1.48, 0))",
+    "keyframeMap": "only 3 keyframes in the track: PTS -1.48 (pre-roll GOP root, from the b8p3 keyframe at 33.00s), PTS 2.52, PTS 8.52 (4s GOPs); the real content's first frame (edited PTS 0.00) is a NON-keyframe P/B frame",
+    "dependency": "the first 63 real frames [0, 2.52s) are predicted from the pre-roll keyframe chain; dropping the 37 pre-roll packets corrupts real decoded content; re-encoding them (w2c gate-ref approach) alters the frozen pixels and changes every future render's input",
+    "triedAndFailed": [
+     "plain remux (-c copy): nb_frames stays 338 (muxer writes every demuxed sample)",
+     "output -ss 0: drops to the first keyframe at PTS 2.52 -> loses 63 real frames",
+     "input -ss variants: keyframe-snapped with -c copy, no packet discard",
+     "-ignore_editlist 1 -ss 1.48: still emits all 338 packets (rebased)"
+    ]
+   },
+   "status": "open for TL decision",
+   "options": [
+    "accept 338 as the honest container sample count (decode-true 301 documented) and exempt b12 T1 from metadata-vs-decode comparison in future gate runs",
+    "re-source b12 with a keyframe-aligned cut window in a later wave",
+    "change qa_check to count decode-true frames (ENGINE IS FROZEN - not this lane's call)"
+   ]
+  }
+ },
+ "untouchedClips": [
+  {
+   "file": "b8p3.mp4",
+   "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+   "match": true
+  },
+  {
+   "file": "clip-b2-closeup.mp4",
+   "sha256": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+   "match": true
+  },
+  {
+   "file": "clip-b3-fast-action.mp4",
+   "sha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+   "match": true
+  },
+  {
+   "file": "clip-b5-camera-move.mp4",
+   "sha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+   "match": true
+  },
+  {
+   "file": "clip-b6-setpiece.mp4",
+   "sha256": "9ef4be96be39276673540f9ec2685c16b37ce9ed23247e7101bad8548c77f68a",
+   "match": true
+  },
+  {
+   "file": "clip-b7-night.mp4",
+   "sha256": "0700b8d9185b2328714d8afedf2a5e07e78cd377353253b8997b180514223657",
+   "match": true
+  }
+ ]
+}

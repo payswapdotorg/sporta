@@ -13,8 +13,8 @@ contract requires the exact frozen substrate):
 | clipId | file | sha-256 (first 16) | category |
 |---|---|---|---|
 | sprclip-b8-inplay-original | `b8p3.mp4` | `969af7c6fdb17209` | real in-play R606 source (substrate) |
-| sprclip-b1-wide-broadcast | `clip-b1-wide-broadcast.mp4` | `72ac7f69f9edbadf` | wide broadcast |
-| sprclip-b12-determinism-cut | `b8-b12.mp4` | `7cb3d728cc349720` | determinism review cut |
+| sprclip-b1-wide-broadcast | `clip-b1-wide-broadcast.mp4` | `3a3c249ef351aaff` | wide broadcast (w3a apad re-cut) |
+| sprclip-b12-determinism-cut | `b8-b12.mp4` | `b3cc5f0e2fae840f` | determinism review cut (w3a apad remux) |
 | clip-b2-closeup | `clip-b2-closeup.mp4` | `e65ae48740472f57` | close-up |
 | clip-b3-fast-action | `clip-b3-fast-action.mp4` | `f88e3bd5f88f047b` | fast action |
 | clip-b5-camera-move | `clip-b5-camera-move.mp4` | `349a37eeb7fc1374` | camera movement |

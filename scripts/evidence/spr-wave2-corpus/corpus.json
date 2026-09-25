@@ -52,7 +52,7 @@
    "category": "wide-broadcast",
    "file": "clip-b1-wide-broadcast.mp4",
    "byteSize": 1772792,
-   "sha256": "72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945",
+   "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
    "width": 640,
    "height": 360,
    "fps": 25,
@@ -75,7 +75,7 @@
    "category": "determinism-review-cut",
    "file": "../render/b8-b12.mp4",
    "byteSize": 756609,
-   "sha256": "7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421",
+   "sha256": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462",
    "width": 640,
    "height": 360,
    "fps": 25,
@@ -215,6 +215,7 @@
   }
  ],
  "notes": [
-  "w6-spr-4 (2026-09-25): wave-2 discovery executed \u2014 9 windows sampled (~774s, media 300/900/1979/2065/3300/3500/4600/5000/5800), 1fps timestamped grids, VLM-classified. b2/b3/b5/b6/b7 assembled and per-clip VLM-verified YES. b4 (crowd) PENDING HONESTLY: every crowd-flagged candidate failed direct verification (grid over-called crowd for wide shots with visible stands; direct checks of disc-300 t=54-78 and disc-3300 t=0-19 all NO \u2014 this broadcast's world feed shows no 8-12s crowd-dominant passage in the sampled material; needs goal timestamps or further sampling). b7 night CONFIRMED by direct frame check (day at ~30', floodlit night at ~97'). Assembly reproducibility proven BYTE-IDENTICAL on a re-run (b2)."
+  "w6-spr-4 (2026-09-25): wave-2 discovery executed \u2014 9 windows sampled (~774s, media 300/900/1979/2065/3300/3500/4600/5000/5800), 1fps timestamped grids, VLM-classified. b2/b3/b5/b6/b7 assembled and per-clip VLM-verified YES. b4 (crowd) PENDING HONESTLY: every crowd-flagged candidate failed direct verification (grid over-called crowd for wide shots with visible stands; direct checks of disc-300 t=54-78 and disc-3300 t=0-19 all NO \u2014 this broadcast's world feed shows no 8-12s crowd-dominant passage in the sampled material; needs goal timestamps or further sampling). b7 night CONFIRMED by direct frame check (day at ~30', floodlit night at ~97'). Assembly reproducibility proven BYTE-IDENTICAL on a re-run (b2).",
+  "spr-w3a (2026-09-25T04:19:43Z): substrate apad re-cut of b1 and b12 under SPR-W3-A (branch spr/w3a/substrate-fix, base 805a5fc; engine frozen - the substrate adapts, w6-spr-2 precedent). b1 re-cut from the same b8p3 source window (ffmpeg two-step: (1) -ss 0 -t 30 -i b8p3.mp4 -map 0:a:0 -af apad -c:a aac -b:a 128k -ar 44100 -t 30.06; (2) -ss 0 -t 30 -i b8p3.mp4 + padded m4a, -map 0:v:0 -map 1:a:0 -c copy -fflags +bitexact -flags:v +bitexact -map_metadata -1): video packets byte-identical to superseded bytes (raw h264 dump sha af62055d617e382428a0850614703152eb0e14c10a85133e7ec7f8222b3677ee both sides), 751 frames preserved, audio now 30.06s >= video 30.04s - resolves wave-2 F1 (frozen -shortest encoder 751->750 truncation + qa_check crash). New byteSize 1771681, format duration 30.06s (entry byteSize/durationMs fields left at wave-2 values per the gate-7 minimal-diff rule; new values recorded here and in spr-wave3-substrate-fix/substrate-fix.json). Superseded b1 sha256 72ac7f69f9edbadf35d25879dc3c0138673564f98cbdf7f5247e1f961b91d945. b12 remux of the existing bytes (audio: -af apad -c:a aac -b:a 128k -ar 44100 -t 12.06; video + padded audio remuxed -c copy, same bitexact flags): video packets byte-identical (raw h264 dump sha 32a54c637b4cd95fa5ce57a83cd309bf6c046a1352dd2d42a6157ea85bd78f7e both sides), decode-true 301 unchanged, audio now 12.06s >= video 12.04s - resolves the w2c b12 trailing-packet drop under -shortest. New byteSize 731394, format duration 12.06s. Superseded b12 sha256 7cb3d728cc349720043c74e32258de55f0ea87b9314515d8e5d4020853143421. HONEST NEGATIVE on the w2c b12 nb_frames finding: the 338 container sample count is NOT stale metadata - the track carries 37 edit-list-hidden pre-roll packets (PTS -1.48..0) whose GOP root keyframe (PTS -1.48) the first 63 real frames ([0,2.52s); next keyframes at 2.52/8.52; 4s GOPs) are predicted from; a packet-preserving remux cannot write nb_frames=301 (stsz must count all 338 samples for decodability), dropping the pre-roll corrupts real content, re-encoding alters frozen pixels. Audio half fixed; nb_frames defect class remains open for TL decision (evidence in spr-wave3-substrate-fix/substrate-fix.json). The other 6 clips' bytes and entries untouched (sha-verified post-edit)."
  ]
 }
