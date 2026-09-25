@@ -147,6 +147,11 @@ class FrameProcessor:
             out = self._subject_toon_state(
                 bgr, self._gray_small(bgr), self._is_cut_start())
 
+        elif reality == "neon-cyberpunk":
+            if not hasattr(self, "_neon_cyberpunk_state"):
+                self._neon_cyberpunk_state = _NeonCyberpunkState(cfg)
+            out = self._neon_cyberpunk_state(bgr)
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -274,6 +279,156 @@ class _SubjectToonState:
 
 
 # ---------------------------------------------------------------------------
+# neon-cyberpunk pipeline state (SPR107)
+#
+# Fresh wave-4 reality (SPR-W4-C): fixed teal/magenta LUT color grade +
+# Gaussian-pyramid bloom + Sobel edge glow, per the SPR107 work-item brief
+# ("LUT + bloom + edge glow"). The state object holds ONLY frozen per-render
+# constants (baked 256-entry curve LUT, channel-mix matrix, tint vectors,
+# knee/weight parameters) so nothing is recomputed per frame; the transform
+# itself is a PURE per-frame function:
+#   - zero temporal accumulators (no EMA, no prev-frame reference)
+#   - zero RNG (no grain, no jitter)
+#   - zero frame-index dependence
+# This is the SPR-W3-B noir-vhs T3-diagnosis law by construction: i.i.d.
+# per-frame noise / coherent per-frame jitter decorrelates the motion-energy
+# series (grain alone r=0.9986, jitter alone r=0.7304); this pipeline has
+# neither, so G-T3 measures only the deterministic LUT's pass-through of the
+# source motion. All coefficients below are FROZEN CONSTANTS declared in the
+# NEON_CYBERPUNK registry row (config) — the styleConfigHash is stable and
+# identical for every clip (no per-clip adaptation).
+# ---------------------------------------------------------------------------
+
+
+class _NeonCyberpunkState:
+    """SPR107 neon/cyberpunk pipeline (LUT + bloom + edge glow).
+
+    Stage 1  _neon_lut_grade : fixed 3x3 BGR channel mix (row-normalized,
+              cools the base toward teal) -> baked 256-entry pivot-contrast
+              S-curve (identical table for all channels) -> soft split-tone
+              (teal shadows / magenta highlights, BT.601-luma weighted knee).
+    Stage 2  _bloom_pyramid  : max-channel soft threshold on the graded frame
+              -> 3-octave pyrDown Gaussian pyramid -> per-octave pyrUp
+              upsample chain (dstsize-exact, fixed 5x5 kernels) -> weighted
+              sum -> ADDITIVE composite onto the graded frame.
+    Stage 3  _edge_glow      : Sobel(k=3) magnitude on the graded luma
+              (pre-bloom: bloom would soften the edge structure) -> soft
+              knee -> Gaussian soften -> neon-cyan tint soft (alpha)
+              composite over the bloomed frame.
+
+    Deterministic: every op is a fixed function of the current frame; the
+    same input bytes + config always produce the same output bytes.
+    """
+
+    def __init__(self, cfg: dict):
+        c = self.cfg = cfg
+        # stage 1 — LUT color grade ------------------------------------
+        # baked 256-entry S-curve: y = clip(pivot + (x/255 - pivot)
+        # * contrast) * 255, rounded once at bake time (identical table for
+        # B/G/R, so the curve is a true per-channel LUT after the mix)
+        pivot, contrast = float(c.get("curvePivot", 0.44)), \
+            float(c.get("curveContrast", 1.28))
+        u = np.arange(256, dtype=np.float32) / 255.0
+        curve = np.clip(pivot + (u - pivot) * contrast, 0.0, 1.0) * 255.0
+        self.curve_lut = np.clip(np.round(curve), 0, 255).astype(np.uint8)
+        # fixed 3x3 BGR channel-mix matrix, rows sum to 1.0 (level-preserving)
+        self.mix = np.array(c.get(
+            "mixMatrix", [[0.86, 0.10, 0.04],
+                          [0.07, 0.84, 0.09],
+                          [0.12, 0.16, 0.72]]), dtype=np.float32)
+        # BT.601 luma weights (B, G, R)
+        self.luma_w = np.array(c.get("lumaWeights", [0.114, 0.587, 0.299]),
+                               dtype=np.float32)
+        self.split_lo = float(c.get("splitKneeLow", 0.38))
+        self.split_hi = float(c.get("splitKneeHigh", 0.72))
+        self.teal = np.array(c.get("shadowTeal", [34, 22, -26]),
+                             dtype=np.float32)      # B, G, R additive tint
+        self.magenta = np.array(c.get("highlightMagenta", [18, -22, 34]),
+                                dtype=np.float32)  # B, G, R additive tint
+        # stage 2 — bloom (threshold + pyramid upsample + additive) --------
+        self.bloom_lo = float(c.get("bloomThrLow", 196.0))
+        self.bloom_hi = float(c.get("bloomThrHigh", 244.0))
+        self.bloom_levels = int(c.get("bloomLevels", 3))
+        self.bloom_weights = [float(w) for w in c.get(
+            "bloomWeights", [0.42, 0.33, 0.25])]
+        self.bloom_strength = float(c.get("bloomStrength", 0.75))
+        # stage 3 — edge glow (Sobel magnitude + tint + soft composite) ----
+        self.edge_lo = float(c.get("edgeKneeLow", 120.0))
+        self.edge_hi = float(c.get("edgeKneeHigh", 480.0))
+        self.edge_soften = float(c.get("edgeSoften", 1.2))
+        self.edge_alpha = float(c.get("edgeAlpha", 0.62))
+        self.edge_tint = np.array(c.get("edgeTint", [200, 250, 90]),
+                                  dtype=np.float32)  # neon cyan (B, G, R)
+
+    # -- helpers ------------------------------------------------------------
+
+    @staticmethod
+    def _smooth01(x: np.ndarray) -> np.ndarray:
+        """Soft 0->1 knee (hermite smoothstep) on a float array."""
+        t = np.clip(x, 0.0, 1.0)
+        return t * t * (3.0 - 2.0 * t)
+
+    # -- stage 1: fixed teal/magenta LUT grade -------------------------------
+
+    def _neon_lut_grade(self, bgr: np.ndarray) -> np.ndarray:
+        f = bgr.astype(np.float32) @ self.mix.T       # fixed channel mix
+        mixed = np.clip(np.round(f), 0, 255).astype(np.uint8)
+        mixed = cv2.LUT(mixed, self.curve_lut)        # baked pivot-contrast
+        g = mixed.astype(np.float32)
+        luma = g @ self.luma_w / 255.0                # BT.601, in [0,1]
+        w = self._smooth01((luma - self.split_lo) /
+                           max(self.split_hi - self.split_lo, 1e-6))
+        tint = (self.teal[None, None, :] * (1.0 - w[..., None])
+                + self.magenta[None, None, :] * w[..., None])
+        return np.clip(g + tint, 0, 255).astype(np.uint8)
+
+    # -- stage 2: threshold + Gaussian pyramid bloom -------------------------
+
+    def _bloom_pyramid(self, bgr: np.ndarray) -> np.ndarray:
+        f = bgr.astype(np.float32)
+        v = f.max(axis=2)                             # highlight value
+        mask = self._smooth01((v - self.bloom_lo) /
+                              max(self.bloom_hi - self.bloom_lo, 1e-6))
+        bright = f * mask[..., None]
+        # octaves[0] = full-res thresholded brights (not composited raw);
+        # octaves[i] = brights downsampled i times (fixed 5x5 Gaussian)
+        octaves = [bright]
+        for _ in range(self.bloom_levels):
+            octaves.append(cv2.pyrDown(octaves[-1]))
+        sizes = [(o.shape[1], o.shape[0]) for o in octaves]
+        glow = np.zeros_like(f)
+        for i in range(1, self.bloom_levels + 1):
+            up = octaves[i]
+            for j in range(i, 0, -1):                 # dstsize-exact chain up
+                up = cv2.pyrUp(up, dstsize=sizes[j - 1])
+            glow += self.bloom_weights[i - 1] * up
+        return np.clip(f + self.bloom_strength * glow, 0, 255).astype(np.uint8)
+
+    # -- stage 3: Sobel edge glow ---------------------------------------------
+
+    def _edge_glow(self, graded: np.ndarray, current: np.ndarray) -> np.ndarray:
+        f = current.astype(np.float32)
+        g = graded.astype(np.float32)
+        luma = g @ self.luma_w                        # graded (pre-bloom) luma
+        gx = cv2.Sobel(luma, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(luma, cv2.CV_32F, 0, 1, ksize=3)
+        mag = np.sqrt(gx * gx + gy * gy)
+        e = self._smooth01((mag - self.edge_lo) /
+                           max(self.edge_hi - self.edge_lo, 1e-6))
+        e = cv2.GaussianBlur(e, (0, 0), self.edge_soften)
+        a = (self.edge_alpha * e)[..., None]
+        return np.clip(f * (1.0 - a) + self.edge_tint[None, None, :] * a,
+                       0, 255).astype(np.uint8)
+
+    # -- pipeline ---------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray) -> np.ndarray:
+        graded = self._neon_lut_grade(bgr)
+        bloomed = self._bloom_pyramid(graded)
+        return self._edge_glow(graded, bloomed)
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -369,3 +524,59 @@ SUBJECT_TOON = RendererSpec(
 # additive registry append (SPR-W3-B): the promoted subject-toon row enters
 # the REGISTRY without modifying the frozen four-row construction above
 REGISTRY[SUBJECT_TOON.reality] = SUBJECT_TOON
+
+
+# ---------------------------------------------------------------------------
+# SPR107 Neon/Cyberpunk — wave-4 fresh reality (SPR-W4-C)
+#
+# LUT (fixed teal/magenta grade) + bloom (threshold + Gaussian-pyramid
+# upsample + additive composite) + edge glow (Sobel magnitude + neon tint +
+# soft composite). Deterministic-classical, CPU-only (OpenCV + numpy, the
+# frozen engine toolset), pure per-frame transform: no RNG, no temporal
+# state, no frame-index dependence (the SPR-W3-B T3-diagnosis law) — see
+# _NeonCyberpunkState above for the full stage math and coefficient docs.
+# ---------------------------------------------------------------------------
+
+
+NEON_CYBERPUNK = RendererSpec(
+    rendererId="spr-neon-cyberpunk-dc1", reality="neon-cyberpunk",
+    family="Neon/Cyberpunk (SPR107)", sprId="SPR107",
+    pipeline=[
+        "neon_lut_grade(3x3 BGR mix rows [0.86,0.10,0.04|0.07,0.84,0.09|"
+        "0.12,0.16,0.72], baked 256-entry pivot-contrast curve pivot=0.44 "
+        "contrast=1.28, split-tone teal shadows (+34,+22,-26) / magenta "
+        "highlights (+18,-22,+34), BT.601 luma knee 0.38..0.72)",
+        "bloom_pyramid(max-channel soft-threshold 196..244, 3-octave "
+        "pyrDown/pyrUp chain, octave weights 0.42/0.33/0.25, additive "
+        "strength 0.75)",
+        "edge_glow(Sobel k=3 magnitude soft-knee 120..480, soften sigma 1.2, "
+        "neon-cyan tint (200,250,90), alpha 0.62 soft composite)",
+    ],
+    description=("Teal/magenta neon grade with soft highlight bloom and "
+                 "cyan edge glow. Pure per-frame pipeline: baked LUT + "
+                 "fixed-kernel Gaussian pyramid + Sobel tint — no RNG, no "
+                 "temporal state (T3-diagnosis law)."),
+    config={
+        # stage 1 — LUT color grade (teal shadows / magenta highlights)
+        "mixMatrix": [[0.86, 0.10, 0.04],
+                      [0.07, 0.84, 0.09],
+                      [0.12, 0.16, 0.72]],
+        "curvePivot": 0.44, "curveContrast": 1.28,
+        "lumaWeights": [0.114, 0.587, 0.299],
+        "splitKneeLow": 0.38, "splitKneeHigh": 0.72,
+        "shadowTeal": [34, 22, -26],
+        "highlightMagenta": [18, -22, 34],
+        # stage 2 — bloom (threshold + pyramid upsample + additive)
+        "bloomThrLow": 196, "bloomThrHigh": 244,
+        "bloomLevels": 3, "bloomWeights": [0.42, 0.33, 0.25],
+        "bloomStrength": 0.75,
+        # stage 3 — edge glow (Sobel magnitude + tint + soft composite)
+        "edgeKneeLow": 120, "edgeKneeHigh": 480,
+        "edgeSoften": 1.2, "edgeAlpha": 0.62,
+        "edgeTint": [200, 250, 90],
+    },
+)
+
+# additive registry append (SPR-W4-C): the SPR107 neon-cyberpunk row enters
+# the REGISTRY without modifying any prior declaration or construction line
+REGISTRY[NEON_CYBERPUNK.reality] = NEON_CYBERPUNK
