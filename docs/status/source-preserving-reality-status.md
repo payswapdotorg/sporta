@@ -3,7 +3,66 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-1 TIERED (all Tier 0 honest, noir/trails near-miss) + WAVE-2 CORPUS 5/6 DISCOVERED (b4 pending honestly)
+## Current state: WAVE-2 DELIVERED AND MERGED (B+C in main, byte-verified; b4 honestly negative; push PAT-blocked) — WAVE-3 AUTHORED, DISPATCH PENDING PAT
+
+### Session w6-spr-5 (2026-09-25, wave-2 worker deliveries + TL audit + merge)
+
+Three wave-2 workers ran server-side through TWO sandbox resets (the git
+branch delivery held both times — workers push branches, never local state):
+
+- **spr/w2b/corpus-renders @7d8b277** (session 942a166c…): 30/30 renders
+  (5 realities × 6 clips), 30/30 byte-identical double-render determinism,
+  substrate 8/8 sha-verified before rendering. Honest gate findings: F1 —
+  all 5 b1 renders fail T1 (substrate audio 30.00 s < video 30.04 s; the
+  frozen `-shortest` encoder drops frame 751→750) and qa_check CRASHES on
+  the 751-vs-750 mismatch (b1 T2/T3/T4 not produced; crashes recorded);
+  F2 — G-T2 vacuous coverage=0/max(0,1) failures on zero-cut clips (b5/b6/b7)
+  are a gate-design artifact, not renderer defects; F3 — b2 anime+trails
+  G-T2 fail is one source cut splitting into two adjacent spikes (coverage
+  1.0, 0 invented); F4 — real G-T3 misses: b5 noir-vhs r=0.7303, b6 vhs
+  r=0.7978 (critical) — VHS grain/scanline noise decorrelates motion energy
+  on uniform pans.
+- **spr/w2c/stylizer-trials @e55ae86** (session 23533afe…): 3 license-clean
+  CPU candidates (AnimeGANv2 + EbSynth REJECTED for license red flags).
+  All preservation gates green (one adjudicated T2 flag: input-correspondent
+  spike, cuts_deep 0 invented); triple-render determinism; VLM mini-protocol
+  deltas vs same-protocol cartoon-cel baseline: subject-toon b8 identity
+  +1.0 AND motion +1.0 (attacks the Tier-2 diagnosis exactly). Verdicts:
+  subject-toon KEEP, flow-prop-toon KEEP, kuwahara-paint CONDITIONAL
+  (painterly family only). Surfaced 2 pre-existing substrate defects:
+  b12 nb_frames metadata 338 vs 301 decoded; `-shortest` trailing-frame
+  drop (frozen baseline exhibits it too).
+- **spr/w2a/b4-crowd @de687ce** (session f6dd7459…): HONEST NEGATIVE — 16
+  new windows (~1520 s), 80 grids, ~1220 cells classified, 26 crowd-flagged
+  → 5 candidates → all 5 rejected by per-frame direct verification: every
+  crowd-dominant run in this broadcast is 2–7 s (longest verified ~6.5 s @
+  media 4232.9). An 8–12 s crowd passage does not exist in this source.
+
+**TL audit (this session):** b7×motion-trails re-rendered on the MERGED tree
+— sha256 `998c9b49…` BYTE-IDENTICAL to the worker's recorded pair
+(anti-fabrication; b1×cartoon-cel + b7×motion-trails were verified in the
+pre-merge audit). B+C merged into main locally (`2b35368`), diff-verified
+lane-only (insertions only, both lanes), engine untouched. **PUSH PENDING:**
+the reset wiped the PAT and z.ai server-redacts tokens in transcripts
+(`[REDACTED:github_token]` — API-level, not UI), so origin/main still sits
+at `805a5fc` until the operator supplies a fresh PAT.
+
+**TL decisions (wave-3 shape, recorded):**
+1. b1 re-cut with apad + b12 metadata/apad normalization (substrate adapts,
+   engine frozen — w6-spr-2 precedent) with corpus SHA re-lock.
+2. b5/b6 noir-vhs G-T3 misses → root-cause diagnosis work order (gate metric
+   vs stylizer trade-off, recorded not patched).
+3. b4 path: goal-timestamp-targeted final sweep (crowd cutaways cluster
+   after goals) with a hard gate — if ~15 goal-adjacent windows still find
+   no ≥8 s crowd-dominant run, b4 is reclassified as a crowd-montage
+   (assembled from the verified 2–7 s runs, cut marks + provenance).
+4. subject-toon promoted toward first-class reality + formal frozen-protocol
+   Tier-2 scorecards (mini-protocol deltas are not tier claims); kuwahara
+   stays CONDITIONAL painterly-family; EbSynth terms REJECTED — flow-prop-toon
+   is the in-engine temporal-stability architecture.
+
+Wave-3 work orders authored (dispatch PAT-blocked): substrate-fix
+(b1/b12), stylizer-promotion + scorecards, b4 final sweep.
 
 ### Session w6-spr-3 (2026-09-25, Tier-2 gate execution)
 
@@ -245,13 +304,18 @@ qa/cuts-deep-cartoon-cel.json. The raw G-T2 JSON is preserved untouched.
 
 ## Next executable work
 
-0. **PAT re-injection** (operator): the w6-spr-2 AND w6-spr-3 commits sit
-   local — push `main` to GitHub when credentials return.
-1. Wave 2 remaining: b4 (crowd) needs goal timestamps or wider sampling;
-   corpus-wide renders (every family × every clip per benchmark §4); A's
-   upgrade trials (EbSynth keyframe propagation, Kuwahara, AnimeGANv2 A/B) —
-   the Tier-2 diagnosis points exactly at stylizer visual quality
-   (preservation already proven: sourceFidelity 4.88–5.0).
+0. **PAT re-injection** (operator): local main = wave-2 closure (`2b35368`:
+   B+C merged, byte-verified). Push to GitHub when credentials return;
+   wave-3 worker dispatch unblocks with it (the transient push token is
+   embedded in work orders at dispatch time).
+1. **Wave-3 dispatch (PAT-gated)** — work orders authored, ready to dispatch
+   from the replay: (a) substrate fix: b1 apad re-cut + b12 metadata/apad
+   normalization + corpus SHA re-lock + affected re-renders (resolves the 5
+   b1 T1 fails/qa crashes — F1 — and retires w2c's derived gate references);
+   (b) subject-toon promotion to first-class reality + formal frozen-protocol
+   Tier-2 scorecards for the three trial candidates (+ b5/b6 noir-vhs T3
+   root-cause diagnosis — F4); (c) b4 final sweep: goal-timestamp-targeted
+   windows with the hard reclassify-to-montage gate (decision 3 above).
 2. SPR103/104/107/109/202/205 per the work-items doc.
 3. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
    axes are recorded as a limitation; full-video review would replace the
