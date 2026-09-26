@@ -1373,3 +1373,33 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   for a re-run under a frozen path, then delivers the §7 human verdict.
 - acquire.py grew `--detail` (the honest via.detail override; default
   behavior unchanged). Commit follows on main-tip.
+
+## 2026-09-26 — TL: EXECUTION RESUMED — closure lanes launched after the handoff-pause verdict
+
+- Received the 2026-09-26 progress verdict: main still at `239b6fd`
+  (Wave-4-B, 2026-09-25 16:09 UTC), no commits/PRs/branches after it —
+  "handoff accepted, execution not yet resumed". The directive: execute
+  the three closure lanes (A: R606/SWM/HF, B: R607/platform/providers,
+  C: SPR quality/visual QA/live presentation), beginning with the
+  documentation reconciliation.
+- Environment honesty: the sandbox was reset again — the persisted
+  credential chain (`~/.env_credentials`, `~/.secrets/env.sh`,
+  `~/.bashrc`) is wiped, so GitHub push and Vercel deploy are
+  PAT/token-blocked this session. sporta is public (fresh clone
+  verified against `git ls-remote` HEAD `239b6fd`); all work executes
+  locally in `/home/z/sporta` and lands as local commits/branches; push
+  follows credential re-injection (recorded, not worked around — same
+  posture as the w6-spr-5 "PUSH PENDING" precedent). The acquisition
+  chain (gost proxy, TLS relay, bgutil provider, replay stack) is
+  reset-dead; the corpus bytes are in-repo, so closure work is real.
+- Lane 0 (this commit): documentation reconciliation — the SPR status
+  doc header moved from the stale Wave-2 state to the actual Wave-4
+  state; wave-3/wave-4 records reconstructed from merge commits +
+  in-repo evidence dirs with an explicit reconciliation label; the
+  corpus-wide tier table recorded (no Tier-2 reality; subject-toon
+  strongest at min-axis 2.73 / critical 15); the SPR TL handoff digest
+  updated; the closure-lane split declared in lane-coordination.md.
+- Lanes A/B/C dispatched (ellipse-constrained calibration; local
+  golden-path + restart-recovery evidence; subject-toon Tier-2 push).
+  Results will be recorded ONLY after TL verification of executable
+  evidence, per the standing rule.

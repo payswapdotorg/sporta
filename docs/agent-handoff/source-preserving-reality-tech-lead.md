@@ -1,11 +1,36 @@
 # Source-Preserving Reality — Tech Lead Operating Doc
 
-Session: w6-spr-2 (2026-09-24, environment-reset recovery) · Repository state:
-sporta main = w6-spr-1 merge 40dcf60 + local w6-spr-2 commits (push BLOCKED —
-no PAT in this sandbox; re-inject to sync). Worktree `/home/z/sporta` (the
-detached `/home/z/sporta-wc` worktree died with the reset).
+Session: w7-closure-1 (2026-09-26, closure-lane execution resumed) · Repository
+state: sporta main = `239b6fd` (Wave-4-B corpus ledger merge; waves 1–4 all
+merged; verified by fresh clone + `git ls-remote`). Worktree `/home/z/sporta`.
+Push PAT-BLOCKED (the 2026-09-26 sandbox reset wiped the credential chain —
+recorded honestly; work lands on local branches until the operator
+re-injects).
 
-## w6-spr-2 state digest (replaces the w6-spr-1 lines below)
+## w7-closure-1 state digest (replaces the w6-spr-2 digest below)
+
+- The 2026-09-26 verdict classified the program as "handoff accepted,
+  execution not yet resumed" — this session RESUMES execution: documentation
+  reconciled first (wave-3/4 records reconstructed into the status doc with
+  an explicit reconciliation label), then three closure lanes.
+- Program state after wave 4: 54-cell corpus ledger, determinism 54/54,
+  cutsDeep 54/54 (0 invented cuts), preservation proven (sourceFidelity
+  4.73–5.0); **no Tier-2 reality** — subject-toon is the strongest (min
+  axis 2.73, critical 15). b4 closed as crowd-montage. Neon registered and
+  machine-gated, scorecards deferred by design.
+- Closure lanes (lane-coordination.md 2026-09-26): Worker A → R606
+  ellipse/circle-constrained calibration (corpus bytes are IN-REPO under
+  `scripts/evidence/spr-corpus-bytes/` — real local execution without the
+  dead acquisition chain); Worker B → R607 local golden-path +
+  restart-recovery evidence (hosted redeploy PAT-blocked); Worker C →
+  Tier-2 push on subject-toon + live presentation surface.
+- Environment notes for this session: ffmpeg 7.1.5 + cv2 4.13 + numpy 2.1.3
+  verified; z-ai-web-dev-sdk available (my-project node_modules; backend
+  only); the replay stack, gost proxy, TLS relay, bgutil provider are ALL
+  GONE (machine-local, reset-killed) — re-acquisition is NOT possible this
+  session; corpus-first execution only.
+
+## w6-spr-2 state digest (superseded — historical)
 
 - Sandbox was reset; everything machine-local was lost (substrate, renders,
   QA JSONs, surface, replay stack). GitHub main @40dcf60 survived.

@@ -3,7 +3,79 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-2 DELIVERED AND MERGED (B+C in main, byte-verified; b4 honestly negative; push PAT-blocked) — WAVE-3 AUTHORED, DISPATCH PENDING PAT
+## Current state: WAVE-4 COMPLETE AND MERGED (substrate fixed, subject-toon first-class, b4 closed as crowd-montage, 54-cell corpus ledger, neon machine-gated) — Tier-2 NOT YET REACHED — CLOSURE LANES EXECUTING (2026-09-26)
+
+### Wave-3 + Wave-4 record (RECONCILED 2026-09-26 — see the reconciliation note)
+
+**Reconciliation note (2026-09-26, TL):** the wave-3 and wave-4 session
+records were never appended to this file at execution time — the
+2026-09-26 verdict flagged exactly this ("stale SPR status/handoff
+documentation not reconciled with the Wave-4 state"). The records below
+are reconstructed from the merge commits, the branch evidence dirs and
+the frozen gate artifacts in-repo, and are labeled as reconciliation,
+not contemporaneous logging. Evidence pointers are repo-relative.
+
+**Wave-3 (merged 2026-09-25, all base 7b16aad):**
+
+- **spr/w3a/substrate-fix → 0fce52e (04:53 UTC)** — b1/b12 apad substrate
+  fix: F1 resolved (b1 751-vs-750 `-shortest` frame-drop T1 fails +
+  qa_check crashes), 5/5 re-renders byte-identical, corpus re-locked
+  with new shas, b12 `nb_frames` metadata root-caused honestly
+  (338-vs-301 — derived 300-frame reference adopted for gating).
+- **spr/w3b/toon-promotion → fcd7b1c (05:30 UTC)** — subject-toon
+  promoted to a first-class registry reality (additive +166/−0,
+  `spr-subject-toon-dc1` v0.1.0 in `spe/renderers.py`); formal
+  frozen-protocol Tier-2 scorecards 60/60 calls; noir-vhs T3 diagnosis
+  (jitter mechanism, 0.2s-metric recommendation → wave-4a). Scorecard
+  verdict (honest): sourceFidelity 4.73, identityConsistency 3.20,
+  motionFidelity 3.13, sceneFidelity 2.73, stylizationStrength 4.6,
+  temporalConsistency 2.87; minAxis 2.73; criticalArtifacts 15 →
+  **Tier 0** (the frozen bar is every axis ≥ 4.0 + 0 critical + TL
+  approval). Evidence: `scripts/evidence/spr-wave3-toon-promotion/`.
+- **spr/w3c/b4-final → eb3b404 (09:59 UTC)** — b4 final sweep closed the
+  hard gate to **crowd-montage**: 12.0s C4+C5 assembly, sha-verified,
+  20 windows / 1609.8s new coverage, 40 goal-moments, honest 429
+  accounting; TL audit byte-verified C4/C5 runs + brackets against the
+  immutable w2a records. b4 is honestly a montage, not a single-shot
+  passage — the corpus no longer carries a pending b4.
+
+**Wave-4 (merged 2026-09-25):**
+
+- **spr/w4a/gate-amendment → af037a3 (10:57 UTC)** — analog G-T3 gate
+  amendment A1: 0.2s smoothed T3 for analog profiles (additive tool
+  +239/−0, append-only doc +19/−0, 7/7 regression shas exact; frozen
+  engine blobs verified byte-identical).
+- **spr/w4c/neon-reality → b66f3dc (12:13 UTC)** — SPR107 neon-cyberpunk
+  registry promotion (additive +211/−0, `spr-neon-cyberpunk-dc1`);
+  coverage renders b8/b2/b5 double-render byte-identical; cartoon-cel
+  regression exact; b5 T2 = documented wave-2 F2 zero-cut class;
+  **VLM scorecards deferred by design** — neon is machine-gated and
+  deterministic but its product-tier status is NOT claimed.
+- **spr/w4b/corpus-renders → 239b6fd (16:09 UTC, current main tip)** —
+  the corpus-wide render ledger: 9 clips × 6 lanes = **54 cells, 108
+  runs, determinism 54/54 byte-identical** (23,496 frames piped);
+  G-T1 54/54, G-T4 54/54, G-T3 51/54 (raw; 3 vhs-class fails
+  pre-adjudicated), G-T2 27/54 (every fail mapped to a named
+  pre-adjudicated class), **cutsDeep 54/54 with 0 invented cuts**;
+  honest qaAllPass 26/54 with the failure classes recorded, not hidden;
+  35 cross-wave anchors EXACT + the b12 substrate-evolution class + 13
+  new cells; TL station spot re-render b4:cartoon-cel byte-exact
+  (`23de1b96…`). Evidence:
+  `scripts/evidence/spr-w4b-corpus-renders/` (README + gate tables +
+  renders-w4b.json + 54 qa JSONs + 108 PNGs + commands.md).
+
+**Corpus-wide tier state after wave 4 (the honest product gap):** every
+lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
+  0 invented cuts matrix-wide), but **no reality has reached Tier 2**:
+
+| Reality | VLM min-axis | Critical artifacts | Tier |
+|---|---|---|---|
+| subject-toon (strongest deterministic) | 2.73 | 15 | 0 |
+| noir-retro (noir profile) | 3.59 | 1 | 0 |
+| motion-trails | 3.47 | 2 | 0 |
+| anime-npr | 1.80 | 136 | 0 |
+| cartoon-cel | 1.53 | 99 | 0 |
+| neon-cyberpunk | scorecards deferred by design | — | machine-gated only |
 
 ### Session w6-spr-5 (2026-09-25, wave-2 worker deliveries + TL audit + merge)
 
@@ -299,24 +371,50 @@ qa/cuts-deep-cartoon-cel.json. The raw G-T2 JSON is preserved untouched.
 
 ## Relationship to other lanes
 
-- R606 (reconstruction): OPEN, unchanged — calibration stage (W303 lane).
-- R607: not advanced (unchanged rule).
+Per the 2026-09-26 verdict, the program is executing three parallel closure
+lanes (see `docs/status/lane-coordination.md` and the session-log
+2026-09-26 entry):
+
+- **Worker A (R606/SWM/HF):** the ellipse/circle-constrained calibration
+  solve on the committed corpus bytes — the measured next increment
+  recorded in the R606 row of `mvp-and-live-reality-status.md`
+  (broadcast-line-calibrator v0.1.0 calibrates 1/3 static windows at
+  confidence 0.78; the minority-orientation family is arc segments; the
+  center circle is strongly detected). R606 stays OPEN until
+  trustworthy pitch coordinates → SWM → derived realities hold on real
+  in-play 640×360 video.
+- **Worker B (R607/platform/providers):** the hosted acceptance
+  (deploy current main → fresh-browser golden path → redeploy →
+  same identity/session/library/watch/artifacts recover). This session
+  executes the local real-process recovery evidence; the hosted redeploy
+  is PAT-blocked (sandbox reset wiped the token chain — recorded
+  honestly in the session log).
+- **Worker C (SPR quality/visual QA/live presentation):** the Tier-2
+  push on subject-toon (identity 3.20 / motion 3.13 / scene 2.73 /
+  critical 15 vs the frozen ≥4.0 + 0-critical + TL-approval bar), the
+  deferred neon scorecard, and the live presentation surface.
 
 ## Next executable work
 
-0. **PAT re-injection** (operator): local main = wave-2 closure (`2b35368`:
-   B+C merged, byte-verified). Push to GitHub when credentials return;
-   wave-3 worker dispatch unblocks with it (the transient push token is
-   embedded in work orders at dispatch time).
-1. **Wave-3 dispatch (PAT-gated)** — work orders authored, ready to dispatch
-   from the replay: (a) substrate fix: b1 apad re-cut + b12 metadata/apad
-   normalization + corpus SHA re-lock + affected re-renders (resolves the 5
-   b1 T1 fails/qa crashes — F1 — and retires w2c's derived gate references);
-   (b) subject-toon promotion to first-class reality + formal frozen-protocol
-   Tier-2 scorecards for the three trial candidates (+ b5/b6 noir-vhs T3
-   root-cause diagnosis — F4); (c) b4 final sweep: goal-timestamp-targeted
-   windows with the hard reclassify-to-montage gate (decision 3 above).
-2. SPR103/104/107/109/202/205 per the work-items doc.
-3. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
+0. **PAT re-injection** (operator): local main has moved past the
+   wave-2 closure since `7b16aad` — waves 3+4 are merged (tip
+   `239b6fd`), and closure-lane work continues on local branches.
+   Push to GitHub when credentials return (the sandbox reset on
+   2026-09-26 wiped `~/.env_credentials`; the loss is recorded, not
+   worked around — no token substitution, no fake evidence).
+1. **Tier-2 push** (Worker C lane): subject-toon quality iteration with
+   the frozen scorecard protocol — the bar is never lowered; near-miss
+   results are recorded honestly.
+2. **R606 calibration** (Worker A lane): ellipse/circle-constrained
+   solve measured on the committed corpus clips (b5/b3/b1-wide/b8p3);
+   higher-resolution acquisition remains the alternative path but the
+   acquisition chain (proxy/relay) is machine-local and currently dead
+   — corpus-first.
+3. **R607 hosted proof** (Worker B lane): blocked on PAT; local
+   recovery evidence + honest blocker record this session, hosted run
+   when credentials return.
+4. SPR104/105/106/109/202/205 per the work-items doc (backlog after
+   the closure lanes).
+5. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
    axes are recorded as a limitation; full-video review would replace the
    0.2 s pair judgment.
