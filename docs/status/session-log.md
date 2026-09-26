@@ -1403,3 +1403,36 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   golden-path + restart-recovery evidence; subject-toon Tier-2 push).
   Results will be recorded ONLY after TL verification of executable
   evidence, per the standing rule.
+
+## Session S045 (w7-closure) — 2026-09-26 — Resident watch: closure lanes dispatched; lane B delivered + merged
+
+- The resident watch (operator directive: monitor → harvest → review →
+  approve/require-changes → dispatch next, until the roadmap is complete)
+  opened with the operator logged in through the replay console
+  (LOGIN_READY 22:06). All three closure-lane workers dispatched from
+  INSIDE the replay (agents-tab, GLM-5.3, Full-Stack): laneA-r606-ellipse
+  (r606/ellipse-constrained-solve), laneB-r607-hosted
+  (r607/hosted-acceptance-evidence), laneC-spr-tier2 (spr/w5a/tier2-push).
+- Lane B delivered first (~35 min): branch pushed with the hosted
+  acceptance evidence + one FLAGGED minimal product fix. TL audit
+  executed BEFORE the merge: three deployment ids re-checked via the
+  Vercel API (READY, sha+timestamp match), the public alias re-hit live
+  (HTTP 200, marker r607-fix-2, neon/neon/r2 providers ok), the test
+  batteries re-run in a clean worktree (shim 7/7, api-routes 15/15,
+  golden-path 14/14, tsc --noEmit clean), the flagged fix audited
+  (minimal, the repo's own W911 shim pattern, no other product code
+  touched), and the recovery table cross-checked against the evidence
+  pack. APPROVED → merged (no-ff) → R607 status row updated. Session
+  closed worker-side (slot freed).
+- Honest boundary recorded by the worker and confirmed by the TL: the
+  hosted four-reality media pipeline is MEASURED-BLOCKED at the
+  runtime-toolchain-absent boundary (no ffmpeg/ffprobe on the Vercel
+  Hobby Node serverless runtime; admission refuses typed, nothing
+  faked). The hosted control-plane + durability half of R607 is proven
+  (byte-identical artifact + identity + library + watch recovery across
+  a redeploy, zero developer intervention).
+- Lanes A (ellipse-constrained calibration) and C (subject-toon Tier-2
+  push) remain in flight inside the replay; the resident watch
+  continues (queue_watch ring + TL poll cycles; the lane report-format
+  completion gate proved too strict for lane B's prose-shaped report —
+  the branch-push signal is the authoritative completion marker now).
