@@ -1,0 +1,108 @@
+{
+ "sessionId": "sess-u-abb7d38fc2868a3021aa281a3baab9c0",
+ "label": "Derby night at Kings Park",
+ "status": "authorized",
+ "createdAtIso": "2026-09-26T22:34:29.159Z",
+ "playback": {
+  "state": "authorized",
+  "reasonCode": "ok"
+ },
+ "renders": [
+  {
+   "renderId": "r-u-2ce33e9fbd2afe81fea6c968c66d876e",
+   "rendererId": "anime.prototype",
+   "watermarkAfter": {
+    "watermarkMs": 12000,
+    "sequence": 3
+   },
+   "provenance": {
+    "snapshotVersion": 138,
+    "lastEventSequence": 0
+   },
+   "rendererHealth": {
+    "lagMs": 0,
+    "degraded": false
+   },
+   "segmentCount": 6,
+   "outputs": [
+    {
+     "segmentId": "anime-clip-684d4240",
+     "contentType": "image/svg+xml",
+     "byteLength": 19733,
+     "contentHash": "ad849619db660ad75d2a16e9ba7c638d393971ba9ae1b2c3d78ad96123e8b717"
+    }
+   ]
+  }
+ ],
+ "eventTail": [
+  {
+   "sequence": 1,
+   "eventId": "fe-ceu-ec-1",
+   "eventTimeMs": 500,
+   "eventTypeRef": "football/v1/kickoff",
+   "confidence": 0.77
+  },
+  {
+   "sequence": 2,
+   "eventId": "fe-ceu-ec-2",
+   "eventTimeMs": 3000,
+   "eventTypeRef": "football/v1/pass",
+   "confidence": 0.8499999999999999
+  },
+  {
+   "sequence": 3,
+   "eventId": "fe-ceu-ec-3",
+   "eventTimeMs": 5500,
+   "eventTypeRef": "football/v1/goal",
+   "confidence": 0.91
+  }
+ ],
+ "story": {
+  "source": "dev-seed",
+  "storyKey": "derby",
+  "transcript": [
+   {
+    "startMs": 500,
+    "endMs": 1000,
+    "text": "And we kick off here at the stadium.",
+    "asrConfidence": 0.95
+   },
+   {
+    "startMs": 3000,
+    "endMs": 3500,
+    "text": "Mane plays a lovely pass to Salah.",
+    "asrConfidence": 0.95
+   },
+   {
+    "startMs": 5500,
+    "endMs": 6000,
+    "text": "Salah scores for Liverpool!",
+    "asrConfidence": 0.95
+   }
+  ],
+  "events": [
+   {
+    "sequence": 1,
+    "timeMs": 500,
+    "type": "kickoff",
+    "phrase": "kick off",
+    "confidence": 0.77
+   },
+   {
+    "sequence": 2,
+    "timeMs": 3000,
+    "type": "pass",
+    "phrase": "pass",
+    "confidence": 0.8499999999999999
+   },
+   {
+    "sequence": 3,
+    "timeMs": 5500,
+    "type": "goal",
+    "phrase": "scores",
+    "confidence": 0.91
+   }
+  ],
+  "waveCount": 6
+ }
+}
