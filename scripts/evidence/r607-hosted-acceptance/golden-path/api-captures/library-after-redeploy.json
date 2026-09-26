@@ -1,0 +1,44 @@
+{
+ "sessions": [
+  {
+   "sessionId": "sess-u-abb7d38fc2868a3021aa281a3baab9c0",
+   "label": "Derby night at Kings Park",
+   "status": "authorized",
+   "createdAtIso": "2026-09-26T22:34:29.159Z",
+   "playback": {
+    "state": "authorized",
+    "reasonCode": "ok"
+   },
+   "renders": [
+    {
+     "renderId": "r-u-2ce33e9fbd2afe81fea6c968c66d876e",
+     "rendererId": "anime.prototype",
+     "segmentCount": 6,
+     "hasStoredOutputs": true
+    }
+   ],
+   "outputCount": 1,
+   "realities": [
+    {
+     "rendererId": "anime.prototype",
+     "renderId": "r-u-2ce33e9fbd2afe81fea6c968c66d876e",
+     "state": "ready",
+     "segmentCount": 6,
+     "hasStoredOutputs": true
+    }
+   ],
+   "realityCount": 1,
+   "visibility": {
+    "kind": "private",
+    "roles": []
+   },
+   "operational": null,
+   "story": {
+    "source": "dev-seed",
+    "storyKey": "derby",
+    "eventCount": 3
+   }
+  }
+ ],
+ "ownerId": "u-da57c6893aa146439a74cd6ffb4a3014"
+}

@@ -1,0 +1,101 @@
+{
+  "workItem": "R607 hosted acceptance evidence",
+  "worker": "Worker B (2026-09-26 closure lanes, lane B)",
+  "baseCommit": "0cc47aecb39858e9eff9d6ee3c0f45bb21612562",
+  "branch": "r607/hosted-acceptance-evidence",
+  "publicAlias": "https://sporta-flame.vercel.app",
+  "project": {
+    "name": "sporta",
+    "scope": "ekonplacidegmailcoms-projects",
+    "teamId": "team_4KOoA5CgtYaOF85yFXPeMXLt",
+    "rootDirectory": "apps/web",
+    "framework": "nextjs",
+    "nodeVersion": "24.x",
+    "functionRuntime": "nodejs (lambdaRuntimeStats nodejs:2)"
+  },
+  "deployments": [
+    {
+      "role": "acceptance-step-1-deploy-current-main (RAW main — the defect record)",
+      "id": "dpl_6s7jN8Y8AGNAwM7j1qdMYVyBV26X",
+      "url": "https://sporta-2l82lb85t-ekonplacidegmailcoms-projects.vercel.app",
+      "revision": "0cc47aecb39858e9eff9d6ee3c0f45bb21612562",
+      "marker": "r607-deploy-1",
+      "createdAtMs": 1790461050032,
+      "createdAtIso": "2026-09-26T22:17:30.032Z",
+      "build": "success (Ready in 54s)",
+      "health": "HTTP 500 on /api/platform/health — EVERY API route 500 (TypeError: Bun.which is not a function at composition boot). Shell pages 200.",
+      "verdict": "BROKEN — the hosted defect that motivated the flagged minimal fix (see README)"
+    },
+    {
+      "role": "acceptance-deploy (0cc47ae + the flagged minimal fix) — the golden-path deployment",
+      "id": "dpl_4h5AQfUqKJ3AqVAtYLwnzBrYfVdJ",
+      "url": "https://sporta-e0xwj5ebx-ekonplacidegmailcoms-projects.vercel.app",
+      "revision": "889392674a04cdb9fbf4245e6d0fc2662d1d7f80",
+      "marker": "r607-fix-1",
+      "createdAtMs": 1790461679365,
+      "createdAtIso": "2026-09-26T22:27:59.365Z",
+      "build": "success (Ready in 25s)",
+      "health": "200 — env beta-personal, identity neon/ok(postgres), artifacts r2/ok(sporta-beta-artifacts), controlPlane neon/ok(neon), transientState in-memory/unconfigured (honest)"
+    },
+    {
+      "role": "acceptance-step-3-redeploy (SAME revision, distinct new deployment id) — the recovery-leg deployment",
+      "id": "dpl_9xhz2W7HwRZWjGJJ8XGPja3Ejdkx",
+      "url": "https://sporta-i2k52pf6-ekonplacidegmailcoms-projects.vercel.app",
+      "revision": "889392674a04cdb9fbf4245e6d0fc2662d1d7f80",
+      "marker": "r607-fix-2",
+      "createdAtMs": 1790462186130,
+      "createdAtIso": "2026-09-26T22:36:26.130Z",
+      "build": "success (Ready in 25s)",
+      "health": "200 — marker r607-fix-2 verified on the public alias; identity neon/ok, artifacts r2/ok, controlPlane neon/ok"
+    }
+  ],
+  "providersLiveOnProject": {
+    "DATABASE_URL": "present (production target; env id sDD0xKHWe4sBlInJ — Neon, identity + control plane)",
+    "R2_S3_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET_NAME": "present (production target; bucket sporta-beta-artifacts)",
+    "SPORTA_DEPLOY_ENV": "beta-personal (production target)",
+    "SPORTA_DEPLOY_MARKER": "present (env id GHJXtTrqEuB1I8pg; patched per deploy: r607-deploy-1 → r607-fix-1 → r607-fix-2)",
+    "UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN": "absent — transientState honestly in-memory/unconfigured (W913 boundary, documented)"
+  },
+  "egressFromWorkerSandbox": {
+    "api.vercel.com": "reachable",
+    "publicUrl": "reachable (200)",
+    "console.neon.tech": "reachable (302) — differs from the TL sandbox's documented HTTP 000",
+    "runtimeVerification": "provider state verified through the app's own /api/platform/health (per the task packet's guidance)"
+  },
+  "identities": {
+    "acceptance": {
+      "username": "r607-accept-1790461857",
+      "userId": "u-da57c6893aa146439a74cd6ffb4a3014",
+      "note": "username pattern [a-zA-Z0-9][a-zA-Z0-9._-]{2,31} — the packet's email-style suggestion adapted to the product's username semantics"
+    },
+    "apiProbe": {
+      "username": "r607-probe-1790461734",
+      "userId": "u-05445073e27d4e1cb57e21ee469a67c1",
+      "note": "curl-level probe account for the options/upload measurements (kept for TL re-verification)"
+    }
+  },
+  "durabilityProbe": {
+    "sessionId": "sess-u-abb7d38fc2868a3021aa281a3baab9c0",
+    "label": "Derby night at Kings Park",
+    "sourceKind": "fixture (the studio's labeled dev surface — supplementary probe, NOT the acceptance journey)",
+    "renderId": "r-u-2ce33e9fbd2afe81fea6c968c66d876e",
+    "artifactSegmentId": "anime-clip-684d4240",
+    "artifactContentHash": "ad849619db660ad75d2a16e9ba7c638d393971ba9ae1b2c3d78ad96123e8b717",
+    "artifactByteLength": 19733,
+    "artifactContentType": "image/svg+xml",
+    "artifactSourceHeader": "x-sporta-artifact-source: r2",
+    "recoveredAfterRedeploy": {
+      "identity": true,
+      "preRedeployCookieResolves": true,
+      "libraryRows": "1 before / 1 after (same row)",
+      "watch": true,
+      "realitySwitcherUrlAddressable": true,
+      "artifactsByteIdentical": true
+    }
+  },
+  "credentialsDiscipline": {
+    "VERCEL_TOKEN": "env-only (~/.secrets/env.sh outside the repo; never echoed into committed files; values never printed)",
+    "GH_TOKEN": "env-only (push-time URL credential, never committed)",
+    "tokenLeakScan": "committed tree scanned for 'vcp_' / 'ghp_' prefixes before push — zero matches"
+  }
+}

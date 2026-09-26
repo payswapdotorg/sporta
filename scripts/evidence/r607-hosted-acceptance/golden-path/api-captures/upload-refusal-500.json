@@ -1,0 +1,9 @@
+{
+ "error": {
+  "failureClass": "internal",
+  "message": "unexpected server failure",
+  "details": {
+   "errorId": "6fb8d8f8-de90-4c66-b5b7-7b7801cb7521"
+  }
+ }
+}

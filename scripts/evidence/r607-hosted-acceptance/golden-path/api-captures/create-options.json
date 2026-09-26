@@ -1,0 +1,236 @@
+{
+ "sources": [
+  {
+   "key": "derby",
+   "label": "Derby night at Kings Park",
+   "description": "A full kickoff-to-goal fixture: 4 tracked objects, 6 fusion waves, 3 commentary windows.",
+   "camera": {
+    "pan": 0.5,
+    "zoom": 1,
+    "jitter": 0
+   },
+   "commentary": [
+    {
+     "startMs": 500,
+     "endMs": 1000,
+     "text": "And we kick off here at the stadium."
+    },
+    {
+     "startMs": 3000,
+     "endMs": 3500,
+     "text": "Mane plays a lovely pass to Salah."
+    },
+    {
+     "startMs": 5500,
+     "endMs": 6000,
+     "text": "Salah scores for Liverpool!"
+    }
+   ],
+   "lexicon": {
+    "players": [
+     "Salah",
+     "Mane"
+    ],
+    "teams": [
+     "Liverpool"
+    ]
+   }
+  },
+  {
+   "key": "friendly",
+   "label": "Friendly under the lights",
+   "description": "A shorter evening fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
+   "camera": {
+    "pan": 0.35,
+    "zoom": 1,
+    "jitter": 0
+   },
+   "commentary": [
+    {
+     "startMs": 500,
+     "endMs": 1000,
+     "text": "The friendly is under way here tonight."
+    },
+    {
+     "startMs": 4000,
+     "endMs": 4500,
+     "text": "Foden finishes a fine move!"
+    }
+   ],
+   "lexicon": {
+    "players": [
+     "Foden"
+    ],
+    "teams": []
+   }
+  },
+  {
+   "key": "training",
+   "label": "Training ground drill",
+   "description": "A training-session fixture: 4 tracked objects, 6 fusion waves, 2 commentary windows.",
+   "camera": {
+    "pan": 0.5,
+    "zoom": 1,
+    "jitter": 0
+   },
+   "commentary": [
+    {
+     "startMs": 500,
+     "endMs": 1000,
+     "text": "Training resumes after the warm-down."
+    },
+    {
+     "startMs": 2500,
+     "endMs": 3000,
+     "text": "A sharp passing drill ends the session."
+    }
+   ],
+   "lexicon": {
+    "players": [],
+    "teams": []
+   }
+  }
+ ],
+ "renderers": [
+  {
+   "rendererId": "anime.prototype",
+   "rendererVersion": "0.1.0",
+   "rendererClass": "procedural-3d",
+   "requiresSourceFrames": false,
+   "supportedOutputProfiles": [
+    {
+     "resolution": {
+      "w": 1170,
+      "h": 880
+     },
+     "frameRate": 1,
+     "codec": "svg",
+     "container": "svg",
+     "latencyClass": "offline"
+    }
+   ],
+   "artifactHandoff": {
+    "supported": true,
+    "reason": "the W502 detailed surface the compute worker encodes"
+   }
+  },
+  {
+   "rendererId": "sporta.testcard",
+   "rendererVersion": "0.1.0",
+   "rendererClass": "tactical",
+   "requiresSourceFrames": false,
+   "supportedOutputProfiles": [
+    {
+     "resolution": {
+      "w": 1280,
+      "h": 720
+     },
+     "frameRate": 30,
+     "codec": "h264",
+     "container": "mp4",
+     "latencyClass": "offline"
+    }
+   ],
+   "artifactHandoff": {
+    "supported": false,
+    "reason": "renderer 'sporta.testcard' does not expose the W502 detailed render surface the compute worker's artifact handoff requires"
+   }
+  }
+ ],
+ "derivedRealities": [
+  {
+   "reality": "tactical",
+   "producerRendererId": null,
+   "offered": false,
+   "reason": "no producer is registered for this reality on this control plane (the derived-reality encode plane is absent) \u2014 never invented"
+  },
+  {
+   "reality": "three-d-game",
+   "producerRendererId": null,
+   "offered": false,
+   "reason": "no producer is registered for this reality on this control plane (the derived-reality encode plane is absent) \u2014 never invented"
+  },
+  {
+   "reality": "anime-npr",
+   "producerRendererId": null,
+   "offered": false,
+   "reason": "no producer is registered for this reality on this control plane (the derived-reality encode plane is absent) \u2014 never invented"
+  }
+ ],
+ "rights": {
+  "operations": [
+   {
+    "id": "analysis",
+    "label": "Analysis",
+    "description": "The session's model may be analyzed (events, tactics, statistics)."
+   },
+   {
+    "id": "transformation",
+    "label": "Transformation",
+    "description": "Renderers may reference source frames while transforming the session."
+   },
+   {
+    "id": "liveDelivery",
+    "label": "Live delivery",
+    "description": "The session may be delivered as a live stream (no live transport exists yet)."
+   },
+   {
+    "id": "derivativeGeneration",
+    "label": "Derivative generation",
+    "description": "New viewing realities may be rendered from the session."
+   },
+   {
+    "id": "storage",
+    "label": "Storage",
+    "description": "Rendered derivatives may be stored (stored playback requires this)."
+   },
+   {
+    "id": "sharing",
+    "label": "Sharing",
+    "description": "Derivatives may be shared beyond the creator."
+   }
+  ],
+  "sharingScopes": [
+   {
+    "id": "private",
+    "label": "Private"
+   },
+   {
+    "id": "operator-authorized",
+    "label": "Operator-authorized"
+   }
+  ]
+ },
+ "upload": {
+  "available": true,
+  "constraints": {
+   "container": "mp4",
+   "maxBytes": 209715200,
+   "maxDurationMs": 120000
+  }
+ },
+ "compute": {
+  "provider": "in-process",
+  "adapterId": "sporta.compute.hosted"
+ },
+ "selection": {
+  "providers": [
+   {
+    "providerId": "sporta.compute.hosted",
+    "privacyZone": "sporta-managed",
+    "capabilityClasses": [
+     "cpu-worker"
+    ]
+   }
+  ]
+ },
+ "renderQuota": {
+  "quotaId": "render-requests",
+  "scope": "user",
+  "used": 0,
+  "limit": 20,
+  "remaining": 20,
+  "exhausted": false,
+  "reasonCode": "ok"
+ }
+}
