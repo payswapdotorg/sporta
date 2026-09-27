@@ -674,9 +674,9 @@ class _InkMangaState:
 #               5-frame trailing box average (deterministic window,
 #               cut-reset) — the anti-flicker saliency of the recipe.
 #   stage 2  anchors    : FIXED jittered grid (fixed-PRNG offsets generated
-#               once per render; screen-anchored 24 px lattice — never
+#               once per render; screen-anchored 20 px lattice — never
 #               moves) + border ring (frame-edge triangulation coverage)
-#               + saliency top-up to N≈1200 drawn by FIXED-QUANTILE
+#               + saliency top-up to N=1500 drawn by FIXED-QUANTILE
 #               inverse-CDF sampling (same fixed uniforms every frame, so
 #               the top-up slots track the saliency-mass quantiles —
 #               per-frame resampling is smooth, not noisy).
@@ -725,10 +725,10 @@ class _LowpolyGameState:
         self.sal_sigma = float(c.get("saliencySigma", 2.0))
         self.sal_win = int(c.get("saliencyWindow", 5))
         # stage 2 — anchors
-        self.grid_px = int(c.get("gridSpacing", 24))
+        self.grid_px = int(c.get("gridSpacing", 20))
         self.jitter = float(c.get("gridJitter", 6.0))
         self.grid_seed = int(c.get("gridSeed", 20260927))
-        self.anchor_n = int(c.get("anchorN", 1200))
+        self.anchor_n = int(c.get("anchorN", 1500))
         self.topup_seed = int(c.get("topupSeed", 1066))
         # stage 3 — temporal stabilization
         self.temporal = bool(c.get("temporal", True))
@@ -1254,9 +1254,9 @@ LOWPOLY_GAME = RendererSpec(
     pipeline=[
         "gradient_saliency(Sobel k=3 magnitude on luma, Gaussian sigma=2.0, "
         "5-frame trailing box average, cut-reset — the anti-flicker saliency)",
-        "anchors(fixed jittered grid: 24px lattice, PRNG seed 20260927, "
+        "anchors(fixed jittered grid: 20px lattice, PRNG seed 20260927, "
         "jitter +/-6px, generated once per render, screen-anchored and never "
-        "moves; border ring inset 1px; saliency top-up to N=1200 by "
+        "moves; border ring inset 1px; saliency top-up to N=1500 by "
         "fixed-quantile inverse-CDF sampling, seed 1066 — same fixed "
         "uniforms every frame, slots track the saliency-mass quantiles)",
         "temporal(Farneback 0.5/3/15/3/5/1.2/0 at 320x180 — the in-engine "
@@ -1289,8 +1289,8 @@ LOWPOLY_GAME = RendererSpec(
         # stage 1 — saliency (5-frame box-averaged gradient)
         "saliencySigma": 2.0, "saliencyWindow": 5,
         # stage 2 — anchors (fixed jittered grid + quantile top-up)
-        "gridSpacing": 24, "gridJitter": 6.0, "gridSeed": 20260927,
-        "anchorN": 1200, "topupSeed": 1066,
+        "gridSpacing": 20, "gridJitter": 6.0, "gridSeed": 20260927,
+        "anchorN": 1500, "topupSeed": 1066,
         # stage 3 — temporal stabilization (flow warp + EMA + cut-reset)
         "temporal": True, "emaAlpha": 0.65, "flowScale": 2,
         # stage 4 — flat fill (+ optional fixed LAB palette snap)
