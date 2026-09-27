@@ -1455,3 +1455,30 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   scheduled); TL voided + re-dispatched both fresh (lanes C=efd135b1,
   D=1833c6f5) with reset watchers — the queue recovered ~04:00 UTC and
   lane A's fresh dispatch streamed to completion.
+
+## Session S047 (w7-closure) — 2026-09-27 — Resident watch: lane E (SPR104 ink-manga) delivered, TL-verified, merged @f4cf71e
+
+- Worker E delivered the SPR104 ink/manga deterministic trial on branch
+  spr/w5c/ink-manga (tip 2e6ffbd, pushed). The worker's final-report chat
+  message was lost to a mid-stream session death — the TL verified the
+  delivery directly from the branch (the anti-fabrication contract
+  re-runs everything anyway).
+- TL audit in a clean worktree at the branch tip: b8 re-render
+  BYTE-IDENTICAL to the claimed sha (8ffff3c1...), qa_check allPass +
+  cuts_deep pass on the independent re-render, regression re-render of
+  cartoon-cel byte-identical to the w4b anchor (a9e8cd56...) — the edit
+  is provably additive; additive diff +293/-0 in renderers.py.
+- Honest result: VLM Tier 0 — min-axis 1.47, critical 88, stylization
+  5.0; the family reproduces the cartoon-cel/anime failure class
+  (identity/motion collapse at maximal stylization). The candidate
+  record's predicted temporal strength IS real (T4 0.6185% vs base
+  0.458%, VLM notes dot-pattern stability).
+- The worker's honest re-open during execution: v4 failed G-T4 on the
+  b2 close-up (sub-gate content drift → hard thresholds → boundary
+  swings); root-caused and redesigned to v8a (binary median-stabilized
+  strokes + soft density knees + soft dots) — b2 T4 1.4337% PASS.
+- Merged --no-ff @f4cf71e; tier table + SPR104 work-item row updated.
+- Resident-watch note: the ring continued autonomously through this
+  cycle (lanes C/D churning against queue congestion; lane E's stalled
+  session closed as done to prevent a wasteful re-dispatch of completed
+  work).

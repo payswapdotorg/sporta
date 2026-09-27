@@ -74,6 +74,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | noir-retro (noir profile) | 3.59 | 1 | 0 |
 | motion-trails | 3.47 | 2 | 0 |
 | anime-npr | 1.80 | 136 | 0 |
+| ink-manga (SPR104, w5c 2026-09-27) | 1.47 | 88 | 0 |
 | cartoon-cel | 1.53 | 99 | 0 |
 | neon-cyberpunk | scorecards deferred by design | — | machine-gated only |
 

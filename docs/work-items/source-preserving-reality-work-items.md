@@ -21,7 +21,7 @@ Owner: Tech Lead. Implementation: workers A (research) / B (renderer) / C (QA).
 | SPR101 | Cartoon/Cel broadcast | B→TL | **RE-RENDERED — TIERED Tier 0 (w6-spr-3)**: all hard gates PASS (incl. b8 full-artifact double-render); VLM 7-axis: stylization 5.0 but identity/motion collapse (min axis 1.53), critical=99 — the aggressive flattening destroys player structure; wave-2 neural upgrade is the fix path | qa/scorecard-cartoon-cel.json, scripts/evidence/spr-tier2-scorecards/ |
 | SPR102 | Anime/NPR broadcast | B→TL | **RE-RENDERED — TIERED Tier 0 (w6-spr-3)**: all hard gates PASS; VLM 7-axis min 1.80 (stylization 5.0, structure collapses into blobs), critical=136 | qa/scorecard-anime-npr.json |
 | SPR103 | Watercolor/Painterly | B | WAVE-2 | Kuwahara/median + paper texture + palette |
-| SPR104 | Ink/Manga/Comic | B | WAVE-2 | value quantize + line art + screentone dither |
+| SPR104 | Ink/Manga/Comic | B→TL | **TIERED Tier 0 (w5c 2026-09-27, lane E merge @f4cf71e)**: spr-ink-manga-dc1 v0.1.0 — XDoG soft-threshold lines + value quantize + screen-anchored 8×8 clustered-dot screentone + fixed paper grain; all gates green (b8/b12/b2, G-T1..T5), determinism ×2 per cell, regression byte-proven (cartoon-cel anchor exact); VLM min-axis 1.47 (identity 1.47/motion 1.53 collapse, stylization 5.0), critical 88 → honest Tier 0; predicted temporal strength real (T4 0.6185% vs base 0.458%, VLM notes dot stability) | evidence: scripts/evidence/spr-wave5-ink-manga/ (variant table, gate record, raw scorecards) |
 | SPR105 | Clay/Miniature/Toy | — | BACKLOG (needs research) | — |
 | SPR106 | Low-Poly/Game-like | — | BACKLOG (needs research) | — |
 | SPR107 | Neon/Cyberpunk | B | WAVE-2 | LUT + bloom + edge glow |
