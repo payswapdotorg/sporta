@@ -1482,3 +1482,24 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   cycle (lanes C/D churning against queue congestion; lane E's stalled
   session closed as done to prevent a wasteful re-dispatch of completed
   work).
+
+## Session S048 (w7-closure) — 2026-09-27 — Resident watch: lane D (SPR105/106 research) delivered, TL-verified, merged @f4d17ee
+
+- Worker D delivered the SPR105/106 technology-intelligence packets on
+  branch spr/w5b/family-research (tip 8ea5984, pushed; 2 new files,
+  +1273 lines, additive docs-only).
+- TL audit: YAML schema-validates (608 nodes, 40 records); the
+  anti-fabrication license spot-checks CONFIRMED live — 3/3 (DA-V2
+  size-split Small Apache-2.0 / Base-Large-Giant CC-BY-NC-4.0 via
+  multiple independent sources; pykuwahara GPL-3; MiDaS MIT). The 11
+  ASSUMED/deferred items are honestly labeled (verification-deferred,
+  not fabricated).
+- Measured content: ~30 stage costs measured this session (label-map
+  flat fill 17.3 ms/f vs naive per-triangle 2425.7 rejected;
+  plasticine stack ≈148 ms/f; classic Kuwahara 904.2 ms/f stays
+  backlog). Wave recommendation: SPR106 dispatch-trial rank 1
+  (cheapest + structure-ADDITIVE), SPR105 rank 2.
+- Honest risks recorded: research-only packet (no end-to-end render),
+  relief-shade quality unproven (luma≠depth), triangle-flicker
+  mitigation designed-but-unmeasured.
+- Merged --no-ff @f4d17ee; SPR105/106 work-item rows updated; pushed.
