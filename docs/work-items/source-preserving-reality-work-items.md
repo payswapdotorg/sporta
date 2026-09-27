@@ -33,7 +33,7 @@ Owner: Tech Lead. Implementation: workers A (research) / B (renderer) / C (QA).
 | ID | Title | Owner | Status | Notes |
 |---|---|---|---|---|
 | SPR201 | Motion trails | B→TL | **TIER 0 — NEAR-MISS Tier 1 (w6-spr-3)**: all hard gates PASS; VLM min axis 3.47; blocked by 2 critical counts (trail streaks on limbs counted as malformation — style-effect conflation recorded in the scorecard) | qa/scorecard-motion-trails.json |
-| SPR202 | Silhouette/X-ray | B | WAVE-2 | motion-mask; honest degradation under camera motion |
+| SPR202 | Silhouette/X-ray | B→TL | **TIERED Tier 0 (w5g 2026-09-27, lane I merge @c8632b3)**: spr-silhouette-xray-dc1 v0.1.0 — motion-compensated MOG2 + ink-fill/xray dual profiles; 11-variant fast loop, pan A/B measured, framediff fallback honestly rejected; b8 all hard gates green (T2b 1.0/0 invented, T3 0.8488; raw-T2 miss recorded + resolved), b12/b2 honest T2b class fails; determinism 4/4 double-render; VLM min-axis 1.47, critical 111 (abstract ink blobs at wide framing) → honest Tier 0 | evidence: scripts/evidence/spr-wave5-silhouette/ |
 | SPR203 | Tactical overlay | — | WAVE-2 (SWM optional) | must degrade visibly without SWM facts |
 | SPR204 | Commentary-reactive | — | BACKLOG | needs commentary lane integration |
 | SPR205 | Player focus | — | WAVE-2 | motion-energy emphasis + vignette |

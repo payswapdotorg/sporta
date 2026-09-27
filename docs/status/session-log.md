@@ -1607,3 +1607,30 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   (region-level temporal consolidation + post-cut rebuild warmup:
   tc needs +0.60, criticals 3→0 — plausibly in reach).
 - Merged --no-ff @83560d8; tier table + session-log S051; pushed.
+
+## Session S052 (w7-closure) — 2026-09-27 — Resident watch: lane I (SPR202 silhouette) delivered, TL-verified, merged @c8632b3
+
+- Worker I delivered the SPR202 deterministic trial on branch
+  spr/w5g/silhouette-trial (tip e42d50a, base b612adf; 72 files,
+  +4570 insertions, renderers.py +559/−0 purely additive).
+- Delivery: motion-compensated MOG2 (Farneback warp-align) + dual
+  profiles (ink-fill default, xray thermal-LUT + rim glow); 11-variant
+  fast loop with the mandatory pan-compensation A/B; framediff
+  fallback measured ONCE and honestly rejected (T2b fail — not
+  shipped); frozen winner thr34/decay65/rise40/gj25 + post-flood
+  boost; 4/4 cells double-render byte-identical; regression anchors
+  (cartoon-cel, noir, subject-toon v0.1.0) all byte-exact.
+- TL verification (clean worktree @e42d50a): binding rule — b8
+  re-render BYTE-IDENTICAL to claimed a626bd83; gate values IDENTICAL
+  to the committed record including the honest raw-T2 shape (preserved
+  5/6, coverage 0.833, 1 extra cut — resolved by T2b 1.0/0-invented
+  per the frozen harness's own rule); VLM 15/15 raw calls recompute
+  means EXACTLY (sf 2.53 / tc 2.40 / ic 1.47 / mf 1.93 / scf 1.87 /
+  ss 4.93); cartoon-cel anchor byte-exact on the modified tree.
+- Verdict: honest Tier 0 (minAxis 1.47, critical 111 — wide-shot
+  players are abstract ink blobs at 640×360; the family is
+  structure-SELECTING but the silhouette abstraction exceeds the
+  identity budget). b12/b2 honest T2b class fails recorded (micro-shot
+  + closeup classes).
+- Merged --no-ff @c8632b3; tier table + SPR202 work-item row +
+  session-log S052; pushed.

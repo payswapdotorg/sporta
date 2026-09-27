@@ -76,6 +76,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | anime-npr | 1.80 | 136 | 0 |
 | ink-manga (SPR104, w5c 2026-09-27) | 1.47 | 88 | 0 |
 | lowpoly-game (SPR106, w5e 2026-09-27) | 1.93 | 67 | 0 |
+| silhouette-xray (SPR202, w5g 2026-09-27) | 1.47 | 111 | 0 |
 | cartoon-cel | 1.53 | 99 | 0 |
 | neon-cyberpunk | scorecards deferred by design | — | machine-gated only |
 
