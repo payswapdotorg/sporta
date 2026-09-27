@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match context, score (1-2), time (24:42), and camera angle are perfectly preserved.\n2. temporalConsistency: 3 - The low-poly mesh structure is stable, but the player's head and body geometry shift noticeably between frames.\n3. identityConsistency: 3 - The player is recognizable by his green/white stripes and armband, but facial features and body shape morph significantly.\n4. motionFidelity: 2 - The subtle forward lean in the original is lost; the stylized version shows erratic geometric shifts rather than natural movement.\n5. sceneFidelity: 4 - The goal net, grass, and background elements maintain their relative spatial positions across all images.\n6. stylizationStrength: 5 - The transformation into a distinct, high-contrast low-poly game aesthetic is very clear and consistent.\n\nAXES sf=5 tc=3 ic=3 mf=2 scf=4 ss=5\nARTIFACTS limbs=1 players=0 warped=1 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511809,
+  "id": "2026092720232428ae944cdb7147b9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092720232428ae944cdb7147b9",
+  "usage": {
+    "completion_tokens": 233,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1401
+  }
+}

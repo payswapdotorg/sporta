@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "SPR-W5-E",
+  "task": "SPR106 low-poly/game deterministic renderer trial (spr106.det.delaunay-flatfill baseline, w5b rank-1 recipe)",
+  "fastLoopProtocol": "b8 first-300 window (--max-frames 300), gate input = the w4b-recorded b8-first300 derived reference (byte-reproduced 9efa9b99aa74c0e365a4e22417ec3e4eece60633c6e3aac5cdd2cad6e3ec889b), frozen qa_check + cuts_deep per variant, one full-resolution VLM duel strip (original + 4 variants at t=2/t=8)",
+  "phases": [
+    {
+      "phase": 1,
+      "name": "selection run (base config 24px/1200, PRE-determinism-fix code)",
+      "note": "Rendered with the original cv2.magnitude saliency. During the later full-render determinism battle, cv2.magnitude was found 1-ulp alignment-flaky and replaced with numpy float64 sqrt; phase-1 raw gate JSONs were not retained (the numbers below are the measured values from the run log). The VLM duel that selected v4 ran on these renders (fastloop-visual/duel-strip.png + vlm-duel.json); the 1-ulp sqrt fix is visually identical.",
+      "variants": [
+        {"variant": "v1", "config": {"temporal": false}, "sha256": "8e58ecdd2e9b47bd", "msPerFrame": 56.1, "G-T3": 0.9704, "G-T4": 1.4546, "allPass": true, "note": "temporal OFF — the flicker control; G-T4 near-fail"},
+        {"variant": "v2", "config": {"temporal": true, "emaAlpha": 0.65, "gridSpacing": 24, "anchorN": 1200}, "sha256": "22cf72f748e68136", "msPerFrame": 60.3, "G-T3": 0.962, "G-T4": 1.213, "allPass": true},
+        {"variant": "v3", "config": {"temporal": true, "emaAlpha": 0.65, "gridSpacing": 24, "anchorN": 1200, "paletteSnap": true}, "sha256": "904716503916ceb1", "msPerFrame": 59.8, "G-T3": 0.8858, "G-T4": 1.4213, "allPass": true, "note": "palette snap degrades T3/T4 — the hard class-boundary flip class"},
+        {"variant": "v4", "config": {"temporal": true, "emaAlpha": 0.65, "gridSpacing": 20, "anchorN": 1500}, "sha256": "00c0eaff625bb483", "msPerFrame": 62.2, "G-T3": 0.9709, "G-T4": 1.2188, "allPass": true, "selected": "VLM duel WINNER"}
+      ],
+      "vlmDuel": {
+        "input": "fastloop-visual/duel-strip.png (original + v1..v4 at t=2/t=8, full resolution)",
+        "verdict": "WINNER=v4 — 'The denser mesh (1500 anchors) provides significantly higher geometric resolution, allowing the player's anatomy and the number 3 to be clearly distinguished ... retains the distinct low-poly aesthetic without sacrificing broadcast readability'; v3 palette snap flagged for 'harsh, unnatural color banding'",
+        "raw": "fastloop-visual/vlm-duel.json"
+      }
+    },
+    {
+      "phase": 2,
+      "name": "canonical regeneration (SHIPPED code: numpy-f64 magnitude; frozen mesh 20px/1500)",
+      "note": "After the determinism fix and the v4 config freeze, the four-variant table was regenerated with the shipped code (raw gate JSONs retained in /tmp/w5e/fastloop at run time; the frozen-winner row re-verified through the CLI byte-exactly: 7c28491a6567382bc8195abb1a18ea299970b0e760fd6d0356ea22fb9e2ad243).",
+      "variants": [
+        {"variant": "v1", "config": {"temporal": false}, "sha256": "aa5c04d6dd1bc14b", "msPerFrame": 60.2, "G-T3": 0.9735, "G-T4": 1.3958, "allPass": true},
+        {"variant": "v2", "config": {"temporal": true, "emaAlpha": 0.65, "gridSpacing": 24, "anchorN": 1200}, "sha256": "fd9c02d0f770cd2b", "msPerFrame": 60.4, "G-T3": 0.9618, "G-T4": 1.2131, "allPass": true, "note": "the w5b recipe-baseline mesh"},
+        {"variant": "v3", "config": {"paletteSnap": true}, "sha256": "f8603d42691c72d4", "msPerFrame": 64.0, "G-T3": 0.9316, "G-T4": 1.4127, "allPass": true},
+        {"variant": "v4", "config": {}, "sha256": "7c28491a6567382b", "msPerFrame": 62.8, "G-T3": 0.9706, "G-T4": 1.2186, "allPass": true, "note": "FROZEN WINNER (identical to the phase-1 v4 selection)"}
+      ],
+      "temporalAB": {
+        "flickerProof": "G-T4 (static-region flicker) temporal OFF vs ON, same code: phase 1 = 1.4546% -> 1.2188%; phase 2 = 1.3958% -> 1.2186%. The flow-warp + fixed-EMA leg (the w5b honest risk #3, designed-but-unmeasured) is MEASURED: it removes ~0.18pp of static-region flicker (13-17% relative) and holds all other gates."
+      }
+    },
+    {
+      "phase": 3,
+      "name": "honest re-open — full-render T4 hardening (the ink-manga phase-2/3 precedent)",
+      "trigger": "First full-render pass (alpha 0.65) failed G-T4 on the b12/b2 coverage cells: b12 1.5084% / b2 1.5339% vs the 1.5% frozen bar (b2 = the known crowd-shimmer cell, input baseline 0.9449%). The loop was re-opened instead of shipping a fail.",
+      "method": "A/B the free stabilization parameters on the FAILING cells directly (EMA alpha — the recipe pins 'fixed EMA' but not the value; edge-line soften sigma — an implementation detail), then re-check b8 (the scorecard cell) for regressions, then re-render ALL cells from scratch with the winner.",
+      "variants": [
+        {"variant": "v5", "config": {"emaAlpha": 0.75}, "b2": {"T4": 1.3782, "T3": 0.9958}, "b12": {"T4": 1.3864, "T3": 0.9621}, "b8": {"sha256": "492395d4b6892ecc", "T2": "PASS all 6 cuts exact [189,475,550,862,979,982]", "T3": 0.9579, "T4": 1.1544, "allGates": "ALL GREEN"}, "selected": "SHIPPED"},
+        {"variant": "v6", "config": {"emaAlpha": 0.75, "edgeSoften": 1.2}, "b2": {"T4": 1.3574, "T3": 0.9959}, "b12": {"T4": 1.3563, "T3": 0.9642}, "b8": {"T2": "raw FAIL — cut 550 lands at the 16.0 flat threshold edge (diff 15.998); T2b resolves cov 1.0", "T3": 0.9589, "T4": 1.1303}, "note": "stronger damping over-softens b8's cut-550 spike salience"},
+        {"variant": "v7", "config": {"emaAlpha": 0.8, "edgeSoften": 1.2}, "b2": {"T4": 1.3109, "T3": 0.995}, "b12": {"T4": 1.247, "T3": 0.9642}, "b8": {"T2": "raw FAIL — cut 550 missed (T2b resolves)", "T3": 0.9623, "T4": 1.0451}}
+      ],
+      "outcome": "v5 shipped (emaAlpha 0.65 -> 0.75; every other parameter unchanged). ALL cells re-rendered from scratch; final gates: b8 T4 1.1544% / b12 1.3864% / b2 1.3782% — all under the frozen 1.5% bar with margin, b8 T2-raw all-6-exact preserved."
+    }
+  ],
+  "finalConfig": {
+    "saliencySigma": 2.0, "saliencyWindow": 5,
+    "gridSpacing": 20, "gridJitter": 6.0, "gridSeed": 20260927,
+    "anchorN": 1500, "topupSeed": 1066,
+    "temporal": true, "emaAlpha": 0.75, "flowScale": 2,
+    "paletteSnap": false, "lWeight": 0.45,
+    "edgeDarken": 0.45, "edgeDilate": 1, "edgeSoften": 0.8
+  },
+  "gameCelProfile": "implemented and registered (profile 'game-cel': soft-knee 4-step V ramp + Sobel outline dilate 2, floor 0.30). Smoke-verified this session: 30-frame render (sha 2680c5cbafc01b7e323bcf96e720ee9d0691be80f25bea9a6b94b1f8836e929a) + VLM confirm ('Yes' — game-cel/toon look present); NOT gate-run or scorecard-run in this trial (the default low-poly profile is the deliverable; the profile rides the same skeleton, same invariants)."
+}

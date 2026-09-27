@@ -157,6 +157,12 @@ class FrameProcessor:
                 self._ink_manga_state = _InkMangaState(cfg)
             out = self._ink_manga_state(bgr)
 
+        elif reality == "lowpoly-game":
+            if not hasattr(self, "_lowpoly_game_state"):
+                self._lowpoly_game_state = _LowpolyGameState(
+                    cfg, self.palette, self.cuts)
+            out = self._lowpoly_game_state(bgr, self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -656,6 +662,365 @@ class _InkMangaState:
 
 
 # ---------------------------------------------------------------------------
+# low-poly/game pipeline state (SPR106) — w5b rank-1 dispatch recipe
+#
+# Fresh wave-5 reality (SPR-W5-E, Lane G): the SPR106 deterministic baseline
+# spr106.det.delaunay-flatfill (docs/technology/spr105-106-candidates.yaml →
+# wave_recommendation rank 1). The family is structure-ADDITIVE — the
+# triangulation REINJECTS structure (facet boundaries track real edges via
+# saliency anchors), the w5b thesis under trial. Stage math:
+#
+#   stage 1  saliency   : Sobel magnitude on luma (numpy float64 sqrt —
+#               cv2.magnitude is 1-ulp alignment-flaky here, root-caused
+#               in the w5e determinism battle), Gaussian sigma-2 smoothed,
+#               5-frame trailing box average (deterministic window,
+#               cut-reset) — the anti-flicker saliency of the recipe.
+#   stage 2  anchors    : FIXED jittered grid (fixed-PRNG offsets generated
+#               once per render; screen-anchored 20 px lattice — never
+#               moves) + border ring (frame-edge triangulation coverage)
+#               + saliency top-up to N=1500 drawn by FIXED-QUANTILE
+#               inverse-CDF sampling (same fixed uniforms every frame, so
+#               the top-up slots track the saliency-mass quantiles —
+#               per-frame resampling is smooth, not noisy).
+#   stage 3  temporal   : Farneback flow (320x180, the in-engine flow
+#               convention) warps the previous frame's top-up anchors
+#               forward; fixed EMA (alpha=0.75, hardened in the w5e phase-3
+#               T4 loop) blends warped-old with the
+#               fresh quantile sample; cut-reset drops ALL state (saliency
+#               window, anchor slots, flow history) at every engine-detected
+#               cut (contract invariant 4 — no cross-cut blending). The
+#               grid slots are screen-fixed and never move (structure floor,
+#               the block-voxel "fixed grid = no crawl" law).
+#   stage 4  rasterize  : cv2.Subdiv2D Delaunay over the deduped anchor set
+#               (1-px grid-snap dedupe — Subdiv2D degenerates on
+#               duplicates); per-triangle cv2.fillPoly into an int32 label
+#               map (the w5b MEASURED label-map path; the naive per-triangle
+#               mask fill is the recorded 2425.7 ms/f anti-pattern and is
+#               NOT used); np.bincount per-channel means + LUT
+#               back-projection give the flat-shaded facets. Optional
+#               palette snap: per-triangle means snapped to the fixed
+#               per-clip K=16 LAB palette (chroma-weighted nearest, the
+#               quantize_lab convention).
+#   stage 5  facet lines: label-edge darken x0.45 via the frozen
+#               boundary_edge_map + edge_overlay stages (dilate 1,
+#               soften 0.8) — the identity-anchor facet edges.
+#   game-cel profile (optional): soft-knee quantized-V toon ramp (4 steps,
+#               knee width 14 luma levels — no hard class boundaries, the
+#               ink-manga drift lesson) + Sobel outline (soft knee 90..360,
+#               dilate 2, floor 0.30).
+#
+# Deterministic: fixed PRNG seeds (grid jitter, quantile uniforms), no
+# cross-frame RNG state, pure functions of the frame sequence; double-render
+# byte-identity is the G-T5 proof. CV2 Subdiv2D / Farneback / fillPoly /
+# bincount are all single-valued deterministic ops in this environment
+# (proven by the existing flow-using rows' byte-identity records).
+# ---------------------------------------------------------------------------
+
+
+class _LowpolyGameState:
+    """Streaming state for the SPR106 low-poly/game pipeline."""
+
+    def __init__(self, cfg: dict, palette: Optional[np.ndarray], cuts: set):
+        c = self.cfg = cfg
+        self.palette = palette
+        self.cuts = cuts
+        # stage 1 — saliency
+        self.sal_sigma = float(c.get("saliencySigma", 2.0))
+        self.sal_win = int(c.get("saliencyWindow", 5))
+        # stage 2 — anchors
+        self.grid_px = int(c.get("gridSpacing", 20))
+        self.jitter = float(c.get("gridJitter", 6.0))
+        self.grid_seed = int(c.get("gridSeed", 20260927))
+        self.anchor_n = int(c.get("anchorN", 1500))
+        self.topup_seed = int(c.get("topupSeed", 1066))
+        # stage 3 — temporal stabilization
+        self.temporal = bool(c.get("temporal", True))
+        self.ema_alpha = float(c.get("emaAlpha", 0.75))
+        self.flow_scale = int(c.get("flowScale", 2))
+        # stage 4 — flat fill (+ optional fixed LAB palette snap)
+        self.palette_snap = bool(c.get("paletteSnap", False))
+        self.l_weight = float(c.get("lWeight", 0.45))
+        # stage 5 — facet edge lines
+        self.edge_darken = float(c.get("edgeDarken", 0.45))
+        self.edge_dilate = int(c.get("edgeDilate", 1))
+        self.edge_soften = float(c.get("edgeSoften", 0.8))
+        # game-cel profile (optional)
+        self.ramp_steps = int(c.get("toonRampSteps", 0))
+        self.ramp_width = float(c.get("toonRampWidth", 14.0))
+        self.outline = bool(c.get("outline", False))
+        self.out_lo = float(c.get("outlineKneeLow", 90.0))
+        self.out_hi = float(c.get("outlineKneeHigh", 360.0))
+        self.out_dilate = int(c.get("outlineDilate", 2))
+        self.out_floor = float(c.get("outlineFloor", 0.30))
+        # streaming state
+        self.sal_buf: List[np.ndarray] = []
+        self.slots: Optional[np.ndarray] = None      # persistent top-up slots
+        self.gray_small_prev: Optional[np.ndarray] = None
+        self.gray_small: Optional[np.ndarray] = None
+        self._grid: Optional[np.ndarray] = None      # cached fixed grid+ring
+        self._grid_hw: tuple = (0, 0)
+        self._u: Optional[np.ndarray] = None         # fixed quantile uniforms
+
+    # -- stage 1: saliency ---------------------------------------------------
+
+    def _saliency(self, gray: np.ndarray) -> np.ndarray:
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+        # magnitude via numpy float64 sqrt — cv2.magnitude (IPP, float32)
+        # is alignment-dispatched and 1-ulp NONDETERMINISTIC in this
+        # environment (root-caused in the w5e determinism battle: b12
+        # pass1/pass2 sha mismatch, 36/60 frames differing); IEEE float64
+        # sqrt is correctly rounded on every compliant path -> bit-stable
+        mag = np.sqrt(gx.astype(np.float64) ** 2
+                      + gy.astype(np.float64) ** 2).astype(np.float32)
+        return cv2.GaussianBlur(mag, (0, 0), self.sal_sigma)
+
+    # -- stage 2: anchors ----------------------------------------------------
+
+    def _fixed_grid(self, w: int, h: int) -> np.ndarray:
+        """Screen-anchored jittered lattice + border ring (deterministic)."""
+        if self._grid is not None and self._grid_hw == (h, w):
+            return self._grid
+        step = self.grid_px
+        rng = np.random.default_rng(self.grid_seed)
+        xs = np.arange(step // 2, w, step, dtype=np.float32)
+        ys = np.arange(step // 2, h, step, dtype=np.float32)
+        gx, gy = np.meshgrid(xs, ys)
+        jx = rng.uniform(-self.jitter, self.jitter,
+                         size=gx.shape).astype(np.float32)
+        jy = rng.uniform(-self.jitter, self.jitter,
+                         size=gy.shape).astype(np.float32)
+        px = np.clip(gx + jx, 1.0, w - 2.0)
+        py = np.clip(gy + jy, 1.0, h - 2.0)
+        pts = np.stack([px.ravel(), py.ravel()], axis=1)
+        # border ring: corners + every step px along the edges (inset 1 px;
+        # guarantees the Delaunay hull covers the full frame)
+        ring = [(1.0, 1.0), (w - 2.0, 1.0), (1.0, h - 2.0), (w - 2.0, h - 2.0)]
+        for x in range(step, w - step, step):
+            ring += [(float(x), 1.0), (float(x), h - 2.0)]
+        for y in range(step, h - step, step):
+            ring += [(1.0, float(y)), (w - 2.0, float(y))]
+        grid = np.vstack([np.array(ring, dtype=np.float32), pts])
+        self._grid = np.ascontiguousarray(grid, dtype=np.float32)
+        self._grid_hw = (h, w)
+        return self._grid
+
+    def _topup_fresh(self, sal_avg: np.ndarray, m: int) -> np.ndarray:
+        """Saliency inverse-CDF samples at FIXED quantiles (stateless)."""
+        if m <= 0:
+            return np.zeros((0, 2), np.float32)
+        if self._u is None or len(self._u) != m:
+            rng = np.random.default_rng(self.topup_seed)
+            self._u = rng.random(m)
+        p = sal_avg.ravel().astype(np.float64)
+        h, w = sal_avg.shape
+        s = float(p.sum())
+        if s <= 1e-12:
+            # degenerate flat frame: deterministic uniform lattice fallback
+            lin = np.arange(m, dtype=np.int64) * (p.size - 1) // max(m - 1, 1)
+            ys, xs = np.divmod(lin, w)
+            return np.stack([xs, ys], 1).astype(np.float32)
+        cdf = np.cumsum(p / s)
+        idx = np.clip(np.searchsorted(cdf, self._u, side="right"),
+                      0, p.size - 1)
+        ys, xs = np.divmod(idx, w)
+        return np.stack([xs, ys], 1).astype(np.float32)
+
+    # -- stage 4: triangulate + rasterize + flat fill -------------------------
+
+    def _rasterize(self, pts: np.ndarray, w: int, h: int):
+        """Delaunay label map (int32, 0 = unassigned) + triangle count."""
+        subdiv = cv2.Subdiv2D((0, 0, w, h))
+        vidx = {}
+        for i in range(len(pts)):
+            x = float(pts[i, 0])
+            y = float(pts[i, 1])
+            k = (round(x, 2), round(y, 2))
+            if k in vidx:
+                continue
+            try:
+                subdiv.insert((x, y))
+                vidx[k] = i
+            except cv2.error:
+                continue  # degenerate insert: skip deterministically
+        tl = subdiv.getTriangleList()
+        label = np.zeros((h, w), dtype=np.int32)
+        nt = 0
+        for row in tl:
+            a = vidx.get((round(float(row[0]), 2), round(float(row[1]), 2)))
+            b = vidx.get((round(float(row[2]), 2), round(float(row[3]), 2)))
+            c = vidx.get((round(float(row[4]), 2), round(float(row[5]), 2)))
+            if a is None or b is None or c is None:
+                continue  # outer super-triangle vertices
+            nt += 1
+            poly = np.round(row.reshape(3, 2)).astype(np.int32)
+            cv2.fillPoly(label, [poly], nt)
+        # seam safety: neighbor fill for any unclaimed pixels (Delaunay
+        # tiles exactly inside the 1-px border ring inset, so this only
+        # back-fills the outermost frame row/column from its inner
+        # neighbor — shift order prefers the correct-side neighbor)
+        if (label == 0).any():
+            for axis, sh in ((1, -1), (1, 1), (0, -1), (0, 1)):
+                nb = np.roll(label, sh, axis=axis)
+                m = (label == 0) & (nb != 0)
+                label[m] = nb[m]
+        return label, nt
+
+    def _snap_means(self, means: np.ndarray) -> np.ndarray:
+        """Snap per-triangle BGR means to the fixed per-clip LAB palette."""
+        tri8 = np.clip(np.round(means), 0, 255).astype(np.uint8)
+        tri8 = np.ascontiguousarray(tri8.reshape(-1, 1, 3))
+        lab = cv2.cvtColor(tri8, cv2.COLOR_BGR2LAB).reshape(-1, 3)
+        lab = lab.astype(np.float32)
+        pal = self.palette.astype(np.float32)
+        wl = np.array([self.l_weight, 1.0, 1.0], dtype=np.float32)
+        d = ((lab[:, None, :] - pal[None, :, :]) * wl) ** 2
+        idx = np.argmin(d.sum(-1), axis=1)
+        snapped = np.ascontiguousarray(
+            self.palette[idx].astype(np.uint8).reshape(-1, 1, 3))
+        bgr = cv2.cvtColor(snapped, cv2.COLOR_LAB2BGR).reshape(-1, 3)
+        return bgr.astype(np.float64)
+
+    def _flat_fill(self, label: np.ndarray, nt: int,
+                   bgr: np.ndarray) -> np.ndarray:
+        """Per-triangle channel means via bincount -> flat-shaded facets."""
+        h, w = label.shape
+        lab = label.ravel()
+        counts = np.bincount(lab, minlength=nt + 1)
+        f = bgr.astype(np.float32)
+        means = np.zeros((nt + 1, 3), np.float64)
+        for c in range(3):
+            sums = np.bincount(lab, weights=f[..., c].ravel(),
+                               minlength=nt + 1)
+            means[:, c] = sums / np.maximum(counts, 1)
+        if self.palette_snap and self.palette is not None:
+            means = self._snap_means(means)
+        means8 = np.clip(np.round(means), 0, 255).astype(np.uint8)
+        out = means8[lab].reshape(h, w, 3)
+        return np.ascontiguousarray(out)
+
+    # -- game-cel profile stages (optional) ------------------------------------
+
+    def _toon_ramp(self, out: np.ndarray) -> np.ndarray:
+        """Soft-knee quantized-V toon ramp (fixed thresholds, no hard flips)."""
+        steps, width = self.ramp_steps, self.ramp_width
+        hsv = cv2.cvtColor(out, cv2.COLOR_BGR2HSV)
+        v = hsv[..., 2].astype(np.float32)
+        x = v * (steps / 255.0)
+        k = np.floor(x)
+        frac = x - k
+        wd = width * (steps / 255.0)     # knee width in band units
+        t = np.clip((frac - (1.0 - wd)) / max(wd, 1e-6), 0.0, 1.0)
+        t = t * t * (3.0 - 2.0 * t)      # smoothstep knee
+        kk = np.clip(k + t, 0.0, steps - 1.0)
+        vq = (kk + 0.5) * (255.0 / steps)
+        hsv[..., 2] = np.clip(np.round(vq), 0, 255).astype(np.uint8)
+        return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    def _outline(self, out: np.ndarray) -> np.ndarray:
+        """Sobel-magnitude soft-knee thick outline (dark overlay)."""
+        gray = cv2.cvtColor(out, cv2.COLOR_BGR2GRAY)
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+        # same numpy-float64 magnitude (cv2.magnitude is 1-ulp
+        # nondeterministic here — see _saliency note)
+        mag = np.sqrt(gx.astype(np.float64) ** 2
+                      + gy.astype(np.float64) ** 2).astype(np.float32)
+        t = np.clip((mag - self.out_lo) / max(self.out_hi - self.out_lo, 1e-6),
+                    0.0, 1.0)
+        t = t * t * (3.0 - 2.0 * t)
+        if self.out_dilate > 0:
+            t = cv2.dilate(t, np.ones((self.out_dilate, self.out_dilate),
+                                      np.uint8))
+        edges = (1.0 - t).astype(np.float32)
+        return S.edge_overlay(out, edges, self.out_floor)
+
+    # -- pipeline ---------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray, cut: bool) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+
+        if cut:  # contract invariant 4: reset ALL temporal state at cuts
+            self.sal_buf = []
+            self.slots = None
+            self.gray_small_prev = None
+
+        # stage 1 — 5-frame box-averaged gradient saliency
+        sal = self._saliency(gray)
+        self.sal_buf.append(sal)
+        if len(self.sal_buf) > self.sal_win:
+            self.sal_buf.pop(0)
+        sal_avg = np.mean(np.stack(self.sal_buf, 0), axis=0).astype(np.float32)
+
+        # stage 2 — fresh anchors: fixed grid + saliency quantile top-up
+        grid = self._fixed_grid(w, h)
+        m = self.anchor_n - len(grid)
+        fresh = self._topup_fresh(sal_avg, m)
+
+        # stage 3 — temporal stabilization (flow warp + fixed EMA)
+        if self.temporal:
+            s = self.flow_scale
+            if s > 1:
+                self.gray_small = cv2.resize(
+                    gray, (w // s, h // s), interpolation=cv2.INTER_AREA)
+            else:
+                self.gray_small = gray
+        if (self.temporal and self.slots is not None
+                and self.gray_small_prev is not None):
+            s = self.flow_scale
+            flow = cv2.calcOpticalFlowFarneback(
+                self.gray_small_prev, self.gray_small, None,
+                0.5, 3, 15, 3, 5, 1.2, 0)
+            n = len(self.slots)
+            map_x = (self.slots[:, 0] / s).astype(np.float32).reshape(1, n)
+            map_y = (self.slots[:, 1] / s).astype(np.float32).reshape(1, n)
+            u = cv2.remap(flow[..., 0], map_x, map_y, cv2.INTER_LINEAR,
+                          borderMode=cv2.BORDER_REPLICATE)
+            v = cv2.remap(flow[..., 1], map_x, map_y, cv2.INTER_LINEAR,
+                          borderMode=cv2.BORDER_REPLICATE)
+            warped = self.slots.copy()
+            warped[:, 0] += u.ravel() * s
+            warped[:, 1] += v.ravel() * s
+            a = self.ema_alpha
+            slots = a * warped + (1.0 - a) * fresh
+            # hard respawn for slots pushed out of frame (big pans)
+            oob = ((slots[:, 0] < 1.0) | (slots[:, 0] > w - 2.0) |
+                   (slots[:, 1] < 1.0) | (slots[:, 1] > h - 2.0))
+            if oob.any():
+                slots[oob] = fresh[oob]
+            self.slots = slots.astype(np.float32)
+        else:
+            slots = fresh
+            self.slots = fresh.copy() if self.temporal else None
+        self.gray_small_prev = self.gray_small if self.temporal else None
+
+        # anchor set: fixed grid + (EMA-stabilized) top-up slots; 1-px
+        # grid-snap dedupe (Subdiv2D degenerates on duplicates)
+        pts = np.vstack([grid, slots]) if len(slots) else grid
+        key = np.round(pts).astype(np.int32)
+        _, keep = np.unique(key, axis=0, return_index=True)
+        pts = np.ascontiguousarray(pts[np.sort(keep)], dtype=np.float32)
+
+        # stage 4 — Delaunay label rasterize + bincount flat fill
+        label, nt = self._rasterize(pts, w, h)
+        out = self._flat_fill(label, nt, bgr)
+
+        # stage 5 — facet boundary lines (darken x edgeDarken)
+        edges = S.boundary_edge_map(label, dilate=self.edge_dilate,
+                                    aa_sigma=self.edge_soften)
+        out = S.edge_overlay(out, edges, self.edge_darken)
+
+        # game-cel profile (optional): toon ramp + Sobel outline
+        if self.ramp_steps > 1:
+            out = self._toon_ramp(out)
+        if self.outline:
+            out = self._outline(out)
+
+        return out
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -873,3 +1238,89 @@ INK_MANGA = RendererSpec(
 # additive registry append (SPR-W5-C): the SPR104 ink-manga row enters the
 # REGISTRY without modifying any prior declaration or construction line
 REGISTRY[INK_MANGA.reality] = INK_MANGA
+
+
+# ---------------------------------------------------------------------------
+# SPR106 Low-Poly/Game — wave-5 fresh reality (SPR-W5-E, Lane G)
+#
+# The w5b rank-1 dispatch-trial recipe (docs/technology/spr105-106-
+# candidates.yaml → wave_recommendation rank 1), implemented verbatim:
+# luma → 5-frame box-averaged gradient saliency → anchors = jittered grid
+# (fixed PRNG, 24px) + saliency top-up N≈1200 → [temporal: Farneback warp
+# prev anchors + fixed EMA + cut-reset] → Subdiv2D → fillPoly label
+# rasterize + bincount flat fill → optional palette snap K=16 fixed LAB →
+# label-edge darken ×0.45 → [game-cel profile: ramp LUT + Sobel outline
+# dilate] → encode-bitexact. Deterministic-classical, CPU-only (OpenCV +
+# numpy, the frozen engine toolset; cv2.Subdiv2D is the w5b measured-table
+# in-envelope primitive). See _LowpolyGameState above for the full stage
+# math and the anti-flicker / cut-reset design notes.
+# ---------------------------------------------------------------------------
+
+
+LOWPOLY_GAME = RendererSpec(
+    rendererId="spr-lowpoly-game-dc1", reality="lowpoly-game",
+    family="Low-Poly / Game (SPR106)", sprId="SPR106",
+    profiles=["default", "game-cel"],
+    paletteK=16,
+    usesFlow=True,
+    pipeline=[
+        "gradient_saliency(Sobel k=3 magnitude on luma via numpy float64 "
+        "sqrt (cv2.magnitude is 1-ulp alignment-flaky in this environment "
+        "— root-caused in the w5e determinism battle), Gaussian sigma=2.0, "
+        "5-frame trailing box average, cut-reset — the anti-flicker saliency)",
+        "anchors(fixed jittered grid: 20px lattice, PRNG seed 20260927, "
+        "jitter +/-6px, generated once per render, screen-anchored and never "
+        "moves; border ring inset 1px; saliency top-up to N=1500 by "
+        "fixed-quantile inverse-CDF sampling, seed 1066 — same fixed "
+        "uniforms every frame, slots track the saliency-mass quantiles)",
+        "temporal(Farneback 0.5/3/15/3/5/1.2/0 at 320x180 — the in-engine "
+        "flow convention — bilinear-sampled at anchor positions, "
+        "displacement x2; fixed EMA alpha=0.75 blends warped-prev with the "
+        "fresh quantile sample; out-of-frame slots hard-respawn; CUT-RESET "
+        "drops saliency window + slots + flow history at every engine "
+        "cut-detect hit — contract invariant 4)",
+        "delaunay(cv2.Subdiv2D over the 1-px grid-snap deduped anchor set; "
+        "per-triangle cv2.fillPoly into an int32 label map — the w5b "
+        "MEASURED label-map path, NOT the 2425.7 ms/f naive per-triangle "
+        "mask-fill anti-pattern)",
+        "flat_fill(np.bincount per-channel triangle means + LUT "
+        "back-projection; optional snap of the per-triangle means to the "
+        "fixed per-clip K=16 LAB palette, chroma-weighted l=0.45 nearest)",
+        "label_edge_darken(boundary_edge_map on the label map, dilate 1, "
+        "soften sigma 0.8, edge_overlay floor x0.45 — the facet identity "
+        "anchors)",
+        "game-cel profile [optional]: toon_ramp(soft-knee quantized V, 4 "
+        "steps, knee width 14 luma levels — no hard class boundaries) + "
+        "Sobel outline(soft knee 90..360, dilate 2, floor 0.30)",
+    ],
+    description=("Low-poly game restyle: Delaunay flat-shaded facets over a "
+                 "fixed jittered grid + saliency top-up anchors, "
+                 "flow-stabilized with a fixed EMA and cut-reset, dark "
+                 "facet-edge lines. Structure-ADDITIVE family — facet "
+                 "boundaries reinject structure (the w5b rank-1 dispatch "
+                 "recipe, SPR106 trial)."),
+    config={
+        # stage 1 — saliency (5-frame box-averaged gradient)
+        "saliencySigma": 2.0, "saliencyWindow": 5,
+        # stage 2 — anchors (fixed jittered grid + quantile top-up)
+        "gridSpacing": 20, "gridJitter": 6.0, "gridSeed": 20260927,
+        "anchorN": 1500, "topupSeed": 1066,
+        # stage 3 — temporal stabilization (flow warp + EMA + cut-reset)
+        "temporal": True, "emaAlpha": 0.75, "flowScale": 2,
+        # stage 4 — flat fill (+ optional fixed LAB palette snap)
+        "paletteSnap": False, "lWeight": 0.45,
+        # stage 5 — facet edge lines
+        "edgeDarken": 0.45, "edgeDilate": 1, "edgeSoften": 0.8,
+        # game-cel profile (optional): ramp LUT + Sobel outline
+        "profiles": {"game-cel": {
+            "toonRampSteps": 4, "toonRampWidth": 14.0,
+            "outline": True, "outlineKneeLow": 90.0,
+            "outlineKneeHigh": 360.0, "outlineDilate": 2,
+            "outlineFloor": 0.30,
+        }},
+    },
+)
+
+# additive registry append (SPR-W5-E): the SPR106 low-poly/game row enters
+# the REGISTRY without modifying any prior declaration or construction line
+REGISTRY[LOWPOLY_GAME.reality] = LOWPOLY_GAME

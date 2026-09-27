@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The general layout of the field and player positions are recognizable, but extreme abstraction makes specific details and the goal area hard to verify.\n2. temporalConsistency: 2 - The low-poly mesh and player positions are mostly stable, but significant flickering and shape-shifting occur between the two frames.\n3. identityConsistency: 1 - Players are reduced to unrecognizable colored blobs with no discernible features or stable forms to maintain identity.\n4. motionFidelity: 1 - The heavy geometric distortion and lack of clear player forms make it impossible to verify any realistic or consistent motion.\n5. sceneFidelity: 2 - The background stadium elements and field lines maintain a rough spatial consistency despite the heavy stylization.\n6. stylizationStrength: 5 - The transformation into a raw, high-contrast low-poly wireframe mesh is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=2 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=5 players=3 warped=5 dupes=0 ball=1 bg=2 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511819,
+  "id": "20260927202335afc1cdef2e554857",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927202335afc1cdef2e554857",
+  "usage": {
+    "completion_tokens": 237,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1405
+  }
+}

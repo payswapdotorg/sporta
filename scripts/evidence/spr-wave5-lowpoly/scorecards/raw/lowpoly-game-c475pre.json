@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general camera angle and background (crowd, ads) match, but the field of view is significantly cropped.\n2. temporalConsistency - 4: The two stylized frames are highly consistent with each other, showing only subtle, expected motion shifts.\n3. identityConsistency - 2: Players are reduced to unrecognizable colored blobs, making individual identification impossible.\n4. motionFidelity - 3: The subtle shift in the orange blobs between frames suggests some motion tracking, though it's very abstract.\n5. sceneFidelity - 3: The background structure is preserved as a low-poly mesh, but fine details like line markings are lost.\n6. stylizationStrength - 5: The transformation to a heavy low-poly geometric style is extremely obvious and dominant.\n\nAXES sf=2 tc=4 ic=2 mf=3 scf=3 ss=5\nARTIFACTS limbs=0 players=7 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511785,
+  "id": "20260927202259f9b2306faa814b59",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927202259f9b2306faa814b59",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}

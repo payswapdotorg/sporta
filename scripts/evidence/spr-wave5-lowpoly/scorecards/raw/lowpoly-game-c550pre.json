@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Same match and general moment, but extreme abstraction loses specific camera context details.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes between the two frames.\n3. identityConsistency - 2: The main player is a recognizable red blob, but other players are indistinct or unstable.\n4. motionFidelity - 2: Basic forward movement is present, but fine-grained limb/ball physics are lost to the style.\n5. sceneFidelity - 2: Stadium and background are reduced to unrecognizable abstract geometry.\n6. stylizationStrength - 5: The low-poly wireframe transformation is extremely aggressive and obvious.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=2 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511794,
+  "id": "202609272023107f2a54e1885c4686",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609272023107f2a54e1885c4686",
+  "usage": {
+    "completion_tokens": 196,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1364
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and goal area is recognizable, but the extreme abstraction makes specific player positions and the ball nearly impossible to verify.\n2. temporalConsistency - 3: The low-poly mesh remains stable between frames, though some color clusters shift slightly, indicating a moderate level of consistency.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making it very difficult to track individual identities or team consistency.\n4. motionFidelity - 1: The subtle shifts in the polygonal shapes do not clearly represent the dynamic motion of players or the ball seen in the original frame.\n5. sceneFidelity - 2: The background and field lines are heavily distorted into a geometric mesh, losing most spatial detail and perspective.\n6. stylizationStrength - 5: The transformation to a high-contrast, low-poly wireframe style is extremely obvious and aggressively applied.\n\nAXES sf=2 tc=3 ic=2 mf=1 scf=2 ss=5\nARTIFACTS limbs=10 players=8 warped=5 dupes=0 ball=1 bg=4 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511768,
+  "id": "202609272022432899c58cf35140b9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609272022432899c58cf35140b9",
+  "usage": {
+    "completion_tokens": 244,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1412
+  }
+}
