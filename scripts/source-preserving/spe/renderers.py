@@ -684,7 +684,8 @@ class _InkMangaState:
 #               per-frame resampling is smooth, not noisy).
 #   stage 3  temporal   : Farneback flow (320x180, the in-engine flow
 #               convention) warps the previous frame's top-up anchors
-#               forward; fixed EMA (alpha=0.65) blends warped-old with the
+#               forward; fixed EMA (alpha=0.75, hardened in the w5e phase-3
+#               T4 loop) blends warped-old with the
 #               fresh quantile sample; cut-reset drops ALL state (saliency
 #               window, anchor slots, flow history) at every engine-detected
 #               cut (contract invariant 4 — no cross-cut blending). The
@@ -734,7 +735,7 @@ class _LowpolyGameState:
         self.topup_seed = int(c.get("topupSeed", 1066))
         # stage 3 — temporal stabilization
         self.temporal = bool(c.get("temporal", True))
-        self.ema_alpha = float(c.get("emaAlpha", 0.65))
+        self.ema_alpha = float(c.get("emaAlpha", 0.75))
         self.flow_scale = int(c.get("flowScale", 2))
         # stage 4 — flat fill (+ optional fixed LAB palette snap)
         self.palette_snap = bool(c.get("paletteSnap", False))
@@ -1274,7 +1275,7 @@ LOWPOLY_GAME = RendererSpec(
         "uniforms every frame, slots track the saliency-mass quantiles)",
         "temporal(Farneback 0.5/3/15/3/5/1.2/0 at 320x180 — the in-engine "
         "flow convention — bilinear-sampled at anchor positions, "
-        "displacement x2; fixed EMA alpha=0.65 blends warped-prev with the "
+        "displacement x2; fixed EMA alpha=0.75 blends warped-prev with the "
         "fresh quantile sample; out-of-frame slots hard-respawn; CUT-RESET "
         "drops saliency window + slots + flow history at every engine "
         "cut-detect hit — contract invariant 4)",
@@ -1305,7 +1306,7 @@ LOWPOLY_GAME = RendererSpec(
         "gridSpacing": 20, "gridJitter": 6.0, "gridSeed": 20260927,
         "anchorN": 1500, "topupSeed": 1066,
         # stage 3 — temporal stabilization (flow warp + EMA + cut-reset)
-        "temporal": True, "emaAlpha": 0.65, "flowScale": 2,
+        "temporal": True, "emaAlpha": 0.75, "flowScale": 2,
         # stage 4 — flat fill (+ optional fixed LAB palette snap)
         "paletteSnap": False, "lWeight": 0.45,
         # stage 5 — facet edge lines
