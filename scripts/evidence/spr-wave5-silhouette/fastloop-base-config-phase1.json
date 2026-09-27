@@ -1,0 +1,42 @@
+{
+ "compensate": true,
+ "flowStep": 4,
+ "zoomClip": 0.1,
+ "translationClip": 24.0,
+ "maskSource": "mog2",
+ "mogHistory": 200,
+ "mogVarThreshold": 28.0,
+ "mogLearningRate": 0.04,
+ "mogWarmup": 10,
+ "flowKnee": 2.2,
+ "morphOpen": 3,
+ "morphClose": 5,
+ "morphDilate": 0,
+ "maskDecay": 0.9,
+ "maskSoften": 3.0,
+ "outputProfile": "ink",
+ "inkColor": [
+  26,
+  26,
+  26
+ ],
+ "paperColor": [
+  244,
+  244,
+  244
+ ],
+ "profiles": {
+  "xray": {
+   "outputProfile": "xray",
+   "xrayDistScale": 10.0,
+   "xrayRimKneeLow": 10.0,
+   "xrayRimKneeHigh": 40.0,
+   "xrayRimStrength": 0.9,
+   "xrayRimTint": [
+    210,
+    235,
+    255
+   ]
+  }
+ }
+}

@@ -1,0 +1,460 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-G",
+ "loop": "b8 first-300 sub-window (gateref 9efa9b99..., the w4b byte-reproduced class), frozen adapter render() + frozen gate CLIs, per-variant config patch in place (the w5e convention)",
+ "phases": [
+  {
+   "phase": 1,
+   "purpose": "the mandated variant axes: compensation on/off (the pan A/B), mask threshold, morphology kernel + the framediff fallback leg measured ONCE",
+   "variants": [
+    "v1-comp-off",
+    "v2-baseline",
+    "v3-varthreshold",
+    "v4-morphology",
+    "v5-framediff"
+   ],
+   "finding": "compensation OFF passes T3 (0.8565) via pan-correlated mask jitter (the classic pan-corruption failure mode the recipe's compensation exists to fix \u2014 measured as the A/B); compensated MOG2 variants FAIL T3 0.65-0.70 (the output honestly tracks subject motion only, the input series is camera-dominated \u2014 the STRUCTURE-SELECTING failure class); v5 framediff FAILS G-T2b with 4 invented cuts [33,121,126,173] and T3 0.7885 \u2014 WORSE than MOG2 on the gates, do not ship (the fallback leg is recorded, not adopted)"
+  },
+  {
+   "phase": 2,
+   "purpose": "T3 root-cause grid opened on the compensated family: EMA decay lag, edge soften, dilation (honest re-open, the ink-manga/w5e precedent)",
+   "variants": [
+    "s1-decay75",
+    "s2-soften15",
+    "s3-decay75-soften15",
+    "s4-dilate3",
+    "s5-thr40-decay75",
+    "s6-thr34-decay75"
+   ],
+   "finding": "maskDecay is the T3 knob: 0.90 -> 0.75 lifts T3 0.6986 -> 0.8573 (the max-decay ghost-lag decorrelates the output motion series from the input; crisp decay synchronizes silhouette motion with subject motion); soften/dilate are neutral-to-negative; the threshold+decay synthesis passes ALL gates (s5 0.8394, s6 0.8473)"
+  }
+ ],
+ "panAB": {
+  "compensation-off (v1)": "T3 0.8565 PASS but the VLM duel flags 'significant background noise and ghosting of the stadium structure' \u2014 the pan-corruption failure mode, measured",
+  "compensation-on (v2/s6)": "T3 0.6986 at decay 0.90 / 0.8473 at decay 0.75 \u2014 the compensated mask tracks subject motion; window analysis: active-window r 0.61-0.67 vs v1's 0.73-0.88 (the missing camera-motion component), static-tail r 0.11 (noise vs noise)",
+  "verdict": "compensation SHIPS (the recipe's anti-pan leg); the T3 recovery comes from the decay hardening, not from disabling compensation"
+ },
+ "vlmDuels": {
+  "duel1": {
+   "strip": "fastloop-visual/duel-strip.png",
+   "raw": "fastloop-visual/vlm-duel.json",
+   "verdict": "WINNER=v3-varthreshold (cleanest background) \u2014 but v3 fails G-T3 0.6497; gates are hard constraints, so the duel verdict drove the phase-2 synthesis (threshold cleanliness + decay T3 pass), not the direct pick",
+   "notes": "v1 'significant background noise and ghosting'; v4 'erodes the player silhouettes too much'; v5 'very hollow, incomplete silhouettes'; s1 'noticeably less residual noise and trailing artifacts than v2'"
+  },
+  "duel2": {
+   "strip": "fastloop-visual/duel-strip2.png",
+   "raw": "fastloop-visual/vlm-duel2.json",
+   "verdict": "WINNER=s6-thr34-decay75 among the gate-passing candidates (s1/s5/s6)"
+  }
+ },
+ "winner": {
+  "variant": "s6-thr34-decay75",
+  "overrides": {
+   "mogVarThreshold": 34.0,
+   "maskDecay": 0.75
+  },
+  "gates": {
+   "G-T1": {
+    "pass": true,
+    "frames": "300==300",
+    "durationDeltaMs": 0
+   },
+   "G-T2": {
+    "pass": true,
+    "coverage": 1.0,
+    "extraPer30s": 0.0
+   },
+   "G-T3": {
+    "pass": true,
+    "pearsonR": 0.8473
+   },
+   "G-T4": {
+    "pass": true,
+    "percentOfRange": 1.0582,
+    "inputBaselinePercentOfRange": 0.6095
+   },
+   "G-T2b": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": []
+   }
+  },
+  "sha256First300": "2ae16ab0ff58b9922552614771ac9e0a855847defc3957da96cebce905efbac2",
+  "cliReverify": "BYTE-IDENTICAL via the frozen CLI (render.py --max-frames 300) \u2014 2ae16ab0ff58b9922552614771ac9e0a855847defc3957da96cebce905efbac2",
+  "doubleRender": "BYTE-IDENTICAL (independent out-dir, same 300-frame window) \u2014 2ae16ab0... x2",
+  "frozenInto": "SILHOUETTE_XRAY.config (mogVarThreshold 28->34, maskDecay 0.90->0.75) \u2014 the shipped defaults; every later gate/determinism number is measured on this config"
+ },
+ "variants": [
+  {
+   "variant": "v1-comp-off",
+   "overrides": {
+    "compensate": false
+   },
+   "sha256": "90fc9ed1445f001b280503b1c6c9936b4402ebc55da395b05e4f05427f1819a4",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8565
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8175,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "v2-baseline",
+   "overrides": {},
+   "sha256": "3f9ac41565e14e524cce0579e24811d5e48bd9fe9b2bbc9a6f96a83fd0e8bb95",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.6986
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.9825,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "v3-varthreshold",
+   "overrides": {
+    "mogVarThreshold": 40.0
+   },
+   "sha256": "29c86824c758104632142236f15f35bd089f46710f72243c6f18283795edb0a8",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.6497
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8839,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "v4-morphology",
+   "overrides": {
+    "morphOpen": 5,
+    "morphClose": 7,
+    "morphDilate": 3
+   },
+   "sha256": "77fbe38676064430c782a1fa1d34e51a26cc95e889e4f1e2510b7431eb1f9ab7",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.6682
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 0.8683,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "v5-framediff",
+   "overrides": {
+    "maskSource": "framediff"
+   },
+   "sha256": "1f96ccc31b6c5f6a1664e12348e2c4be1dd769d187e542a6ef1627dd81aa7472",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": false,
+     "coverage": 1.0,
+     "extraPer30s": 10.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.7885
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.4123,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": false,
+     "coverage": 1.0,
+     "inventedCuts": [
+      33,
+      121,
+      126,
+      173
+     ]
+    }
+   }
+  },
+  {
+   "variant": "s1-decay75",
+   "overrides": {
+    "maskDecay": 0.75
+   },
+   "sha256": "ce60e745aa0b65bdf314f7d32d8a003f561e49b06d5d4517a9aa6e7cd91aee13",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8573
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.1259,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "s2-soften15",
+   "overrides": {
+    "maskSoften": 1.5
+   },
+   "sha256": "1fd32e5789cc4bc48a36be5ab598c075d82806671238d924543b59e41f55a2e2",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.7006
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.022,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "s3-decay75-soften15",
+   "overrides": {
+    "maskDecay": 0.75,
+    "maskSoften": 1.5
+   },
+   "sha256": "2a4cec943e4f799a53ccae78d024b0b753f6a596d7641e5406af82cbab1db174",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8583
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.1843,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "s4-dilate3",
+   "overrides": {
+    "morphDilate": 3
+   },
+   "sha256": "0c7d190041d8ec193ba1cb2dc5d56b46d76b52939525877c36ba6e6e9ee8fe32",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": false,
+     "pearsonR": 0.7515
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.1735,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "s5-thr40-decay75",
+   "overrides": {
+    "mogVarThreshold": 40.0,
+    "maskDecay": 0.75
+   },
+   "sha256": "771155cfcc4fdd691845c2f9fbaeab766c901bd966d1c249709388df45f0e927",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8394
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.0093,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  },
+  {
+   "variant": "s6-thr34-decay75",
+   "overrides": {
+    "mogVarThreshold": 34.0,
+    "maskDecay": 0.75
+   },
+   "sha256": "2ae16ab0ff58b9922552614771ac9e0a855847defc3957da96cebce905efbac2",
+   "gates": {
+    "G-T1": {
+     "pass": true,
+     "frames": "300==300",
+     "durationDeltaMs": 0
+    },
+    "G-T2": {
+     "pass": true,
+     "coverage": 1.0,
+     "extraPer30s": 0.0
+    },
+    "G-T3": {
+     "pass": true,
+     "pearsonR": 0.8473
+    },
+    "G-T4": {
+     "pass": true,
+     "percentOfRange": 1.0582,
+     "inputBaselinePercentOfRange": 0.6095
+    },
+    "G-T2b": {
+     "pass": true,
+     "coverage": 1.0,
+     "inventedCuts": []
+    }
+   }
+  }
+ ]
+}

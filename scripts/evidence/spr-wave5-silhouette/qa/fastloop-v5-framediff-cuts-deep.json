@@ -1,0 +1,65 @@
+{
+  "input": "/tmp/w5g/gates/b8-first300-gateref.mp4",
+  "output": "/tmp/w5g/fastloop/v5-framediff/silhouette-xray-v5-framediff.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189
+  ],
+  "outputCuts": [
+    33,
+    121,
+    126,
+    173,
+    189
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.03,
+      "outputFrame": 189,
+      "outputAmplitude": 169.99,
+      "amplitudeRatio": 5.308,
+      "outputLocalMedian": 5.29,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [
+    33,
+    121,
+    126,
+    173
+  ],
+  "inventedDetail": [
+    {
+      "outputFrame": 33,
+      "outputAmplitude": 62.9,
+      "inputAmplitudeSameFrame": 7.71,
+      "reason": "no corresponding input discontinuity amplitude"
+    },
+    {
+      "outputFrame": 121,
+      "outputAmplitude": 51.55,
+      "inputAmplitudeSameFrame": 7.69,
+      "reason": "no corresponding input discontinuity amplitude"
+    },
+    {
+      "outputFrame": 126,
+      "outputAmplitude": 35.53,
+      "inputAmplitudeSameFrame": 10.57,
+      "reason": "no corresponding input discontinuity amplitude"
+    },
+    {
+      "outputFrame": 173,
+      "outputAmplitude": 30.24,
+      "inputAmplitudeSameFrame": 7.94,
+      "reason": "no corresponding input discontinuity amplitude"
+    }
+  ],
+  "pass": false
+}

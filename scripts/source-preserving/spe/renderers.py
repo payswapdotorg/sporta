@@ -1125,7 +1125,7 @@ class _SilhouetteXrayState:
         # stage 1 — MOG2 (deterministic config, fixed history)
         self.mask_source = str(c.get("maskSource", "mog2"))
         self.mog_history = int(c.get("mogHistory", 200))
-        self.mog_var_threshold = float(c.get("mogVarThreshold", 28.0))
+        self.mog_var_threshold = float(c.get("mogVarThreshold", 34.0))
         self.mog_lr = float(c.get("mogLearningRate", 0.04))
         self.mog_warmup = int(c.get("mogWarmup", 10))
         # stage 2 — threshold + morphology + temporal stabilization
@@ -1133,7 +1133,7 @@ class _SilhouetteXrayState:
         self.morph_open = int(c.get("morphOpen", 3))
         self.morph_close = int(c.get("morphClose", 5))
         self.morph_dilate = int(c.get("morphDilate", 0))
-        self.mask_decay = float(c.get("maskDecay", 0.90))
+        self.mask_decay = float(c.get("maskDecay", 0.75))
         self.mask_soften = float(c.get("maskSoften", 3.0))
         # output profiles
         self.output_profile = str(c.get("outputProfile", "ink"))
@@ -1751,7 +1751,7 @@ SILHOUETTE_XRAY = RendererSpec(
         "+ fixed bilinear warps, a pure fixed-op chain proven by the "
         "per-cell double-render byte-equality)",
         "mog2_background_subtraction(deterministic config: fixed "
-        "history=200, varThreshold=28, learningRate=0.04, "
+        "history=200, varThreshold=34, learningRate=0.04, "
         "detectShadows=False, applied to the WARP-ALIGNED stream; "
         "re-initialized at every engine cut-detect hit with learningRate "
         "1.0 — no bg model bleeds across a source cut, contract invariant "
@@ -1766,7 +1766,9 @@ SILHOUETTE_XRAY = RendererSpec(
         "first shot frames — the MOG2 coverage-fallback leg: it fills "
         "warmup + never-modeled pan regions without flooding on "
         "flat-region flow noise; open3/close5 fixed RECT kernels; "
-        "max-decay EMA 0.90 cut-reset; Gaussian soften sigma 3.0; the "
+        "max-decay EMA 0.75 cut-reset — the fast-loop T3-hardened decay "
+        "(0.90 ghost-lag decorrelates the output motion series, measured "
+        "0.6986 -> 0.8473); Gaussian soften sigma 3.0; the "
         "clip's first frame initializes with a zero mask — the all-ink "
         "punctuation is reserved for source cuts)",
         "ink_fill profile [default]: stabilized soft mask -> solid ink "
@@ -1787,11 +1789,11 @@ SILHOUETTE_XRAY = RendererSpec(
         "compensate": True, "flowStep": 4,
         "zoomClip": 0.10, "translationClip": 24.0,
         # stage 1 — MOG2 (deterministic config, fixed history)
-        "maskSource": "mog2", "mogHistory": 200, "mogVarThreshold": 28.0,
+        "maskSource": "mog2", "mogHistory": 200, "mogVarThreshold": 34.0,
         "mogLearningRate": 0.04, "mogWarmup": 10,
         # stage 2 — threshold + morphology + temporal stabilization
         "flowKnee": 2.2, "morphOpen": 3, "morphClose": 5, "morphDilate": 0,
-        "maskDecay": 0.90, "maskSoften": 3.0,
+        "maskDecay": 0.75, "maskSoften": 3.0,
         # ink-fill output (default profile)
         "outputProfile": "ink",
         "inkColor": [26, 26, 26], "paperColor": [244, 244, 244],
