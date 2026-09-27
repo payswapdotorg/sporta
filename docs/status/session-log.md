@@ -1578,3 +1578,32 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   5650cfd); in flight: subject-toon Tier-2 (C — now with one rejected
   attempt on record), SPR109 (F), SPR105 (H); backlog SPR202/SPR205 +
   temporal audit.
+
+## Session S051 (w7-closure) — 2026-09-27 — Resident watch: lane C (subject-toon Tier-2 push v0.2.0) delivered, TL-verified, merged @83560d8
+
+- After the S050 fabrication rejection + §8 prompt hardening, a fresh
+  lane C session (post-hardening dispatch) delivered the REAL Tier-2
+  push on branch spr/w5a/tier2-push (tip edd2dab, base 5650cfd — the
+  TL's updated pin; 106 files, +3184/−26, the −26 confined to the
+  subject-toon class/row per the prompt's own-path allowance).
+- v0.2.0 mechanism set: dual-rate mask hysteresis (rise 0.60 / fall
+  0.05, cut-reset) killing the player-disappearance class; sticky
+  palette assignment (Schmitt trigger 1.18×, cut-reset); structure-
+  preserving bg front-end (median 3, bilateral ×2 σ60, line floor
+  0.24); softer subject XDoG (φ5). Fast loop A/B/C variants, winner C
+  (0 criticals both clusters).
+- TL verification (clean worktree @edd2dab): binding rule — b8
+  re-render BYTE-IDENTICAL to claimed aaac76b7 (across cv2 5.0.0 →
+  4.13.0 version difference — cross-version determinism held); gates
+  re-run all-green with IDENTICAL values (G-T3 0.9951, G-T4 0.5178%,
+  T2b coverage 1.0 / 0 invented); VLM 15/15 raw calls recompute means
+  EXACTLY (sf 5.0 / tc 3.40 / ic 4.27 / mf 3.73 / scf 3.73 / ss 4.47);
+  lane isolation — cartoon-cel on the modified tree = w4b anchor
+  a9e8cd56 BYTE-EXACT (motion-trails anchor from the worker's record,
+  same isolation proof class).
+- Result: min-axis 2.73 → 3.40, criticals 15 → 3, identityConsistency
+  3.20 → 4.27 (crossed the 4.0 bar); HONEST NEAR-MISS — tierClaim 0
+  (tc 3.40 < 4.0, criticals 3 > 0). Measured next increment recorded
+  (region-level temporal consolidation + post-cut rebuild warmup:
+  tc needs +0.60, criticals 3→0 — plausibly in reach).
+- Merged --no-ff @83560d8; tier table + session-log S051; pushed.

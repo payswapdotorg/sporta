@@ -70,7 +70,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 
 | Reality | VLM min-axis | Critical artifacts | Tier |
 |---|---|---|---|
-| subject-toon (strongest deterministic) | 2.73 | 15 | 0 |
+| subject-toon (strongest deterministic; v0.2.0 w5a 2026-09-27) | 3.40 | 3 | 0 (near-miss: tc 3.40, criticals 3; ic 4.27 crossed) |
 | noir-retro (noir profile) | 3.59 | 1 | 0 |
 | motion-trails | 3.47 | 2 | 0 |
 | anime-npr | 1.80 | 136 | 0 |
