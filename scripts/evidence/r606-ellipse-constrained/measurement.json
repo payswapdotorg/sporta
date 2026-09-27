@@ -1,0 +1,3319 @@
+{
+ "schemaVersion": "1.0",
+ "driver": "packages/perception-adapters/scripts/r606-ellipse-measurement.ts",
+ "substrateVerification": [
+  {
+   "clipId": "sprclip-b8-inplay-original",
+   "file": "b8p3.mp4",
+   "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+   "verified": true
+  },
+  {
+   "clipId": "sprclip-b1-wide-broadcast",
+   "file": "clip-b1-wide-broadcast.mp4",
+   "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+   "verified": true
+  },
+  {
+   "clipId": "clip-b3-fast-action",
+   "file": "clip-b3-fast-action.mp4",
+   "sha256": "f88e3bd5f88f047bf1ef1d5515dc7d7ee19a680c2bc2050d51385f7589e00aeb",
+   "verified": true
+  },
+  {
+   "clipId": "clip-b5-camera-move",
+   "file": "clip-b5-camera-move.mp4",
+   "sha256": "349a37eeb7fc1374ed8179804fe7ad4888f66a3d9748246e80fdfba30318593a",
+   "verified": true
+  }
+ ],
+ "paths": {
+  "v010LineOnly": "BroadcastLineCalibrator({ ellipseConstrained: false }) — the v0.1.0 behavior surface",
+  "v020EllipseConstrained": "BroadcastLineCalibrator() — the v0.2.0 default"
+ },
+ "windows": [
+  {
+   "id": "b8p3-c",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    600,
+    620,
+    640,
+    660,
+    680,
+    700
+   ],
+   "mediaTimesSec": [
+    1827.84,
+    1828.64,
+    1829.44,
+    1830.24,
+    1831.04,
+    1831.84
+   ],
+   "anchorFrame": 640,
+   "durationMs": 8553,
+   "v010LineOnly": {
+    "kind": "calibrated",
+    "confidence": 0.8323759350076783,
+    "correspondenceCount": 4,
+    "homography": [
+     2.4771292235855102,
+     1.175629946686725,
+     -1.9093850422369736,
+     -73.54844179832143,
+     -71.13220541124595,
+     45.134815736231396,
+     -3.4085763246856864,
+     -1.5494447972914824,
+     1
+    ],
+    "metrics": {
+     "lineFit": 0.7605884975479269,
+     "backwardPx": 1.9962962962962965,
+     "scoredPixels": 22430
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "calibrated",
+    "confidence": 0.8323759350076783,
+    "correspondenceCount": 4,
+    "homography": [
+     2.4771292235855102,
+     1.175629946686725,
+     -1.9093850422369736,
+     -73.54844179832143,
+     -71.13220541124595,
+     45.134815736231396,
+     -3.4085763246856864,
+     -1.5494447972914824,
+     1
+    ],
+    "metrics": {
+     "lineFit": 0.7605884975479269,
+     "backwardPx": 1.9962962962962965,
+     "scoredPixels": 22430
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 1918,
+    "fitted": false,
+    "centerPx": {
+     "x": 61.86422798926206,
+     "y": 155.73006112430696
+    },
+    "semiMajorPx": 885.3982282783063,
+    "semiMinorPx": 72.24315803298225,
+    "rotationDeg": 13.103452363236988,
+    "supportPx": 348,
+    "coverageBins": 6,
+    "conic": {
+     "a": 0.000003251795935256826,
+     "b": -0.000024716832725110545,
+     "c": 0.00005346775574661905,
+     "d": 0.0034468141808541657,
+     "e": -0.015123985966322296,
+     "f": 0.7769466147644184
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 600,
+     "mediaTimeSec": 1827.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.32687090584265205,
+       "backwardPx": 5.816465256797573,
+       "scoredPixels": 15113
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+       "lineFit": 0.6965526368027526,
+       "backwardPx": 6.798420922773251,
+       "ellipseMeanPx": 79.94492962796694,
+       "ellipseInlierFraction": 0.012269938650306749,
+       "scoredPixels": 15113,
+       "hypotheses": 864,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.32687090584265205,
+        "backwardPx": 5.816465256797573,
+        "scoredPixels": 15113
+       }
+      }
+     }
+    },
+    {
+     "frame": 620,
+     "mediaTimeSec": 1828.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.5208558072635743,
+       "backwardPx": 0,
+       "scoredPixels": 16686
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+       "lineFit": 0.23342922210236125,
+       "backwardPx": 9.04463364293087,
+       "ellipseMeanPx": 41.777997228000444,
+       "ellipseInlierFraction": 0.22758620689655173,
+       "scoredPixels": 16686,
+       "hypotheses": 864,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.5208558072635743,
+        "backwardPx": 0,
+        "scoredPixels": 16686
+       }
+      }
+     }
+    },
+    {
+     "frame": 640,
+     "mediaTimeSec": 1829.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.7821615332532303,
+      "correspondenceCount": 4,
+      "homography": [
+       0.6427025574536398,
+       0.006366468000360264,
+       -0.44271498008048776,
+       -22.320952472122837,
+       4.010110378366726,
+       6.701063739399189,
+       -1.4010227388316931,
+       -0.5095058664798768,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6171421358242868,
+       "backwardPx": 1.5184142622566257,
+       "scoredPixels": 15844
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.7821615332532303,
+      "correspondenceCount": 4,
+      "homography": [
+       0.6427025574536398,
+       0.006366468000360264,
+       -0.44271498008048776,
+       -22.320952472122837,
+       4.010110378366726,
+       6.701063739399189,
+       -1.4010227388316931,
+       -0.5095058664798768,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6171421358242868,
+       "backwardPx": 1.5184142622566257,
+       "scoredPixels": 15844
+      }
+     }
+    },
+    {
+     "frame": 660,
+     "mediaTimeSec": 1830.24,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.5890556597873671,
+       "backwardPx": 0,
+       "scoredPixels": 15990
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 1347,
+       "supportPx": 350,
+       "coverageBins": 7,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.5890556597873671,
+        "backwardPx": 0,
+        "scoredPixels": 15990
+       }
+      }
+     }
+    },
+    {
+     "frame": 680,
+     "mediaTimeSec": 1831.04,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8393970493906351,
+      "correspondenceCount": 4,
+      "homography": [
+       109.93506999486463,
+       -151.59186613361294,
+       44.52960632180483,
+       31.62720729120407,
+       -102.82691108116498,
+       68.61520615277679,
+       0.46405164860274695,
+       -1.501563156493688,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6431045542014112,
+       "backwardPx": 0,
+       "scoredPixels": 15590
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8393970493906351,
+      "correspondenceCount": 4,
+      "homography": [
+       109.93506999486463,
+       -151.59186613361294,
+       44.52960632180483,
+       31.62720729120407,
+       -102.82691108116498,
+       68.61520615277679,
+       0.46405164860274695,
+       -1.501563156493688,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6431045542014112,
+       "backwardPx": 0,
+       "scoredPixels": 15590
+      }
+     }
+    },
+    {
+     "frame": 700,
+     "mediaTimeSec": 1831.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.7071840720309429,
+       "backwardPx": 43.17551210428327,
+       "scoredPixels": 15771
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 1919,
+       "supportPx": 627,
+       "coverageBins": 8,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.7071840720309429,
+        "backwardPx": 43.17551210428327,
+        "scoredPixels": 15771
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-d",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    1040,
+    1060,
+    1080,
+    1100,
+    1120,
+    1140
+   ],
+   "mediaTimesSec": [
+    1845.44,
+    1846.24,
+    1847.04,
+    1847.84,
+    1848.64,
+    1849.44
+   ],
+   "anchorFrame": 1080,
+   "durationMs": 8171,
+   "v010LineOnly": {
+    "kind": "calibrated",
+    "confidence": 0.9880520657945862,
+    "correspondenceCount": 4,
+    "homography": [
+     -272.46603737400613,
+     -115.16624970522231,
+     98.92878078843312,
+     -37.84041188536671,
+     -16.01970559070248,
+     13.758529288750337,
+     -2.745153756549806,
+     -1.1646365923768112,
+     1
+    ],
+    "metrics": {
+     "lineFit": 0.9734490350990804,
+     "backwardPx": 0,
+     "scoredPixels": 23163,
+     "ellipseMeanPx": 451.22434757782383,
+     "ellipseSupportPx": 1088,
+     "ellipseCoverageBins": 13
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "calibrated",
+    "confidence": 0.9880520657945862,
+    "correspondenceCount": 4,
+    "homography": [
+     -272.46603737400613,
+     -115.16624970522231,
+     98.92878078843312,
+     -37.84041188536671,
+     -16.01970559070248,
+     13.758529288750337,
+     -2.745153756549806,
+     -1.1646365923768112,
+     1
+    ],
+    "metrics": {
+     "lineFit": 0.9734490350990804,
+     "backwardPx": 0,
+     "scoredPixels": 23163,
+     "ellipseMeanPx": 451.22434757782383,
+     "ellipseSupportPx": 1088,
+     "ellipseCoverageBins": 13
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 2436,
+    "fitted": true,
+    "centerPx": {
+     "x": 568.7412341379725,
+     "y": 261.85876411658876
+    },
+    "semiMajorPx": 93.06321276178171,
+    "semiMinorPx": 77.58190001950129,
+    "rotationDeg": 20.08503183027336,
+    "supportPx": 1088,
+    "coverageBins": 13,
+    "conic": {
+     "a": 0.00006973258401757997,
+     "b": -0.000018771453041188955,
+     "c": 0.00009196915529260335,
+     "d": -0.07440412229353825,
+     "e": -0.03748975931432669,
+     "f": 25.49264284361814
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 1040,
+     "mediaTimeSec": 1845.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9088077932289238,
+      "correspondenceCount": 4,
+      "homography": [
+       -387.77844618727505,
+       -170.87157868489132,
+       106.45627832318945,
+       -51.052550267136304,
+       -19.735787559053172,
+       11.624143073838471,
+       -3.6728400668711236,
+       -1.6094675914956171,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8631942730190076,
+       "backwardPx": 0.9876543209876542,
+       "scoredPixels": 20255,
+       "ellipseMeanPx": null,
+       "ellipseSupportPx": 448,
+       "ellipseCoverageBins": 16
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9088077932289238,
+      "correspondenceCount": 4,
+      "homography": [
+       -387.77844618727505,
+       -170.87157868489132,
+       106.45627832318945,
+       -51.052550267136304,
+       -19.735787559053172,
+       11.624143073838471,
+       -3.6728400668711236,
+       -1.6094675914956171,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8631942730190076,
+       "backwardPx": 0.9876543209876542,
+       "scoredPixels": 20255,
+       "ellipseMeanPx": null,
+       "ellipseSupportPx": 448,
+       "ellipseCoverageBins": 16
+      }
+     }
+    },
+    {
+     "frame": 1060,
+     "mediaTimeSec": 1846.24,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9592044017700194,
+      "correspondenceCount": 4,
+      "homography": [
+       -239.22525231696807,
+       -100.56931725467678,
+       87.06619074953802,
+       0.08005418968753968,
+       -0.004638613578846104,
+       -0.05591991913602038,
+       -2.7244124409758053,
+       -1.1574468893770913,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.9128747135574989,
+       "backwardPx": 0.05297397769516729,
+       "scoredPixels": 21383
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9592044017700194,
+      "correspondenceCount": 4,
+      "homography": [
+       -239.22525231696807,
+       -100.56931725467678,
+       87.06619074953802,
+       0.08005418968753968,
+       -0.004638613578846104,
+       -0.05591991913602038,
+       -2.7244124409758053,
+       -1.1574468893770913,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.9128747135574989,
+       "backwardPx": 0.05297397769516729,
+       "scoredPixels": 21383
+      }
+     }
+    },
+    {
+     "frame": 1080,
+     "mediaTimeSec": 1847.04,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9426350240517454,
+      "correspondenceCount": 4,
+      "homography": [
+       0.24481661124755813,
+       0.0048280752815287745,
+       -0.19382184229138333,
+       -65.89119694276262,
+       -30.836870420925774,
+       26.463858628947122,
+       -2.726496409576982,
+       -1.1553780061439525,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8792159485100514,
+       "backwardPx": 0.10040509259259262,
+       "scoredPixels": 23927
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9426350240517454,
+      "correspondenceCount": 4,
+      "homography": [
+       0.24481661124755813,
+       0.0048280752815287745,
+       -0.19382184229138333,
+       -65.89119694276262,
+       -30.836870420925774,
+       26.463858628947122,
+       -2.726496409576982,
+       -1.1553780061439525,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8792159485100514,
+       "backwardPx": 0.10040509259259262,
+       "scoredPixels": 23927
+      }
+     }
+    },
+    {
+     "frame": 1100,
+     "mediaTimeSec": 1847.84,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9440328454081057,
+      "correspondenceCount": 4,
+      "homography": [
+       0.20021422504246958,
+       -0.001985654714584687,
+       -0.15575806353546387,
+       -150.99851080112694,
+       -67.09696956915353,
+       55.91271553017709,
+       -2.813513275436536,
+       -1.198799437654073,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8907620229848237,
+       "backwardPx": 0.22700216450216457,
+       "scoredPixels": 24973
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9440328454081057,
+      "correspondenceCount": 4,
+      "homography": [
+       0.20021422504246958,
+       -0.001985654714584687,
+       -0.15575806353546387,
+       -150.99851080112694,
+       -67.09696956915353,
+       55.91271553017709,
+       -2.813513275436536,
+       -1.198799437654073,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.8907620229848237,
+       "backwardPx": 0.22700216450216457,
+       "scoredPixels": 24973
+      }
+     }
+    },
+    {
+     "frame": 1120,
+     "mediaTimeSec": 1848.64,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9539173692968659,
+      "correspondenceCount": 4,
+      "homography": [
+       0.1486803990511779,
+       -0.0014554482908103268,
+       -0.1102130569278159,
+       -42.51431363896152,
+       -15.816671995537236,
+       12.282893575635281,
+       -3.058483951792326,
+       -1.297636345253004,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.909458857813575,
+       "backwardPx": 0.17797055730809674,
+       "scoredPixels": 24707
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9539173692968659,
+      "correspondenceCount": 4,
+      "homography": [
+       0.1486803990511779,
+       -0.0014554482908103268,
+       -0.1102130569278159,
+       -42.51431363896152,
+       -15.816671995537236,
+       12.282893575635281,
+       -3.058483951792326,
+       -1.297636345253004,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.909458857813575,
+       "backwardPx": 0.17797055730809674,
+       "scoredPixels": 24707
+      }
+     }
+    },
+    {
+     "frame": 1140,
+     "mediaTimeSec": 1849.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9667880780918288,
+      "correspondenceCount": 4,
+      "homography": [
+       -47.44648459984459,
+       -21.907654501380538,
+       17.986977833718136,
+       -38.914798037111034,
+       -16.582796981173995,
+       13.738263898967631,
+       -2.8168756011903286,
+       -1.2079342605086067,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.9261957290929526,
+       "backwardPx": 0,
+       "scoredPixels": 24023
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9667880780918288,
+      "correspondenceCount": 4,
+      "homography": [
+       -47.44648459984459,
+       -21.907654501380538,
+       17.986977833718136,
+       -38.914798037111034,
+       -16.582796981173995,
+       13.738263898967631,
+       -2.8168756011903286,
+       -1.2079342605086067,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.9261957290929526,
+       "backwardPx": 0,
+       "scoredPixels": 24023
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-a",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    40,
+    60,
+    80,
+    100,
+    120,
+    140
+   ],
+   "mediaTimesSec": [
+    1805.44,
+    1806.24,
+    1807.04,
+    1807.84,
+    1808.64,
+    1809.44
+   ],
+   "anchorFrame": 80,
+   "durationMs": 4801,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.camera-motion",
+    "details": {
+     "failureClassId": "broadcast-line.camera-motion",
+     "frame": 0,
+     "dx": 60,
+     "dy": -1
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.camera-motion",
+    "details": {
+     "failureClassId": "broadcast-line.camera-motion",
+     "frame": 0,
+     "dx": 60,
+     "dy": -1
+    }
+   },
+   "ellipseEvidence": {
+    "stage": "broadcast-line.camera-motion"
+   },
+   "perFrame": [
+    {
+     "frame": 40,
+     "mediaTimeSec": 1805.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.4310496912672743,
+       "backwardPx": 1.2352804821511363,
+       "scoredPixels": 6802
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 691,
+       "supportPx": 289,
+       "coverageBins": 9,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.4310496912672743,
+        "backwardPx": 1.2352804821511363,
+        "scoredPixels": 6802
+       }
+      }
+     }
+    },
+    {
+     "frame": 60,
+     "mediaTimeSec": 1806.24,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.14694638694638695,
+       "backwardPx": 1.3206871868289187,
+       "scoredPixels": 10725
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 885,
+       "supportPx": 219,
+       "coverageBins": 6,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.14694638694638695,
+        "backwardPx": 1.3206871868289187,
+        "scoredPixels": 10725
+       }
+      }
+     }
+    },
+    {
+     "frame": 80,
+     "mediaTimeSec": 1807.04,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.7416633777192123,
+      "correspondenceCount": 4,
+      "homography": [
+       22.896736626977056,
+       -0.4514452347289875,
+       -21.58616875149458,
+       -727.7470564265712,
+       786.4635792524118,
+       -455.77423698203097,
+       -15.672631097965274,
+       -0.08171305905680377,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6534433219019372,
+       "backwardPx": 3.4128705712219807,
+       "scoredPixels": 10789,
+       "ellipseMeanPx": 471.146692003769,
+       "ellipseSupportPx": 488,
+       "ellipseCoverageBins": 14
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.7416633777192123,
+      "correspondenceCount": 4,
+      "homography": [
+       22.896736626977056,
+       -0.4514452347289875,
+       -21.58616875149458,
+       -727.7470564265712,
+       786.4635792524118,
+       -455.77423698203097,
+       -15.672631097965274,
+       -0.08171305905680377,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6534433219019372,
+       "backwardPx": 3.4128705712219807,
+       "scoredPixels": 10789,
+       "ellipseMeanPx": 471.146692003769,
+       "ellipseSupportPx": 488,
+       "ellipseCoverageBins": 14
+      }
+     }
+    },
+    {
+     "frame": 100,
+     "mediaTimeSec": 1807.84,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8392395938625821,
+      "correspondenceCount": 4,
+      "homography": [
+       -122.55305147205102,
+       -11.838621911279787,
+       10.656576868298128,
+       -337.32691695190766,
+       483.7743502665338,
+       -303.0260518901381,
+       -7.749518454124579,
+       -1.2205332223652265,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6531893004115227,
+       "backwardPx": 0.15651971075344062,
+       "scoredPixels": 9720,
+       "ellipseMeanPx": 540.5621070325674,
+       "ellipseSupportPx": 291,
+       "ellipseCoverageBins": 22
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8392395938625821,
+      "correspondenceCount": 4,
+      "homography": [
+       -122.55305147205102,
+       -11.838621911279787,
+       10.656576868298128,
+       -337.32691695190766,
+       483.7743502665338,
+       -303.0260518901381,
+       -7.749518454124579,
+       -1.2205332223652265,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6531893004115227,
+       "backwardPx": 0.15651971075344062,
+       "scoredPixels": 9720,
+       "ellipseMeanPx": 540.5621070325674,
+       "ellipseSupportPx": 291,
+       "ellipseCoverageBins": 22
+      }
+     }
+    },
+    {
+     "frame": 120,
+     "mediaTimeSec": 1808.64,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8322571972628027,
+      "correspondenceCount": 4,
+      "homography": [
+       0.8065683542711057,
+       -0.05687259258270906,
+       -0.32597934089880687,
+       -99.31854422390886,
+       -220.80994940554632,
+       163.12048527247666,
+       -2.9461246249592223,
+       -0.13123815648580103,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6640134529147982,
+       "backwardPx": 0.551628551628552,
+       "scoredPixels": 8920,
+       "ellipseMeanPx": 391.6945683413044,
+       "ellipseSupportPx": 302,
+       "ellipseCoverageBins": 21
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8322571972628027,
+      "correspondenceCount": 4,
+      "homography": [
+       0.8065683542711057,
+       -0.05687259258270906,
+       -0.32597934089880687,
+       -99.31854422390886,
+       -220.80994940554632,
+       163.12048527247666,
+       -2.9461246249592223,
+       -0.13123815648580103,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6640134529147982,
+       "backwardPx": 0.551628551628552,
+       "scoredPixels": 8920,
+       "ellipseMeanPx": 391.6945683413044,
+       "ellipseSupportPx": 302,
+       "ellipseCoverageBins": 21
+      }
+     }
+    },
+    {
+     "frame": 140,
+     "mediaTimeSec": 1809.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.3210400432065427,
+       "backwardPx": 23.464128843338216,
+       "scoredPixels": 12961
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 841,
+       "supportPx": 505,
+       "coverageBins": 10,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.3210400432065427,
+        "backwardPx": 23.464128843338216,
+        "scoredPixels": 12961
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-b",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    220,
+    240,
+    260,
+    280,
+    300,
+    320
+   ],
+   "mediaTimesSec": [
+    1812.64,
+    1813.44,
+    1814.24,
+    1815.04,
+    1815.84,
+    1816.64
+   ],
+   "anchorFrame": 260,
+   "durationMs": 5153,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.2064323787153311,
+     "backwardPx": 13.282374100719432,
+     "scoredPixels": 11069
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+     "arcPixels": 871,
+     "supportPx": 299,
+     "coverageBins": 10,
+     "detectedLines": 28,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.2064323787153311,
+      "backwardPx": 13.282374100719432,
+      "scoredPixels": 11069
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 871,
+    "fitted": false,
+    "centerPx": {
+     "x": 246.54630996180265,
+     "y": 263.21069519012104
+    },
+    "semiMajorPx": 108.27551376814004,
+    "semiMinorPx": 68.51804324762475,
+    "rotationDeg": 111.8081688729269,
+    "supportPx": 299,
+    "coverageBins": 10,
+    "conic": {
+     "a": 0.00008665357927291333,
+     "b": 0.00003907156000174749,
+     "c": 0.000045647819042622026,
+     "d": -0.05301229289966115,
+     "e": -0.03366293731112479,
+     "f": 10.521702101561301
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 220,
+     "mediaTimeSec": 1812.64,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8214946424142381,
+      "correspondenceCount": 4,
+      "homography": [
+       0.6871515188637596,
+       0.805384082058807,
+       -0.559166273305985,
+       -63.64804927101559,
+       -28.910205667583565,
+       35.817392403510034,
+       -1.6635897496951508,
+       -0.8486585159794987,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7360703812316716,
+       "backwardPx": 1.9912343046671404,
+       "scoredPixels": 10571
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8214946424142381,
+      "correspondenceCount": 4,
+      "homography": [
+       0.6871515188637596,
+       0.805384082058807,
+       -0.559166273305985,
+       -63.64804927101559,
+       -28.910205667583565,
+       35.817392403510034,
+       -1.6635897496951508,
+       -0.8486585159794987,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7360703812316716,
+       "backwardPx": 1.9912343046671404,
+       "scoredPixels": 10571
+      }
+     }
+    },
+    {
+     "frame": 240,
+     "mediaTimeSec": 1813.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8669749693720425,
+      "correspondenceCount": 4,
+      "homography": [
+       0.7519267135628354,
+       0.10556198767332761,
+       -0.3174758716302841,
+       -49.203163653750664,
+       -39.74062683128245,
+       32.58211767698878,
+       -1.8402231210359734,
+       -0.7325359247407502,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7527733755942948,
+       "backwardPx": 0.7257683215130025,
+       "scoredPixels": 8203
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8669749693720425,
+      "correspondenceCount": 4,
+      "homography": [
+       0.7519267135628354,
+       0.10556198767332761,
+       -0.3174758716302841,
+       -49.203163653750664,
+       -39.74062683128245,
+       32.58211767698878,
+       -1.8402231210359734,
+       -0.7325359247407502,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7527733755942948,
+       "backwardPx": 0.7257683215130025,
+       "scoredPixels": 8203
+      }
+     }
+    },
+    {
+     "frame": 260,
+     "mediaTimeSec": 1814.24,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.7550025558717132,
+      "correspondenceCount": 4,
+      "homography": [
+       1.3678550047274733,
+       -0.6139575148318356,
+       0.13193813291508996,
+       -54.05603377719208,
+       -34.84013782636203,
+       29.372435325908235,
+       -2.3061059847043412,
+       -0.6116758277434439,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6236515641855448,
+       "backwardPx": 2.5213549337260672,
+       "scoredPixels": 7416
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.7550025558717132,
+      "correspondenceCount": 4,
+      "homography": [
+       1.3678550047274733,
+       -0.6139575148318356,
+       0.13193813291508996,
+       -54.05603377719208,
+       -34.84013782636203,
+       29.372435325908235,
+       -2.3061059847043412,
+       -0.6116758277434439,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6236515641855448,
+       "backwardPx": 2.5213549337260672,
+       "scoredPixels": 7416
+      }
+     }
+    },
+    {
+     "frame": 280,
+     "mediaTimeSec": 1815.04,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.7072822465492623,
+       "backwardPx": 27.18711276332094,
+       "scoredPixels": 6303
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 698,
+       "supportPx": 277,
+       "coverageBins": 5,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.7072822465492623,
+        "backwardPx": 27.18711276332094,
+        "scoredPixels": 6303
+       }
+      }
+     }
+    },
+    {
+     "frame": 300,
+     "mediaTimeSec": 1815.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18757378472222222
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18757378472222222
+      }
+     }
+    },
+    {
+     "frame": 320,
+     "mediaTimeSec": 1816.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.175390625
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.175390625
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-e",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    245,
+    265,
+    285,
+    305,
+    325,
+    345
+   ],
+   "mediaTimesSec": [
+    1813.64,
+    1814.44,
+    1815.24,
+    1816.04,
+    1816.84,
+    1817.64
+   ],
+   "anchorFrame": 285,
+   "durationMs": 5335,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.5251869342778434,
+     "backwardPx": 0.2568075117370892,
+     "scoredPixels": 5082
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+     "lineFit": 0.6623376623376623,
+     "backwardPx": 21.634326634326637,
+     "ellipseMeanPx": 13.881464657014991,
+     "ellipseInlierFraction": 0.4,
+     "scoredPixels": 5082,
+     "hypotheses": 864,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.5251869342778434,
+      "backwardPx": 0.2568075117370892,
+      "scoredPixels": 5082
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 339,
+    "fitted": true,
+    "centerPx": {
+     "x": 488.0673355936057,
+     "y": 156.01562389473807
+    },
+    "semiMajorPx": 57.55494468650046,
+    "semiMinorPx": 3.8787086813943397,
+    "rotationDeg": 167.50457000613892,
+    "supportPx": 100,
+    "coverageBins": 16,
+    "conic": {
+     "a": 0.00003839220738189901,
+     "b": 0.0003157135529186623,
+     "c": 0.0007157241846695913,
+     "d": -0.08673221165951077,
+     "e": -0.3774177829993606,
+     "f": 50.59582124735382
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 245,
+     "mediaTimeSec": 1813.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.5461178414096917,
+       "backwardPx": 17.043154761904763,
+       "scoredPixels": 7264
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 648,
+       "supportPx": 266,
+       "coverageBins": 10,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.5461178414096917,
+        "backwardPx": 17.043154761904763,
+        "scoredPixels": 7264
+       }
+      }
+     }
+    },
+    {
+     "frame": 265,
+     "mediaTimeSec": 1814.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8441068989846061,
+      "correspondenceCount": 4,
+      "homography": [
+       0.3057568315715125,
+       -0.14681900580759233,
+       0.03612586520614593,
+       -86.0152399107861,
+       -6.970516762784285,
+       38.13060494642034,
+       -2.0156570351574943,
+       -0.6620454918553883,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7397336293007769,
+       "backwardPx": 1.292441140024782,
+       "scoredPixels": 7208
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8441068989846061,
+      "correspondenceCount": 4,
+      "homography": [
+       0.3057568315715125,
+       -0.14681900580759233,
+       0.03612586520614593,
+       -86.0152399107861,
+       -6.970516762784285,
+       38.13060494642034,
+       -2.0156570351574943,
+       -0.6620454918553883,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7397336293007769,
+       "backwardPx": 1.292441140024782,
+       "scoredPixels": 7208
+      }
+     }
+    },
+    {
+     "frame": 285,
+     "mediaTimeSec": 1815.24,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.893744053282588,
+      "correspondenceCount": 4,
+      "homography": [
+       -55.941801169267464,
+       -41.44387585456698,
+       28.70322483442762,
+       -215.2143587331728,
+       -7.882750979043321,
+       68.2793832485949,
+       -3.153824928882335,
+       -0.11343564415406834,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7638756739613067,
+       "backwardPx": 0,
+       "scoredPixels": 6306
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.893744053282588,
+      "correspondenceCount": 4,
+      "homography": [
+       -55.941801169267464,
+       -41.44387585456698,
+       28.70322483442762,
+       -215.2143587331728,
+       -7.882750979043321,
+       68.2793832485949,
+       -3.153824928882335,
+       -0.11343564415406834,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7638756739613067,
+       "backwardPx": 0,
+       "scoredPixels": 6306
+      }
+     }
+    },
+    {
+     "frame": 305,
+     "mediaTimeSec": 1816.04,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.187109375
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.187109375
+      }
+     }
+    },
+    {
+     "frame": 325,
+     "mediaTimeSec": 1816.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1676345486111111
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1676345486111111
+      }
+     }
+    },
+    {
+     "frame": 345,
+     "mediaTimeSec": 1817.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15164930555555556
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15164930555555556
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-f",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    270,
+    290,
+    310,
+    330,
+    350,
+    370
+   ],
+   "mediaTimesSec": [
+    1814.64,
+    1815.44,
+    1816.24,
+    1817.04,
+    1817.84,
+    1818.64
+   ],
+   "anchorFrame": 310,
+   "durationMs": 3531,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.4492404594294183,
+     "backwardPx": 19.15322580645161,
+     "scoredPixels": 5398
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+     "lineFit": 0.6061504260837347,
+     "backwardPx": 17.57466063348415,
+     "ellipseMeanPx": 6.258354110713694,
+     "ellipseInlierFraction": 0.6277777777777778,
+     "scoredPixels": 5398,
+     "hypotheses": 864,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.4492404594294183,
+      "backwardPx": 19.15322580645161,
+      "scoredPixels": 5398
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 383,
+    "fitted": true,
+    "centerPx": {
+     "x": 471.6887866568638,
+     "y": 156.24224993866602
+    },
+    "semiMajorPx": 23.324137582079377,
+    "semiMinorPx": 3.8837762262127935,
+    "rotationDeg": 147.57357666484404,
+    "supportPx": 191,
+    "coverageBins": 23,
+    "conic": {
+     "a": 0.0023967025264710912,
+     "b": 0.006864659172098713,
+     "c": 0.005619235668589904,
+     "d": -3.333545207487978,
+     "e": -4.9939068032923295,
+     "f": 1176.2099163966254
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 270,
+     "mediaTimeSec": 1814.64,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8597076986414163,
+      "correspondenceCount": 4,
+      "homography": [
+       -200.76110519167457,
+       -73.11751843063941,
+       104.99013073422277,
+       -83.75399154990313,
+       -8.733257175663171,
+       38.41449502143709,
+       -1.9090435079497277,
+       -0.7019289016782221,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.754905996980925,
+       "backwardPx": 1,
+       "scoredPixels": 7287
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8597076986414163,
+      "correspondenceCount": 4,
+      "homography": [
+       -200.76110519167457,
+       -73.11751843063941,
+       104.99013073422277,
+       -83.75399154990313,
+       -8.733257175663171,
+       38.41449502143709,
+       -1.9090435079497277,
+       -0.7019289016782221,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.754905996980925,
+       "backwardPx": 1,
+       "scoredPixels": 7287
+      }
+     }
+    },
+    {
+     "frame": 290,
+     "mediaTimeSec": 1815.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1979730902777778
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1979730902777778
+      }
+     }
+    },
+    {
+     "frame": 310,
+     "mediaTimeSec": 1816.24,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1810373263888889
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1810373263888889
+      }
+     }
+    },
+    {
+     "frame": 330,
+     "mediaTimeSec": 1817.04,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15434895833333334
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15434895833333334
+      }
+     }
+    },
+    {
+     "frame": 350,
+     "mediaTimeSec": 1817.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1516362847222222
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1516362847222222
+      }
+     }
+    },
+    {
+     "frame": 370,
+     "mediaTimeSec": 1818.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1452387152777778
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1452387152777778
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b8p3-g",
+   "clipId": "sprclip-b8-inplay-original",
+   "frames": [
+    295,
+    315,
+    335,
+    355,
+    375,
+    395
+   ],
+   "mediaTimesSec": [
+    1815.64,
+    1816.44,
+    1817.24,
+    1818.04,
+    1818.84,
+    1819.64
+   ],
+   "anchorFrame": 335,
+   "durationMs": 2808,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.69644438820701,
+     "backwardPx": 15.394782608695659,
+     "scoredPixels": 7903
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+     "lineFit": 0.08680248007085917,
+     "backwardPx": 14.027755749405243,
+     "ellipseMeanPx": 3.116080638359286,
+     "ellipseInlierFraction": 0.9777777777777777,
+     "scoredPixels": 7903,
+     "hypotheses": 864,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.69644438820701,
+      "backwardPx": 15.394782608695659,
+      "scoredPixels": 7903
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 427,
+    "fitted": true,
+    "centerPx": {
+     "x": 469.2076452614419,
+     "y": 163.4176353871331
+    },
+    "semiMajorPx": 21.87757160536564,
+    "semiMinorPx": 5.319480651822294,
+    "rotationDeg": 144.5487291629079,
+    "supportPx": 249,
+    "coverageBins": 26,
+    "conic": {
+     "a": 0.002720829673310945,
+     "b": 0.00643982307673117,
+     "c": 0.0049504984282084,
+     "d": -3.605648827854273,
+     "e": -4.6396117159843975,
+     "f": 1224.7912285827829
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 295,
+     "mediaTimeSec": 1815.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18994791666666666
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18994791666666666
+      }
+     }
+    },
+    {
+     "frame": 315,
+     "mediaTimeSec": 1816.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18181857638888888
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.18181857638888888
+      }
+     }
+    },
+    {
+     "frame": 335,
+     "mediaTimeSec": 1817.24,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15577690972222222
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15577690972222222
+      }
+     }
+    },
+    {
+     "frame": 355,
+     "mediaTimeSec": 1818.04,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15318576388888888
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15318576388888888
+      }
+     }
+    },
+    {
+     "frame": 375,
+     "mediaTimeSec": 1818.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15841145833333334
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15841145833333334
+      }
+     }
+    },
+    {
+     "frame": 395,
+     "mediaTimeSec": 1819.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.17889322916666667
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.17889322916666667
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b3-a",
+   "clipId": "clip-b3-fast-action",
+   "frames": [
+    20,
+    40,
+    60,
+    80,
+    100,
+    120
+   ],
+   "mediaTimesSec": [
+    2046.8,
+    2047.6,
+    2048.4,
+    2049.2,
+    2050,
+    2050.8
+   ],
+   "anchorFrame": 60,
+   "durationMs": 5391,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.23956235121772568,
+     "backwardPx": 2.8476968796433897,
+     "scoredPixels": 21844
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+     "arcPixels": 1236,
+     "supportPx": 370,
+     "coverageBins": 11,
+     "detectedLines": 28,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.23956235121772568,
+      "backwardPx": 2.8476968796433897,
+      "scoredPixels": 21844
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 1236,
+    "fitted": false,
+    "centerPx": {
+     "x": 588.5864336155637,
+     "y": 107.72224487422059
+    },
+    "semiMajorPx": 232.20345571731158,
+    "semiMinorPx": 17.38353099834937,
+    "rotationDeg": 20.338540391704605,
+    "supportPx": 370,
+    "coverageBins": 11,
+    "conic": {
+     "a": 0.000025052598212167366,
+     "b": -0.000129147010016346,
+     "c": 0.0001753213942488335,
+     "d": -0.015579233031252285,
+     "e": 0.03824214971170948,
+     "f": 2.464884515593803
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 20,
+     "mediaTimeSec": 2046.8,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.03621557912782599,
+       "backwardPx": 0,
+       "scoredPixels": 9333
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 928,
+       "supportPx": 593,
+       "coverageBins": 7,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.03621557912782599,
+        "backwardPx": 0,
+        "scoredPixels": 9333
+       }
+      }
+     }
+    },
+    {
+     "frame": 40,
+     "mediaTimeSec": 2047.6,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.6079116835326587,
+       "backwardPx": 28.254629629629623,
+       "scoredPixels": 10870
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 1686,
+       "supportPx": 519,
+       "coverageBins": 10,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.6079116835326587,
+        "backwardPx": 28.254629629629623,
+        "scoredPixels": 10870
+       }
+      }
+     }
+    },
+    {
+     "frame": 60,
+     "mediaTimeSec": 2048.4,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.31488698363211226,
+       "backwardPx": 4.355842911877392,
+       "scoredPixels": 11547
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 923,
+       "supportPx": 291,
+       "coverageBins": 9,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.31488698363211226,
+        "backwardPx": 4.355842911877392,
+        "scoredPixels": 11547
+       }
+      }
+     }
+    },
+    {
+     "frame": 80,
+     "mediaTimeSec": 2049.2,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.6420583536534096,
+       "backwardPx": 19.141141141141144,
+       "scoredPixels": 11893
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 1502,
+       "supportPx": 285,
+       "coverageBins": 9,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.6420583536534096,
+        "backwardPx": 19.141141141141144,
+        "scoredPixels": 11893
+       }
+      }
+     }
+    },
+    {
+     "frame": 100,
+     "mediaTimeSec": 2050,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.9086552605094063,
+      "correspondenceCount": 4,
+      "homography": [
+       -174.30093647593654,
+       1.060412826663318,
+       105.11189565453637,
+       -84.84422017346179,
+       18.176630597935375,
+       39.276823770203684,
+       -1.657520480461295,
+       0.009437868809051194,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7970116900209027,
+       "backwardPx": 0,
+       "scoredPixels": 12917
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.9086552605094063,
+      "correspondenceCount": 4,
+      "homography": [
+       -174.30093647593654,
+       1.060412826663318,
+       105.11189565453637,
+       -84.84422017346179,
+       18.176630597935375,
+       39.276823770203684,
+       -1.657520480461295,
+       0.009437868809051194,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7970116900209027,
+       "backwardPx": 0,
+       "scoredPixels": 12917
+      }
+     }
+    },
+    {
+     "frame": 120,
+     "mediaTimeSec": 2050.8,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8506581009088061,
+      "correspondenceCount": 4,
+      "homography": [
+       -37.65179528546948,
+       -129.11901064064833,
+       105.00473295301362,
+       27.608946645803062,
+       -57.087870583034665,
+       27.736020295435964,
+       -0.35980146422732456,
+       -1.228897327305908,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.66812911313068,
+       "backwardPx": 0,
+       "scoredPixels": 12764,
+       "ellipseMeanPx": 217.84816282178613,
+       "ellipseSupportPx": 313,
+       "ellipseCoverageBins": 16
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8506581009088061,
+      "correspondenceCount": 4,
+      "homography": [
+       -37.65179528546948,
+       -129.11901064064833,
+       105.00473295301362,
+       27.608946645803062,
+       -57.087870583034665,
+       27.736020295435964,
+       -0.35980146422732456,
+       -1.228897327305908,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.66812911313068,
+       "backwardPx": 0,
+       "scoredPixels": 12764,
+       "ellipseMeanPx": 217.84816282178613,
+       "ellipseSupportPx": 313,
+       "ellipseCoverageBins": 16
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b5-a",
+   "clipId": "clip-b5-camera-move",
+   "frames": [
+    20,
+    40,
+    60,
+    80,
+    100,
+    120
+   ],
+   "mediaTimesSec": [
+    1987.8,
+    1988.6,
+    1989.4,
+    1990.2,
+    1991,
+    1991.8
+   ],
+   "anchorFrame": 60,
+   "durationMs": 4070,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.5319808396731474,
+     "backwardPx": 17.817872340425534,
+     "scoredPixels": 3549
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+     "arcPixels": 544,
+     "supportPx": 248,
+     "coverageBins": 8,
+     "detectedLines": 28,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.5319808396731474,
+      "backwardPx": 17.817872340425534,
+      "scoredPixels": 3549
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 544,
+    "fitted": false,
+    "centerPx": {
+     "x": 209.54241134450982,
+     "y": 262.689511074098
+    },
+    "semiMajorPx": 202.53517219572578,
+    "semiMinorPx": 72.0078402406144,
+    "rotationDeg": 155.9740707670341,
+    "supportPx": 248,
+    "coverageBins": 8,
+    "conic": {
+     "a": 0.000009030134081881033,
+     "b": 0.000021632650085474,
+     "c": 0.000028472835008321355,
+     "d": -0.009467062414753397,
+     "e": -0.019491987877141036,
+     "f": 3.3794099597507965
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 20,
+     "mediaTimeSec": 1987.8,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8907585083272991,
+      "correspondenceCount": 4,
+      "homography": [
+       -139.82213777776172,
+       657.6696444628689,
+       -112.09386880601045,
+       -292.5107644877874,
+       522.559432623233,
+       67.23021714150718,
+       -4.281321397251136,
+       7.603176123045378,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7572411296162201,
+       "backwardPx": 0,
+       "scoredPixels": 5524
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8907585083272991,
+      "correspondenceCount": 4,
+      "homography": [
+       -139.82213777776172,
+       657.6696444628689,
+       -112.09386880601045,
+       -292.5107644877874,
+       522.559432623233,
+       67.23021714150718,
+       -4.281321397251136,
+       7.603176123045378,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7572411296162201,
+       "backwardPx": 0,
+       "scoredPixels": 5524
+      }
+     }
+    },
+    {
+     "frame": 40,
+     "mediaTimeSec": 1988.6,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.6773348306195022,
+       "backwardPx": 11.501557632398752,
+       "scoredPixels": 5343
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 491,
+       "supportPx": 264,
+       "coverageBins": 7,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.6773348306195022,
+        "backwardPx": 11.501557632398752,
+        "scoredPixels": 5343
+       }
+      }
+     }
+    },
+    {
+     "frame": 60,
+     "mediaTimeSec": 1989.4,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8809382924767539,
+      "correspondenceCount": 4,
+      "homography": [
+       -118.65489524466116,
+       20.434888660660796,
+       100.14181068027439,
+       -132.44001971560303,
+       175.39545691949476,
+       68.03973201292352,
+       -1.9470924487245955,
+       2.5792800213516975,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.73541842772612,
+       "backwardPx": 0,
+       "scoredPixels": 4732
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8809382924767539,
+      "correspondenceCount": 4,
+      "homography": [
+       -118.65489524466116,
+       20.434888660660796,
+       100.14181068027439,
+       -132.44001971560303,
+       175.39545691949476,
+       68.03973201292352,
+       -1.9470924487245955,
+       2.5792800213516975,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.73541842772612,
+       "backwardPx": 0,
+       "scoredPixels": 4732
+      }
+     }
+    },
+    {
+     "frame": 80,
+     "mediaTimeSec": 1990.2,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.5973726665130215,
+       "backwardPx": 42.97327394209356,
+       "scoredPixels": 4339
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 265,
+       "supportPx": 75,
+       "coverageBins": 6,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.5973726665130215,
+        "backwardPx": 42.97327394209356,
+        "scoredPixels": 4339
+       }
+      }
+     }
+    },
+    {
+     "frame": 100,
+     "mediaTimeSec": 1991,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.6355239786856128,
+       "backwardPx": 11.627627627627653,
+       "scoredPixels": 2815
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 324,
+       "supportPx": 141,
+       "coverageBins": 7,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.6355239786856128,
+        "backwardPx": 11.627627627627653,
+        "scoredPixels": 2815
+       }
+      }
+     }
+    },
+    {
+     "frame": 120,
+     "mediaTimeSec": 1991.8,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15531684027777778
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15531684027777778
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b5-b",
+   "clipId": "clip-b5-camera-move",
+   "frames": [
+    120,
+    140,
+    160,
+    180,
+    200,
+    220
+   ],
+   "mediaTimesSec": [
+    1991.8,
+    1992.6,
+    1993.4,
+    1994.2,
+    1995,
+    1995.8
+   ],
+   "anchorFrame": 160,
+   "durationMs": 1154,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.3022049286640726,
+     "backwardPx": 0.15130515130515132,
+     "scoredPixels": 9252
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+     "arcPixels": 570,
+     "supportPx": 280,
+     "coverageBins": 11,
+     "detectedLines": 28,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.3022049286640726,
+      "backwardPx": 0.15130515130515132,
+      "scoredPixels": 9252
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 570,
+    "fitted": false,
+    "centerPx": {
+     "x": 554.2030109316217,
+     "y": 132.11435533746393
+    },
+    "semiMajorPx": 87.06436695819089,
+    "semiMinorPx": 33.166394099175456,
+    "rotationDeg": 15.335110013074335,
+    "supportPx": 280,
+    "coverageBins": 11,
+    "conic": {
+     "a": 0.00005249273601409873,
+     "b": -0.00011171199866300115,
+     "c": 0.00024086013976448256,
+     "d": -0.04342450601528257,
+     "e": -0.0017310381667276005,
+     "f": 11.865545854060636
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 120,
+     "mediaTimeSec": 1991.8,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15531684027777778
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15531684027777778
+      }
+     }
+    },
+    {
+     "frame": 140,
+     "mediaTimeSec": 1992.6,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1374609375
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1374609375
+      }
+     }
+    },
+    {
+     "frame": 160,
+     "mediaTimeSec": 1993.4,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15971788194444445
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15971788194444445
+      }
+     }
+    },
+    {
+     "frame": 180,
+     "mediaTimeSec": 1994.2,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15890190972222223
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15890190972222223
+      }
+     }
+    },
+    {
+     "frame": 200,
+     "mediaTimeSec": 1995,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.17466145833333332
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.17466145833333332
+      }
+     }
+    },
+    {
+     "frame": 220,
+     "mediaTimeSec": 1995.8,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.13203993055555555
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.13203993055555555
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b1-a",
+   "clipId": "sprclip-b1-wide-broadcast",
+   "frames": [
+    40,
+    60,
+    80,
+    100,
+    120,
+    140
+   ],
+   "mediaTimesSec": [
+    1805.44,
+    1806.24,
+    1807.04,
+    1807.84,
+    1808.64,
+    1809.44
+   ],
+   "anchorFrame": 80,
+   "durationMs": 4358,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.camera-motion",
+    "details": {
+     "failureClassId": "broadcast-line.camera-motion",
+     "frame": 0,
+     "dx": 60,
+     "dy": -1
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.camera-motion",
+    "details": {
+     "failureClassId": "broadcast-line.camera-motion",
+     "frame": 0,
+     "dx": 60,
+     "dy": -1
+    }
+   },
+   "ellipseEvidence": {
+    "stage": "broadcast-line.camera-motion"
+   },
+   "perFrame": [
+    {
+     "frame": 40,
+     "mediaTimeSec": 1805.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.4310496912672743,
+       "backwardPx": 1.2352804821511363,
+       "scoredPixels": 6802
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 691,
+       "supportPx": 289,
+       "coverageBins": 9,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.4310496912672743,
+        "backwardPx": 1.2352804821511363,
+        "scoredPixels": 6802
+       }
+      }
+     }
+    },
+    {
+     "frame": 60,
+     "mediaTimeSec": 1806.24,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.14694638694638695,
+       "backwardPx": 1.3206871868289187,
+       "scoredPixels": 10725
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 885,
+       "supportPx": 219,
+       "coverageBins": 6,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.14694638694638695,
+        "backwardPx": 1.3206871868289187,
+        "scoredPixels": 10725
+       }
+      }
+     }
+    },
+    {
+     "frame": 80,
+     "mediaTimeSec": 1807.04,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.7416633777192123,
+      "correspondenceCount": 4,
+      "homography": [
+       22.896736626977056,
+       -0.4514452347289875,
+       -21.58616875149458,
+       -727.7470564265712,
+       786.4635792524118,
+       -455.77423698203097,
+       -15.672631097965274,
+       -0.08171305905680377,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6534433219019372,
+       "backwardPx": 3.4128705712219807,
+       "scoredPixels": 10789,
+       "ellipseMeanPx": 471.146692003769,
+       "ellipseSupportPx": 488,
+       "ellipseCoverageBins": 14
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.7416633777192123,
+      "correspondenceCount": 4,
+      "homography": [
+       22.896736626977056,
+       -0.4514452347289875,
+       -21.58616875149458,
+       -727.7470564265712,
+       786.4635792524118,
+       -455.77423698203097,
+       -15.672631097965274,
+       -0.08171305905680377,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6534433219019372,
+       "backwardPx": 3.4128705712219807,
+       "scoredPixels": 10789,
+       "ellipseMeanPx": 471.146692003769,
+       "ellipseSupportPx": 488,
+       "ellipseCoverageBins": 14
+      }
+     }
+    },
+    {
+     "frame": 100,
+     "mediaTimeSec": 1807.84,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8392395938625821,
+      "correspondenceCount": 4,
+      "homography": [
+       -122.55305147205102,
+       -11.838621911279787,
+       10.656576868298128,
+       -337.32691695190766,
+       483.7743502665338,
+       -303.0260518901381,
+       -7.749518454124579,
+       -1.2205332223652265,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6531893004115227,
+       "backwardPx": 0.15651971075344062,
+       "scoredPixels": 9720,
+       "ellipseMeanPx": 540.5621070325674,
+       "ellipseSupportPx": 291,
+       "ellipseCoverageBins": 22
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8392395938625821,
+      "correspondenceCount": 4,
+      "homography": [
+       -122.55305147205102,
+       -11.838621911279787,
+       10.656576868298128,
+       -337.32691695190766,
+       483.7743502665338,
+       -303.0260518901381,
+       -7.749518454124579,
+       -1.2205332223652265,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6531893004115227,
+       "backwardPx": 0.15651971075344062,
+       "scoredPixels": 9720,
+       "ellipseMeanPx": 540.5621070325674,
+       "ellipseSupportPx": 291,
+       "ellipseCoverageBins": 22
+      }
+     }
+    },
+    {
+     "frame": 120,
+     "mediaTimeSec": 1808.64,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8322571972628027,
+      "correspondenceCount": 4,
+      "homography": [
+       0.8065683542711057,
+       -0.05687259258270906,
+       -0.32597934089880687,
+       -99.31854422390886,
+       -220.80994940554632,
+       163.12048527247666,
+       -2.9461246249592223,
+       -0.13123815648580103,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6640134529147982,
+       "backwardPx": 0.551628551628552,
+       "scoredPixels": 8920,
+       "ellipseMeanPx": 391.6945683413044,
+       "ellipseSupportPx": 302,
+       "ellipseCoverageBins": 21
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8322571972628027,
+      "correspondenceCount": 4,
+      "homography": [
+       0.8065683542711057,
+       -0.05687259258270906,
+       -0.32597934089880687,
+       -99.31854422390886,
+       -220.80994940554632,
+       163.12048527247666,
+       -2.9461246249592223,
+       -0.13123815648580103,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.6640134529147982,
+       "backwardPx": 0.551628551628552,
+       "scoredPixels": 8920,
+       "ellipseMeanPx": 391.6945683413044,
+       "ellipseSupportPx": 302,
+       "ellipseCoverageBins": 21
+      }
+     }
+    },
+    {
+     "frame": 140,
+     "mediaTimeSec": 1809.44,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.3210400432065427,
+       "backwardPx": 23.464128843338216,
+       "scoredPixels": 12961
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 841,
+       "supportPx": 505,
+       "coverageBins": 10,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.3210400432065427,
+        "backwardPx": 23.464128843338216,
+        "scoredPixels": 12961
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "b1-b",
+   "clipId": "sprclip-b1-wide-broadcast",
+   "frames": [
+    245,
+    265,
+    285,
+    305,
+    325,
+    345
+   ],
+   "mediaTimesSec": [
+    1813.64,
+    1814.44,
+    1815.24,
+    1816.04,
+    1816.84,
+    1817.64
+   ],
+   "anchorFrame": 285,
+   "durationMs": 4871,
+   "v010LineOnly": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.no-consistent-homography",
+     "lineFit": 0.5251869342778434,
+     "backwardPx": 0.2568075117370892,
+     "scoredPixels": 5082
+    }
+   },
+   "v020EllipseConstrained": {
+    "kind": "refused",
+    "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+    "details": {
+     "failureClassId": "broadcast-line.ellipse-no-consistent-homography",
+     "lineFit": 0.6623376623376623,
+     "backwardPx": 21.634326634326637,
+     "ellipseMeanPx": 13.881464657014991,
+     "ellipseInlierFraction": 0.4,
+     "scoredPixels": 5082,
+     "hypotheses": 864,
+     "linePathFailureClass": "broadcast-line.no-consistent-homography",
+     "linePathFailureDetails": {
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "lineFit": 0.5251869342778434,
+      "backwardPx": 0.2568075117370892,
+      "scoredPixels": 5082
+     }
+    }
+   },
+   "ellipseEvidence": {
+    "arcPixels": 339,
+    "fitted": true,
+    "centerPx": {
+     "x": 488.0673355936057,
+     "y": 156.01562389473807
+    },
+    "semiMajorPx": 57.55494468650046,
+    "semiMinorPx": 3.8787086813943397,
+    "rotationDeg": 167.50457000613892,
+    "supportPx": 100,
+    "coverageBins": 16,
+    "conic": {
+     "a": 0.00003839220738189901,
+     "b": 0.0003157135529186623,
+     "c": 0.0007157241846695913,
+     "d": -0.08673221165951077,
+     "e": -0.3774177829993606,
+     "f": 50.59582124735382
+    }
+   },
+   "perFrame": [
+    {
+     "frame": 245,
+     "mediaTimeSec": 1813.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-consistent-homography",
+      "details": {
+       "failureClassId": "broadcast-line.no-consistent-homography",
+       "lineFit": 0.5461178414096917,
+       "backwardPx": 17.043154761904763,
+       "scoredPixels": 7264
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+      "details": {
+       "failureClassId": "broadcast-line.ellipse-evidence-insufficient",
+       "arcPixels": 648,
+       "supportPx": 266,
+       "coverageBins": 10,
+       "detectedLines": 28,
+       "linePathFailureClass": "broadcast-line.no-consistent-homography",
+       "linePathFailureDetails": {
+        "failureClassId": "broadcast-line.no-consistent-homography",
+        "lineFit": 0.5461178414096917,
+        "backwardPx": 17.043154761904763,
+        "scoredPixels": 7264
+       }
+      }
+     }
+    },
+    {
+     "frame": 265,
+     "mediaTimeSec": 1814.44,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.8441068989846061,
+      "correspondenceCount": 4,
+      "homography": [
+       0.3057568315715125,
+       -0.14681900580759233,
+       0.03612586520614593,
+       -86.0152399107861,
+       -6.970516762784285,
+       38.13060494642034,
+       -2.0156570351574943,
+       -0.6620454918553883,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7397336293007769,
+       "backwardPx": 1.292441140024782,
+       "scoredPixels": 7208
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.8441068989846061,
+      "correspondenceCount": 4,
+      "homography": [
+       0.3057568315715125,
+       -0.14681900580759233,
+       0.03612586520614593,
+       -86.0152399107861,
+       -6.970516762784285,
+       38.13060494642034,
+       -2.0156570351574943,
+       -0.6620454918553883,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7397336293007769,
+       "backwardPx": 1.292441140024782,
+       "scoredPixels": 7208
+      }
+     }
+    },
+    {
+     "frame": 285,
+     "mediaTimeSec": 1815.24,
+     "v010": {
+      "kind": "calibrated",
+      "confidence": 0.893744053282588,
+      "correspondenceCount": 4,
+      "homography": [
+       -55.941801169267464,
+       -41.44387585456698,
+       28.70322483442762,
+       -215.2143587331728,
+       -7.882750979043321,
+       68.2793832485949,
+       -3.153824928882335,
+       -0.11343564415406834,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7638756739613067,
+       "backwardPx": 0,
+       "scoredPixels": 6306
+      }
+     },
+     "v020": {
+      "kind": "calibrated",
+      "confidence": 0.893744053282588,
+      "correspondenceCount": 4,
+      "homography": [
+       -55.941801169267464,
+       -41.44387585456698,
+       28.70322483442762,
+       -215.2143587331728,
+       -7.882750979043321,
+       68.2793832485949,
+       -3.153824928882335,
+       -0.11343564415406834,
+       1
+      ],
+      "metrics": {
+       "lineFit": 0.7638756739613067,
+       "backwardPx": 0,
+       "scoredPixels": 6306
+      }
+     }
+    },
+    {
+     "frame": 305,
+     "mediaTimeSec": 1816.04,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.187109375
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.187109375
+      }
+     }
+    },
+    {
+     "frame": 325,
+     "mediaTimeSec": 1816.84,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1676345486111111
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.1676345486111111
+      }
+     }
+    },
+    {
+     "frame": 345,
+     "mediaTimeSec": 1817.64,
+     "v010": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15164930555555556
+      }
+     },
+     "v020": {
+      "kind": "refused",
+      "failureClassId": "broadcast-line.no-pitch-visible",
+      "details": {
+       "failureClassId": "broadcast-line.no-pitch-visible",
+       "unionFraction": 0.15164930555555556
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "aggregate": {
+  "windows": 12,
+  "v010Calibrated": 2,
+  "v010Refused": 10,
+  "v020Calibrated": 2,
+  "v020Refused": 10,
+  "v020CalibratedWhereV010Refused": 0,
+  "v020RefusedWhereV010Calibrated": 0
+ }
+}
