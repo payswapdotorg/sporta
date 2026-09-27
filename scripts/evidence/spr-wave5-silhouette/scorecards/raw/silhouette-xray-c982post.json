@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The stylized images are extremely abstract, making it difficult to confirm the specific match context or camera angle.\n2. temporalConsistency - 1: The shapes and positions of objects change drastically between the two frames, showing no stable continuity.\n3. identityConsistency - 1: Individual players are not distinguishable or visually stable across the frames.\n4. motionFidelity - 1: The motion represented is inconsistent with the original frame's clear player positions and the expected 0.2s movement.\n5. sceneFidelity - 1: The background and field lines are almost entirely lost or unrecognizable in the stylized versions.\n6. stylizationStrength - 5: The transformation to a high-contrast, blurred silhouette/x-ray style is very obvious and extreme.\n\nAXES sf=2 tc=1 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=10 players=8 warped=5 dupes=0 ball=1 bg=5 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535779,
+  "id": "20260928030253b1d32600dd214f0a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928030253b1d32600dd214f0a",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1385
+  }
+}

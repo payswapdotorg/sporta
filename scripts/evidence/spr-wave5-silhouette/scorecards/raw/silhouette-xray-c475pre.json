@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and background elements (scoreboard, ads) are recognizable, but the extreme abstraction makes specific player positions and the ball nearly impossible to verify.\n2. temporalConsistency - 4: The stylized frames show very stable silhouettes with minimal flickering or morphing between the 0.2s interval.\n3. identityConsistency - 3: Player blobs maintain their relative positions and groupings, though individual features are entirely lost to the high-contrast style.\n4. motionFidelity - 2: The heavy blurring and lack of detail make it impossible to discern subtle limb movements or ball trajectory consistent with the source.\n5. sceneFidelity - 3: The stadium structure, field lines, and advertising boards are spatially consistent across all three images despite the heavy processing.\n6. stylizationStrength - 5: The transformation into a high-contrast, edge-detected silhouette is extremely aggressive and unmistakably stylized.\n\nAXES sf=2 tc=4 ic=3 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535735,
+  "id": "202609280302113e4a3e72ba9c4590",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280302113e4a3e72ba9c4590",
+  "usage": {
+    "completion_tokens": 251,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 297
+    },
+    "total_tokens": 1420
+  }
+}

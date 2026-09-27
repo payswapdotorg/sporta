@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "WINNER=s6-thr34-decay75",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790530863,
+  "id": "20260928014101b8b4a49bba1b4213",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928014101b8b4a49bba1b4213",
+  "usage": {
+    "completion_tokens": 12,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2740
+  }
+}

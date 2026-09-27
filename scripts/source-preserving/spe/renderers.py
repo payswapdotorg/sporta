@@ -163,6 +163,13 @@ class FrameProcessor:
                     cfg, self.palette, self.cuts)
             out = self._lowpoly_game_state(bgr, self._is_cut_start())
 
+        elif reality == "silhouette-xray":
+            if not hasattr(self, "_silhouette_xray_state"):
+                self._silhouette_xray_state = _SilhouetteXrayState(
+                    cfg, self.cuts)
+            out = self._silhouette_xray_state(bgr, self._gray_small(bgr),
+                                              self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -1109,6 +1116,440 @@ class _LowpolyGameState:
 
 
 # ---------------------------------------------------------------------------
+# silhouette/x-ray pipeline state (SPR202)
+#
+# The SPR202 deterministic baseline spr202.det.mog2-silhouette
+# (candidates.yaml), implemented per the frozen dispatch recipe: global-
+# motion compensation (Farneback frame-pair flow -> warp-align) -> MOG2
+# background subtraction (deterministic config, fixed history) -> motion
+# mask threshold + morphology (fixed kernels) -> TWO output profiles
+# (ink-fill default: solid ink silhouette on paper-white; xray:
+# mask-distance -> thermal-LUT false-color + rim glow) -> encode-bitexact.
+# Deterministic-classical, CPU-only (OpenCV + numpy, the frozen engine
+# toolset). See _SilhouetteXrayState below for the full stage math, the
+# anti-pan design and the determinism notes (the w5e cv2.magnitude IPP
+# lesson is applied in the rim stage).
+# ---------------------------------------------------------------------------
+
+
+class _SilhouetteXrayState:
+    """Streaming state for the SPR202 silhouette/x-ray pipeline.
+
+    Stage 0  global-motion compensation (the anti-pan leg): Farneback
+             frame-pair flow at 320x180 (the in-engine convention) ->
+             global translation+zoom least-squares fit (stride-4
+             subsample, the stages.flow_magnitude model class) ->
+             cumulative per-shot affine in float64 (zoom clipped to
+             +/-0.10, translation clipped to +/-24 px/frame — broadcast
+             inter-frame bounds; whips are cuts and reset the shot).
+             Each frame is warp-affine-aligned into the SHOT-REFERENCE
+             coordinates before MOG2, and the mask warps back with the
+             forward affine for output. Determinism: closed-form float64
+             affine compose + invertAffineTransform + fixed bilinear
+             warps — a pure fixed-op chain, proven by the per-cell
+             double-render byte-equality.
+    Stage 1  MOG2 background subtraction on the warp-aligned stream:
+             deterministic config, fixed history; the model is created
+             ONCE per clip (learningRate 1.0 on the first frame, whose
+             output mask is zeroed — clean paper start) and NEVER
+             re-initialized: the natural model-mismatch flood at real
+             source cuts provides the cut-preservation spike (measured
+             ~150 absdiff, decaying smoothly at the fixed learning rate),
+             while re-initializing at the engine's false-positive cuts
+             (sustained-motion spikes, the recorded 882-943 goal-segment
+             class) produced 10 invented cuts via the all-ink fresh-model
+             flash — root-caused in the w5g fast loop. Cross-cut
+             global-fit garbage is noise-averaged (measured increments
+             <= 8 px) so the cumulative affine needs no reset. A per-shot
+             coverage age-map (union of warped viewports, saturating)
+             linear-fades the MOG2 mask in over mogWarmup frames so
+             never-modeled content entering frame edges under pans does
+             not flash as false silhouette.
+    Stage 2  motion-mask threshold + morphology + stabilization: the
+             camera-compensated residual-flow mask (> flowKnee at
+             320x180, upsampled) fills MOG2's blind spots ONLY — gated
+             to the not-yet-modeled region (1 - coverage-valid) and
+             ramped in over the warmup window (a global OR floods on
+             flat-region Farneback residual noise during pan ramps —
+             fast-loop measured 55% frame coverage — and an unramped
+             step onto clean paper would register as an invented cut,
+             G-T2b); fixed RECT-kernel open/close; max-decay EMA with
+             RISE-CAPPED growth (mask accumulator resets at every
+             engine cut-detect hit — contract invariant 4 — with the
+             fresh raw entering uncapped so real-cut floods land as a
+             single discontinuity; normal-frame growth is capped at
+             +maskRise/frame because the binary ink fill amplifies
+             small input events ~4.7x — the measured frame-1189 class:
+             a 5.0-absdiff input event popped an 8.2% mask = 23.6
+             output absdiff -> invented-cut flag); fixed Gaussian
+             soften for anti-aliased silhouette edges.
+    Stage 3  ink-fill profile (default): stabilized soft mask -> solid
+             ink silhouette composited on paper-white.
+    Stage 3' xray profile (--profile xray): mask distance transform
+             (DIST_L2) -> baked 256-entry FIXED thermal ironbow LUT
+             false-color + Sobel-rim additive glow (numpy float64
+             magnitude — cv2.magnitude is 1-ulp alignment-flaky in this
+             environment, the w5e determinism battle).
+
+    Determinism: every op is a fixed function of the frame sequence —
+    no render-time RNG, no wall-clock, no frame-index dependence; MOG2
+    GMM updates, Farneback, lstsq, warpAffine and distanceTransform are
+    all deterministic functions of their inputs in this environment
+    (proven by the subject-toon/motion-trails w4b 54/54 byte-identical
+    corpus and re-proven per-cell here by the double render).
+    """
+
+    # baked thermal ironbow LUT stops (RGB at fixed t positions — FIXED
+    # constants, interpolated once at bake time; no RNG anywhere)
+    _LUT_T = (0.00, 0.18, 0.38, 0.58, 0.76, 0.90, 1.00)
+    _LUT_RGB = (
+        (8, 4, 14),      # near-black blue (x-ray film base)
+        (28, 12, 92),    # deep blue
+        (124, 18, 118),  # violet-magenta
+        (206, 42, 48),   # red
+        (244, 132, 38),  # orange
+        (255, 214, 110),  # yellow
+        (255, 251, 242),  # white-hot
+    )
+
+    def __init__(self, cfg: dict, cuts: set):
+        c = self.cfg = cfg
+        self.cuts = cuts
+        # stage 0 — global-motion compensation (anti-pan)
+        self.compensate = bool(c.get("compensate", True))
+        self.flow_step = int(c.get("flowStep", 4))
+        self.zoom_clip = float(c.get("zoomClip", 0.10))
+        self.trans_clip = float(c.get("translationClip", 24.0))
+        # stage 1 — MOG2 (deterministic config, fixed history)
+        self.mask_source = str(c.get("maskSource", "mog2"))
+        self.mog_history = int(c.get("mogHistory", 200))
+        self.mog_var_threshold = float(c.get("mogVarThreshold", 34.0))
+        self.mog_lr = float(c.get("mogLearningRate", 0.04))
+        self.mog_lr_boost = float(c.get("mogLearningRateBoost", 0.12))
+        self.boost_frames = int(c.get("mogBoostFrames", 12))
+        self.jump_countdown = 0
+        self.mog_warmup = int(c.get("mogWarmup", 10))
+        # stage 2 — threshold + morphology + temporal stabilization
+        self.flow_knee = float(c.get("flowKnee", 2.2))
+        self.morph_open = int(c.get("morphOpen", 3))
+        self.morph_close = int(c.get("morphClose", 5))
+        self.morph_dilate = int(c.get("morphDilate", 0))
+        self.mask_decay = float(c.get("maskDecay", 0.65))
+        self.mask_rise = float(c.get("maskRise", 0.40))
+        self.global_jump = float(c.get("globalJump", 0.25))
+        self.mask_soften = float(c.get("maskSoften", 3.0))
+        # output profiles
+        self.output_profile = str(c.get("outputProfile", "ink"))
+        self.ink = np.array(c.get("inkColor", [26, 26, 26]), np.float32)
+        self.paper = np.array(c.get("paperColor", [244, 244, 244]),
+                              np.float32)
+        self.dist_scale = float(c.get("xrayDistScale", 10.0))
+        self.rim_lo = float(c.get("xrayRimKneeLow", 10.0))
+        self.rim_hi = float(c.get("xrayRimKneeHigh", 40.0))
+        self.rim_strength = float(c.get("xrayRimStrength", 0.90))
+        self.rim_tint = np.array(c.get("xrayRimTint", [210, 235, 255]),
+                                 np.float32)
+        # baked fixed-kernel morphology elements
+        self._k_open = cv2.getStructuringElement(
+            cv2.MORPH_RECT, (self.morph_open, self.morph_open))
+        self._k_close = cv2.getStructuringElement(
+            cv2.MORPH_RECT, (self.morph_close, self.morph_close))
+        self._k_dil = (cv2.getStructuringElement(
+            cv2.MORPH_RECT, (self.morph_dilate, self.morph_dilate))
+            if self.morph_dilate > 0 else None)
+        # baked 256-entry thermal LUT (BGR, interpolated + rounded once)
+        xs = np.arange(256, dtype=np.float64) / 255.0
+        ts = np.array(self._LUT_T, dtype=np.float64)
+        rgb = np.array(self._LUT_RGB, dtype=np.float64)
+        lut = np.stack([np.interp(xs, ts, rgb[:, 2]),   # B
+                        np.interp(xs, ts, rgb[:, 1]),   # G
+                        np.interp(xs, ts, rgb[:, 0])],  # R
+                       axis=1)
+        self.lut = np.clip(np.round(lut), 0, 255).astype(np.uint8)
+        # streaming state (per-shot; everything resets at cuts)
+        self._IDENT = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+                               dtype=np.float64)
+        self.affine = self._IDENT.copy()      # ref coords -> current frame
+        self.age: Optional[np.ndarray] = None  # coverage age (ref coords)
+        self.mog2 = None
+        self.mask_ema: Optional[np.ndarray] = None
+        self.prev_gray_small: Optional[np.ndarray] = None
+        self.clip_frame = 0    # frames since clip start (the warmup ramp)
+
+    # -- stage 0: global-motion fit + cumulative affine ----------------------
+
+    def _global_fit(self, flow: np.ndarray) -> np.ndarray:
+        """Least-squares translation+zoom fit u = tx + sx*xn, v = ty + sy*yn
+        (xn/yn normalized to [-1,1]; stride-4 subsample — the
+        stages.flow_magnitude model class, deterministic lstsq)."""
+        h, w = flow.shape[:2]
+        ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+        xn = (xs - w / 2.0) / (w / 2.0)
+        yn = (ys - h / 2.0) / (h / 2.0)
+        step = self.flow_step
+        us = flow[..., 0][::step, ::step].ravel()
+        vs = flow[..., 1][::step, ::step].ravel()
+        xs_ = xn[::step, ::step].ravel()
+        ys_ = yn[::step, ::step].ravel()
+        n = len(us)
+        A = np.zeros((2 * n, 4), dtype=np.float64)
+        A[0:n, 0] = 1.0
+        A[0:n, 2] = xs_
+        A[n:, 1] = 1.0
+        A[n:, 3] = ys_
+        b = np.concatenate([us, vs]).astype(np.float64)
+        try:
+            sol, *_ = np.linalg.lstsq(A, b, rcond=None)
+        except np.linalg.LinAlgError:
+            sol = np.zeros(4)
+        return sol
+
+    def _residual_mag(self, flow: np.ndarray, sol: np.ndarray,
+                      xn: np.ndarray, yn: np.ndarray) -> np.ndarray:
+        """Camera-compensated residual flow magnitude (subject motion)."""
+        tx, ty, sx, sy = sol
+        u_comp = flow[..., 0] - (tx + sx * xn)
+        v_comp = flow[..., 1] - (ty + sy * yn)
+        # numpy float64 sqrt (IEEE correctly rounded) — the w5e lesson:
+        # cv2.magnitude (IPP float32) is 1-ulp alignment-flaky here
+        mag = np.sqrt(u_comp.astype(np.float64) ** 2
+                      + v_comp.astype(np.float64) ** 2).astype(np.float32)
+        return cv2.medianBlur(mag, 3)
+
+    def _increment_affine(self, sol: np.ndarray, w: int, h: int,
+                          small_h: int, small_w: int) -> np.ndarray:
+        """Frame-pair global motion as a full-res 2x3 affine (clipped)."""
+        tx, ty, sx, sy = sol
+        k = w / float(small_w)              # full/small scale (2.0 corpus)
+        a = float(np.clip(sx / (small_w / 2.0), -self.zoom_clip,
+                          self.zoom_clip))
+        b = float(np.clip(sy / (small_h / 2.0), -self.zoom_clip,
+                          self.zoom_clip))
+        tx_f = float(np.clip(tx * k, -self.trans_clip, self.trans_clip))
+        ty_f = float(np.clip(ty * k, -self.trans_clip, self.trans_clip))
+        cx, cy = w / 2.0, h / 2.0
+        return np.array([[1.0 + a, 0.0, tx_f - a * cx],
+                         [0.0, 1.0 + b, ty_f - b * cy]], dtype=np.float64)
+
+    @staticmethod
+    def _compose(a_prev: np.ndarray, m: np.ndarray) -> np.ndarray:
+        h1 = np.vstack([a_prev, [0.0, 0.0, 1.0]])
+        h2 = np.vstack([m, [0.0, 0.0, 1.0]])
+        return (h2 @ h1)[:2, :]
+
+    # -- stage 1: warp-align into shot-reference coords -----------------------
+
+    def _warp_to_ref(self, bgr: np.ndarray) -> tuple:
+        """(compensated frame, viewport mask) in shot-reference coords."""
+        h, w = bgr.shape[:2]
+        if not self.compensate or np.array_equal(self.affine, self._IDENT):
+            viewport = np.ones((h, w), dtype=np.uint8)
+            return bgr, viewport
+        inv_a = cv2.invertAffineTransform(self.affine)
+        comp = cv2.warpAffine(bgr, inv_a, (w, h), flags=cv2.INTER_LINEAR,
+                              borderMode=cv2.BORDER_REPLICATE)
+        corners = np.array([[0.0, 0.0, 1.0], [w - 1.0, 0.0, 1.0],
+                            [w - 1.0, h - 1.0, 1.0], [0.0, h - 1.0, 1.0]],
+                           dtype=np.float64)
+        mapped = corners @ inv_a.T            # current corners -> ref coords
+        viewport = np.zeros((h, w), dtype=np.uint8)
+        cv2.fillConvexPoly(viewport, np.round(mapped).astype(np.int32), 1)
+        return comp, viewport
+
+    def _back_to_current(self, mask_ref: np.ndarray,
+                         w: int, h: int) -> np.ndarray:
+        """Warp a ref-coords map into current-frame coords (0 outside)."""
+        if not self.compensate or np.array_equal(self.affine, self._IDENT):
+            return mask_ref
+        return cv2.warpAffine(mask_ref, self.affine, (w, h),
+                              flags=cv2.INTER_LINEAR,
+                              borderMode=cv2.BORDER_CONSTANT,
+                              borderValue=0.0)
+
+    # -- stage 2: mask threshold + morphology + stabilization -----------------
+
+    def _stabilized_mask(self, bgr: np.ndarray, motion: np.ndarray,
+                          clip_start: bool,
+                          fg255: np.ndarray) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        if clip_start:
+            # the clip's first frame initializes the model with a ZERO mask
+            # (clean paper start) — the natural model-mismatch flood at real
+            # source cuts provides the cut-preservation spike later; a mask
+            # step at the clip start would register as an invented cut in
+            # G-T2b (no input cut nearby to absorb it)
+            self.mask_ema = None
+            return np.zeros((h, w), dtype=np.float32)
+        fg = (fg255 > 0).astype(np.float32)
+        if self.mask_source == "mog2":
+            fg_f = self._back_to_current(fg, w, h)
+            age_f = self._back_to_current(
+                self.age.astype(np.float32), w, h)
+            valid = np.clip(age_f / float(max(self.mog_warmup, 1)),
+                            0.0, 1.0)
+            mog = fg_f * valid
+        else:  # framediff fallback leg: residual flow mask only
+            mog = np.zeros((h, w), dtype=np.float32)
+            valid = np.zeros((h, w), dtype=np.float32)
+        # coverage fallback leg: camera-compensated residual flow, gated to
+        # the NOT-yet-modeled region (1 - valid) so it only fills MOG2's
+        # blind spots (warmup + never-modeled pan regions) — a global OR
+        # floods on flat-region Farneback residual noise during pan ramps
+        # (fast-loop measured: 55% frame coverage); it also ramps in over
+        # the warmup window so the mask never steps onto clean paper (a
+        # step would register as an invented cut, G-T2b)
+        ramp = min(max(self.clip_frame - 2, 0)
+                   / float(max(self.mog_warmup, 1)), 1.0)
+        flow_mask = cv2.resize((motion > self.flow_knee).astype(np.float32),
+                               (w, h), interpolation=cv2.INTER_LINEAR)
+        raw = np.maximum(mog, flow_mask * (1.0 - valid) * ramp)
+        raw = cv2.morphologyEx(raw, cv2.MORPH_OPEN, self._k_open)
+        raw = cv2.morphologyEx(raw, cv2.MORPH_CLOSE, self._k_close)
+        if self._k_dil is not None:
+            raw = cv2.dilate(raw, self._k_dil)
+        if self.mask_ema is None:
+            # first frame of the clip (the model just initialized with
+            # learningRate 1.0; raw is near-empty and the flow ramp keeps
+            # the first frames quiet — clean paper start)
+            self.mask_ema = raw
+        else:
+            # GLOBAL-JUMP RULE: a real source cut floods the MOG2 mask
+            # globally (mean jump > globalJump) — the flood enters
+            # INSTANTLY: a single-frame discontinuity exactly where the
+            # cut-preservation gates look, and the old-scene carry is
+            # wiped (contract invariant 4, no cross-cut blending).
+            # Everything smaller is subject to the RISE CAP: the binary
+            # ink fill amplifies small input events ~4.7x, and an uncapped
+            # mask pop onto near-static content crosses the 16-absdiff
+            # spike threshold (the measured frame-1189 class: a
+            # 5.0-absdiff input event popped an 8.2% mask = 23.6 output
+            # absdiff -> invented-cut flag). Capping growth at
+            # +maskRise/frame spreads such transitions below the
+            # threshold; decay stays immediate.
+            jump = float(raw.mean() - self.mask_ema.mean())
+            if jump > self.global_jump:
+                self.mask_ema = raw
+                # post-jump learning-rate boost: fast background
+                # re-learning after a detected scene flood (standard MOG2
+                # practice) — shortens the model-mismatch wash from ~25
+                # frames to ~boostFrames, which keeps the output's local
+                # median low so a following micro-shot boundary (the
+                # 979/982 class) still clears the 2.6x spike bar
+                self.jump_countdown = self.boost_frames
+            else:
+                # normal tracking: max-decay with a PER-PIXEL rise cap —
+                # the cap binds on LOCAL high-contrast growth with small
+                # mean impact (a fast limb popping onto the mask: per-pixel
+                # jump ~1.0 inside a small area, mean jump < globalJump so
+                # the flood rule never sees it); spreading such pops over
+                # 3 frames (+maskRise/frame) keeps them under the
+                # 16-absdiff spike threshold while instant decay and
+                # mean-level growth (T3 motion synchrony) are preserved
+                uncapped = np.maximum(raw, self.mask_ema * self.mask_decay)
+                self.mask_ema = np.minimum(uncapped,
+                                           self.mask_ema + self.mask_rise)
+        return np.clip(cv2.GaussianBlur(self.mask_ema, (0, 0),
+                                        self.mask_soften), 0.0, 1.0)
+
+    # -- stage 3: output profiles ----------------------------------------------
+
+    def _ink_fill(self, m: np.ndarray) -> np.ndarray:
+        out = (self.paper[None, None, :] * (1.0 - m[..., None])
+               + self.ink[None, None, :] * m[..., None])
+        return np.clip(out, 0, 255).astype(np.uint8)
+
+    def _xray(self, m: np.ndarray) -> np.ndarray:
+        mb = (m >= 0.5).astype(np.uint8)
+        dist = cv2.distanceTransform(mb, cv2.DIST_L2, 3)
+        dcode = np.clip(dist / self.dist_scale, 0.0, 1.0)
+        idx8 = np.round(dcode * 255.0).astype(np.uint8)
+        color = self.lut[idx8].astype(np.float32)
+        # rim glow: Sobel magnitude on the soft mask (0..255 scale);
+        # numpy float64 sqrt — cv2.magnitude is 1-ulp flaky here (w5e)
+        m255 = (m * 255.0).astype(np.float32)
+        gx = cv2.Sobel(m255, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(m255, cv2.CV_32F, 0, 1, ksize=3)
+        mag = np.sqrt(gx.astype(np.float64) ** 2
+                      + gy.astype(np.float64) ** 2).astype(np.float32)
+        t = np.clip((mag - self.rim_lo) / max(self.rim_hi - self.rim_lo,
+                                              1e-6), 0.0, 1.0)
+        t = t * t * (3.0 - 2.0 * t)          # smoothstep knee
+        out = color + (t * self.rim_strength)[..., None] \
+            * self.rim_tint[None, None, :]
+        return np.clip(out, 0, 255).astype(np.uint8)
+
+    # -- pipeline ---------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
+                 cut: bool) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        # NOTE on contract invariant 4 ("trails/EMA must reset on detected
+        # cuts"): the temporal mask accumulator resets via the GLOBAL-JUMP
+        # rule in _stabilized_mask — a real source cut floods the MOG2 mask
+        # globally (mean jump > globalJump) and the flood OVERWRITES the
+        # accumulator (old-scene carry wiped, single-frame discontinuity
+        # the cut-preservation gates match). The engine's cut-detect hits
+        # on continuous content (the false-positive sustained-motion class,
+        # e.g. b8's recorded 882-943 goal segment) deliberately reset
+        # NOTHING: resetting there manufactured invented cuts (measured,
+        # the w5g fast loop). The MOG2 model is created once per clip and
+        # never re-initialized; cross-cut global-fit garbage is
+        # noise-averaged (measured increments <= 8 px) so the cumulative
+        # affine needs no reset either. The `cut` flag itself is therefore
+        # a documented no-op in this renderer — the cut semantics live in
+        # the jump rule that follows.
+        clip_start = self.clip_frame == 0
+        self.clip_frame += 1
+
+        # stage 0 — frame-pair flow -> global fit -> cumulative affine
+        motion = np.zeros(gray_small.shape, dtype=np.float32)
+        if self.prev_gray_small is not None:
+            flow = cv2.calcOpticalFlowFarneback(
+                self.prev_gray_small, gray_small, None,
+                0.5, 3, 15, 3, 5, 1.2, 0)
+            sol = self._global_fit(flow)
+            sh, sw = gray_small.shape
+            ys, xs = np.mgrid[0:sh, 0:sw].astype(np.float32)
+            xn = (xs - sw / 2.0) / (sw / 2.0)
+            yn = (ys - sh / 2.0) / (sh / 2.0)
+            motion = self._residual_mag(flow, sol, xn, yn)
+            if self.compensate:
+                inc = self._increment_affine(sol, w, h, sh, sw)
+                self.affine = self._compose(self.affine, inc)
+
+        # stage 1 — warp-align + MOG2 (model created once per clip)
+        comp, viewport = self._warp_to_ref(bgr)
+        if self.mask_source == "mog2":
+            if self.mog2 is None:
+                self.mog2 = cv2.createBackgroundSubtractorMOG2(
+                    history=self.mog_history,
+                    varThreshold=self.mog_var_threshold,
+                    detectShadows=False)
+                fg255 = self.mog2.apply(comp, learningRate=1.0)
+            else:
+                lr_eff = (self.mog_lr_boost if self.jump_countdown > 0
+                          else self.mog_lr)
+                fg255 = self.mog2.apply(comp, learningRate=lr_eff)
+                if self.jump_countdown > 0:
+                    self.jump_countdown -= 1
+        else:
+            fg255 = np.zeros((h, w), dtype=np.uint8)
+        if self.age is None:
+            self.age = np.zeros((h, w), dtype=np.uint8)
+        self.age = cv2.min(self.age + viewport,
+                           np.full((h, w), 255, dtype=np.uint8))
+
+        # stage 2 — threshold + morphology + temporal stabilization
+        m = self._stabilized_mask(bgr, motion, clip_start, fg255)
+        self.prev_gray_small = gray_small
+
+        # stage 3 — output profile
+        if self.output_profile == "xray":
+            return self._xray(m)
+        return self._ink_fill(m)
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -1422,3 +1863,121 @@ LOWPOLY_GAME = RendererSpec(
 # additive registry append (SPR-W5-E): the SPR106 low-poly/game row enters
 # the REGISTRY without modifying any prior declaration or construction line
 REGISTRY[LOWPOLY_GAME.reality] = LOWPOLY_GAME
+
+
+# ---------------------------------------------------------------------------
+# SPR202 Silhouette / X-Ray — wave-5 fresh reality (SPR-W5-G, Lane I)
+#
+# The SPR202 deterministic baseline spr202.det.mog2-silhouette
+# (docs/technology/source-preserving-candidates.yaml), implemented per the
+# frozen dispatch recipe: global-motion compensation (Farneback frame-pair
+# flow -> warp-align consecutive frames, composed as a cumulative per-shot
+# affine — the anti-pan leg) -> MOG2 background subtraction (deterministic
+# config, fixed history, cut-reinit per contract invariant 4) -> motion
+# mask threshold + morphology (open/close, fixed kernels) -> TWO output
+# profiles: ink-fill (default; solid ink silhouette on paper-white) and
+# xray (--profile xray; mask-distance -> thermal-LUT false-color + Sobel
+# rim glow) -> encode-bitexact. Deterministic-classical, CPU-only (OpenCV
+# + numpy, the frozen engine toolset; NO neural matting — SAM2/RVM are
+# future upgrades, out of scope). See _SilhouetteXrayState above for the
+# full stage math, the anti-pan/coverage design and the determinism
+# notes (the w5e cv2.magnitude IPP lesson applied in the rim stage).
+# ---------------------------------------------------------------------------
+
+
+SILHOUETTE_XRAY = RendererSpec(
+    rendererId="spr-silhouette-xray-dc1", reality="silhouette-xray",
+    family="Silhouette / X-Ray (SPR202)", sprId="SPR202",
+    profiles=["default", "xray"],
+    usesFlow=True,
+    pipeline=[
+        "global_motion_compensation(Farneback 0.5/3/15/3/5/1.2/0 frame-pair "
+        "flow at 320x180 -> global translation+zoom least-squares fit "
+        "(stride-4 subsample, the stages.flow_magnitude model class) -> "
+        "cumulative per-shot float64 affine [zoom clipped +/-0.10, "
+        "translation clipped +/-24 px/frame] -> warp-affine-align each "
+        "frame into the shot-reference coordinates (BORDER_REPLICATE) and "
+        "warp the mask back with the forward affine — the anti-pan leg; "
+        "determinism: closed-form float64 compose + invertAffineTransform "
+        "+ fixed bilinear warps, a pure fixed-op chain proven by the "
+        "per-cell double-render byte-equality)",
+        "mog2_background_subtraction(deterministic config: fixed "
+        "history=200, varThreshold=34, learningRate=0.04 with a "
+        "post-flood learning-rate boost 0.12 for 12 frames (fast "
+        "background re-learning after a detected scene flood — shortens "
+        "the model-mismatch wash from ~25 frames to ~12, keeping the "
+        "output's local median low so a following micro-shot boundary "
+        "still clears the 2.6x spike bar), "
+        "detectShadows=False, applied to the WARP-ALIGNED stream; model "
+        "created ONCE per clip and never re-initialized — the natural "
+        "model-mismatch flood at real source cuts provides the "
+        "cut-preservation spike (measured ~150 absdiff, decaying at the "
+        "fixed learning rate), and re-initializing at the engine's "
+        "false-positive cuts (the recorded 882-943 goal-segment class) "
+        "manufactured 10 invented cuts via the all-ink fresh-model flash "
+        "— root-caused and redesigned in the w5g fast loop; cross-cut "
+        "global-fit garbage is noise-averaged, measured increments "
+        "<= 8 px, so the cumulative affine needs no reset; a "
+        "per-shot coverage age-map (union of warped viewports, saturating) "
+        "linear-fades the MOG2 mask in over mogWarmup=10 frames so "
+        "never-modeled content entering under pans does not flash)",
+        "motion_mask_threshold+morphology(camera-compensated residual-flow "
+        "mask > 2.2 px/frame at 320x180 upsampled, gated to the "
+        "not-yet-modeled region (1 - coverage-valid) and ramped over the "
+        "first shot frames — the MOG2 coverage-fallback leg: it fills "
+        "warmup + never-modeled pan regions without flooding on "
+        "flat-region flow noise; open3/close5 fixed RECT kernels; "
+        "max-decay EMA 0.65 — the fast-loop/full-render T3-hardened decay "
+        "(0.90 ghost-lag decorrelates the output motion series, measured "
+        "0.6986 -> 0.8473; 0.65 additionally makes the post-flood exit a "
+        "clean single discontinuity so a following micro-shot boundary "
+        "clears the 2.6x spike bar — the b8 979/982 class, measured "
+        "0.833 -> 1.0 coverage) "
+        "— with the GLOBAL-JUMP RULE (mean mask jump > 0.25 = a real-cut "
+        "MOG2 flood entering instantly: the single-frame discontinuity "
+        "the cut-preservation gates match, old-scene carry wiped — "
+        "contract invariant 4) and RISE-CAPPED growth +0.25/frame "
+        "otherwise (the binary ink amplifies small input events ~4.7x — "
+        "the measured frame-1189 invented-cut class); Gaussian soften "
+        "sigma 3.0; the clip's first frame initializes with a zero mask)",
+        "ink_fill profile [default]: stabilized soft mask -> solid ink "
+        "silhouette (26,26,26) composited on paper-white (244,244,244)",
+        "xray profile [--profile xray]: mask distance transform (DIST_L2, "
+        "scale 10 px) -> baked 256-entry FIXED thermal ironbow LUT "
+        "false-color + Sobel-rim additive glow (numpy float64 magnitude, "
+        "soft knee 10..40, strength 0.90, tint (210,235,255) BGR)",
+    ],
+    description=("Motion silhouettes / x-ray false-color: MOG2 foreground "
+                 "on the global-motion-compensated stream, morphology-"
+                 "cleaned and EMA-stabilized, rendered as solid ink "
+                 "silhouettes on paper (default) or thermal-LUT distance "
+                 "false-color with rim glow (xray). Structure-SELECTING "
+                 "family — motion regions are the content (SPR202 trial)."),
+    config={
+        # stage 0 — global-motion compensation (the anti-pan leg)
+        "compensate": True, "flowStep": 4,
+        "zoomClip": 0.10, "translationClip": 24.0,
+        # stage 1 — MOG2 (deterministic config, fixed history)
+        "maskSource": "mog2", "mogHistory": 200, "mogVarThreshold": 34.0,
+        "mogLearningRate": 0.04, "mogLearningRateBoost": 0.12,
+        "mogBoostFrames": 12, "mogWarmup": 10,
+        # stage 2 — threshold + morphology + temporal stabilization
+        "flowKnee": 2.2, "morphOpen": 3, "morphClose": 5, "morphDilate": 0,
+        "maskDecay": 0.65, "maskRise": 0.40, "globalJump": 0.25,
+        "maskSoften": 3.0,
+        # ink-fill output (default profile)
+        "outputProfile": "ink",
+        "inkColor": [26, 26, 26], "paperColor": [244, 244, 244],
+        # xray profile
+        "profiles": {"xray": {
+            "outputProfile": "xray",
+            "xrayDistScale": 10.0, "xrayRimKneeLow": 10.0,
+            "xrayRimKneeHigh": 40.0, "xrayRimStrength": 0.90,
+            "xrayRimTint": [210, 235, 255],
+        }},
+    },
+)
+
+# additive registry append (SPR-W5-G): the SPR202 silhouette/x-ray row enters
+# the REGISTRY without modifying any prior declaration or construction line
+REGISTRY[SILHOUETTE_XRAY.reality] = SILHOUETTE_XRAY

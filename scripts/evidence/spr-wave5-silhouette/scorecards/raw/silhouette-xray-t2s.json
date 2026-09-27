@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, players (Balde #3), and camera angle are clearly the same as the original frame.\n2. temporalConsistency - 2: The stylized images exhibit significant flickering and morphing of shapes between the two frames.\n3. identityConsistency - 2: While Balde is recognizable by his number and pose, his silhouette shape shifts noticeably between frames.\n4. motionFidelity - 3: The slight change in arm position is captured, but it is heavily obscured by the unstable stylization.\n5. sceneFidelity - 2: The background is reduced to a few indistinct blobs that shift position between frames.\n6. stylizationStrength - 5: The transformation to a high-contrast, edge-detecting x-ray style is very strong and obvious.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535698,
+  "id": "2026092803013227926138ce6d4ecb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092803013227926138ce6d4ecb",
+  "usage": {
+    "completion_tokens": 220,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1389
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "input": "/tmp/w5g/gates/b8-first300-gateref.mp4",
+  "output": "/tmp/w5g/fastloop/v4-morphology/silhouette-xray-v4-morphology.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189
+  ],
+  "outputCuts": [
+    189
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.03,
+      "outputFrame": 190,
+      "outputAmplitude": 214.67,
+      "amplitudeRatio": 6.703,
+      "outputLocalMedian": 5.12,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

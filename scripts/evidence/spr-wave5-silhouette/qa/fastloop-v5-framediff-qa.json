@@ -1,0 +1,85 @@
+{
+  "input": "/tmp/w5g/gates/b8-first300-gateref.mp4",
+  "output": "/tmp/w5g/fastloop/v5-framediff/silhouette-xray-v5-framediff.mp4",
+  "G-T1": {
+    "inputFrameCount": 300,
+    "outputFrameCount": 300,
+    "frameCountEqual": true,
+    "fpsInput": 25.0,
+    "fpsOutput": 25.0,
+    "durationDeltaMs": 0,
+    "audioPassthrough": true,
+    "pass": true
+  },
+  "G-T2": {
+    "detector": "spike (absdiff >= 16 AND >= 2.6x local median, win 10)",
+    "inputCuts": [
+      189
+    ],
+    "outputCuts": [
+      33,
+      121,
+      126,
+      173,
+      189
+    ],
+    "preserved": 1,
+    "coverage": 1.0,
+    "extraCuts": 4,
+    "extraPer30s": 10.0,
+    "flatThresholdDiagnostic": {
+      "threshold": 16.0,
+      "inputFrames": [
+        189
+      ],
+      "outputFrames": [
+        5,
+        8,
+        11,
+        33,
+        40,
+        47,
+        58,
+        69,
+        119,
+        123,
+        126,
+        139,
+        158,
+        173,
+        189
+      ],
+      "outputOnlyFrames": [
+        5,
+        8,
+        11,
+        33,
+        40,
+        47,
+        58,
+        69,
+        119,
+        123,
+        126,
+        139,
+        158,
+        173
+      ],
+      "note": "frames crossing a flat absdiff>16 threshold in the output only; sustained-motion amplification by the style, not single-frame cuts (spike detector above is the gate)"
+    },
+    "pass": false
+  },
+  "G-T3": {
+    "pearsonR": 0.7885,
+    "frames": 300,
+    "pass": false
+  },
+  "G-T4": {
+    "staticRegionMeanDeltaL": 3.6014,
+    "percentOfRange": 1.4123,
+    "inputBaselinePercentOfRange": 0.6095,
+    "sampledPixels": 15765,
+    "pass": true
+  },
+  "allPass": false
+}
