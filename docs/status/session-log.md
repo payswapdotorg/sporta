@@ -1436,3 +1436,22 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   continues (queue_watch ring + TL poll cycles; the lane report-format
   completion gate proved too strict for lane B's prose-shaped report —
   the branch-push signal is the authoritative completion marker now).
+
+## Session S046 (w7-closure) — 2026-09-27 — Resident watch: lane A (R606 ellipse solve) delivered, TL-verified, merged @9000a97
+
+- Lane A worker delivered the ellipse/circle-constrained calibration v0.2.0
+  on branch r606/ellipse-constrained-solve (tip d2e696e, pushed, verified).
+- TL anti-fabrication audit in a clean worktree: package battery 137/0,
+  tsc clean, real-to-swm 38/0, driver re-run on the sha-verified corpus —
+  every measurement value byte-identical to the committed evidence (only
+  wall-clock durationMs differs); synthetic arc-window recovery + 9 new
+  tests green; non-degradation deep-equal green.
+- Honest headline: no real corpus window newly calibrated (5 quota
+  refusals, 3 validation near-misses); the measured next gap is single-
+  flank arc evidence (the Hough-chord explain eats one flank of the real
+  circle). Merged --no-ff to main @9000a97, R606 row updated.
+- Resident-watch cycle 2 event: lanes C/D had burned their 4-assault
+  ladder against zombie-queued turns (server accepted but never
+  scheduled); TL voided + re-dispatched both fresh (lanes C=efd135b1,
+  D=1833c6f5) with reset watchers — the queue recovered ~04:00 UTC and
+  lane A's fresh dispatch streamed to completion.
