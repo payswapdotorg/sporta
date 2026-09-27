@@ -1,0 +1,97 @@
+{
+  "input": "/home/z/sporta/scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "output": "/tmp/w5g/out/b8-xray/pass1/silhouette-xray-xray-b8-xray.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550,
+    553,
+    862,
+    936,
+    976,
+    983
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 134.17,
+      "amplitudeRatio": 4.186,
+      "outputLocalMedian": 14.88,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 122.26,
+      "amplitudeRatio": 5.087,
+      "outputLocalMedian": 12.59,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 132.06,
+      "amplitudeRatio": 6.572,
+      "outputLocalMedian": 6.73,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 201.95,
+      "amplitudeRatio": 5.96,
+      "outputLocalMedian": 7.07,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 976,
+      "outputAmplitude": 123.35,
+      "amplitudeRatio": 3.552,
+      "outputLocalMedian": 22.06,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 984,
+      "outputAmplitude": 103.74,
+      "amplitudeRatio": 2.103,
+      "outputLocalMedian": 16.19,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [
+    936
+  ],
+  "inventedDetail": [
+    {
+      "outputFrame": 936,
+      "outputAmplitude": 102.93,
+      "inputAmplitudeSameFrame": 25.89,
+      "reason": "no corresponding input discontinuity amplitude"
+    }
+  ],
+  "pass": false
+}

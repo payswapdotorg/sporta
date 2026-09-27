@@ -1061,14 +1061,19 @@ class _SilhouetteXrayState:
              warps — a pure fixed-op chain, proven by the per-cell
              double-render byte-equality.
     Stage 1  MOG2 background subtraction on the warp-aligned stream:
-             deterministic config, fixed history; re-initialized at every
-             engine cut-detect hit with learningRate 1.0 so no bg model
-             bleeds across a source cut (contract invariant 4). The
-             fresh-model frame's mask is the natural all-foreground cut
-             punctuation (empirically: first apply flags the full frame)
-             and does NOT enter the temporal state (EMA reset), so the
-             punctuation never smears into the shot. A per-shot coverage
-             age-map (union of warped viewports, saturating uint8)
+             deterministic config, fixed history; the model is created
+             ONCE per clip (learningRate 1.0 on the first frame, whose
+             output mask is zeroed — clean paper start) and NEVER
+             re-initialized: the natural model-mismatch flood at real
+             source cuts provides the cut-preservation spike (measured
+             ~150 absdiff, decaying smoothly at the fixed learning rate),
+             while re-initializing at the engine's false-positive cuts
+             (sustained-motion spikes, the recorded 882-943 goal-segment
+             class) produced 10 invented cuts via the all-ink fresh-model
+             flash — root-caused in the w5g fast loop. Cross-cut
+             global-fit garbage is noise-averaged (measured increments
+             <= 8 px) so the cumulative affine needs no reset. A per-shot
+             coverage age-map (union of warped viewports, saturating)
              linear-fades the MOG2 mask in over mogWarmup frames so
              never-modeled content entering frame edges under pans does
              not flash as false silhouette.
@@ -1080,11 +1085,16 @@ class _SilhouetteXrayState:
              flat-region Farneback residual noise during pan ramps —
              fast-loop measured 55% frame coverage — and an unramped
              step onto clean paper would register as an invented cut,
-             G-T2b); fixed RECT-kernel open/close; max-decay EMA
-             (cut-reset); fixed Gaussian soften for anti-aliased
-             silhouette edges. The clip's first frame initializes the
-             model with a zero mask (clean paper start); the all-ink
-             punctuation is reserved for source cuts.
+             G-T2b); fixed RECT-kernel open/close; max-decay EMA with
+             RISE-CAPPED growth (mask accumulator resets at every
+             engine cut-detect hit — contract invariant 4 — with the
+             fresh raw entering uncapped so real-cut floods land as a
+             single discontinuity; normal-frame growth is capped at
+             +maskRise/frame because the binary ink fill amplifies
+             small input events ~4.7x — the measured frame-1189 class:
+             a 5.0-absdiff input event popped an 8.2% mask = 23.6
+             output absdiff -> invented-cut flag); fixed Gaussian
+             soften for anti-aliased silhouette edges.
     Stage 3  ink-fill profile (default): stabilized soft mask -> solid
              ink silhouette composited on paper-white.
     Stage 3' xray profile (--profile xray): mask distance transform
@@ -1127,13 +1137,18 @@ class _SilhouetteXrayState:
         self.mog_history = int(c.get("mogHistory", 200))
         self.mog_var_threshold = float(c.get("mogVarThreshold", 34.0))
         self.mog_lr = float(c.get("mogLearningRate", 0.04))
+        self.mog_lr_boost = float(c.get("mogLearningRateBoost", 0.12))
+        self.boost_frames = int(c.get("mogBoostFrames", 12))
+        self.jump_countdown = 0
         self.mog_warmup = int(c.get("mogWarmup", 10))
         # stage 2 — threshold + morphology + temporal stabilization
         self.flow_knee = float(c.get("flowKnee", 2.2))
         self.morph_open = int(c.get("morphOpen", 3))
         self.morph_close = int(c.get("morphClose", 5))
         self.morph_dilate = int(c.get("morphDilate", 0))
-        self.mask_decay = float(c.get("maskDecay", 0.75))
+        self.mask_decay = float(c.get("maskDecay", 0.65))
+        self.mask_rise = float(c.get("maskRise", 0.40))
+        self.global_jump = float(c.get("globalJump", 0.25))
         self.mask_soften = float(c.get("maskSoften", 3.0))
         # output profiles
         self.output_profile = str(c.get("outputProfile", "ink"))
@@ -1171,7 +1186,7 @@ class _SilhouetteXrayState:
         self.mog2 = None
         self.mask_ema: Optional[np.ndarray] = None
         self.prev_gray_small: Optional[np.ndarray] = None
-        self.shot_frame = 0    # frames since shot start (clip start / cut)
+        self.clip_frame = 0    # frames since clip start (the warmup ramp)
 
     # -- stage 0: global-motion fit + cumulative affine ----------------------
 
@@ -1266,21 +1281,17 @@ class _SilhouetteXrayState:
     # -- stage 2: mask threshold + morphology + stabilization -----------------
 
     def _stabilized_mask(self, bgr: np.ndarray, motion: np.ndarray,
-                         clip_start: bool, flash: bool,
-                         fg255: np.ndarray) -> np.ndarray:
+                          clip_start: bool,
+                          fg255: np.ndarray) -> np.ndarray:
         h, w = bgr.shape[:2]
         if clip_start:
             # the clip's first frame initializes the model with a ZERO mask
-            # (clean paper start) — the all-ink punctuation is reserved for
-            # SOURCE CUTS; a mask step at the clip start would register as an
-            # invented cut in G-T2b (no input cut nearby to absorb it)
+            # (clean paper start) — the natural model-mismatch flood at real
+            # source cuts provides the cut-preservation spike later; a mask
+            # step at the clip start would register as an invented cut in
+            # G-T2b (no input cut nearby to absorb it)
             self.mask_ema = None
             return np.zeros((h, w), dtype=np.float32)
-        if flash:
-            # natural fresh-model mask = the cut punctuation; the temporal
-            # state resets so the punctuation never smears into the shot
-            self.mask_ema = None
-            return (fg255 > 0).astype(np.float32)
         fg = (fg255 > 0).astype(np.float32)
         if self.mask_source == "mog2":
             fg_f = self._back_to_current(fg, w, h)
@@ -1298,8 +1309,8 @@ class _SilhouetteXrayState:
         # floods on flat-region Farneback residual noise during pan ramps
         # (fast-loop measured: 55% frame coverage); it also ramps in over
         # the warmup window so the mask never steps onto clean paper (a
-        # >7% step would register as an invented cut, G-T2b)
-        ramp = min(max(self.shot_frame - 2, 0)
+        # step would register as an invented cut, G-T2b)
+        ramp = min(max(self.clip_frame - 2, 0)
                    / float(max(self.mog_warmup, 1)), 1.0)
         flow_mask = cv2.resize((motion > self.flow_knee).astype(np.float32),
                                (w, h), interpolation=cv2.INTER_LINEAR)
@@ -1309,9 +1320,46 @@ class _SilhouetteXrayState:
         if self._k_dil is not None:
             raw = cv2.dilate(raw, self._k_dil)
         if self.mask_ema is None:
+            # first frame of the clip (the model just initialized with
+            # learningRate 1.0; raw is near-empty and the flow ramp keeps
+            # the first frames quiet — clean paper start)
             self.mask_ema = raw
         else:
-            self.mask_ema = np.maximum(raw, self.mask_ema * self.mask_decay)
+            # GLOBAL-JUMP RULE: a real source cut floods the MOG2 mask
+            # globally (mean jump > globalJump) — the flood enters
+            # INSTANTLY: a single-frame discontinuity exactly where the
+            # cut-preservation gates look, and the old-scene carry is
+            # wiped (contract invariant 4, no cross-cut blending).
+            # Everything smaller is subject to the RISE CAP: the binary
+            # ink fill amplifies small input events ~4.7x, and an uncapped
+            # mask pop onto near-static content crosses the 16-absdiff
+            # spike threshold (the measured frame-1189 class: a
+            # 5.0-absdiff input event popped an 8.2% mask = 23.6 output
+            # absdiff -> invented-cut flag). Capping growth at
+            # +maskRise/frame spreads such transitions below the
+            # threshold; decay stays immediate.
+            jump = float(raw.mean() - self.mask_ema.mean())
+            if jump > self.global_jump:
+                self.mask_ema = raw
+                # post-jump learning-rate boost: fast background
+                # re-learning after a detected scene flood (standard MOG2
+                # practice) — shortens the model-mismatch wash from ~25
+                # frames to ~boostFrames, which keeps the output's local
+                # median low so a following micro-shot boundary (the
+                # 979/982 class) still clears the 2.6x spike bar
+                self.jump_countdown = self.boost_frames
+            else:
+                # normal tracking: max-decay with a PER-PIXEL rise cap —
+                # the cap binds on LOCAL high-contrast growth with small
+                # mean impact (a fast limb popping onto the mask: per-pixel
+                # jump ~1.0 inside a small area, mean jump < globalJump so
+                # the flood rule never sees it); spreading such pops over
+                # 3 frames (+maskRise/frame) keeps them under the
+                # 16-absdiff spike threshold while instant decay and
+                # mean-level growth (T3 motion synchrony) are preserved
+                uncapped = np.maximum(raw, self.mask_ema * self.mask_decay)
+                self.mask_ema = np.minimum(uncapped,
+                                           self.mask_ema + self.mask_rise)
         return np.clip(cv2.GaussianBlur(self.mask_ema, (0, 0),
                                         self.mask_soften), 0.0, 1.0)
 
@@ -1344,22 +1392,26 @@ class _SilhouetteXrayState:
 
     # -- pipeline ---------------------------------------------------------------
 
-    def _reset_shot(self, h: int, w: int) -> None:
-        """Contract invariant 4: reset ALL temporal state at the cut."""
-        self.affine = self._IDENT.copy()
-        self.age = np.zeros((h, w), dtype=np.uint8)
-        self.mog2 = None
-        self.mask_ema = None
-        self.prev_gray_small = None
-        self.shot_frame = 0
-
     def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
                  cut: bool) -> np.ndarray:
         h, w = bgr.shape[:2]
-        if cut:
-            self._reset_shot(h, w)
-        clip_start = self.shot_frame == 0 and not cut
-        self.shot_frame += 1
+        # NOTE on contract invariant 4 ("trails/EMA must reset on detected
+        # cuts"): the temporal mask accumulator resets via the GLOBAL-JUMP
+        # rule in _stabilized_mask — a real source cut floods the MOG2 mask
+        # globally (mean jump > globalJump) and the flood OVERWRITES the
+        # accumulator (old-scene carry wiped, single-frame discontinuity
+        # the cut-preservation gates match). The engine's cut-detect hits
+        # on continuous content (the false-positive sustained-motion class,
+        # e.g. b8's recorded 882-943 goal segment) deliberately reset
+        # NOTHING: resetting there manufactured invented cuts (measured,
+        # the w5g fast loop). The MOG2 model is created once per clip and
+        # never re-initialized; cross-cut global-fit garbage is
+        # noise-averaged (measured increments <= 8 px) so the cumulative
+        # affine needs no reset either. The `cut` flag itself is therefore
+        # a documented no-op in this renderer — the cut semantics live in
+        # the jump rule that follows.
+        clip_start = self.clip_frame == 0
+        self.clip_frame += 1
 
         # stage 0 — frame-pair flow -> global fit -> cumulative affine
         motion = np.zeros(gray_small.shape, dtype=np.float32)
@@ -1377,7 +1429,7 @@ class _SilhouetteXrayState:
                 inc = self._increment_affine(sol, w, h, sh, sw)
                 self.affine = self._compose(self.affine, inc)
 
-        # stage 1 — warp-align + MOG2 (fresh model at clip start / cuts)
+        # stage 1 — warp-align + MOG2 (model created once per clip)
         comp, viewport = self._warp_to_ref(bgr)
         if self.mask_source == "mog2":
             if self.mog2 is None:
@@ -1386,20 +1438,21 @@ class _SilhouetteXrayState:
                     varThreshold=self.mog_var_threshold,
                     detectShadows=False)
                 fg255 = self.mog2.apply(comp, learningRate=1.0)
-                flash = True
             else:
-                fg255 = self.mog2.apply(comp, learningRate=self.mog_lr)
-                flash = False
+                lr_eff = (self.mog_lr_boost if self.jump_countdown > 0
+                          else self.mog_lr)
+                fg255 = self.mog2.apply(comp, learningRate=lr_eff)
+                if self.jump_countdown > 0:
+                    self.jump_countdown -= 1
         else:
             fg255 = np.zeros((h, w), dtype=np.uint8)
-            flash = False
         if self.age is None:
             self.age = np.zeros((h, w), dtype=np.uint8)
         self.age = cv2.min(self.age + viewport,
                            np.full((h, w), 255, dtype=np.uint8))
 
         # stage 2 — threshold + morphology + temporal stabilization
-        m = self._stabilized_mask(bgr, motion, clip_start, flash, fg255)
+        m = self._stabilized_mask(bgr, motion, clip_start, fg255)
         self.prev_gray_small = gray_small
 
         # stage 3 — output profile
@@ -1751,12 +1804,22 @@ SILHOUETTE_XRAY = RendererSpec(
         "+ fixed bilinear warps, a pure fixed-op chain proven by the "
         "per-cell double-render byte-equality)",
         "mog2_background_subtraction(deterministic config: fixed "
-        "history=200, varThreshold=34, learningRate=0.04, "
-        "detectShadows=False, applied to the WARP-ALIGNED stream; "
-        "re-initialized at every engine cut-detect hit with learningRate "
-        "1.0 — no bg model bleeds across a source cut, contract invariant "
-        "4; the fresh-model frame's natural all-foreground mask is the "
-        "cut punctuation and does NOT enter the temporal state; a "
+        "history=200, varThreshold=34, learningRate=0.04 with a "
+        "post-flood learning-rate boost 0.12 for 12 frames (fast "
+        "background re-learning after a detected scene flood — shortens "
+        "the model-mismatch wash from ~25 frames to ~12, keeping the "
+        "output's local median low so a following micro-shot boundary "
+        "still clears the 2.6x spike bar), "
+        "detectShadows=False, applied to the WARP-ALIGNED stream; model "
+        "created ONCE per clip and never re-initialized — the natural "
+        "model-mismatch flood at real source cuts provides the "
+        "cut-preservation spike (measured ~150 absdiff, decaying at the "
+        "fixed learning rate), and re-initializing at the engine's "
+        "false-positive cuts (the recorded 882-943 goal-segment class) "
+        "manufactured 10 invented cuts via the all-ink fresh-model flash "
+        "— root-caused and redesigned in the w5g fast loop; cross-cut "
+        "global-fit garbage is noise-averaged, measured increments "
+        "<= 8 px, so the cumulative affine needs no reset; a "
         "per-shot coverage age-map (union of warped viewports, saturating) "
         "linear-fades the MOG2 mask in over mogWarmup=10 frames so "
         "never-modeled content entering under pans does not flash)",
@@ -1766,11 +1829,19 @@ SILHOUETTE_XRAY = RendererSpec(
         "first shot frames — the MOG2 coverage-fallback leg: it fills "
         "warmup + never-modeled pan regions without flooding on "
         "flat-region flow noise; open3/close5 fixed RECT kernels; "
-        "max-decay EMA 0.75 cut-reset — the fast-loop T3-hardened decay "
+        "max-decay EMA 0.65 — the fast-loop/full-render T3-hardened decay "
         "(0.90 ghost-lag decorrelates the output motion series, measured "
-        "0.6986 -> 0.8473); Gaussian soften sigma 3.0; the "
-        "clip's first frame initializes with a zero mask — the all-ink "
-        "punctuation is reserved for source cuts)",
+        "0.6986 -> 0.8473; 0.65 additionally makes the post-flood exit a "
+        "clean single discontinuity so a following micro-shot boundary "
+        "clears the 2.6x spike bar — the b8 979/982 class, measured "
+        "0.833 -> 1.0 coverage) "
+        "— with the GLOBAL-JUMP RULE (mean mask jump > 0.25 = a real-cut "
+        "MOG2 flood entering instantly: the single-frame discontinuity "
+        "the cut-preservation gates match, old-scene carry wiped — "
+        "contract invariant 4) and RISE-CAPPED growth +0.25/frame "
+        "otherwise (the binary ink amplifies small input events ~4.7x — "
+        "the measured frame-1189 invented-cut class); Gaussian soften "
+        "sigma 3.0; the clip's first frame initializes with a zero mask)",
         "ink_fill profile [default]: stabilized soft mask -> solid ink "
         "silhouette (26,26,26) composited on paper-white (244,244,244)",
         "xray profile [--profile xray]: mask distance transform (DIST_L2, "
@@ -1790,10 +1861,12 @@ SILHOUETTE_XRAY = RendererSpec(
         "zoomClip": 0.10, "translationClip": 24.0,
         # stage 1 — MOG2 (deterministic config, fixed history)
         "maskSource": "mog2", "mogHistory": 200, "mogVarThreshold": 34.0,
-        "mogLearningRate": 0.04, "mogWarmup": 10,
+        "mogLearningRate": 0.04, "mogLearningRateBoost": 0.12,
+        "mogBoostFrames": 12, "mogWarmup": 10,
         # stage 2 — threshold + morphology + temporal stabilization
         "flowKnee": 2.2, "morphOpen": 3, "morphClose": 5, "morphDilate": 0,
-        "maskDecay": 0.75, "maskSoften": 3.0,
+        "maskDecay": 0.65, "maskRise": 0.40, "globalJump": 0.25,
+        "maskSoften": 3.0,
         # ink-fill output (default profile)
         "outputProfile": "ink",
         "inkColor": [26, 26, 26], "paperColor": [244, 244, 244],

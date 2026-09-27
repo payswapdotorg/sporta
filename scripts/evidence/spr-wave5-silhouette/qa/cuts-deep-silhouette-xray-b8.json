@@ -1,0 +1,86 @@
+{
+  "input": "/home/z/sporta/scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "output": "/tmp/w5g/out/b8/pass1/silhouette-xray-b8.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189,
+    475,
+    550,
+    862,
+    979,
+    982
+  ],
+  "outputCuts": [
+    189,
+    475,
+    550,
+    862,
+    976,
+    983
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.05,
+      "outputFrame": 189,
+      "outputAmplitude": 94.51,
+      "amplitudeRatio": 2.949,
+      "outputLocalMedian": 8.09,
+      "matched": true
+    },
+    {
+      "inputFrame": 475,
+      "inputAmplitude": 24.03,
+      "outputFrame": 475,
+      "outputAmplitude": 82.43,
+      "amplitudeRatio": 3.43,
+      "outputLocalMedian": 4.78,
+      "matched": true
+    },
+    {
+      "inputFrame": 550,
+      "inputAmplitude": 20.09,
+      "outputFrame": 550,
+      "outputAmplitude": 73.37,
+      "amplitudeRatio": 3.651,
+      "outputLocalMedian": 1.83,
+      "matched": true
+    },
+    {
+      "inputFrame": 862,
+      "inputAmplitude": 33.89,
+      "outputFrame": 862,
+      "outputAmplitude": 163.47,
+      "amplitudeRatio": 4.824,
+      "outputLocalMedian": 6.27,
+      "matched": true
+    },
+    {
+      "inputFrame": 979,
+      "inputAmplitude": 34.73,
+      "outputFrame": 976,
+      "outputAmplitude": 110.73,
+      "amplitudeRatio": 3.189,
+      "outputLocalMedian": 21.4,
+      "matched": true
+    },
+    {
+      "inputFrame": 982,
+      "inputAmplitude": 49.34,
+      "outputFrame": 983,
+      "outputAmplitude": 55.15,
+      "amplitudeRatio": 1.118,
+      "outputLocalMedian": 20.72,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}
