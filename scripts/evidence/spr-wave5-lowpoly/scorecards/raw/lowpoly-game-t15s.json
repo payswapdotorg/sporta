@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general camera angle and team colors match, but the extreme simplification loses most structural context and specific player positions.\n2. temporalConsistency - 3: The low-poly mesh remains stable between frames, though the triangular representations of players shift slightly in shape.\n3. identityConsistency - 2: Players are reduced to indistinct colored triangles, making individual identification nearly impossible.\n4. motionFidelity - 2: Subtle shifts in triangle positions suggest some motion, but it is abstracted to the point of being ambiguous.\n5. sceneFidelity - 2: The background and field are represented as a coarse mesh that lacks spatial detail or clear landmarks.\n6. stylizationStrength - 5: The transformation into a low-poly, triangulated game aesthetic is extremely pronounced and obvious.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=4 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511757,
+  "id": "2026092720222942d85aae097649b6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092720222942d85aae097649b6",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1389
+  }
+}

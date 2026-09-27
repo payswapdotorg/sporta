@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The general scene (stadium, pitch, crowd) matches, but the low-poly abstraction obscures specific details like the scoreboard and distinct player positions.\n2. temporalConsistency: 4 - The transition between the two stylized frames is very smooth with minimal flickering or morphing of the geometric shapes.\n3. identityConsistency: 2 - Players are reduced to abstract color blobs, making individual identification and visual stability difficult to assess accurately.\n4. motionFidelity: 3 - Subtle shifts in the position of the color blobs suggest some motion, but it is heavily abstracted and lacks clear directional fidelity.\n5. sceneFidelity: 3 - The background and field maintain a consistent spatial layout, though the low-poly mesh creates significant spatial distortion.\n6. stylizationStrength: 5 - The transformation into a clear, high-contrast low-poly geometric style is extremely obvious and consistent.\n\nAXES sf=2 tc=4 ic=2 mf=3 scf=3 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511804,
+  "id": "2026092720231982a3874b3ee14bb1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092720231982a3874b3ee14bb1",
+  "usage": {
+    "completion_tokens": 243,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1411
+  }
+}

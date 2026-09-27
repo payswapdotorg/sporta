@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Match and general context match, but extreme simplification obscures specific details and camera framing.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes between the two stylized frames.\n3. identityConsistency - 2: Players are recognizable as colored blobs, but facial features and jersey numbers are lost.\n4. motionFidelity - 2: General direction of movement is preserved, but limb positions are abstracted into static geometric shapes.\n5. sceneFidelity - 2: The stadium background is reduced to a dark, unstructured mesh with no spatial depth.\n6. stylizationStrength - 5: The low-poly transformation is extremely aggressive and immediately obvious.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511772,
+  "id": "2026092720224979246b8bf9f14354",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092720224979246b8bf9f14354",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1368
+  }
+}

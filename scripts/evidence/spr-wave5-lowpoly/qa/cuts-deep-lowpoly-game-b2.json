@@ -1,0 +1,32 @@
+{
+  "input": "/home/z/my-project/sporta/scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+  "output": "/tmp/w5e/out/b2/pass1/lowpoly-game-b2.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    97
+  ],
+  "outputCuts": [
+    96,
+    99
+  ],
+  "perCut": [
+    {
+      "inputFrame": 97,
+      "inputAmplitude": 44.8,
+      "outputFrame": 99,
+      "outputAmplitude": 52.76,
+      "amplitudeRatio": 1.178,
+      "outputLocalMedian": 12.55,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

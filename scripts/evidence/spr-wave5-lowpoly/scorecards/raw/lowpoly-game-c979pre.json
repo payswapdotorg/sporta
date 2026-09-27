@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: Image 3 shows a completely different camera angle (close-up of a player) compared to the wide shot in Images 1 and 2.\n2. temporalConsistency - 1: The drastic change in perspective and content between images 2 and 3 indicates a lack of temporal continuity within the same shot.\n3. identityConsistency - 2: While a red player is visible in both, the extreme stylization and change in view make individual player identity unstable.\n4. motionFidelity - 1: Motion cannot be evaluated as consistent because the camera context changes entirely between the frames.\n5. sceneFidelity - 1: The background shifts from a wide pitch view to a close-up of the stands/crowd, showing no spatial consistency.\n6. stylizationStrength - 5: The low-poly wireframe transformation is extremely strong and visually dominant across all stylized images.\n\nAXES sf=2 tc=1 ic=2 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511814,
+  "id": "20260927202329a39692eb5d0042ac",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927202329a39692eb5d0042ac",
+  "usage": {
+    "completion_tokens": 239,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1407
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general camera angle and team colors match, but the extreme abstraction loses most specific scene details and player positions.\n2. temporalConsistency - 3: The low-poly mesh structure remains stable, though the underlying shapes of the players shift noticeably between the two frames.\n3. identityConsistency - 1: Players are reduced to indistinct colored triangles, making individual identification or visual stability impossible.\n4. motionFidelity - 2: Some triangles shift position suggesting movement, but the lack of clear anatomy makes it difficult to verify if the motion matches the source.\n5. sceneFidelity - 2: The background stadium and field lines are represented as a distorted mesh that maintains a rough spatial layout but lacks geometric accuracy.\n6. stylizationStrength - 5: The transformation to a raw, untextured low-poly wireframe/mesh style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=11 players=6 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790511778,
+  "id": "20260927202253e0da50798e9848ba",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927202253e0da50798e9848ba",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1406
+  }
+}
