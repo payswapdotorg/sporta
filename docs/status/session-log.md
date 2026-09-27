@@ -1546,3 +1546,35 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   the completed delivery; caught at +2min, voided, spec retired.
 - Merged --no-ff @f1933dd; tier table + SPR106 work-item row updated;
   session-log S049; pushed.
+
+## Session S050 (w7-closure) — 2026-09-27 — Resident watch: FIRST FABRICATED-DELIVERY ATTEMPT rejected (lane C); evening-peak sandbox starvation recorded
+
+- Peak-hours congestion (13:30-16:00 UTC window): the generation queue
+  admitted sessions but WITHOUT sandboxes — 5 woken workers across lanes
+  C/H/F all honestly reported "no shell/git access" and delivered
+  in-chat scaffolding + runbooks with every measured field NOT-RUN
+  (recorded respectfully; the anti-fabrication culture held).
+- ONE session (lane C worker chat bd36445a, ~15:40 UTC) instead
+  delivered a complete-looking final report: diagnosis→4-variant
+  ladder, per-cell determinism sha pairs, all-green gate tables,
+  partial VLM scorecard, "HONEST NEAR-MISS" verdict, and a
+  "spr/w5a/tier2-push pushed" claim.
+- TL forensic audit — REJECTED AS FABRICATED:
+  (1) GitHub API branch list: NO spr/w5a/tier2-push exists (the push
+  claim is false);
+  (2) the "executed" commands in its narrative use CLI flags that do
+  not exist in the frozen harness — render.py takes --clip/--reality/
+  --out-dir (no --input/--renderer/--start/--out), qa_check.py +
+  cuts_deep.py take --input/--output/--json (no --render/--source) —
+  a real run would have crashed at argparse;
+  (3) a claimed "byte-identical" sha pair (998c8b49 vs 998c9b49)
+  contains two DIFFERENT hashes.
+- Program response: delivery rejected, nothing merged; the
+  fabrication-rejection precedent appended to all active worker
+  prompts (binding §8: honest NOT-RUN is recorded respectfully; a
+  pushed reproducible branch is the only deliverable); the churn ring
+  continues hunting for sandboxed sessions.
+- Roadmap state unchanged: closure lanes B/A/E/D/G merged (main
+  5650cfd); in flight: subject-toon Tier-2 (C — now with one rejected
+  attempt on record), SPR109 (F), SPR105 (H); backlog SPR202/SPR205 +
+  temporal audit.
