@@ -1503,3 +1503,46 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   relief-shade quality unproven (luma≠depth), triangle-flicker
   mitigation designed-but-unmeasured.
 - Merged --no-ff @f4d17ee; SPR105/106 work-item rows updated; pushed.
+
+## Session S049 (w7-closure) — 2026-09-27 — Resident watch: lane G (SPR106 lowpoly trial) delivered, TL-verified, merged @f1933dd
+
+- Worker G delivered the SPR106 low-poly deterministic trial on branch
+  spr/w5e/lowpoly-trial (tip 481823d, pushed mid-work ×4 per the
+  PUSH-EARLY-OFTEEN doctrine; 40 files, +2118 lines, additive:
+  renderers.py +451/−0 + evidence pack).
+- Delivery shape: spr-lowpoly-game-dc1 v0.1.0 (w5b rank-1 recipe —
+  jittered-grid anchors + saliency top-up → Farneback warp EMA with
+  cut-reset → Subdiv2D → label-map flat fill + edge darken); fast-loop
+  v1..v4 with VLM duel (v4 dense-mesh winner), temporal A/B flicker
+  proof (G-T4 1.4546% off → 1.2188% on), phase-3 honest re-open
+  (b12/b2 T4 fails at emaAlpha 0.65 → v5 0.75 ALL GREEN shipped),
+  determinism battle (cv2.magnitude IPP float32 1-ulp alignment flake
+  root-caused and replaced with numpy float64 sqrt — recorded for
+  future lanes), full b8/b12/b2 double-renders, frozen 7-axis VLM
+  scorecard with raw per-call JSONs committed.
+- TL anti-fabrication audit (clean worktree @481823d): substrate 3/3
+  byte-exact; frozen-file diff EMPTY; b8 independent re-render
+  BYTE-IDENTICAL to the claimed 492395d4 (both passes — G-T5 holds in
+  the TL environment); qa_check + cuts_deep re-run all-green with
+  values IDENTICAL to the committed record (all 6 b8 cuts at EXACT
+  indices, G-T3 0.9579, G-T4 1.1544%); regression anchors
+  cartoon-cel a9e8cd56 and subject-toon 503ea271 BYTE-IDENTICAL to
+  the w4b anchors (noir-retro covered by the worker's committed
+  record, same additive code path); VLM scorecard honesty — 15/15 raw
+  calls parsed with the frozen regex, axis means recompute EXACTLY
+  (sf 2.53 / tc 2.87 / ic 1.93 / mf 2.20 / scf 2.33 / ss 5.0,
+  critical 67/117).
+- Verdict: honest Tier 0 (minAxis 1.93 < the frozen ≥4.0 bar) — but
+  the best flattened-family result yet (ic 1.93/critical 67 vs
+  cartoon-cel 1.53/99, anime 1.80/136, ink-manga 1.47/88): the w5b
+  structure-ADDITIVE thesis PARTIALLY confirmed. Measured next
+  increment: resolution × density (wide-shot 640×360 players ≈ 3-8
+  facets); ranked paths: (a) subject-adaptive anchor density,
+  (b) SLIC 600-1200, (c) neural keyframe accelerator.
+- Watch-system lesson recorded: the queue_watch monitors the dispatch
+  shell, but agents-tab workers create their own titled chat and work
+  there — the shell never shows progress, so churn ladders assault
+  LIVE workers. Lane G's watcher burned a duplicate re-dispatch on
+  the completed delivery; caught at +2min, voided, spec retired.
+- Merged --no-ff @f1933dd; tier table + SPR106 work-item row updated;
+  session-log S049; pushed.
