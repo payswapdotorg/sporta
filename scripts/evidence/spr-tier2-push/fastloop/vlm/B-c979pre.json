@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Match, time, and camera context are perfectly preserved across all frames.\n2. temporalConsistency - 2: Significant camera movement and background warping occur between the 0.2s interval.\n3. identityConsistency - 4: Player appearances remain stable despite the stylized rendering.\n4. motionFidelity - 2: The extreme camera pan/zoom in Image 3 is inconsistent with a 0.2s real-time interval.\n5. sceneFidelity - 2: The background field lines and stadium geometry are heavily warped or hallucinated.\n6. stylizationStrength - 5: The transformation to a cartoon/toon style is very obvious and distinct.\n\nAXES sf=5 tc=2 ic=4 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=5 dupes=0 ball=0 bg=4 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529251,
+  "id": "20260928011407d7f0336d7dc64b39",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011407d7f0336d7dc64b39",
+  "usage": {
+    "completion_tokens": 195,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1363
+  }
+}

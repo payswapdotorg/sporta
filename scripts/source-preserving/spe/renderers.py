@@ -190,11 +190,44 @@ class _SubjectToonState:
     """Streaming state for the segmentation-guided dual-path toon pipeline.
 
     Subject mask = OR(camera-compensated Farneback residual motion, MOG2
-    foreground), morphology-cleaned (open 3 / close 5 / dilate 5), with
-    temporal persistence (EMA max-decay, cut-reset). MOG2 is re-initialized
-    at every detected cut so no background model bleeds across a source cut
+    foreground), morphology-cleaned (open 3 / close 5 / dilate `maskDilate`),
+    with temporal persistence (cut-reset). MOG2 is re-initialized at every
+    detected cut so no background model bleeds across a source cut
     (contract §3.4). Deterministic: MOG2 GMM updates and Farneback are
     deterministic functions of the frame sequence; no RNG in this class.
+
+    v0.2.0 quality iteration (SPR-W5-A, Tier-2 push — attacks the wave-3
+    scorecard gaps: temporalConsistency 2.87 / identityConsistency 3.20 /
+    motionFidelity 3.13 / sceneFidelity 2.73, criticalArtifacts 15):
+
+    1. Mask persistence is DUAL-RATE hysteresis (config `maskRiseAlpha` /
+       `maskFallAlpha`) instead of v0.1.0's max-decay EMA: new subjects are
+       covered within ~3 frames (fast rise) while subjects MOG2 has adapted
+       to (standing / slow players — the v0.1.0 disappearance mechanism,
+       critical class "players") stay covered for ~2 s (slow fall).
+       Scale-aware pad: the dilation kernel is config-driven (`maskDilate`
+       7 @ 320x180 = ~14 px at 640x360) so the soft composite seam never
+       cuts through small-player limbs (critical class "limbs").
+    2. Background-path palette assignment is temporally STICKY (config
+       `bgHysteresis`): a per-pixel Schmitt trigger keeps the previous
+       palette index while the previous center is within the hysteresis
+       ratio of the best current distance. Kills the per-frame assignment
+       flicker on cluster-boundary pixels that made field lines / ad boards
+       shift shape between 0.2 s frame pairs (the dominant temporal + scene
+       axis loss). Pure index-level state — no pixel averaging, so camera
+       pans do not smear; rebuilt fresh on every detected cut.
+    3. Background front-end weakened for 1-3 px scene structure (median 3,
+       bilateral x2 sigma 60, region window 3, line floor 0.24) — v0.1.0's
+       median-5 + triple-bilateral stack erased pitch lines ("warped
+       lines" / sceneFidelity 2.73).
+    4. Subject-path XDoG softened (phi 5.0, floor 0.62) — v0.1.0's phi-8
+       soft-threshold produced broken contour noise on ~25 px players
+       (perceived as malformed limbs).
+
+    Config-key gating keeps v0.1.0 semantics reproducible: with the v0.1.0
+    config overlay (no `maskRiseAlpha`/`bgHysteresis` keys, `maskDilate` 5)
+    this class is behaviourally identical to the v0.1.0 processor (proven by
+    byte-identical re-render of the v0.1.0 anchors).
     """
 
     def __init__(self, cfg: dict, palette: Optional[np.ndarray], cuts: set):
@@ -203,11 +236,14 @@ class _SubjectToonState:
         self.cuts = cuts
         self.prev_gray_small: Optional[np.ndarray] = None
         self.mask_ema: Optional[np.ndarray] = None   # (180, 320) float32
+        self.idx_prev: Optional[np.ndarray] = None   # sticky palette indices
         self.mog2 = cv2.createBackgroundSubtractorMOG2(
             history=cfg["mogHistory"], varThreshold=cfg["mogVarThreshold"],
             detectShadows=False)
         self._k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
         self._k5 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        self._kd = cv2.getStructuringElement(
+            cv2.MORPH_RECT, (cfg.get("maskDilate", 5),) * 2)
 
     # -- subject mask --------------------------------------------------------
 
@@ -235,11 +271,18 @@ class _SubjectToonState:
         raw = np.maximum(motion, fg_small)
         raw = cv2.morphologyEx(raw, cv2.MORPH_OPEN, self._k3)   # kill speckle
         raw = cv2.morphologyEx(raw, cv2.MORPH_CLOSE, self._k5)  # fill bodies
-        raw = cv2.dilate(raw, self._k5)                          # pad subjects
+        raw = cv2.dilate(raw, self._kd)                         # pad subjects
         if self.mask_ema is None or cut:
             self.mask_ema = raw
         else:
-            self.mask_ema = np.maximum(raw, self.mask_ema * c["maskDecay"])
+            rise, fall = c.get("maskRiseAlpha"), c.get("maskFallAlpha")
+            if rise is not None and fall is not None:
+                # dual-rate hysteresis (v0.2.0): fast coverage for new
+                # subjects, ~2 s hold for subjects MOG2 has adapted to
+                alpha = np.where(raw > self.mask_ema, rise, fall)
+                self.mask_ema = self.mask_ema + (raw - self.mask_ema) * alpha
+            else:  # v0.1.0 semantics (max-decay EMA)
+                self.mask_ema = np.maximum(raw, self.mask_ema * c["maskDecay"])
         h, w = bgr.shape[:2]
         m = cv2.resize(self.mask_ema, (w, h), interpolation=cv2.INTER_LINEAR)
         m = cv2.GaussianBlur(m, (0, 0), c["maskSoften"])         # no cutout seams
@@ -247,15 +290,58 @@ class _SubjectToonState:
 
     # -- dual stylization paths -----------------------------------------------
 
+    def _quantize_sticky(self, bgr: np.ndarray) -> np.ndarray:
+        """Fixed-palette LAB assignment with per-pixel temporal stickiness.
+
+        Restates stages.quantize_lab's chroma-weighted nearest-center math
+        (identical distances, same blockwise layout), then applies the
+        Schmitt-trigger rule: a pixel KEEPS its previous palette index while
+        the previous center is still within `bgHysteresis` x the best current
+        distance (the ratio is applied on squared distances). Pure index
+        level state — no pixel averaging, so camera pans do not smear; the
+        sticky map is discarded on every detected cut (no cross-cut bleed,
+        contract §3.4). Deterministic: a pure function of the frame sequence
+        and the fixed per-clip palette.
+        """
+        c = self.cfg
+        lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+        fl = lab.reshape(-1, 3).astype(np.float32)
+        centers = self.palette.astype(np.float32)
+        w = np.array([c.get("lWeight", 0.45), 1.0, 1.0], dtype=np.float32)
+        idx = np.empty(len(fl), dtype=np.int64)
+        d_best = np.empty(len(fl), dtype=np.float32)
+        for s in range(0, len(fl), 40000):
+            blk = fl[s:s + 40000]
+            d = ((blk[:, None, :] - centers[None, :, :]) * w) ** 2
+            d = d.sum(-1)
+            best = np.argmin(d, axis=1)
+            idx[s:s + 40000] = best
+            d_best[s:s + 40000] = d[np.arange(len(blk)), best]
+        hyst = c["bgHysteresis"]
+        if self.idx_prev is not None:
+            prev_flat = self.idx_prev.reshape(-1)
+            d_prev = (((fl - centers[prev_flat]) * w) ** 2).sum(-1)
+            keep = d_prev <= d_best * (hyst * hyst)
+            idx = np.where(keep, prev_flat, idx)
+        self.idx_prev = idx.reshape(lab.shape[:2])
+        return self.idx_prev
+
     def _background_path(self, bgr: np.ndarray) -> np.ndarray:
-        """Strong cartoon stack (cartoon-cel-class, identity-free zone)."""
+        """Strong cartoon stack (identity-free zone).
+
+        v0.2.0: structure-preserving front-end (median 3 / bilateral x2 /
+        region window 3) + temporally sticky palette assignment.
+        """
         c = self.cfg
         out = S.median_pool(bgr, c["bgMedianK"])
         out = S.bilateral_flatten(out, c["bgBilatD"], c["bgBilatSigma"],
                                   c["bgBilatSigma"], c["bgBilatIters"])
-        out, idx = S.quantize_lab(out, self.palette,
-                                  l_weight=c.get("lWeight", 0.45),
-                                  return_idx=True)
+        if c.get("bgHysteresis"):
+            idx = self._quantize_sticky(out)
+        else:  # v0.1.0 semantics: independent per-frame assignment
+            _, idx = S.quantize_lab(out, self.palette,
+                                   l_weight=c.get("lWeight", 0.45),
+                                   return_idx=True)
         idx = S.smooth_regions(idx, self.palette.shape[0],
                                window=c["bgRegionWindow"])
         out = S.recolor(idx, self.palette)
@@ -281,6 +367,8 @@ class _SubjectToonState:
 
     def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
                  cut: bool) -> np.ndarray:
+        if cut:
+            self.idx_prev = None   # sticky map rebuilt from the fresh scene
         m = self._subject_mask(bgr, gray_small, cut)[..., None]     # (H,W,1)
         bg = self._background_path(bgr).astype(np.float32)
         sj = self._subject_path(bgr).astype(np.float32)
@@ -1080,36 +1168,46 @@ REGISTRY = {r.reality: r for r in (CARTOON_CEL, ANIME_NPR, NOIR_RETRO, MOTION_TR
 SUBJECT_TOON = RendererSpec(
     rendererId="spr-subject-toon-dc1", reality="subject-toon",
     family="Segmentation-Guided Toon (SPR101 guided variant)", sprId="SPR101",
+    version="0.2.0",
     paletteK=10,
     usesFlow=True,
     pipeline=[
         "subject_mask(OR[farneback_residual>1.8 @320x180 camera-compensated, "
-        "MOG2 fg(history=150,var=25,lr=0.05,cut-reinit)], open3/close5/dilate5, "
-        "EMA decay=0.90 cut-reset, soften sigma=4.0)",
-        "background_path(median5+bilateral x3(d9,s75)+palette K=10 LAB "
-        "chroma-weighted+region-smooth5+boundary-lines floor 0.30+sat 1.22)",
-        "subject_path(median3+bilateral x1(d7,s50)+xdog thin lines floor 0.70"
-        "+sat 1.10, NO palette quantize)",
+        "MOG2 fg(history=150,var=18,lr=0.02,cut-reinit)], open3/close5/dilate7 "
+        "scale-aware pad, DUAL-RATE hysteresis rise=0.60/fall=0.05 cut-reset, "
+        "soften sigma=4.0)",
+        "background_path(v0.2.0 structure-preserving: median3+bilateral x2"
+        "(d9,s60)+palette K=10 LAB chroma-weighted STICKY assignment "
+        "hysteresis=1.18 cut-reset+region-smooth3+boundary-lines floor 0.24"
+        "+sat 1.15)",
+        "subject_path(median3+bilateral x1(d7,s50)+xdog soft lines phi=5.0 "
+        "floor 0.62+sat 1.10, NO palette quantize)",
         "soft_mask_composite(bg,subj)",
     ],
     description=("Dual-path toon: strong cartoon stylization on the background, "
                  "identity-preserving gentle pass on camera-compensated "
                  "motion/foreground-masked subjects. Promoted from trial "
                  "sprtrial-subject-toon-t1 (SPR-W2-C) — attacks the Tier-2 "
-                 "diagnosis that aggressive styles destroy player identity."),
+                 "diagnosis that aggressive styles destroy player identity. "
+                 "v0.2.0 (SPR-W5-A Tier-2 push): dual-rate mask hysteresis + "
+                 "scale-aware limb padding (disappearance/limb criticals), "
+                 "temporally sticky palette assignment + structure-preserving "
+                 "background front-end (temporal/scene axes), softened XDoG "
+                 "for ~25 px players (limb contours)."),
     config={
-        # subject mask
-        "motionKnee": 1.8, "mogHistory": 150, "mogVarThreshold": 25.0,
-        "mogLearningRate": 0.05, "maskDecay": 0.90, "maskSoften": 4.0,
-        # background (strong) path
-        "bgMedianK": 5, "bgBilatD": 9, "bgBilatSigma": 75, "bgBilatIters": 3,
-        "bgRegionWindow": 5, "bgSaturation": 1.22, "bgLineDilate": 1,
-        "bgLineFloor": 0.30, "lWeight": 0.45,
-        # subject (gentle) path
+        # subject mask (v0.2.0: dual-rate hysteresis + scale-aware pad)
+        "motionKnee": 1.8, "mogHistory": 150, "mogVarThreshold": 18.0,
+        "mogLearningRate": 0.02, "maskRiseAlpha": 0.60, "maskFallAlpha": 0.05,
+        "maskSoften": 4.0, "maskDilate": 7,
+        # background (strong) path — v0.2.0 structure-preserving + sticky
+        "bgMedianK": 3, "bgBilatD": 9, "bgBilatSigma": 60, "bgBilatIters": 2,
+        "bgRegionWindow": 3, "bgSaturation": 1.15, "bgLineDilate": 1,
+        "bgLineFloor": 0.24, "lWeight": 0.45, "bgHysteresis": 1.18,
+        # subject (gentle) path — v0.2.0 softer XDoG for small players
         "sjMedianK": 3, "sjBilatD": 7, "sjBilatSigma": 50, "sjBilatIters": 1,
         "sjXdogSigma": 1.0, "sjXdogK": 1.6, "sjXdogTau": 0.98,
-        "sjXdogEps": 0.010, "sjXdogPhi": 8.0,
-        "sjLineFloor": 0.70, "sjSaturation": 1.10,
+        "sjXdogEps": 0.010, "sjXdogPhi": 5.0,
+        "sjLineFloor": 0.62, "sjSaturation": 1.10,
     },
 )
 

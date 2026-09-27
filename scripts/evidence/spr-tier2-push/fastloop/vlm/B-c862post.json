@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical to the original broadcast frame.\n2. temporalConsistency - 2: Significant flickering, morphing of the player's body, and a noticeable jump in the background between the two frames.\n3. identityConsistency - 3: The player's face and kit remain recognizable, but his body shape and limb positions are highly unstable.\n4. motionFidelity - 2: The player's arm and torso morph unnaturally rather than showing smooth, consistent physical movement.\n5. sceneFidelity - 3: The goal net and scoreboard are present, but the background field lines drift and warp significantly.\n6. stylizationStrength - 4: The high-contrast, posterized \"toon\" aesthetic is clearly and strongly applied.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=3 ss=4\nARTIFACTS limbs=1 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529247,
+  "id": "202609280114014282dcdbebfc4ba5",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280114014282dcdbebfc4ba5",
+  "usage": {
+    "completion_tokens": 217,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1385
+  }
+}

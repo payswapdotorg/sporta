@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors match, but many players are missing or merged into the background.\n2. temporalConsistency - 3: The main structures remain stable, though some small background blobs shift slightly between frames.\n3. identityConsistency - 2: Players are reduced to simple colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 2: The central player's movement is vaguely suggested, but most other motion is lost or obscured.\n5. sceneFidelity - 2: The stadium and advertising boards are heavily abstracted into unrecognizable shapes.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoon-like style is extremely bold and obvious.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=6 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529475,
+  "id": "20260928011749fa8e81fb2bb4492b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011749fa8e81fb2bb4492b",
+  "usage": {
+    "completion_tokens": 202,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1370
+  }
+}

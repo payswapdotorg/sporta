@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 matches the exact camera angle, player positions, and stadium context of Image 1.\n2. temporalConsistency - 2: Image 3 is a completely different camera shot (close-up vs wide), breaking temporal continuity within the same view.\n3. identityConsistency - 3: Players in Image 2 retain recognizable team colors and poses, though details are smoothed by the toon filter.\n4. motionFidelity - 2: The drastic change in camera perspective between Image 2 and 3 makes motion vectors impossible to verify consistently.\n5. sceneFidelity - 3: Background elements like advertising boards and stands are present but heavily warped and simplified in the stylized versions.\n6. stylizationStrength - 5: The transformation to a flat, cartoon-like aesthetic with bold outlines and reduced color palettes is very pronounced.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=4 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529500,
+  "id": "2026092801181428ccf54028134906",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801181428ccf54028134906",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1398
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Image 2 matches the moment, but Image 3 is a completely different camera angle/shot.\n2. temporalConsistency - 1: The transition between images involves a major camera cut, not a continuous temporal sequence.\n3. identityConsistency - 4: The main player in image 2 is visually stable and recognizable as the source.\n4. motionFidelity - 2: Motion cannot be fairly judged across a camera cut, and the toon style obscures fine movement.\n5. sceneFidelity - 2: The background in image 2 is heavily abstracted, and image 3 shows a different part of the stadium.\n6. stylizationStrength - 5: The cartoon/toon transformation is extremely bold and obvious.\nAXES sf=3 tc=1 ic=4 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529486,
+  "id": "2026092801180060022cc0311b4dec",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801180060022cc0311b4dec",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1377
+  }
+}

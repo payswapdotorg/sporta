@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved in the stylized versions.\n2. temporalConsistency - 4: Objects remain stable with only very minor, subtle shifts between the two frames.\n3. identityConsistency - 4: Players maintain their visual identity, though some fine details are smoothed by the style.\n4. motionFidelity - 4: Player positions and ball location show logical, consistent movement across the sequence.\n5. sceneFidelity - 5: The stadium background, lines, and scoreboard remain spatially consistent.\n6. stylizationStrength - 4: The toon transformation is clearly applied while maintaining the underlying structure of the broadcast.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529254,
+  "id": "20260928011411cd3f6bb559a748db",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011411cd3f6bb559a748db",
+  "usage": {
+    "completion_tokens": 194,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1362
+  }
+}

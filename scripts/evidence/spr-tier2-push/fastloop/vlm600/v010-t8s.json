@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:16), and camera angle as the original.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes and field textures occur between the two frames.\n3. identityConsistency - 2: Players lose distinct features and frequently morph into indistinct blobs or merge with the background.\n4. motionFidelity - 3: General player positions shift plausibly, but specific limb movements and ball tracking are obscured by the heavy style.\n5. sceneFidelity - 3: The stadium layout and advertising boards remain recognizable despite the warping of the pitch texture.\n6. stylizationStrength - 5: The transformation to a high-contrast, cartoon-like aesthetic is extremely bold and obvious.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=3 ss=5\nARTIFACTS limbs=3 players=2 warped=4 dupes=0 ball=0 bg=2 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529462,
+  "id": "20260928011737164340a492a4438c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011737164340a492a4438c",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}

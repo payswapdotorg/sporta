@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: The match, moment, and camera context are clearly preserved despite the heavy abstraction.\n2. temporalConsistency - 3: The scene is stable, but the stylization causes some players to flicker or shift shape between frames.\n3. identityConsistency - 2: Players are reduced to colored blobs, making individual visual stability very low.\n4. motionFidelity - 2: Motion is suggested but obscured by the extreme simplification and lack of detail.\n5. sceneFidelity - 3: The stadium and field layout are recognizable, though the lines and background are heavily warped.\n6. stylizationStrength - 5: The transformation into a cartoon/abstract style is extremely obvious and dominant.\n\nAXES sf=4 tc=3 ic=2 mf=2 scf=3 ss=5\nARTIFACTS limbs=5 players=0 warped=4 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529228,
+  "id": "20260928011344ec77ba4102f940e9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011344ec77ba4102f940e9",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1368
+  }
+}

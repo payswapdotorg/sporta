@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical to the source frame.\n2. temporalConsistency - 2: The stylized frames show severe spatial drift and a complete change in camera framing between the two timestamps.\n3. identityConsistency - 3: Players in Image 2 are recognizable but heavily distorted; Image 3 shows stable identities despite the shot change.\n4. motionFidelity - 1: The camera jump and loss of the ball's position in Image 2 make motion tracking impossible.\n5. sceneFidelity - 2: Background elements like advertising boards and stands are present but heavily warped or lost.\n6. stylizationStrength - 4: A strong, obvious cartoon/toon filter is applied, though it causes significant geometric instability.\n\nAXES sf=5 tc=2 ic=3 mf=1 scf=2 ss=4\nARTIFACTS limbs=3 players=0 warped=5 dupes=0 ball=1 bg=3 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529480,
+  "id": "202609280117552b86731cbaa04567",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280117552b86731cbaa04567",
+  "usage": {
+    "completion_tokens": 214,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1382
+  }
+}

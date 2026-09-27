@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:47), and camera angle as the original.\n2. temporalConsistency - 3: Player positions shift slightly between the two frames, but no major flickering or disappearing objects occur.\n3. identityConsistency - 4: Players maintain their team colors and general shapes, though fine facial/limb details are smoothed by the style.\n4. motionFidelity - 4: The subtle movement of players between frames is consistent with a 0.2s interval in a live broadcast.\n5. sceneFidelity - 4: The stadium background, goal, and field lines remain spatially stable across all three images.\n6. stylizationStrength - 4: The \"subject-toon\" effect is very obvious, with heavy smoothing and color blocking applied to the entire frame.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790530537,
+  "id": "2026092801353281ebac695e9c4c59",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801353281ebac695e9c4c59",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "total_tokens": 1398
+  }
+}

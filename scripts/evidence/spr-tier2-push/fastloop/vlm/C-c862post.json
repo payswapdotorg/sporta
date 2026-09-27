@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical across all frames.\n2. temporalConsistency - 3: The player's pose shifts noticeably between the two stylized frames, suggesting some instability.\n3. identityConsistency - 4: The player's facial features and kit remain recognizable, though slightly distorted by the style.\n4. motionFidelity - 3: The movement between the two stylized frames is present but lacks the smoothness of the original.\n5. sceneFidelity - 4: The background elements like the goal net and scoreboard remain spatially consistent.\n6. stylizationStrength - 4: The toon-like transformation is clearly applied with visible edge enhancement and smoothing.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529261,
+  "id": "2026092801141876fa840acecc4e2e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801141876fa840acecc4e2e",
+  "usage": {
+    "completion_tokens": 199,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1367
+  }
+}
