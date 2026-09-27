@@ -134,10 +134,18 @@ pre-w3a-fix b12 bytes (byte-reproduced `7cb3d728…` → `d19079ca…`).
 
 | cell | frames | sha256 (BOTH passes) | det | G-T1 | G-T2 raw | G-T2b deep | G-T3 | G-T4 |
 |---|---|---|---|---|---|---|---|---|
-| b8 | 1190 | `81f5a8ee1ad26cbe739c347438a241bd8ac68b9b604010100fef160b0da0ba1d` ×2 | **yes** | PASS 1190==1190, Δ20 ms, audio ✓ | cov 0.667 (micro-shot merged-fire) — **T2b-resolved** | **PASS cov 1.0, 0 invented** (ratios 1.18–4.82) | **PASS r=0.8488** | **PASS 0.7121 %** (base 0.458 %) |
-| b12 | 300 | `b7164f475b051639…` (full sha in record.json) ×2 | **yes** | PASS | cov 0.0 | **FAIL cov 0.5 + inv [73]** | PASS r=0.8213 | PASS 1.1169 % |
-| b2 | 225 | `d7c791ca2fa9702a…` ×2 | **yes** | PASS | cov 0.0 | **FAIL cov 0.0** (cut 97 ratio 0.99, bar never cleared) | PASS r=0.8447 | **FAIL 1.9583 %** (closeup zoom/parallax churn) |
-| b8-xray | 1190 | `3a5c467f683d80aa…` ×2 | **yes** | PASS | cov 0.833 | **FAIL cov 1.0 + inv [936]** | 0.7989 (just under) | **FAIL 2.279 %** |
+| b8 | 1190 | `a626bd83eb6aa9fb3abe0538f391a502503477089e02819eb330273db52f45bb` ×2 | **yes** | PASS 1190==1190, Δ20 ms, audio ✓ | cov 0.667 (micro-shot merged-fire) — **T2b-resolved** | **PASS cov 1.0, 0 invented** (ratios 1.18–4.82) | **PASS r=0.8488** | **PASS 0.7121 %** (base 0.458 %) |
+| b12 | 300 | `44b550e6bdfe7cdcf9e431baf4067601debb4028699128f4c6f0994ad659e490` ×2 | **yes** | PASS | cov 0.0 | **FAIL cov 0.5 + inv [73]** | PASS r=0.8213 | PASS 1.1169 % |
+| b2 | 225 | `045978141e336c297d9c1de39a575c1e32f92c8e3627f473929a985d8b6836c0` ×2 | **yes** | PASS | cov 0.0 | **FAIL cov 0.0** (cut 97 ratio 0.99, bar never cleared) | PASS r=0.8447 | **FAIL 1.9583 %** (closeup zoom/parallax churn) |
+| b8-xray | 1190 | `3a5c467f683d80aaeecd106528f71bfcb147b7abca0801a94f17ca40f99b2c39` ×2 | **yes** | PASS | cov 0.833 | **FAIL cov 1.0 + inv [936]** | 0.7989 (just under) | **FAIL 2.279 %** |
+
+Determinism bonus: the b8 artifact byte-reproduces `a626bd83…` across
+the entire phase-3 saga — the final code (after the cut-handling
+redesign, the entry-factor experiment added AND fully reverted, and the
+rise-cap removal root-caused and restored) renders byte-identical to the
+first all-green run of the same effective configuration. Same input +
+same effective config → same bytes, twice over, through different code
+paths.
 
 The honest classes, precisely: (a) the micro-shot merged-fire class
 (raw T2 coverage residual, resolved by T2b — the frozen harness's own
