@@ -670,7 +670,9 @@ class _InkMangaState:
 # triangulation REINJECTS structure (facet boundaries track real edges via
 # saliency anchors), the w5b thesis under trial. Stage math:
 #
-#   stage 1  saliency   : Sobel magnitude on luma, Gaussian sigma-2 smoothed,
+#   stage 1  saliency   : Sobel magnitude on luma (numpy float64 sqrt —
+#               cv2.magnitude is 1-ulp alignment-flaky here, root-caused
+#               in the w5e determinism battle), Gaussian sigma-2 smoothed,
 #               5-frame trailing box average (deterministic window,
 #               cut-reset) — the anti-flicker saliency of the recipe.
 #   stage 2  anchors    : FIXED jittered grid (fixed-PRNG offsets generated
@@ -763,7 +765,13 @@ class _LowpolyGameState:
     def _saliency(self, gray: np.ndarray) -> np.ndarray:
         gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
         gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
-        mag = cv2.magnitude(gx, gy)
+        # magnitude via numpy float64 sqrt — cv2.magnitude (IPP, float32)
+        # is alignment-dispatched and 1-ulp NONDETERMINISTIC in this
+        # environment (root-caused in the w5e determinism battle: b12
+        # pass1/pass2 sha mismatch, 36/60 frames differing); IEEE float64
+        # sqrt is correctly rounded on every compliant path -> bit-stable
+        mag = np.sqrt(gx.astype(np.float64) ** 2
+                      + gy.astype(np.float64) ** 2).astype(np.float32)
         return cv2.GaussianBlur(mag, (0, 0), self.sal_sigma)
 
     # -- stage 2: anchors ----------------------------------------------------
@@ -913,7 +921,10 @@ class _LowpolyGameState:
         gray = cv2.cvtColor(out, cv2.COLOR_BGR2GRAY)
         gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
         gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
-        mag = cv2.magnitude(gx, gy)
+        # same numpy-float64 magnitude (cv2.magnitude is 1-ulp
+        # nondeterministic here — see _saliency note)
+        mag = np.sqrt(gx.astype(np.float64) ** 2
+                      + gy.astype(np.float64) ** 2).astype(np.float32)
         t = np.clip((mag - self.out_lo) / max(self.out_hi - self.out_lo, 1e-6),
                     0.0, 1.0)
         t = t * t * (3.0 - 2.0 * t)
@@ -1252,7 +1263,9 @@ LOWPOLY_GAME = RendererSpec(
     paletteK=16,
     usesFlow=True,
     pipeline=[
-        "gradient_saliency(Sobel k=3 magnitude on luma, Gaussian sigma=2.0, "
+        "gradient_saliency(Sobel k=3 magnitude on luma via numpy float64 "
+        "sqrt (cv2.magnitude is 1-ulp alignment-flaky in this environment "
+        "— root-caused in the w5e determinism battle), Gaussian sigma=2.0, "
         "5-frame trailing box average, cut-reset — the anti-flicker saliency)",
         "anchors(fixed jittered grid: 20px lattice, PRNG seed 20260927, "
         "jitter +/-6px, generated once per render, screen-anchored and never "
