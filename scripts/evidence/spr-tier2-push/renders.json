@@ -1,0 +1,208 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-A",
+ "task": "subject-toon v0.1.0 -> v0.2.0 Tier-2 quality push (frozen protocol scorecard + honest verdict)",
+ "generatedAtIso": "2026-09-27T17:37:43.347478+00:00",
+ "engine": "SPE-v1",
+ "base": "5650cfd3f500ac664e2816a598285b4cda4159b0 (origin/main post w5e merge)",
+ "branch": "spr/w5a/tier2-push",
+ "tools": {
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "opencv": "5.0.0",
+  "numpy": "2.5.3"
+ },
+ "substrateVerification": {
+  "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a (== spr-corpus-bytes README)",
+  "b8-b12.mp4": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462 (post-w3a-fix, == README)",
+  "clip-b2-closeup.mp4": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062 (== README)"
+ },
+ "control": {
+  "b7 x motion-trails (pristine tree)": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9 == w4b control (BYTE-MATCH)",
+  "b7 x motion-trails (modified tree)": "998c9b4948e092d89210847786b0a82dbdceec71ffe20c3f83ded1805430bdb9 == w4b control (BYTE-MATCH, regression after the v0.2.0 edit)",
+  "b8 x cartoon-cel (pristine tree)": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c == w4b/wave-1 anchor (BYTE-MATCH)",
+  "b8 x cartoon-cel (modified tree)": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c == w4b/wave-1 anchor (BYTE-MATCH, regression after the v0.2.0 edit)",
+  "b8 x subject-toon v0.1.0 (pristine tree)": "503ea271561d770c8482a8e472582aba5b54fd4a889b7eeef2c889d59e960f74 == w3b/w4b v0.1.0 anchor (BYTE-MATCH)",
+  "b12 x subject-toon v0.1.0 overlay (modified class)": "3c0fdf81daeecee4aa6fa31b38dfbc94a7ed94b22653057d1c2b50931964a886 == w4b matrix record (BYTE-MATCH \u2014 the modified _SubjectToonState with the v0.1.0 config overlay is v0.1.0-equivalent)",
+  "b12 gateref (w4b recipe reproduction)": "d19079ca133cbfe02dde534bd74c579818cb9b92e6272a4f7af9f77e1737115b == w3b pin (BYTE-MATCH)"
+ },
+ "fastLoopVariants": {
+  "note": "config overlays through the frozen render.py code path (variant_driver.py, scratch, recorded in commands.md); b12 = 300-frame --max-frames window",
+  "v010": {
+   "sha256": "3c0fdf81daeecee4aa6fa31b38dfbc94a7ed94b22653057d1c2b50931964a886",
+   "gates": "allPass (T2b 1.0/0)"
+  },
+  "A (mask v2 only)": {
+   "sha256": "570ebfdb72482cc820c361e716ab55a1f6725731a85b30e6136e52f137a2c746",
+   "gates": "allPass (T2b 1.0/0)"
+  },
+  "B (A + bg v2)": {
+   "sha256": "ff8f33c74b9a909bbf059c747d030e49372a5e16f63239181d93dbd5394c898c",
+   "gates": "allPass (T2b 1.0/0)"
+  },
+  "C (B + subject v2 = shipped v0.2.0)": {
+   "sha256": "50edb582f6874d0d1ca1b79ed5ade6a7984cf1ba6a37f5f928c32a602372d964",
+   "gates": "allPass (T2b 1.0/0)"
+  },
+  "C b8 first-600 window": {
+   "sha256": "ba23ebb87d2644c3e81386673a482804ccf9c291dd65a39bfd4021f3ed51d6a7"
+  }
+ },
+ "renders": [
+  {
+   "clipId": "b8",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+   "reality": "subject-toon",
+   "profile": "default",
+   "rendererId": "spr-subject-toon-dc1",
+   "rendererVersion": "0.2.0",
+   "outputFile": "subject-toon-b8.mp4",
+   "outputSha256Pass1": "aaac76b75a24f43e6a479ddd663a322a078afb441d40855d118fc79dc075a6a3",
+   "outputSha256Pass2": "aaac76b75a24f43e6a479ddd663a322a078afb441d40855d118fc79dc075a6a3",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 1190,
+   "gateInput": "raw substrate",
+   "gates": {
+    "G-T1": {
+     "value": "1190==1190 \u039420ms audio=True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extraPer30s=0.0",
+     "pass": true
+    },
+    "G-T2b": {
+     "value": "coverage=1.0 invented=0",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9951",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=0.5178",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allPass": true
+  },
+  {
+   "clipId": "b12",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+   "reality": "subject-toon",
+   "profile": "default",
+   "rendererId": "spr-subject-toon-dc1",
+   "rendererVersion": "0.2.0",
+   "outputFile": "subject-toon-b12.mp4",
+   "outputSha256Pass1": "50edb582f6874d0d1ca1b79ed5ade6a7984cf1ba6a37f5f928c32a602372d964",
+   "outputSha256Pass2": "50edb582f6874d0d1ca1b79ed5ade6a7984cf1ba6a37f5f928c32a602372d964",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 300,
+   "gateInput": "derived 300-frame gateref d19079ca... (w4b convention)",
+   "gates": {
+    "G-T1": {
+     "value": "300==300 \u03940ms audio=True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extraPer30s=0.0",
+     "pass": true
+    },
+    "G-T2b": {
+     "value": "coverage=1.0 invented=0",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9974",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=0.6036",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allPass": true
+  },
+  {
+   "clipId": "b2",
+   "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "subject-toon",
+   "profile": "default",
+   "rendererId": "spr-subject-toon-dc1",
+   "rendererVersion": "0.2.0",
+   "outputFile": "subject-toon-b2.mp4",
+   "outputSha256Pass1": "883172b6cadbb75d3d9f7a4e289c77214e0a0149b4ddcc5f31821b403ba2fe80",
+   "outputSha256Pass2": "883172b6cadbb75d3d9f7a4e289c77214e0a0149b4ddcc5f31821b403ba2fe80",
+   "determinismByteIdentical": true,
+   "frameCountPiped": 225,
+   "gateInput": "raw substrate",
+   "gates": {
+    "G-T1": {
+     "value": "225==225 \u039420ms audio=True",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extraPer30s=0.0",
+     "pass": true
+    },
+    "G-T2b": {
+     "value": "coverage=1.0 invented=0",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9966",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=1.1079",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allPass": true
+  }
+ ],
+ "scorecard": {
+  "family": "subject-toon",
+  "rendererVersion": "0.2.0",
+  "vlmMeanScores": {
+   "sourceFidelity": 5.0,
+   "temporalConsistency": 3.4,
+   "identityConsistency": 4.27,
+   "motionFidelity": 3.73,
+   "sceneFidelity": 3.73,
+   "stylizationStrength": 4.47
+  },
+  "minAxisMean": 3.4,
+  "overallMean": 4.1,
+  "criticalArtifacts": 3,
+  "totalArtifacts": 31,
+  "tierClaim": 0,
+  "previous_v010": {
+   "meanScores": {
+    "sourceFidelity": 4.73,
+    "temporalConsistency": 2.87,
+    "identityConsistency": 3.2,
+    "motionFidelity": 3.13,
+    "sceneFidelity": 2.73,
+    "stylizationStrength": 4.6
+   },
+   "minAxisMean": 2.73,
+   "overallMean": 3.54,
+   "criticalArtifacts": 15,
+   "totalArtifacts": 75,
+   "tierClaim": 0,
+   "source": "scripts/evidence/spr-wave3-toon-promotion/scorecards/scorecard-subject-toon.json (frozen protocol, w3b)"
+  }
+ }
+}

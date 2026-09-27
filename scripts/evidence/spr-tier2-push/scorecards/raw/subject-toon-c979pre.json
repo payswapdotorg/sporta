@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 is a perfect match for Image 1 in content, camera angle, and timing.\n2. temporalConsistency - 2: Image 3 represents a completely different camera shot (close-up vs. wide), breaking the continuity of the sequence.\n3. identityConsistency - 3: Players are recognizable as toon versions, but the extreme zoom in Image 3 makes comparison difficult.\n4. motionFidelity - 3: Motion appears consistent within each frame's context, but the shot change prevents a smooth transition evaluation.\n5. sceneFidelity - 2: The background changes entirely from a wide pitch view to a close-up of the stands between images.\n6. stylizationStrength - 5: The \"subject-toon\" style is very distinct, with clear outlines and simplified textures.\n\nAXES sf=5 tc=2 ic=3 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790530531,
+  "id": "20260928013525dbf56a0a80324454",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928013525dbf56a0a80324454",
+  "usage": {
+    "completion_tokens": 222,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1390
+  }
+}

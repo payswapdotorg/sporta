@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:42), and camera angle as the original.\n2. temporalConsistency - 3: The player's pose remains stable between frames, but the background goal net and text exhibit noticeable flickering.\n3. identityConsistency - 4: The player's facial features and jersey details are well-preserved across both stylized frames.\n4. motionFidelity - 3: The subtle shift in arm position is consistent with real motion, though the lack of a ball makes full assessment difficult.\n5. sceneFidelity - 2: The background elements, particularly the goal net and stadium structures, are heavily distorted and unstable.\n6. stylizationStrength - 5: The toon/cartoon transformation is very obvious and applied consistently to the subject.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529221,
+  "id": "20260928011336231247af6a984f3a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011336231247af6a984f3a",
+  "usage": {
+    "completion_tokens": 222,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1390
+  }
+}

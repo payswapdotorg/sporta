@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical to the original broadcast frame.\n2. temporalConsistency - 3: The stylized output maintains a consistent look, but there is a noticeable temporal jump in the scene's state.\n3. identityConsistency - 4: Player appearances and jersey numbers remain stable and recognizable across the frames.\n4. motionFidelity - 2: The motion of players between frames is inconsistent with the expected 0.2s interval, showing a significant jump.\n5. sceneFidelity - 4: The stadium background, lines, and overall spatial layout are well-preserved.\n6. stylizationStrength - 5: The \"subject-toon\" transformation is very obvious and consistently applied to all elements.\n\nAXES sf=5 tc=3 ic=4 mf=2 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790530485,
+  "id": "2026092801344225b170d43cc74b52",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801344225b170d43cc74b52",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1377
+  }
+}

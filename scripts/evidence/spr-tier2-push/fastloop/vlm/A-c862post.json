@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical to the source frame.\n2. temporalConsistency - 2: Significant flickering in the background netting and player's jersey texture between the two stylized frames.\n3. identityConsistency - 4: The main subject's face and kit remain recognizable, though facial features shift slightly between frames.\n4. motionFidelity - 2: The player's arm position changes abruptly (retracting) without corresponding logical motion or camera movement.\n5. sceneFidelity - 3: The goalpost and background are present but suffer from heavy spatial warping and texture instability.\n6. stylizationStrength - 5: The \"subject-toon\" painterly effect is very strong and clearly applied across the entire image.\n\nAXES sf=5 tc=2 ic=4 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529232,
+  "id": "2026092801134802eaebb6a3cf400c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092801134802eaebb6a3cf400c",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 296
+    },
+    "total_tokens": 1384
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:25), and camera angle as the original.\n2. temporalConsistency - 4: The scene remains very stable between the two frames with only minor flickering in the background texture.\n3. identityConsistency - 5: All players maintain their team colors and relative positions consistently across all three images.\n4. motionFidelity - 3: The ball and players show subtle but plausible movement consistent with the short time gap, though some details are simplified by the style.\n5. sceneFidelity - 4: The stadium layout, advertising boards, and field lines are spatially preserved despite the heavy artistic simplification.\n6. stylizationStrength - 5: The transformation into a flat, cartoon-like \"subject-toon\" aesthetic is extremely obvious and uniform.\n\nAXES sf=5 tc=4 ic=5 mf=3 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790530474,
+  "id": "202609280134285a796e5c12024625",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280134285a796e5c12024625",
+  "usage": {
+    "completion_tokens": 226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1394
+  }
+}

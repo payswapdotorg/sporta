@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 matches the exact frame, and Image 3 is clearly the same match context.\n2. temporalConsistency - 2: The massive graphic overlay in Images 1-2 vanishes in Image 3, creating a severe visual discontinuity.\n3. identityConsistency - 4: Players maintain their team colors (red vs dark) and relative positions across the frames.\n4. motionFidelity - 3: Player movement is plausible for a 0.2s interval, but the camera/scene shift makes precise tracking difficult.\n5. sceneFidelity - 1: The background, field markings, and overlay graphics change drastically between the image sets.\n6. stylizationStrength - 4: The toon/cartoon aesthetic is very clear and consistently applied to the players and field.\n\nAXES sf=5 tc=2 ic=4 mf=3 scf=1 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790529266,
+  "id": "20260928011421590176e7737a4a37",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928011421590176e7737a4a37",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1389
+  }
+}
