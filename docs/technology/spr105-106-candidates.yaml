@@ -1,0 +1,542 @@
+# SPR105 + SPR106 — Technology Candidate Registry (Clay/Miniature/Toy + Low-Poly/Game-like)
+# Task: spr/w5b/family-research (Worker D) · Generated: 2026-09-27
+# ADDITIVE to the wave-1 registry: docs/technology/source-preserving-candidates.yaml
+#   (records reused from wave-1 are referenced by id; wave-1 rows are never edited here).
+# Narrative source of truth: docs/research/spr105-106-technology-research.md
+# Contract: docs/contracts/source-preserving-renderer.md (frozen v1) · ADR-012
+# License statements are search-observed (2026-09-27), NOT legal review.
+# Uncertainty is recorded as uncertainty ("verification deferred" / ASSUMED).
+# Latency claims are labeled MEASURED (2026-09-27, 640x360, 2-core CPU sandbox,
+#   min-of-3 per stage, synthetic structured frames) or ESTIMATED (from measured
+#   primitive classes). Pipeline sums are ESTIMATES built from MEASURED stages —
+#   no end-to-end render was executed in this research task.
+
+version: 1
+status: candidate
+generated: "2026-09-27"
+generator: spr-w5b-d (Worker D — Family Research, SPR105/SPR106)
+base_commit: f150e32243c2ad176d5d70d0beca33b68785a1a7
+
+environment:
+  # mirrors wave-1 registry environment; deltas marked DELTA and detailed in
+  # the narrative doc §3
+  sandbox_class: cpu-only
+  ram_gb: 4
+  cores: 2
+  measured_envelope: "wave-1 recorded: 55s/1375 frames OOMs; 47.6s/1190 frames practical max (worklog w6-session-r606-reval-1)"
+  provider_keys: none
+  verified_local:
+    ffmpeg: "7.1.5 (build 7.1.5-0+deb13u1) — wave-1 filter inventory re-confirmed, PLUS NEW probes (2026-09-27): elbg (posterize; l/nb_steps/seed/pal8 opts; determinism byte-verified with fixed seed), palettegen, paletteuse, geq, gradfun; noise filter deterministic with fixed c0_seed (byte-verified)"
+    opencv: "4.13.0 — re-verified: bilateralFilter, medianBlur, Sobel/Scharr/Laplacian, Subdiv2D, calcOpticalFlowFarneback, createBackgroundSubtractorMOG2, CamShift, EMD, createCLAHE; NO ximgproc (re-verified: no cv2 SLIC)"
+    python: "3.12.14 — numpy 2.1.3, scipy 1.14.1, PIL 11.3.0 (wave-1 recorded set); NO torch, NO mediapipe, NO onnxruntime (re-verified)"
+  environment_delta:
+    skimage: "scikit-image 0.24.0 IMPORTABLE in this session venv (SLIC verified working + deterministic at 640x360) but NOT in the wave-1 recorded envelope → recipes depending on it are classified cpu-local-after-pip; the mandatory SPR106 baseline stays in-envelope (Delaunay path)"
+    sklearn: "scikit-learn 1.5.2 importable (same delta posture as skimage; not used by any baseline recipe)"
+
+feasibility_vocab:
+  # identical to wave-1
+  cpu-local-runnable: "runs in this sandbox today (ffmpeg/cv2/numpy/scipy/PIL only)"
+  cpu-local-after-pip: "CPU-capable but needs a pip install / binary / model download"
+  needs-gpu: "requires CUDA-class GPU or impractically slow on this CPU"
+  needs-provider-key: "hosted API; no key exists in sandbox; free tiers never assumed"
+
+classification_vocab:
+  # identical to wave-1
+  - benchmark-only
+  - experimental
+  - preferred-implementation-candidate
+  - fallback
+  - byok-option
+  - production-candidate
+  - not-recommended
+
+license_red_flags:
+  - id: da-v2-size-split-license
+    technology: Depth Anything V2 (model weights)
+    finding: "search-observed 2026-09-27 (repo README snippet): Depth-Anything-V2-Small = Apache-2.0; Depth-Anything-V2-Base/Large/Giant = CC-BY-NC-4.0 (commercial use prohibited)"
+    evidence:
+      - https://github.com/DepthAnything/Depth-Anything-V2
+    action: "depth lanes must pin Small (Apache-2.0) or MiDaS (MIT); Base/Large/Giant are benchmark-only — SUPERSDES wave-1's blanket verification-deferred note for this repo (delta recorded in narrative §9; wave-1 file untouched)"
+  - id: pykuwahara-gpl3
+    technology: pykuwahara (yoch)
+    finding: "GPL-3 (Gentoo Portage overlays, two mirrors; search-observed 2026-09-27) — resolves wave-1 verification-deferred item"
+    evidence:
+      - https://github.com/yoch/pykuwahara
+      - https://ns4.zugaina.org/dev-python/pykuwahara
+    action: "do-not-copy into the engine; own numpy implementation only (algorithm public, Kyprianidis 2009 per wave-1)"
+  - id: hosted-clay-toy-generative
+    technology: hosted clay/toy/game restyle generators (ModelsLab ClayMotion, DomoAI, GoEnhance, EZArt/Kling, komiko/Wan, autoais)
+    finding: "generative per-frame/full restyle = the FORBIDDEN slideshow anti-pattern regardless of price (ADR-012 / Packet B); free-tier statuses conflicting or assumed (see per-record)"
+    evidence:
+      - https://modelslab.com
+      - https://domoai.app
+      - https://www.goenhance.ai
+      - https://ezart.io
+    action: "recorded for completeness only; never implementation paths"
+
+enablers:
+  - id: ffmpeg.elbg.posterize
+    technology: "ffmpeg elbg — posterize effect via ELBG codebook (l / nb_steps / seed / pal8)"
+    source: https://ffmpeg.org/ffmpeg-filters.html
+    version: "ffmpeg 7.1.5 (VERIFIED-LOCAL 2026-09-27; NEW probe beyond wave-1 inventory)"
+    license: { code: "LGPL (ffmpeg build)", weights: none }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false }
+    latency: "~40-60 ms/frame MEASURED (6-frame run incl. startup; 24-frame timing runs were killed by the sandbox command-boundary reaper — recorded honestly)"
+    determinism: "VERIFIED — two independent runs byte-identical with fixed seed (sha256 fede403a… at l=16:n=4:s=7; sha256 76e1d355… at l=16:n=2:s=7)"
+    quality: "hard posterize; per-frame codebook refinement can shift colors frame-to-frame (flicker risk) — prefer engine palette-quantize for fixed-palette paths"
+    temporal_consistency: deterministic-but-per-frame-codebook (caution)
+    failure_modes: ["per-frame codebook color drift (flicker)", "nb_steps cost growth"]
+    integration: "encoder-side fallback for posterize/palette stages (SPR105 toy-palette, SPR106 game-poster)"
+    replacement: "engine palette-quantize stage (fixed per-clip LAB)"
+    classification: fallback
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL, https://ffmpeg.org/ffmpeg-filters.html]
+  - id: ffmpeg.noise.seeded
+    technology: "ffmpeg noise filter with fixed component seed (c0_seed)"
+    source: https://ffmpeg.org/ffmpeg-filters.html
+    version: "ffmpeg 7.1.5 (VERIFIED-LOCAL 2026-09-27; determinism NEW)"
+    license: { code: "LGPL (ffmpeg build)", weights: none }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false }
+    determinism: "VERIFIED — noise=c0s=8:c0f=t+u:c0_seed=42 twice → byte-identical (sha256 7bc8850e…)"
+    integration: "encoder-side grain stage (SPR105 clay grain) — zero custom numpy"
+    classification: fallback
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL]
+  - id: shade.hillshade-normal
+    technology: "relief shading from luma: Sobel-gradient normal map + 2-3 fixed directional lights (multi-directional-hillshade class)"
+    source: "classical GIS/graphics technique — Unity heightmap→normal import (docs.unity3d.com), QGIS multi-directional hillshade (plugins.qgis.org), GDAL hillshade; algorithm public"
+    version: "own numpy implementation (Sporta-owned); proposed NEW renderer-declared stage relief-shade"
+    license: { code: sporta-owned, deps: "OpenCV BSD-3", notes: "technique references are documentation, not code" }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false }
+    latency: "13.1 ms/frame MEASURED (full 3-light pass at 640x360)"
+    quality: "matte low-frequency relief lighting — re-injects luminance structure that flatten destroys (attacks the Tier-0 structure-collapse diagnosis)"
+    temporal_consistency: excellent-by-construction (fixed lights, no state; follows source luma edges per frame)
+    failure_modes: ["luma is not depth — relief pop on flat-bright regions shimmers with exposure (mitigate: shade the FLATTENED luma)", "emboss halos if normal step too large (keep mix ≤ 0.4)"]
+    integration: "new pipeline stage in renderer declaration (no engine edit); composes after bilateral-flatten, before tone-lut"
+    replacement: "depth-model normals (GPU) behind same stage interface"
+    classification: preferred-implementation-candidate
+    sandbox_feasibility: cpu-local-runnable
+    evidence: [VERIFIED-LOCAL (Sobel/primitives), MEASURED 13.1 ms/f, https://docs.unity3d.com, https://plugins.qgis.org]
+  - id: depth.midas.isl
+    technology: "MiDaS — robust monocular relative depth (isl-org)"
+    source: https://github.com/isl-org/MiDaS
+    version: "MiDaS v3.1 model zoo train (opentrain: last push 2026-07, MIT)"
+    license: { code: MIT, weights: MIT, dataset: "training-data licensing implications not captured by search — verification deferred (MiDaS trains on merged public datasets per its papers)", notes: "search-observed 2026-09-27 via multiple sources: LibreYOLO 'code and released checkpoints included, is MIT'; HF space README; OpenUPM card; Medium SOTA survey; opentrain card — NOT legal review" }
+    commercial_use: allowed-per-observations
+    runtime: { cpu: false, gpu: true, notes: "torch-class runtime; sandbox has NO torch/onnxruntime" }
+    latency: "GPU-class; CPU infeasible at 25fps (ESTIMATED per feasibility vocab; not measured)"
+    quality: "relative depth for relief/normal upgrade; per-frame (no temporal conditioning) — flicker risk without flow-warp smoothing; relief-shade use is low-frequency and more forgiving (ASSUMED, needs measurement)"
+    temporal_consistency: poor-unless-flow-mitigated
+    failure_modes: ["per-frame flicker", "relative (scale-shift) depth only"]
+    integration: "TechnologyProfile behind relief-shade/depth capability (adapter seam, never architecture)"
+    replacement: "deterministic luma-normal baseline (shade.hillshade-normal)"
+    classification: benchmark-only
+    sandbox_feasibility: needs-gpu
+    evidence: [https://github.com/isl-org/MiDaS, https://www.libreyolo.com/docs/models/midas, https://openupm.com/packages/com.doji.midas, https://www.aimodels.fyi]
+  - id: depth.videodepthanything
+    technology: "Video Depth Anything (ByteDance, CVPR 2025) — temporally consistent long-video depth"
+    source: https://github.com/DepthAnything/Video-Depth-Anything
+    version: "CVPR 2025 release train; VDA-Small model card exists on HF (huggingface.co/depth-anything/Video-Depth-Anything-Small)"
+    license: { code: verification-deferred, weights: "verification-deferred (VDA-Small card license NOT captured by search; do NOT assume it mirrors the DA-V2 split — ASSUMED pattern, unverified)", dataset: "training-data licensing implications not captured by search — verification deferred" }
+    commercial_use: unverified
+    runtime: { cpu: false, gpu: true, notes: "42 fps on A100 per oVDA paper (wave-1); practitioner note: downscale before inference speeds up (rizwanai.com, s32)" }
+    latency: "GPU-class"
+    quality: "temporally consistent depth for clay relief / low-poly density modulation"
+    temporal_consistency: strong (video-native design)
+    failure_modes: ["GPU requirement", "license unverified"]
+    integration: "TechnologyProfile behind depth capability"
+    replacement: "MiDaS (MIT) or DA-V2-Small (Apache-2.0) per license posture"
+    classification: experimental
+    sandbox_feasibility: needs-gpu
+    license_red_flag_note: "DA-V2 family split observed (Small Apache-2.0 / Base-Large-Giant CC-BY-NC-4.0) — see license_red_flags.da-v2-size-split-license"
+    evidence: [https://github.com/DepthAnything/Video-Depth-Anything, https://huggingface.co/depth-anything/Video-Depth-Anything-Small, https://github.com/DepthAnything/Depth-Anything-V2]
+  - id: seg.slic.skimage
+    technology: "SLIC superpixels (Achanta et al. TPAMI 2012) via skimage.segmentation.slic"
+    source: https://scikit-image.org
+    version: "scikit-image 0.24.0 (VERIFIED-LOCAL 2026-09-27: imports + works + deterministic)"
+    license: { code: BSD-3-Clause, weights: none, notes: "search-observed 2026-09-27 via package registries (msys2 'BSD-3-Clause AND BSD-2-Clause AND MIT', snyk, FreeBSD ports)" }
+    commercial_use: allowed
+    runtime: { cpu: true, gpu: false, notes: "166-173 ms/frame MEASURED at 640x360 (600-1200 segments)" }
+    latency: "SLIC 600-1200 segs: 166-173 ms/f MEASURED; segment-mean recolor 9.2 ms/f MEASURED"
+    determinism: "VERIFIED-LOCAL — two runs identical label maps"
+    quality: "compact roughly-uniform superpixels; the classic low-poly still-frame effect; flat-fill + edge darkening measured cheap"
+    temporal_consistency: per-frame-independent (seeds flicker) — needs flow-guided seed propagation + cut-reset (narrative §6 architecture)
+    failure_modes: ["segment boundary flicker without temporal stabilization", "skimage outside wave-1 recorded envelope (pip-class posture)"]
+    integration: "segment-label plumbing shared with Delaunay label-map fill (same bincount recolor + label-edge stages)"
+    replacement: "in-envelope Delaunay anchors path (spr106 baseline A)"
+    classification: fallback (upgrade variant)
+    sandbox_feasibility: cpu-local-after-pip
+    evidence: [VERIFIED-LOCAL 2026-09-27 (import+determinism+cost), https://ieeexplore.ieee.org/document/6205760, https://www.epfl.ch/labs/ivrl/research/slic-superpixels]
+
+families:
+  - id: SPR105
+    name: clay-toy
+    goal: "plasticine / stop-motion / toy-diorama broadcast feel — same match, same timeline, same motion"
+    honest_gap: "re-confirmed 2026-09-27 (s01-s03): NO turnkey open-source claymation video filter exists — own implementation family (wave-1 §22 stands)"
+    deterministic_baselines:
+      - id: spr105.det.plasticine-flatten
+        technology: "bilateral d=9 σ75 ×2 + median k=5 + fixed per-clip LAB palette K=12 (toy-saturation profile) + specular fake + tone-lut S-curve + sat-lift 1.25 + vignette 0.35 + fixed-PRNG grain σ6 (extends wave-1 spr105.det.clay-approximation with measured parameters)"
+        source: "Sporta-owned; primitives VERIFIED-LOCAL (wave-1 + re-verified)"
+        version: "recipe v0 (proposed renderer spr-clay-toy-dc1)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3, ffmpeg LGPL build" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "stage sum ≈148 ms/frame MEASURED-per-stage (bilateral 2×15.2 + median 1.1 + LAB snap 74.9 naive + specular 7.8 + sat 1.3 + tilt 2.7 + vignette 11.6 + grain 5.6 + misc) → b8 1190f ≈ 176 s ≈ 2.9 min/render ESTIMATED-from-measured (end-to-end not yet run)"
+        latency_class: MEASURED-stages / ESTIMATED-pipeline
+        cost: { value: "0 marginal", free_tier: { status: NONE-NEEDED } }
+        quality: "EXPECTATION (not measured): medium-flatten + toy palette reads 'toy' through color (cheapest structure-preserving cue); wave-3/4 lesson applied — NOT the strong-flatten variant that destroyed cartoon-cel identity"
+        temporal_consistency: excellent-by-construction (fixed palette, fixed PRNG, no temporal state)
+        failure_modes: ["can read as posterize rather than clay (wave-1 warning stands)", "grain+vignette overdone reads retro-not-toy", "K<10 merges kit colors (identity risk)"]
+        integration: "100% existing SPE stages (bilateral-flatten, median-pool, palette-quantize, tone-lut, saturation-lift, grain, vignette, encode-bitexact)"
+        replacement: "depth-guided shading upgrade (enablers depth.midas.isl / depth.videodepthanything)"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, MEASURED stage table narrative §3]
+      - id: spr105.det.relief-shade
+        technology: "luma→Sobel-normal map + 3 fixed directional lights, matte multiply-blend (mix ≤0.35-0.4) — the fake-3D clay light response (uses enabler shade.hillshade-normal)"
+        source: "own numpy; technique references: Unity grayscale→normal, QGIS multi-directional hillshade, GDAL hillshade"
+        version: "recipe v0 (proposed NEW renderer-declared stage — the packet's single new stage)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "13.1 ms/frame MEASURED (full 3-light pass)"
+        latency_class: MEASURED
+        quality: "re-injects luminance structure destroyed by flatten — directly attacks the Tier-0 diagnosis (identity/motion collapse); clay/plasticine is a matte relief-lit surface look"
+        temporal_consistency: excellent-by-construction (fixed lights, deterministic, no state)
+        failure_modes: ["relief pop on flat-bright regions (mitigate: shade FLATTENED luma, not raw)", "emboss halos if normal step too large"]
+        integration: "one new pipeline stage in the renderer declaration (additive; no engine edit; renderers.py owned by the in-flight tier-2 lane — this packet dispatches no code)"
+        replacement: "depth-model normals (GPU) behind same interface"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [MEASURED 13.1 ms/f, https://docs.unity3d.com, https://plugins.qgis.org]
+      - id: spr105.det.toy-palette
+        technology: "fixed per-clip LAB palette K=12 with saturated centroids (sat-lift applied at derivation, once per clip from 16 sampled frames, cv2.kmeans fixed seed)"
+        source: "Sporta-owned (engine palette-quantize stage reused with family profile)"
+        version: "engine stage (frozen) + family profile"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "derivation 75 ms one-time per clip MEASURED (cv2.kmeans K=10 on 230k px); per-frame snap 74.9 ms MEASURED (naive broadcast; 32^3-LUT optimizable)"
+        quality: "toy read through color; K=12 wider than anime K≈7 → more identity survives"
+        temporal_consistency: excellent (fixed palette = no flicker by construction)
+        failure_modes: ["naive snap cost (optimizable via LUT)", "banding on sky/stands (wave-1 known)"]
+        integration: "existing palette-quantize stage; ffmpeg fallbacks VERIFIED: elbg (deterministic, per-frame-codebook flicker caution) and palettegen/paletteuse"
+        replacement: "ffmpeg elbg encoder-side (fallback)"
+        classification: preferred-implementation-candidate (stage)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL, MEASURED]
+      - id: spr105.det.diorama-haze
+        technology: "tilt-blur miniature cue (gblur σ4 + vertical-gradient blend) + aerial-perspective haze on the far band (lighter, lower-contrast, blue-shifted)"
+        source: "classical aerial perspective (Wikipedia/arts refs) + tilt-shift technique; own numpy"
+        license: { code: sporta-owned }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "2.7 ms/frame MEASURED (tilt-blur); haze term same class (ESTIMATED ≤3 ms)"
+        quality: "miniature/diorama depth cue; HONEST LIMITATION: in-envelope implementation uses a vertical-position heuristic depth proxy (lower-in-frame ≈ nearer) — correct on wide in-play shots, wrong on close-ups/low-angle cuts"
+        temporal_consistency: strong (deterministic gradient)
+        failure_modes: ["heuristic depth proxy wrong on close-ups — MUST be a contract §1/§8 degradations entry, never a fabricated depth", "over-blur reads as bad focus, not diorama"]
+        integration: "composes gblur (VERIFIED) + overlay-composite; degradation entry via degradations[]"
+        replacement: "depth-model haze (GPU enablers) when a GPU lane exists"
+        classification: fallback (degraded-honesty stage)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [MEASURED 2.7 ms/f, https://en.wikipedia.org/wiki/Aerial_perspective, https://perspectiveresearchcentre.com]
+      - id: spr105.det.mask-split-clay
+        technology: "MOG2 subject-mask split: stronger clay treatment (relief mix ↑, specular ↑) on players, calmer palette-simplification on pitch — the spr-subject-toon-dc1 architectural precedent (wave-3) applied to clay"
+        source: "in-engine precedent + VERIFIED-LOCAL MOG2"
+        version: "profile of spr-clay-toy-dc1 (proposed)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "MOG2 apply 3.3 ms/frame MEASURED (warmed) + mask blend ~2-5 ms (ESTIMATED class)"
+        quality: "player structure preserved where it matters; pitch simplified to toy grass"
+        temporal_consistency: good (MOG2 deterministic per params; pans corrupt model → degrade to global treatment honestly)
+        failure_modes: ["camera pans corrupt MOG2 model (R606 global-motion-compensation stabilizer is the known mitigation; else honest degrade)"]
+        integration: "motion-mask stage (existing) + overlay-composite; swm:null-safe (masks are engine-local, NOT SWM facts — contract §1/§8 posture confirmed)"
+        replacement: "SAM2 masks behind same interface (GPU)"
+        classification: experimental (profile)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL (MOG2), MEASURED 3.3 ms/f]
+      - id: spr105.det.stop-motion-cadence
+        technology: "12.5 fps 'on twos' re-time by frame duplication (stop-motion cadence), cut-rephased per detected cut"
+        source: "wave-1 spr105 baseline design (kept)"
+        version: "optional profile flag"
+        license: { code: sporta-owned }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "~0 (frame duplication at encode)"
+        quality: "the stop-motion feel IS the cadence; wave-1 warning stands: reads as dropped frames if the still-frames are not styled enough"
+        temporal_consistency: intentional stutter (deterministic)
+        failure_modes: ["G-T3 motion-correlation risk: duplication halves effective motion energy — keep OFF for gate runs, ON as style profile only (recorded)"]
+        integration: "encode-side re-time (engine); cut-detect gates re-phasing"
+        replacement: "minterpolate variant (VERIFIED-LOCAL) for smooth-but-stylized"
+        classification: fallback (profile, gate-risk-recorded)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL tooling, wave-1 design]
+    gpu_candidates:
+      - id: spr105.nn.depth-normal-shading
+        technology: "DA-V2-Small (Apache-2.0) or MiDaS (MIT) → normal map → relief-shade multiply → quantize (true 3D clay light response)"
+        uses: [depth.midas.isl, depth.videodepthanything]
+        license_notes: "DA-V2 Base/Large/Giant CC-BY-NC-4.0 RED FLAG (size-split observed 2026-09-27); Small clean; VDA deferred"
+        classification: benchmark-only
+        sandbox_feasibility: needs-gpu
+      - id: spr105.gpu.depth-anything-3
+        technology: "Depth Anything 3 (2026 release train)"
+        notes: "existence noted in 2026 coverage; license NOT captured (s29 off-target) — verification deferred; not load-bearing"
+        classification: benchmark-only
+        sandbox_feasibility: needs-gpu
+    hosted_candidates_for_the_record:
+      - id: spr105.hosted.modelslab-claymotion
+        technology: "ModelsLab ClayMotion F1 — Claymation/Stopmotion Style Blend for FLUX (text-to-image clay model)"
+        source: https://modelslab.com
+        pricing_observed: "$0.0047 per API call; plans start $149/month (search-observed 2026-09-27 on modelslab.com page, s01; docs.modelslab.com, s27)"
+        free_tier: { status: ASSUMED, evidence: "trial credits / 'try model for free' coupons appear in snippets; quotas unverified" }
+        verdict: "per-frame generative restyle = FORBIDDEN slideshow anti-pattern (ADR-012) + ~$5.6 per 1190-frame clip — not-recommended; recorded for completeness"
+        classification: not-recommended
+        sandbox_feasibility: needs-provider-key
+        evidence: [https://modelslab.com, https://docs.modelslab.com]
+      - id: spr105.hosted.domoai
+        technology: "DomoAI — video restyle platform, 30+ styles (anime/illustration focus)"
+        source: https://domoai.app
+        pricing_observed: "new accounts start with 30 credits (~one 480p/4s generation, domoai.app); Basic $9.99/mo 500 Fast-Mode credits (note.co); a $9/mo-yearly 600-credit grid (nation.ai) — search-observed 2026-09-27, s23/s31"
+        free_tier: { status: ASSUMED-CONFLICTING, evidence: "ai-deck.app (2025-12) 'no ongoing free plan' vs checkthat.ai (2026-07) 'free plan, no credit card, 2 credits per image in a video' vs motionvid.ai free-tier listing — CONFLICT, unverified" }
+        terms_notes: "one aggregator claims DomoAI+Runway permit commercial use of free-tier output (checkthat.ai — aggregator claim, NOT a terms review)"
+        verdict: "generative restyle forbidden for source-preserving use; byok-option (external quality reference) at best"
+        classification: byok-option
+        sandbox_feasibility: needs-provider-key
+        evidence: [https://domoai.app, https://ai-deck.app, https://checkthat.ai, https://nation.ai]
+      - id: spr105.hosted.goenhance
+        technology: "GoEnhance AI — video-to-animation with claymation/clay/stylized-3D looks"
+        source: https://www.goenhance.ai
+        pricing_observed: "NOT captured by search (s24/s34 weak) — verification deferred"
+        looks_evidence: "'Direct conversion into illustrated, clay, or stylized 3D… claymation, flat animation, and stylized 3D' (dev.to comparison, Sep 2026, s34)"
+        verdict: "generative restyle forbidden for our use; recorded for completeness"
+        classification: not-recommended
+        sandbox_feasibility: needs-provider-key
+        evidence: [https://www.goenhance.ai, dev.to comparison via search s34]
+      - id: spr105.hosted.ezart-kling
+        technology: "EZArt (Kling O3 V2V-Edit) 36 restyle styles incl. pixel art; free trial claimed; komiko (Wan 2.1 V2V); autoais (photo→claymation/toy image tool)"
+        source: [https://ezart.io, https://komiko.app, https://autoais.com]
+        pricing_observed: "EZArt free-trial claim in snippet (unverified terms); others not captured"
+        verdict: "same forbidden-use class; recorded for completeness"
+        classification: not-recommended
+        sandbox_feasibility: needs-provider-key
+        evidence: [https://ezart.io, https://komiko.app, https://autoais.com]
+    rejected:
+      - { id: hosted.oakgen-clay, reason: "wave-1 rejection stands (per-frame clay image tool — forbidden anti-pattern)" }
+    verdict: "dispatch-trial (conditional on renderer-lane capacity; never blocking the in-flight tier-2 push): full recipe in-envelope at ≈148 ms/f measured stage sum (≈2.9 min/b8 render), zero new deps, ONE new renderer-declared stage (relief-shade) that attacks the Tier-0 structure-collapse diagnosis; risks recorded (posterize-read, heuristic depth cue, on-twos G-T3 risk — profile-gated)"
+  - id: SPR106
+    name: low-poly-game
+    goal: "flat-shaded polygon / stylized-game output — faceted flat color, thick clean edges, same motion"
+    honest_gap: "re-confirmed 2026-09-27 (s18/s26): no maintained CPU low-poly video tool — own implementation; all primitives in-envelope and MEASURED"
+    deterministic_baselines:
+      - id: spr106.det.delaunay-flatfill
+        technology: "deterministic jittered-grid anchors (fixed PRNG, ~24px) + gradient-saliency top-up (N≈1200-1500) + cv2.Subdiv2D Delaunay + label-map fillPoly rasterize + bincount flat fill + fixed per-clip LAB palette snap (optional) + label-edge darkening (extends wave-1 spr106.det.delaunay-lowpoly with measured implementation)"
+        source: "Sporta-owned; primitives VERIFIED-LOCAL (wave-1 cv2.Subdiv2D/scipy + this session's measurements)"
+        version: "recipe v0 (proposed renderer spr-lowpoly-game-dc1)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3, scipy BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false, notes: "~2400-2600 triangles from 1200-1500 points" }
+        latency: "base 26 ms/frame MEASURED-per-stage (sampling 1.5 + Subdiv2D 2.0 + label fill 17.3 + edge darken 3.0 + palette snap optional) → 31 s/b8 render; WITH Farneback anchor stabilization 69 ms/f → 82 s/b8 — ESTIMATED-from-measured (end-to-end not yet run)"
+        latency_class: MEASURED-stages / ESTIMATED-pipeline
+        implementation_warning: "the naive per-triangle mask fill MEASURED 2425.7 ms/f (48 min/b8) — REJECTED anti-pattern, recorded; the label-map + bincount path is 140x faster and is the specified implementation"
+        cost: { value: "0 marginal", free_tier: { status: NONE-NEEDED } }
+        quality: "EXPECTATION: facet edges are identity anchors — this family ADDS structure (boundaries track real edges via saliency anchors), the best-positioned family against the Tier-0 diagnosis; players ~20-60px need high local density (saliency weighting provides); ball may under-sample (add motion-saliency term)"
+        temporal_consistency: good-with-stabilization (5-frame box-averaged saliency + flow-warped anchors + fixed EMA + cut-reset); naive per-frame anchors WILL flicker (recorded)
+        failure_modes: ["triangle flicker if anchors per-frame-fresh (avoid)", "mud at low density near players", "Subdiv2D degenerate on duplicate anchors (grid-snap dedupe, deterministic)", "Farneback fails on big pans (global-motion compensation reuse or honest gating)"]
+        integration: "existing stages: flow, cut-detect, palette-quantize, edge-overlay, encode-bitexact; new plumbing is renderer-side only (rasterize+bincount is numpy in the renderer pipeline)"
+        replacement: "SLIC variant (seg.slic.skimage) behind same label plumbing; depth-modulated density (GPU) later"
+        classification: preferred-implementation-candidate
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [VERIFIED-LOCAL (Subdiv2D, scipy), MEASURED stage table narrative §3, https://darkforte.github.io (wave-1 reference)]
+      - id: spr106.det.slic-superpixel
+        technology: "skimage SLIC over-segmentation (600-1200 segments) + segment-mean flat color + label-edge darkening, temporal via flow-guided seed propagation with cut-reset (the classic low-poly still-frame effect made temporal)"
+        source: "SLIC: Achanta et al. TPAMI 2012 (ieeexplore 6205760); implementation skimage.segmentation.slic (BSD-3)"
+        version: "skimage 0.24.0 (VERIFIED-LOCAL this session)"
+        license: { code: BSD-3-Clause (search-observed 2026-09-27 via package registries), weights: none }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false, notes: "skimage OUTSIDE the wave-1 recorded envelope — pip-class posture even though it imports today" }
+        latency: "SLIC 166-173 ms/f MEASURED (600-1200 segs) + recolor 9.2 + edge 3.0 → ≈180 ms/f → 214 s/b8 render ESTIMATED-from-measured"
+        quality: "compact uniform facets; grid-structured seeds may stabilize better than Delaunay anchors under flow propagation (ASSUMED, needs trial)"
+        temporal_consistency: "needs-stabilization (same architecture as delaunay-flatfill: flow-warp seeds + EMA + cut-reset); academic precedent for temporal superpixels: UC Merced PAMI-2018 (hierarchical superpixels + optical flow)"
+        failure_modes: ["boundary flicker without stabilization", "pip-class dependency posture", "no turnkey temporal-superpixel implementation found (s30) — own implementation required"]
+        integration: "shares the segment-label plumbing with the Delaunay path (bincount recolor + label-edge stages)"
+        replacement: "in-envelope Delaunay baseline"
+        classification: fallback (upgrade variant, pip-class)
+        sandbox_feasibility: cpu-local-after-pip
+        evidence: [VERIFIED-LOCAL 2026-09-27 (determinism + cost), https://ieeexplore.ieee.org/document/6205760, https://faculty.ucmerced.edu/mhyang/papers/pami18_background_subtraction.pdf]
+      - id: spr106.det.posterize-flatten-hybrid
+        technology: "posterize LUT (4 levels) + flatten term — the game-poster shading look; the packet's Kuwahara term MEASURED OVER BUDGET (classic Kuwahara k=7 vectorized numpy = 904.2 ms/f → ≈17.9 min/b8 single pass) and stays backlog"
+        source: "Sporta-owned; Kuwahara algorithm public (Kyprianidis 2009, wave-1); pykuwahara GPL-3 (do-not-copy, license_red_flags.pykuwahara-gpl3)"
+        version: "recipe v0 without the Kuwahara term; Kuwahara term = needs-research"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3", notes: "own implementation only — pykuwahara GPL-3 and TD port GPL-3 (wave-1) must not be copied" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "posterize LUT 0.2 ms/f MEASURED + bilateral/median flatten 15.2-35.2 ms/f MEASURED; Kuwahara k=7 904.2 ms/f MEASURED (over budget — recorded, not hidden)"
+        quality: "game-poster look without the painterly term; the full hybrid look requires the Kuwahara term (needs research: integral-image optimization plausibly 4-8x — ESTIMATED unproven; or 2x-downsampled proxy — unproven)"
+        temporal_consistency: strong (fixed LUT, deterministic flatten)
+        failure_modes: ["posterize banding on gradients", "Kuwahara term over budget as measured"]
+        integration: "tone-lut/palette stages + bilateral-flatten + median-pool (all existing)"
+        replacement: "anisotropic Kuwahara (wave-1 w2 trial #2 posture; budget-test first — this measurement IS that budget test result)"
+        classification: fallback (posterize+flatten form) / needs-research (Kuwahara term)
+        sandbox_feasibility: cpu-local-runnable (without the Kuwahara term)
+        evidence: [MEASURED (0.2 / 15.2 / 35.2 / 904.2 ms/f), https://onlinelibrary.wiley.com (wave-1), https://github.com/yoch/pykuwahara (GPL-3 observed)]
+      - id: spr106.det.toonramp-outline
+        technology: "quantized-lambert toon ramp (3-4 step fixed LUT over the shading term, incl. the spr105 relief-shade lambert term) + thick outlines (Sobel threshold + cv2.dilate dark overlay) — the game-cel profile"
+        source: "toon-ramp fundamentals (panthavma.com, s19; Unity/Blender cel-shader discussions); classical cartoonify edge-mask pattern (wave-1 refs) as fallback edge path"
+        version: "profile of spr-lowpoly-game-dc1 (proposed)"
+        license: { code: sporta-owned, deps: "OpenCV BSD-3" }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "ramp LUT 0.2 ms/f MEASURED (+13.1 ms/f if using the 3-light lambert term); outline Sobel+dilate ≈2-5 ms/f ESTIMATED-from-primitive-class"
+        quality: "stylized-game cel look; thick outlines = identity anchors (same Tier-0 logic as facets)"
+        temporal_consistency: ramp fixed → cannot flicker; outlines crawl on noisy grass (wave-1 XDoG crawl class) — mitigate via flow-warp edge averaging (in-engine flow-prop-toon precedent, wave-2c KEEP)
+        failure_modes: ["outline crawl on 640x360 grass noise (pre-blur + temporal averaging)", "ramp too coarse destroys shading cues (keep 3-4 steps)"]
+        integration: "relief-shade (new stage) + tone-lut + edge-overlay (existing) + dilation (VERIFIED ffmpeg; cv2 morphology local)"
+        replacement: "XDoG edges (existing stage) at lower weight"
+        classification: preferred-implementation-candidate (profile)
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [MEASURED (LUT, lambert term), https://panthavma.com]
+      - id: spr106.det.block-voxel
+        technology: "block-downsample nearest (~96x54) + palette quantize + per-block luma bump + block grid (wave-1 baseline re-affirmed, nothing superseded)"
+        source: "wave-1 record (collidingscopes Video-to-Pixel-Art reference stands)"
+        version: "wave-1 baseline"
+        license: { code: sporta-owned }
+        commercial_use: allowed
+        runtime: { cpu: true, gpu: false }
+        latency: "a few ms/f (ESTIMATED from primitive class — downsample+upsample+LUT)"
+        quality: "blocky voxel caricature; cheapest family look"
+        temporal_consistency: excellent (fixed block grid = no crawl)
+        failure_modes: ["players unrecognizable if blocks too large", "true mesh voxelizers remain wrong-modality (wave-1 cuda_voxelizer note; MagicaVoxel GUI tool, s28)"]
+        integration: "palette-quantize + tone-lut stages + numpy down/upsample"
+        replacement: "delaunay baseline"
+        classification: fallback
+        sandbox_feasibility: cpu-local-runnable
+        evidence: [wave-1, VERIFIED-LOCAL tooling]
+    gpu_candidates:
+      - id: spr106.nn.depth-parallax
+        technology: "Video Depth Anything / DA-V2 modulating triangle density or block height (parallax-lite)"
+        uses: [depth.videodepthanything, depth.midas.isl]
+        license_notes: "DA-V2 Small Apache-2.0 clean; Base/Large/Giant CC-BY-NC RED FLAG (size-split); VDA deferred"
+        classification: experimental
+        sandbox_feasibility: needs-gpu
+      - id: spr106.gpu.triposr
+        technology: "TripoSR (Stability AI + Tripo AI) — single image → 3D mesh in <0.5s (GPU, ~6GB VRAM)"
+        source: https://github.com/VAST-AI/TripoSR
+        version: "HF model card 'License: MIT' (search-observed 2026-09-27: HF card, builderai.tools, NexGPU — s22)"
+        license: { code: MIT, weights: MIT, notes: "search-observed, not legal review" }
+        commercial_use: allowed-per-observations
+        runtime: { cpu: false, gpu: true, notes: "~6GB VRAM class (NexGPU observation)" }
+        classification: benchmark-only
+        verdict_notes: "license-clean exemplar of the mesh-converter class BUT wrong modality for a video restyle pipeline — per-frame mesh generation is the mesh-form of the slideshow anti-pattern; recorded so nobody burns a week on it"
+        sandbox_feasibility: needs-gpu
+        evidence: [https://github.com/VAST-AI/TripoSR, https://nexgpu.net, https://builderai.tools]
+      - id: spr106.gpu.mesh-voxelizers
+        technology: "mesh voxelizer class (cuda_voxelizer wave-1; MagicaVoxel s28)"
+        verdict_notes: "wrong input modality for video (needs 3D mesh) — wave-1 wrong_modality_recorded stands"
+        classification: not-recommended
+        sandbox_feasibility: needs-gpu
+        evidence: [wave-1 (https://github.com/Forceflow/cuda_voxelizer), https://magica.voxel]
+    hosted_candidates_for_the_record:
+      - id: spr106.hosted.game-restyle
+        technology: "EZArt/Kling pixel-art & game styles; komiko Wan 2.1 V2V; (wave-1 Replicate/Runway/fal.ai provider registry remains authoritative for pricing/free-tier)"
+        verdict: "generative restyle forbidden for source-preserving use; byok-option at best"
+        classification: byok-option
+        sandbox_feasibility: needs-provider-key
+        evidence: [https://ezart.io, https://komiko.app, wave-1 registry]
+    verdict: "dispatch-trial (strongest next-family candidate): 26-69 ms/f measured (31-82 s/b8 render), fully in-envelope, structure-ADDITIVE look (facet edges + thick outlines = identity anchors vs the Tier-0 diagnosis); triangle-flicker risk mitigated by the measured recipe (smoothed saliency + flow-stabilized anchors + cut-reset); SLIC and game-cel profiles ride the same segment-label skeleton"
+
+wave_recommendation:
+  dispatch_trial:
+    - rank: 1
+      id: w5b.spr106-lowpoly-trial
+      family: SPR106
+      what: "spr-lowpoly-game-dc1 trial renderer — Delaunay flat-fill baseline + game-cel profile (+ SLIC profile as pip-class variant)"
+      why: "cheapest measured full-family pipeline (26-69 ms/f; 31-82 s/b8); fully in-envelope primitives; structure-ADDITIVE (best positioned vs the Tier-0 structure-collapse diagnosis); one skeleton carries three looks (low-poly / game-cel / block-voxel fallback)"
+      recipe: "luma → 5-frame box-averaged gradient saliency → anchors = jittered grid (fixed PRNG, 24px) + saliency top-up N≈1200 (1.5 ms) → [temporal: Farneback warp prev anchors (43.0) + fixed EMA + cut-reset] → Subdiv2D (2.0) → fillPoly label rasterize + bincount flat fill (17.3) → optional palette snap K=16 fixed LAB → label-edge darken ×0.45 (3.0) → [game-cel profile: ramp LUT (0.2) + Sobel outline dilate (~2-5 EST)] → encode-bitexact"
+      budget: "≈26 ms/f base / ≈69 ms/f flow-stabilized → 31-82 s per b8 render ESTIMATED-from-MEASURED; trial evidence pack (render + double-render + gates + scorecards) minutes of machine time"
+      evidence: [MEASURED stage table, narrative §5]
+    - rank: 2
+      id: w5b.spr105-clay-trial
+      family: SPR105
+      what: "spr-clay-toy-dc1 trial renderer — plasticine flatten + relief-shade + toy palette (+ mask-split and stop-motion optional profiles)"
+      why: "≈148 ms/f measured stage sum (≈2.9 min/b8 render); zero new dependencies; ONE new renderer-declared stage (relief-shade) that re-injects the luminance structure flatten destroys — attacks the Tier-0 diagnosis with the cheapest mechanism; queue behind the in-flight tier-2 lane (renderers.py ownership)"
+      recipe: "bilateral d=9 σ75 ×2 (30.4) → median k=5 (1.1) → palette-quantize fixed LAB K=12 toy-profile (74.9 naive) → relief-shade 3 fixed lights mix 0.35 (13.1, NEW STAGE) → specular fake (7.8) → tone-lut S-curve + sat-lift 1.25 (1.3) → tilt-blur diorama cue (2.7, degraded-honesty) → vignette 0.35 (11.6) → grain σ6 fixed-PRNG (5.6) → encode-bitexact; profiles: stop-motion (on-twos, OFF for gate runs — G-T3 risk recorded), mask-split (MOG2-guided)"
+      budget: "≈148 ms/f → ≈176 s per b8 render ESTIMATED-from-MEASURED; double-render proof ≈ ×2 — still minutes"
+      evidence: [MEASURED stage table, narrative §4]
+  not_worth_it:
+    - id: reject.per-frame-generative-clay-toy
+      what: "hosted clay/toy/game generative restyle (ModelsLab ClayMotion, DomoAI, GoEnhance, EZArt/Kling, komiko, autoais)"
+      why: "the FORBIDDEN slideshow anti-pattern regardless of price (ADR-012); per-frame img2img ≈ $5.6/clip at $0.0047/frame AND destroys temporal identity; free-tier statuses conflicting/assumed (DomoAI ASSUMED-CONFLICTING, ModelsLab ASSUMED, GoEnhance deferred)"
+    - id: reject.kuwahara-hybrid-in-trial-wave
+      what: "full Kuwahara term in the SPR106 trial"
+      why: "MEASURED 904.2 ms/f (k=7, vectorized numpy) ≈ 17.9 min/b8 single pass — over budget before palette/edges/encode; stays backlog with the number attached (integral-image optimization or downsampled-proxy = needs-research)"
+    - id: reject.per-frame-mesh-generation
+      what: "TripoSR-class per-frame mesh conversion"
+      why: "wrong modality (mesh-form slideshow anti-pattern); license-clean (MIT) but never a video-pipeline stage; wave-1 cuda_voxelizer wrong-modality note stands"
+    - id: reject.da-v2-large-weights
+      what: "Depth-Anything-V2 Base/Large/Giant on any commercial path"
+      why: "CC-BY-NC-4.0 observed 2026-09-27 (size-split); depth lanes pin Small (Apache-2.0) or MiDaS (MIT)"
+    - id: reject.free-tier-assumptions
+      what: "assuming hosted free tiers for these families"
+      why: "no keys exist in sandbox (wave-1, stands); DomoAI free tier CONFLICTING across aggregators; ModelsLab trial credits ASSUMED; GoEnhance pricing not captured — none load-bearing (all hosted paths are forbidden-use anyway)"
+
+verification_deferred:
+  - vda-small-model-card-license
+  - vda-code-repo-license
+  - depth-anything-3-license
+  - goenhance-pricing
+  - domoai-free-tier (conflicting aggregator claims)
+  - modelslab-free-tier-quotas
+  - ezart-kling-terms
+  - midas-on-video-flicker-severity (mitigation untested)
+  - slic-seed-stabilization-vs-delaunay-anchors (ASSUMED better — needs trial measurement)
+  - kuwahara-integral-image-speedup (ESTIMATED 4-8x, unproven)
+  - ffmpeg-elbg-per-frame-codebook-flicker-severity (caution recorded, unmeasured on real content)
+
+search_log:
+  date: "2026-09-27"
+  tool: "z-ai web_search CLI (web-search skill)"
+  invocations: 34
+  successful: 34
+  rate_limited: 0
+  on_target: "~20"
+  weak_or_off_target: "~14 (each named in the narrative §10 — the off-targets re-confirm the wave-1 coverage gaps)"
+  raw_results: "/tmp/spr105-106-search/s01..s34.json (session-local, not repo artifacts)"
+  queries:
+    - "claymation stop motion video filter effect open source python"
+    - "plasticine clay style video effect algorithm github"
+    - "clay style video generator stable diffusion LoRA restyle"
+    - "normal map from grayscale heightmap bump shading filter algorithm"
+    - "multidirectional hillshade algorithm open source gdal"
+    - "tilt shift miniature effect video ffmpeg blur gradient"
+    - "aerial perspective atmospheric depth haze image processing formula"
+    - "Video Depth Anything github license code"
+    - "MiDaS intel depth estimation github license"
+    - "Video Depth Anything Small huggingface license apache cc-by-nc"
+    - "isl-org MiDaS LICENSE file github apache"
+    - "scikit-image skimage license BSD"
+    - "depth-anything Video-Depth-Anything-Small model card huggingface license"
+    - "isl-org MiDaS github repository license"
+    - "SLIC simple linear iterative clustering superpixels Achanta TPAMI"
+    - "\"MiDaS\" repository \"MIT license\" depth estimation"
+    - "DepthAnything Video-Depth-Anything GitHub repository LICENSE"
+    - "low poly video effect open source python github delaunay"
+    - "toon shading ramp quantized diffuse lighting cel shader algorithm"
+    - "cel shading outline sobel edge dilation opencv python"
+    - "temporal superpixel video segmentation optical flow propagation"
+    - "TripoSR stabilityai tripo image to 3D license MIT github"
+    - "DomoAI video style transfer pricing API free tier"
+    - "GoEnhance AI claymation video effect pricing"
+    - "pykuwahara github license kuwahara python package"
+    - "convert video to low poly 3D online tool"
+    - "ModelsLab API pricing text to image free plan credits"
+    - "voxel art video generator github open source"
+    - "Depth Anything 3 github license code"
+    - "flow guided superpixel video stabilization github implementation"
+    - "DomoAI pricing video to video credits per second cost"
+    - "\"video depth anything\" CPU inference speed fps"
+    - "DomoAI clay style claymation video restyle"
+    - "GoEnhance video to animation style clay 3D"
