@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, score, and general camera context are preserved despite the extreme abstraction.\n2. temporalConsistency - 2: The player's pose and background structure remain relatively stable between the two frames.\n3. identityConsistency - 2: The player's silhouette and jersey stripes are recognizable across frames.\n4. motionFidelity - 2: Subtle shifts in limb position are consistent with a short time interval.\n5. sceneFidelity - 2: The goal net and stadium background maintain their spatial relationship.\n6. stylizationStrength - 5: The high-contrast halftone/manga effect is extremely bold and unmistakable.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495624,
+  "id": "2026092715533529e3215cfb484069",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092715533529e3215cfb484069",
+  "usage": {
+    "completion_tokens": 188,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1356
+  }
+}

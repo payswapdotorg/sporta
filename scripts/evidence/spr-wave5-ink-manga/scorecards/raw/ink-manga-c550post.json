@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the stadium and advertising boards is recognizable, but extreme stylization obscures most specific details.\n2. temporalConsistency - 4: The visual noise and dot patterns remain highly stable between the two frames with no noticeable flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct, unrecognizable blobs of black and white pixels.\n4. motionFidelity - 1: It is impossible to discern any player movement or ball trajectory due to the loss of detail.\n5. sceneFidelity - 2: The background structure (stands, ads) is present but heavily distorted by the halftone effect.\n6. stylizationStrength - 5: The transformation into a high-contrast, dithered ink-manga style is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=0 players=10 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495609,
+  "id": "2026092715532440c77462840c4880",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092715532440c77462840c4880",
+  "usage": {
+    "completion_tokens": 224,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1392
+  }
+}

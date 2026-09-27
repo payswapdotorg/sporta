@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The general scene layout and key elements (player, ball, background) are present, but extreme stylization obscures most details.\n2. temporalConsistency: 3 - The main subject and ball maintain relative positions, though the high-contrast thresholding causes significant flickering in the background and secondary players.\n3. identityConsistency: 2 - The primary player is recognizable as a silhouette, but facial features and kit details are completely lost to the binary mask.\n4. motionFidelity: 4 - The subtle shift in the player's leg position and ball location between frames accurately reflects the expected 0.2s forward progression.\n5. sceneFidelity: 2 - The stadium structure is reduced to a noisy, unrecognizable pattern of dots with no spatial stability.\n6. stylizationStrength: 5 - The transformation into a high-contrast, halftone ink-manga style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=3 ic=2 mf=4 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495597,
+  "id": "20260927155312b268fb8e35c1446e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155312b268fb8e35c1446e",
+  "usage": {
+    "completion_tokens": 247,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1415
+  }
+}
