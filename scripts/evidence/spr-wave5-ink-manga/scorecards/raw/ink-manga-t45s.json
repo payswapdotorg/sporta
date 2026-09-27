@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and goal is recognizable, but extreme stylization obscures most specific details.\n2. temporalConsistency - 4: The dot pattern and major shapes remain very stable between the two frames with minimal flickering.\n3. identityConsistency - 1: Players are reduced to abstract blobs, making individual identification or visual stability impossible to judge.\n4. motionFidelity - 1: The extreme abstraction completely removes any readable motion vectors or player poses.\n5. sceneFidelity - 2: The background elements like the scoreboard and goal frame are present but heavily distorted.\n6. stylizationStrength - 5: The transformation into a high-contrast halftone/ink-manga style is extremely aggressive and obvious.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495572,
+  "id": "202609271552464d0eeef43f294098",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609271552464d0eeef43f294098",
+  "usage": {
+    "completion_tokens": 208,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1376
+  }
+}

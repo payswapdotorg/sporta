@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the pitch and background ads is recognizable, but the extreme stylization obscures almost all specific details and player positions.\n2. temporalConsistency - 5: The two stylized frames are nearly identical with no visible flickering, morphing, or disappearing elements between the 0.2s interval.\n3. identityConsistency - 1: Players are reduced to indistinct, unrecognizable blobs of ink; no individual features or team colors are preserved.\n4. motionFidelity - 1: The extreme abstraction completely removes any sense of player or ball movement from the original scene.\n5. sceneFidelity - 2: The broad spatial arrangement of the stadium and field lines is vaguely maintained, though heavily distorted by the pattern.\n6. stylizationStrength - 5: The transformation into a high-contrast, binary halftone/ink-manga style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=5 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495591,
+  "id": "20260927155304242bd75bfb564a38",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155304242bd75bfb564a38",
+  "usage": {
+    "completion_tokens": 245,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1413
+  }
+}

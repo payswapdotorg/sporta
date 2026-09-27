@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "SPR-W5-C",
+  "task": "SPR104 ink/manga/comic deterministic renderer trial (spr104.det.xdog-halftone baseline)",
+  "generatedAtIso": "2026-09-27T00:00:00Z",
+  "engine": "SPE-v1 (frozen)",
+  "base": "0f905e2ecd95013d523e3e890f1bc7a12cce5a8e",
+  "branch": "spr/w5c/ink-manga",
+  "tools": {"python": "3.12.14", "opencv": "4.13.0", "numpy": "2.1.3", "ffmpeg": "7.1.5-0+deb13u1", "vlm": "z-ai CLI vision (glm-5v-turbo)"},
+  "declaration": {
+    "file": "scripts/source-preserving/spe/renderers.py",
+    "diffVsBase": "+293 / -0 (additions only; every pre-existing row byte-identical in output - proven by the regression re-renders below)",
+    "rendererId": "spr-ink-manga-dc1", "reality": "ink-manga",
+    "family": "Ink/Manga/Comic (SPR104)", "sprId": "SPR104",
+    "version": "0.1.0", "profiles": ["default"], "paletteK": null, "usesFlow": false,
+    "adapterRegistrationProof": "registry-listing.txt (frozen render.py --reality choices now include ink-manga)",
+    "knownRepoFactNotTouched": "spe/registry.py imports a non-existent RENDERER_DECLARATIONS (pre-existing dead code since before the wave-4 base); the live registration path is renderers.REGISTRY <- render.py. Left exactly as found (forbidden scope; W4-C deviation precedent)."
+  },
+  "substrate": {
+    "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+    "b8-b12.mp4": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462",
+    "clip-b2-closeup.mp4": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+    "derivedGateRefs": {
+      "b8-first300": {"sha256": "9efa9b99aa74c0e365a4e22417ec3e4eece60633c6e3aac5cdd2cad6e3ec889b", "class": "byte-reproduces the w4b-recorded b8-first300 reference"},
+      "b12-first300-gateref-from-old": {"sha256": "d19079ca133cbfe02dde534bd74c579818cb9b92e6272a4f7af9f77e1737115b", "class": "byte-reproduces the w3b-pinned gateref built from the pre-w3a-fix b12 bytes (git show 805a5fc:...; old substrate sha 7cb3d728...)"}
+    }
+  },
+  "renders": [
+    {
+      "cell": "b8", "clip": "sprclip-b8-inplay-original", "frames": 1190,
+      "file": "ink-manga-b8.mp4",
+      "sha256Pass1": "8ffff3c1cb584307a6d61fe37232403057b0f14bbec72a80b97fc616f36e47df",
+      "sha256Pass2": "8ffff3c1cb584307a6d61fe37232403057b0f14bbec72a80b97fc616f36e47df",
+      "determinismByteIdentical": true,
+      "renderWallMs": [68525.2, 69008.4], "styleConfigHash": "e7c01dedee2bd15a...",
+      "gateInput": "raw substrate", "gateJson": "qa/qa-ink-manga-b8.json", "deepJson": "qa/cuts-deep-ink-manga-b8.json",
+      "gates": {
+        "G-T1": "PASS 1190==1190, d20ms, audio passthrough",
+        "G-T2": "PASS coverage 1.0, extraPer30s 0.0 — all 6 cuts at EXACT indices [189,475,550,862,979,982]",
+        "G-T2b": "PASS coverage 1.0, 0 invented (amplitude ratios 1.195-1.698 — the monochrome grade AMPLIFIES cut discontinuities)",
+        "G-T3": "PASS pearsonR 0.9468",
+        "G-T4": "PASS 0.6185% of range (input baseline 0.458%)",
+        "flatThresholdDiagnostic": "outputOnly frames [865,868,871,874,952] — stylization-amplified sustained motion, counted not gated (the harness's own diagnostic class)"
+      }
+    },
+    {
+      "cell": "b12", "clip": "sprclip-b12-determinism-cut", "frames": 300,
+      "file": "ink-manga-b12.mp4",
+      "sha256Pass1": "95fca63a5bea364b6f056766725f1e25cce7789a2948aff1c6294085c70ce841",
+      "sha256Pass2": "95fca63a5bea364b6f056766725f1e25cce7789a2948aff1c6294085c70ce841",
+      "determinismByteIdentical": true,
+      "styleConfigHash": "8ff249f7a661aac7...",
+      "gateInput": "b12-first300-gateref-from-old.mp4 (the pre-adjudicated 338-vs-300 metadata class)",
+      "gateJson": "qa/qa-ink-manga-b12.json", "deepJson": "qa/cuts-deep-ink-manga-b12.json",
+      "gates": {
+        "G-T1": "PASS 300==300, d0ms, audio passthrough",
+        "G-T2": "PASS coverage 1.0, extraPer30s 0.0 (input cuts [117,120] preserved exactly)",
+        "G-T2b": "PASS coverage 1.0, 0 invented",
+        "G-T3": "PASS pearsonR 0.9546",
+        "G-T4": "PASS 0.7171% of range (input baseline 0.4806%)"
+      }
+    },
+    {
+      "cell": "b2", "clip": "clip-b2-closeup", "frames": 225,
+      "file": "ink-manga-b2.mp4",
+      "sha256Pass1": "ecea14b0379141de0ba4b2561a2f975a2390407a2518e8287259aa25bbbbfa16",
+      "sha256Pass2": "ecea14b0379141de0ba4b2561a2f975a2390407a2518e8287259aa25bbbbfa16",
+      "determinismByteIdentical": true,
+      "styleConfigHash": "7702b3ff4c726de2...",
+      "gateInput": "raw substrate (metadata-clean)",
+      "gateJson": "qa/qa-ink-manga-b2.json", "deepJson": "qa/cuts-deep-ink-manga-b2.json",
+      "gates": {
+        "G-T1": "PASS 225==225, d20ms, audio passthrough",
+        "G-T2": "PASS coverage 1.0, extraPer30s 0.0",
+        "G-T2b": "PASS coverage 1.0, 0 invented",
+        "G-T3": "PASS pearsonR 0.9756",
+        "G-T4": "PASS 1.4337% of range (input baseline 0.9449%) — the close-up flicker cell; see variant-table.json phase 2/3 for the honest iteration this margin cost"
+      }
+    }
+  ],
+  "regression": {
+    "method": "frozen render.py re-render AFTER the promotion edit, sha compare vs the w4b 54-cell ledger anchors (same substrate bytes)",
+    "cartoon-cel-b8": {"sha256": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c", "byteIdenticalToAnchor": true},
+    "noir-retro-noir-b8": {"sha256": "3eedb4238f56900f6b1559ce0f19e0ea1aa2044a453bdd2bce453d4a1b0711a4", "byteIdenticalToAnchor": true},
+    "subject-toon-b8": {"sha256": "503ea271561d770c8482a8e472582aba5b54fd4a889b7eeef2c889d59e960f74", "byteIdenticalToAnchor": true}
+  },
+  "scorecard": {
+    "harness": "scripts/source-preserving/vlm_scorecard.py (frozen, unmodified)",
+    "protocol": "frozen acceptance doc section 2 (7-axis), b8, samples t=2/8/15/30/45 + cut-adjacent pre/post (979/982 clustered)",
+    "vlm": "glm-5v-turbo via z-ai CLI, 15/15 calls landed",
+    "hardGatesGreen": true,
+    "meanScores": {"sourceFidelity": 2.4, "temporalConsistency": 3.33, "identityConsistency": 1.47, "motionFidelity": 1.53, "sceneFidelity": 2.13, "stylizationStrength": 5.0},
+    "minAxisMean": 1.47, "overallMean": 2.64,
+    "criticalArtifacts": 88, "totalArtifacts": 141,
+    "tierClaim": 0,
+    "verdict": "Tier 0 (honest). The ink/manga family reproduces the cartoon-cel/anime-npr failure class exactly: stylizationStrength 5.0 with identity/motion collapse (1.47/1.53 vs cartoon 1.53 / anime 1.80 min-axis). temporalConsistency 3.33 with the VLM explicitly crediting dot-pattern stability ('the visual noise and dot patterns remain highly stable between the two frames') — the fixed-lattice mechanism is real and visible, but monochrome binarization destroys player identity on wide shots ('players are reduced to indistinct dark blobs'). The frozen bar (every axis >= 4.0 + 0 critical + TL approval) is NOT met; no tier is claimed beyond 0."
+  },
+  "nextIncrement": "measured precisely: identityConsistency 1.47 and motionFidelity 1.53 are the blockers (stylization 5.0, temporalConsistency 3.33 already above the wave-2 cartoon/anime siblings). The gap is the monochrome-identity trade-off: 640x360 binarized figures cannot carry identity. The candidate record's own replacement path (ControlNet lineart/ink keyframes + EbSynth propagation, SPR104 neural_candidates) or a subject-preserving dual-path variant (subject-toon's mask-gentle architecture applied to ink rendering — gentle grayscale tone on masked players, full screentone on the background) attacks exactly this axis within the deterministic-plus-guided architecture."
+}

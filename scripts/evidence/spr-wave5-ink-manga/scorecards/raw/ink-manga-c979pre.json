@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: Image 2 matches the graphic overlay, but Image 3 shows a completely different background (crowd vs. pitch) and camera angle.\n2. temporalConsistency - 1: The scene context changes drastically between the two stylized frames, indicating a lack of temporal stability or a cut.\n3. identityConsistency - 2: Players in Image 2 are barely visible, and those in Image 3 are heavily distorted, making visual identification difficult.\n4. motionFidelity - 2: The extreme change in background and player positions between frames makes motion interpretation unreliable.\n5. sceneFidelity - 1: The spatial environment is inconsistent; Image 2 shows a flat field while Image 3 shows a crowded stadium stand.\n6. stylizationStrength - 5: The high-contrast, halftone ink-manga style is very strong and clearly applied across all frames.\n\nAXES sf=2 tc=1 ic=2 mf=2 scf=1 ss=5\nARTIFACTS limbs=3 players=2 warped=4 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495629,
+  "id": "202609271553456ddcfec24e6b4aad",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609271553456ddcfec24e6b4aad",
+  "usage": {
+    "completion_tokens": 237,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1405
+  }
+}

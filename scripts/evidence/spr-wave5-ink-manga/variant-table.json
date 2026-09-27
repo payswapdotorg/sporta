@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.1",
+  "taskId": "SPR-W5-C (SPR104 ink-manga)",
+  "stage": "fast loop (parameter selection BEFORE the full render) + the honest b2-flicker iteration that followed",
+  "window": "b8p3.mp4 first 300 frames (--max-frames 300), one source cut at frame 189; the b2 iteration stage ran on the full 225-frame close-up (the cell that failed)",
+  "gateInputs": {
+    "b8-300": {
+      "file": "/tmp/w5c/gates/b8-first300-gateref.mp4",
+      "sha256": "9efa9b99aa74c0e365a4e22417ec3e4eece60633c6e3aac5cdd2cad6e3ec889b",
+      "recipe": "the recorded w4b/W2C b8-first300 derived-reference class (ffmpeg -frames:v 300 -t 12 -crf 20 ... -c:a copy); byte-reproduces the w4b-recorded sha"
+    },
+    "b2-full": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 (raw substrate, metadata-clean)"
+  },
+  "method": "all renders via the FROZEN render.py CLI (fast loop) / render.render adapter (isolation A/B harness, same code path); between variants ONLY the INK_MANGA config values in spe/renderers.py were edited; the winning config is frozen verbatim in the shipped row",
+  "fixedAcrossVariants": {
+    "preMedianK": 3, "preBilatD": 9, "xdogSigma": 1.0, "xdogK": 1.6,
+    "xdogTau": 0.98, "xdogPhi": 10.0, "paperKnee": 0.84, "inkKnee": 0.16,
+    "screenN": 8, "inkLevels": 0, "grainSeed": 42, "grainScale": 5.0
+  },
+  "phases": [
+    {
+      "phase": "1 — initial fast loop (b8-300 window, pick before full render)",
+      "variants": [
+        {
+          "id": "v1", "label": "aggressive sketch pooling (eps 0.004, pivot 0.52, lineFloor 0.25), continuous 8px screen",
+          "params": {"xdogEps": 0.004, "lineFloor": 0.25, "tonePivot": 0.52, "toneContrast": 1.12, "screenN": 8, "inkLevels": 0, "preBilatD": 7, "preBilatSigma": 45, "preBilatIters": 1, "lineMode": "soft"},
+          "renderSha256": "aa17ddd0259114bfd402b62946dbba29f4d9b728f2f54309c9d272a3e0b01f10",
+          "gates_b8_300": {"T1": "PASS", "T2": "PASS cov 1.0 (cut 189 exact)", "T2b": "PASS 0 invented", "T3": "PASS 0.9475", "T4": "PASS 1.2451% (base 0.6095%)"},
+          "visual": "VLM grid: 'players are mostly silhouettes... like a corrupted signal' - POOR"
+        },
+        {
+          "id": "v2", "label": "brighter mids + pooled 4-ink ladder (pivot 0.58, inkLevels 4)",
+          "params": {"xdogEps": 0.004, "lineFloor": 0.25, "tonePivot": 0.58, "toneContrast": 1.10, "screenN": 8, "inkLevels": 4, "preBilatD": 7, "preBilatSigma": 45, "preBilatIters": 1, "lineMode": "soft"},
+          "renderSha256": "781584ba484fc36c909baa683eb3148ec6d13472da61633c2841cda5f82029fc",
+          "gates_b8_300": {"T1": "PASS", "T2": "PASS cov 1.0", "T2b": "PASS 0 invented", "T3": "PASS 0.9362", "T4": "PASS 1.2694%"},
+          "visual": "VLM grid: 'good balance... number 3 discernible' - GOOD"
+        },
+        {
+          "id": "v3", "label": "light pooling, bold lines, coarse 12px screen (eps 0.003, pivot 0.55, lineFloor 0.20)",
+          "params": {"xdogEps": 0.003, "lineFloor": 0.20, "tonePivot": 0.55, "toneContrast": 1.15, "screenN": 12, "inkLevels": 0, "preBilatD": 7, "preBilatSigma": 45, "preBilatIters": 1, "lineMode": "soft"},
+          "renderSha256": "137eb20059f5db2cbb98bf641aa4f7b23c87165155504bd2564d11d5ba9a6293",
+          "gates_b8_300": {"T1": "PASS", "T2": "PASS cov 1.0", "T2b": "PASS 0 invented", "T3": "PASS 0.8948 (lowest - coarse lattice costs motion r)", "T4": "PASS 1.1802%"},
+          "visual": "best of A/B/C at half-res grid; at FULL resolution loses to v4"
+        },
+        {
+          "id": "v4", "label": "phase-1 winner: light pooling, bold lines, fine 8px screen",
+          "params": {"xdogEps": 0.003, "lineFloor": 0.20, "tonePivot": 0.55, "toneContrast": 1.15, "screenN": 8, "inkLevels": 0, "preBilatD": 7, "preBilatSigma": 45, "preBilatIters": 1, "lineMode": "soft"},
+          "renderSha256": "fbd7b6477f08c0e3b6416bac439363755e6e310f6792b87a9157c0d239fb39c6",
+          "gates_b8_300": {"T1": "PASS", "T2": "PASS cov 1.0 (cut 189 exact)", "T2b": "PASS 0 invented", "T3": "PASS 0.947", "T4": "PASS 1.1572%"},
+          "visual": "VLM full-res duel vs v3: WINNER ('cleaner panel, clearer limbs/kits/number 3, authentic print texture')"
+        }
+      ],
+      "outcome": "v4 frozen; full renders executed -> b8/b12 all gates green, but b2 T4 FAILED (1.8963% vs the 1.5% bar; input baseline 0.9449%) -> honest re-open of the loop (phase 2)"
+    },
+    {
+      "phase": "2 — b2 flicker root-cause (isolation A/B on the failing cell, full 225-frame close-up)",
+      "driftMeasurement": "tone |delta| between consecutive frames in the G-T4 static selection (input flow < 0.15 px/frame) of b2: mean 2.18 gray levels, p90 6.0, p99 16.0, max 74 - the 'static' selection carries REAL sub-gate content drift (slow pan + crowd shimmer), so every hard threshold in the pipeline converts drift into 255-level swings at boundaries; sensor-noise models do not apply",
+      "variants": [
+        {"id": "E1-nolines", "patch": {"lineFloor": 1.0}, "b2_T3": 0.9728, "b2_T4": "1.3819% PASS", "finding": "the XDoG line burn is the dominant flicker source (+0.4%)"},
+        {"id": "E2-nograin", "patch": {"grainScale": 0.0}, "b2_T3": 0.9747, "b2_T4": "1.8123% FAIL", "finding": "fixed grain contributes ~zero (as designed)"},
+        {"id": "E3-ladder4", "patch": {"inkLevels": 4}, "b2_T3": 0.9695, "b2_T4": "1.9766% FAIL", "finding": "coarse density ladders make REGIONAL flips worse - rejected"},
+        {"id": "E4-phi6", "patch": {"xdogPhi": 6.0}, "b2_T3": 0.9745, "b2_T4": "1.7789% FAIL", "finding": "soft-band gain reduction alone does not fix it (drift, not speckle)"},
+        {"id": "E5-eps0015", "patch": {"xdogEps": 0.0015}, "b2_T3": 0.9743, "b2_T4": "1.7236% FAIL", "finding": "narrowing the soft band helps a little; adopted"}
+      ]
+    },
+    {
+      "phase": "3 — redesign against drift (b2 cell)",
+      "variants": [
+        {"id": "v6", "label": "binary median-stabilized line strokes + soft density knees (no hard classes) + eps 0.0015 + bilateral x2(d9,s60)", "b2_T3": 0.9753, "b2_T4": "1.6354% FAIL"},
+        {"id": "V6a", "patch": {"inkKneeWidth": 0.12, "paperKneeWidth": 0.08}, "b2_T3": 0.9763, "b2_T4": "1.5807% FAIL"},
+        {"id": "V6b", "patch": {"lineMedian": 5}, "b2_T3": 0.9750, "b2_T4": "1.6104% FAIL"},
+        {"id": "V6c", "patch": {"preBilatSigma": 75, "preBilatIters": 3}, "b2_T3": 0.9750, "b2_T4": "1.4886% PASS (thin)"},
+        {"id": "V7a", "patch": {"preBilatSigma": 75, "preBilatIters": 3, "inkKneeWidth": 0.12, "paperKneeWidth": 0.08}, "b2_T3": 0.9761, "b2_T4": "1.4502% PASS"},
+        {"id": "V7b", "patch": {"preBilatSigma": 75, "preBilatIters": 3, "inkKneeWidth": 0.12, "paperKneeWidth": 0.08, "lineMedian": 5}, "b2_T3": 0.9760, "b2_T4": "1.4434% PASS"},
+        {"id": "V8b", "patch": {"dotSoft": 0.30}, "note": "soft dots WITHOUT the heavy bilateral", "b2_T3": 0.9751, "b2_T4": "1.5695% FAIL", "finding": "soft dots alone do not fix b2 - the cartoon-class smoothing is required"},
+        {"id": "v8a", "label": "FINAL: V7b + soft-dot ramp window 0.25 with exact saturation clamps", "b2_T3": 0.9756, "b2_T4": "1.4337% PASS", "b8_300_T3": 0.9605, "b8_300_T4": "0.6847% PASS (base 0.6095%)"}
+      ],
+      "visualArbitration": "full-resolution VLM strip (original | v4 | V7a | V8a): 'R [V8a] is best... stabilized thicker lines and softer screentone dots mimic professional manga inking (like Captain Tsubasa)... most polished' -> SHIP: R"
+    }
+  ],
+  "selection": {
+    "winner": "v8a",
+    "finalConfig": {
+      "preMedianK": 3, "preBilatD": 9, "preBilatSigma": 75, "preBilatIters": 3,
+      "xdogSigma": 1.0, "xdogK": 1.6, "xdogTau": 0.98, "xdogEps": 0.0015,
+      "xdogPhi": 10.0, "lineFloor": 0.20, "lineMode": "binary",
+      "lineKnee": 0.5, "lineMedian": 5, "lineSoften": 0.8,
+      "tonePivot": 0.55, "toneContrast": 1.15,
+      "paperKnee": 0.84, "inkKnee": 0.16, "screenN": 8,
+      "inkKneeWidth": 0.12, "paperKneeWidth": 0.08, "inkLevels": 0,
+      "dotSoft": 0.25, "grainSeed": 42, "grainScale": 5.0
+    },
+    "why": "only config that passes every machine gate on BOTH the b8 fast-loop window and the failing b2 close-up (T4 1.4337%) while WINNING the full-resolution VLM visual arbitration (player identity + manga authenticity). The phase-1 winner v4 was honestly superseded after its b2 coverage-cell T4 failure - the full-render evidence set was re-produced from scratch with the final config.",
+    "antiCrawlAudit": "screen lattice screen-anchored (pixel-indexed, never content-fit); all thresholds/knees fixed constants; no temporal state; no per-frame RNG (grain texture generated once from seed 42); no frame-index dependence"
+  },
+  "vlmCalls": [
+    "vlm-fastloop-compare.json (phase-1 grid: orig + v1 + v2 + v3)",
+    "vlm-fastloop-compare-v4.json (half-res duel v3 vs v4 - superseded by the full-res call)",
+    "vlm-fastloop-compare-v4-full.json (full-res duel v3 vs v4 - phase-1 decision)",
+    "vlm-fastloop-compare-final.json (full-res strip orig | v4 | V7a | V8a - phase-3 decision, SHIP: V8a)"
+  ]
+}

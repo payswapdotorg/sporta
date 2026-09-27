@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 4 - The match, moment, and camera context are clearly preserved despite the heavy stylization.\n2. temporalConsistency: 3 - The main subject (Balde) is stable, but background players and the ball exhibit significant flickering and morphing.\n3. identityConsistency: 4 - The central player (Balde) maintains a consistent visual identity across all frames.\n4. motionFidelity: 2 - The motion of the arms holding the ball is inconsistent, and the ball itself disappears or changes shape.\n5. sceneFidelity: 2 - While the general layout remains, the background stadium and field lines are heavily warped and unstable.\n6. stylizationStrength: 5 - The ink-manga transformation is extremely bold, distinct, and consistently applied.\n\nAXES sf=4 tc=3 ic=4 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495547,
+  "id": "20260927155204fd715d1ed0f4435a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155204fd715d1ed0f4435a",
+  "usage": {
+    "completion_tokens": 213,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match and camera angle are recognizable, but extreme pixelation obscures the specific moment's details.\n2. temporalConsistency - 4: The visual noise pattern is highly stable, with no significant flickering or morphing between frames.\n3. identityConsistency - 1: Players are reduced to indistinguishable black blobs, making individual identity impossible to track.\n4. motionFidelity - 1: The coarse grid resolution completely masks any subtle player or ball movements between frames.\n5. sceneFidelity - 2: General stadium layout (goal, ads) is present, but spatial details are lost to the stylization.\n6. stylizationStrength - 5: The transformation into a high-contrast, binary dot-matrix/ink style is extremely obvious and aggressive.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=10 players=8 warped=5 dupes=0 ball=1 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495565,
+  "id": "20260927155241fcf4e547a79f4ac1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155241fcf4e547a79f4ac1",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1384
+  }
+}

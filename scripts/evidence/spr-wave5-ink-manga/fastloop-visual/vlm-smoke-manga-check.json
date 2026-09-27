@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) Yes, the image successfully reads as a manga/comic ink style through the use of high-contrast XDoG line art and halftone screentone patterns.\n(2) Yes, the football players are clearly recognizable as human figures; the player with the number \"3\" jersey is distinct, and the opposing player's limbs and kit are visible.\n(3) No obvious degenerate artifacts are present; the image remains legible without any all-black blobs or unreadable messes.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790493814,
+  "id": "2026092715233114d19c1a35df411a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092715233114d19c1a35df411a",
+  "usage": {
+    "completion_tokens": 103,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 389,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 492
+  }
+}

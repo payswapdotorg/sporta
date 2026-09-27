@@ -152,6 +152,11 @@ class FrameProcessor:
                 self._neon_cyberpunk_state = _NeonCyberpunkState(cfg)
             out = self._neon_cyberpunk_state(bgr)
 
+        elif reality == "ink-manga":
+            if not hasattr(self, "_ink_manga_state"):
+                self._ink_manga_state = _InkMangaState(cfg)
+            out = self._ink_manga_state(bgr)
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -429,6 +434,228 @@ class _NeonCyberpunkState:
 
 
 # ---------------------------------------------------------------------------
+# ink-manga pipeline state (SPR104)
+#
+# Fresh wave-5 reality (SPR-W5-C, SPR104 deterministic baseline
+# spr104.det.xdog-halftone from docs/technology/source-preserving-
+# candidates.yaml): grayscale + XDoG soft-threshold line art (sketch
+# mode) + 2-3 ink value classes + screen-space fixed-lattice Bayer
+# screentone + fixed paper grain. The state object holds ONLY frozen
+# per-render constants (baked 256-entry tone LUT, tiled Bayer threshold
+# lattice, fixed paper-grain texture) so the transform is a PURE per-frame
+# function of the frame bytes:
+#   - zero temporal accumulators (no EMA, no prev-frame reference)
+#   - zero per-frame RNG (the grain texture is generated ONCE from a fixed
+#     seed and composited identically every frame — zero temporal delta;
+#     strictly more stable than the noir grain, which re-rolls per frame
+#     and still measured G-T3 r=0.9986 / G-T4 0.48%)
+#   - zero frame-index dependence
+# Anti-crawl rules (from the SPR104 candidate record, binding): the
+# screentone lattice is SCREEN-ANCHORED (indexed by pixel coordinates
+# only — never re-fit to content), the tone-class thresholds are FIXED
+# constants (no per-frame adaptation), so static scene areas produce
+# byte-identical dot patterns by construction — the family's documented
+# temporal-strength ("fixed dot lattice = no dot crawl").
+# ---------------------------------------------------------------------------
+
+
+class _InkMangaState:
+    """SPR104 ink/manga pipeline (XDoG + fixed-lattice screentone).
+
+    Stage 1  pre_smooth  : median + bilateral (fixed params) — suppresses
+              sensor noise so the XDoG lines and the screentone thresholds
+              do not crawl on static regions (the record's "XDoG noise
+              crawl" failure mode; the same mitigation class as
+              cartoon-cel's pre-quantize flatten).
+    Stage 2  XDoG        : Winnemöller soft-threshold difference-of-
+              Gaussians (sketch mode) on the smoothed frame, via the
+              frozen stage library — thin stable ink lines; parameters
+              are FIXED per frame (no temporal adaptation, per the
+              record). With tau=0.98, flat regions carry a
+              (1-tau)*L pedestal in v = g1 - tau*g2, so eps fixes the
+              sketch's ink-pooling floor: flats with L > eps/(1-tau)
+              (~0.075 at eps=0.0015) stay paper, darker flats pool
+              into ink, and true contours land as lines on their dark
+              side. The line layer is then binarized at a fixed knee
+              and median-stabilized (3x3) + re-softened (sigma 0.8) —
+              the cartoon-cel boundary-line pattern — so the soft
+              band's high gain never reaches the compositor; lineMode
+              "soft" (pre-binary continuous burn) is retained as a
+              config option for A/B only.
+    Stage 3  tone        : BT.601 luma -> baked 256-entry pivot-contrast
+              S-curve (ink pooling) with the XDoG edge map burned in
+              (edge pixels drop toward the line floor -> ink).
+    Stage 4  screentone  : screen-anchored clustered-dot halftone
+              screen: ink dot iff screen threshold < ink density.
+              The density runs over the full [0,1] range with FIXED
+              soft knees saturating to solid ink below the ink knee and
+              to clean paper above the paper knee (smoothstep blends,
+              fixed widths) — no hard class boundaries exist, so the
+              response to sub-flow-gate content drift (measured 2-16
+              gray levels/frame on the b2 close-up static selection) is
+              continuous dot growth/shrink instead of 255-level class
+              flips. The dither preserves the local mean and the G-T3
+              motion-energy series survives binarization (area-averaged
+              dot fields reconstruct the tone). Optional ink-level
+              pooling quantizes the density to a fixed ladder (0 = off).
+    Stage 5  paper_grain : a FIXED zero-mean procedural texture (seeded
+              RNG, generated once per render, same seed for every clip)
+              added subtly — identical every frame, so it contributes
+              zero flicker by construction.
+
+    Deterministic: every op is a fixed function of the current frame;
+    the same input bytes + config always produce the same output bytes.
+    """
+
+    def __init__(self, cfg: dict):
+        c = self.cfg = cfg
+        # stage 1 — pre-smooth (noise-crawl mitigation) ----------------------
+        self.pre_median_k = int(c.get("preMedianK", 3))
+        self.bilat_d = int(c.get("preBilatD", 9))
+        self.bilat_sigma = float(c.get("preBilatSigma", 60.0))
+        self.bilat_iters = int(c.get("preBilatIters", 2))
+        # stage 2 — XDoG line art (frozen stage library, fixed params) -------
+        self.xdog_sigma = float(c.get("xdogSigma", 1.0))
+        self.xdog_k = float(c.get("xdogK", 1.6))
+        self.xdog_tau = float(c.get("xdogTau", 0.98))
+        self.xdog_eps = float(c.get("xdogEps", 0.0015))
+        self.xdog_phi = float(c.get("xdogPhi", 10.0))
+        self.line_floor = float(c.get("lineFloor", 0.20))
+        # line compositor: binary median-stabilized strokes (the
+        # cartoon-cel boundary-line pattern) or the continuous soft burn
+        self.line_mode = str(c.get("lineMode", "binary"))
+        self.line_knee = float(c.get("lineKnee", 0.5))
+        self.line_median = int(c.get("lineMedian", 3))
+        self.line_soften = float(c.get("lineSoften", 0.8))
+        # stage 3 — tone S-curve (baked 256-entry LUT, rounded once) ---------
+        pivot, contrast = float(c.get("tonePivot", 0.55)), \
+            float(c.get("toneContrast", 1.15))
+        u = np.arange(256, dtype=np.float32) / 255.0
+        curve = np.clip(pivot + (u - pivot) * contrast, 0.0, 1.0)
+        self.tone_lut = np.clip(np.round(curve * 255.0), 0, 255).astype(np.uint8)
+        # stage 4 — tone classes + screen-anchored clustered-dot lattice ----
+        self.paper_knee = float(c.get("paperKnee", 0.84))
+        self.ink_knee = float(c.get("inkKnee", 0.16))
+        self.ink_w = float(c.get("inkKneeWidth", 0.07))
+        self.paper_w = float(c.get("paperKneeWidth", 0.04))
+        n = self.screen_n = int(c.get("screenN", 8))
+        # clustered-dot halftone screen (deterministic, screen-anchored):
+        # threshold by rank of (dist-to-nearest-dot-center minus
+        # dist-to-nearest-hole-corner) over the periodic n x n tile, so ink
+        # always forms ONE connected blob growing from the tile center and
+        # paper holes shrink at corners — compact dots (not Bayer scatter)
+        # that read as screentone and survive the frozen crf-20 encoder.
+        ys, xs = np.mgrid[0:n, 0:n].astype(np.float32)
+        half = n / 2.0
+        # periodic euclidean distance to the nearest lattice point
+        dy = np.minimum(np.abs(ys - half), n - np.abs(ys - half))
+        dx = np.minimum(np.abs(xs - half), n - np.abs(xs - half))
+        d_center = np.sqrt(dy * dy + dx * dx)          # dot centers: tile middle
+        dy0 = np.minimum(ys, n - ys)
+        dx0 = np.minimum(xs, n - xs)
+        d_corner = np.sqrt(dy0 * dy0 + dx0 * dx0)      # hole centers: tile corners
+        grow = d_center - d_corner                      # small = inks early
+        order = np.argsort(grow.ravel(), kind="stable")
+        rank = np.empty(n * n, dtype=np.float32)
+        rank[order] = np.arange(n * n, dtype=np.float32)
+        # thresholds in (0,1), mid-rank convention: ink dot iff
+        # threshold < density (full 0..1 density range representable)
+        self.screen = ((rank.reshape(n, n) + 0.5) / (n * n)).astype(np.float32)
+        self.ink_levels = int(c.get("inkLevels", 0))
+        # soft ordered dither: dot values ramp across the threshold in a
+        # fixed window (flip amplitude ~w instead of 1.0); exact saturation
+        # clamps keep solid-ink / clean-paper regions truly solid/clean
+        self.dot_soft = float(c.get("dotSoft", 0.0))
+        # stage 5 — fixed paper grain (built lazily per frame shape) ---------
+        self.grain_seed = int(c.get("grainSeed", 42))
+        self.grain_scale = float(c.get("grainScale", 5.0))
+        self.grain: Optional[np.ndarray] = None
+        self.screen_t: Optional[np.ndarray] = None
+
+    # -- helpers ------------------------------------------------------------
+
+    @staticmethod
+    def _smooth01(x: np.ndarray) -> np.ndarray:
+        """Soft 0->1 knee (hermite smoothstep) on a float array."""
+        t = np.clip(x, 0.0, 1.0)
+        return t * t * (3.0 - 2.0 * t)
+
+    # -- fixed textures (same clip -> same shape -> same textures) ----------
+
+    def _fixed_textures(self, shape) -> None:
+        if self.screen_t is None or self.screen_t.shape != shape:
+            h, w = shape
+            self.screen_t = np.tile(self.screen, (h // self.screen_n + 1,
+                                                  w // self.screen_n + 1))[:h, :w]
+        if self.grain is None or self.grain.shape != shape:
+            rng = np.random.default_rng(self.grain_seed)
+            self.grain = rng.normal(0.0, self.grain_scale,
+                                    size=shape).astype(np.float32)
+
+    # -- pipeline -------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray) -> np.ndarray:
+        # stage 1 — pre-smooth (fixed params; kills sensor noise so the
+        # threshold stages below do not crawl on static regions)
+        sm = S.median_pool(bgr, self.pre_median_k)
+        sm = S.bilateral_flatten(sm, self.bilat_d, self.bilat_sigma,
+                                 self.bilat_sigma, self.bilat_iters)
+        # stage 2 — XDoG soft-threshold line art (E: 1 flat, ->0 on edges)
+        edges = S.xdog_edge_map(sm, sigma=self.xdog_sigma, k=self.xdog_k,
+                                tau=self.xdog_tau, eps=self.xdog_eps,
+                                phi=self.xdog_phi)
+        if self.line_mode == "binary":
+            # binarize at a fixed knee, median-stabilize (kills isolated
+            # speckle), re-soften with a fixed sigma — the cartoon-cel
+            # boundary-line pattern; the XDoG soft band's high gain
+            # (phi/eps amplification of tiny v differences) never reaches
+            # the compositor this way
+            line = (edges < self.line_knee).astype(np.uint8)
+            if self.line_median > 1:
+                line = cv2.medianBlur(line, self.line_median)
+            e_eff = 1.0 - cv2.GaussianBlur(line.astype(np.float32),
+                                           (0, 0), self.line_soften)
+        else:  # "soft" — continuous burn (fast-loop A/B option)
+            e_eff = edges
+        # stage 3 — tone: curved luma with the line art burned in
+        gray = cv2.cvtColor(sm, cv2.COLOR_BGR2GRAY)
+        tone = cv2.LUT(gray, self.tone_lut).astype(np.float32) / 255.0
+        tone = tone * (self.line_floor + (1.0 - self.line_floor) * e_eff)
+        # stage 4 — screen-anchored clustered-dot dither over the full
+        # density range with FIXED soft knees (no hard class boundaries:
+        # sub-flow-gate content drift grows/shrinks dots continuously
+        # instead of flipping whole pixels between classes)
+        self._fixed_textures(tone.shape)
+        density = 1.0 - tone              # ink fraction the tone asks for
+        if self.ink_levels > 1:           # fixed ink-pooling ladder (if any)
+            density = np.round(density * (self.ink_levels - 1)) \
+                / float(self.ink_levels - 1)
+        if self.ink_w > 0.0:              # soft saturation to solid ink
+            b = self._smooth01((tone - (self.ink_knee - self.ink_w))
+                                / (2.0 * self.ink_w))
+            density = density * b + (1.0 - b)
+        if self.paper_w > 0.0:            # soft saturation to clean paper
+            b = self._smooth01((tone - (self.paper_knee - self.paper_w))
+                                / (2.0 * self.paper_w))
+            density = density * (1.0 - b)
+        if self.dot_soft > 0.0:
+            # soft dots: value ramps across the threshold (fixed window);
+            # near-saturated densities clamp to true ink / true paper so
+            # solid pools stay solid and paper stays clean
+            w = self.dot_soft
+            u = (density - self.screen_t) / w + 0.5
+            val = 255.0 * (1.0 - self._smooth01(u))
+            val = np.where(density >= 1.0 - 0.5 * w, 0.0, val)
+            val = np.where(density <= 0.5 * w, 255.0, val)
+        else:
+            ink = self.screen_t < density       # hard ordered dither
+            val = np.where(ink, 0.0, 255.0)
+        out = val + self.grain
+        mono = np.clip(out, 0.0, 255.0).astype(np.uint8)
+        return cv2.cvtColor(mono, cv2.COLOR_GRAY2BGR)
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -580,3 +807,69 @@ NEON_CYBERPUNK = RendererSpec(
 # additive registry append (SPR-W4-C): the SPR107 neon-cyberpunk row enters
 # the REGISTRY without modifying any prior declaration or construction line
 REGISTRY[NEON_CYBERPUNK.reality] = NEON_CYBERPUNK
+
+
+# ---------------------------------------------------------------------------
+# SPR104 Ink/Manga/Comic — wave-5 fresh reality (SPR-W5-C)
+#
+# The SPR104 deterministic baseline spr104.det.xdog-halftone (candidates
+# .yaml): grayscale + XDoG soft-threshold (sketch mode) line art + 2-3
+# ink value classes + screen-space fixed-lattice Bayer screentone + paper
+# grain. Deterministic-classical, CPU-only (OpenCV + numpy, the frozen
+# engine toolset), pure per-frame transform: no temporal state, no
+# per-frame RNG, no frame-index dependence (the SPR-W3-B T3-diagnosis
+# law) — see _InkMangaState above for the full stage math and the
+# anti-crawl rules (screen-anchored lattice, fixed thresholds, fixed
+# grain texture per render).
+# ---------------------------------------------------------------------------
+
+
+INK_MANGA = RendererSpec(
+    rendererId="spr-ink-manga-dc1", reality="ink-manga",
+    family="Ink/Manga/Comic (SPR104)", sprId="SPR104",
+    pipeline=[
+        "pre_smooth(median3 + bilateral x3(d9,s75) — XDoG noise-crawl "
+        "mitigation, the cartoon-cel pre-quantize class)",
+        "xdog_line_art(sigma=1.0,k=1.6,tau=0.98,eps=0.0015,phi=10, soft "
+        "threshold, sketch mode; params FIXED per frame; binarized at "
+        "knee 0.5 + median5-stabilized + soften sigma 0.8 — the "
+        "cartoon-cel boundary-line pattern)",
+        "value_quantize(BT.601 luma -> baked pivot-contrast S-curve "
+        "pivot=0.55 contrast=1.15; line strokes burned at line floor 0.20)",
+        "screentone(screen-anchored 8x8 clustered-dot halftone over the "
+        "full density range, ink dot iff threshold < 1-tone (local-mean-"
+        "preserving); FIXED soft knees to solid ink (0.16 w0.12) and clean "
+        "paper (0.84 w0.08) — no hard class boundaries; soft-dot ramp "
+        "window 0.25 with exact saturation clamps)",
+        "paper_grain(FIXED zero-mean texture seed=42 scale=5.0 — identical "
+        "every frame, zero temporal delta)",
+    ],
+    description=("Monochrome manga/comic ink: XDoG sketch lines over 2-3 "
+                 "fixed ink tone classes with a screen-anchored clustered-"
+                 "dot halftone screentone (no dot crawl by construction) "
+                 "and fixed paper grain. Pure per-frame pipeline — no "
+                 "render-time RNG, no temporal state (T3-diagnosis law)."),
+    config={
+        # stage 1 — pre-smooth (noise-crawl mitigation; cartoon-cel class)
+        "preMedianK": 3, "preBilatD": 9, "preBilatSigma": 75,
+        "preBilatIters": 3,
+        # stage 2 — XDoG line art (Winnemöller soft-threshold, sketch mode;
+        # binary median-stabilized stroke compositor)
+        "xdogSigma": 1.0, "xdogK": 1.6, "xdogTau": 0.98,
+        "xdogEps": 0.0015, "xdogPhi": 10.0, "lineFloor": 0.20,
+        "lineMode": "binary", "lineKnee": 0.5, "lineMedian": 5,
+        "lineSoften": 0.8,
+        # stage 3 — value quantize / ink pooling (fixed thresholds)
+        "tonePivot": 0.55, "toneContrast": 1.15,
+        # stage 4 — screen-anchored screentone lattice + soft knees + soft dots
+        "paperKnee": 0.84, "inkKnee": 0.16, "screenN": 8,
+        "inkKneeWidth": 0.12, "paperKneeWidth": 0.08, "inkLevels": 0,
+        "dotSoft": 0.25,
+        # stage 5 — paper grain (fixed per-render texture)
+        "grainSeed": 42, "grainScale": 5.0,
+    },
+)
+
+# additive registry append (SPR-W5-C): the SPR104 ink-manga row enters the
+# REGISTRY without modifying any prior declaration or construction line
+REGISTRY[INK_MANGA.reality] = INK_MANGA

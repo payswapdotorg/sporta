@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The stylized output retains the general layout and scoreboard but loses almost all specific visual details of the match.\n2. temporalConsistency - 4: The noise pattern is extremely stable between the two frames, showing no flickering or morphing of the static elements.\n3. identityConsistency - 1: Individual players are completely unrecognizable, reduced to indistinct blobs within a heavy noise field.\n4. motionFidelity - 1: The subtle motion of players and the ball is entirely lost due to the extreme abstraction and lack of clear forms.\n5. sceneFidelity - 3: The spatial arrangement of the field lines and background elements is preserved in a rough, blocky manner.\n6. stylizationStrength - 5: The transformation into a high-contrast, dithered/halftone style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=4 ic=1 mf=1 scf=3 ss=5\nARTIFACTS limbs=0 players=11 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495561,
+  "id": "20260927155237395f1d324b1a4bda",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155237395f1d324b1a4bda",
+  "usage": {
+    "completion_tokens": 232,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1400
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and background elements (scoreboard, ads) is recognizable, but the extreme stylization obscures most specific details.\n2. temporalConsistency - 3: The overall dot pattern and major shapes remain stable between the two frames, though fine details flicker.\n3. identityConsistency - 1: Players are reduced to indistinct clusters of dots, making individual identification and visual stability impossible.\n4. motionFidelity - 1: The coarse, static-like representation completely fails to convey the subtle player and ball movements seen in the source.\n5. sceneFidelity - 2: The stadium structure and advertising boards are vaguely present in the correct locations but lack any spatial definition.\n6. stylizationStrength - 5: The transformation into a high-contrast, binary dot-matrix/ink style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=3 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=11 players=8 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495583,
+  "id": "2026092715525719a27eed402f4000",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092715525719a27eed402f4000",
+  "usage": {
+    "completion_tokens": 233,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1401
+  }
+}

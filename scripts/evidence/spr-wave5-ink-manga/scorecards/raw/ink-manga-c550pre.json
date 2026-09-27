@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The match context (score, time, logo) is preserved, but the extreme thresholding destroys the spatial layout and most visual details of the original scene.\n2. temporalConsistency: 2 - While the background remains static, the main subject's shape and position shift significantly between the two frames, indicating instability.\n3. identityConsistency: 1 - The players are reduced to unrecognizable abstract blobs; no facial or uniform features are discernible to maintain identity.\n4. motionFidelity: 1 - The motion is represented by a chaotic morphing of black pixels rather than a coherent translation of the player's body or the ball.\n5. sceneFidelity: 2 - The stadium structure and advertising boards are vaguely suggested by horizontal bands but are heavily distorted and lack geometric accuracy.\n6. stylizationStrength: 5 - The transformation into a high-contrast, binary dot-matrix/ink-manga style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=2 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=5 players=3 warped=5 dupes=0 ball=5 bg=2 tj=3",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790495604,
+  "id": "20260927155317b9a52d744ed14e47",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260927155317b9a52d744ed14e47",
+  "usage": {
+    "completion_tokens": 251,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1168,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1419
+  }
+}
