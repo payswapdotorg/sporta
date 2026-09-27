@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and player positions is vaguely recognizable, but extreme detail loss makes it hard to confirm exact camera context.\n2. temporalConsistency - 3: The sparse dots and blobs remain relatively stable in position between the two frames, showing minimal flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct, unrecognizable clusters of pixels with no visual stability of features.\n4. motionFidelity - 1: The extreme abstraction completely obscures any meaningful player or ball movement between the frames.\n5. sceneFidelity - 1: The stadium, lines, and background are almost entirely erased, leaving only faint, disconnected traces.\n6. stylizationStrength - 5: The transformation to a high-threshold, near-white silhouette/x-ray style is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=10 warped=0 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535715,
+  "id": "202609280301504447a5a1a8504dd9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280301504447a5a1a8504dd9",
+  "usage": {
+    "completion_tokens": 228,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1397
+  }
+}

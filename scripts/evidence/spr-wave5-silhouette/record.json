@@ -1,0 +1,388 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-G",
+ "task": "SPR202 silhouette/x-ray deterministic renderer trial (spr202.det.mog2-silhouette preferred, spr202.det.framediff fallback leg measured once)",
+ "generatedAtIso": "2026-09-27",
+ "engine": "SPE-v1 (frozen)",
+ "base": "b612adf98823001fdbdb524929c79991c9ffa3fc",
+ "branch": "spr/w5g/silhouette-trial",
+ "tools": {
+  "python": "3.12.14",
+  "opencv": "4.13.0",
+  "numpy": "2.1.3",
+  "ffmpeg": "7.1.5-0+deb13u1",
+  "vlm": "z-ai CLI vision (glm-5v-turbo)"
+ },
+ "declaration": {
+  "file": "scripts/source-preserving/spe/renderers.py",
+  "diffVsBase": "additions only (+559/-0 net; every pre-existing row byte-identical in output \u2014 proven by the regression re-renders below)",
+  "rendererId": "spr-silhouette-xray-dc1",
+  "reality": "silhouette-xray",
+  "family": "Silhouette / X-Ray (SPR202)",
+  "sprId": "SPR202",
+  "version": "0.1.0",
+  "profiles": [
+   "default (ink-fill)",
+   "xray"
+  ],
+  "usesFlow": true,
+  "adapterRegistrationProof": "registry-listing.txt (frozen render.py --reality choices include silhouette-xray)",
+  "knownRepoFactNotTouched": "spe/registry.py imports a non-existent RENDERER_DECLARATIONS (pre-existing dead code, W4-C recorded repo fact); left exactly as found (forbidden scope)."
+ },
+ "substrate": {
+  "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "b8-b12.mp4": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462",
+  "clip-b2-closeup.mp4": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062",
+  "derivedGateRefs": {
+   "b8-first300": {
+    "sha256": "9efa9b99aa74c0e365a4e22417ec3e4eece60633c6e3aac5cdd2cad6e3ec889b",
+    "class": "byte-reproduces the w4b-recorded b8-first300 reference"
+   },
+   "b12-first300-gateref-from-old": {
+    "sha256": "d19079ca133cbfe02dde534bd74c579818cb9b92e6272a4f7af9f77e1737115b",
+    "class": "byte-reproduces the w3b-pinned gateref built from the pre-w3a-fix b12 bytes (git show 805a5fc:...; old substrate sha 7cb3d728...)"
+   }
+  }
+ },
+ "determinism": {
+  "perCell": [
+   {
+    "cell": "b8",
+    "shaPass1": "a626bd83eb6aa9fb3abe0538f391a502503477089e02819eb330273db52f45bb",
+    "shaPass2": "a626bd83eb6aa9fb3abe0538f391a502503477089e02819eb330273db52f45bb",
+    "byteIdentical": true,
+    "frameCount": 1190,
+    "renderWallMs": [
+     41171.8,
+     40548.7
+    ]
+   },
+   {
+    "cell": "b12",
+    "shaPass1": "44b550e6bdfe7cdcf9e431baf4067601debb4028699128f4c6f0994ad659e490",
+    "shaPass2": "44b550e6bdfe7cdcf9e431baf4067601debb4028699128f4c6f0994ad659e490",
+    "byteIdentical": true,
+    "frameCount": 300,
+    "renderWallMs": [
+     10278.6,
+     10247.3
+    ]
+   },
+   {
+    "cell": "b2",
+    "shaPass1": "045978141e336c297d9c1de39a575c1e32f92c8e3627f473929a985d8b6836c0",
+    "shaPass2": "045978141e336c297d9c1de39a575c1e32f92c8e3627f473929a985d8b6836c0",
+    "byteIdentical": true,
+    "frameCount": 225,
+    "renderWallMs": [
+     9035.7,
+     8934.1
+    ]
+   },
+   {
+    "cell": "b8-xray",
+    "shaPass1": "3a5c467f683d80aaeecd106528f71bfcb147b7abca0801a94f17ca40f99b2c39",
+    "shaPass2": "3a5c467f683d80aaeecd106528f71bfcb147b7abca0801a94f17ca40f99b2c39",
+    "byteIdentical": true,
+    "frameCount": 1190,
+    "renderWallMs": [
+     47656.6,
+     45992.6
+    ]
+   }
+  ],
+  "compensationDeterminism": "the global-motion compensation is a closed-form float64 chain (Farneback -> lstsq fit -> clipped increment -> cumulative compose -> invertAffineTransform -> fixed bilinear warps) \u2014 no RNG, no wall-clock; covered by every per-cell double-render byte-equality above",
+  "allCellsByteIdentical": true
+ },
+ "renders": [
+  {
+   "cell": "b8 (default/ink)",
+   "G-T1": {
+    "pass": true,
+    "value": "1190==1190, \u039420ms, audio True"
+   },
+   "G-T2-raw": {
+    "pass": false,
+    "coverage": 0.833,
+    "extraPer30s": 0.63,
+    "class": "micro-shot merged-fire / split-spike (the b8 979/982 and b12 117/120 clusters fire as one event; T2b resolves per the frozen harness rule)"
+   },
+   "G-T2b": {
+    "pass": true,
+    "coverage": 1.0,
+    "inventedCuts": [],
+    "perCut": [
+     [
+      189,
+      2.949,
+      true
+     ],
+     [
+      475,
+      3.43,
+      true
+     ],
+     [
+      550,
+      3.651,
+      true
+     ],
+     [
+      862,
+      4.824,
+      true
+     ],
+     [
+      979,
+      3.189,
+      true
+     ],
+     [
+      982,
+      1.118,
+      true
+     ]
+    ]
+   },
+   "G-T3": {
+    "pass": true,
+    "pearsonR": 0.8488
+   },
+   "G-T4": {
+    "pass": true,
+    "percentOfRange": 0.7121,
+    "inputBaseline": 0.458
+   },
+   "sha256BothPasses": "a626bd83eb6aa9fb3abe0538f391a502503477089e02819eb330273db52f45bb",
+   "verdict": "ALL HARD GATES GREEN \u2014 T2-raw coverage residual (0.667) is the micro-shot merged-fire class resolved by T2b per the frozen harness rule (coverage 1.0, 0 invented)"
+  },
+  {
+   "cell": "b12 (default/ink, --max-frames 300)",
+   "G-T1": {
+    "pass": true,
+    "value": "300==300, \u03940ms, audio True"
+   },
+   "G-T2-raw": {
+    "pass": false,
+    "coverage": 0.0,
+    "extraPer30s": 5.0,
+    "class": "micro-shot merged-fire / split-spike (the b8 979/982 and b12 117/120 clusters fire as one event; T2b resolves per the frozen harness rule)"
+   },
+   "G-T2b": {
+    "pass": false,
+    "coverage": 0.5,
+    "inventedCuts": [
+     73
+    ],
+    "perCut": [
+     [
+      117,
+      3.301,
+      true
+     ],
+     [
+      120,
+      1.226,
+      false
+     ]
+    ]
+   },
+   "G-T3": {
+    "pass": true,
+    "pearsonR": 0.8213
+   },
+   "G-T4": {
+    "pass": true,
+    "percentOfRange": 1.1169,
+    "inputBaseline": 0.4806
+   },
+   "sha256BothPasses": "44b550e6bdfe7cdcf9e431baf4067601debb4028699128f4c6f0994ad659e490",
+   "verdict": "HONEST FAIL \u2014 G-T2b: (a) the 120 micro-shot second boundary unmatched (amplitude ratio 1.23 carried, the 2.6x local-median bar not cleared \u2014 the wash around the 117 flood elevates it); (b) ONE invented cut at 73: a legitimate MOG2 flood response to a sustained 51.4-absdiff close-up input event, amplified 2.4x by the binary ink vs the 2x invented-cut tolerance (measured class; the b8 twin at 935 is suppressed there by the different model state)"
+  },
+  {
+   "cell": "b2 (default/ink)",
+   "G-T1": {
+    "pass": true,
+    "value": "225==225, \u039420ms, audio True"
+   },
+   "G-T2-raw": {
+    "pass": false,
+    "coverage": 0.0,
+    "extraPer30s": 0.0,
+    "class": "micro-shot merged-fire / split-spike (the b8 979/982 and b12 117/120 clusters fire as one event; T2b resolves per the frozen harness rule)"
+   },
+   "G-T2b": {
+    "pass": false,
+    "coverage": 0.0,
+    "inventedCuts": [],
+    "perCut": [
+     [
+      97,
+      0.988,
+      false
+     ]
+    ]
+   },
+   "G-T3": {
+    "pass": true,
+    "pearsonR": 0.8447
+   },
+   "G-T4": {
+    "pass": false,
+    "percentOfRange": 1.9583,
+    "inputBaseline": 0.9449
+   },
+   "sha256BothPasses": "045978141e336c297d9c1de39a575c1e32f92c8e3627f473929a985d8b6836c0",
+   "verdict": "HONEST FAIL \u2014 the closeup zoom/parallax class: the translation+zoom compensation cannot hold a 1-2-player closeup (G-T4 1.9583% flicker, mask churn) and its single cut at 97 never clears the output spike bar in the high-median closeup context (T2b cov 0.0, ratio 0.99 carried)"
+  },
+  {
+   "cell": "b8-xray (--profile xray)",
+   "G-T1": {
+    "pass": true,
+    "value": "1190==1190, \u039420ms, audio True"
+   },
+   "G-T2-raw": {
+    "pass": false,
+    "coverage": 0.833,
+    "extraPer30s": 1.89,
+    "class": "micro-shot merged-fire / split-spike (the b8 979/982 and b12 117/120 clusters fire as one event; T2b resolves per the frozen harness rule)"
+   },
+   "G-T2b": {
+    "pass": false,
+    "coverage": 1.0,
+    "inventedCuts": [
+     936
+    ],
+    "perCut": [
+     [
+      189,
+      4.186,
+      true
+     ],
+     [
+      475,
+      5.087,
+      true
+     ],
+     [
+      550,
+      6.572,
+      true
+     ],
+     [
+      862,
+      5.96,
+      true
+     ],
+     [
+      979,
+      3.552,
+      true
+     ],
+     [
+      982,
+      2.103,
+      true
+     ]
+    ]
+   },
+   "G-T3": {
+    "pass": false,
+    "pearsonR": 0.7989
+   },
+   "G-T4": {
+    "pass": false,
+    "percentOfRange": 2.279,
+    "inputBaseline": 0.458
+   },
+   "sha256BothPasses": "3a5c467f683d80aaeecd106528f71bfcb147b7abca0801a94f17ca40f99b2c39",
+   "verdict": "SHIPPED PROFILE, honest weaker gates \u2014 all 6 cuts matched (cov 1.0) but ONE invented cut at 936 (the close-up amplification class) and G-T4 2.279% (the distance-field interior churns more than the flat ink) and T3 0.7989 (just under the 0.80 bar); double-render byte-identical"
+  }
+ ],
+ "regression": {
+  "cartoon-cel-b8": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c == w4b anchor (BYTE-MATCH)",
+  "noir-retro-noir-b8": "3eedb4238f56900f6b1559ce0f19e0ea1aa2044a453bdd2bce453d4a1b0711a4 == w4b anchor (BYTE-MATCH)",
+  "subject-toon-b8": "503ea271561d770c8482a8e472582aba5b54fd4a889b7eeef2c889d59e960f74 == w4b anchor (BYTE-MATCH)",
+  "frozenFileSet": "git diff b612adf over render.py / stages.py / encode.py / provenance.py / registry.py / __init__.py / qa_check.py / cuts_deep.py / vlm_scorecard.py / spe/trials/ = EMPTY"
+ },
+ "fastLoopPhase3Reverify": {
+  "command": "frozen CLI, b8 first-300, final code",
+  "sha256": "0ee35c7bbebb1ab878aa949ceea24770dee1776236a0adf74c4e5c0735f01b5f",
+  "gates": {
+   "G-T2b": "PASS cov 1.0 inv []",
+   "G-T3": 0.7875,
+   "G-T4": "0.9743%"
+  },
+  "note": "the first-300 sub-window T3 (0.7875) is below the full-clip value (0.8488) \u2014 the sub-window lacks the full cut-alignment contribution; the full-clip gates are the shipped evidence"
+ },
+ "scorecard": {
+  "protocol": "frozen acceptance doc \u00a72 (7-axis), vlm_scorecard.py v2 unmodified, 15/15 calls landed (glm-5v-turbo)",
+  "gatesInScorecard": {
+   "G-T1": {
+    "value": "1190==1190",
+    "pass": true
+   },
+   "G-T2": {
+    "value": "coverage=1.0",
+    "pass": true,
+    "note": "detector miss on stylization-softened cut resolved by the deep correspondence gate (T2b)"
+   },
+   "G-T3": {
+    "value": "pearsonR=0.8488",
+    "pass": true
+   },
+   "G-T4": {
+    "value": "percentOfRange=0.7121",
+    "pass": true
+   },
+   "G-T5": {
+    "value": "double render byteIdentical (b8 full-artifact)",
+    "pass": true,
+    "source": "b8 full-artifact"
+   }
+  },
+  "vlm": {
+   "meanScores": {
+    "sourceFidelity": 2.53,
+    "temporalConsistency": 2.4,
+    "identityConsistency": 1.47,
+    "motionFidelity": 1.93,
+    "sceneFidelity": 1.87,
+    "stylizationStrength": 4.93
+   },
+   "minAxisMean": 1.47,
+   "overallMean": 2.52,
+   "criticalArtifacts": 111,
+   "totalArtifacts": 221,
+   "evidence": [
+    "vlm/silhouette-xray-t2s.json",
+    "vlm/silhouette-xray-t8s.json",
+    "vlm/silhouette-xray-t15s.json",
+    "vlm/silhouette-xray-t30s.json",
+    "vlm/silhouette-xray-t45s.json",
+    "vlm/silhouette-xray-c189pre.json",
+    "vlm/silhouette-xray-c189post.json",
+    "vlm/silhouette-xray-c475pre.json",
+    "vlm/silhouette-xray-c475post.json",
+    "vlm/silhouette-xray-c550pre.json",
+    "vlm/silhouette-xray-c550post.json",
+    "vlm/silhouette-xray-c862pre.json",
+    "vlm/silhouette-xray-c862post.json",
+    "vlm/silhouette-xray-c979pre.json",
+    "vlm/silhouette-xray-c982post.json"
+   ],
+   "tierThresholds": {
+    "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+    "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+   }
+  },
+  "tierClaim": 0
+ },
+ "honestVerdict": {
+  "tier": 0,
+  "hardGatesGreenOnScorecardCell": true,
+  "statement": "b8 (the scorecard substrate) carries ALL hard gates green (G-T1..G-T5, double-render byte-identical); the VLM verdict is honest Tier 0: min axis identityConsistency 1.47 (players are abstract ink blobs at 640x360 wide framing \u2014 the silhouette IS the content, judged against the original's full identity), stylizationStrength 4.93 (the transformation is obvious), criticalArtifacts 111 (limbs 64 + players 47 \u2014 blob silhouettes read as malformed/disappearing players). The frozen bar (every axis >= 4.0 + 0 critical + TL approval) is NOT met. The coverage cells b12/b2 additionally carry honest T2b fails (the micro-shot local-median class + the close-up amplification class + the closeup zoom/parallax class) \u2014 recorded, not hidden.",
+  "familyContext": "sibling tier-0 outcomes: subject-toon 2.73/15, noir 3.59/1, motion-trails 3.47/2, lowpoly 1.93/67, anime 1.80/136, cartoon-cel 1.53/99, ink-manga 1.47/88; silhouette-xray lands at 1.47/111 \u2014 the structure-selecting family's machine-gate behavior differed as predicted (the T3 structure-vs-camera tension, the invented-cut amplification classes) but the VLM outcome lands in the same identity-collapse region"
+ },
+ "measuredNextIncrement": "identityConsistency 1.47 / motionFidelity 1.93 are the blockers. Ranked attack paths: (a) NEURAL MATTING \u2014 SAM2/RVM replace the MOG2 mask with semantic player masks (the candidates.yaml neural_candidates; the deterministic engine architecture stays, the mask source swaps \u2014 the coverage-age/warp machinery rides through unchanged); (b) dual-path compositing \u2014 subject-toon's mask-gentle architecture applied to the ink profile (silhouette ink on subjects, soft desaturated source on background \u2014 attacks sceneFidelity 1.87 and sourceFidelity 2.53 directly); (c) the micro-shot/invented-cut classes need a hysteresis cut-tagger (the local-median bars are knife-edge at \u00b115%). All three ride the same mask-stabilization skeleton this trial shipped."
+}

@@ -27,6 +27,36 @@
     "s6-thr34-decay75"
    ],
    "finding": "maskDecay is the T3 knob: 0.90 -> 0.75 lifts T3 0.6986 -> 0.8573 (the max-decay ghost-lag decorrelates the output motion series from the input; crisp decay synchronizes silhouette motion with subject motion); soften/dilate are neutral-to-negative; the threshold+decay synthesis passes ALL gates (s5 0.8394, s6 0.8473)"
+  },
+  {
+   "phase": 3,
+   "purpose": "the full-render honest re-opens (the ink-manga/w5e precedent): the first full b8 pass FAILED G-T2b with 11 invented cuts; two redesign cycles followed, all measured",
+   "variants": [
+    "full-b8 cut-reinit design (superseded)",
+    "EMA-reset-at-cut (superseded)",
+    "rise-capped-only (superseded)",
+    "post-flood boost + decay sweep",
+    "partial-entry experiments (superseded)",
+    "final: thr34 + decay65 + rise40 + gj25 + boost"
+   ],
+   "findings": [
+    "the engine's cut list contains the recorded 882-943 goal-segment false positives (sustained-motion spikes); every MOG2 re-init at those frames manufactured an all-ink fresh-model flash = an invented output cut (11 on b8)",
+    "the natural model-mismatch flood at REAL cuts provides the cut-preservation spike; the GLOBAL-JUMP rule (mean mask jump > 0.25) detects it; cross-cut global-fit garbage is noise-averaged (measured increments <= 8 px) so the cumulative affine needs no reset",
+    "the post-flood learning-rate boost (0.12 for 12 frames) shortens the model-mismatch wash so a following micro-shot boundary clears the 2.6x local-median bar (b8 982: coverage 0.833 -> 1.0)",
+    "the PER-PIXEL rise cap (+0.40/frame) is a LIVE mechanism (binds on local high-contrast growth with small mean impact \u2014 fast limbs popping); removing it cost the b8 all-green state (root-caused and restored)",
+    "a residual-flow cut detector was measured NOT separable (cuts 3.0-10.5 vs goal segment up to 5.4) and abandoned",
+    "the close-up amplification class (b8-935/b12-73): a sustained 51.4-absdiff close-up input event floods MOG2 legitimately; the binary ink amplifies it ~2.4x vs the 2x invented-cut tolerance \u2014 one knife-edge invented cut survives on b12 (the b8 twin suppressed by a different model state); recorded, NOT gamed",
+    "the b2 closeup zoom/parallax class: the translation+zoom compensation cannot hold a 1-2-player closeup (T4 1.9583% churn) and its cut never clears the high-median bar \u2014 an honest family-level fail on that cell"
+   ],
+   "finalCodeFastLoopReverify": {
+    "sha256": "0ee35c7bbebb1ab878aa949ceea24770dee1776236a0adf74c4e5c0735f01b5f",
+    "gates": {
+     "G-T2b": "PASS cov 1.0 inv []",
+     "G-T3": 0.7875,
+     "G-T4": "0.9743%"
+    },
+    "note": "sub-window T3 below the full-clip value (0.8488) \u2014 the first-300 window lacks the full cut-alignment contribution; full-clip gates are the shipped evidence"
+   }
   }
  ],
  "panAB": {
@@ -82,7 +112,16 @@
   "sha256First300": "2ae16ab0ff58b9922552614771ac9e0a855847defc3957da96cebce905efbac2",
   "cliReverify": "BYTE-IDENTICAL via the frozen CLI (render.py --max-frames 300) \u2014 2ae16ab0ff58b9922552614771ac9e0a855847defc3957da96cebce905efbac2",
   "doubleRender": "BYTE-IDENTICAL (independent out-dir, same 300-frame window) \u2014 2ae16ab0... x2",
-  "frozenInto": "SILHOUETTE_XRAY.config (mogVarThreshold 28->34, maskDecay 0.90->0.75) \u2014 the shipped defaults; every later gate/determinism number is measured on this config"
+  "frozenInto": "SILHOUETTE_XRAY.config (mogVarThreshold 28->34, maskDecay 0.90->0.75) \u2014 the shipped defaults; every later gate/determinism number is measured on this config",
+  "finalShippedConfig": {
+   "mogVarThreshold": 34.0,
+   "maskDecay": 0.65,
+   "maskRise": 0.4,
+   "globalJump": 0.25,
+   "mogLearningRateBoost": 0.12,
+   "mogBoostFrames": 12,
+   "note": "the phase-3-hardened evolution of the phase-2 winner (decay 0.75 -> 0.65 + the boost + the rise cap retained); every full-render/scorecard number is measured on this config"
+  }
  },
  "variants": [
   {

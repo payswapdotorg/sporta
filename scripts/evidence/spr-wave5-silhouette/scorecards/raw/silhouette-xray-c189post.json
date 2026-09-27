@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match and general camera context are recognizable, but the stylized frames are heavily degraded and lack specific detail.\n2. temporalConsistency - 3: The overall scene remains stable between the two frames, though individual player shapes flicker and shift slightly.\n3. identityConsistency - 1: Players are reduced to indistinct blobs with no visual features to maintain identity across frames.\n4. motionFidelity - 2: General positional shifts are present but are obscured by the extreme abstraction and loss of form.\n5. sceneFidelity - 2: The stadium outline and field lines are vaguely present but severely warped and lacking spatial precision.\n6. stylizationStrength - 5: The transformation into a high-contrast, edge-detected silhouette is extremely aggressive and obvious.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=4 warped=5 dupes=0 ball=5 bg=4 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535730,
+  "id": "202609280302024fecd1dae4a24db6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609280302024fecd1dae4a24db6",
+  "usage": {
+    "completion_tokens": 215,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1384
+  }
+}

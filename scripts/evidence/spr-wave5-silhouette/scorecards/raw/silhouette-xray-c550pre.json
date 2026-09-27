@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The match and general camera context are recognizable, but the extreme abstraction loses most specific spatial details of the original frame.\n2. temporalConsistency: 1 - The stylized forms undergo severe morphing, flickering, and structural collapse between the two frames.\n3. identityConsistency: 1 - Player silhouettes are unrecognizable blobs that lack stable visual features or consistent outlines.\n4. motionFidelity: 1 - The chaotic distortion of the main subject makes it impossible to discern any logical physical movement or ball trajectory.\n5. sceneFidelity: 1 - The background is almost entirely erased, leaving only faint, unrecognizable noise where the stadium should be.\n6. stylizationStrength: 5 - The transformation into a high-contrast, abstract silhouette/x-ray style is extremely aggressive and unmistakable.\n\nAXES sf=2 tc=1 ic=1 mf=1 scf=1 ss=5\nARTIFACTS limbs=1 players=1 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535745,
+  "id": "2026092803021941ba04c53c3f4068",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092803021941ba04c53c3f4068",
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1394
+  }
+}

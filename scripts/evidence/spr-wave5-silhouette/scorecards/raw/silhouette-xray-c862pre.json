@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The scene context is recognizable but extremely degraded, losing most structural detail.\n2. temporalConsistency - 3: The two frames are very similar with minimal flickering or morphing between them.\n3. identityConsistency - 1: Players are reduced to unrecognizable blobs; no visual identity is preserved.\n4. motionFidelity - 1: The extreme abstraction makes it impossible to verify any meaningful player or ball motion.\n5. sceneFidelity - 2: Basic spatial layout of the field and background elements is vaguely present but heavily warped.\n6. stylizationStrength - 4: The transformation into a high-contrast, edge-detected silhouette is clearly applied and consistent.\n\nAXES sf=2 tc=3 ic=1 mf=1 scf=2 ss=4\nARTIFACTS limbs=0 players=3 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535760,
+  "id": "2026092803023416012f43bf38419d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092803023416012f43bf38419d",
+  "usage": {
+    "completion_tokens": 197,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1366
+  }
+}

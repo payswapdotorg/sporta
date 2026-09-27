@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match context and general player position are recognizable, but the extreme stylization obscures specific details.\n2. temporalConsistency - 2: Significant flickering and morphing of the background and player edges between the two frames.\n3. identityConsistency - 2: The player's form is heavily distorted, making visual stability of features difficult to maintain.\n4. motionFidelity - 2: Motion is suggested but obscured by the heavy noise and lack of clear limb definition.\n5. sceneFidelity - 2: The background (goal net) is present but drifts and warps significantly between frames.\n6. stylizationStrength - 5: The silhouette-xray transformation is extremely aggressive and unmistakable.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790535767,
+  "id": "20260928030241eb8e48c65e904371",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928030241eb8e48c65e904371",
+  "usage": {
+    "completion_tokens": 203,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1372
+  }
+}
