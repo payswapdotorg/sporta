@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Same match and camera context, but background details are heavily abstracted.\n2. temporalConsistency - 2: Significant flickering in the field texture, player shapes, and background elements between frames.\n3. identityConsistency - 2: The main player's form is recognizable but highly unstable; other players are reduced to indistinct blobs.\n4. motionFidelity - 2: The main player's stride is captured, but the motion is jerky and the ball is missing/abstracted away.\n5. sceneFidelity - 2: The stadium structure is present as a dark mass, but spatial consistency of lines and crowd is poor.\n6. stylizationStrength - 5: The heavy posterization and color blocking create a very obvious, extreme stylistic transformation.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579807,
+  "id": "2026092815164265a1676497324f8b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815164265a1676497324f8b",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1383
+  }
+}

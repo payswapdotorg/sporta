@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images clearly depict the same match, moment (24:42), and camera angle as the original.\n2. temporalConsistency: 4 - The scene remains stable between the two frames with minimal flickering or morphing of objects.\n3. identityConsistency: 3 - Players are recognizable but heavily simplified into blobs; some fine details are lost in the style.\n4. motionFidelity: 3 - Subtle player movements (like the goalkeeper's arm) are consistent, though the heavy abstraction makes precise tracking difficult.\n5. sceneFidelity: 4 - The stadium layout, advertising boards, and field lines maintain their spatial positions accurately.\n6. stylizationStrength: 5 - The transformation into a high-contrast, posterized cartoon style is extremely obvious and aggressive.\n\nAXES sf=5 tc=4 ic=3 mf=3 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579838,
+  "id": "2026092815171305237ed0f2e94645",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815171305237ed0f2e94645",
+  "usage": {
+    "completion_tokens": 219,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}

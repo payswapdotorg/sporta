@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEST=B WORST=A REASON=Variant B provides the optimal balance of flow-stabilized, clean ink lines and a compelling 2-tone cel-shaded look, whereas Variant A suffers from severe temporal instability and noise due to the lack of flow stabilization.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790578232,
+  "id": "202609281450275694524b795f4c3b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281450275694524b795f4c3b",
+  "usage": {
+    "completion_tokens": 54,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5130,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 5184
+  }
+}

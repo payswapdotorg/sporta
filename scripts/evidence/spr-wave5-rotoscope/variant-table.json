@@ -1,0 +1,146 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-I",
+ "loop": "b8 first-300 (gateref 9efa9b99...) vs each variant",
+ "variants": [
+  {
+   "variant": "v0-noflow",
+   "overrides": {
+    "flowStabilize": false
+   },
+   "sha256": "b4473f89b2ec5346fae531f4bda28b93be7234e99253858812f6305d008dea37",
+   "T3": 0.9727,
+   "T3pass": true,
+   "T4": 0.6332,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v1-recipe",
+   "overrides": {},
+   "sha256": "5b7a76f045f1302d9bdeeb61a387c84b5c5ddf748b4625c75119ccf7399e118a",
+   "T3": 0.975,
+   "T3pass": true,
+   "T4": 0.6193,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v2-tone-15-04",
+   "overrides": {
+    "toneLight": 1.5,
+    "toneDark": 0.4
+   },
+   "sha256": "e989a56754f84db67e276273fde82cc6a46f49693a7bb38fb711ae46216848f4",
+   "T3": 0.9761,
+   "T3pass": true,
+   "T4": 0.6056,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v3-tone-17-03",
+   "overrides": {
+    "toneLight": 1.7,
+    "toneDark": 0.3
+   },
+   "sha256": "6b7dd36885420856817e5426a75751c1d4de48faa69f593278c57bc7fb9cbd4f",
+   "T3": 0.9745,
+   "T3pass": true,
+   "T4": 0.6329,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v4-eps-0015",
+   "overrides": {
+    "xdogEps": 0.0015
+   },
+   "sha256": "f76beca9914e1b4759dabd571b25e450af6db3a5cd80213aaa68d204b597e71a",
+   "T3": 0.9746,
+   "T3pass": true,
+   "T4": 0.6398,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v5-phi-12",
+   "overrides": {
+    "xdogPhi": 12.0
+   },
+   "sha256": "9d37f664daab4c3828a92f598a7f7e6836431d1ebeaf54cd4a32024d8f83d8e6",
+   "T3": 0.9749,
+   "T3pass": true,
+   "T4": 0.6183,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v6-floor-02",
+   "overrides": {
+    "lineFloor": 0.2
+   },
+   "sha256": "f793dfe86c99770eceaa1c41861faa30419ddd06d3bb9a5b2086783f902b34f6",
+   "T3": 0.9751,
+   "T3pass": true,
+   "T4": 0.6133,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v7-sat-125",
+   "overrides": {
+    "saturation": 1.25
+   },
+   "sha256": "ef92b2fd4e72b01a41e535eaf5883b6074817f035f4853cc55f8842d4c17a162",
+   "T3": 0.9724,
+   "T3pass": true,
+   "T4": 0.6077,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  }
+ ],
+ "flowThesis": "v0-noflow T4 0.6332 vs v1 (stabilized) T4 0.6193 \u2014 the stabilization improves static-region stability (honest fresh delta smaller than the recorded original's 0.6248->0.4263); VLM duel independently: stabilized BEST, no-flow WORST ('severe temporal instability and noise')",
+ "winner": "v1-recipe",
+ "winnerBasis": "all gates green + VLM duel BEST=B(v1-recipe) WORST=A(v0-noflow)"
+}

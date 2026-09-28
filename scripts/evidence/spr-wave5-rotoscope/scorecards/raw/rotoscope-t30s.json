@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: Same match, moment, and camera context are clearly preserved despite heavy stylization.\n2. temporalConsistency - 3: Significant flickering and shape-shifting of players and background elements between the 0.2s interval.\n3. identityConsistency - 2: Players are reduced to abstract colored blobs, making individual visual stability very poor.\n4. motionFidelity - 3: General direction of movement is captured, but fine details like the goalkeeper's dive are lost or distorted.\n5. sceneFidelity - 2: Stadium background and advertising boards are heavily warped and lack spatial consistency.\n6. stylizationStrength - 5: The transformation into a high-contrast, cartoonish/rotoscoped style is extremely obvious and aggressive.\n\nAXES sf=4 tc=3 ic=3 mf=3 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=1 bg=5 tj=3",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579782,
+  "id": "2026092815161763f4e265d9c74e8d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815161763f4e265d9c74e8d",
+  "usage": {
+    "completion_tokens": 209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1376
+  }
+}

@@ -1,0 +1,81 @@
+{
+ "family": "rotoscope",
+ "rendererId": "spr-rotoscope-dc1",
+ "rendererVersion": "0.1.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": null
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9774",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.5487",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9774,
+  "staticRegionInstability": 0.5487,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 4.47,
+   "temporalConsistency": 2.6,
+   "identityConsistency": 2.33,
+   "motionFidelity": 2.47,
+   "sceneFidelity": 2.53,
+   "stylizationStrength": 5.0
+  },
+  "minAxisMean": 2.33,
+  "overallMean": 3.23,
+  "criticalArtifacts": 62,
+  "totalArtifacts": 142,
+  "evidence": [
+   "vlm/rotoscope-t2s.json",
+   "vlm/rotoscope-t8s.json",
+   "vlm/rotoscope-t15s.json",
+   "vlm/rotoscope-t30s.json",
+   "vlm/rotoscope-t45s.json",
+   "vlm/rotoscope-c189pre.json",
+   "vlm/rotoscope-c189post.json",
+   "vlm/rotoscope-c475pre.json",
+   "vlm/rotoscope-c475post.json",
+   "vlm/rotoscope-c550pre.json",
+   "vlm/rotoscope-c550post.json",
+   "vlm/rotoscope-c862pre.json",
+   "vlm/rotoscope-c862post.json",
+   "vlm/rotoscope-c979pre.json",
+   "vlm/rotoscope-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

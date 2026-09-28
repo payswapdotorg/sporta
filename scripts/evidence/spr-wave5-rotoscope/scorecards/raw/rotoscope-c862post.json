@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The subject, kit, and background elements (goal net, scoreboard) are clearly identical to the source frame.\n2. temporalConsistency - 2: Significant flickering and morphing of the player's silhouette, limbs, and facial features between the two frames.\n3. identityConsistency - 2: While the general shape is maintained, the player's face and body structure shift noticeably in style and proportion.\n4. motionFidelity - 3: The subtle change in arm position is captured, though the heavy stylization makes the exact motion vector hard to verify precisely.\n5. sceneFidelity - 4: The goal net, field, and UI overlays remain spatially stable and consistent across both frames.\n6. stylizationStrength - 5: A very aggressive, high-contrast posterization/rotoscope effect that completely transforms the visual texture.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=4 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579842,
+  "id": "202609281517180176d35fbdf045d1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281517180176d35fbdf045d1",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 295
+    },
+    "total_tokens": 1398
+  }
+}
