@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, camera angle, and match context are perfectly preserved in the stylized versions.\n2. temporalConsistency - 4: Motion is smooth and continuous between the two frames with no jarring flickers or morphing.\n3. identityConsistency - 5: Player appearances and kit colors remain visually stable and recognizable across all frames.\n4. motionFidelity - 5: The player's running stride and ball position show a physically accurate progression over the 0.2s interval.\n5. sceneFidelity - 4: Background elements like advertising boards and stands are consistent, though slightly softened by the style.\n6. stylizationStrength - 4: The transformation to a darker, high-contrast player-focus look is clear and effective.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591517,
+  "id": "20260928183154531a75e8fee74133",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928183154531a75e8fee74133",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 295
+    },
+    "total_tokens": 1377
+  }
+}

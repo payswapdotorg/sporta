@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "TL_VERDICT=PASS\nNOTES: The v0.2.0 treatment successfully addresses the previous failures; the 1.35x zoom and 0.45 dim strength provide a clear, product-quality visual hierarchy that draws the eye to the action without losing broadcast context. The player-priority tracker is now robust, correctly identifying and centering on the players at t=8 (avoiding the background ad-board) and maintaining focus across all other timestamps. Players remain fully readable with limbs intact, and the 28-pixel edge feather ensures a professional, non-distracting transition into the dimmed periphery while preserving the full spatial context of the match.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591631,
+  "id": "20260928183346d67269cee41947fc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928183346d67269cee41947fc",
+  "usage": {
+    "completion_tokens": 137,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1462,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1599
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, moment, and camera context are identical between the original and stylized frames.\n2. temporalConsistency: 3 - While the main subject is stable, background players and lines exhibit noticeable flickering and warping between the two close-in-time frames.\n3. identityConsistency: 4 - The primary player's appearance is highly consistent, though some background players lose detail or shift appearance slightly.\n4. motionFidelity: 4 - The player's running motion and ball position show a logical, consistent progression across the sequence.\n5. sceneFidelity: 2 - The stadium background and field markings are heavily distorted, with significant spatial drift and line warping.\n6. stylizationStrength: 5 - The transformation to a darkened, high-contrast player-focus style is very obvious and effectively applied.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=2 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591222,
+  "id": "202609281826565b8e4d64f81d41bf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281826565b8e4d64f81d41bf",
+  "usage": {
+    "completion_tokens": 224,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 295
+    },
+    "total_tokens": 1391
+  }
+}

@@ -1837,9 +1837,40 @@ class _PlayerFocusState:
               sprung rect to the output instead — the REJECTED
               anti-precedent, measured as fast-loop v0.]
 
+    v0.2.0 — player-priority tracking (config-gated; the w5h2 TL-gate
+    diagnosis: the motion gate followed the biggest motion BLOB — an
+    animated ad board at t=8 — and the sprung window ballooned to
+    near-full-frame, diluting the spotlight to nothing):
+    Stage 0.5 priority_reweight: the motion map is reweighted by
+              (a) a per-frame grass-region PITCH MASK (largest HSV
+              grass-band component, interior holes filled so players
+              standing on the pitch stay inside; boards/crowd/stands
+              attenuated to outsidePitchFloor), (b) a blob shape/size
+              filter (wide+large = the board class; huge = global
+              motion), (c) a kit-color boost (saturated blobs whose
+              circular-mean hue is outside the grass band), (d) a gentle
+              center prior. The opening union accumulates the weighted
+              flow (players, not boards, seed the track).
+    Stage 2.5 escape       : a persistent mass collapse in the sprung
+              window (streak >= escapeFrames) re-seeds the target to
+              the best priority blob — deterministic, streak-based.
+    Clamp     : the CAMSHIFT/seed/escape targets are clamped to a
+              compact spotlight (maxWindowFracW x maxWindowFracH =
+              0.75 x 0.65, the fast-loop VLM duel winner) so the dim
+              mask stays a real focus, never a full-frame wash.
+    DimExempt : player-exempt dim (protectPlayers, default OFF) —
+              measured and rejected in the w5h3 mini-A/B: the motion-
+              gated exemption fixed the c189post edge-crossing class but
+              introduced a worse t2s class (slow/stopping players dim
+              when their motion blob drops — 'background players flicker');
+              the feather 28 edge softening cleared the limb class without
+              any temporal instability. Code path retained config-gated.
+
     Deterministic: MOG2 GMM updates, Farneback, CAMSHIFT and the spring
     integration are deterministic functions of the frame sequence; no
-    RNG. The spring math runs float64 (scalar state).
+    RNG. The spring math runs float64 (scalar state). The v0.2.0
+    additions (connected components, flood fill, HSV stats) are likewise
+    deterministic per-frame functions with no RNG.
     """
 
     def __init__(self, cfg: dict, cuts: set):
@@ -1870,6 +1901,48 @@ class _PlayerFocusState:
         # stage 5 — soft dim
         self.dim_strength = float(c.get("dimStrength", 0.45))
         self.mask_feather = float(c.get("maskFeather", 21.0))
+        # ---- stage 0.5 — player-priority tracking (SPR205 v0.2.0) ----
+        # Config-key gating (the w5a subject-toon v0.2.0 pattern): with the
+        # v0.1.0 key set (no "playerPriority") this class stays
+        # behaviourally identical to v0.1.0 — proven by byte-identical
+        # re-render of the v0.1.0 anchor. The w5h2 TL-gate diagnosis
+        # (ad-board lock + window balloon) is fixed ONLY on this path.
+        self.player_priority = bool(c.get("playerPriority", False))
+        # pitch mask (grass region; per-frame, cut-safe — recomputed every
+        # frame from the frame's own HSV, no cross-cut state)
+        self.pitch_hue_lo = int(c.get("pitchHueLo", 30))
+        self.pitch_hue_hi = int(c.get("pitchHueHi", 95))
+        self.pitch_sat_min = int(c.get("pitchSatMin", 35))
+        self.pitch_val_min = int(c.get("pitchValMin", 30))
+        self.outside_pitch_floor = float(c.get("outsidePitchFloor", 0.25))
+        # blob-level priors (shape = the board class; size = the global-
+        # motion class; kit = the saturated non-grass boost)
+        self.min_blob_px = int(c.get("minBlobPx", 12))
+        self.board_aspect_max = float(c.get("boardAspectMax", 3.2))
+        self.board_area_min = int(c.get("boardAreaMin", 300))
+        self.board_penalty = float(c.get("boardPenalty", 0.15))
+        self.global_area_max = int(c.get("globalAreaMax", 3400))
+        self.global_penalty = float(c.get("globalPenalty", 0.35))
+        self.kit_sat_min = int(c.get("kitSatMin", 60))
+        self.kit_boost = float(c.get("kitBoost", 1.6))
+        self.center_falloff = float(c.get("centerFalloff", 0.25))
+        # compact spotlight clamp (the w5h2 window-balloon fix: v0.1.0
+        # ballooned to w=365>320 canvas — the spotlight diluted to nothing)
+        self.max_window_frac_w = float(c.get("maxWindowFracW", 0.62))
+        self.max_window_frac_h = float(c.get("maxWindowFracH", 0.52))
+        # deterministic tracker escape (persistent mass collapse -> re-seed
+        # to the best priority blob; streak-based, no RNG)
+        self.escape_mass = float(c.get("escapeMass", 0.02))
+        self.escape_frames = int(c.get("escapeFrames", 24))
+        # player-exempt dim (v0.2.0: the c189post scorecard class — the soft
+        # dim edge crossing peripheral players reads as limb artifacts; the
+        # fix keeps player blobs INSIDE the light: the dim darkens background
+        # only, never a player — targeting, not softening (dimStrength and
+        # feather unchanged))
+        self.protect_players = bool(c.get("protectPlayers", False))
+        self._player_soft: Optional[np.ndarray] = None
+        self._low_mass_streak = 0
+        self._center_w: Optional[np.ndarray] = None
         # stream state
         self.frame_index = 0
         self.prev_gray_small: Optional[np.ndarray] = None
@@ -1879,6 +1952,158 @@ class _PlayerFocusState:
         self.cam_started = False
 
     # -- helpers ------------------------------------------------------------
+
+    def _center_prior(self, sw: int, sh: int) -> np.ndarray:
+        """Gentle elliptical center prior (lazy, size-cached). 1.0 at the
+        frame center falling to 1−centerFalloff at the corners."""
+        if (self._center_w is None
+                or self._center_w.shape != (sh, sw)):
+            ys, xs = np.mgrid[0:sh, 0:sw].astype(np.float32)
+            dx = (xs - sw / 2.0) / (sw / 2.0)
+            dy = (ys - sh / 2.0) / (sh / 2.0)
+            d = np.sqrt(dx * dx + dy * dy) / np.sqrt(2.0)
+            self._center_w = (1.0 - self.center_falloff
+                               * np.clip(d, 0.0, 1.0)).astype(np.float32)
+        return self._center_w
+
+    def _pitch_mask(self, bgr: np.ndarray, sw: int, sh: int) -> np.ndarray:
+        """Soft grass-region mask (the player-priority stage 0.5a).
+
+        Largest connected component of the HSV grass band, interior holes
+        FILLED (players standing on the pitch punch holes in the raw grass
+        mask — flood-fill from the 4 corners on the complement keeps only
+        true interior holes), then closed/opened and Gaussian-softened.
+        Boards/crowd/stands sit OUTSIDE the region and are attenuated;
+        players INSIDE the region keep full weight. Per-frame and
+        deterministic (no state, cut-safe)."""
+        small = cv2.resize(bgr, (sw, sh), interpolation=cv2.INTER_AREA)
+        hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
+        hue = hsv[..., 0]
+        sat = hsv[..., 1]
+        val = hsv[..., 2]
+        grass = ((hue >= self.pitch_hue_lo) & (hue <= self.pitch_hue_hi)
+                 & (sat >= self.pitch_sat_min)
+                 & (val >= self.pitch_val_min)).astype(np.uint8)
+        n_cc, labels, stats, _ = cv2.connectedComponentsWithStats(
+            grass, 8)
+        if n_cc > 1:
+            best = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+            if stats[best, cv2.CC_STAT_AREA] >= 0.02 * sw * sh:
+                grass = (labels == best).astype(np.uint8)
+                # interior hole fill (players on the pitch)
+                inv = (grass == 0).astype(np.uint8)
+                ff = inv.copy()
+                pad = np.zeros((sh + 2, sw + 2), np.uint8)
+                for seed in ((0, 0), (sw - 1, 0), (0, sh - 1), (sw - 1, sh - 1)):
+                    if ff[seed[1], seed[0]] == 1:
+                        cv2.floodFill(ff, pad, seed, 0)
+                holes = (ff == 1)
+                grass[holes] = 1
+        grass = cv2.morphologyEx(grass, cv2.MORPH_CLOSE,
+                                 cv2.getStructuringElement(
+                                     cv2.MORPH_RECT, (11, 11)))
+        grass = cv2.morphologyEx(grass, cv2.MORPH_OPEN, self._k3)
+        out = cv2.GaussianBlur(grass.astype(np.float32), (0, 0), 3.0)
+        return out
+
+    def _priority_reweight(self, prob: np.ndarray, bgr: np.ndarray,
+                           sw: int, sh: int) -> np.ndarray:
+        """Stage 0.5 — player-priority reweighting of the motion map.
+
+        (a) pitch mask: motion outside the grass region attenuated to
+            outsidePitchFloor (ad boards / crowd / stands — the w5h2
+            t=8 ad-board lock class);
+        (b) blob filter: wide+large blobs (the board shape class) and
+            huge blobs (global motion) penalized; noise blobs dropped;
+        (c) kit prior: blobs whose circular-mean hue is saturated and
+            outside the grass band get kitBoost (players in coloured
+            kits — the "kit-color" prior from the w5h2 diagnosis);
+        (d) center prior: gentle multiplicative elliptical falloff.
+        All deterministic per-frame numpy/OpenCV; no RNG."""
+        hsv = cv2.cvtColor(cv2.resize(bgr, (sw, sh),
+                                      interpolation=cv2.INTER_AREA),
+                           cv2.COLOR_BGR2HSV)
+        hue = hsv[..., 0].astype(np.float32)
+        sat = hsv[..., 1].astype(np.float32)
+        pitch = self._pitch_mask(bgr, sw, sh)
+        prob = prob * (self.outside_pitch_floor
+                       + (1.0 - self.outside_pitch_floor) * pitch)
+        # blob-level pass on the surviving mass
+        hard = (prob > 0.35).astype(np.uint8)
+        n_cc, labels, stats, _ = cv2.connectedComponentsWithStats(hard, 8)
+        weight = np.ones(n_cc, dtype=np.float32)
+        center_w = self._center_prior(sw, sh)
+        for i in range(1, n_cc):
+            x, y, bw, bh, area = stats[i]
+            if area < self.min_blob_px:
+                weight[i] = 0.0
+                continue
+            aspect = bw / float(max(bh, 1))
+            if (aspect > self.board_aspect_max
+                    and area >= self.board_area_min):
+                weight[i] *= self.board_penalty
+            if area >= self.global_area_max:
+                weight[i] *= self.global_penalty
+            m = labels == i
+            # kit prior — circular-mean hue of the blob
+            ang = np.deg2rad(hue[m] * 2.0)
+            mh = (np.rad2deg(np.arctan2(np.sin(ang).mean(),
+                                        np.cos(ang).mean())) / 2.0) % 180.0
+            ms = float(sat[m].mean())
+            if (ms >= self.kit_sat_min
+                    and not (self.pitch_hue_lo <= mh <= self.pitch_hue_hi)):
+                weight[i] *= self.kit_boost
+            # gentle centroid prior at the blob level
+            cx = x + bw / 2.0
+            cy = y + bh / 2.0
+            weight[i] *= float(center_w[int(np.clip(cy, 0, sh - 1)),
+                                        int(np.clip(cx, 0, sw - 1))])
+        prob = prob * weight[labels]
+        if self.protect_players:
+            # soft player mask for the dim exemption: surviving non-board,
+            # non-global blobs (compact on-pitch motion entities: players,
+            # ball, officials — the c189post edge-crossing class fix)
+            keep = weight >= 0.5
+            pm = keep[labels] & (hard > 0)
+            pm = cv2.GaussianBlur(pm.astype(np.float32), (0, 0), 2.5)
+            self._player_soft = pm
+        return prob
+
+    def _best_priority_blob(self, prob: np.ndarray,
+                            sw: int, sh: int) -> Optional[np.ndarray]:
+        """Deterministic escape target: the blob maximizing
+        sqrt(area) x mean priority x centroid center-weight."""
+        hard = (prob > 0.35).astype(np.uint8)
+        n_cc, labels, stats, _ = cv2.connectedComponentsWithStats(hard, 8)
+        if n_cc <= 1:
+            return None
+        center_w = self._center_prior(sw, sh)
+        best_i, best_score = 0, 0.0
+        for i in range(1, n_cc):
+            x, y, bw, bh, area = stats[i]
+            if area < self.min_blob_px:
+                continue
+            m = labels == i
+            mean_p = float(prob[m].mean())
+            cx = x + bw / 2.0
+            cy = y + bh / 2.0
+            cw = float(center_w[int(np.clip(cy, 0, sh - 1)),
+                                int(np.clip(cx, 0, sw - 1))])
+            score = np.sqrt(float(area)) * mean_p * cw
+            if score > best_score:
+                best_score, best_i = score, i
+        if best_i == 0:
+            return None
+        x, y, bw, bh, area = stats[best_i]
+        return np.array([x + bw / 2.0, y + bh / 2.0,
+                         float(bw), float(bh)], dtype=np.float64)
+
+    def _clamp_target(self, target: np.ndarray, sw: int, sh: int) -> None:
+        """Compact-spotlight clamp (the window-balloon fix) + bounds."""
+        target[2] = float(min(target[2], self.max_window_frac_w * sw))
+        target[3] = float(min(target[3], self.max_window_frac_h * sh))
+        target[0] = float(np.clip(target[0], 0.05 * sw, 0.95 * sw))
+        target[1] = float(np.clip(target[1], 0.05 * sh, 0.95 * sh))
 
     def _neutral(self, sw: int, sh: int) -> np.ndarray:
         """Neutral center window (spring home; cut-reset target)."""
@@ -1931,11 +2156,20 @@ class _PlayerFocusState:
         prob = cv2.morphologyEx(prob, cv2.MORPH_OPEN, self._k3)
         prob = cv2.morphologyEx(prob, cv2.MORPH_CLOSE, self._k5)
 
+        # ---- stage 0.5: player-priority reweighting (v0.2.0) -------------
+        if self.player_priority:
+            prob = self._priority_reweight(prob, bgr, sw, sh)
+
         # ---- stage 1: flood-immune opening (ONCE per clip) ----------------
         opening = (not self.cam_started
                    and self.frame_index < self.opening_frames)
         if opening:
             flow_only = motion  # MOG2 start-flood immune
+            if self.player_priority:
+                # the opening union accumulates the PRIORITY-WEIGHTED flow
+                # (players, not boards, seed the track from frame one)
+                flow_only = self._priority_reweight(
+                    motion.copy(), bgr, sw, sh)
             if self.opening_union is None:
                 self.opening_union = flow_only.copy()
             else:
@@ -1967,6 +2201,8 @@ class _PlayerFocusState:
             target = np.array(
                 [seed[0] + seed[2] / 2.0, seed[1] + seed[3] / 2.0,
                  float(seed[2]), float(seed[3])], dtype=np.float64)
+            if self.player_priority:
+                self._clamp_target(target, sw, sh)
         if self.cam_started and not opening:
             # ---- stage 2: CAMSHIFT on the motion prob map -----------------
             if seed is not None:
@@ -1995,8 +2231,35 @@ class _PlayerFocusState:
                         target = np.array(
                             [x0 + bw2 / 2.0, y0 + bh2 / 2.0,
                              bw2, bh2], dtype=np.float64)
+                        if self.player_priority:
+                            # compact-spotlight clamp (window-balloon fix)
+                            self._clamp_target(target, sw, sh)
                 except cv2.error:
                     pass  # keep previous target deterministically
+        # ---- stage 2.5: deterministic tracker escape (v0.2.0) -------------
+        if (self.player_priority and self.cam_started and not opening
+                and not cut):
+            # mass inside the CURRENT sprung window on the weighted map —
+            # a window parked on a board/crowd reads near-zero priority
+            wx0 = int(max(0, self.pos[0] - self.pos[2] / 2.0))
+            wy0 = int(max(0, self.pos[1] - self.pos[3] / 2.0))
+            wx1 = int(min(sw, self.pos[0] + self.pos[2] / 2.0))
+            wy1 = int(min(sh, self.pos[1] + self.pos[3] / 2.0))
+            if wx1 > wx0 and wy1 > wy0:
+                mass = float(prob[wy0:wy1, wx0:wx1].mean())
+            else:
+                mass = 0.0
+            if mass < self.escape_mass:
+                self._low_mass_streak += 1
+            else:
+                self._low_mass_streak = 0
+            if self._low_mass_streak >= self.escape_frames:
+                blob = self._best_priority_blob(prob, sw, sh)
+                if blob is not None:
+                    # re-seed: glide to the best player-priority blob
+                    target = blob.copy()
+                    self._clamp_target(target, sw, sh)
+                self._low_mass_streak = 0
         if cut and not clip_start:
             # cut-reset: the old track is invalid — TARGET returns to the
             # neutral window and the spring GLIDES (never a jump)
@@ -2037,6 +2300,12 @@ class _PlayerFocusState:
                     m[y0:y1, x0:x1] = 1.0
                 m = cv2.GaussianBlur(m, (0, 0),
                                      max(self.mask_feather / 2.0, 1.0))
+                # v0.2.0 player-exempt dim: player blobs stay in the light
+                # (the dim darkens background only — the c189post
+                # edge-crossing limb class fixed by targeting, not softening)
+                if (self.player_priority and self.protect_players
+                        and self._player_soft is not None):
+                    m = np.maximum(m, self._player_soft)
                 m = cv2.resize(m, (w, h), interpolation=cv2.INTER_LINEAR)
                 m = cv2.warpAffine(m, M, (w, h), flags=cv2.INTER_LINEAR,
                                    borderMode=cv2.BORDER_REPLICATE)
@@ -2965,16 +3234,34 @@ REGISTRY[CLAY_TOY.reality] = CLAY_TOY
 PLAYER_FOCUS = RendererSpec(
     rendererId="spr-player-focus-dc1", reality="player-focus",
     family="Player Focus (SPR205)", sprId="SPR205",
+    version="0.2.0",
     usesFlow=True,
     pipeline=[
         "motion_gate(farneback residual > 1.8 px/f @320x180 OR MOG2 "
         "fg(history=150, var=18, lr=0.02, cut-reinit), open3/close5 — "
         "the subject-toon mask convention)",
-        "opening(12-frame flood-immune window: residual-flow-only union "
-        "seeds the initial CAMSHIFT window ONCE per clip — frame-count "
-        "armed, never re-armed at cuts — the recorded infinite-reset fix)",
+        "priority_reweight [v0.2.0 — player-priority]: per-frame grass-"
+        "region pitch mask (largest HSV grass-band component, interior "
+        "holes filled — players stay inside; boards/crowd/stands "
+        "attenuated to 0.25) + blob shape filter (aspect>3.2 & area>=300 "
+        "= the board class x0.15; area>=3400 = global motion x0.35) + "
+        "kit-color boost (saturated non-grass circular-mean hue x1.6) + "
+        "gentle center prior (falloff 0.25) — the w5h2 TL-gate ad-board "
+        "lock + window-balloon diagnosis fixed",
+        "opening(12-frame flood-immune window: PRIORITY-WEIGHTED residual-"
+        "flow-only union seeds the initial CAMSHIFT window ONCE per clip — "
+        "frame-count armed, never re-armed at cuts — the recorded infinite-"
+        "reset fix)",
         "camshift(motion-gated probability map, EPS 1 / 10 iters, min-window "
         "clamp; failure keeps the previous target)",
+        "compact_clamp [v0.2.0]: targets clamped to a 0.75x0.65 spotlight + "
+        "frame bounds — the window can never balloon to full-frame (the "
+        "v0.1.0 diluted-spotlight defect); the fast-loop VLM duel ranked "
+        "this width BEST (the 0.62x0.52 compact read too tight on wide "
+        "spread play — 'flashlight in the dark' verdict recorded)",
+        "escape [v0.2.0 — deterministic]: window mass < 0.02 for 24 "
+        "consecutive frames re-seeds the target to the best priority blob "
+        "(sqrt(area) x mean priority x center weight); streak-based, no RNG",
         "spring_4d(critically damped k=0.02 on (cx, cy, w, h) — ω=√k, ζ=1; "
         "pos=target=neutral at init (no init jump); all four dimensions "
         "sprung (no unsprung mask-size hops); cut-reset glides the target "
@@ -2982,8 +3269,13 @@ PLAYER_FOCUS = RendererSpec(
         "static_zoom(z=1.35 frame-center FIXED warp — static regions map to "
         "fixed output pixels (T4 clean by construction), uniform motion "
         "scaling (T3 preserved), cuts pass through the fixed warp (raw T2))",
-        "soft_dim(spring-rect feathered mask (σ 21) through the same warp; "
-        "outside dimmed at strength 0.45 — the focus emphasis)",
+        "soft_dim(spring-rect feathered mask (σ 28, the w5h3 mini-A/B "
+        "winner — the σ 21 edge crossing peripheral players read as limb "
+        "artifacts; softening the EDGE gradient only, dim strength "
+        "unchanged 0.45) through the same warp; outside dimmed at "
+        "strength 0.45 — the focus emphasis; player-exempt dim measured "
+        "and REJECTED — the motion-gated light exemption flickers on "
+        "slow players)",
         "crop-follow mode [config only — the phase-1 ANTI-PRECEDENT, "
         "fast-loop v0]: the warp maps the sprung padded rect to the output "
         "— MEASURED AND REJECTED (crop translation decorrelates motion and "
@@ -2992,11 +3284,13 @@ PLAYER_FOCUS = RendererSpec(
     ],
     description=("Player-focus emphasis: static punch-in zoom with a "
                  "spring-smoothed soft-focus dim mask tracking the "
-                 "motion-dominant player region. Source-ENHANCING family "
-                 "(the broadcast is preserved; attention is guided). "
-                 "SPR205 trial — TL rebuild of the reset-lost w5h; the "
-                 "crop-following design lives on as the measured "
-                 "anti-precedent."),
+                 "motion-dominant PLAYER region (v0.2.0 player-priority: "
+                 "pitch/kit/shape/center priors — the tracker follows "
+                 "players, not boards). Source-ENHANCING family (the "
+                 "broadcast is preserved; attention is guided). SPR205 "
+                 "trial lineage: w5h v0.1.0 → w5h3 v0.2.0 player-priority "
+                 "(the w5h2 withheld attempt is recorded history, never "
+                 "shipped)."),
     config={
         # stage 4 — static zoom (phase-2 winner) / crop-follow (phase-1)
         "zoom": 1.35, "cropFollow": False, "cropPad": 1.25,
@@ -3010,7 +3304,22 @@ PLAYER_FOCUS = RendererSpec(
         # stage 3 — 4D critically damped spring
         "springK": 0.02,
         # stage 5 — soft dim
-        "dimStrength": 0.45, "maskFeather": 21.0,
+        "dimStrength": 0.45, "maskFeather": 28.0,
+        # ---- v0.2.0 — player-priority tracking (config-gated; the v0.1.0
+        # key set without "playerPriority" reproduces v0.1.0 byte-exact) ----
+        "playerPriority": True,
+        "pitchHueLo": 30, "pitchHueHi": 95, "pitchSatMin": 35,
+        "pitchValMin": 30, "outsidePitchFloor": 0.25,
+        "minBlobPx": 12, "boardAspectMax": 3.2, "boardAreaMin": 300,
+        "boardPenalty": 0.15, "globalAreaMax": 3400,
+        "globalPenalty": 0.35, "kitSatMin": 60, "kitBoost": 1.6,
+        "centerFalloff": 0.25,
+        "maxWindowFracW": 0.75, "maxWindowFracH": 0.65,
+        "escapeMass": 0.02, "escapeFrames": 24,
+        # player-exempt dim: MEASURED AND REJECTED (the mini-A/B t2s
+        # verdict — motion-gated light exemption makes slow/stopping
+        # players flicker; kept config-gated-off for the record)
+        "protectPlayers": False,
     },
 )
 

@@ -3,7 +3,7 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-4 COMPLETE AND MERGED (substrate fixed, subject-toon first-class, b4 closed as crowd-montage, 54-cell corpus ledger, neon machine-gated) — Tier-2 NOT YET REACHED — CLOSURE LANES EXECUTING (2026-09-26); WAVE-5 DELIVERY SET F/H/J (2026-09-27) LOST TO THE SECOND SANDBOX RESET AND REBUILT BY TL FROM THE RECORDED RECIPES (2026-09-28, PAT re-injected — push queue unblocked)
+## Current state: WAVE-5 SPR VISUAL FAMILIES COMPLETE + PLAYER-FOCUS v0.2.0 PLAYER-PRIORITY DELIVERED (w5h3 2026-09-28 — the w5h2 named increment; TL gate PASS, machine near-miss recorded honestly) — TIER-2 NOT YET REACHED — CLOSURE LANES EXECUTING; R606/R607 REMAIN
 
 ### Wave-3 + Wave-4 record (RECONCILED 2026-09-26 — see the reconciliation note)
 
@@ -71,7 +71,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | Reality | VLM min-axis | Critical artifacts | Tier |
 |---|---|---|---|
 | subject-toon (strongest deterministic; v0.2.0 w5a 2026-09-27) | 3.40 | 3 | 0 (near-miss: tc 3.40, criticals 3; ic 4.27 crossed) |
-| player-focus (SPR205, w5h REBUILD 2026-09-28) | 3.80 | 1 | 0 — NEAR-MISS Tier 1 (program's best VLM family; recorded original 3.67/2 — same class) |
+| player-focus (SPR205, w5h3 v0.2.0 player-priority 2026-09-28) | 3.73 | 2 | 0 — NEAR-MISS Tier 1 (minAxis 3.73 ≥ 3.5, gates green; the 2 criticals at ONE cut-adjacent pre-cut-chaos sample, class diagnosed — no laundering) — TL visual gate PASS (both w5h2 defects fixed: ad-board lock + diluted treatment); the program's best VLM family with the tracker following players |
 | noir-retro (noir profile) | 3.59 | 1 | 0 |
 | motion-trails | 3.47 | 2 | 0 |
 | anime-npr | 1.80 | 136 | 0 |
@@ -83,6 +83,28 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | silhouette-xray (SPR202, w5g 2026-09-27) | 1.47 | 111 | 0 |
 | cartoon-cel | 1.53 | 99 | 0 |
 | neon-cyberpunk | scorecards deferred by design | — | machine-gated only |
+
+### Wave-5 lane records (w5h..w5j + w5h2/w5h3 — 2026-09-27/28)
+
+**w5h (spr/w5h/playerfocus-trial → 87f92aa8 merge 0eb220d):** SPR205
+player-focus v0.1.0 trial — see the evidence pack
+`scripts/evidence/spr-wave5-playerfocus/`.
+
+**w5h2 (spr/w5h2/tier1-push → e2b880c9 merge 182bdd4):** the Tier-1
+softening attempt — machine metrics MET (critical 0, axes ≥ 3.60), TL
+visual gate FAILED (ad-board lock + over-softening), claim WITHHELD, v0.1.0
+shipped — evidence `scripts/evidence/spr-wave5-playerfocus-tier1-attempt/`.
+
+**w5h3 (spr/w5h3/player-priority — 2026-09-28, THIS DELIVERY):** the
+w5h2 named increment — player-priority tracking (pitch/kit/shape/center
+priors, compact clamp, deterministic escape, feather-28 edge). v0.2.0
+SHIPS: 3/3 double-render determinism, gates green (b8 raw-T2 0.67
+stylization-softened class → T2b 1.0/0 binding), VLM 15/15 minAxis 3.73 /
+critical 2 (honest near-miss — the 2 criticals at ONE cut-adjacent
+pre-cut-chaos sample; VLM run-variance across runs recorded),
+**TL visual gate PASS** (both w5h2 defects fixed and TL-verified),
+regression 7/7 byte-match. Evidence:
+`scripts/evidence/spr-wave5-playerfocus-priority/`.
 
 ### Session w6-spr-5 (2026-09-25, wave-2 worker deliveries + TL audit + merge)
 
@@ -409,20 +431,30 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
    w5h player-focus (S054), w5i rotoscope (S055): the F/H/J dispatch set
    is COMPLETE on origin. The old token-exposure lesson stands: the PAT
    lives only in env/credential-store, never in dispatch packets or chat
-   payloads.
-1. **Tier-2 push** (Worker C lane): subject-toon quality iteration with
-   the frozen scorecard protocol — the bar is never lowered; near-miss
-   results are recorded honestly.
+   payloads. **w5h3 DELIVERED (S058, 2026-09-28):** player-focus v0.2.0
+   player-priority — the w5h2 named increment; TL gate PASS, machine
+   near-miss recorded honestly (see the wave-5 lane records + the
+   spr-wave5-playerfocus-priority evidence pack).
+1. **Tier-1 machine claim for player-focus (Worker C lane):** the
+   remaining critical class lives in the pre-cut chaos samples — the
+   honest path is a cut-adjacent sample protocol AMENDMENT (boundary-class
+   adjudication, the w4b T2-class precedent: pre-adjudicate the
+   source-transition samples before scorecard assignment), NOT further
+   renderer softening. Subject-toon criticals 3→0 remains the parallel
+   Tier-2 push.
 2. **R606 calibration** (Worker A lane): ellipse/circle-constrained
    solve measured on the committed corpus clips (b5/b3/b1-wide/b8p3);
    higher-resolution acquisition remains the alternative path but the
    acquisition chain (proxy/relay) is machine-local and currently dead
    — corpus-first.
-3. **R607 hosted proof** (Worker B lane): blocked on PAT; local
-   recovery evidence + honest blocker record this session, hosted run
-   when credentials return.
-4. SPR104/105/106/109/202/205 per the work-items doc (backlog after
-   the closure lanes).
+3. **R607 hosted proof** (Worker B lane): PAT live (the third reset
+   re-injected it — env-persisted); local recovery evidence recorded;
+   the hosted run (deploy → fresh-browser golden path → redeploy →
+   recovery verification) is UNBLOCKED and next.
+4. ~~SPR104/105/106/109/202/205~~ — ALL DELIVERED (w5c/w5e/w5f/w5g/w5h+
+w5h3/w5i/w5j; see the work-items doc). Remaining SPR backlog:
+   SPR302/303 neural candidates (the identity frontier) per the
+   work-items doc.
 5. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
    axes are recorded as a limitation; full-video review would replace the
    0.2 s pair judgment.

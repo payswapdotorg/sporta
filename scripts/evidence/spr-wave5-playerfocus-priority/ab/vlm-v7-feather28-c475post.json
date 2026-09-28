@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical, with only the UI overlay removed.\n2. temporalConsistency - 4: Motion is smooth and continuous between the 0.2s interval with no flickering or morphing.\n3. identityConsistency - 5: All players maintain consistent visual features, colors, and proportions across the frames.\n4. motionFidelity - 5: Player and ball movement accurately reflects the time delta and original broadcast physics.\n5. sceneFidelity - 4: Stadium background is spatially stable, though slightly darkened by the stylization filter.\n6. stylizationStrength - 4: The player-focus transformation (darkened periphery, color grading) is clearly evident.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591238,
+  "id": "2026092818271467322de601634d71",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092818271467322de601634d71",
+  "usage": {
+    "completion_tokens": 205,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1372
+  }
+}
