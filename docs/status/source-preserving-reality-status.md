@@ -447,10 +447,17 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
    higher-resolution acquisition remains the alternative path but the
    acquisition chain (proxy/relay) is machine-local and currently dead
    — corpus-first.
-3. **R607 hosted proof** (Worker B lane): PAT live (the third reset
-   re-injected it — env-persisted); local recovery evidence recorded;
-   the hosted run (deploy → fresh-browser golden path → redeploy →
-   recovery verification) is UNBLOCKED and next.
+3. **R607 media-toolchain unblock** (Worker B lane): the hosted
+   acceptance SHAPE (deploy → golden path → redeploy → recovery) is
+   already LANDED and TL-audited (merge 802d8d4, 2026-09-26 — the
+   control-plane half PROVEN: identity/session/library/watch/artifacts
+   recovered byte-identical across a redeploy). The remaining media
+   half is blocked at the runtime-toolchain-absent boundary (Vercel
+   Hobby Node ships no ffmpeg/ffprobe) — closing it requires the W914
+   http compute adapter against a real toolchain worker or an
+   ffmpeg-shipping host (a work item beyond the Hobby beta-personal
+   boundary; the Composio-connected Vercel plane stays available for
+   the acceptance re-run once the media path exists).
 4. ~~SPR104/105/106/109/202/205~~ — ALL DELIVERED (w5c/w5e/w5f/w5g/w5h+
 w5h3/w5i/w5j; see the work-items doc). Remaining SPR backlog:
    SPR302/303 neural candidates (the identity frontier) per the
