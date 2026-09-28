@@ -1,0 +1,24 @@
+{
+ "taskId": "SPR-W5-J",
+ "note": "the promoted w2c trial config (frozen winner = v1 = this config verbatim)",
+ "config": {
+  "preMedianK": 3,
+  "preBilatD": 7,
+  "preBilatSigma": 50,
+  "preBilatIters": 1,
+  "tensorSigma": 2.5,
+  "tensorAlpha": 0.45,
+  "orientations": 8,
+  "blendGamma": 10.0,
+  "weightSigma": 2.0,
+  "qLong": 3,
+  "qShort": 2,
+  "varSigma": 2.0,
+  "varSoftness": 3.0,
+  "postBilatD": 9,
+  "postBilatSigma": 75,
+  "postBilatIters": 2,
+  "saturation": 1.14,
+  "grain": 1.5
+ }
+}

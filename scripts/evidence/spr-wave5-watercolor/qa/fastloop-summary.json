@@ -1,0 +1,144 @@
+[
+ {
+  "variant": "v0-noema",
+  "overrides": {
+   "tensorAlpha": 1.0
+  },
+  "sha256": "5e14a334d78522b32acb157ce1969655b8e478eecfaef0c520a7fb92c5bcb3f1",
+  "frameCount": 300,
+  "T3": 0.9871,
+  "T3pass": true,
+  "T4": 0.9023,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v1-recipe",
+  "overrides": {},
+  "sha256": "4e30f3e7835c785a2789590476398eb873b18bd498a2126672f3605a3d40fa13",
+  "frameCount": 300,
+  "T3": 0.9826,
+  "T3pass": true,
+  "T4": 0.6653,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v2-orient-4",
+  "overrides": {
+   "orientations": 4
+  },
+  "sha256": "8fde7ae36d062299b6f831764bf30eb4b84ceb1337de809fdde26a99e7d4560f",
+  "frameCount": 300,
+  "T3": 0.9781,
+  "T3pass": true,
+  "T4": 0.6974,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v3-orient-12",
+  "overrides": {
+   "orientations": 12
+  },
+  "sha256": "ffc14b6bf2bc9e0da31940cfae8d277a4d5766ca039441f4d6e66631bb2d8374",
+  "frameCount": 300,
+  "T3": 0.9818,
+  "T3pass": true,
+  "T4": 0.6149,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v4-qshort-3",
+  "overrides": {
+   "qShort": 3
+  },
+  "sha256": "2b853bbb67312bceff72277ffc57ee1eb2398607719825b24e2afb40a0567713",
+  "frameCount": 300,
+  "T3": 0.9805,
+  "T3pass": true,
+  "T4": 0.6541,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v5-varsoft-1",
+  "overrides": {
+   "varSoftness": 1.0
+  },
+  "sha256": "4bce26e2f6675a25cf22829f4bc013aa51d5a93058ccf2d99a737fd1cbe4d693",
+  "frameCount": 300,
+  "T3": 0.9838,
+  "T3pass": true,
+  "T4": 0.6659,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v6-nograin",
+  "overrides": {
+   "grain": 0.0
+  },
+  "sha256": "374a051aa117cba881505d873e5b0359e9ed1b9e5f05bbf6567318492c7fab40",
+  "frameCount": 300,
+  "T3": 0.9825,
+  "T3pass": true,
+  "T4": 0.6522,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ },
+ {
+  "variant": "v7-sat-125",
+  "overrides": {
+   "saturation": 1.25
+  },
+  "sha256": "6255786192250ae22f7168baea26f5c72d70ddd949955495cbfeb3d624022217",
+  "frameCount": 300,
+  "T3": 0.9803,
+  "T3pass": true,
+  "T4": 0.6634,
+  "T4pass": true,
+  "T2cov": 1.0,
+  "T2extra": 0.0,
+  "T2pass": true,
+  "T2bcov": 1.0,
+  "T2binv": null,
+  "T2bpass": true
+ }
+]

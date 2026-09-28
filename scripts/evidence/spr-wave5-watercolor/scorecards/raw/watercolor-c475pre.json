@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general camera angle and stadium context are recognizable, but the extreme blur and loss of detail make it hard to confirm the exact same moment.\n2. temporalConsistency - 3: The visible elements (like the red players and background) remain relatively stable between the two frames without major flickering.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual identification and visual stability nearly impossible.\n4. motionFidelity - 1: The extreme lack of detail prevents any meaningful assessment of player or ball motion relative to the original frame.\n5. sceneFidelity - 2: The broad layout of the field and stands is present, but spatial details like lines and advertisements are completely lost.\n6. stylizationStrength - 5: The transformation into a heavy, watercolor-like blur is extremely obvious and dominant.\n\nAXES sf=2 tc=3 ic=1 mf=1 scf=2 ss=5\nARTIFACTS limbs=0 players=5 warped=0 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582423,
+  "id": "2026092816001780fa3806516f489c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092816001780fa3806516f489c",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1398
+  }
+}

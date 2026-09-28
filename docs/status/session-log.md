@@ -1774,3 +1774,43 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   origin (w5f clay 1.80/48, w5h player-focus 3.80/1 near-miss Tier 1,
   w5i rotoscope 2.33/62) — the 2026-09-27 reset's lost queue is fully
   recovered as honest fresh measurements; nothing laundered.
+
+## Session S056 (w5-promotion) — 2026-09-28 — Resident watch: lane K (SPR103 watercolor) PROMOTED from the w2c trial — the last WAVE-2 visual family; TL-verified, merged + PUSHED
+
+- Dispatch decision: with the wave-5 F/H/J rebuild set complete, the last
+  WAVE-2 visual family (SPR103) is the promoted w2c trial
+  sprtrial-kuwahara-paint-t1 (the subject-toon w3b promotion pattern).
+  _WatercolorState + spr-watercolor-dc1 (additive +294/−0) — the trial's
+  frozen processor ported verbatim (helpers restated, no spe.trials
+  import); the trial's honest anti-stages stay out (palette + XDoG
+  re-amplify the 8-orientation blend residue — measured, recorded); the
+  w2c CONDITIONAL verdict becomes the family declaration.
+- Fast loop 8 variants ALL GATES GREEN: the EMA thesis doubly proven —
+  v0-noema T4 0.9023 vs v1 (tensor EMA) T4 0.6653 (~26% flicker cut) AND
+  the VLM duel independently ranks no-EMA WORST ("significant edge noise
+  and temporal instability") vs the recipe BEST ("smooth, stable
+  brushstrokes and painterly texture"). v1 (the trial config verbatim)
+  frozen.
+- Full renders 3/3 double-render BYTE-IDENTICAL: b8 1190f 2b0b7404… ×2,
+  b12 300f 1fc49b53… ×2, b2 225f 378b87e7… ×2.
+- Gates ALL GREEN 3/3 cells: b8 RAW T2 PASS (cov 1.0/extra 0.63); b12
+  (extra@72, the gateref's known class) + b2 (close-up extra class) →
+  frozen T2b 1.0/0; T3 0.9557/0.9343/0.9765; T4 0.4474/0.4602/0.9069.
+- Regression 6/6 BYTE-MATCH on the modified tree (cartoon-cel, noir,
+  subject-toon, clay-toy 69d9ae77, player-focus 3f0be6d2, rotoscope
+  32c8666c — all wave-5 siblings).
+- Frozen VLM scorecard 15/15: sf 2.60 / tc 2.87 / ic 1.80 / mf 2.00 /
+  scf 2.20 / ss 4.93; minAxis 1.80, critical 53 → honest Tier 0 (the
+  painterly family range).
+- Evidence: scripts/evidence/spr-wave5-watercolor/ (README, commands,
+  record.json w/ promotionProvenance, variant table, gate JSONs,
+  scorecards + 15 raw calls, frames, fastloop-visual + duel, registry
+  listing). Docs: SPR103 row, tier table +watercolor, this entry.
+- Branch pushed; merged --no-ff; PUSHED to origin/main; TL audit at the
+  merged tree (b8 independent re-render byte-identical; VLM means
+  recomputed 15/15 exact).
+- MILESTONE: every visual-reality row in the SPR work-items doc is now
+  delivered or tiered (SPR101-109 + 201/202/205; neon machine-gated).
+  Remaining roadmap: Tier-1 critical-clearing (player-focus 1→0,
+  subject-toon 3→0), R606/R607 (PAT-unblocked), temporal audit
+  (Tier-3 groundwork), SPR302/303 neural candidates.

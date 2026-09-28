@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match context and general camera angle are preserved, but extreme blurring obscures specific details and spatial layout.\n2. temporalConsistency - 3: The two stylized frames are visually consistent with each other, showing minimal flickering or morphing between the 0.2s interval.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual identification and visual stability impossible to verify.\n4. motionFidelity - 2: Subtle shifts in blob positions suggest some motion, but the lack of detail makes it impossible to confirm if it matches the original action.\n5. sceneFidelity - 2: The background (stands, ads) is present but heavily distorted and lacks the sharp spatial definition of the source.\n6. stylizationStrength - 5: The transformation into a heavy, painterly watercolor/blur style is extremely obvious and dominant.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582445,
+  "id": "2026092816003964db91b799ab429c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092816003964db91b799ab429c",
+  "usage": {
+    "completion_tokens": 241,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1408
+  }
+}

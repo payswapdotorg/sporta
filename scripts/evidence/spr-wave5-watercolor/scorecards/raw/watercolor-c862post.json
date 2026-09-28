@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical across all images.\n2. temporalConsistency - 2: Significant flickering, morphing of the player's body, and background instability occur between frames.\n3. identityConsistency - 3: The main player is recognizable but his facial features and body shape shift noticeably between frames.\n4. motionFidelity - 2: The player's motion is inconsistent with the original; limbs appear to teleport or change length rather than move naturally.\n5. sceneFidelity - 2: The goal net and background elements are heavily distorted and drift spatially between frames.\n6. stylizationStrength - 4: A clear watercolor/painting style is applied, though it results in significant loss of detail.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=2 ss=4\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582455,
+  "id": "2026092816005051244daa70f242c7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092816005051244daa70f242c7",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1377
+  }
+}

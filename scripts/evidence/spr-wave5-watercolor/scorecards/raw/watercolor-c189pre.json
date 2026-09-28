@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general scene and team colors match, but extreme blurring obscures specific details like the scoreboard, player numbers, and the ball.\n2. temporalConsistency - 3: The main subjects (players in green and orange) maintain their relative positions across the frames without flickering or disappearing.\n3. identityConsistency - 2: While the color-coded players are recognizable as the same individuals, their features are heavily abstracted into blobs.\n4. motionFidelity - 4: The subtle shift in player positions between Image 2 and 3 accurately reflects the expected movement over a 0.2s interval.\n5. sceneFidelity - 2: The stadium background is present but lacks spatial definition, appearing as a dark, indistinct mass.\n6. stylizationStrength - 5: The heavy watercolor/blur effect completely transforms the sharp broadcast frame into an artistic, painterly representation.\n\nAXES sf=2 tc=3 ic=2 mf=4 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582411,
+  "id": "2026092816000417371003c01743a8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092816000417371003c01743a8",
+  "usage": {
+    "completion_tokens": 242,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1409
+  }
+}
