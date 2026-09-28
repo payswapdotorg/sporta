@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 3 - The camera angle and general layout match, but the extreme abstraction loses significant detail.\n2. temporalConsistency: 4 - The stylized frames are very stable with minimal flickering between the two timestamps.\n3. identityConsistency: 2 - Players are reduced to colored blobs; individual features and team details (stripes) are lost.\n4. motionFidelity: 2 - Motion is suggested by position shifts but lacks clear limb or ball tracking fidelity.\n5. sceneFidelity: 2 - The background is a vague dark mass; spatial landmarks like lines and ads are unrecognizable.\n6. stylizationStrength: 5 - The clay-toy/abstract aesthetic is extremely strong and clearly transforms the source.\n\nAXES sf=3 tc=4 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574752,
+  "id": "20260928135228745dcfa2dcdb4d62",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928135228745dcfa2dcdb4d62",
+  "usage": {
+    "completion_tokens": 204,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1373
+  }
+}

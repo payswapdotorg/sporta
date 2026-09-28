@@ -1,0 +1,159 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-F",
+ "task": "SPR105 clay/miniature/toy deterministic trial — TL REBUILD of the reset-lost w5f branch (fresh measurements on this tree)",
+ "generatedAtIso": "2026-09-28T06:05:00+00:00",
+ "engine": "SPE-v1",
+ "base": "3c31b7c1c12f8d8bda79d824930e3e6ab7dbdabc (origin/main post w5g merge)",
+ "branch": "spr/w5f/clay-trial",
+ "rebuildProvenance": {
+  "note": "The original spr/w5f/clay-trial (local main 9f9cd3f era, Task-41 record) was lost to the 2026-09-27 sandbox reset BEFORE its PAT-blocked push ever reached origin — the lost shas (b8 ee677d79..., b12 39a07659..., b2 38a42432...) resolve nowhere on origin and are NOT claimed here. This rebuild implements the recorded w5b rank-2 recipe verbatim (same stage order, same parameters) from the wave-5 dispatch record and re-measures everything fresh. The recorded original's gate CLASSES reproduce (same T2 miss classes, same inert specular no-op, same VLM duel verdict) with fresh values honestly recorded.",
+  "originalRecord": "lost local commits 94ccd94→0859ba6 (6 ahead of origin, never pushed); worklog Task 41",
+  "originalLostShas": {
+   "b8": "ee677d79cbb2e435664eeea861ea209444cec427445d43fe0ce78c2027bffe7e",
+   "b12": "39a07659beaaaf6f0efb8ed67ddd216c9176d8f84c840c1c8577b5b71dbcdc79",
+   "b2": "38a42432ea2dad1ade56536d227bdca064d866cc238056544b5532157f1acb6b"
+  },
+  "originalScorecard": "sf 2.80 / tc 2.80 / ic 2.07 / mf 2.13 / scf 2.20 / ss 4.93; minAxis 2.07, critical 62 (Tier 0)"
+ },
+ "tools": {
+  "python": "3.12.14",
+  "opencv": "4.13.0",
+  "numpy": "2.1.3",
+  "ffmpeg": "7.1.5-0+deb13u1"
+ },
+ "declaration": {
+  "rendererId": "spr-clay-toy-dc1",
+  "reality": "clay-toy",
+  "sprId": "SPR105",
+  "version": "0.1.0",
+  "implementation": "deterministic-classical",
+  "additiveDiff": "renderers.py: dispatch elif + _ClayToyState class + CLAY_TOY spec/registration (insertions only)"
+ },
+ "substrate": {
+  "b8p3.mp4": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a (== spr-corpus-bytes README)",
+  "b8-b12.mp4": "b3cc5f0e2fae840f2aef93d859ce814babca226ee0b5d27e6da4e969b4312462 (== README)",
+  "clip-b2-closeup.mp4": "e65ae48740472f57ada031fdfb076cbb40a845239693acad83e8142c0caec062 (== README)",
+  "engineCutsB8": "[188, 474, 549, 861, 881-942 goal-segment class, 977] (== the recorded w5g behavior)"
+ },
+ "environmentAnchors": {
+  "pristineTreeCartoonCelB8": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c == w4b anchor BYTE-MATCH (environment proven byte-compatible BEFORE the edit)",
+  "pristineTreeNoirB8": "3eedb4238f56900f6b1559ce0f19e0ea1aa2044a453bdd2bce453d4a1b0711a4 == w4b anchor BYTE-MATCH",
+  "pristineTreeSubjectToonB8": "aaac76b75a24f43e6a479ddd663a322a078afb441d40855d118fc79dc075a6a3 == w5a v0.2.0 anchor BYTE-MATCH",
+  "gaterefs": "b8-first300 9efa9b99... == w4b pin; b12-old-substrate 7cb3d728... and b12-first300-from-old d19079ca... == w3b pin"
+ },
+ "determinism": {
+  "b8": {
+   "frameCount": 1190,
+   "shaPass1": "69d9ae777cb894771155c9f0a9517698153e716a18dc20b6329334b23e23b951",
+   "shaPass2": "69d9ae777cb894771155c9f0a9517698153e716a18dc20b6329334b23e23b951",
+   "byteIdentical": true
+  },
+  "b12": {
+   "frameCount": 300,
+   "shaPass1": "465da5a1462b8023409f254da0c1e5a19c257b01de79530d6df2f6d9b55492ef",
+   "shaPass2": "465da5a1462b8023409f254da0c1e5a19c257b01de79530d6df2f6d9b55492ef",
+   "byteIdentical": true
+  },
+  "b2": {
+   "frameCount": 225,
+   "shaPass1": "a34c7edfacb4203102a80c90ae08a86597a99c632433b6adf46ec609fd851e44",
+   "shaPass2": "a34c7edfacb4203102a80c90ae08a86597a99c632433b6adf46ec609fd851e44",
+   "byteIdentical": true
+  }
+ },
+ "renders": [
+  {
+   "clipId": "b8", "clipFile": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+   "reality": "clay-toy", "profile": "default",
+   "rendererId": "spr-clay-toy-dc1", "rendererVersion": "0.1.0",
+   "outputFile": "clay-toy-b8.mp4", "gateInput": "raw substrate",
+   "sha256": "69d9ae777cb894771155c9f0a9517698153e716a18dc20b6329334b23e23b951",
+   "frameCount": 1190,
+   "gates": {
+    "G-T1": {"value": "1190==1190", "pass": true},
+    "G-T2": {"value": "coverage=0.833 extra=0.63", "pass": false,
+     "note": "raw detector miss on the stylization-softened 5/6 cut class (the recorded w5f/w4b class) — resolved by the frozen deep-correspondence rule"},
+    "G-T2b": {"value": "coverage=1.0, 0 invented", "pass": true},
+    "G-T3": {"value": "pearsonR=0.9766", "pass": true},
+    "G-T4": {"value": "percentOfRange=0.4424", "pass": true,
+     "note": "below the input's own 0.458 noir noise floor"},
+    "G-T5": {"value": "double render byteIdentical (b8 full-artifact)", "pass": true}
+   },
+   "allHardGatesGreen": true
+  },
+  {
+   "clipId": "b12", "clipFile": "scripts/evidence/spr-corpus-bytes/b8-b12.mp4",
+   "reality": "clay-toy", "profile": "default",
+   "rendererId": "spr-clay-toy-dc1", "rendererVersion": "0.1.0",
+   "outputFile": "clay-toy-b12.mp4", "gateInput": "b12-first300-gateref-from-old (pre-adjudicated)",
+   "sha256": "465da5a1462b8023409f254da0c1e5a19c257b01de79530d6df2f6d9b55492ef",
+   "frameCount": 300,
+   "gates": {
+    "G-T1": {"value": "300==300", "pass": true},
+    "G-T2": {"value": "coverage=1.0 extra=2.5", "pass": false,
+     "note": "extra@72 — sustained-motion amplification per the harness's own flat-threshold diagnostic (the recorded w5f class); resolved by the frozen rule"},
+    "G-T2b": {"value": "coverage=1.0, 0 invented", "pass": true},
+    "G-T3": {"value": "pearsonR=0.9691", "pass": true},
+    "G-T4": {"value": "percentOfRange=0.4490", "pass": true},
+    "G-T5": {"value": "double render byteIdentical", "pass": true}
+   },
+   "allHardGatesGreen": true
+  },
+  {
+   "clipId": "b2", "clipFile": "scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4",
+   "reality": "clay-toy", "profile": "default",
+   "rendererId": "spr-clay-toy-dc1", "rendererVersion": "0.1.0",
+   "outputFile": "clay-toy-b2.mp4", "gateInput": "raw substrate",
+   "sha256": "a34c7edfacb4203102a80c90ae08a86597a99c632433b6adf46ec609fd851e44",
+   "frameCount": 225,
+   "gates": {
+    "G-T1": {"value": "225==225", "pass": true},
+    "G-T2": {"value": "coverage=1.0 extra=0.0", "pass": true},
+    "G-T2b": {"value": "coverage=1.0, 0 invented", "pass": true},
+    "G-T3": {"value": "pearsonR=0.9929", "pass": true},
+    "G-T4": {"value": "percentOfRange=0.7843", "pass": true,
+     "note": "b2 close-up class; input baseline ~0.945"},
+    "G-T5": {"value": "double render byteIdentical", "pass": true}
+   },
+   "allHardGatesGreen": true
+  }
+ ],
+ "regression": {
+  "method": "pristine-tree control renders BEFORE the edit (all BYTE-MATCH the frozen anchors — the environment proven byte-compatible), then re-renders on the MODIFIED tree",
+  "cartoonCelB8": "a9e8cd5612f1486fde86b970dd5aab50b9c6d495e18a59d416fef1718e84f26c == pristine/frozen anchor (BYTE-MATCH on the modified tree)",
+  "noirRetroNoirB8": "3eedb4238f56900f6b1559ce0f19e0ea1aa2044a453bdd2bce453d4a1b0711a4 == pristine/frozen anchor (BYTE-MATCH)",
+  "subjectToonB8": "aaac76b75a24f43e6a479ddd663a322a078afb441d40855d118fc79dc075a6a3 == pristine/frozen anchor (BYTE-MATCH)",
+  "verdict": "3/3 anchors byte-exact — the clay-toy edit is proven output-neutral for every other reality"
+ },
+ "fastLoop": {
+  "loop": "b8 first-300 vs the 9efa9b99 gateref, 7 variants, frozen gate CLIs per variant",
+  "variants": "see variant-table.json",
+  "allGatesGreenAllVariants": true,
+  "inertProof": "v6-spec-075 sha IDENTICAL to v1-recipe (fe39b48e...) — the specular stage is an exact identity on b8 (palette-capped luma never reaches threshold 235); honestly recorded no-op",
+  "vlmDuel": "BEST=A(v1-recipe) WORST=B(v2-relief-off): 'B lacks relief shading entirely, causing players to appear as flat, unrecognizable blobs' — the relief structure-by-light thesis independently confirmed (same verdict class as the lost original's recorded duel)",
+  "winner": "v1-recipe (the dispatched recipe verbatim)",
+  "preFreezeCorrections": "one broadcasting bug caught by the 3-frame smoke (specular mask (h,w) vs (h,w,3) — fixed BEFORE the fast loop, same incident class as the recorded original's smoke-caught corrections); both honestly recorded"
+ },
+ "scorecard": {
+  "protocol": "frozen vlm_scorecard.py v2 (7-axis, 15 calls, glm-5v)",
+  "callsOk": "15/15",
+  "meanScores": {
+   "sourceFidelity": 2.8, "temporalConsistency": 3.0,
+   "identityConsistency": 1.8, "motionFidelity": 2.2,
+   "sceneFidelity": 2.27, "stylizationStrength": 5.0
+  },
+  "minAxisMean": 1.8, "overallMean": 2.85,
+  "criticalArtifacts": 48, "totalArtifacts": 108,
+  "tierClaim": 0,
+  "honestVerdict": "HONEST TIER 0 — the classical-family identity limit (rebuild values ic 1.80 / critical 48 sit in the same family range as the lost original's recorded ic 2.07 / critical 62; lowpoly 1.93/67, cartoon-cel 1.53/99). The relief structure-by-light thesis measurably moves identityConsistency vs no-relief (VLM duel) but does not cross the Tier bars — the wave-2 neural target remains the identity frontier."
+ },
+ "honestVerdict": {
+  "tier": 0,
+  "gates": "ALL GREEN 3/3 cells (raw-T2 misses on b8/b12 are the pre-adjudicated stylization-softened / sustained-motion classes resolved by the frozen T2b rule — the w5e/w5g precedent; 0 invented cuts matrix-wide)",
+  "determinism": "3/3 double-render byte-identical",
+  "regression": "3/3 anchors byte-exact",
+  "verdict": "DELIVERED as honest Tier 0. The rebuild faithfully reproduces the recorded recipe's behavior classes (same T2 miss classes incl. extra@72, same inert specular no-op, same duel verdict, same Tier-0 family range)."
+ },
+ "measuredNextIncrement": "The wave-2 neural keyframe accelerator (the w5b ranked next step for this family) — classical relief cannot cross the identity bars alone"
+}

@@ -1,0 +1,31 @@
+{
+  "input": "/tmp/w5f/gates/b8-first300-gateref.mp4",
+  "output": "/tmp/w5f/fastloop/v7-vign-50/clay-toy-v7-vign-50.mp4",
+  "gate": "G-T2b deep cut correspondence",
+  "params": {
+    "window": 3,
+    "ratioMin": 0.5,
+    "spikeRatio": 2.6
+  },
+  "inputCuts": [
+    189
+  ],
+  "outputCuts": [
+    189
+  ],
+  "perCut": [
+    {
+      "inputFrame": 189,
+      "inputAmplitude": 32.03,
+      "outputFrame": 189,
+      "outputAmplitude": 24.03,
+      "amplitudeRatio": 0.75,
+      "outputLocalMedian": 3.37,
+      "matched": true
+    }
+  ],
+  "coverage": 1.0,
+  "inventedCuts": [],
+  "inventedDetail": [],
+  "pass": true
+}

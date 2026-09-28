@@ -1,0 +1,127 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-F",
+ "loop": "b8 first-300 (gateref 9efa9b99...) vs each variant",
+ "variants": [
+  {
+   "variant": "v1-recipe",
+   "overrides": {},
+   "sha256": "fe39b48e262ee1562efbc587d7fa66d11616828d57793b0794de4838bdafdeec",
+   "T3": 0.9647,
+   "T3pass": true,
+   "T4": 0.4813,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v2-relief-off",
+   "overrides": {
+    "reliefMix": 0.0
+   },
+   "sha256": "33561f8aa2a037f90bfc35579c63921c973ab6189b036e20c5a68c34f5b2be45",
+   "T3": 0.9687,
+   "T3pass": true,
+   "T4": 0.4928,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v3-relief-55",
+   "overrides": {
+    "reliefMix": 0.55
+   },
+   "sha256": "36da8fa0ab399f71c81c094f08215eb3538eb4e67f57709317f19705e5155ac9",
+   "T3": 0.9625,
+   "T3pass": true,
+   "T4": 0.4784,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v4-relief-20",
+   "overrides": {
+    "reliefMix": 0.2
+   },
+   "sha256": "78d503dfe18bbed329af255f272d54c2cb5432334a097452c4ec9177e10cbe48",
+   "T3": 0.9664,
+   "T3pass": true,
+   "T4": 0.4862,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v5-tilt-off",
+   "overrides": {
+    "tiltBlur": false
+   },
+   "sha256": "2d9302d0d7437db8225c717246d922677c8cbbe00f47efa59e50b18f86fe899f",
+   "T3": 0.9636,
+   "T3pass": true,
+   "T4": 0.5405,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v6-spec-075",
+   "overrides": {
+    "specStrength": 0.75
+   },
+   "sha256": "fe39b48e262ee1562efbc587d7fa66d11616828d57793b0794de4838bdafdeec",
+   "T3": 0.9647,
+   "T3pass": true,
+   "T4": 0.4813,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v7-vign-50",
+   "overrides": {
+    "vignette": 0.5
+   },
+   "sha256": "50179d2247ff576595b85c92bc91c3b9a9a626adc8966770ad3e1d63f7c7eded",
+   "T3": 0.9654,
+   "T3pass": true,
+   "T4": 0.4615,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  }
+ ],
+ "inertProof": "v6-spec-075 sha is IDENTICAL to v1-recipe (fe39b48e...) \u2014 the specular stage is an exact identity on b8 (palette-capped luma never reaches threshold 235); honestly recorded as a no-op",
+ "winner": "v1-recipe",
+ "winnerBasis": "all gates green + VLM duel: BEST=A(recipe) WORST=B(no-relief) \u2014 'B lacks relief shading entirely, causing players to appear as flat, unrecognizable blobs'"
+}

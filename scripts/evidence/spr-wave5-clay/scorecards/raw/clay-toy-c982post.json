@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors (red vs green/black) match, but extreme blur and loss of detail obscure the specific moment and camera context.\n2. temporalConsistency - 4: The two stylized frames are highly consistent with each other, showing only the expected minimal motion over 0.2s without flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual visual identification and stability impossible to assess.\n4. motionFidelity - 2: The relative positions of the blobs shift slightly, suggesting some motion, but it is impossible to verify if it matches the specific actions in the source frame.\n5. sceneFidelity - 2: The goal and general field shape are present, but the background stadium elements are almost entirely lost to blur and abstraction.\n6. stylizationStrength - 5: The transformation into a soft, clay-toy-like aesthetic with heavy blur and simplified forms is extremely obvious and consistently applied.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=0 players=3 warped=1 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574814,
+  "id": "202609281353231eaa59da1e964efa",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281353231eaa59da1e964efa",
+  "usage": {
+    "completion_tokens": 260,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1429
+  }
+}

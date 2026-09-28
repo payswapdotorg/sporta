@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: The match, score, and general camera context are preserved, though the stylization is extremely abstract.\n2. temporalConsistency - 2: The transition from Image 2 to Image 3 shows a drastic change in perspective, background content, and subject focus.\n3. identityConsistency - 2: Players are reduced to unrecognizable colored blobs in Image 2, with only a vague suggestion of a player in Image 3.\n4. motionFidelity - 1: The extreme abstraction and perspective shift make it impossible to verify any consistent motion or ball trajectory.\n5. sceneFidelity - 2: The field and logo are present in Image 2, but the background completely changes to a crowd view in Image 3.\n6. stylizationStrength - 5: The transformation into a highly abstract, clay-toy-like style is very strong and obvious.\n\nAXES sf=4 tc=2 ic=2 mf=1 scf=2 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574803,
+  "id": "20260928135319b377a333683d47dd",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928135319b377a333683d47dd",
+  "usage": {
+    "completion_tokens": 235,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 297
+    },
+    "total_tokens": 1404
+  }
+}

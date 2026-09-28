@@ -1,0 +1,27 @@
+{
+ "taskId": "SPR-W5-F",
+ "note": "the dispatched w5b rank-2 recipe config (frozen winner = v1 = this config verbatim)",
+ "config": {
+  "flattenMedianK": 5,
+  "flattenBilatD": 9,
+  "flattenBilatSigma": 75,
+  "flattenBilatIters": 2,
+  "lWeight": 0.45,
+  "chromaLift": 1.25,
+  "reliefMix": 0.35,
+  "reliefSlope": 96.0,
+  "specThreshold": 235,
+  "specSoften": 6.0,
+  "specStrength": 1.0,
+  "tonePivot": 0.45,
+  "toneContrast": 1.12,
+  "saturation": 1.25,
+  "tiltBlur": true,
+  "tiltBandLo": 0.3,
+  "tiltBandHi": 0.62,
+  "tiltRamp": 0.25,
+  "tiltSigma": 6.0,
+  "vignette": 0.35,
+  "grain": 6.0
+ }
+}

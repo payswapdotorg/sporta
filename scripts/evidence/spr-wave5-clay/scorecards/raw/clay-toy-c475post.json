@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match context and general player positions are recognizable, but the extreme abstraction loses significant detail.\n2. temporalConsistency - 2: The main subject's pose and the background elements shift and morph noticeably between the two frames.\n3. identityConsistency - 2: The main player is a consistent red blob, but facial features and fine details are entirely lost.\n4. motionFidelity - 2: The transition from running to kicking is captured, but the limb movements are jerky and lack smooth interpolation.\n5. sceneFidelity - 2: The stadium is reduced to a dark, noisy texture with inconsistent background shapes.\n6. stylizationStrength - 5: The clay-toy aesthetic is extremely bold, reducing the scene to flat, high-contrast color blocks.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574766,
+  "id": "202609281352395ae24654e63d4049",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281352395ae24654e63d4049",
+  "usage": {
+    "completion_tokens": 215,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1384
+  }
+}
