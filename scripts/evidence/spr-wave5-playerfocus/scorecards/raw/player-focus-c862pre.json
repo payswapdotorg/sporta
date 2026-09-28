@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images perfectly match the original frame's camera angle, player positions, and stadium context.\n2. temporalConsistency - 4: The motion between the two stylized frames is smooth and logical with no jarring flickers or morphing.\n3. identityConsistency - 5: All players maintain consistent visual features and jersey colors across the sequence.\n4. motionFidelity - 4: Player movements (especially the goalkeeper and the walking player) are natural and consistent with the short time gap.\n5. sceneFidelity - 5: Background elements like advertising boards and the goal remain spatially stable and accurate.\n6. stylizationStrength - 4: The transformation to a darker, more contrasted \"player-focus\" look is clearly visible and effective.\n\nAXES sf=5 tc=4 ic=5 mf=4 scf=5 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790577399,
+  "id": "20260928143634524498ee0365488c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928143634524498ee0365488c",
+  "usage": {
+    "completion_tokens": 214,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

@@ -1,0 +1,21 @@
+{
+ "taskId": "SPR-W5-H",
+ "note": "the phase-2 dispatched config (frozen winner = v1 = this config verbatim); cropFollow=True is the phase-1 anti-precedent mode",
+ "config": {
+  "zoom": 1.35,
+  "cropFollow": false,
+  "cropPad": 1.25,
+  "motionKnee": 1.8,
+  "mogHistory": 150,
+  "mogVarThreshold": 18.0,
+  "mogLearningRate": 0.02,
+  "openingFrames": 12,
+  "openingMinUnion": 0.004,
+  "camEps": 1.0,
+  "camMaxIter": 10,
+  "minWindowFrac": 0.12,
+  "springK": 0.02,
+  "dimStrength": 0.45,
+  "maskFeather": 21.0
+ }
+}

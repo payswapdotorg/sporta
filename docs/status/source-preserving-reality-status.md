@@ -71,6 +71,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | Reality | VLM min-axis | Critical artifacts | Tier |
 |---|---|---|---|
 | subject-toon (strongest deterministic; v0.2.0 w5a 2026-09-27) | 3.40 | 3 | 0 (near-miss: tc 3.40, criticals 3; ic 4.27 crossed) |
+| player-focus (SPR205, w5h REBUILD 2026-09-28) | 3.80 | 1 | 0 — NEAR-MISS Tier 1 (program's best VLM family; recorded original 3.67/2 — same class) |
 | noir-retro (noir profile) | 3.59 | 1 | 0 |
 | motion-trails | 3.47 | 2 | 0 |
 | anime-npr | 1.80 | 136 | 0 |
@@ -402,8 +403,8 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
 
 0. **PAT RE-INJECTED (2026-09-28, operator)**: push capability restored;
    the 6-commit queue lost to the second reset is being REBUILT from the
-   recorded recipes (w5f clay DELIVERED first — S053; w5h player-focus and
-   w5i rotoscope next) and pushed as fresh measurements. The old
+   recorded recipes (w5f clay DELIVERED — S053; w5h player-focus DELIVERED
+   — S054; w5i rotoscope next) and pushed as fresh measurements. The old
    token-exposure lesson stands: the PAT lives only in env/credential-store,
    never in dispatch packets or chat payloads.
 1. **Tier-2 push** (Worker C lane): subject-toon quality iteration with

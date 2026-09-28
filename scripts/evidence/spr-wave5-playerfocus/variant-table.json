@@ -1,0 +1,144 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-H",
+ "loop": "b8 first-300 (gateref 9efa9b99...) vs each variant",
+ "variants": [
+  {
+   "variant": "v0-crop-follow",
+   "overrides": {
+    "cropFollow": true
+   },
+   "sha256": "f3f16a37f8e24246c712978bd64327cd5e9e633ae16fee4e423150a46ab6d2df",
+   "T3": 0.7989,
+   "T3pass": false,
+   "T4": 1.6391,
+   "T4pass": false,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v1-recipe",
+   "overrides": {},
+   "sha256": "3fa814cf509cb8d7b146bda36fe3bfc28c14d2903749f6729b077b66db94baa0",
+   "T3": 0.9751,
+   "T3pass": true,
+   "T4": 0.7407,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v2-zoom-only",
+   "overrides": {
+    "dimStrength": 0.0
+   },
+   "sha256": "103755579d03aa32b58b4a9badcc5e918f8e01c56b9d2504e504482f934b47ea",
+   "T3": 0.9756,
+   "T3pass": true,
+   "T4": 0.751,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v3-dim-only",
+   "overrides": {
+    "zoom": 1.0
+   },
+   "sha256": "30ecbfe4f6f1f9b42f346a635c3c15514495641adde8b0bedad38794812b4cad",
+   "T3": 0.9964,
+   "T3pass": true,
+   "T4": 0.6104,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v4-zoom-120",
+   "overrides": {
+    "zoom": 1.2
+   },
+   "sha256": "42ab6ea3dd2e6f0c8dbd59d24fafd4782dedb194a0cec5d63d6f5fdae9675a87",
+   "T3": 0.9875,
+   "T3pass": true,
+   "T4": 0.6613,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v5-zoom-150",
+   "overrides": {
+    "zoom": 1.5
+   },
+   "sha256": "68c6d4dc333fc9eca0bf71a54ac8a44367c4f35d422a6dd34fb091740fd5d57c",
+   "T3": 0.9645,
+   "T3pass": true,
+   "T4": 0.8235,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v6-dim-030",
+   "overrides": {
+    "dimStrength": 0.3
+   },
+   "sha256": "626b2ccc78266485159f40c05da34343d917a5e31770924f38b464ea9e63e98a",
+   "T3": 0.9754,
+   "T3pass": true,
+   "T4": 0.7446,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  },
+  {
+   "variant": "v7-dim-060",
+   "overrides": {
+    "dimStrength": 0.6
+   },
+   "sha256": "0708bd0ac69ca56b2e623b11a3f6cf3dfc49a68ec681393e2e3cada92d675b06",
+   "T3": 0.9742,
+   "T3pass": true,
+   "T4": 0.7388,
+   "T4pass": true,
+   "T2cov": 1.0,
+   "T2extra": 0.0,
+   "T2pass": true,
+   "T2bCov": 1.0,
+   "T2bInvented": [],
+   "T2bPass": true
+  }
+ ],
+ "antiPrecedent": "v0-crop-follow REJECTED: T3 0.7989 FAIL / T4 1.6391% FAIL (the recorded phase-1 root cause reproduced \u2014 crop translation decorrelates motion and drifts static regions). HONEST DIFFERENCE from the recorded original: the original's phase-1 also manufactured invented cuts @11/@200; this rebuild's crop-follow inherits the phase-2 spring fixes (all-4D sprung, glide-from-neutral init) so no invented cuts \u2014 the rejection verdict stands on the T3/T4 hard-gate axes.",
+ "winner": "v1-recipe",
+ "winnerBasis": "all gates green + VLM duel BEST=A(zoom 1.35 + dim) WORST=E(zoom 1.5 'crops out too much of the surrounding action') \u2014 matches the recorded original verdict class"
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 4 - Same match, moment, and camera context, though the ball is missing in the stylized versions.\n2. temporalConsistency: 4 - Objects remain stable between the two stylized frames with smooth, logical motion.\n3. identityConsistency: 5 - Player appearances, particularly Balde's jersey and features, are highly consistent.\n4. motionFidelity: 4 - The movement of the opposing player and Balde's arm adjustment aligns well with the time gap.\n5. sceneFidelity: 4 - Stadium and background elements are spatially consistent across all images.\n6. stylizationStrength: 4 - The transformation to a player-focused, slightly smoothed look is clear and effective.\n\nAXES sf=4 tc=4 ic=5 mf=4 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790577320,
+  "id": "20260928143516ab4160483a254b35",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928143516ab4160483a254b35",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1367
+  }
+}
