@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout and team colors (red vs dark) are present, but the extreme blur and loss of detail make specific player positions and the ball hard to verify.\n2. temporalConsistency - 3: Player blobs maintain their relative positions between frames without major flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs with no discernible facial or bodily features to track individual identities.\n4. motionFidelity - 2: Subtle shifts in blob positions suggest some motion, but it is impossible to verify if it matches the precise football physics of the original 0.2s interval.\n5. sceneFidelity - 2: The stadium background and advertising boards are heavily abstracted into blurry shapes, losing most spatial detail.\n6. stylizationStrength - 5: The transformation into a soft, clay-toy-like aesthetic with heavy blur is very obvious and consistent.\n\nAXES sf=2 tc=3 ic=1 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=1 bg=4 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574788,
+  "id": "202609281352515ccd618c5e214a4e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281352515ccd618c5e214a4e",
+  "usage": {
+    "completion_tokens": 246,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1415
+  }
+}

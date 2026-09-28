@@ -170,6 +170,11 @@ class FrameProcessor:
             out = self._silhouette_xray_state(bgr, self._gray_small(bgr),
                                               self._is_cut_start())
 
+        elif reality == "clay-toy":
+            if not hasattr(self, "_clay_toy_state"):
+                self._clay_toy_state = _ClayToyState(cfg, self.palette)
+            out = self._clay_toy_state(bgr, self.frame_index)
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -1550,6 +1555,216 @@ class _SilhouetteXrayState:
 
 
 # ---------------------------------------------------------------------------
+# clay/miniature/toy pipeline state (SPR105) — TL rebuild of the reset-lost
+# w5f branch
+#
+# The w5b rank-2 dispatch recipe (docs/technology/spr105-106-candidates
+# .yaml → wave_recommendation rank 2), re-implemented after the 2026-09-27
+# sandbox reset destroyed the original local-only spr/w5f/clay-trial branch
+# before its PAT-blocked push ever reached origin (recorded honestly in the
+# session log; the lost implementation's shas resolve nowhere on origin and
+# are NOT claimed here — every measurement in its evidence pack is FRESH).
+# The recipe is the recorded one verbatim: medium flatten → fixed LAB K=12
+# toy palette through chroma-×1.25-lifted output centroids → relief-shade
+# (the ONE new renderer-declared stage: 3 fixed lights on Sobel slopes of
+# the FLATTENED luma, flat-response normalized to 1, tanh soft-clip, matte
+# multiply at mix 0.35) → specular fake (threshold+blur σ6+screen) →
+# linear-contrast S-curve + sat lift → tilt-blur diorama cue → vignette +
+# noir-law grain σ6. Deterministic-classical, CPU-only (OpenCV + numpy, the
+# frozen engine toolset), pure per-frame transform: no temporal state, no
+# per-frame RNG beyond the frozen grain law (the SPR-W3-B T3-diagnosis
+# law). See _ClayToyState below for the full stage math.
+# ---------------------------------------------------------------------------
+
+
+class _ClayToyState:
+    """Streaming state for the SPR105 clay/miniature/toy pipeline.
+
+    Stage 1  flatten      : median k5 + bilateral d9 σ75 ×2 — the
+              plasticine medium-flatten (w5b rank-2 recipe); suppresses
+              sensor noise AND provides the smooth height field the relief
+              stage needs (Sobel slopes on quantized palette steps would
+              be class boundaries, not relief).
+    Stage 2  toy_palette : fixed per-clip LAB K=12 (learned once by the
+              adapter's learn_palette), chroma-weighted assignment
+              (l=0.45) on the LEARNED centroids; OUTPUT runs through
+              chroma-×1.25-lifted centroids (a,b expanded around the LAB
+              128 midpoint, rounded + clipped) — the plasticine color pop.
+    Stage 3  relief-shade: THE new renderer-declared stage. Sobel k3
+              slopes (gx, gy) on the FLATTENED luma → surface normals
+              n = (-gx/s, -gy/s, 1)/|n| (fixed slope scale s = 96
+              luma/px per 45°); lambertian response over 3 FIXED lights
+              (key upper-left w 0.50 / fill upper-right w 0.30 / rim
+              lower w 0.20), max(0, n·l) each; the response is divided by
+              its FLAT value (gx=gy=0 → n=(0,0,1) → r0 = Σ w·lz) so a
+              flat surface maps to EXACTLY 1; tanh soft-clip around 1
+              (matte = 1 + tanh(r/r0 − 1) — bounded 0..2, flat exactly
+              1); output multiplied by (1 + mix·(matte−1)) at mix=0.35 —
+              flat regions untouched, structure-by-light deviation at
+              35%. numpy float64 throughout (the w5e IEEE determinism
+              law).
+    Stage 4  specular    : fake glint — hard threshold on luma (235) +
+              Gaussian σ6 + screen blend. When the mask is empty the
+              blend is an EXACT identity (screen with 0), so on
+              palette-capped content whose luma never reaches the
+              threshold the stage is a measured no-op (the v6 fast-loop
+              inert proof, honestly recorded).
+    Stage 5  tone+sat    : baked 256-entry linear-contrast S-curve LUT
+              (pivot 0.45, contrast 1.12 — the ink-manga convention; the
+              lost first implementation's tanh tone curve capped whites
+              ~200 and killed the glint — the recorded correction) +
+              saturation ×1.25.
+    Stage 6  tilt-blur   : heuristic diorama cue — a FIXED vertical
+              focus band [0.30, 0.62] of frame height with 0.25-ramp
+              shoulders; rows outside the band blend toward a σ6 blur
+              (top = far crowd/sky, bottom = near foreground; the mid
+              band stays sharp). Screen-anchored, no tracking, no
+              temporal state — the miniature/diorama depth cue.
+    Stage 7  finish      : vignette 0.35 + noir-law grain σ6 (the frozen
+              per-frame grain law).
+
+    Deterministic: every op is a fixed function of the current frame (+
+    the frozen grain's frame_index); the same input bytes + config always
+    produce the same output bytes.
+    """
+
+    def __init__(self, cfg: dict, palette: Optional[np.ndarray]):
+        c = self.cfg = cfg
+        # stage 1 — medium flatten (plasticine)
+        self.flat_median_k = int(c.get("flattenMedianK", 5))
+        self.flat_bilat_d = int(c.get("flattenBilatD", 9))
+        self.flat_bilat_sigma = float(c.get("flattenBilatSigma", 75.0))
+        self.flat_bilat_iters = int(c.get("flattenBilatIters", 2))
+        # stage 2 — toy palette (assignment on the LEARNED centroids,
+        # output through chroma-lifted centroids)
+        self.l_weight = float(c.get("lWeight", 0.45))
+        self.assign_palette = palette
+        lift = float(c.get("chromaLift", 1.25))
+        if palette is not None:
+            pal = np.clip(np.round(palette.astype(np.float64)), 0, 255)
+            pal[:, 1] = np.clip(
+                np.round((pal[:, 1] - 128.0) * lift + 128.0), 0, 255)
+            pal[:, 2] = np.clip(
+                np.round((pal[:, 2] - 128.0) * lift + 128.0), 0, 255)
+            self.palette = pal.astype(np.float32)
+        else:
+            self.palette = None
+        # stage 3 — relief-shade (3 fixed lights, flat-normalized, tanh)
+        self.relief_mix = float(c.get("reliefMix", 0.35))
+        self.relief_slope = float(c.get("reliefSlope", 96.0))
+        lights = []
+        for (lx, ly, lz, lw) in ((-0.49, -0.49, 0.72, 0.50),   # key
+                                 (0.58, -0.29, 0.76, 0.30),   # fill
+                                 (0.00, 0.66, 0.75, 0.20)):   # rim
+            n = np.sqrt(lx * lx + ly * ly + lz * lz)
+            lights.append((lx / n, ly / n, lz / n, lw))
+        self.lights = lights
+        # flat response r0 = Σ w·lz (gx=gy=0 → n=(0,0,1)) — the exact-1
+        # normalization divisor
+        self.flat_response = float(sum(w * lz for (_, _, lz, w) in lights))
+        # stage 4 — specular fake (threshold + blur σ6 + screen)
+        self.spec_threshold = float(c.get("specThreshold", 235.0))
+        self.spec_soften = float(c.get("specSoften", 6.0))
+        self.spec_strength = float(c.get("specStrength", 1.0))
+        # stage 5 — tone S-curve LUT (baked, rounded once) + saturation
+        pivot = float(c.get("tonePivot", 0.45))
+        contrast = float(c.get("toneContrast", 1.12))
+        u = np.arange(256, dtype=np.float32) / 255.0
+        curve = np.clip(pivot + (u - pivot) * contrast, 0.0, 1.0)
+        self.tone_lut = np.clip(np.round(curve * 255.0), 0, 255).astype(np.uint8)
+        self.saturation = float(c.get("saturation", 1.25))
+        # stage 6 — tilt-blur diorama band (fixed, screen-anchored)
+        self.tilt = bool(c.get("tiltBlur", True))
+        self.band_lo = float(c.get("tiltBandLo", 0.30))
+        self.band_hi = float(c.get("tiltBandHi", 0.62))
+        self.tilt_ramp = float(c.get("tiltRamp", 0.25))
+        self.tilt_sigma = float(c.get("tiltSigma", 6.0))
+        self._tilt_wgt: Optional[np.ndarray] = None
+        self._tilt_hw: tuple = (0, 0)
+        # stage 7 — vignette + grain
+        self.vignette = float(c.get("vignette", 0.35))
+        self.grain = float(c.get("grain", 6.0))
+        self._vmask: Optional[np.ndarray] = None
+
+    def _tilt_weight(self, h: int, w: int) -> np.ndarray:
+        if self._tilt_wgt is not None and self._tilt_hw == (h, w):
+            return self._tilt_wgt
+        ys = np.arange(h, dtype=np.float32) / float(h)
+        d = np.zeros(h, dtype=np.float32)
+        lo, hi = self.band_lo, self.band_hi
+        ramp = max(self.tilt_ramp, 1e-6)
+        below = ys < lo
+        above = ys > hi
+        d[below] = (lo - ys[below]) / ramp
+        d[above] = (ys[above] - hi) / ramp
+        self._tilt_wgt = np.clip(d, 0.0, 1.0).reshape(h, 1, 1)
+        self._tilt_hw = (h, w)
+        return self._tilt_wgt
+
+    def __call__(self, bgr: np.ndarray, frame_index: int) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        # stage 1 — medium flatten (plasticine)
+        flat = S.median_pool(bgr, self.flat_median_k)
+        flat = S.bilateral_flatten(flat, self.flat_bilat_d,
+                                   self.flat_bilat_sigma,
+                                   self.flat_bilat_sigma,
+                                   self.flat_bilat_iters)
+        # stage 3a — relief matte from the FLATTENED luma (computed BEFORE
+        # palette quantization: palette steps are class boundaries, not
+        # height; the flattened field is the smooth height field)
+        matte = None
+        if self.relief_mix > 0.0:
+            gray = cv2.cvtColor(flat, cv2.COLOR_BGR2GRAY)
+            gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3).astype(np.float64)
+            gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3).astype(np.float64)
+            nx = -gx / self.relief_slope
+            ny = -gy / self.relief_slope
+            inv_len = 1.0 / np.sqrt(nx * nx + ny * ny + 1.0)
+            resp = np.zeros_like(nx)
+            for (lx, ly, lz, lw) in self.lights:
+                dot = (nx * lx + ny * ly + lz) * inv_len
+                resp += lw * np.maximum(dot, 0.0)
+            matte = 1.0 + np.tanh(resp / self.flat_response - 1.0)
+        # stage 2 — toy palette (assignment frozen; output chroma-lifted)
+        if self.assign_palette is not None:
+            _, idx = S.quantize_lab(flat, self.assign_palette,
+                                    l_weight=self.l_weight, return_idx=True)
+            out = S.recolor(idx, self.palette)
+        else:
+            out = flat
+        # stage 3b — relief matte multiply (flat = exact identity)
+        if matte is not None:
+            gain = 1.0 + self.relief_mix * (matte - 1.0)
+            outf = out.astype(np.float64) * gain[..., None]
+            out = np.clip(np.round(outf), 0, 255).astype(np.uint8)
+        # stage 4 — specular fake (screen; exact identity on empty mask)
+        luma = cv2.cvtColor(out, cv2.COLOR_BGR2GRAY).astype(np.float32)
+        spec = (luma > self.spec_threshold).astype(np.float32)
+        spec = cv2.GaussianBlur(spec, (0, 0), self.spec_soften) \
+            * self.spec_strength
+        spec = spec[..., None]  # (h,w,1) — broadcast over BGR channels
+        base = out.astype(np.float32)
+        scr = 255.0 - (255.0 - base) * (255.0 - spec * 255.0) / 255.0
+        out = np.clip(np.round(scr), 0, 255).astype(np.uint8)
+        # stage 5 — tone S-curve + saturation pop
+        out = cv2.LUT(out, self.tone_lut)
+        out = S.saturation_lift(out, self.saturation)
+        # stage 6 — tilt-blur diorama cue (fixed focus band)
+        if self.tilt:
+            wgt = self._tilt_weight(h, w)
+            far = cv2.GaussianBlur(out, (0, 0), self.tilt_sigma).astype(np.float32)
+            near = out.astype(np.float32)
+            out = np.clip(np.round(near * (1.0 - wgt) + far * wgt),
+                          0, 255).astype(np.uint8)
+        # stage 7 — vignette + noir-law grain
+        if self._vmask is None:
+            self._vmask = S.vignette_mask(w, h, self.vignette)
+        out = S.apply_vignette(out, self._vmask)
+        out = S.grain(out, frame_index, self.grain)
+        return out
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -1981,3 +2196,81 @@ SILHOUETTE_XRAY = RendererSpec(
 # additive registry append (SPR-W5-G): the SPR202 silhouette/x-ray row enters
 # the REGISTRY without modifying any prior declaration or construction line
 REGISTRY[SILHOUETTE_XRAY.reality] = SILHOUETTE_XRAY
+
+
+# ---------------------------------------------------------------------------
+# SPR105 Clay/Miniature/Toy — wave-5 fresh reality (SPR-W5-F, TL rebuild of
+# the reset-lost w5f)
+#
+# The w5b rank-2 dispatch-trial recipe implemented verbatim (medium
+# flatten → fixed LAB K=12 toy palette through chroma-×1.25-lifted output
+# centroids → relief-shade as the ONE new renderer-declared stage →
+# specular fake → linear-contrast S-curve + sat lift → tilt-blur diorama
+# cue → vignette + noir-law grain). Deterministic-classical, CPU-only
+# (OpenCV + numpy, the frozen engine toolset), pure per-frame transform:
+# no temporal state, no per-frame RNG beyond the frozen grain law (the
+# SPR-W3-B T3-diagnosis law). The original w5f implementation was lost to
+# the 2026-09-27 sandbox reset before its PAT-blocked push reached origin
+# — this rebuild re-measures everything fresh; nothing is claimed from the
+# lost tree. See _ClayToyState above for the full stage math and the
+# determinism notes (numpy float64 relief math — the w5e IEEE law).
+# ---------------------------------------------------------------------------
+
+
+CLAY_TOY = RendererSpec(
+    rendererId="spr-clay-toy-dc1", reality="clay-toy",
+    family="Clay/Miniature/Toy (SPR105)", sprId="SPR105",
+    paletteK=12,
+    pipeline=[
+        "medium_flatten(median k5 + bilateral d9 σ75 ×2 — the plasticine "
+        "medium; w5b rank-2 recipe)",
+        "toy_palette(fixed per-clip LAB K=12, chroma-weighted assignment "
+        "l=0.45 on the LEARNED centroids; output through chroma-×1.25-"
+        "lifted centroids — a,b expanded around the LAB 128 midpoint)",
+        "relief_shade(THE new renderer-declared stage: Sobel k3 slopes on "
+        "the FLATTENED luma → normals, slope scale 96 luma/px per 45°; 3 "
+        "fixed lights key/fill/rim w 0.50/0.30/0.20; flat-response "
+        "normalized to EXACTLY 1; tanh soft-clip; matte multiply at mix "
+        "0.35; numpy float64 — the w5e IEEE determinism law)",
+        "specular_fake(luma threshold 235 + Gaussian σ6 + screen blend; "
+        "EXACT identity when the mask is empty — the measured b8 inert "
+        "no-op, honestly recorded)",
+        "tone_sat(baked 256-entry linear-contrast S-curve LUT pivot=0.45 "
+        "contrast=1.12 — the ink-manga convention — + saturation ×1.25)",
+        "tilt_blur(heuristic diorama cue: fixed vertical focus band "
+        "0.30–0.62 of frame height, 0.25 ramp shoulders, σ6 far blur; "
+        "screen-anchored, no tracking, no temporal state)",
+        "finish(vignette 0.35 + noir-law grain σ6)",
+    ],
+    description=("Plasticine clay/miniature restyle: medium flatten + "
+                 "fixed toy palette with chroma-popped output, clay "
+                 "relief shading from surface normals of the flattened "
+                 "luma (structure by light — the measured "
+                 "identityConsistency lever), fake specular glints, "
+                 "diorama tilt-blur and noir-law finish. Structure-"
+                 "REINJECTING family (the w5b rank-2 dispatch recipe, "
+                 "SPR105 trial; TL rebuild of the reset-lost w5f)."),
+    config={
+        # stage 1 — medium flatten
+        "flattenMedianK": 5, "flattenBilatD": 9, "flattenBilatSigma": 75,
+        "flattenBilatIters": 2,
+        # stage 2 — toy palette (chroma-lifted output)
+        "lWeight": 0.45, "chromaLift": 1.25,
+        # stage 3 — relief-shade
+        "reliefMix": 0.35, "reliefSlope": 96.0,
+        # stage 4 — specular fake
+        "specThreshold": 235, "specSoften": 6.0, "specStrength": 1.0,
+        # stage 5 — tone + saturation
+        "tonePivot": 0.45, "toneContrast": 1.12, "saturation": 1.25,
+        # stage 6 — tilt-blur diorama
+        "tiltBlur": True, "tiltBandLo": 0.30, "tiltBandHi": 0.62,
+        "tiltRamp": 0.25, "tiltSigma": 6.0,
+        # stage 7 — finish
+        "vignette": 0.35, "grain": 6.0,
+    },
+)
+
+# additive registry append (SPR-W5-F rebuild): the SPR105 clay-toy row
+# enters the REGISTRY without modifying any prior declaration or
+# construction line
+REGISTRY[CLAY_TOY.reality] = CLAY_TOY

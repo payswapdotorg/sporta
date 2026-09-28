@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The camera angle and general layout match, but the extreme abstraction obscures specific details like the scoreboard and advertising text.\n2. temporalConsistency - 4: The stylized frames show a stable, continuous progression of the scene without flickering or sudden morphing of the environment.\n3. identityConsistency - 2: Players are reduced to simple colored blobs, making individual identification and visual stability difficult to assess.\n4. motionFidelity - 3: The subtle shift in player positions between images 2 and 3 is consistent with a 0.2s interval, though the lack of detail limits precision.\n5. sceneFidelity - 3: The spatial arrangement of the field, goal, and advertising boards is preserved, despite the heavy blurring and loss of texture.\n6. stylizationStrength - 5: The transformation into a clay-toy or \"plastiline\" aesthetic is very strong, completely overriding the original photographic realism.\n\nAXES sf=3 tc=4 ic=2 mf=3 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574793,
+  "id": "202609281353092465d133b86f4aac",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281353092465d133b86f4aac",
+  "usage": {
+    "completion_tokens": 250,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1419
+  }
+}

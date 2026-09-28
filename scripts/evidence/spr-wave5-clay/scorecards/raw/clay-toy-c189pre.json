@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are clearly preserved despite the heavy stylization.\n2. temporalConsistency - 3: While the main subjects remain, the background and minor players shift significantly between frames.\n3. identityConsistency - 2: Players' forms are highly abstracted and morph between frames, making visual stability low.\n4. motionFidelity - 3: The general direction of movement is consistent, but specific limb positions are unreliable.\n5. sceneFidelity - 3: The stadium layout is roughly maintained but the background details are heavily distorted.\n6. stylizationStrength - 5: The clay-toy aesthetic is extremely strong and obvious throughout the images.\n\nAXES sf=5 tc=3 ic=2 mf=3 scf=3 ss=5\nARTIFACTS limbs=4 players=0 warped=0 dupes=0 ball=1 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574747,
+  "id": "202609281352244ef714df96e4421a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281352244ef714df96e4421a",
+  "usage": {
+    "completion_tokens": 196,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 297
+    },
+    "total_tokens": 1365
+  }
+}

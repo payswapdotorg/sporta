@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The general layout of the field and goal is present, but extreme blurring and loss of detail obscure specific match context and player positions.\n2. temporalConsistency - 4: Objects remain in nearly identical positions between the two stylized frames with no noticeable flickering or morphing.\n3. identityConsistency - 1: Players are reduced to indistinct, featureless colored blobs, making individual identification impossible.\n4. motionFidelity - 2: The relative positions of the blobs are roughly consistent with the original frame's layout, but fine motion details are lost.\n5. sceneFidelity - 3: The goal structure and field lines are recognizable and spatially consistent, though heavily distorted by the style.\n6. stylizationStrength - 5: The transformation into a blurry, clay-toy aesthetic is very strong and immediately obvious.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=1 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574743,
+  "id": "202609281352195fcc0bf522ae41a4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281352195fcc0bf522ae41a4",
+  "usage": {
+    "completion_tokens": 229,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1398
+  }
+}

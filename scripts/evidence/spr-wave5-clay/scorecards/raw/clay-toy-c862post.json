@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: The match, moment, and camera context are clearly preserved despite the heavy abstraction.\n2. temporalConsistency - 2: Significant morphing of the player's pose and facial features occurs between the two frames.\n3. identityConsistency - 3: The player's core identity (jersey, captain's armband) is maintained, but facial features are unstable.\n4. motionFidelity - 2: The limb positions shift unnaturally between frames, failing to represent smooth 0.2s motion.\n5. sceneFidelity - 3: The background elements (goal, field) remain in the correct spatial relationship but are heavily distorted.\n6. stylizationStrength - 5: The clay-toy aesthetic is extremely strong and consistently applied across all elements.\n\nAXES sf=4 tc=2 ic=3 mf=2 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=1 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790574799,
+  "id": "20260928135314dd7c3b367b4b419d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928135314dd7c3b367b4b419d",
+  "usage": {
+    "completion_tokens": 214,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1169,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1383
+  }
+}

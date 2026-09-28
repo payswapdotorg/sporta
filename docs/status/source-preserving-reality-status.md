@@ -3,7 +3,7 @@
 Program start: 2026-09-24 (session w6-spr-1). This file is the durable status
 record. Evidence pointers are absolute machine paths or repo-relative.
 
-## Current state: WAVE-4 COMPLETE AND MERGED (substrate fixed, subject-toon first-class, b4 closed as crowd-montage, 54-cell corpus ledger, neon machine-gated) — Tier-2 NOT YET REACHED — CLOSURE LANES EXECUTING (2026-09-26)
+## Current state: WAVE-4 COMPLETE AND MERGED (substrate fixed, subject-toon first-class, b4 closed as crowd-montage, 54-cell corpus ledger, neon machine-gated) — Tier-2 NOT YET REACHED — CLOSURE LANES EXECUTING (2026-09-26); WAVE-5 DELIVERY SET F/H/J (2026-09-27) LOST TO THE SECOND SANDBOX RESET AND REBUILT BY TL FROM THE RECORDED RECIPES (2026-09-28, PAT re-injected — push queue unblocked)
 
 ### Wave-3 + Wave-4 record (RECONCILED 2026-09-26 — see the reconciliation note)
 
@@ -76,6 +76,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | anime-npr | 1.80 | 136 | 0 |
 | ink-manga (SPR104, w5c 2026-09-27) | 1.47 | 88 | 0 |
 | lowpoly-game (SPR106, w5e 2026-09-27) | 1.93 | 67 | 0 |
+| clay-toy (SPR105, w5f REBUILD 2026-09-28) | 1.80 | 48 | 0 (best classical-family critical count; the reset-lost original recorded 2.07/62 — same range) |
 | silhouette-xray (SPR202, w5g 2026-09-27) | 1.47 | 111 | 0 |
 | cartoon-cel | 1.53 | 99 | 0 |
 | neon-cyberpunk | scorecards deferred by design | — | machine-gated only |
@@ -399,12 +400,12 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
 
 ## Next executable work
 
-0. **PAT re-injection** (operator): local main has moved past the
-   wave-2 closure since `7b16aad` — waves 3+4 are merged (tip
-   `239b6fd`), and closure-lane work continues on local branches.
-   Push to GitHub when credentials return (the sandbox reset on
-   2026-09-26 wiped `~/.env_credentials`; the loss is recorded, not
-   worked around — no token substitution, no fake evidence).
+0. **PAT RE-INJECTED (2026-09-28, operator)**: push capability restored;
+   the 6-commit queue lost to the second reset is being REBUILT from the
+   recorded recipes (w5f clay DELIVERED first — S053; w5h player-focus and
+   w5i rotoscope next) and pushed as fresh measurements. The old
+   token-exposure lesson stands: the PAT lives only in env/credential-store,
+   never in dispatch packets or chat payloads.
 1. **Tier-2 push** (Worker C lane): subject-toon quality iteration with
    the frozen scorecard protocol — the bar is never lowered; near-miss
    results are recorded honestly.

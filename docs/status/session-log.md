@@ -1634,3 +1634,58 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   + closeup classes).
 - Merged --no-ff @c8632b3; tier table + SPR202 work-item row +
   session-log S052; pushed.
+
+## Session S053 (w5-rebuild) — 2026-09-28 — Resident watch: FULL SANDBOX RESET survived; PAT re-injected; lane F (SPR105 clay-toy) REBUILT from the recorded recipe, TL-verified, merged + PUSHED
+
+- Reset forensics: the 2026-09-27 late-evening reset wiped /home/z again
+  (sporta clone, spr-evidence, replay stack, ALL local state) — the 6-commit
+  PAT-blocked queue from the post-reset watch (silhouette correction +
+  w5f clay + w5h playerfocus + w5i rotoscope merges, local main 0859ba6)
+  was NEVER pushed and is LOST (0859ba6 resolves 422 on origin). Recorded
+  honestly, not laundered: the lost shas (ee677d79/39a07659/38a42432,
+  9e0aa306/fda349d3/f048a10d, 2d5fb163/2847128c/4f3c8a62) resolve nowhere.
+- Operator re-injected the payswap PAT (env-persisted at ~/.secrets,
+  git credential store file mode 600; NEVER again in dispatch packets or
+  chat payloads — the prior compromise lesson). Push capability verified;
+  origin/main confirmed at 3c31b7c.
+- REBUILD of the w5f clay trial (the recorded w5b rank-2 recipe verbatim,
+  base 3c31b7c): environment anchors first (cartoon-cel a9e8cd56, noir
+  3eedb423, subject-toon v0.2.0 aaac76b7 all BYTE-MATCH the frozen records
+  pristine-tree — the new sandbox is byte-compatible; gaterefs 9efa9b99 /
+  d19079ca byte-reproduced).
+- _ClayToyState + spr-clay-toy-dc1 (additive, insertions only): medium
+  flatten (median k5 + bilateral d9 σ75 ×2) → fixed LAB K=12 toy palette
+  (assignment frozen, output through chroma-×1.25-lifted centroids) →
+  relief-shade (Sobel k3 slopes on the FLATTENED luma, 3 fixed lights,
+  flat-response normalized to exactly 1, tanh soft-clip, matte multiply
+  mix 0.35, numpy float64) → specular fake (thr 235 + σ6 + screen, exact
+  identity on empty mask) → linear-contrast S LUT (0.45/1.12) + sat 1.25
+  → tilt-blur diorama (fixed band 0.30–0.62) → vignette 0.35 + grain σ6.
+  One smoke-caught broadcasting bug fixed pre-fastloop (recorded).
+- Fast loop 7 variants ALL GATES GREEN; v6-spec-075 sha-IDENTICAL to v1
+  (the specular INERT no-op re-proven); VLM duel BEST=v1-recipe /
+  WORST=v2-relief-off ("flat, unrecognizable blobs") — the
+  relief-structure-by-light thesis independently re-confirmed; v1 frozen.
+- Full renders 3/3 double-render BYTE-IDENTICAL: b8 1190f
+  69d9ae777cb89477... ×2, b12 300f 465da5a1462b8023... ×2, b2 225f
+  a34c7edfacb42031... ×2.
+- Gates ALL GREEN 3/3 cells: b8 raw-T2 5/6 stylization-softened class +
+  b12 extra@72 sustained-motion class — both honestly recorded and
+  resolved by the frozen T2b rule (cov 1.0, 0 invented); b2 RAW T2 PASS;
+  T3 0.9766/0.9691/0.9929; T4 0.4424/0.4490/0.7843.
+- Regression 3/3 anchors BYTE-MATCH on the modified tree (cartoon-cel,
+  noir, subject-toon) — edit proven output-neutral.
+- Frozen VLM scorecard 15/15: sf 2.80 / tc 3.00 / ic 1.80 / mf 2.20 /
+  scf 2.27 / ss 5.00; minAxis 1.80, critical 48 → HONEST TIER 0 (the
+  lost original recorded 2.07/62 — same family range, fresh values).
+- Sandbox lesson re-verified: background processes do not reliably
+  survive command boundaries (a detached fullrender driver was killed
+  mid-render); all protocol work ran foreground (b8 full ≈ 4 min at
+  225 ms/f — fits the tool budget; the 590s-truncation incident class
+  avoided).
+- Merged --no-ff + PUSHED (the PAT is live — the first push since
+  3c31b7c); tier table + SPR105 work-item row + this entry.
+- Evidence: scripts/evidence/spr-wave5-clay/ (README, commands,
+  record.json with the rebuildProvenance block, variant table, 20 gate
+  JSONs, scorecards + 15 raw VLM calls, 9 frame PNGs, 16 fastloop-visual
+  PNGs + VLM duel, registry listing).
