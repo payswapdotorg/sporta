@@ -159,6 +159,15 @@
  *     excluded). Straight-line evidence is "explained" by the Hough
  *     lines; what remains is the curved evidence — the center circle
  *     (strongly detected on the measured windows) plus noise.
+ *     v0.3.0 FLANK RECOVERY: the explain is STRAIGHTNESS-AWARE (default
+ *     on) — a Hough line explains pixels only along contiguous
+ *     along-line stretches with ≥ ELLIPSE_LINE_STRAIGHT_SUPPORT_PX of
+ *     static support. Measured defect this fixes: the arc-chord Hough
+ *     lines (chords THROUGH the near-straight circle flank) explained
+ *     away the flank band, leaving ONE flank of arc evidence — a single
+ *     flank underdetermines the conic (sliver conics → bad anchors →
+ *     validation residuals 17-22 px). Real touchlines (200-600 px
+ *     along-runs) keep explaining their bands.
  * E2. CONIC FIT (deterministic RANSAC): 5-point conic subsets — a fixed
  *     mix of structured spread subsets and fixed-seed LCG draws (integer
  *     arithmetic only — no Math.random, no clock; byte-deterministic) —
@@ -304,15 +313,22 @@ import { isPitchGreen } from "../pixels";
 import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput } from "../adapter";
 
 /**
- * Stable technology identity of this candidate. v0.2.0 (behavior-surface
- * change, sanctioned by the R606 increment): the additive
- * ellipse/circle-constrained path runs after a v0.1.0 line-path
- * `no-consistent-homography` refusal; windows the line path calibrates
- * return byte-identical results. The ADAPTER seam (class shape, method
- * signature, output contract) is unchanged — adapterVersion stays 0.1.0.
+ * Stable technology identity of this candidate. v0.3.0 (behavior-surface
+ * change, the R606 flank-recovery increment): the ellipse path's
+ * arc-evidence extraction gains the straightness-aware Hough-line
+ * explain — only genuinely-straight along-line stretches (≥
+ * ELLIPSE_LINE_STRAIGHT_SUPPORT_PX) explain arc-band pixels, so the
+ * arc-chord "fake" lines stop eating the near-straight circle flank
+ * (the measured one-flank gap that underdetermined the conic).
+ * `ellipseStraightnessAwareExplain: false` restores the exact v0.2.0
+ * explain surface. v0.2.0: the additive ellipse/circle-constrained
+ * path runs after a v0.1.0 line-path `no-consistent-homography`
+ * refusal; windows the line path calibrates return byte-identical
+ * results. The ADAPTER seam (class shape, method signature, output
+ * contract) is unchanged — adapterVersion stays 0.1.0.
  */
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ID = "broadcast-line-calibrator";
-export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.2.0";
+export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.3.0";
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION = "0.1.0";
 
 /**
@@ -337,6 +353,17 @@ export interface BroadcastLineCalibratorOptions {
    * the measurement driver uses it to record the line-only path.
    */
   readonly ellipseConstrained?: boolean;
+  /**
+   * v0.3.0: straightness-aware Hough-line explain in the arc-evidence
+   * extraction (default true). A Hough line may explain arc-band pixels
+   * only along contiguous along-line stretches whose static support
+   * runs ≥ ELLIPSE_LINE_STRAIGHT_SUPPORT_PX — the arc-chord "fake" lines
+   * (chords through the near-straight circle flank, ≤ ~110 px straight)
+   * stop eating the flank band, while real touchlines (200-600 px runs)
+   * keep explaining theirs. `false` restores the exact v0.2.0 explain
+   * surface (the measurement driver uses it to record the v0.2.0 path).
+   */
+  readonly ellipseStraightnessAwareExplain?: boolean;
 }
 
 const BROADCAST_LINE_DEFAULTS = {
@@ -344,6 +371,7 @@ const BROADCAST_LINE_DEFAULTS = {
   minPitchFraction: 0.2,
   lineContrastThreshold: 14,
   ellipseConstrained: true,
+  ellipseStraightnessAwareExplain: true,
 } as const;
 
 /** Documented failure classes of the broadcast-line field calibrator. */
@@ -386,7 +414,7 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
   {
     failureClassId: "broadcast-line.ellipse-evidence-insufficient",
     description:
-      "v0.2.0 ellipse path: the arc evidence (static-mask pixels unexplained by " +
+      "v0.3.0 ellipse path: the arc evidence (static-mask pixels unexplained by " +
         "detected lines) could not support a center-circle conic fit — no " +
         "non-degenerate ellipse among the sampled subsets, or support/coverage " +
         "below the documented quota (occluded or partial circle, degenerate " +
@@ -398,7 +426,7 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
   {
     failureClassId: "broadcast-line.ellipse-no-consistent-homography",
     description:
-      "v0.2.0 ellipse path: the center-circle conic fit passed its quota, but no " +
+      "v0.3.0 ellipse path: the center-circle conic fit passed its quota, but no " +
         "conic-anchored hypothesis survived the guards, or the best refined " +
         "homography failed validation (the v0.1.0 lineFit/backward gates PLUS " +
         "the ellipse residual gates — the acceptance bar is never lowered). " +
@@ -1274,6 +1302,20 @@ const ELLIPSE_SPREAD_PERCENTILE_MIN_Y_M = 8;
  * the bottom ~40% of the band, starving the minor axis).
  */
 const ELLIPSE_LINE_EXPLAIN_PX = 2;
+/**
+ * v0.3.0 — the straightness-aware explain threshold (the flank-recovery
+ * increment). A Hough line may explain arc-band pixels ONLY along
+ * contiguous stretches where static pixels lie within
+ * ELLIPSE_LINE_EXPLAIN_PX of the line for at least this many px ALONG
+ * the line direction. Measured bounds (the ELLIPSE_RUN_MAX_PX note):
+ * the flattest sliver-ellipse flank runs nearly straight ~110 px; real
+ * touchlines run 200-600 px. The arc-chord Hough lines (chords THROUGH
+ * the near-straight circle flank — the lines the v0.2.0 radius-explain
+ * let eat the band, leaving one flank) max out below this threshold:
+ * the flank's arc evidence SURVIVES them. 140 splits the classes the
+ * same way ELLIPSE_RUN_MAX_PX (150) does for axis-aligned runs.
+ */
+const ELLIPSE_LINE_STRAIGHT_SUPPORT_PX = 140;
 /**
  * Arc evidence: the RUN-LENGTH curvature pre-filter. A static pixel whose
  * horizontal row-run OR vertical column-run (contiguous static pixels
@@ -2154,12 +2196,123 @@ function worldLineCircleIntersections(
 }
 
 /**
+ * v0.3.0 — the straightness-aware explain mask (the flank-recovery
+ * increment): a width×height bitmap where a set pixel may be explained
+ * as straight-line evidence. For each Hough line, the along-line support
+ * is walked in integer steps (clipped to the frame + explain radius);
+ * contiguous stretches where static pixels lie within
+ * ELLIPSE_LINE_EXPLAIN_PX of the line (the EXACT v0.2.0 explain
+ * predicate) for ≥ ELLIPSE_LINE_STRAIGHT_SUPPORT_PX are "genuinely
+ * straight" and their perpendicular ±ELLIPSE_LINE_EXPLAIN_PX band is
+ * marked. Stretches below the threshold — the arc-chord "fake" lines
+ * whose support IS the circle band — explain NOTHING: the flank's arc
+ * evidence survives them. Deterministic (integer steps, fixed
+ * thresholds, Math.round on the same inputs).
+ */
+function buildStraightExplainMask(
+  lines: readonly HoughLine[],
+  staticMask: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array {
+  const mask = new Uint8Array(width * height);
+  const r = ELLIPSE_LINE_EXPLAIN_PX;
+  for (let l = 0; l < lines.length; l += 1) {
+    const line = lines[l]!;
+    const cos = Math.cos(line.theta);
+    const sin = Math.sin(line.theta);
+    const dx = -sin;
+    const dy = cos;
+    const fx = cos * line.rho;
+    const fy = sin * line.rho;
+    // clip the along-line parameter t to the frame padded by r
+    let tLo = -Infinity;
+    let tHi = Infinity;
+    if (dx > 1e-9) {
+      tLo = Math.max(tLo, (-r - fx) / dx);
+      tHi = Math.min(tHi, (width + r - fx) / dx);
+    } else if (dx < -1e-9) {
+      tLo = Math.max(tLo, (width + r - fx) / dx);
+      tHi = Math.min(tHi, (-r - fx) / dx);
+    }
+    if (dy > 1e-9) {
+      tLo = Math.max(tLo, (-r - fy) / dy);
+      tHi = Math.min(tHi, (height + r - fy) / dy);
+    } else if (dy < -1e-9) {
+      tLo = Math.max(tLo, (height + r - fy) / dy);
+      tHi = Math.min(tHi, (-r - fy) / dy);
+    }
+    if (!Number.isFinite(tLo) || !Number.isFinite(tHi) || tHi <= tLo) continue;
+    const tStart = Math.ceil(tLo);
+    const tEnd = Math.floor(tHi);
+    if (tEnd - tStart < ELLIPSE_LINE_STRAIGHT_SUPPORT_PX) continue;
+    // walk; supported(t) uses the exact v0.2.0 explain predicate
+    let runStart = -1;
+    for (let t = tStart; t <= tEnd + 1; t += 1) {
+      let supported = false;
+      if (t <= tEnd) {
+        const px = fx + t * dx;
+        const py = fy + t * dy;
+        for (let s = -r; s <= r && !supported; s += 1) {
+          const qx = Math.round(px + s * cos);
+          const qy = Math.round(py + s * sin);
+          for (let oy = -1; oy <= 1 && !supported; oy += 1) {
+            for (let ox = -1; ox <= 1; ox += 1) {
+              const ax = qx + ox;
+              const ay = qy + oy;
+              if (ax < 0 || ax >= width || ay < 0 || ay >= height) continue;
+              if (staticMask[ay * width + ax] === 0) continue;
+              if (Math.abs(ax * cos + ay * sin - line.rho) <= r) {
+                supported = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (supported && runStart < 0) runStart = t;
+      if (!supported && runStart >= 0) {
+        if (t - runStart >= ELLIPSE_LINE_STRAIGHT_SUPPORT_PX) {
+          for (let u = runStart; u < t; u += 1) {
+            const ux = fx + u * dx;
+            const uy = fy + u * dy;
+            for (let s = -r; s <= r; s += 1) {
+              const qx = Math.round(ux + s * cos);
+              const qy = Math.round(uy + s * sin);
+              if (qx < 0 || qx >= width || qy < 0 || qy >= height) continue;
+              // The rounded perpendicular band (the walk positions are
+              // rounded to the pixel grid). Measured: the EXACT-distance
+              // predicate here (a narrower set) left the synthetic arc
+              // window's probe error at 2.6166 m > the 2.5 m contract bar
+              // (the extra unexplained pixels are penalty-arc band noise
+              // near the model segments) while leaving every REAL window
+              // outcome identical — the rounded band is the kept surface
+              // (the synthetic proof is the tested contract; the real
+              // corpus shows no difference, both recorded in the evidence).
+              mask[qy * width + qx] = 1;
+            }
+          }
+        }
+        runStart = -1;
+      }
+    }
+  }
+  return mask;
+}
+
+/**
  * The arc evidence (module docs E1): static pixels below the hoardings line
  * that (a) belong to no long straight run (the run-length curvature
  * pre-filter — see ELLIPSE_RUN_MAX_PX) and (b) are NOT within
  * ELLIPSE_LINE_EXPLAIN_PX of any detected Hough line (sloped straight
  * segments the run filter cannot catch), as a row-major `[x, y, ...]`
  * pixel list. Deterministic.
+ *
+ * v0.3.0 (straightnessAware, default OFF at this seam — the calibrator
+ * and the public diagnostics thread the option): (b) becomes the
+ * straightness-aware predicate — only genuinely-straight along-line
+ * stretches (see buildStraightExplainMask) explain pixels; the arc-chord
+ * "fake" lines leave the near-straight circle flank in the evidence.
  */
 function extractArcEvidence(
   staticPixels: readonly number[],
@@ -2168,6 +2321,7 @@ function extractArcEvidence(
   staticMask: Uint8Array,
   width: number,
   height: number,
+  straightnessAware: boolean = false,
 ): number[] {
   const cosines = lines.map((line) => Math.cos(line.theta));
   const sines = lines.map((line) => Math.sin(line.theta));
@@ -2201,6 +2355,9 @@ function extractArcEvidence(
     }
   }
   const arcPixels: number[] = [];
+  const explainMask = straightnessAware
+    ? buildStraightExplainMask(lines, staticMask, width, height)
+    : null;
   for (let p = 0; p < staticPixels.length; p += 2) {
     const x = staticPixels[p]!;
     const y = staticPixels[p + 1]!;
@@ -2208,10 +2365,14 @@ function extractArcEvidence(
     if (rowRuns[y * width + x]! > ELLIPSE_RUN_MAX_PX) continue;
     if (columnRuns[y * width + x]! > ELLIPSE_RUN_MAX_PX) continue;
     let explained = false;
-    for (let l = 0; l < lines.length; l += 1) {
-      if (Math.abs(x * cosines[l]! + y * sines[l]! - rhos[l]!) <= ELLIPSE_LINE_EXPLAIN_PX) {
-        explained = true;
-        break;
+    if (explainMask !== null) {
+      explained = explainMask[y * width + x] !== 0;
+    } else {
+      for (let l = 0; l < lines.length; l += 1) {
+        if (Math.abs(x * cosines[l]! + y * sines[l]! - rhos[l]!) <= ELLIPSE_LINE_EXPLAIN_PX) {
+          explained = true;
+          break;
+        }
       }
     }
     if (!explained) arcPixels.push(x, y);
@@ -2709,6 +2870,13 @@ export interface BroadcastEvidenceOptions {
   readonly minPitchFraction?: number;
   /** Local-contrast threshold in brightness units (default 14). */
   readonly lineContrastThreshold?: number;
+  /**
+   * v0.3.0: straightness-aware Hough-line explain in the arc-evidence
+   * extraction (default true — the flank-recovery increment). `false`
+   * restores the exact v0.2.0 explain surface (the measurement driver
+   * uses it to record the v0.2.0 path).
+   */
+  readonly ellipseStraightnessAwareExplain?: boolean;
 }
 
 /** The extracted evidence bundle (steps 0-6 of the calibrator). */
@@ -2944,7 +3112,10 @@ export function fitBroadcastEllipseEvidence(
   const minPitchFraction = options.minPitchFraction ?? BROADCAST_LINE_DEFAULTS.minPitchFraction;
   const lineContrastThreshold =
     options.lineContrastThreshold ?? BROADCAST_LINE_DEFAULTS.lineContrastThreshold;
-  validateEvidenceOptions(minPitchFraction, lineContrastThreshold);
+  const straightnessAware =
+    options.ellipseStraightnessAwareExplain ??
+    BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
+  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware);
   const evidence = extractCalibrationEvidence(input, minPitchFraction, lineContrastThreshold);
   const arcPixels = extractArcEvidence(
     evidence.staticPixels,
@@ -2953,6 +3124,7 @@ export function fitBroadcastEllipseEvidence(
     evidence.staticMask,
     evidence.width,
     evidence.height,
+    straightnessAware,
   );
   const fit = fitArcConic(arcPixels, evidence.staticPixels, evidence.width, evidence.height);
   const quotaPassed =
@@ -2977,7 +3149,11 @@ export function fitBroadcastEllipseEvidence(
 }
 
 /** Fail-loud validation of the shared evidence options (constructor parity). */
-function validateEvidenceOptions(minPitchFraction: number, lineContrastThreshold: number): void {
+function validateEvidenceOptions(
+  minPitchFraction: number,
+  lineContrastThreshold: number,
+  straightnessAware?: boolean,
+): void {
   if (!Number.isFinite(minPitchFraction) || minPitchFraction <= 0 || minPitchFraction > 1) {
     throw new RangeError(
       `fitBroadcastEllipseEvidence: minPitchFraction must be in (0, 1] (got ${minPitchFraction})`,
@@ -2986,6 +3162,12 @@ function validateEvidenceOptions(minPitchFraction: number, lineContrastThreshold
   if (!Number.isFinite(lineContrastThreshold) || lineContrastThreshold <= 0) {
     throw new RangeError(
       `fitBroadcastEllipseEvidence: lineContrastThreshold must be > 0 (got ${lineContrastThreshold})`,
+    );
+  }
+  if (straightnessAware !== undefined && typeof straightnessAware !== "boolean") {
+    throw new RangeError(
+      `fitBroadcastEllipseEvidence: ellipseStraightnessAwareExplain must be a boolean ` +
+        `(got ${typeof straightnessAware})`,
     );
   }
 }
@@ -3033,7 +3215,10 @@ export function evaluateBroadcastLineFit(
   const minPitchFraction = options.minPitchFraction ?? BROADCAST_LINE_DEFAULTS.minPitchFraction;
   const lineContrastThreshold =
     options.lineContrastThreshold ?? BROADCAST_LINE_DEFAULTS.lineContrastThreshold;
-  validateEvidenceOptions(minPitchFraction, lineContrastThreshold);
+  const straightnessAware =
+    options.ellipseStraightnessAwareExplain ??
+    BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
+  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware);
   const evidence = extractCalibrationEvidence(input, minPitchFraction, lineContrastThreshold);
   const { width, height, staticMask, scoredFull, staticPixels, lines, greenTop } = evidence;
 
@@ -3066,7 +3251,9 @@ export function evaluateBroadcastLineFit(
   const backwardPx = backwardCount > 0 ? backwardSum / backwardCount : null;
 
   // Ellipse residual, when the arc evidence passes its quota.
-  const arcPixels = extractArcEvidence(staticPixels, lines, greenTop, staticMask, width, height);
+  const arcPixels = extractArcEvidence(
+    staticPixels, lines, greenTop, staticMask, width, height, straightnessAware,
+  );
   const fit = fitArcConic(arcPixels, staticPixels, width, height);
   const quotaPassed=
     fit !== undefined &&
@@ -3109,6 +3296,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
   private readonly minPitchFraction: number;
   private readonly lineContrastThreshold: number;
   private readonly ellipseConstrained: boolean;
+  private readonly ellipseStraightnessAware: boolean;
 
   constructor(options: BroadcastLineCalibratorOptions = {}) {
     const calibratorId = options.calibratorId ?? BROADCAST_LINE_DEFAULTS.calibratorId;
@@ -3116,6 +3304,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     const lineContrastThreshold =
       options.lineContrastThreshold ?? BROADCAST_LINE_DEFAULTS.lineContrastThreshold;
     const ellipseConstrained = options.ellipseConstrained ?? BROADCAST_LINE_DEFAULTS.ellipseConstrained;
+    const ellipseStraightnessAware =
+      options.ellipseStraightnessAwareExplain ??
+      BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
     if (typeof calibratorId !== "string" || calibratorId.length < 1) {
       throw new RangeError("BroadcastLineCalibrator: calibratorId must be a non-empty string");
     }
@@ -3134,10 +3325,17 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
         `BroadcastLineCalibrator: ellipseConstrained must be a boolean (got ${typeof ellipseConstrained})`,
       );
     }
+    if (typeof ellipseStraightnessAware !== "boolean") {
+      throw new RangeError(
+        `BroadcastLineCalibrator: ellipseStraightnessAwareExplain must be a boolean ` +
+          `(got ${typeof ellipseStraightnessAware})`,
+      );
+    }
     this.calibratorId = calibratorId;
     this.minPitchFraction = minPitchFraction;
     this.lineContrastThreshold = lineContrastThreshold;
     this.ellipseConstrained = ellipseConstrained;
+    this.ellipseStraightnessAware = ellipseStraightnessAware;
     this.descriptor = perceptionDescriptor({
       technologyId: BROADCAST_LINE_FIELD_CALIBRATOR_ID,
       technologyVersion: BROADCAST_LINE_FIELD_CALIBRATOR_VERSION,
@@ -3439,7 +3637,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     };
 
     // E1. Arc evidence: static pixels the detected lines do not explain.
-    const arcPixels = extractArcEvidence(staticPixels, lines, greenTop, staticMask, width, height);
+    const arcPixels = extractArcEvidence(
+      staticPixels, lines, greenTop, staticMask, width, height, this.ellipseStraightnessAware,
+    );
     const arcCount = arcPixels.length / 2;
 
     // E2 + E3. Deterministic RANSAC conic fit + the evidence quota gates.

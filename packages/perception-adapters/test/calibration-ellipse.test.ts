@@ -371,7 +371,7 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
   );
 
   test(
-    "an occluded circle refuses with ellipse-evidence-insufficient (measured support/coverage)",
+    "an occluded circle refuses honestly (v0.3.0: at the hypothesis/validation stage — the flank-recovery explain admits the fixture's penalty arcs as quota-passing evidence)",
     () => {
       const frames = arcWindowFrames({ skipCenterCircle: true });
       // The line-only path still refuses (the arc window shape).
@@ -379,31 +379,49 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
         new BroadcastLineCalibrator({ ellipseConstrained: false }).calibrate({ frames }),
       );
       expect(lineOnly.classId).toBe("broadcast-line.no-consistent-homography");
-      // The ellipse path refuses honestly: the arc evidence cannot support
-      // a center-circle conic fit.
+      // The ellipse path refuses honestly. v0.2.0: the arc evidence could
+      // not support a center-circle conic fit (ellipse-evidence-
+      // insufficient). v0.3.0 (straightness-aware explain — the flank
+      // recovery): the fixture's PENALTY ARCS survive as arc evidence, the
+      // quota PASSES on them, and the refusal moves to the LATER honest
+      // stage — no conic-anchored hypothesis survives validation (a
+      // penalty-arc conic is not the center circle; the solve refuses
+      // rather than guessing). Both stages are typed refusals; the bar is
+      // the same — never a calibration from non-circle evidence.
       const refusal = refusalClassOf(() => new BroadcastLineCalibrator().calibrate({ frames }));
-      expect(refusal.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
-      expect(refusal.details.supportPx === undefined || (refusal.details.supportPx as number) < 90).toBe(
-        true,
-      );
+      expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
       // The measured evidence numbers ride the refusal.
-      expect(refusal.details.arcPixels).toBeDefined();
+      expect(refusal.details.arcPixels ?? refusal.details.linePathFailureDetails).toBeDefined();
       // And the recorded line-path refusal is carried.
       expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
+      // The v0.2.0 class surface is reproducible with the option off.
+      const v020 = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseStraightnessAwareExplain: false }).calibrate({ frames }),
+      );
+      expect(v020.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
     },
     60_000,
   );
 
   test(
-    "arc evidence below quota (a 40° painted arc) refuses with ellipse-evidence-insufficient",
+    "arc evidence below quota (a 40° painted arc) refuses honestly (v0.3.0: at the hypothesis/validation stage)",
     () => {
       const frames = arcWindowFrames({ centerCircleSpanDeg: 40 });
       const refusal = refusalClassOf(() => new BroadcastLineCalibrator().calibrate({ frames }));
-      expect(refusal.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
-      // The coverage quota (12 of 36 parametric bins) is the measured gate.
-      expect(refusal.details.coverageBins === undefined || (refusal.details.coverageBins as number) < 12).toBe(
-        true,
+      // v0.2.0: the coverage quota (12 of 36 bins) refused the 40° arc.
+      // v0.3.0: the straightness-aware explain admits the fixture's
+      // penalty arcs; the quota passes on them and the honest refusal
+      // moves to the validation stage (a partial circle + penalty arcs
+      // still cannot anchor a valid solve).
+      expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+      // The v0.2.0 class surface is reproducible with the option off.
+      const v020 = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseStraightnessAwareExplain: false }).calibrate({ frames }),
       );
+      expect(v020.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
+      expect(
+        v020.details.coverageBins === undefined || (v020.details.coverageBins as number) < 12,
+      ).toBe(true);
     },
     60_000,
   );

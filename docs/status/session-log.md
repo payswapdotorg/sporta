@@ -1944,3 +1944,46 @@ a61715a2fb) full shas verified exact.
 
 **Standing lesson re-affirmed:** never transcribe a sha from a truncated
 print — always re-fetch via sha256sum before writing it into a record.
+
+---
+
+## Session S060 (r606-flank) — 2026-09-28 — Resident watch lane A continuation: the straightness-aware explain (broadcast-line-calibrator v0.3.0) — the flank-recovery increment measured honestly
+
+**Dispatch:** the R606 row's recorded next increment (arc-evidence flank
+recovery — "the Hough-chord explain eats the second flank"). Fresh
+sandbox (third reset recovered); the corpus bytes are in-repo.
+
+**Implementation:** `buildStraightExplainMask` — a Hough line explains
+arc-band pixels only along contiguous along-line stretches with static
+support ≥ 140 px (the exact v0.2.0 distance predicate in the support
+test; the rounded perpendicular band in the marking — one intermediate
+exact-predicate marking variant measured WORSE on the synthetic proof
+(probe 2.6166 m > the 2.5 m bar, real outcomes identical) and was
+reverted, recorded in the code comment). Option-gated:
+`ellipseStraightnessAwareExplain` (default on = v0.3.0; false reproduces
+the v0.2.0 surface — asserted in the updated tests).
+
+**Measurements (12 real windows, driver re-run, deterministic):** the
+arc evidence recovers dramatically (b8p3-b 871→3738 px, coverage
+10/36→34/36; b5-a 8/36→19/36; b5-b 11/36→14/36; b8p3-f's conic
+validation residual 6.3→1.42 px). **0 windows newly calibrated** (the
+same 2/12 — non-degradation exact: b8p3-c/d byte-identical confidences;
+camera-motion + cross-clip determinism unchanged). Three windows'
+refusals moved from the quota stage to the LATER validation stage — the
+flank recovery admits penalty-arc evidence that passes the quota, and
+the solve refuses honestly rather than guessing from non-circle
+conics. Battery: 137/137 + tsc clean + ellipse suite 9/9 (the two
+occluded/partial-window tests updated to the new refusal stage with the
+v0.2.0 surface asserted reproducible). VLM overlay check on b8p3-f: the
+fitted conic still does not coincide with the visible white circle arc.
+
+**The next measured gap (recorded):** the evidence problem is
+substantially solved; the blocker is CONIC SELECTION + ANCHOR
+CONVERSION — the RANSAC winner is not always the center circle
+(b8p3-b's projected model circle lands 19.6 px from the fitted conic;
+b5-b's anchor set is degenerate-ish: backward 0 with ellipse residual
+46.7). Next increment: circle-vs-other-conic discrimination in the
+RANSAC winner, then the mixed DLT / pole-polar anchor conversion.
+
+**Evidence:** scripts/evidence/r606-ellipse-constrained/ (README v0.3.0
+addendum + fresh measurement.json + overlays). Merged --no-ff; PUSHED.
