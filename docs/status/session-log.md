@@ -1987,3 +1987,77 @@ RANSAC winner, then the mixed DLT / pole-polar anchor conversion.
 
 **Evidence:** scripts/evidence/r606-ellipse-constrained/ (README v0.3.0
 addendum + fresh measurement.json + overlays). Merged --no-ff; PUSHED.
+
+## Session S061 (r606-conic-selection) — 2026-09-28 — Resident watch lane A continuation #2: the conic-selection chain (broadcast-line-calibrator v0.4.0) — the machine recovery VLM-FAILS the visual gate, the honest opt-in record
+
+**Monitor:** fresh watch cycle from origin/main 1e9ea8e (the r606 flank
+merge); 0 open PRs, 0 issues, no new branches. **Harvest:** empty.
+
+**The increment (branch r606/conic-selection):** the recorded next gap
+was CONIC SELECTION — the RANSAC winner-by-support is not always the
+center circle (VLM-verified this session on the committed overlays: the
+b8p3-b and b8p3-b fitted "conics" are the hoarding/stand-boundary
+CURVES, not the visible circles). v0.4.0 adds the conic-selection
+FALLBACK CHAIN: the v0.3.0 primary (the RANSAC winner) is tried first —
+its solve and refusal are the v0.3.0 surface exactly; on its typed
+refusal the DISTINCT quota-passing alternatives run (the per-component
+fits of the sub-dominance arc components FIRST — a dominance-dropped
+structure is recoverable only there, since its pixels never reach the
+global RANSAC; component fits skip the EM band refinement, which
+measured-drifts near neighboring structures: semi 64 vs the true 100 —
+then the global ranked re-fit runners-up), each through the FULL
+hypothesis → refinement → validation flow with the bar never lowered,
+capped at 4, deduplicated by geometry, all deterministic (fixed LCG
+seed per fit invocation, fixed enumeration order). Total failure
+rethrows the first quota-passer's typed refusal with the additive
+conicChain record — every candidate's measured outcome. New option
+`ellipseMultiConicSelection`; the diagnostics record `conicCandidates`
++ `arcComponents`; the driver measures FOUR paths (v0.1.0 line-only,
+the v0.4.0 DEFAULT, the explicit v0.3.0 control, the OPT-IN chain) with
+the non-degradation counter.
+
+**The measured honest outcome (the 12-window real corpus):**
+- The DEFAULT stays v0.3.0-exact: 2/12 calibrated byte-identical
+  (b8p3-c 0.832, b8p3-d 0.988), the quota-refusal classes identical,
+  `v040NonDegradationViolations: 0`, `v020CalibratedWhereV010Refused: 0`
+  unchanged. The product seam (real-to-swm 38/38) untouched.
+- The OPT-IN chain machine-recovers b3-a (a behind-goal view): conf
+  0.831, lineFit 0.731, backward ≤ 10, ellipse residual ≤ 4 — **BUT the
+  VLM visual gate FAILS the claim**: the projected grid misaligns on
+  all three sharp checks (goal line, penalty box, center-circle
+  placement), and the winning conic (574.3, 79.0) sits on the
+  goal/net STRUCTURE (the frame's center circle is out of view). The
+  machine bar's measured blind spot: the static net satisfies the
+  backward chamfer and a displaced parallel line family satisfies
+  lineFit — the "line-on-line" class on behind-goal views. **The claim
+  is WITHHELD and the chain ships OPT-IN (default false)** — the
+  doctrine's honest state (the w5h2 pattern: machine metrics met,
+  visual gate failed, nothing laundered, the next increment named).
+- The refusing windows now carry the per-candidate conicChain records
+  (b8p3-b: 4 candidates; b8p3-f: one at lineFit 0.73; b5-b: the
+  degenerate primary + 3 alternatives) — the measured design surface
+  for the next increments.
+
+**Battery:** perception-adapters **139/139** (the new v0.4.0 test: the
+default refusal, the opt-in chain's per-candidate record with the
+circle candidate's ellipse gates passing — the mechanism proven at the
+conic level; the fixture's synthetic curve mass blocks its lineFit bar,
+the honest synthetic boundary documented in the test; the option
+validation + determinism + the diagnostics chain record; the
+v0.2.0-surface reproductions now pass BOTH post-v0.2.0 options off);
+real-to-swm 38/38; tsc clean (package-level; the repo-wide parallel
+typecheck OOMs the 4GB sandbox — environmental, recorded).
+
+**The next measured gap (recorded):** (1) the validation-gate hardening
+for the b3-a class — pitch-line-vs-structure discrimination (the goal
+structure stands in front of far grass, so greenTop alone does not
+discriminate; candidates: green-union-interior support for the winning
+conic, goal-line/corner consistency on the solved grid, a
+penalty-arc-conic prior for behind-goal views); until it lands the
+chain stays opt-in. (2) the b8p3-b/f anchor-conversion increments —
+now with per-candidate measured records to design against.
+
+**Evidence:** scripts/evidence/r606-ellipse-constrained/ (README v0.4.0
+addendum + the 4-path measurement.json + the chain-overlay PNGs —
+b3-a's red grid = the withheld claim's visual record). Merged --no-ff;
+PUSHED.

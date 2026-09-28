@@ -1,33 +1,50 @@
 # R606 — the ellipse/circle-constrained calibration solve: machine measurement
 
-Session: r606/ellipse-constrained-solve (Lane A — the 2026-09-26 closure
-lanes), 2026-09-27. Base: `0cc47ae` (origin/main, Lane-0 docs
-reconciliation). Substrate: the committed corpus bytes
+Session: r606/conic-selection (Lane A — the v0.4.0 conic-selection
+increment), 2026-09-28. Base: `6a104aa` (origin/main, the w5h3 TL-audit
+merge). Substrate: the committed corpus bytes
 (`scripts/evidence/spr-corpus-bytes/`), sha-256-verified byte-exact at
 driver startup against `scripts/evidence/spr-wave2-corpus/corpus.json`
 (4/4 clips).
 
 ## WHAT this measures
 
-`BroadcastLineCalibrator` v0.2.0 (`packages/perception-adapters/src/
+`BroadcastLineCalibrator` v0.4.0 (`packages/perception-adapters/src/
 calibration/broadcast-line.ts`) — the additive ellipse/circle-constrained
-path. Both paths measured per window:
+path + the v0.4.0 CONIC-SELECTION FALLBACK CHAIN (opt-in). FOUR paths
+measured per window:
 
 - **v0.1.0 line-only** — `new BroadcastLineCalibrator({ ellipseConstrained:
   false })`, the exact v0.1.0 behavior surface;
-- **v0.2.0 ellipse-constrained** — `new BroadcastLineCalibrator()` (the
-  default; the ellipse path runs only after a line-path
-  `no-consistent-homography` refusal).
+- **v0.4.0 DEFAULT** — `new BroadcastLineCalibrator()` — the v0.3.0-exact
+  single-conic surface (the chain is OPT-IN: see the b3-a visual-gate
+  record below);
+- **v0.3.0 surface (explicit control)** — `new BroadcastLineCalibrator({
+  ellipseMultiConicSelection: false })` — must be IDENTICAL to the default
+  (the non-degradation control; aggregate `v040NonDegradationViolations`
+  must be 0);
+- **v0.4.0 chain (opt-in)** — `new BroadcastLineCalibrator({
+  ellipseMultiConicSelection: true })` — the conic-selection chain: the
+  RANSAC winner-by-support (the v0.3.0 primary) is tried first; on its
+  typed refusal the DISTINCT quota-passing alternatives run (the
+  per-component fits of the sub-dominance arc components first — a
+  dominance-DROPPED structure is recoverable only there — then the global
+  ranked re-fit runners-up), each through the FULL hypothesis →
+  refinement → validation flow, the bar never lowered.
 
 Per window: calibrated (confidence, correspondenceCount, the W203-conformant
 solved homography, and the fit metrics — lineFit over the full scored set,
-backward chamfer, ellipse residual vs the fitted conic) or refused (the
-typed failure class + the measured numbers riding the refusal). Per-frame
-single-frame runs for both paths ride every window record (diagnostics).
-The synthetic proof (arc-window recovery within 1.38 m worst probe error,
-refusal classes, non-degradation, determinism) lives in the package test
-suite: `packages/perception-adapters/test/calibration-ellipse.test.ts`
-(9 tests; the package battery is 137 pass / 0 fail, typecheck clean).
+backward chamfer, the ellipse residual vs the chain's best-matching conic)
+or refused (the typed failure class + the measured numbers + the additive
+`conicChain` record — every candidate's measured outcome). Per-frame
+single-frame runs for the v0.1.0/default paths ride every window record
+(diagnostics). The arc-evidence diagnostics record the full candidate
+chain (`conicCandidates`) + the component structure (`arcComponents`).
+The synthetic proof (the chain's refusal surface, the candidate-chain
+records, the option validation, determinism; the package battery 139
+pass / 0 fail, typecheck clean) lives in the package test suite:
+`packages/perception-adapters/test/calibration-ellipse.test.ts` (11
+tests) + `test/arc-window-fixture.ts` (the shared pinhole fixture).
 
 ## WHY
 
@@ -193,57 +210,94 @@ explain surface (tested — both occluded-window tests assert it).
 
 ## RESULTS (the 12-window real corpus, sha-verified)
 
-**Headline (honest): 0 windows newly calibrated** (2/12 calibrated, the
-same two; non-degradation exact — b8p3-c/d byte-identical confidences
-0.832/0.988; camera-motion windows unchanged; cross-clip determinism
-b1-a ≡ b8p3-a, b1-b ≡ b8p3-e holds). **The evidence quality improves
-dramatically; the solve still refuses — at DIFFERENT, later stages.**
+**Headline (honest, 2026-09-28 — the v0.4.0 conic-selection increment):**
 
-| window | v0.2.0 (recorded) | v0.3.0 (measured) |
+- **The DEFAULT surface stays v0.3.0-exact** (the chain is opt-in): 2/12
+  calibrated, byte-identical to the recorded v0.3.0 confidences
+  (b8p3-c 0.832, b8p3-d 0.988); `v040NonDegradationViolations: 0`;
+  the quota-refusal classes identical (b8p3-e/g, b3-a, b1-b stay
+  `ellipse-evidence-insufficient`).
+- **The OPT-IN chain machine-recovers ONE window**: b3-a (a behind-goal
+  view) calibrates at conf 0.831 / lineFit 0.731 / backward ≤ 10 /
+  ellipse residual ≤ 4 — **BUT THE VLM VISUAL GATE FAILS IT**: the
+  projected grid misaligns on all three sharp checks (goal line, penalty
+  box, center circle placement), and the winning conic (574.3, 79.0,
+  semi 20.3) sits on the GOAL/NET STRUCTURE, not a pitch circle (the
+  frame's only visible arc is the penalty arc, mid-left; the center
+  circle is out of view). The claim is WITHHELD — the same doctrine as
+  the w5h2 Tier-1 attempt: machine metrics met, visual gate failed, the
+  honest record kept. **This is why the chain ships opt-in (default
+  false)** — the machine bar has a measured blind spot on behind-goal
+  views: the static net satisfies the backward chamfer and the displaced
+  grid's parallel line family satisfies lineFit (the "line-on-line"
+  class); the conic anchor itself is the only cue, and nothing in the
+  machine gates discriminates a goal-structure conic from a pitch circle.
+- The remaining refusing windows (b8p3-b/f, b5-a/b) now carry the
+  additive `conicChain` record — every quota-passing candidate's measured
+  outcome (lineFit, backward, ellipse residual) — the honest per-conic
+  evidence for the next increment. The 12-window candidate diagnostics
+  (`conicCandidates`, `arcComponents`) are in the per-window
+  `ellipseEvidence` records.
+
+| window | v0.3.0 surface (default) | v0.4.0 chain (opt-in) |
 |---|---|---|
-| b8p3-b | insufficient (arc 871, cov 10/36) | **quota PASSES** (arc 3738, support 1063, cov 34/36) → refuses `ellipse-no-consistent-homography` (lineFit 0.249, backward 3.13, ellipse residual 19.6) |
-| b8p3-e | noCH (sup 100, cov 16/36; lineFit 0.662, bw 21.6, res 13.9) | insufficient (arc 1609, sup 641, cov 11/36 — coverage is conic-relative; the fitted conic changed) |
-| b8p3-f | noCH (sup 191, cov 23/36; lineFit 0.606, bw 17.6, res 6.3) | noCH (arc 1970, sup 561, cov 18/36; lineFit 0.315, bw 22.0, **res 1.42 — the fitted conic is now tightly supported**) |
-| b8p3-g | noCH (cov 26/36) | insufficient (arc 3585, sup 1056, cov 9/36) |
-| b3-a | insufficient (arc 1236, cov 11/36) | insufficient (arc 12177, sup 1359, cov 10/36) |
-| b5-a | insufficient (cov 8/36) | **quota PASSES** (arc 1271, sup 678, cov 19/36) → refuses noCH (lineFit 0.280, bw 19.4, res 4.86) |
-| b5-b | insufficient (arc 570, cov 11/36) | **quota PASSES** (arc 3106, sup 426, cov 14/36) → refuses noCH (lineFit 0.351, bw 0, res 46.7) |
+| b8p3-c | CALIBRATED conf 0.832 | CALIBRATED conf 0.832 (the primary — byte-identical, the chain never fires) |
+| b8p3-d | CALIBRATED conf 0.988 | CALIBRATED conf 0.988 (the primary — byte-identical) |
+| b8p3-a / b1-a | camera-motion | camera-motion (the chain never runs) |
+| b8p3-b | noCH (em 19.6 on the hoarding-curve primary) | noCH — the chain tried 4 candidates (the primary + 3 distinct alternatives; none passes validation; the per-candidate outcomes recorded) |
+| b8p3-e / b8p3-g / b1-b | `ellipse-evidence-insufficient` (the primary) | noCH — the chain's quota-passing alternatives (the sub-dominance components) reach the solve and refuse at validation (the class shift is the honest "SOME conic is well-evidenced" semantics) |
+| b8p3-f | noCH (em 1.42 on the background-curve primary) | noCH — 4 candidates tried, incl. one at lineFit 0.73 (em 28.1); the honest per-candidate record |
+| b3-a | `ellipse-evidence-insufficient` | **CALIBRATED conf 0.831 lineFit 0.731 — VLM VISUAL GATE FAIL (the goal-structure conic class; claim withheld, the chain stays opt-in)** |
+| b5-a | noCH (em 4.86) | noCH — 4 candidates (em 4.9/31.6/160.6/44.3; the b8p3-f-class circle candidate not evidenced) |
+| b5-b | noCH (em 46.7 — the degenerate anchor set) | noCH — 4 candidates (the degenerate primary + 3 alternatives, all refused with measured outcomes) |
 
-VLM overlay check (b8p3-f): the fitted conic does NOT coincide with the
-visible white circle arc (offset, floating in green) — visually
-consistent with the honest refusal; the conic-selection machinery is the
-next gap, not the evidence.
+VLM overlay checks (2026-09-28): b3-a's chain-calibrated grid MISALIGNS
+(sharp checks: the goal line, the penalty box, the center-circle
+placement — all displaced; the winning conic on the goal structure);
+b8p3-c/d (the long-calibrated windows) unchanged. The overlays draw the
+candidate chain (cyan primary / magenta alternatives / yellow winner)
+and the chain's grid in red — the visual record of the withheld claim.
 
 ## Tests (the battery)
 
-- `calibration-ellipse.test.ts` 9/9 (the two occluded/partial-window
-  tests UPDATED to the v0.3.0 refusal stage with the v0.2.0 surface
-  asserted reproducible via the option-off path — the honest note: the
-  flank recovery admits the fixture's penalty arcs as quota-passing
-  evidence; the refusal moves to the LATER stage, the bar is unchanged).
-- Full package battery **137/137 pass**, tsc clean.
-- Determinism: the driver re-run reproduces every arcPixels/support/
-  coverage value exactly (b8p3-b 3738 = 3738, b8p3-e 1609 = 1609,
-  b8p3-f 1970 = 1970, b5-a 1271 = 1271); the deep-equal calibration test
-  passes.
+- `calibration-ellipse.test.ts` **11/11** (the v0.4.0 test: the line-only
+  refusal, the DEFAULT (= v0.3.0-exact) refusal, the OPT-IN chain's
+  per-candidate record with the circle candidate's ellipse gates PASSING
+  (em ≤ 4, backward ≤ 10) where the primary's fail — the conic-selection
+  mechanism proven; the fixture's synthetic curve mass blocks the
+  lineFit bar (the honest synthetic boundary, documented in the test);
+  the option validation + determinism + the diagnostics' chain record).
+  The two v0.2.0-surface reproduction tests now pass BOTH post-v0.2.0
+  options off (straightness + multi-conic) — each increment's surface is
+  reproducible via its own option.
+- Full package battery **139/139 pass**, tsc clean.
+- Determinism: the deep-equal diagnostics test + the driver re-run
+  reproduce every value exactly.
 
 ## The NEXT measured gap (precise)
 
-The flank recovery admits more curved evidence (incl. penalty arcs and
-crowd noise) — the RANSAC's winning conic is **not always the center
-circle**: on b8p3-b the projected model circle lands 19.6 px from the
-fitted conic (the conic is something else); on b5-b backward chamfer is
-0 with ellipse residual 46.7 (a degenerate-ish anchor set). The evidence
-problem is now substantially solved; the remaining gap is **conic
-selection + anchor conversion**: (a) circle-vs-other-conic
-discrimination in the RANSAC winner (e.g., a model-circle prior or
-multi-conic hypothesis family), (b) the mixed DLT/pole-polar anchor
-machinery converting a well-fitted center-circle conic into a
-homography that passes the lineFit/backward gates on arc-dominated
-windows. Both are recorded as the next increment candidates (measured
-order: (a) first — b8p3-b's conic is the blocker).
+1. **The validation-gate hardening (the b3-a class)**: the machine bar's
+   line-on-line blind spot on behind-goal views — the static net
+   satisfies the backward chamfer and a displaced parallel line family
+   satisfies lineFit. The conic anchor is the only cue: a
+   pitch-line-vs-structure discrimination is needed (candidates: the
+   winning conic's support must lie on GREEN-UNION-INTERIOR pixels —
+   the goal structure stands in front of far grass so greenTop alone
+   does not discriminate; a goal-line/corner consistency check on the
+   solved grid; a penalty-arc-conic prior for behind-goal views). Until
+   it lands, the chain stays opt-in.
+2. The b8p3-b/f anchor-conversion classes (the chain's circle candidates
+   not evidenced or failing the line gates) — the mixed DLT/pole-polar
+   machinery increments, now with the per-candidate measured records to
+   design against.
 
 Incident (honest): one intermediate exact-predicate marking variant was
 measured (synthetic probe 2.6166 m > the 2.5 m bar; real-window outcomes
 identical) and reverted to the rounded band — recorded in the
-buildStraightExplainMask comment.
+buildStraightExplainMask comment. The 2026-09-28 session's fixture
+engineering (the hoarding-curve synthetic) is recorded in the test's
+fixture comments: the 150°-arc partial-coverage fit is ill-conditioned
+(measured: the component RANSAC fits semi 64 vs the true 100), so the
+fixture proves the chain at the conic level; the full synthetic recovery
+stays bounded by the fixture's lineFit noise floor — the real corpus
+carries the machine-recovery evidence (b3-a) and the visual-gate record.

@@ -4,10 +4,13 @@ R606 ellipse-constrained measurement — OVERLAY RENDERER.
 
 Reads measurement.json + the anchor frames (frames/<window>.rgb) written by
 the bun driver and renders one PNG per window: the anchor frame dimmed, the
-fitted center-circle conic (cyan, when the arc evidence passed its quota),
-the v0.1.0 line-only solved pitch grid (green, when calibrated), and the
-v0.2.0 ellipse-constrained solved pitch grid (orange, when calibrated) — so
-a human can visually verify every measured outcome.
+conic-selection candidate chain of the v0.4.0 measurement (the PRIMARY conic
+cyan; the quota-passing alternatives magenta; the WINNING candidate — the
+one the v0.4.0 calibration actually anchored to, identified by its support
++ coverage in the metrics — yellow), the v0.1.0 line-only solved pitch grid
+(green, when calibrated), and the v0.4.0 ellipse-constrained solved pitch
+grid (orange, when calibrated) — so a human can visually verify every
+measured outcome.
 
 Run:  python3 render_overlays.py   (from scripts/evidence/r606-ellipse-constrained/)
 """
@@ -128,6 +131,20 @@ def draw_conic(img, conic, color):
     )
 
 
+def draw_ellipse_geometry(img, center, semi_major, semi_minor, rotation_deg, color, thickness=1):
+    cv2.ellipse(
+        img,
+        (int(center[0]), int(center[1])),
+        (int(max(1, semi_major)), int(max(1, semi_minor))),
+        rotation_deg,
+        0,
+        360,
+        color,
+        thickness,
+        cv2.LINE_AA,
+    )
+
+
 def label(img, text, x, y, color):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 3, cv2.LINE_AA)
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.42, color, 1, cv2.LINE_AA)
@@ -154,11 +171,45 @@ def main():
         canvas = dim.copy()
 
         evidence = window.get("ellipseEvidence") or {}
-        if isinstance(evidence, dict) and evidence.get("conic") is not None:
-            draw_conic(canvas, evidence["conic"], (255, 255, 0))  # cyan in BGR
-
         v010 = window["v010LineOnly"]
         v020 = window["v020EllipseConstrained"]
+
+        # The v0.4.0 conic-selection candidate chain: the primary (cyan),
+        # the quota-passing alternatives (magenta), and the WINNING
+        # candidate (yellow, thick) — matched by support + coverage against
+        # the calibrated metrics' ellipse fields.
+        if isinstance(evidence, dict):
+            candidates = evidence.get("conicCandidates") or []
+            winning_support = None
+            winning_coverage = None
+            chain_out = v040 if (v040 := window.get("v040Chain") or {}).get("kind") == "calibrated" else (v020 if v020.get("kind") == "calibrated" else {})
+            if chain_out:
+                m = chain_out.get("metrics", {})
+                winning_support = m.get("ellipseSupportPx")
+                winning_coverage = m.get("ellipseCoverageBins")
+            for index, cand in enumerate(candidates):
+                if not isinstance(cand, dict) or "centerPx" not in cand:
+                    continue
+                is_primary = index == 0
+                is_winner = (
+                    winning_support is not None
+                    and cand.get("supportPx") == winning_support
+                    and cand.get("coverageBins") == winning_coverage
+                )
+                color = (255, 255, 0) if is_primary else (255, 0, 255)
+                thickness = 2 if is_winner else 1
+                draw_ellipse_geometry(
+                    canvas,
+                    (cand["centerPx"]["x"], cand["centerPx"]["y"]),
+                    cand.get("semiMajorPx", 10),
+                    cand.get("semiMinorPx", 5),
+                    cand.get("rotationDeg", 0),
+                    color,
+                    thickness,
+                )
+            # Fallback: the legacy primary conic record (coefficients).
+            if not candidates and evidence.get("conic") is not None:
+                draw_conic(canvas, evidence["conic"], (255, 255, 0))
         # The solved homography is not carried in the JSON by design (the
         # payload would bloat); the outcomes + metrics are the record. The
         # grid overlays are drawn for windows whose driver record carries
@@ -177,14 +228,21 @@ def main():
             return f"{name}: REFUSED {det.get('failureClassId', out.get('failureClassId', '?'))}"
 
         label(canvas, f"{wid}  ({window['clipId']}, frames {window['frames'][0]}-{window['frames'][-1]})", 8, 16, (255, 255, 255))
+        v030 = window.get("v030Surface") or {}
         label(canvas, outcome_text(v010, "v0.1.0 line-only"), 8, 32, (0, 255, 0))
-        label(canvas, outcome_text(v020, "v0.2.0 ellipse"), 8, 48, (0, 165, 255))
+        label(canvas, outcome_text(v020, "v0.4.0 default"), 8, 48, (0, 165, 255))
+        label(canvas, outcome_text(v030, "v0.3.0 single-conic"), 8, 64, (255, 200, 100))
+        v040 = window.get("v040Chain") or {}
+        label(canvas, outcome_text(v040, "v0.4.0 chain (opt-in)"), 8, 80, (0, 0, 255))
+        if v040.get("kind") == "calibrated" and v040.get("homography") is not None:
+            draw_grid(canvas, v040["homography"], (0, 0, 255))
         if isinstance(evidence, dict):
+            candidates = evidence.get("conicCandidates") or []
             label(
                 canvas,
-                f"arc evidence: {evidence.get('arcPixels', '?')} px, support {evidence.get('supportPx', '?')}, coverage {evidence.get('coverageBins', '?')}/36, fitted={evidence.get('fitted', '?')}",
+                f"arc evidence: {evidence.get('arcPixels', '?')} px, {len(candidates)} conic candidates (cyan=primary, magenta=alt, yellow=winner)",
                 8,
-                64,
+                96,
                 (255, 255, 0),
             )
         out_path = os.path.join(out_dir, f"{wid}.png")

@@ -195,8 +195,12 @@ type Outcome =
 function measurePath(
   frames: readonly DetectorFrameInput[],
   ellipseConstrained: boolean,
+  ellipseMultiConicSelection?: boolean,
 ): Outcome {
-  const calibrator = new BroadcastLineCalibrator({ ellipseConstrained });
+  const calibrator = new BroadcastLineCalibrator({
+    ellipseConstrained,
+    ...(ellipseMultiConicSelection !== undefined ? { ellipseMultiConicSelection } : {}),
+  });
   try {
     const result = calibrator.calibrate({ frames: [...frames] });
     const metrics = evaluateBroadcastLineFit({ frames: [...frames] }, result.homography);
@@ -269,7 +273,9 @@ async function main(): Promise<void> {
     })),
     paths: {
       v010LineOnly: "BroadcastLineCalibrator({ ellipseConstrained: false }) — the v0.1.0 behavior surface",
-      v020EllipseConstrained: "BroadcastLineCalibrator() — the v0.2.0 default",
+      v020EllipseConstrained: "BroadcastLineCalibrator() — the v0.4.0 DEFAULT (opt-in chain OFF: the v0.3.0-exact single-conic surface — the b3-a visual-gate FAIL keeps the chain opt-in)",
+      v030Surface: "BroadcastLineCalibrator({ ellipseMultiConicSelection: false }) — the v0.3.0 single-conic surface (identical to the default; the explicit control)",
+      v040Chain: "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain (the measured increment: b3-a machine-recovers at lineFit 0.731, VLM visual gate FAIL — the goal-structure conic class)",
     },
     windows: [] as unknown[],
     aggregate: {} as Record<string, unknown>,
@@ -279,6 +285,14 @@ async function main(): Promise<void> {
   let v020Calibrated = 0;
   let v020CalibratedWhereV010Refused = 0;
   let v020RefusedWhereV010Calibrated = 0;
+  let v030Calibrated = 0;
+  // v0.3.0 vs v0.4.0 non-degradation: every window the v0.3.0 surface
+  // calibrated must calibrate IDENTICALLY (confidence + homography) on the
+  // v0.4.0 default; the count of violations must be 0.
+  let v040DegradedVsV030 = 0;
+  let v040NewlyCalibrated = 0;
+  let v040ChainCalibrated = 0;
+  let v040ChainNewlyCalibrated = 0;
 
   for (const window of WINDOWS) {
     const clip = CLIPS.find((c) => c.clipId === window.clipId)!;
@@ -312,7 +326,15 @@ async function main(): Promise<void> {
     const v020 = measurePath(frames, true);
     const ellipseEvidence = (() => {
       try {
-        return jsonSafe(fitBroadcastEllipseEvidence({ frames: [...frames] }));
+        // The chain-opt-in diagnostics: records the FULL candidate chain
+        // (the primary + the quota-passing alternatives); the primary
+        // fields are identical to the default surface's.
+        return jsonSafe(
+          fitBroadcastEllipseEvidence(
+            { frames: [...frames] },
+            { ellipseMultiConicSelection: true },
+          ),
+        );
       } catch (error) {
         if (error instanceof CandidateFailureError) {
           return { stage: error.details.failureClassId };
@@ -328,10 +350,30 @@ async function main(): Promise<void> {
       v020: jsonSafe(measurePath([frame], true)),
     }));
 
+    const v030 = measurePath(frames, true, false);
+    const v040 = measurePath(frames, true, true);
     if (v010.kind === "calibrated") v010Calibrated += 1;
     if (v020.kind === "calibrated") v020Calibrated += 1;
+    if (v030.kind === "calibrated") v030Calibrated += 1;
     if (v010.kind === "refused" && v020.kind === "calibrated") v020CalibratedWhereV010Refused += 1;
     if (v010.kind === "calibrated" && v020.kind === "refused") v020RefusedWhereV010Calibrated += 1;
+    // Non-degradation check: every window the v0.3.0 surface CALIBRATED
+    // must calibrate identically on the v0.4.0 default (confidence +
+    // homography byte-equal). A v0.3.0 REFUSAL improving to a v0.4.0
+    // calibration is the increment's purpose, not a degradation (counted
+    // separately as newly-calibrated).
+    if (
+      v030.kind === "calibrated" &&
+      (v020.kind === "refused" ||
+        (v020.kind === "calibrated" &&
+          (v030.confidence !== v020.confidence ||
+            JSON.stringify(v030.homography) !== JSON.stringify(v020.homography))))
+    ) {
+      v040DegradedVsV030 += 1;
+    }
+    if (v030.kind === "refused" && v020.kind === "calibrated") v040NewlyCalibrated += 1;
+    if (v040.kind === "calibrated") v040ChainCalibrated += 1;
+    if (v030.kind === "refused" && v040.kind === "calibrated") v040ChainNewlyCalibrated += 1;
 
     record.windows.push({
       id: window.id,
@@ -344,12 +386,16 @@ async function main(): Promise<void> {
       durationMs: Date.now() - t0,
       v010LineOnly: jsonSafe(v010),
       v020EllipseConstrained: jsonSafe(v020),
+      v030Surface: jsonSafe(v030),
+      v040Chain: jsonSafe(v040),
       ellipseEvidence,
       perFrame,
     });
     console.log(
       `[${window.id}] v0.1.0: ${v010.kind === "calibrated" ? `CALIBRATED conf=${v010.confidence.toFixed(3)}` : `REFUSED ${v010.failureClassId}`}` +
-        ` | v0.2.0: ${v020.kind === "calibrated" ? `CALIBRATED conf=${v020.confidence.toFixed(3)} lineFit=${(v020.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v020.failureClassId}`}` +
+        ` | v0.4.0: ${v020.kind === "calibrated" ? `CALIBRATED conf=${v020.confidence.toFixed(3)} lineFit=${(v020.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v020.failureClassId}`}` +
+        ` | v0.3.0: ${v030.kind === "calibrated" ? `CALIBRATED conf=${v030.confidence.toFixed(3)}` : `REFUSED ${v030.failureClassId}`}` +
+        ` | v0.4.0 chain(opt-in): ${v040.kind === "calibrated" ? `CALIBRATED conf=${v040.confidence.toFixed(3)} lineFit=${(v040.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v040.failureClassId}`}` +
         ` (${Date.now() - t0}ms)`,
     );
   }
@@ -358,6 +404,11 @@ async function main(): Promise<void> {
     windows: WINDOWS.length,
     v010Calibrated,
     v010Refused: WINDOWS.length - v010Calibrated,
+    v030Calibrated,
+    v040NonDegradationViolations: v040DegradedVsV030,
+    v040NewlyCalibratedWhereV030Refused: v040NewlyCalibrated,
+    v040ChainOptInCalibrated: v040ChainCalibrated,
+    v040ChainOptInNewlyCalibratedWhereV030Refused: v040ChainNewlyCalibrated,
     v020Calibrated,
     v020Refused: WINDOWS.length - v020Calibrated,
     v020CalibratedWhereV010Refused,
