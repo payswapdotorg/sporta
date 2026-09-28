@@ -2061,3 +2061,15 @@ now with per-candidate measured records to design against.
 addendum + the 4-path measurement.json + the chain-overlay PNGs —
 b3-a's red grid = the withheld claim's visual record). Merged --no-ff;
 PUSHED.
+
+### S061 TL AUDIT (2026-09-28, at the merged tree 64bc1e0)
+
+Independent re-run in a CLEAN WORKTREE (git worktree at the merge commit,
+no reused state): the full package battery **139/139** and the 4-path
+driver re-run produced a **duration-stripped DEEP-EQUAL measurement.json**
+(every window, every path, every value byte-identical — the aggregate
+matches exactly: v040NonDegradationViolations 0, the opt-in chain 3/12
+with b3-a's machine recovery, the default v0.3.0-exact 2/12). The VLM
+visual-gate FAIL on b3-a re-confirmed on the merged overlay (the red
+chain grid misaligned; the winning conic on the goal structure). The
+audit verdict: the merge is sound; the honest record is complete.
