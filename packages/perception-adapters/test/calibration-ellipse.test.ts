@@ -1,26 +1,3 @@
-/**
- * Tests for the v0.2.0 ELLIPSE/CIRCLE-CONSTRAINED calibration path of
- * `BroadcastLineCalibrator` (the R606 remaining-gap increment).
- *
- * FIXTURE HONESTY (the synth.ts contract): these are SYNTHETIC-DIAGNOSTIC
- * frames — a true PINHOLE projection of the regulation pitch (105×68,
- * center circle r = 9.15) rendered from an explicit camera pose
- * (position, look-at, focal length; K·[r1 r2 t] with the principal point
- * centered and square pixels) onto a 640×360 rgb24 raster, with
- * deterministic per-pixel grass variation, deterministic player walks,
- * and no RNG, no clock. They are NOT real video; they prove the
- * increment's recovery and refusal behavior before any real-media
- * evidence.
- *
- * The ARC-WINDOW fixture is the class the R606 record says line-only
- * solving fails: an elevated, slightly off-center main-camera midfield
- * view where BOTH touchlines cross the frame, the halfway line is the
- * sole near-vertical painted line, the center circle projects to a
- * ~200×38 px sliver ellipse, and the goal lines + penalty areas are out
- * of frame — the v0.1.0 (2+2)-family search refuses (family starvation
- * or validation failure), and the ellipse/circle-constrained path
- * calibrates.
- */
 import { describe, expect, test } from "bun:test";
 import { FieldMappingPayload } from "@sporta/contracts";
 import {
@@ -38,268 +15,31 @@ import {
   evaluateBroadcastLineFit,
   fitBroadcastEllipseEvidence,
 } from "../src/calibration/broadcast-line";
-
-const WIDTH = 640;
-const HEIGHT = 360;
-const FRAME_COUNT = 6;
-
-// ---------------------------------------------------------------------------
-// The pinhole ground truth (explicit camera pose → K·[r1 r2 t]).
-// ---------------------------------------------------------------------------
-
-/** Camera pose: pitch-side, elevated, slightly right of the halfway line. */
-const CAMERA_POSITION: readonly [number, number, number] = [58, -38, 14];
-const CAMERA_TARGET: readonly [number, number, number] = [52.5, 18, 0];
-const FOCAL_PX = 800;
-
-type Vec3 = readonly [number, number, number];
-
-function normalizeVec(v: Vec3): [number, number, number] {
-  const n = Math.hypot(v[0], v[1], v[2]);
-  return [v[0] / n, v[1] / n, v[2] / n];
-}
-function crossVec(a: Vec3, b: Vec3): [number, number, number] {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-}
-function dotVec(a: Vec3, b: Vec3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-/** The look-at rotation (right-handed camera frame: x right, y down, z forward). */
-const Z_AXIS = normalizeVec([
-  CAMERA_TARGET[0] - CAMERA_POSITION[0],
-  CAMERA_TARGET[1] - CAMERA_POSITION[1],
-  CAMERA_TARGET[2] - CAMERA_POSITION[2],
-]);
-const X_AXIS = normalizeVec(crossVec(Z_AXIS, [0, 0, 1]));
-const Y_AXIS = crossVec(Z_AXIS, X_AXIS);
-const TRANSLATION: readonly [number, number, number] = [
-  -dotVec(X_AXIS, CAMERA_POSITION),
-  -dotVec(Y_AXIS, CAMERA_POSITION),
-  -dotVec(Z_AXIS, CAMERA_POSITION),
-];
-
-/** Pitch (x, y, 0) → image (normalized): S⁻¹·K·[r1 r2 t]. */
-const M_PITCH_TO_IMAGE: Homography = [
-  (FOCAL_PX * X_AXIS[0] + (WIDTH / 2) * Z_AXIS[0]) / WIDTH,
-  (FOCAL_PX * X_AXIS[1] + (WIDTH / 2) * Z_AXIS[1]) / WIDTH,
-  (FOCAL_PX * TRANSLATION[0] + (WIDTH / 2) * TRANSLATION[2]) / WIDTH,
-  (FOCAL_PX * Y_AXIS[0] + (HEIGHT / 2) * Z_AXIS[0]) / HEIGHT,
-  (FOCAL_PX * Y_AXIS[1] + (HEIGHT / 2) * Z_AXIS[1]) / HEIGHT,
-  (FOCAL_PX * TRANSLATION[1] + (HEIGHT / 2) * TRANSLATION[2]) / HEIGHT,
-  Z_AXIS[0],
-  Z_AXIS[1],
-  TRANSLATION[2],
-];
-/** Ground-truth image→pitch homography (canonical h[8] = 1). */
-const H_GT: Homography = invertHomography(M_PITCH_TO_IMAGE);
-
-function projectImage(h: Homography, u: number, v: number): { x: number; y: number } {
-  const denominator = h[6]! * u + h[7]! * v + 1;
-  return {
-    x: (h[0]! * u + h[1]! * v + h[2]!) / denominator,
-    y: (h[3]! * u + h[4]! * v + h[5]!) / denominator,
-  };
-}
-/** Pitch meters → image-normalized through a (possibly non-canonical) matrix. */
-function projectPitchNormalized(m: Homography, px: number, py: number): { x: number; y: number } {
-  const denominator = m[6]! * px + m[7]! * py + m[8]!;
-  return {
-    x: (m[0]! * px + m[1]! * py + m[2]!) / denominator,
-    y: (m[3]! * px + m[4]! * py + m[5]!) / denominator,
-  };
-}
-function projectPitchToPx(px: number, py: number): { x: number; y: number } {
-  const denominator = M_PITCH_TO_IMAGE[6]! * px + M_PITCH_TO_IMAGE[7]! * py + M_PITCH_TO_IMAGE[8]!;
-  return {
-    x:
-      ((M_PITCH_TO_IMAGE[0]! * px + M_PITCH_TO_IMAGE[1]! * py + M_PITCH_TO_IMAGE[2]!) / denominator) *
-      WIDTH,
-    y:
-      ((M_PITCH_TO_IMAGE[3]! * px + M_PITCH_TO_IMAGE[4]! * py + M_PITCH_TO_IMAGE[5]!) / denominator) *
-      HEIGHT,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// The renderer (mirrors broadcast-line.test.ts's fixture style).
-// ---------------------------------------------------------------------------
-
-const MODEL_SEGMENTS: ReadonlyArray<readonly [number, number, number, number]> = [
-  [0, 0, 105, 0],
-  [0, 68, 105, 68],
-  [0, 0, 0, 68],
-  [105, 0, 105, 68],
-  [52.5, 0, 52.5, 68],
-  [16.5, 13.84, 16.5, 54.16],
-  [88.5, 13.84, 88.5, 54.16],
-  [0, 13.84, 16.5, 13.84],
-  [0, 54.16, 16.5, 54.16],
-  [88.5, 13.84, 105, 13.84],
-  [88.5, 54.16, 105, 54.16],
-  [5.5, 24.84, 5.5, 43.16],
-  [99.5, 24.84, 99.5, 43.16],
-  [0, 24.84, 5.5, 24.84],
-  [0, 43.16, 5.5, 43.16],
-  [99.5, 24.84, 105, 24.84],
-  [99.5, 43.16, 105, 43.16],
-];
-interface FixtureArc {
-  readonly cx: number;
-  readonly cy: number;
-  readonly r: number;
-  readonly xMin?: number;
-  readonly xMax?: number;
-}
-const CENTER_CIRCLE: FixtureArc = { cx: 52.5, cy: 34, r: 9.15 };
-const LEFT_PENALTY_ARC: FixtureArc = { cx: 11, cy: 34, r: 9.15, xMin: 16.5 };
-const RIGHT_PENALTY_ARC: FixtureArc = { cx: 94, cy: 34, r: 9.15, xMax: 88.5 };
-
-const GRASS: readonly [number, number, number] = [90, 120, 50];
-const LINE: readonly [number, number, number] = [170, 172, 166];
-const PLAYER: readonly [number, number, number] = [200, 200, 200];
-const BACKGROUND: readonly [number, number, number] = [90, 92, 88];
-
-function setPixel(
-  bytes: Uint8Array,
-  x: number,
-  y: number,
-  color: readonly [number, number, number],
-): void {
-  if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return;
-  const index = (y * WIDTH + x) * 3;
-  bytes[index] = color[0];
-  bytes[index + 1] = color[1];
-  bytes[index + 2] = color[2];
-}
-
-function paintMarkingPoint(bytes: Uint8Array, pitchX: number, pitchY: number): void {
-  const image = projectPitchToPx(pitchX, pitchY);
-  const x = Math.round(image.x);
-  const y = Math.round(image.y);
-  setPixel(bytes, x, y, LINE);
-  setPixel(bytes, x + 1, y, LINE);
-  setPixel(bytes, x, y + 1, LINE);
-  setPixel(bytes, x + 1, y + 1, LINE);
-}
-
-interface RenderVariant {
-  /** Omit the center circle entirely (the occluded-circle refusal fixture). */
-  readonly skipCenterCircle?: boolean;
-  /** Paint only this many degrees of the center circle (the below-quota fixture). */
-  readonly centerCircleSpanDeg?: number;
-}
-
-function paintArc(bytes: Uint8Array, arc: FixtureArc, spanDeg?: number): void {
-  let angle0 = 0;
-  let angleSpan = Math.PI * 2;
-  if (spanDeg !== undefined) {
-    angle0 = (-spanDeg * Math.PI) / 360;
-    angleSpan = (spanDeg * Math.PI) / 180;
-  } else if (arc.xMin !== undefined) {
-    const half = Math.acos((arc.xMin - arc.cx) / arc.r);
-    angle0 = -half;
-    angleSpan = 2 * half;
-  } else if (arc.xMax !== undefined) {
-    const half = Math.acos((arc.cx - arc.xMax) / arc.r);
-    angle0 = Math.PI - half;
-    angleSpan = 2 * half;
-  }
-  const steps = Math.max(1, Math.ceil((arc.r * angleSpan) / 0.25));
-  for (let step = 0; step <= steps; step += 1) {
-    const angle = angle0 + (angleSpan * step) / steps;
-    paintMarkingPoint(bytes, arc.cx + arc.r * Math.cos(angle), arc.cy + arc.r * Math.sin(angle));
-  }
-}
-
-/** Renders one arc-window frame under the pinhole ground truth. */
-function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): Uint8Array {
-  const bytes = new Uint8Array(WIDTH * HEIGHT * 3);
-  for (let i = 0; i < bytes.length; i += 3) {
-    bytes[i] = BACKGROUND[0];
-    bytes[i + 1] = BACKGROUND[1];
-    bytes[i + 2] = BACKGROUND[2];
-  }
-  for (let y = 0; y < HEIGHT; y += 1) {
-    for (let x = 0; x < WIDTH; x += 1) {
-      const pitch = projectImage(H_GT, x / WIDTH, y / HEIGHT);
-      if (pitch.x >= 0 && pitch.x <= 105 && pitch.y >= 0 && pitch.y <= 68) {
-        const variation = ((x * 31 + y * 17) % 7) - 3;
-        const index = (y * WIDTH + x) * 3;
-        bytes[index] = GRASS[0] + variation;
-        bytes[index + 1] = GRASS[1] + variation;
-        bytes[index + 2] = GRASS[2] + variation;
-      }
-    }
-  }
-  for (const [x0, y0, x1, y1] of MODEL_SEGMENTS) {
-    const length = Math.hypot(x1 - x0, y1 - y0);
-    const steps = Math.max(1, Math.ceil(length / 0.25));
-    for (let step = 0; step <= steps; step += 1) {
-      const t = step / steps;
-      paintMarkingPoint(bytes, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
-    }
-  }
-  if (!variant.skipCenterCircle) {
-    paintArc(bytes, CENTER_CIRCLE, variant.centerCircleSpanDeg);
-  }
-  paintArc(bytes, LEFT_PENALTY_ARC);
-  paintArc(bytes, RIGHT_PENALTY_ARC);
-  for (let k = 0; k < 18; k += 1) {
-    const baseX = 15 + ((k * 97 + 31) % 590);
-    const baseY = 55 + ((k * 61 + 47) % 250);
-    const x = Math.round(baseX + 13 * frameIndex + (k % 3));
-    const y = Math.round(baseY + 7 * (((k + frameIndex) % 5) - 2));
-    for (let dy = 0; dy < 14; dy += 1) {
-      for (let dx = 0; dx < 8; dx += 1) {
-        setPixel(bytes, x + dx, y + dy, PLAYER);
-      }
-    }
-  }
-  return bytes;
-}
-
-function arcWindowFrames(variant: RenderVariant = {}, count = FRAME_COUNT): DetectorFrameInput[] {
-  const frames: DetectorFrameInput[] = [];
-  for (let index = 0; index < count; index += 1) {
-    frames.push(
-      makeDetectorFrameInput({
-        bytes: renderArcWindowFrame(index, variant),
-        width: WIDTH,
-        height: HEIGHT,
-        decodeOrder: index,
-        presentationMs: index * 40,
-      }),
-    );
-  }
-  return frames;
-}
-
-/** Probe pitch points on the visible midfield region (all project in-frame). */
-const PROBE_PITCH_POINTS: ReadonlyArray<readonly [number, number]> = [
-  [45, 25],
-  [60, 45],
-  [40, 60],
-  [65, 63],
-  [52.5, 34],
-  [25, 40],
-];
-
-/** Reads a typed refusal's failure class (fails the test on success). */
-function refusalClassOf(calibrate: () => unknown): { classId: string; details: Record<string, unknown> } {
-  try {
-    calibrate();
-  } catch (error) {
-    if (error instanceof CandidateFailureError) {
-      return {
-        classId: error.details.failureClassId as string,
-        details: error.details as Record<string, unknown>,
-      };
-    }
-    throw error;
-  }
-  throw new Error("expected a typed refusal, got a calibration");
-}
+import {
+  CENTER_CIRCLE,
+  FRAME_COUNT,
+  H_GT,
+  M_PITCH_TO_IMAGE,
+  PROBE_PITCH_POINTS,
+  arcWindowFrames,
+  projectImage,
+  projectPitchNormalized,
+  projectPitchToPx,
+  refusalClassOf,
+  WIDTH,
+  HEIGHT,
+  BACKGROUND,
+  GRASS,
+  LINE,
+  LEFT_PENALTY_ARC,
+  MODEL_SEGMENTS,
+  RIGHT_PENALTY_ARC,
+  paintArc,
+  setPixel,
+  crossVec,
+  dotVec,
+  normalizeVec,
+} from "./arc-window-fixture";
 
 // ---------------------------------------------------------------------------
 // The tests.
@@ -394,9 +134,15 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
       expect(refusal.details.arcPixels ?? refusal.details.linePathFailureDetails).toBeDefined();
       // And the recorded line-path refusal is carried.
       expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
-      // The v0.2.0 class surface is reproducible with the option off.
+      // The v0.2.0 class surface is reproducible with BOTH post-v0.2.0
+      // increments off (straightness-aware explain AND multi-conic
+      // selection — the chain alone moves a quota-passing sub-dominant
+      // component's refusal to the validation stage).
       const v020 = refusalClassOf(() =>
-        new BroadcastLineCalibrator({ ellipseStraightnessAwareExplain: false }).calibrate({ frames }),
+        new BroadcastLineCalibrator({
+          ellipseStraightnessAwareExplain: false,
+          ellipseMultiConicSelection: false,
+        }).calibrate({ frames }),
       );
       expect(v020.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
     },
@@ -414,14 +160,136 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
       // moves to the validation stage (a partial circle + penalty arcs
       // still cannot anchor a valid solve).
       expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
-      // The v0.2.0 class surface is reproducible with the option off.
+      // The v0.2.0 class surface is reproducible with BOTH post-v0.2.0
+      // increments off (see the occluded-circle test).
       const v020 = refusalClassOf(() =>
-        new BroadcastLineCalibrator({ ellipseStraightnessAwareExplain: false }).calibrate({ frames }),
+        new BroadcastLineCalibrator({
+          ellipseStraightnessAwareExplain: false,
+          ellipseMultiConicSelection: false,
+        }).calibrate({ frames }),
       );
       expect(v020.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
       expect(
         v020.details.coverageBins === undefined || (v020.details.coverageBins as number) < 12,
       ).toBe(true);
+    },
+    60_000,
+  );
+
+  test(
+    "v0.4.0 conic selection: a dominant non-circle curve — the v0.3.0 surface anchors to the curve and refuses; the chain's circle candidate passes the ellipse gates",
+    () => {
+      // The real-window conic-selection class (b8p3-b/b8p3-f, VLM-verified
+      // on the committed overlays): a dominant non-circle CURVE whose
+      // RANSAC winner outranks the center circle. The fixture curve (a
+      // ~2500-px arc near the near touchline; the halfway line omitted —
+      // its Hough-quantization shadow pollutes the circle's component)
+      // makes the global RANSAC winner a curve fit (support ~1800) while
+      // the circle's arc stays quota-passing evidence (~1818 support,
+      // 36-of-36 coverage, its component fit the TRUE conic (337.3, 140.5)).
+      const frames = arcWindowFrames({ hoardingCurve: true });
+      // (a) The line-only path still refuses (the arc-window shape).
+      const lineOnly = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseConstrained: false }).calibrate({ frames }),
+      );
+      expect(lineOnly.classId).toBe("broadcast-line.no-consistent-homography");
+      // (b) The DEFAULT (v0.3.0-exact — the chain is opt-in since the
+      //     b3-a visual-gate FAIL) refuses: the curve conic is the RANSAC
+      //     winner, and its anchored solve fails validation (a curve is
+      //     not the center circle; measured ellipse residual ~15.7 px
+      //     > 4).
+      const v030 = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseMultiConicSelection: false }).calibrate({ frames }),
+      );
+      expect(v030.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+      const defaultRefusal = refusalClassOf(() =>
+        new BroadcastLineCalibrator().calibrate({ frames }),
+      );
+      expect(defaultRefusal.classId).toBe(v030.classId);
+      // (c) The OPT-IN chain: runs every quota-passing candidate, and the
+      //     CHAIN RECORD proves the conic selection recovered the true
+      //     circle — the circle candidate's outcome PASSES the ellipse
+      //     gates (mean conic residual <= 4 px on the TRUE conic,
+      //     backward chamfer <= 10 px) where the v0.3.0 primary's fails
+      //     (~15.7 px). The window still refuses — only the lineFit bar
+      //     fails, on the synthetic curve's own pixel mass (~40% of this
+      //     fixture's scored set — a noise floor the real windows do not
+      //     have; the REAL corpus's same mechanism machine-recovers b3-a
+      //     at lineFit 0.731, VLM-verified as the goal-structure conic
+      //     class — the reason the chain stays opt-in). The honest
+      //     synthetic boundary, recorded here rather than laundered away.
+      const refusal = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseMultiConicSelection: true }).calibrate({ frames }),
+      );
+      expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+      const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+      expect(chain.length).toBeGreaterThanOrEqual(2);
+      // The primary's outcome: the ellipse gates FAIL (the curve conic).
+      expect(chain[0]!.ellipseMeanPx as number).toBeGreaterThan(4);
+      // The circle candidate's outcome: the ellipse gates PASS — the
+      // conic selection delivered the true circle to the validation.
+      const circleOutcome = chain.find((entry) => (entry.ellipseMeanPx as number) <= 4);
+      expect(circleOutcome).toBeDefined();
+      expect(circleOutcome!.backwardPx as number).toBeLessThanOrEqual(10);
+      // The diagnostics record the candidate chain (opt-in: the default
+      // records the primary alone): >= 2 candidates, the primary (the
+      // curve) first, the circle among the alternatives.
+      const diagnostics = fitBroadcastEllipseEvidence(
+        { frames },
+        { ellipseMultiConicSelection: true },
+      );
+      const candidates = diagnostics.conicCandidates ?? [];
+      expect(candidates.length).toBeGreaterThanOrEqual(2);
+      expect(candidates[0]?.quotaPassed).toBe(true);
+      // The primary is NOT the circle: its center is far from the true
+      // projected circle center (~(337.3, 140.5) px — the v0.2.0 test's
+      // recorded ground truth).
+      expect(
+        Math.hypot(
+          (candidates[0]?.centerPx.x ?? 0) - 337.3,
+          (candidates[0]?.centerPx.y ?? 0) - 140.5,
+        ),
+      ).toBeGreaterThan(40);
+      // Some candidate IS the circle (within a few px of the ground truth).
+      const circleCandidate = candidates.find(
+        (candidate) =>
+          Math.hypot(
+            candidate.centerPx.x - 337.3,
+            candidate.centerPx.y - 140.5,
+          ) < 12 &&
+          Math.abs(candidate.semiMajorPx - 100.4) < 12,
+      );
+      expect(circleCandidate).toBeDefined();
+      expect(circleCandidate?.quotaPassed).toBe(true);
+      // Deterministic: a second run deep-equals the first (the chain order
+      // and every candidate's numbers).
+      const diagnostics2 = fitBroadcastEllipseEvidence(
+        { frames },
+        { ellipseMultiConicSelection: true },
+      );
+      expect(diagnostics2).toEqual(diagnostics);
+      // The default diagnostics records the primary alone (the chain is
+      // opt-in) with the identical primary fields.
+      const defaultDiagnostics = fitBroadcastEllipseEvidence({ frames });
+      expect((defaultDiagnostics.conicCandidates ?? []).length).toBe(1);
+      expect(defaultDiagnostics.arcPixels).toBe(diagnostics.arcPixels);
+      expect(defaultDiagnostics.centerPx).toEqual(diagnostics.centerPx);
+    },
+    120_000,
+  );
+
+  test(
+    "the ellipseMultiConicSelection option validates fail-loud (RangeError)",
+    () => {
+      expect(
+        () => new BroadcastLineCalibrator({ ellipseMultiConicSelection: 1 as unknown as boolean }),
+      ).toThrow(RangeError);
+      expect(
+        () =>
+          fitBroadcastEllipseEvidence({ frames: arcWindowFrames() }, {
+            ellipseMultiConicSelection: "yes" as unknown as boolean,
+          }),
+      ).toThrow(RangeError);
     },
     60_000,
   );
@@ -610,3 +478,6 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
     ).toThrow(RangeError);
   });
 });
+
+/** Exported for the development-time probe scripts (harness-only). */
+export { arcWindowFrames };

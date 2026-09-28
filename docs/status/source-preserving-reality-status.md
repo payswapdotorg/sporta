@@ -442,11 +442,15 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
    source-transition samples before scorecard assignment), NOT further
    renderer softening. Subject-toon criticals 3→0 remains the parallel
    Tier-2 push.
-2. **R606 calibration** (Worker A lane): ellipse/circle-constrained
-   solve measured on the committed corpus clips (b5/b3/b1-wide/b8p3);
-   higher-resolution acquisition remains the alternative path but the
-   acquisition chain (proxy/relay) is machine-local and currently dead
-   — corpus-first.
+2. **R606 calibration** (Worker A lane): the ellipse/circle-constrained
+   solve + the v0.3.0 flank recovery + the v0.4.0 CONIC-SELECTION CHAIN
+   (opt-in — the b3-a machine recovery VLM-FAILS the visual gate: the
+   goal-structure conic class, the machine bar's line-on-line blind
+   spot; the claim withheld, the next increment = the validation-gate
+   hardening) measured on the committed corpus clips (b5/b3/b1-wide/
+   b8p3); higher-resolution acquisition remains the alternative path
+   but the acquisition chain (proxy/relay) is machine-local and
+   currently dead — corpus-first.
 3. **R607 media-toolchain unblock** (Worker B lane): the hosted
    acceptance SHAPE (deploy → golden path → redeploy → recovery) is
    already LANDED and TL-audited (merge 802d8d4, 2026-09-26 — the

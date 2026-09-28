@@ -184,6 +184,36 @@
  *     ellipses; singular system keeps the RANSAC conic) — hundreds of
  *     support points stabilize the thin-sliver ellipses real broadcast
  *     perspective produces.
+ * E2b. CONIC SELECTION (v0.4.0 — the fallback chain): the RANSAC
+ *     winner-by-support is NOT always the center circle (measured on the
+ *     real corpus, VLM-verified on the overlays: the winner on b8p3-b/f
+ *     is the hoarding/stand-boundary CURVE, and the b5-b winner is a
+ *     degenerate off-frame conic). The winner (the v0.3.0 primary) is
+ *     tried FIRST — its solve and its typed refusal are the v0.3.0
+ *     surface exactly — and only on its refusal do the DISTINCT
+ *     alternatives run, in source-priority order: the per-component fits
+ *     of the sub-dominance arc components FIRST (a structure DROPPED by
+ *     the dominance filter is recoverable ONLY there — its pixels never
+ *     reach the global RANSAC; component fits skip the EM band
+ *     re-extraction, which near neighboring structures DRIFTS the conic:
+ *     measured semi 64 vs the true 100), then the global ranked re-fit
+ *     runners-up. Every alternative is held to the SAME quota (support
+ *     + coverage) and deduplicated by geometry (center/semi/rotation
+ *     distance), capped at ELLIPSE_MAX_CONIC_CANDIDATES. Each candidate
+ *     runs the FULL E4-E6 flow (the bar never lowers); the first
+ *     validation pass wins; total failure rethrows the first
+ *     quota-passer's typed refusal with the additive conicChain record
+ *     (every candidate's measured outcome — nothing laundered). The
+ *     quota refusal now fires only when NO candidate passes the quota
+ *     (honest: SOME conic is well-evidenced exactly when one passes the
+ *     same bar). OPT-IN (default false): the chain's b3-a
+ *     machine-recovery (lineFit 0.731) FAILS the VLM visual gate — the
+ *     grid misaligned on all three sharp checks, the winning conic
+ *     anchored to the goal/net STRUCTURE (the static net satisfies the
+ *     backward chamfer; the displaced grid's parallel line family
+ *     satisfies lineFit — the machine bar's blind spot on behind-goal
+ *     views). The measured next increment: pitch-line-vs-structure
+ *     discrimination in the validation before the default flips.
  * E3. EVIDENCE QUOTA (typed refusal below): support >=
  *     ELLIPSE_MIN_SUPPORT_PX AND angular coverage >=
  *     ELLIPSE_MIN_COVERAGE_BINS of the 36 10°-bins around the conic.
@@ -313,13 +343,24 @@ import { isPitchGreen } from "../pixels";
 import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput } from "../adapter";
 
 /**
- * Stable technology identity of this candidate. v0.3.0 (behavior-surface
- * change, the R606 flank-recovery increment): the ellipse path's
- * arc-evidence extraction gains the straightness-aware Hough-line
- * explain — only genuinely-straight along-line stretches (≥
- * ELLIPSE_LINE_STRAIGHT_SUPPORT_PX) explain arc-band pixels, so the
- * arc-chord "fake" lines stop eating the near-straight circle flank
- * (the measured one-flank gap that underdetermined the conic).
+ * Stable technology identity of this candidate. v0.4.0 (behavior-surface
+ * change, the R606 conic-selection increment): the ellipse path's conic
+ * selection becomes a FALLBACK CHAIN — the RANSAC winner-by-support is
+ * tried first (the exact v0.3.0 primary), and only on its typed refusal
+ * do the DISTINCT alternative conics run (the global RANSAC's ranked
+ * refit candidates + per-component fits over the sub-dominance arc
+ * components), each through the FULL hypothesis → refinement →
+ * validation flow (the bar never lowers; the first validation pass
+ * wins). Measured defect this addresses: on real broadcast windows the
+ * winner-by-support conic is the hoarding/stand-boundary CURVE, not the
+ * center circle (b8p3-b: the fitted conic is the top-left background
+ * curve while the visible circle sits mid-frame; b8p3-f same class) —
+ * the validation gates refused those solves correctly, but nothing
+ * ever retried with a different conic. OPT-IN (default false — see
+ * BROADCAST_LINE_DEFAULTS): the chain's b3-a machine-recovery fails the
+ * VLM visual gate (the goal-structure conic class), so the default
+ * surface stays v0.3.0-exact until the validation-gate hardening.
+ * v0.3.0 (flank recovery): the straightness-aware Hough-line explain —
  * `ellipseStraightnessAwareExplain: false` restores the exact v0.2.0
  * explain surface. v0.2.0: the additive ellipse/circle-constrained
  * path runs after a v0.1.0 line-path `no-consistent-homography`
@@ -328,7 +369,7 @@ import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput 
  * contract) is unchanged — adapterVersion stays 0.1.0.
  */
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ID = "broadcast-line-calibrator";
-export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.3.0";
+export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.4.0";
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION = "0.1.0";
 
 /**
@@ -364,6 +405,21 @@ export interface BroadcastLineCalibratorOptions {
    * surface (the measurement driver uses it to record the v0.2.0 path).
    */
   readonly ellipseStraightnessAwareExplain?: boolean;
+  /**
+   * v0.4.0: multi-conic selection — the conic-selection fallback chain
+   * (OPT-IN, default false). The RANSAC winner-by-support conic (the
+   * v0.3.0 primary) is tried first; on its typed refusal the DISTINCT
+   * alternative conics (the per-component fits over the sub-dominance
+   * arc components, then the global ranked re-fit runners-up, each
+   * quota-gated) run through the same full hypothesis → refinement →
+   * validation flow. The default stays false because the chain's
+   * machine-recovery of b3-a FAILS the visual gate (the goal-structure
+   * conic class — the machine bar's line-on-line blind spot, VLM-verified
+   * grid misalignment); the option ships the machinery for
+   * research/diagnostics while the validation-gate hardening increment
+   * is pending.
+   */
+  readonly ellipseMultiConicSelection?: boolean;
 }
 
 const BROADCAST_LINE_DEFAULTS = {
@@ -372,6 +428,17 @@ const BROADCAST_LINE_DEFAULTS = {
   lineContrastThreshold: 14,
   ellipseConstrained: true,
   ellipseStraightnessAwareExplain: true,
+  // v0.4.0 ships the conic-selection chain OPT-IN (default false): the
+  // chain machine-recovers a window the single-conic surface refuses
+  // (b3-a, lineFit 0.731), but the VLM visual gate FAILS that recovery
+  // (the grid misaligned on all three sharp checks — the winning conic
+  // anchors to the goal/net STRUCTURE, the machine bar's line-on-line
+  // blind spot on behind-goal views where the static net satisfies the
+  // backward chamfer). The honest shipping state: the default surface
+  // stays v0.3.0-exact; the chain is opt-in for research/diagnostics;
+  // the measured next increment = the validation-gate hardening
+  // (pitch-line-vs-structure discrimination) before the default flips.
+  ellipseMultiConicSelection: false,
 } as const;
 
 /** Documented failure classes of the broadcast-line field calibrator. */
@@ -414,23 +481,25 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
   {
     failureClassId: "broadcast-line.ellipse-evidence-insufficient",
     description:
-      "v0.3.0 ellipse path: the arc evidence (static-mask pixels unexplained by " +
-        "detected lines) could not support a center-circle conic fit — no " +
+      "v0.4.0 ellipse path: the arc evidence (static-mask pixels unexplained by " +
+        "detected lines) could not support ANY quota-passing conic fit — no " +
         "non-degenerate ellipse among the sampled subsets, or support/coverage " +
-        "below the documented quota (occluded or partial circle, degenerate " +
-        "sliver view, or arc evidence below quota). The measured support and " +
-        "coverage numbers ride the refusal details. Typed refusal, never a " +
-        "fabricated calibration.",
+        "below the documented quota for every enumerated candidate (occluded " +
+        "or partial circle, degenerate sliver view, or arc evidence below " +
+        "quota). The primary's measured support and coverage numbers ride the " +
+        "refusal details. Typed refusal, never a fabricated calibration.",
     retryable: false,
   },
   {
     failureClassId: "broadcast-line.ellipse-no-consistent-homography",
     description:
-      "v0.3.0 ellipse path: the center-circle conic fit passed its quota, but no " +
-        "conic-anchored hypothesis survived the guards, or the best refined " +
-        "homography failed validation (the v0.1.0 lineFit/backward gates PLUS " +
-        "the ellipse residual gates — the acceptance bar is never lowered). " +
-        "Both paths' measured reasons ride the refusal details.",
+      "v0.4.0 ellipse path: quota-passing conic candidate(s) existed, but for " +
+        "every candidate in the conic-selection chain no conic-anchored " +
+        "hypothesis survived the guards, or the best refined homography failed " +
+        "validation (the v0.1.0 lineFit/backward gates PLUS the ellipse " +
+        "residual gates — the acceptance bar is never lowered for any " +
+        "candidate). Both paths' measured reasons ride the refusal details, " +
+        "with the per-candidate chain outcomes (conicChain) attached.",
     retryable: false,
   },
 ];
@@ -1375,6 +1444,24 @@ const ELLIPSE_SUBSET_SPREAD_PX = 3;
 /** RANSAC conic fit: top subset conics re-fit over their support sets. */
 const ELLIPSE_FIT_REFIT_CANDIDATES = 8;
 /**
+ * v0.4.0 — the conic-selection chain cap (the primary + up to this many
+ * DISTINCT alternatives). Bounded so the fallback cost stays O(1) per
+ * window in the chain length; the chain only runs after the primary's
+ * typed refusal (measured: the alternatives that matter — the dropped
+ * sub-dominant components and the ranked refit runners-up — number 1-3
+ * on the real windows).
+ */
+const ELLIPSE_MAX_CONIC_CANDIDATES = 4;
+/**
+ * v0.4.0 — conic distinctness: minimum center distance (px) for two
+ * candidate conics to count as DISTINCT chain members.
+ */
+const ELLIPSE_CONIC_DISTINCT_CENTER_PX = 20;
+/** v0.4.0 — conic distinctness: minimum semi-axis difference (px). */
+const ELLIPSE_CONIC_DISTINCT_SEMI_PX = 15;
+/** v0.4.0 — conic distinctness: minimum rotation difference (degrees). */
+const ELLIPSE_CONIC_DISTINCT_ROTATION_DEG = 12;
+/**
  * Conic fit: the EM-style band re-extraction radius (px). The arc evidence
  * loses the band beside the arc-chord Hough lines (measured: only the
  * bottom ~2/3 of the band survived, biasing the minor axis 19.3 → 15 px);
@@ -1801,17 +1888,28 @@ interface ArcConicFit {
  *     the 5 centered points < ELLIPSE_SUBSET_SPREAD_PX^2) before solving;
  *  3. keeps the top ELLIPSE_FIT_REFIT_CANDIDATES subset conics by support,
  *     re-fits EACH over its support by linear least squares, and scores
- *     the re-fit conics — the best re-fit wins (a single re-fit of a
- *     garbage best conic cannot recover).
+ *     the re-fit conics (a single re-fit of a garbage best conic cannot
+ *     recover) — returned RANKED by (support desc, rank asc); rank 0 is
+ *     the winner the v0.3.0 surface used (v0.4.0: the chain's primary).
  * All integer sampling is a fixed-seed LCG (no Math.random, no clock);
  * `undefined` when no subset produced a sane ellipse.
  */
-function fitArcConic(
+/** One ranked re-fit candidate of the RANSAC conic fit (module docs E2). */
+interface RankedConicRefit {
+  readonly conic: EllipseConic;
+  readonly geometry: EllipseGeometry;
+  /** Support over the fit's point set, post-re-fit. */
+  readonly support: number;
+  /** Enumeration rank in the sorted candidate order. */
+  readonly rank: number;
+}
+
+function rankedConicRefits(
   arcPixels: readonly number[],
   staticPixels: readonly number[],
   width: number,
   height: number,
-): ArcConicFit | undefined {
+): RankedConicRefit[] | undefined {
   const pointCount = arcPixels.length / 2;
   if (pointCount < ELLIPSE_MIN_ARC_PIXELS) return undefined;
   const points: Array<readonly [number, number]> = [];
@@ -1907,11 +2005,9 @@ function fitArcConic(
     pushCandidate(conic, geometry, supportOf(geometry));
   }
   if (candidates.length === 0) return undefined;
-  // Top candidates by support → re-fit each over its support → re-score.
+  // Top candidates by support -> re-fit each over its support -> re-score.
   candidates.sort((a, b) => b.support - a.support || 0);
-  let bestConic: EllipseConic | undefined;
-  let bestGeometry: EllipseGeometry | undefined;
-  let bestSupport = -1;
+  const refits: RankedConicRefit[] = [];
   for (let index = 0; index < Math.min(candidates.length, ELLIPSE_FIT_REFIT_CANDIDATES); index += 1) {
     const candidate = candidates[index]!;
     let conic = candidate.conic;
@@ -1930,20 +2026,39 @@ function fitArcConic(
         geometry = refitGeometry;
       }
     }
-    const support = supportOf(geometry);
-    if (support > bestSupport) {
-      bestSupport = support;
-      bestConic = conic;
-      bestGeometry = geometry;
-    }
+    refits.push({ conic, geometry, support: supportOf(geometry), rank: index });
   }
-  if (bestConic === undefined || bestGeometry === undefined) return undefined;
-  // EM-style band re-extraction (see ELLIPSE_BAND_REEXTRACT_PX): re-extract
-  // the FULL circle band from the static mask around the current conic —
-  // the arc evidence's Hough-line explaination punched holes in the band —
-  // and re-fit over it.
-  let geometry = bestGeometry;
-  let conic = bestConic;
+  if (refits.length === 0) return undefined;
+  // (support desc, rank asc) — rank 0 of this order is the v0.3.0 winner
+  // (the max-support re-fit, first in enumeration order on ties: today's
+  // strict `>` best-tracking, preserved exactly).
+  refits.sort((a, b) => b.support - a.support || a.rank - b.rank);
+  return refits;
+}
+
+/**
+ * The EM-style band re-extraction (see ELLIPSE_BAND_REEXTRACT_PX):
+ * re-extract the FULL circle band from the static mask around the current
+ * conic — the arc evidence's Hough-line explanation punched holes in the
+ * band — and re-fit over it. Deterministic; returns the refined pair
+ * (the input pair unchanged when every iteration breaks early).
+ */
+function bandRefineConic(
+  conicIn: EllipseConic,
+  geometryIn: EllipseGeometry,
+  staticPixels: readonly number[],
+  width: number,
+  height: number,
+): { readonly conic: EllipseConic; readonly geometry: EllipseGeometry } {
+  const maxSemi = ELLIPSE_MAX_SEMI_AXIS_FACTOR * Math.hypot(width, height);
+  const saneGeometry = (geometry: EllipseGeometry): boolean =>
+    geometry.semiMajor >= ELLIPSE_MIN_SEMI_AXIS_PX &&
+    geometry.semiMajor <= maxSemi &&
+    geometry.semiMajor / Math.max(geometry.semiMinor, 1e-9) <= ELLIPSE_MAX_AXIS_RATIO &&
+    geometry.centerX >= -width && geometry.centerX <= 2 * width &&
+    geometry.centerY >= -height && geometry.centerY <= 2 * height;
+  let geometry = geometryIn;
+  let conic = conicIn;
   for (let iteration = 0; iteration < ELLIPSE_BAND_REEXTRACT_ITERATIONS; iteration += 1) {
     const band: Array<readonly [number, number]> = [];
     for (let p = 0; p < staticPixels.length; p += 2) {
@@ -1961,16 +2076,27 @@ function fitArcConic(
     conic = refit;
     geometry = refitGeometry;
   }
+  return { conic, geometry };
+}
+
+/** Support and 36-bin coverage of a conic over a pixel list (module E3). */
+function conicSupportAndCoverage(
+  geometry: EllipseGeometry,
+  arcPixels: readonly number[],
+): { readonly supportPx: number; readonly coverageBins: number } {
   let supportPx = 0;
   const bins = new Array<number>(36).fill(0);
-  for (const [x, y] of points) {
+  for (let p = 0; p < arcPixels.length; p += 2) {
+    const x = arcPixels[p]!;
+    const y = arcPixels[p + 1]!;
     if (pointConicDistancePx(geometry, x, y) <= ELLIPSE_FIT_TOLERANCE_PX) {
       supportPx += 1;
       // Coverage bin over the conic PARAMETRIC angle t (atan2(uy/b, ux/a)),
       // NOT the polar angle: on sliver ellipses the polar angle of the
-      // whole band collapses toward 0°/180° (measured: the bottom 40% of
-      // the arc spanned only 6 of 36 polar bins) while the parametric
-      // angle tracks the arc length — the quantity the quota means.
+      // whole band collapses toward 0 degrees/180 degrees (measured: the
+      // bottom 40% of the arc spanned only 6 of 36 polar bins) while the
+      // parametric angle tracks the arc length — the quantity the quota
+      // means.
       const dx = x - geometry.centerX;
       const dy = y - geometry.centerY;
       const cos = Math.cos(-geometry.rotation);
@@ -1991,7 +2117,113 @@ function fitArcConic(
   for (const count of bins) {
     if (count >= ELLIPSE_BIN_OCCUPANCY_PX) coverageBins += 1;
   }
-  return { conic, geometry, supportPx, coverageBins };
+  return { supportPx, coverageBins };
+}
+
+/**
+ * v0.4.0 — the conic DISTINCTNESS predicate: two candidate conics are
+ * distinct chain members when their centers, semi-axes, or rotations
+ * differ beyond the documented thresholds. Re-derivations of the same
+ * conic by different subsets land within the thresholds and dedupe.
+ */
+function conicsDistinct(a: EllipseGeometry, b: EllipseGeometry): boolean {
+  const centerDistance = Math.hypot(a.centerX - b.centerX, a.centerY - b.centerY);
+  if (centerDistance >= ELLIPSE_CONIC_DISTINCT_CENTER_PX) return true;
+  if (Math.abs(a.semiMajor - b.semiMajor) >= ELLIPSE_CONIC_DISTINCT_SEMI_PX) return true;
+  if (Math.abs(a.semiMinor - b.semiMinor) >= ELLIPSE_CONIC_DISTINCT_SEMI_PX) return true;
+  let rotationDelta = Math.abs(a.rotation - b.rotation);
+  if (rotationDelta > Math.PI) rotationDelta = 2 * Math.PI - rotationDelta;
+  return (rotationDelta * 180) / Math.PI >= ELLIPSE_CONIC_DISTINCT_ROTATION_DEG;
+}
+
+/**
+ * v0.4.0 — the CONIC-SELECTION CANDIDATE CHAIN (module docs E2b). [0] is
+ * the v0.3.0 primary EXACTLY: the global dominance-filtered RANSAC
+ * winner (the rank-0 re-fit, band-refined, support/coverage over the
+ * global arc pixels — the v0.3.0 pipeline verbatim, byte-identical).
+ * With multiConic the DISTINCT alternatives follow in SOURCE-PRIORITY
+ * order — the per-component fits of the sub-dominance components FIRST
+ * (a DROPPED component is exactly where the center circle hides on
+ * hoarding-curve-dominated windows, and it is recoverable ONLY there),
+ * then the global ranked re-fit runners-up — each quota-gated (the same
+ * support/coverage bar as the primary) and deduplicated by geometry,
+ * capped at ELLIPSE_MAX_CONIC_CANDIDATES.
+ * Deterministic (fixed LCG seed per fit invocation, fixed enumeration
+ * order). Empty when the global fit found no sane ellipse.
+ */
+function fitArcConicCandidates(
+  arcPixels: readonly number[],
+  components: readonly (readonly number[])[],
+  staticPixels: readonly number[],
+  width: number,
+  height: number,
+  multiConic: boolean,
+): readonly ArcConicFit[] {
+  const pointCount = arcPixels.length / 2;
+  if (pointCount < ELLIPSE_MIN_ARC_PIXELS) return [];
+  const refits = rankedConicRefits(arcPixels, staticPixels, width, height);
+  if (refits === undefined || refits.length === 0) return [];
+  // The primary: the v0.3.0 pipeline verbatim.
+  const primaryBand = bandRefineConic(
+    refits[0]!.conic, refits[0]!.geometry, staticPixels, width, height,
+  );
+  const primarySc = conicSupportAndCoverage(primaryBand.geometry, arcPixels);
+  const chain: ArcConicFit[] = [
+    { conic: primaryBand.conic, geometry: primaryBand.geometry, ...primarySc },
+  ];
+  if (!multiConic) return chain;
+  // The alternatives, in SOURCE-PRIORITY order (each support-gated to the
+  // same quota, deduplicated by geometry, capped):
+  //  1. the PER-COMPONENT fits of the sub-dominance components (size
+  //     desc, discovery order on ties) — a structure DROPPED by the
+  //     dominance filter can ONLY be recovered here (its pixels never
+  //     reach the global RANSAC; measured: the center circle hides
+  //     exactly here on hoarding-curve-dominated windows);
+  //  2. the global ranked re-fit runners-up (support desc, rank asc) —
+  //     structures present in the filtered evidence but ranked below the
+  //     winner (the sliver-fit variations of the dominant curve mostly
+  //     dedupe against the primary).
+  // Component fits come FIRST because the cap must not fill with
+  // variations of the dominant structure before a dropped distinct
+  // structure gets its slot (measured on the hoarding-curve fixture:
+  // three curve-variant runners-up flooded the chain at cap 4 while the
+  // dropped circle component waited behind them).
+  const alternatives: Array<{ fit: ArcConicFit }> = [];
+  const orderedComponents = components
+    .map((component, index) => ({ component, index }))
+    .sort((a, b) => b.component.length - a.component.length || a.index - b.index);
+  for (const { component } of orderedComponents) {
+    if (component.length / 2 < ELLIPSE_MIN_ARC_PIXELS) continue;
+    const componentRefits = rankedConicRefits(component, staticPixels, width, height);
+    if (componentRefits === undefined || componentRefits.length === 0) continue;
+    // NO band refinement for component fits (measured): the EM band
+    // re-extracts static pixels within ELLIPSE_BAND_REEXTRACT_PX of the
+    // current conic GLOBALLY — near a neighboring structure (the curve
+    // band within 7 px of the circle's top flank on the hoarding-curve
+    // fixture) it merges the neighbor's pixels into the refit and DRIFTS
+    // the conic off the component's own evidence (semi 71 vs the true
+    // 101, center 28 px off — measured). The component's OWN pixels are
+    // the complete evidence for its structure; the support re-fit above
+    // already stabilizes the subset conic.
+    const best = componentRefits[0]!;
+    const support = conicSupportAndCoverage(best.geometry, component);
+    alternatives.push({ fit: { conic: best.conic, geometry: best.geometry, ...support } });
+  }
+  for (const refit of refits.slice(1)) {
+    const band = bandRefineConic(refit.conic, refit.geometry, staticPixels, width, height);
+    const support = conicSupportAndCoverage(band.geometry, arcPixels);
+    alternatives.push({ fit: { conic: band.conic, geometry: band.geometry, ...support } });
+  }
+  for (const alternative of alternatives) {
+    if (chain.length >= ELLIPSE_MAX_CONIC_CANDIDATES) break;
+    const fit = alternative.fit;
+    if (fit.supportPx < ELLIPSE_MIN_SUPPORT_PX || fit.coverageBins < ELLIPSE_MIN_COVERAGE_BINS) {
+      continue;
+    }
+    if (chain.some((kept) => !conicsDistinct(kept.geometry, fit.geometry))) continue;
+    chain.push(fit);
+  }
+  return chain;
 }
 
 // ---------------------------------------------------------------------------
@@ -2313,7 +2545,28 @@ function buildStraightExplainMask(
  * straightness-aware predicate — only genuinely-straight along-line
  * stretches (see buildStraightExplainMask) explain pixels; the arc-chord
  * "fake" lines leave the near-straight circle flank in the evidence.
+ *
+ * v0.4.0: returns the DOMINANCE-FILTERED pixel list (today's output,
+ * byte-identical — the primary path's RANSAC-mixing leverage guard, module
+ * docs E1) ALONGSIDE the sub-dominance connected components (every
+ * component ≥ the speck floor, pre-dominance, discovery order) — the
+ * conic-selection chain's per-component fit source. Measured necessity:
+ * on real windows the hoarding/stand-boundary curve dominates the largest
+ * component and the CENTER-CIRCLE arc can fall below the dominance
+ * threshold — its pixels are then absent from the filtered evidence, and
+ * no global RANSAC subset can ever land on the circle; only the
+ * per-component fit over the dropped component recovers it.
  */
+interface ArcEvidence {
+  /** The dominance-filtered arc pixels (the v0.2.0/v0.3.0 surface). */
+  readonly pixels: number[];
+  /**
+   * Every connected component ≥ ELLIPSE_COMPONENT_MIN_PX, pre-dominance,
+   * as flat `[x, y, ...]` lists in discovery order (row-major first
+   * pixel). Deterministic.
+   */
+  readonly components: readonly (readonly number[])[];
+}
 function extractArcEvidence(
   staticPixels: readonly number[],
   lines: readonly HoughLine[],
@@ -2322,7 +2575,7 @@ function extractArcEvidence(
   width: number,
   height: number,
   straightnessAware: boolean = false,
-): number[] {
+): ArcEvidence {
   const cosines = lines.map((line) => Math.cos(line.theta));
   const sines = lines.map((line) => Math.sin(line.theta));
   const rhos = lines.map((line) => line.rho);
@@ -2379,7 +2632,7 @@ function extractArcEvidence(
   }
   // Connected-component dominance filter (see ELLIPSE_COMPONENT_DOMINANCE):
   // keep the components within the dominance fraction of the largest.
-  if (arcPixels.length === 0) return arcPixels;
+  if (arcPixels.length === 0) return { pixels: [], components: [] };
   const index = new Int32Array(width * height).fill(-1);
   for (let p = 0; p < arcPixels.length; p += 2) {
     index[arcPixels[p + 1]! * width + arcPixels[p]!] = p / 2;
@@ -2422,12 +2675,20 @@ function extractArcEvidence(
     Math.ceil(ELLIPSE_COMPONENT_DOMINANCE * largest),
   );
   const kept: number[] = [];
+  // v0.4.0: materialize every component (pre-dominance, ≥ the speck
+  // floor) in discovery order — the chain's per-component fit source.
+  const allComponents: number[][] = componentSizes.map(() => []);
   for (let p = 0; p < arcPixels.length / 2; p += 1) {
-    if (componentSizes[componentOf[p]!]! >= keepThreshold) {
+    const component = componentOf[p]!;
+    allComponents[component]!.push(arcPixels[p * 2]!, arcPixels[p * 2 + 1]!);
+    if (componentSizes[component]! >= keepThreshold) {
       kept.push(arcPixels[p * 2]!, arcPixels[p * 2 + 1]!);
     }
   }
-  return kept;
+  const components = allComponents.filter(
+    (component) => component.length >= 2 * ELLIPSE_COMPONENT_MIN_PX,
+  );
+  return { pixels: kept, components };
 }
 
 /**
@@ -2877,6 +3138,14 @@ export interface BroadcastEvidenceOptions {
    * uses it to record the v0.2.0 path).
    */
   readonly ellipseStraightnessAwareExplain?: boolean;
+  /**
+   * v0.4.0: multi-conic selection — the conic-selection fallback chain
+   * (OPT-IN, default false — see the calibrator option). For the
+   * diagnostics the option controls whether `conicCandidates` records
+   * the full chain (on) or the primary alone (off); the primary and
+   * every other field are identical either way.
+   */
+  readonly ellipseMultiConicSelection?: boolean;
 }
 
 /** The extracted evidence bundle (steps 0-6 of the calibrator). */
@@ -3079,7 +3348,10 @@ function extractCalibrationEvidence(
 export interface BroadcastEllipseEvidenceDiagnostics {
   /** Residual (arc) pixels after the detected lines explained the mask. */
   readonly arcPixels: number;
-  /** Whether a conic passed the full quota (support + coverage + sanity). */
+  /**
+   * Whether the PRIMARY conic (the v0.3.0 RANSAC winner) passed the full
+   * quota (support + coverage + sanity).
+   */
   readonly fitted: boolean;
   /** Conic center (px), when a sane conic exists. */
   readonly centerPx?: { readonly x: number; readonly y: number };
@@ -3095,6 +3367,45 @@ export interface BroadcastEllipseEvidenceDiagnostics {
   readonly coverageBins?: number;
   /** The fitted conic coefficients (px) — for overlay rendering. */
   readonly conic?: EllipseConic;
+  /**
+   * v0.4.0: the conic-selection candidate chain (the primary first, then
+   * the DISTINCT quota-passing alternatives), each with its geometry,
+   * support, coverage, and quota flag — the measured conic-selection
+   * record the R606 driver captures per window.
+   */
+  readonly conicCandidates?: readonly BroadcastConicCandidateDiagnostics[];
+  /**
+   * v0.4.0: the arc evidence's connected components (pre-dominance,
+   * discovery order) with their sizes and centroids — the evidence
+   * structure the dominance filter and the chain operate on.
+   */
+  readonly arcComponents?: readonly BroadcastArcComponentDiagnostics[];
+}
+
+/** One arc-evidence connected component (the v0.4.0 diagnostics). */
+export interface BroadcastArcComponentDiagnostics {
+  /** Component size (px). */
+  readonly sizePx: number;
+  /** Component centroid (px). */
+  readonly centerPx: { readonly x: number; readonly y: number };
+}
+
+/** One entry of the diagnostics' conic-selection candidate chain. */
+export interface BroadcastConicCandidateDiagnostics {
+  /** Candidate conic center (px). */
+  readonly centerPx: { readonly x: number; readonly y: number };
+  /** Candidate semi-major axis (px). */
+  readonly semiMajorPx: number;
+  /** Candidate semi-minor axis (px). */
+  readonly semiMinorPx: number;
+  /** Candidate major-axis rotation (degrees). */
+  readonly rotationDeg: number;
+  /** Supporting pixels of the candidate's own evidence set. */
+  readonly supportPx: number;
+  /** Occupied 10° coverage bins (of 36) of the candidate's own evidence. */
+  readonly coverageBins: number;
+  /** Whether this candidate passes the support + coverage quota. */
+  readonly quotaPassed: boolean;
 }
 
 /**
@@ -3115,9 +3426,11 @@ export function fitBroadcastEllipseEvidence(
   const straightnessAware =
     options.ellipseStraightnessAwareExplain ??
     BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
-  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware);
+  const multiConic =
+    options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
+  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware, multiConic);
   const evidence = extractCalibrationEvidence(input, minPitchFraction, lineContrastThreshold);
-  const arcPixels = extractArcEvidence(
+  const arc = extractArcEvidence(
     evidence.staticPixels,
     evidence.lines,
     evidence.greenTop,
@@ -3126,7 +3439,15 @@ export function fitBroadcastEllipseEvidence(
     evidence.height,
     straightnessAware,
   );
-  const fit = fitArcConic(arcPixels, evidence.staticPixels, evidence.width, evidence.height);
+  const arcPixels = arc.pixels;
+  // The chain with the caller's multi-conic surface so the diagnostics
+  // record every candidate (the [0] primary is identical for either
+  // option value — the option only appends alternatives).
+  const fits = fitArcConicCandidates(
+    arcPixels, arc.components, evidence.staticPixels, evidence.width, evidence.height,
+    multiConic,
+  );
+  const fit = fits.length > 0 ? fits[0] : undefined;
   const quotaPassed =
     fit !== undefined &&
     fit.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
@@ -3145,6 +3466,34 @@ export function fitBroadcastEllipseEvidence(
           conic: fit.conic,
         }
       : {}),
+    arcComponents: arc.components.map((component) => {
+      const count = component.length / 2;
+      let sumX = 0;
+      let sumY = 0;
+      for (let p = 0; p < component.length; p += 2) {
+        sumX += component[p]!;
+        sumY += component[p + 1]!;
+      }
+      return {
+        sizePx: count,
+        centerPx: { x: sumX / count, y: sumY / count },
+      };
+    }),
+    ...(fits.length > 0
+      ? {
+          conicCandidates: fits.map((candidate) => ({
+            centerPx: { x: candidate.geometry.centerX, y: candidate.geometry.centerY },
+            semiMajorPx: candidate.geometry.semiMajor,
+            semiMinorPx: candidate.geometry.semiMinor,
+            rotationDeg: (candidate.geometry.rotation * 180) / Math.PI,
+            supportPx: candidate.supportPx,
+            coverageBins: candidate.coverageBins,
+            quotaPassed:
+              candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+              candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
+          })),
+        }
+      : {}),
   };
 }
 
@@ -3153,6 +3502,7 @@ function validateEvidenceOptions(
   minPitchFraction: number,
   lineContrastThreshold: number,
   straightnessAware?: boolean,
+  multiConic?: boolean,
 ): void {
   if (!Number.isFinite(minPitchFraction) || minPitchFraction <= 0 || minPitchFraction > 1) {
     throw new RangeError(
@@ -3168,6 +3518,12 @@ function validateEvidenceOptions(
     throw new RangeError(
       `fitBroadcastEllipseEvidence: ellipseStraightnessAwareExplain must be a boolean ` +
         `(got ${typeof straightnessAware})`,
+    );
+  }
+  if (multiConic !== undefined && typeof multiConic !== "boolean") {
+    throw new RangeError(
+      `fitBroadcastEllipseEvidence: ellipseMultiConicSelection must be a boolean ` +
+        `(got ${typeof multiConic})`,
     );
   }
 }
@@ -3250,24 +3606,53 @@ export function evaluateBroadcastLineFit(
   }
   const backwardPx = backwardCount > 0 ? backwardSum / backwardCount : null;
 
-  // Ellipse residual, when the arc evidence passes its quota.
-  const arcPixels = extractArcEvidence(
+  // Ellipse residual, when the arc evidence passes its quota. v0.4.0:
+  // measured against the conic-selection chain's BEST-MATCHING candidate —
+  // the conic the validation actually gated the homography on (the
+  // min-over-chain; with multiConicSelection: false the chain is the
+  // primary alone, the exact v0.3.0 surface).
+  const arc = extractArcEvidence(
     staticPixels, lines, greenTop, staticMask, width, height, straightnessAware,
   );
-  const fit = fitArcConic(arcPixels, staticPixels, width, height);
+  const multiConic =
+    options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
+  const chainFits = fitArcConicCandidates(
+    arc.pixels, arc.components, staticPixels, width, height, multiConic,
+  );
+  const quotaChain = chainFits.filter(
+    (candidate) =>
+      candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+      candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
+  );
+  const fit = quotaChain[0];
   const quotaPassed=
     fit !== undefined &&
     fit.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
     fit.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS;
+  let ellipseMeanPx: number | undefined;
+  let ellipseSupportPx: number | undefined;
+  let ellipseCoverageBins: number | undefined;
+  if (quotaPassed && fit !== undefined) {
+    // The minimum mean residual over the quota-passing chain (the primary
+    // first when it alone passes — the v0.3.0 surface, byte-identical).
+    for (const candidate of quotaChain) {
+      const residual = ellipseMeanResidualPx(inverse, candidate.conic, width, height).meanPx;
+      if (ellipseMeanPx === undefined || residual < ellipseMeanPx) {
+        ellipseMeanPx = residual;
+        ellipseSupportPx = candidate.supportPx;
+        ellipseCoverageBins = candidate.coverageBins;
+      }
+    }
+  }
   return {
     lineFit,
     backwardPx,
     scoredPixels: scoredFull.length / 2,
-    ...(quotaPassed && fit !== undefined
+    ...(ellipseMeanPx !== undefined
       ? {
-          ellipseMeanPx: ellipseMeanResidualPx(inverse, fit.conic, width, height).meanPx,
-          ellipseSupportPx: fit.supportPx,
-          ellipseCoverageBins: fit.coverageBins,
+          ellipseMeanPx,
+          ellipseSupportPx: ellipseSupportPx,
+          ellipseCoverageBins: ellipseCoverageBins,
         }
       : {}),
   };
@@ -3297,6 +3682,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
   private readonly lineContrastThreshold: number;
   private readonly ellipseConstrained: boolean;
   private readonly ellipseStraightnessAware: boolean;
+  private readonly ellipseMultiConicSelection: boolean;
 
   constructor(options: BroadcastLineCalibratorOptions = {}) {
     const calibratorId = options.calibratorId ?? BROADCAST_LINE_DEFAULTS.calibratorId;
@@ -3307,6 +3693,8 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     const ellipseStraightnessAware =
       options.ellipseStraightnessAwareExplain ??
       BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
+    const ellipseMultiConicSelection =
+      options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
     if (typeof calibratorId !== "string" || calibratorId.length < 1) {
       throw new RangeError("BroadcastLineCalibrator: calibratorId must be a non-empty string");
     }
@@ -3331,11 +3719,18 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           `(got ${typeof ellipseStraightnessAware})`,
       );
     }
+    if (typeof ellipseMultiConicSelection !== "boolean") {
+      throw new RangeError(
+        `BroadcastLineCalibrator: ellipseMultiConicSelection must be a boolean ` +
+          `(got ${typeof ellipseMultiConicSelection})`,
+      );
+    }
     this.calibratorId = calibratorId;
     this.minPitchFraction = minPitchFraction;
     this.lineContrastThreshold = lineContrastThreshold;
     this.ellipseConstrained = ellipseConstrained;
     this.ellipseStraightnessAware = ellipseStraightnessAware;
+    this.ellipseMultiConicSelection = ellipseMultiConicSelection;
     this.descriptor = perceptionDescriptor({
       technologyId: BROADCAST_LINE_FIELD_CALIBRATOR_ID,
       technologyVersion: BROADCAST_LINE_FIELD_CALIBRATOR_VERSION,
@@ -3636,19 +4031,32 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       linePathFailureDetails: linePathFailure.details,
     };
 
-    // E1. Arc evidence: static pixels the detected lines do not explain.
-    const arcPixels = extractArcEvidence(
+    // E1. Arc evidence: static pixels the detected lines do not explain
+    //     (v0.4.0: the sub-dominance components ride alongside the
+    //     dominance-filtered pixel list — the chain's per-component source).
+    const arc = extractArcEvidence(
       staticPixels, lines, greenTop, staticMask, width, height, this.ellipseStraightnessAware,
     );
+    const arcPixels = arc.pixels;
     const arcCount = arcPixels.length / 2;
 
-    // E2 + E3. Deterministic RANSAC conic fit + the evidence quota gates.
-    const fit = fitArcConic(arcPixels, staticPixels, width, height);
-    if (
-      fit === undefined ||
-      fit.supportPx < ELLIPSE_MIN_SUPPORT_PX ||
-      fit.coverageBins < ELLIPSE_MIN_COVERAGE_BINS
-    ) {
+    // E2 + E3 + E2b. The conic-selection candidate chain + the quota gates.
+    // The chain's [0] is the v0.3.0 primary EXACTLY (the global
+    // dominance-filtered RANSAC winner); the DISTINCT alternatives (the
+    // ranked re-fits + the per-component fits over sub-dominance
+    // components) follow only when multiConic is on, each held to the SAME
+    // quota as the primary.
+    const fits = fitArcConicCandidates(
+      arcPixels, arc.components, staticPixels, width, height, this.ellipseMultiConicSelection,
+    );
+    const primary = fits.length > 0 ? fits[0] : undefined;
+    const quotaFits = fits.filter(
+      (candidate) =>
+        candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+        candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
+    );
+    if (primary === undefined || quotaFits.length === 0) {
+      const fit = primary;
       throw new CandidateFailureError(
         `BroadcastLineCalibrator: ellipse path — arc evidence insufficient (${arcCount} arc ` +
           `pixels; ` +
@@ -3667,6 +4075,77 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
         },
       );
     }
+
+    // E2b (v0.4.0): the CONIC-SELECTION FALLBACK CHAIN. The first
+    // quota-passer is the primary whenever the primary passes the quota —
+    // the v0.3.0 surface, byte-identical (its solve and its refusal are
+    // today's). On the primary's typed refusal the DISTINCT alternatives
+    // run through the SAME full hypothesis -> refinement -> validation
+    // flow; the first validation pass wins; the acceptance bar never
+    // lowers for any candidate.
+    const chainFailures: Array<Record<string, unknown>> = [];
+    let firstFailure: CandidateFailureError | undefined;
+    for (let candidateIndex = 0; candidateIndex < quotaFits.length; candidateIndex += 1) {
+      try {
+        return this.ellipseSolveForConic(
+          quotaFits[candidateIndex]!, evidence, linePathDetails, arcCount,
+        );
+      } catch (error) {
+        if (!(error instanceof CandidateFailureError)) throw error;
+        if (candidateIndex === 0) firstFailure = error;
+        chainFailures.push({
+          conicIndex: candidateIndex,
+          failureClassId: error.details.failureClassId,
+          lineFit: error.details.lineFit,
+          backwardPx: error.details.backwardPx,
+          ellipseMeanPx: error.details.ellipseMeanPx,
+          hypotheses: error.details.hypotheses,
+        });
+      }
+    }
+    // Every quota-passing conic candidate refused honestly: rethrow the
+    // FIRST quota-passer's refusal (the v0.3.0-exact class, message, and
+    // details when the primary passes the quota) with the additive
+    // per-candidate chain record attached — nothing laundered, every
+    // candidate's measured outcome recorded.
+    const failure = firstFailure!;
+    throw new CandidateFailureError(failure.message, {
+      ...failure.details,
+      failureClassId: failure.details.failureClassId as string,
+      conicChain: chainFailures,
+    });
+  }
+
+  /**
+   * E4-E7 for ONE conic candidate (module docs): the conic-anchored
+   * hypotheses (pole-polar anchors + the mixed DLT + the 1-DOF scan), the
+   * combined-objective finalist selection, the coordinate-descent
+   * refinement, and the FULL validation gates (never lowered). Throws the
+   * typed refusals of the v0.2.0/v0.3.0 surface verbatim; called per
+   * candidate by the conic-selection chain.
+   */
+  private ellipseSolveForConic(
+    fit: ArcConicFit,
+    evidence: {
+      readonly lines: readonly HoughLine[];
+      readonly width: number;
+      readonly height: number;
+      readonly staticMask: Uint8Array;
+      readonly staticPixels: readonly number[];
+      readonly scoredFull: readonly number[];
+      readonly scoredSub: readonly number[];
+      readonly greenSub: readonly number[];
+      readonly greenTop: Int32Array;
+      readonly anchorFrame: DetectorFrameInput;
+      readonly linePathFailure: CandidateFailureError;
+    },
+    linePathDetails: { linePathFailureClass: unknown; linePathFailureDetails: unknown },
+    arcCount: number,
+  ): CalibrationResult {
+    const {
+      lines, width, height, staticMask, staticPixels, scoredFull, scoredSub, greenSub,
+      anchorFrame,
+    } = evidence;
 
     // E4. Conic-anchored hypotheses (pole-polar anchors + the mixed DLT).
     const hypotheses = this.ellipseHypotheses(fit.conic, lines, staticPixels, scoredSub, width, height);
