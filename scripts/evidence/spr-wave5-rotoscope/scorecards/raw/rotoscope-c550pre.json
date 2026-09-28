@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images clearly depict the same match, moment (24:50), and camera angle as the original.\n2. temporalConsistency: 2 - Significant flickering and morphing of player shapes and background elements between the two frames.\n3. identityConsistency: 2 - The main player's form is highly unstable, and other players' identities are lost in the abstraction.\n4. motionFidelity: 3 - The general direction of movement is preserved, but the specific limb and ball positions are inconsistent.\n5. sceneFidelity: 2 - The background is heavily abstracted with large, shifting color blocks that lack spatial stability.\n6. stylizationStrength: 5 - The transformation into a high-contrast, posterized cartoon style is very obvious and extreme.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=3 warped=1 dupes=0 ball=1 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579828,
+  "id": "202609281516480894221ca6fe4f1e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281516480894221ca6fe4f1e",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1383
+  }
+}

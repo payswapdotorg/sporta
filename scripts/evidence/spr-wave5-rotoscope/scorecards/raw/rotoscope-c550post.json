@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: Same match, moment, and camera context are clearly preserved despite the heavy abstraction.\n2. temporalConsistency - 3: The stylization is stable, but the extreme simplification makes subtle motion tracking difficult.\n3. identityConsistency - 2: Players are reduced to colored blobs, making individual visual identification nearly impossible.\n4. motionFidelity - 2: Motion is suggested by position shifts, but the lack of detail obscures the specific nature of the movement.\n5. sceneFidelity - 3: Major spatial elements like the goal and ads remain, but fine background details are lost.\n6. stylizationStrength - 5: The transformation into a high-contrast, posterized graphic style is extremely obvious and consistent.\n\nAXES sf=4 tc=3 ic=2 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=2 warped=1 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579833,
+  "id": "202609281517088c30d76572654bbc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281517088c30d76572654bbc",
+  "usage": {
+    "completion_tokens": 206,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1373
+  }
+}

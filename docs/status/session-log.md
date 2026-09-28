@@ -1731,3 +1731,46 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
 - Branch pushed; merged --no-ff; PUSHED to origin/main; TL audit at the
   merged tree (b8 independent re-render byte-identical; VLM means
   recomputed 15/15 exact).
+
+## Session S055 (w5-rebuild) — 2026-09-28 — Resident watch: lane J (SPR109 rotoscope) REBUILT — the wave-5 F/H/J dispatch set COMPLETE on origin; TL-verified, merged + PUSHED
+
+- Rebuild of the reset-lost w5i (phase-4 frozen recipe verbatim, base
+  0eb220d): _RotoscopeState + spr-rotoscope-dc1 (additive +227/−0) —
+  pre-smooth + LAB K=10 fills + 2-tone value (wide smoothstep knee, light
+  ×1.60/dark ×0.35) + HEAVY XDoG (eps 0.0010/phi 20, binary+median
+  stabilized, FLOW-STABILIZED: Farneback forward-warp + EMA 0.75 +
+  cut-reset, floor 0.10) + clean finish (sat 1.15 + vignette 0.20, no
+  grain). Smoke + double-smoke deterministic first try (no corrections
+  needed this rebuild).
+- Fast loop 8 variants ALL GATES GREEN: v0-noflow thesis A/B —
+  unstabilized T4 0.6332 vs stabilized 0.6193 (honest fresh delta smaller
+  than the recorded 0.6248→0.4263, direction reproduces); VLM duel
+  BEST=v1-recipe ("optimal balance of flow-stabilized, clean ink lines
+  and a compelling 2-tone cel-shaded look") / WORST=v0-noflow ("severe
+  temporal instability and noise due to the lack of flow stabilization") —
+  the recorded verdict class. v1 frozen.
+- Full renders 3/3 double-render BYTE-IDENTICAL: b8 1190f 32c8666c… ×2,
+  b12 300f 24cf2dde… ×2, b2 225f e121df44… ×2.
+- Gates ALL GREEN 3/3 cells: b8 + b12 RAW T2 PASS (the original's b8
+  raw-pass reproduces); b2 extra-class (close-up sustained-motion) →
+  frozen T2b 1.0/0 (honest difference from the original's b2-raw/b12-T2b
+  split — recorded); T3 0.9774/0.9885/0.9699 (stronger than the original's
+  0.941/0.950/0.941); T4 0.5487/0.6752/1.0635.
+- Regression 5/5 BYTE-MATCH on the modified tree (cartoon-cel, noir,
+  subject-toon, clay-toy 69d9ae77, player-focus 3f0be6d2 — both wave-5
+  sibling rows).
+- Frozen VLM scorecard 15/15: sf 4.47 / tc 2.60 / ic 2.33 / mf 2.47 /
+  scf 2.53 / ss 5.00; minAxis 2.33, critical 62 — EXACTLY the recorded
+  original's critical count (62=62); ss 5.0 = the family stylization
+  maximum → honest Tier 0.
+- Evidence: scripts/evidence/spr-wave5-rotoscope/ (README, commands,
+  record.json w/ rebuildProvenance, variant table, gate JSONs, scorecards
+  + 15 raw calls, frames, fastloop-visual + duel, registry listing).
+  Docs: SPR109 row, tier table +rotoscope, this entry, frontier.
+- Branch pushed; merged --no-ff; PUSHED to origin/main; TL audit at the
+  merged tree (b8 independent re-render byte-identical; VLM means
+  recomputed 15/15 exact — critical 62=62).
+- MILESTONE: the reset-lost wave-5 F/H/J delivery set is now COMPLETE on
+  origin (w5f clay 1.80/48, w5h player-focus 3.80/1 near-miss Tier 1,
+  w5i rotoscope 2.33/62) — the 2026-09-27 reset's lost queue is fully
+  recovered as honest fresh measurements; nothing laundered.

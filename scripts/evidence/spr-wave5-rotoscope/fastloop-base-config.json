@@ -1,0 +1,28 @@
+{
+ "taskId": "SPR-W5-I",
+ "note": "the phase-4 frozen recipe config (winner = v1 = this config verbatim)",
+ "config": {
+  "preMedianK": 3,
+  "preBilatD": 9,
+  "preBilatSigma": 75,
+  "preBilatIters": 2,
+  "lWeight": 0.45,
+  "toneLight": 1.6,
+  "toneDark": 0.35,
+  "toneKneeLo": 0.3,
+  "toneKneeWidth": 0.4,
+  "xdogSigma": 1.0,
+  "xdogK": 1.6,
+  "xdogTau": 0.98,
+  "xdogEps": 0.001,
+  "xdogPhi": 20.0,
+  "flowStabilize": true,
+  "emaAlpha": 0.75,
+  "lineKnee": 0.5,
+  "lineMedian": 5,
+  "lineSoften": 0.8,
+  "lineFloor": 0.1,
+  "saturation": 1.15,
+  "vignette": 0.2
+ }
+}

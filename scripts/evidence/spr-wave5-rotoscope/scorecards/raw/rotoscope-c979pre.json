@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical between the source and stylized frames.\n2. temporalConsistency - 1: The scene completely changes from a wide pitch view to a close-up of a player, indicating a severe jump or loss of context.\n3. identityConsistency - 2: Players in image 2 are reduced to unrecognizable blobs, and image 3 focuses on a single player with lost detail.\n4. motionFidelity - 1: The drastic change in framing makes it impossible to track any logical motion or ball trajectory.\n5. sceneFidelity - 1: The background and spatial layout are almost entirely obliterated or replaced by the style's noise.\n6. stylizationStrength - 5: The transformation into a high-contrast, abstract graphic style is extremely aggressive and obvious.\n\nAXES sf=5 tc=1 ic=2 mf=1 scf=1 ss=5\nARTIFACTS limbs=5 players=4 warped=5 dupes=0 ball=1 bg=5 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579847,
+  "id": "2026092815172227881ac91fb34a42",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815172227881ac91fb34a42",
+  "usage": {
+    "completion_tokens": 227,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1394
+  }
+}

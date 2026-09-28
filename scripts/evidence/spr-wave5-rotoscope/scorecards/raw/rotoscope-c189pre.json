@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical to the source frame.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes and background elements between the two frames.\n3. identityConsistency - 2: Player features are heavily abstracted, making visual identification of individuals difficult and unstable.\n4. motionFidelity - 2: Player movements appear jerky and lack the smooth continuity expected over a 0.2s interval.\n5. sceneFidelity - 2: The stadium background is reduced to a flat, inconsistent black void with shifting artifacts.\n6. stylizationStrength - 5: The transformation into a high-contrast, posterized graphic style is extremely bold and obvious.\n\nAXES sf=5 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=1 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790579792,
+  "id": "2026092815162545c257fa0ceb42f1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815162545c257fa0ceb42f1",
+  "usage": {
+    "completion_tokens": 207,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1374
+  }
+}

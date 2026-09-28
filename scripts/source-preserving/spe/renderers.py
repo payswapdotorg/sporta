@@ -181,6 +181,12 @@ class FrameProcessor:
             out = self._player_focus_state(bgr, self._gray_small(bgr),
                                            self._is_cut_start())
 
+        elif reality == "rotoscope":
+            if not hasattr(self, "_rotoscope_state"):
+                self._rotoscope_state = _RotoscopeState(cfg, self.palette)
+            out = self._rotoscope_state(bgr, self._gray_small(bgr),
+                                        self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -2042,6 +2048,157 @@ class _PlayerFocusState:
 
 
 # ---------------------------------------------------------------------------
+# rotoscope pipeline state (SPR109) — TL rebuild of the reset-lost w5i
+#
+# The recorded recipe verbatim (phase-4 frozen values): pre-smooth +
+# fixed LAB K=10 fills + 2-tone value (wide smoothstep knee, light ×1.60
+# / dark ×0.35) + HEAVY XDoG (eps 0.0010 / phi 20, binary+median
+# stabilized, FLOW-STABILIZED: Farneback forward-warp + EMA 0.75 +
+# cut-reset, line floor 0.10) + clean finish (sat 1.15 + vignette 0.20,
+# NO grain). The original spr/w5i/rotoscope-trial (local main 0859ba6
+# era) was lost to the 2026-09-27 sandbox reset before its PAT-blocked
+# push reached origin — the lost shas (2d5fb163/2847128c/4f3c8a62)
+# resolve nowhere on origin and are NOT claimed; every measurement in
+# its evidence pack is FRESH. The recorded phase-3/4 re-open history
+# (the phase-1 recipe failed full-b8 T2b at cov 0.667 — the 979/982
+# micro-shot cut-amplitude compression class — and was re-hardened via
+# the tone contrast + phi 20 + floor 0.10 combination) is encoded in
+# the frozen starting config; the fast loop re-measures the
+# flow-stabilization thesis (v0-noflow A/B).
+# ---------------------------------------------------------------------------
+
+
+class _RotoscopeState:
+    """Streaming state for the SPR109 rotoscope/hand-drawn pipeline.
+
+    Stage 1  pre_smooth: median k3 + bilateral d9 σ75 ×2 — noise-crawl
+              mitigation for the XDoG (the ink-manga class; rotoscope
+              keeps one fewer bilateral so the XDoG sees more structure).
+    Stage 2  lab_fills  : fixed per-clip LAB K=10 palette (the engine's
+              learn_palette), chroma-weighted assignment l=0.45 — flat
+              color fills under the ink.
+    Stage 3  two_tone  : a wide-smoothstep-knee value curve with two
+              levels — gain = dark + (light−dark)·t(luma), light ×1.60 /
+              dark ×0.35 (phase-4 frozen), knee 0.30–0.70 — the palette
+              fills collapse into two value bands (the rotoscope
+              cel-value look). numpy float64 gain math.
+    Stage 4  xdog_ink  : HEAVY XDoG (eps 0.0010, phi 20 — deeper ink
+              pooling than ink-manga) on the SMOOTHED frame;
+              FLOW-STABILIZED: the previous stabilized edge map is
+              forward-warped by the Farneback flow (backward-sampled
+              remap, border replicate) and EMA-blended (α 0.75) with the
+              fresh map; CUT-RESET drops the history (contract invariant
+              4); then binary knee 0.5 + median 5 stabilization +
+              soften σ0.8 (the ink-manga compositor pattern) burned at
+              line floor 0.10 (darker than ink-manga's 0.20 — the
+              recorded phase-3/4 hardening leg).
+    Stage 5  finish    : saturation ×1.15 + vignette 0.20, NO grain
+              (the clean-finish record).
+
+    Deterministic: Farneback, remap and the EMA are deterministic
+    functions of the frame sequence; no RNG anywhere.
+    """
+
+    def __init__(self, cfg: dict, palette: Optional[np.ndarray]):
+        c = self.cfg = cfg
+        # stage 1 — pre-smooth
+        self.pre_median_k = int(c.get("preMedianK", 3))
+        self.bilat_d = int(c.get("preBilatD", 9))
+        self.bilat_sigma = float(c.get("preBilatSigma", 75.0))
+        self.bilat_iters = int(c.get("preBilatIters", 2))
+        # stage 2 — LAB fills
+        self.l_weight = float(c.get("lWeight", 0.45))
+        self.palette = palette
+        # stage 3 — 2-tone value (wide smoothstep knee; phase-4 frozen)
+        self.tone_light = float(c.get("toneLight", 1.60))
+        self.tone_dark = float(c.get("toneDark", 0.35))
+        self.tone_knee_lo = float(c.get("toneKneeLo", 0.30))
+        self.tone_knee_w = float(c.get("toneKneeWidth", 0.40))
+        # stage 4 — heavy XDoG, flow-stabilized
+        self.xdog_sigma = float(c.get("xdogSigma", 1.0))
+        self.xdog_k = float(c.get("xdogK", 1.6))
+        self.xdog_tau = float(c.get("xdogTau", 0.98))
+        self.xdog_eps = float(c.get("xdogEps", 0.0010))
+        self.xdog_phi = float(c.get("xdogPhi", 20.0))
+        self.flow_stabilize = bool(c.get("flowStabilize", True))
+        self.ema_alpha = float(c.get("emaAlpha", 0.75))
+        self.line_knee = float(c.get("lineKnee", 0.5))
+        self.line_median = int(c.get("lineMedian", 5))
+        self.line_soften = float(c.get("lineSoften", 0.8))
+        self.line_floor = float(c.get("lineFloor", 0.10))
+        # stage 5 — clean finish
+        self.saturation = float(c.get("saturation", 1.15))
+        self.vignette = float(c.get("vignette", 0.20))
+        # stream state
+        self.prev_gray_small: Optional[np.ndarray] = None
+        self.edge_ema: Optional[np.ndarray] = None   # full-res stabilized map
+        self._grid: Optional[np.ndarray] = None
+        self._vmask: Optional[np.ndarray] = None
+
+    def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
+                 cut: bool) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        # stage 1 — pre-smooth (XDoG noise-crawl mitigation)
+        sm = S.median_pool(bgr, self.pre_median_k)
+        sm = S.bilateral_flatten(sm, self.bilat_d, self.bilat_sigma,
+                                 self.bilat_sigma, self.bilat_iters)
+        # stage 2 — LAB K=10 fills
+        if self.palette is not None:
+            out = S.quantize_lab(sm, self.palette, l_weight=self.l_weight)
+        else:
+            out = sm
+        # stage 3 — 2-tone value curve (wide smoothstep knee)
+        L = cv2.cvtColor(out, cv2.COLOR_BGR2GRAY).astype(np.float64) / 255.0
+        t = np.clip((L - self.tone_knee_lo) / max(self.tone_knee_w, 1e-6),
+                    0.0, 1.0)
+        t = t * t * (3.0 - 2.0 * t)  # smoothstep (wide knee)
+        gain = self.tone_dark + (self.tone_light - self.tone_dark) * t
+        outf = out.astype(np.float64) * gain[..., None]
+        out = np.clip(np.round(outf), 0, 255).astype(np.uint8)
+        # stage 4 — heavy XDoG ink, flow-stabilized
+        e = S.xdog_edge_map(sm, sigma=self.xdog_sigma, k=self.xdog_k,
+                            tau=self.xdog_tau, eps=self.xdog_eps,
+                            phi=self.xdog_phi)
+        if self.flow_stabilize and self.prev_gray_small is not None \
+                and not cut and self.edge_ema is not None:
+            flow = cv2.calcOpticalFlowFarneback(
+                self.prev_gray_small, gray_small, None,
+                0.5, 3, 15, 3, 5, 1.2, 0)
+            flow_big = cv2.resize(flow, (w, h),
+                                  interpolation=cv2.INTER_LINEAR) * 2.0
+            if self._grid is None:
+                ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+                self._grid = np.stack([xs, ys], axis=-1)
+            map_x = self._grid[..., 0] - flow_big[..., 0]
+            map_y = self._grid[..., 1] - flow_big[..., 1]
+            warped = cv2.remap(self.edge_ema, map_x, map_y,
+                               cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+            self.edge_ema = (self.ema_alpha * warped
+                             + (1.0 - self.ema_alpha) * e).astype(np.float32)
+        elif self.edge_ema is None or cut:
+            self.edge_ema = e  # cut-reset: fresh map, history dropped
+        else:
+            self.edge_ema = e  # no-flow mode (v0 A/B)
+        # binary + median stabilized compositor (the ink-manga pattern)
+        eb = (self.edge_ema < self.line_knee).astype(np.float32)
+        if self.line_median:
+            eb = cv2.medianBlur(eb, self.line_median)
+        if self.line_soften:
+            eb = cv2.GaussianBlur(eb, (0, 0), self.line_soften)
+        # lines: E->0 on edges; eb marks line pixels (1) — invert to the
+        # edge-map convention for the overlay
+        edges = (1.0 - eb).astype(np.float32)
+        out = S.edge_overlay(out, edges, self.line_floor)
+        # stage 5 — clean finish (no grain)
+        out = S.saturation_lift(out, self.saturation)
+        if self._vmask is None:
+            self._vmask = S.vignette_mask(w, h, self.vignette)
+        out = S.apply_vignette(out, self._vmask)
+        self.prev_gray_small = gray_small
+        return out
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -2631,3 +2788,73 @@ PLAYER_FOCUS = RendererSpec(
 # enters the REGISTRY without modifying any prior declaration or
 # construction line
 REGISTRY[PLAYER_FOCUS.reality] = PLAYER_FOCUS
+
+
+# ---------------------------------------------------------------------------
+# SPR109 Rotoscope/Hand-drawn — wave-5 fresh reality (SPR-W5-I, TL rebuild
+# of the reset-lost w5i)
+#
+# The recorded recipe verbatim (phase-4 frozen values): pre-smooth +
+# fixed LAB K=10 fills + 2-tone value (wide smoothstep knee, light ×1.60
+# / dark ×0.35) + HEAVY XDoG (eps 0.0010 / phi 20, binary+median
+# stabilized, FLOW-STABILIZED: Farneback forward-warp + EMA 0.75 +
+# cut-reset, line floor 0.10) + clean finish (sat 1.15 + vignette 0.20,
+# no grain). The recorded phase-3/4 re-open history (phase-1 failed
+# full-b8 T2b cov 0.667 — the 979/982 micro-shot compression class —
+# re-hardened by tone contrast + phi 20 + floor 0.10) is encoded in the
+# frozen starting config; the fast loop re-measures the
+# flow-stabilization thesis (v0-noflow A/B). The original w5i was lost
+# to the 2026-09-27 sandbox reset before its PAT-blocked push reached
+# origin; nothing from the lost tree is claimed — all measurements
+# fresh.
+# ---------------------------------------------------------------------------
+
+
+ROTOSCOPE = RendererSpec(
+    rendererId="spr-rotoscope-dc1", reality="rotoscope",
+    family="Rotoscope / Hand-drawn (SPR109)", sprId="SPR109",
+    paletteK=10,
+    usesFlow=True,
+    pipeline=[
+        "pre_smooth(median k3 + bilateral d9 σ75 ×2 — XDoG noise-crawl "
+        "mitigation, the ink-manga class)",
+        "lab_fills(fixed per-clip LAB K=10 palette, chroma-weighted "
+        "assignment l=0.45 — flat color fills under the ink)",
+        "two_tone(wide smoothstep knee value curve: gain = 0.35 + "
+        "(1.60−0.35)·smoothstep((L−0.30)/0.40) — the palette fills "
+        "collapse into two value bands; phase-4 frozen; numpy float64)",
+        "xdog_ink(HEAVY XDoG eps 0.0010 / phi 20 on the smoothed frame; "
+        "FLOW-STABILIZED: prev stabilized map forward-warped by Farneback "
+        "flow + EMA 0.75 + cut-reset; binary knee 0.5 + median5 + soften "
+        "σ0.8 compositor; line floor 0.10 — the phase-3/4 hardening leg)",
+        "clean_finish(saturation ×1.15 + vignette 0.20, NO grain)",
+    ],
+    description=("Hand-drawn rotoscope: flat LAB fills under a 2-tone "
+                 "value curve with heavy flow-stabilized XDoG ink lines "
+                 "and a clean finish. Classical 2-tone family (ss is the "
+                 "family stylization maximum). SPR109 trial — TL rebuild "
+                 "of the reset-lost w5i."),
+    config={
+        # stage 1 — pre-smooth
+        "preMedianK": 3, "preBilatD": 9, "preBilatSigma": 75,
+        "preBilatIters": 2,
+        # stage 2 — LAB fills
+        "lWeight": 0.45,
+        # stage 3 — 2-tone value (phase-4 frozen)
+        "toneLight": 1.60, "toneDark": 0.35,
+        "toneKneeLo": 0.30, "toneKneeWidth": 0.40,
+        # stage 4 — heavy XDoG, flow-stabilized
+        "xdogSigma": 1.0, "xdogK": 1.6, "xdogTau": 0.98,
+        "xdogEps": 0.0010, "xdogPhi": 20.0,
+        "flowStabilize": True, "emaAlpha": 0.75,
+        "lineKnee": 0.5, "lineMedian": 5, "lineSoften": 0.8,
+        "lineFloor": 0.10,
+        # stage 5 — clean finish (no grain)
+        "saturation": 1.15, "vignette": 0.20,
+    },
+)
+
+# additive registry append (SPR-W5-I rebuild): the SPR109 rotoscope row
+# enters the REGISTRY without modifying any prior declaration or
+# construction line
+REGISTRY[ROTOSCOPE.reality] = ROTOSCOPE
