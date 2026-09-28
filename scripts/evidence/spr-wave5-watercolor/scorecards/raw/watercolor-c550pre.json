@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The core subject (goalkeeper) and goal are present, but the extreme blur obscures the specific camera context and background details.\n2. temporalConsistency - 3: The goalkeeper's position shifts slightly between frames, but the heavy stylization masks most potential flickering or morphing.\n3. identityConsistency - 2: The main player is recognizable by color, but facial features and fine details are completely lost in the abstraction.\n4. motionFidelity - 2: The slight shift in the goalkeeper's posture suggests movement, but the lack of detail makes it hard to verify physical consistency.\n5. sceneFidelity - 1: The background is almost entirely indistinct, with stadium elements and advertising boards reduced to unrecognizable smudges.\n6. stylizationStrength - 5: The transformation to a heavy, painterly watercolor style is extremely obvious and dominates the visual information.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=1 ss=5\nARTIFACTS limbs=0 players=2 warped=1 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582439,
+  "id": "202609281600287744c9c9250947c3",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281600287744c9c9250947c3",
+  "usage": {
+    "completion_tokens": 241,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1408
+  }
+}

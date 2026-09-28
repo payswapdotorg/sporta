@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match and general camera angle are recognizable, but extreme blurring obscures the specific moment and context.\n2. temporalConsistency - 4: The motion between the two stylized frames is smooth with no flickering or sudden jumps.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual identification impossible.\n4. motionFidelity - 3: The direction of player movement is consistent, though the lack of detail makes precise motion assessment difficult.\n5. sceneFidelity - 3: The background and field layout remain spatially consistent despite the heavy blur.\n6. stylizationStrength - 5: The transformation is extremely obvious, resulting in a highly abstract, painterly effect.\n\nAXES sf=2 tc=4 ic=1 mf=3 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582378,
+  "id": "20260928155933973536a961fe4d63",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928155933973536a961fe4d63",
+  "usage": {
+    "completion_tokens": 206,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1373
+  }
+}

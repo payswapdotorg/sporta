@@ -78,6 +78,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | ink-manga (SPR104, w5c 2026-09-27) | 1.47 | 88 | 0 |
 | lowpoly-game (SPR106, w5e 2026-09-27) | 1.93 | 67 | 0 |
 | clay-toy (SPR105, w5f REBUILD 2026-09-28) | 1.80 | 48 | 0 (best classical-family critical count; the reset-lost original recorded 2.07/62 — same range) |
+| watercolor (SPR103, w5j 2026-09-28) | 1.80 | 53 | 0 (painterly family range; ss 4.93) |
 | rotoscope (SPR109, w5i REBUILD 2026-09-28) | 2.33 | 62 | 0 (critical EXACTLY the lost original's 62; ss 5.0 family max) |
 | silhouette-xray (SPR202, w5g 2026-09-27) | 1.47 | 111 | 0 |
 | cartoon-cel | 1.53 | 99 | 0 |

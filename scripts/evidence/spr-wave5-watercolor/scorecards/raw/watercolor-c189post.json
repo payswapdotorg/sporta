@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, camera angle, and general layout are preserved, but extreme blurring obscures specific details.\n2. temporalConsistency - 2: Significant flickering and morphing of player positions and shapes occur between the two stylized frames.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making individual identification impossible and unstable.\n4. motionFidelity - 2: While the general direction of play is maintained, the specific motion of players is lost to heavy abstraction.\n5. sceneFidelity - 3: The stadium structure and advertising boards remain in consistent spatial locations despite the blur.\n6. stylizationStrength - 5: The transformation into a highly abstract, watercolor-like style is extremely pronounced and obvious.\n\nAXES sf=3 tc=2 ic=1 mf=2 scf=3 ss=5\nARTIFACTS limbs=10 players=4 warped=5 dupes=0 ball=1 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582416,
+  "id": "20260928160011cd0e42aa1bf64ce6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928160011cd0e42aa1bf64ce6",
+  "usage": {
+    "completion_tokens": 212,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1379
+  }
+}

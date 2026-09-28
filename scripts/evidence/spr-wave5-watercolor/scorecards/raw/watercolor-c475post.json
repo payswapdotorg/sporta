@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The match, moment, and camera context are recognizable, but heavy blurring obscures fine details and background structures.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes and positions occur between the two stylized frames.\n3. identityConsistency - 2: The main player's form is unstable, and background players frequently lose their distinct visual identity or merge into blobs.\n4. motionFidelity - 2: While the general direction of movement is preserved, the specific limb positions and ball trajectory are inconsistent and poorly defined.\n5. sceneFidelity - 2: The stadium background is extremely blurred and lacks spatial stability, making it difficult to discern consistent structures.\n6. stylizationStrength - 5: The transformation to a heavily blurred, painterly style is very obvious and dominant across all elements.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=2 players=2 warped=1 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582428,
+  "id": "20260928160023af7cb7933e0840ad",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928160023af7cb7933e0840ad",
+  "usage": {
+    "completion_tokens": 227,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1394
+  }
+}

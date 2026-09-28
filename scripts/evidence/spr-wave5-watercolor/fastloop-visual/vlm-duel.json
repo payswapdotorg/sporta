@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEST=B WORST=A REASON=Variant B offers the best balance of smooth, stable brushstrokes and painterly texture, while A suffers from significant edge noise and temporal instability.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790580766,
+  "id": "2026092815324135edc2e4f2d34c24",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815324135edc2e4f2d34c24",
+  "usage": {
+    "completion_tokens": 39,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5091,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 5130
+  }
+}

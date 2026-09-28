@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: The camera angle and general scene match, but extreme blurring obscures specific details and context.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes occur between the two stylized frames.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 2: Motion is suggested by position shifts but is heavily distorted by the lack of structural detail.\n5. sceneFidelity - 2: The background (stands/ads) is a smeared mess with poor spatial definition.\n6. stylizationStrength - 5: The transformation to a heavy watercolor/blur style is extremely obvious and dominant.\n\nAXES sf=3 tc=2 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=3 warped=5 dupes=0 ball=1 bg=4 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582395,
+  "id": "20260928155948a33a0d0b9f8c4409",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928155948a33a0d0b9f8c4409",
+  "usage": {
+    "completion_tokens": 205,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1372
+  }
+}

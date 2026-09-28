@@ -187,6 +187,11 @@ class FrameProcessor:
             out = self._rotoscope_state(bgr, self._gray_small(bgr),
                                         self._is_cut_start())
 
+        elif reality == "watercolor":
+            if not hasattr(self, "_watercolor_state"):
+                self._watercolor_state = _WatercolorState(cfg, self.cuts)
+            out = self._watercolor_state(bgr, self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -2199,6 +2204,231 @@ class _RotoscopeState:
 
 
 # ---------------------------------------------------------------------------
+# watercolor/painterly pipeline state (SPR103) — promoted from the w2c trial
+# sprtrial-kuwahara-paint-t1 (the subject-toon promotion pattern)
+#
+# The trial's frozen processor ported verbatim (stage order and parameters
+# identical; the port RESTATES the tiny helpers instead of importing from
+# spe.trials — the promotion convention that keeps renderers.py decoupled
+# from the lane write-surface). The trial's honest anti-stages stay OUT:
+# palette re-quantization and the XDoG overlay were measured in the trial's
+# stage-isolation diagnostics to re-amplify the 8-orientation blend residue
+# into net/grass blotching and dark speckle ghosting — dropped, recorded
+# (the clean painterly rendition is the Kuwahara + bilateral alone). The
+# condition from the w2c verdict (CONDITIONAL — painterly family only)
+# becomes the family declaration: this is the painterly/watercolor lane.
+# Deterministic-classical, CPU-only (own numpy/OpenCV implementation of the
+# public Kyprianidis-class anisotropic Kuwahara — nothing copied from GPL
+# ports). See _WatercolorState below for the full stage math and the
+# smoke-tested anti-artifact design notes (coherence gate, soft quadrant
+# blend, variance smoothing, orientation-field smoothing, pre-consolidation).
+# ---------------------------------------------------------------------------
+
+
+_LUMA_W = np.array([0.114, 0.587, 0.299], dtype=np.float32)  # BGR -> BT.601
+
+
+class _WatercolorState:
+    """Streaming state for the SPR103 watercolor/painterly pipeline.
+
+    Promoted from trial sprtrial-kuwahara-paint-t1 (wave-2 lane C) — stage
+    order and parameters identical to the trial processor:
+
+    Stage 1  half-res    : abstraction core at 320x180 (watercolor practice:
+              abstract low, finish high — the quadrant-variance selector is
+              noise-dominated at full res on broadcast texture); median k3
+              + bilateral x1 (d7 σ50) pre-consolidation (the 8 rotated cores
+              alias the goal net differently — flatten BEFORE the orientation
+              machinery so all rotations see the same smooth fields).
+    Stage 2  tensor_ema : structure tensor (Sobel + Gaussian σ2.5), temporal
+              EMA α 0.45 with CUT-RESET (contract invariant 4) — the yaml's
+              temporal pre-smoothing mitigation of edge-flow crawl.
+    Stage 3  orientation: coherence-gated soft orientation weights over N=8
+              quantized isophote angles (doubled-angle, branch-free);
+              isotropic texture falls back to a uniform mix (the coherence
+              gate — without it, ^gamma weights degenerate into per-pixel
+              random hard picks = the 'disconnected blobs' v4 smoke);
+              weight-map Gaussian σ2 (smooth orientation fields — hard
+              per-pixel switching left 'double-exposure' ghosts, v7 smoke).
+    Stage 4  kuwahara   : per-orientation 4-quadrant anisotropic Kuwahara
+              (rotate → quadrant boxFilter means/variances → rotate back);
+              SOFT inverse-variance quadrant blend p=3 (NOT argmin — a hard
+              min-variance pick switches between quadrant means and the
+              boundaries render as persistent grass/net blotching, v6
+              smoke); variance fields Gaussian-smoothed σ2 (small-quadrant
+              estimates are noise-dominated); qLong 3 × qShort 2 at half
+              res = 7×5 at source scale.
+    Stage 5  finish     : bilinear upsample to full res (brush-stroke
+              transitions), bilateral x2 (d9 σ75) field consolidation,
+              saturation ×1.14, paper grain 1.5 (the frozen frame-index
+              grain law).
+
+    Deterministic: no RNG beyond the frozen grain law; the tensor EMA and
+    rotations are fixed functions of the frame sequence.
+    """
+
+    def __init__(self, cfg: dict, cuts: set):
+        c = self.cfg = cfg
+        self.cuts = cuts
+        self.frame_index = 0
+        self.tensor_ema: Optional[np.ndarray] = None
+        self._rot_cache: dict = {}
+        # stage 1 — half-res pre-consolidation
+        self.pre_median_k = int(c.get("preMedianK", 3))
+        self.pre_bilat_d = int(c.get("preBilatD", 7))
+        self.pre_bilat_sigma = float(c.get("preBilatSigma", 50))
+        self.pre_bilat_iters = int(c.get("preBilatIters", 1))
+        # stage 2 — structure tensor EMA
+        self.tensor_sigma = float(c.get("tensorSigma", 2.5))
+        self.tensor_alpha = float(c.get("tensorAlpha", 0.45))
+        # stage 3 — orientation field
+        self.orientations = int(c.get("orientations", 8))
+        self.blend_gamma = float(c.get("blendGamma", 10.0))
+        self.weight_sigma = float(c.get("weightSigma", 2.0))
+        # stage 4 — anisotropic Kuwahara quadrants
+        self.q_long = int(c.get("qLong", 3))
+        self.q_short = int(c.get("qShort", 2))
+        self.var_sigma = float(c.get("varSigma", 2.0))
+        self.var_softness = float(c.get("varSoftness", 3.0))
+        # stage 5 — consolidation + finish
+        self.post_bilat_d = int(c.get("postBilatD", 9))
+        self.post_bilat_sigma = float(c.get("postBilatSigma", 75))
+        self.post_bilat_iters = int(c.get("postBilatIters", 2))
+        self.saturation = float(c.get("saturation", 1.14))
+        self.grain = float(c.get("grain", 1.5))
+
+    # -- structure tensor ----------------------------------------------------
+
+    def _tensor(self, gray_f32: np.ndarray) -> np.ndarray:
+        gx = cv2.Sobel(gray_f32, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray_f32, cv2.CV_32F, 0, 1, ksize=3)
+        s = self.tensor_sigma
+        jxx = cv2.GaussianBlur(gx * gx, (0, 0), s)
+        jxy = cv2.GaussianBlur(gx * gy, (0, 0), s)
+        jyy = cv2.GaussianBlur(gy * gy, (0, 0), s)
+        return np.stack([jxx, jxy, jyy], axis=-1)
+
+    def _orientation_weights(self) -> np.ndarray:
+        """Coherence-gated soft orientation weights (N,H,W), summing to 1."""
+        jxx = self.tensor_ema[..., 0]
+        jxy = self.tensor_ema[..., 1]
+        jyy = self.tensor_ema[..., 2]
+        vx = jyy - jxx
+        vy = -2.0 * jxy
+        vmag = np.sqrt(vx * vx + vy * vy)
+        norm = vmag + 1e-9
+        vx = vx / norm
+        vy = vy / norm
+        coh = np.clip(vmag / (jxx + jyy + 1e-6), 0.0, 1.0).astype(np.float32)
+        gate = coh * coh
+        n = self.orientations
+        gamma = self.blend_gamma
+        wsm = self.weight_sigma
+        w = np.zeros((n, vx.shape[0], vx.shape[1]), dtype=np.float32)
+        for o in range(n):
+            a = 2.0 * np.pi * o / n
+            score = (vx * np.float32(np.cos(a))
+                     + vy * np.float32(np.sin(a))).astype(np.float32)
+            w[o] = 1e-3 + np.clip(score, 0.0, 1.0) ** gamma * gate
+        if wsm > 0:
+            for o in range(n):
+                w[o] = cv2.GaussianBlur(w[o], (0, 0), wsm)
+        w /= w.sum(axis=0, keepdims=True)
+        return w
+
+    # -- anisotropic Kuwahara core -------------------------------------------
+
+    def _rot_pair(self, deg: float, shape):
+        key = round(deg, 6)
+        if key not in self._rot_cache:
+            h, w = shape[:2]
+            c = (w / 2.0, h / 2.0)
+            self._rot_cache[key] = (cv2.getRotationMatrix2D(c, deg, 1.0),
+                                    cv2.getRotationMatrix2D(c, -deg, 1.0))
+        return self._rot_cache[key]
+
+    def _kuwahara_orientation(self, bgr_f32: np.ndarray,
+                              deg: float) -> np.ndarray:
+        """4-quadrant anisotropic Kuwahara for one orientation."""
+        h, w = bgr_f32.shape[:2]
+        if abs(deg) < 1e-9:
+            r = bgr_f32
+        else:
+            m, _ = self._rot_pair(deg, bgr_f32.shape)
+            r = cv2.warpAffine(bgr_f32, m, (w, h), flags=cv2.INTER_LINEAR,
+                               borderMode=cv2.BORDER_REFLECT_101)
+        ql, qs = self.q_long, self.q_short
+        ksize = (ql + 1, qs + 1)
+        anchors = [(0, 0), (ql, 0), (0, qs), (ql, qs)]
+        y_sq = (r @ _LUMA_W) ** 2
+        means = []
+        variances = []
+        for (ax, ay) in anchors:
+            mu = cv2.boxFilter(r, cv2.CV_32F, ksize, anchor=(ax, ay),
+                               borderType=cv2.BORDER_REFLECT_101)
+            mu_y = mu @ _LUMA_W
+            mu_y2 = cv2.boxFilter(y_sq, cv2.CV_32F, ksize, anchor=(ax, ay),
+                                  borderType=cv2.BORDER_REFLECT_101)
+            means.append(mu)
+            variances.append(np.maximum(mu_y2 - mu_y * mu_y, 0.0))
+        vs = self.var_sigma
+        v = np.stack([cv2.GaussianBlur(x, (0, 0), vs) for x in variances],
+                     axis=-1)
+        p_soft = self.var_softness
+        vbar = v.mean(axis=-1, keepdims=True)
+        wq = np.exp(-p_soft * v / (vbar + 1e-3))
+        wq /= wq.sum(axis=-1, keepdims=True)
+        mu = np.stack(means, axis=-1)
+        out = (mu * wq[..., None, :]).sum(axis=-1)
+        out = np.ascontiguousarray(out)
+        if abs(deg) < 1e-9:
+            return out
+        _, mi = self._rot_pair(deg, bgr_f32.shape)
+        return cv2.warpAffine(out, mi, (w, h), flags=cv2.INTER_LINEAR,
+                              borderMode=cv2.BORDER_REFLECT_101)
+
+    # -- pipeline -------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray, cut: bool) -> np.ndarray:
+        c = self.cfg
+        h, w = bgr.shape[:2]
+        hw, hh = w // 2, h // 2
+        base = cv2.resize(bgr, (hw, hh), interpolation=cv2.INTER_AREA)
+        base = S.median_pool(base, self.pre_median_k)
+        base = S.bilateral_flatten(base, self.pre_bilat_d,
+                                   self.pre_bilat_sigma,
+                                   self.pre_bilat_sigma,
+                                   self.pre_bilat_iters)
+        gray_f32 = cv2.cvtColor(base, cv2.COLOR_BGR2GRAY).astype(np.float32)
+        t_now = self._tensor(gray_f32)
+        if self.tensor_ema is None or cut:
+            self.tensor_ema = t_now
+        else:
+            a = self.tensor_alpha
+            self.tensor_ema = a * t_now + (1.0 - a) * self.tensor_ema
+
+        wts = self._orientation_weights()
+        n = self.orientations
+        bgr_f32 = base.astype(np.float32)
+        results = np.stack(
+            [self._kuwahara_orientation(bgr_f32, float(o) * 180.0 / n)
+             for o in range(n)], axis=0)
+        out = np.einsum("nhwc,nhw->hwc", results, wts)
+        out_u8 = np.clip(out, 0, 255).astype(np.uint8)
+        out_u8 = cv2.resize(out_u8, (w, h), interpolation=cv2.INTER_LINEAR)
+
+        out_u8 = S.bilateral_flatten(out_u8, self.post_bilat_d,
+                                     self.post_bilat_sigma,
+                                     self.post_bilat_sigma,
+                                     self.post_bilat_iters)
+        out_u8 = S.saturation_lift(out_u8, self.saturation)
+        out_u8 = S.grain(out_u8, self.frame_index, self.grain)
+
+        self.frame_index += 1
+        return out_u8
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -2858,3 +3088,67 @@ ROTOSCOPE = RendererSpec(
 # enters the REGISTRY without modifying any prior declaration or
 # construction line
 REGISTRY[ROTOSCOPE.reality] = ROTOSCOPE
+
+
+# ---------------------------------------------------------------------------
+# SPR103 Watercolor/Painterly — wave-5 promotion of the w2c trial
+# sprtrial-kuwahara-paint-t1 (the subject-toon promotion pattern)
+#
+# Orientation-adaptive anisotropic Kuwahara (own numpy implementation of
+# the public Kyprianidis-class filter) with coherence-gated soft
+# orientation blending, soft inverse-variance quadrant selection, temporal
+# structure-tensor EMA with cut-reset, and bilateral field consolidation —
+# the trial's frozen processor verbatim. The trial's honest anti-stages
+# stay out (palette re-quantization + XDoG overlay measured to re-amplify
+# blend residue — recorded). Deterministic-classical, CPU-only. The w2c
+# CONDITIONAL verdict (painterly family only) is the family declaration.
+# ---------------------------------------------------------------------------
+
+
+WATERCOLOR = RendererSpec(
+    rendererId="spr-watercolor-dc1", reality="watercolor",
+    family="Watercolor / Painterly (SPR103)", sprId="SPR103",
+    usesFlow=False,
+    pipeline=[
+        "half_res(320x180) abstraction core: median k3 + bilateral x1 "
+        "(d7 σ50) pre-consolidation (abstract low, finish high)",
+        "structure_tensor(Sobel + Gaussian σ2.5; temporal EMA α 0.45; "
+        "CUT-RESET — the edge-flow-crawl mitigation)",
+        "orientation_field(N=8 quantized isophote doubled-angle soft "
+        "weights, coherence-gated (isotropic fallback — the 'disconnected "
+        "blobs' anti-pattern), weight-map Gaussian σ2 — smooth fields)",
+        "anisotropic_kuwahara(per-orientation rotate → 4-quadrant "
+        "boxFilter means/variances → rotate back; SOFT inverse-variance "
+        "quadrant blend p=3 — NOT argmin (the 'grass/net blotching' "
+        "anti-pattern); variance fields Gaussian σ2; qLong 3 × qShort 2 "
+        "at half res = 7×5 source scale)",
+        "finish(bilinear upsample → brush-stroke transitions; bilateral x2 "
+        "d9 σ75 field consolidation; saturation ×1.14; paper grain 1.5)",
+    ],
+    description=("Painterly watercolor abstraction via orientation-adaptive "
+                 "anisotropic Kuwahara with coherence-gated soft orientation "
+                 "blending and bilateral field consolidation. Promoted from "
+                 "trial sprtrial-kuwahara-paint-t1 (w2c) — the CONDITIONAL "
+                 "painterly-family verdict made explicit; the trial's "
+                 "measured anti-stages (palette pass, XDoG overlay) stay "
+                 "out, honestly recorded."),
+    config={
+        # stage 1 — half-res pre-consolidation
+        "preMedianK": 3, "preBilatD": 7, "preBilatSigma": 50,
+        "preBilatIters": 1,
+        # stage 2 — structure tensor EMA (cut-reset)
+        "tensorSigma": 2.5, "tensorAlpha": 0.45,
+        # stage 3 — orientation field
+        "orientations": 8, "blendGamma": 10.0, "weightSigma": 2.0,
+        # stage 4 — anisotropic Kuwahara
+        "qLong": 3, "qShort": 2, "varSigma": 2.0, "varSoftness": 3.0,
+        # stage 5 — consolidation + finish
+        "postBilatD": 9, "postBilatSigma": 75, "postBilatIters": 2,
+        "saturation": 1.14, "grain": 1.5,
+    },
+)
+
+# additive registry append (SPR-W5-J promotion): the SPR103 watercolor row
+# enters the REGISTRY without modifying any prior declaration or
+# construction line
+REGISTRY[WATERCOLOR.reality] = WATERCOLOR

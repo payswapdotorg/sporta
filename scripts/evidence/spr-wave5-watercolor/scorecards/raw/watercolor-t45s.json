@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match and general camera angle are recognizable, but extreme blurring obscures specific details of the moment.\n2. temporalConsistency - 3: The stylized frames are relatively stable with each other, though the lack of detail makes precise tracking difficult.\n3. identityConsistency - 2: Players are reduced to indistinct colored blobs, making individual identification nearly impossible.\n4. motionFidelity - 2: Subtle shifts in blob positions suggest some motion, but it is largely obscured by the heavy blur.\n5. sceneFidelity - 2: The pitch lines and goal area are vaguely present but severely warped and lacks spatial precision.\n6. stylizationStrength - 5: The transformation to an extremely blurred, watercolor-like state is very obvious and dominant.\n\nAXES sf=2 tc=3 ic=2 mf=2 scf=2 ss=5\nARTIFACTS limbs=5 players=0 warped=5 dupes=0 ball=1 bg=4 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582403,
+  "id": "2026092815595676b2280e41044782",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092815595676b2280e41044782",
+  "usage": {
+    "completion_tokens": 215,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1382
+  }
+}

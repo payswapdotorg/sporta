@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 2: The match and general context are recognizable, but extreme blurring obscures specific details like the scoreboard, logos, and player positions.\n2. temporalConsistency - 4: The transition between the two stylized frames is smooth with no noticeable flickering or morphing of the background elements.\n3. identityConsistency - 1: Players are reduced to indistinct colored blobs, making it impossible to identify individuals or track their visual stability.\n4. motionFidelity - 2: The red figure moves slightly between frames, but the lack of detail makes it impossible to verify if the motion is physically accurate.\n5. sceneFidelity - 3: The stadium layout and advertising boards are present but heavily distorted and lack spatial precision compared to the original.\n6. stylizationStrength - 5: The transformation into a heavy watercolor/blur style is extremely obvious and dominates the visual information.\n\nAXES sf=2 tc=4 ic=1 mf=2 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582449,
+  "id": "20260928160046ed6954b36b9f4499",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928160046ed6954b36b9f4499",
+  "usage": {
+    "completion_tokens": 238,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 295
+    },
+    "total_tokens": 1405
+  }
+}

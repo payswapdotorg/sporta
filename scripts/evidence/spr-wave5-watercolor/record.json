@@ -1,0 +1,210 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-J",
+ "task": "SPR103 watercolor/painterly promotion from the w2c trial sprtrial-kuwahara-paint-t1",
+ "generatedAtIso": "2026-09-28T09:30:00+00:00",
+ "engine": "SPE-v1",
+ "base": "59b515c (origin/main post w5i rotoscope merge)",
+ "branch": "spr/w5j/watercolor-promotion",
+ "promotionProvenance": {
+  "note": "Promotion (the subject-toon w3b pattern): the w2c trial's frozen processor ported verbatim into renderers.py as _WatercolorState (helpers restated, no spe.trials import). The trial's honest anti-stages stay OUT: palette re-quantization + XDoG overlay were measured in the trial's stage-isolation diagnostics to re-amplify blend residue \u2014 dropped, recorded. The w2c CONDITIONAL verdict (painterly family only) becomes the family declaration.",
+  "trialSource": "scripts/source-preserving/spe/trials/kuwahara_paint.py (read-only history)",
+  "trialVerdict": "w2c: KEEP as kuwahara-paint CONDITIONAL (painterly family only)"
+ },
+ "tools": {
+  "python": "3.12.14",
+  "opencv": "4.13.0",
+  "numpy": "2.1.3",
+  "ffmpeg": "7.1.5-0+deb13u1"
+ },
+ "declaration": {
+  "rendererId": "spr-watercolor-dc1",
+  "reality": "watercolor",
+  "sprId": "SPR103",
+  "version": "0.1.0",
+  "implementation": "deterministic-classical",
+  "additiveDiff": "renderers.py: dispatch elif + _WatercolorState class + WATERCOLOR spec/registration (insertions only, 294+/-0)"
+ },
+ "substrate": {
+  "b8p3.mp4": "969af7c6... (== README)",
+  "b8-b12.mp4": "b3cc5f0e... (== README)",
+  "clip-b2-closeup.mp4": "e65ae487... (== README)"
+ },
+ "determinism": {
+  "b8": {
+   "frameCount": 1190,
+   "shaPass1": "2b0b740441d2ce6a8a12dab96fb6b2806348c5f85c08a6d3a365dea533498b1f",
+   "shaPass2": "2b0b740441d2ce6a8a12dab96fb6b2806348c5f85c08a6d3a365dea533498b1f",
+   "byteIdentical": true
+  },
+  "b12": {
+   "frameCount": 300,
+   "shaPass1": "1fc49b53fc73bffda6a4974d835115e05c7a1bfef2f6bd1b24f3c4a41f499597",
+   "shaPass2": "1fc49b53fc73bffda6a4974d835115e05c7a1bfef2f6bd1b24f3c4a41f499597",
+   "byteIdentical": true
+  },
+  "b2": {
+   "frameCount": 225,
+   "shaPass1": "378b87e73069f5846655d468305909c50c41136fb5e4962067f5526b82adcee7",
+   "shaPass2": "378b87e73069f5846655d468305909c50c41136fb5e4962067f5526b82adcee7",
+   "byteIdentical": true
+  }
+ },
+ "renders": [
+  {
+   "clipId": "b8",
+   "reality": "watercolor",
+   "rendererId": "spr-watercolor-dc1",
+   "rendererVersion": "0.1.0",
+   "outputFile": "watercolor-b8.mp4",
+   "gateInput": "raw substrate",
+   "frameCount": 1190,
+   "sha256": "2b0b740441d2ce6a8a12dab96fb6b2806348c5f85c08a6d3a365dea533498b1f",
+   "gates": {
+    "G-T1": {
+     "value": "1190==1190",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extra=0.63",
+     "pass": true,
+     "note": "RAW PASS"
+    },
+    "G-T2b": {
+     "value": "coverage=1.0, 0 invented",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9557",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=0.4474",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allHardGatesGreen": true
+  },
+  {
+   "clipId": "b12",
+   "reality": "watercolor",
+   "rendererId": "spr-watercolor-dc1",
+   "rendererVersion": "0.1.0",
+   "outputFile": "watercolor-b12.mp4",
+   "gateInput": "b12-first300-gateref-from-old (pre-adjudicated)",
+   "frameCount": 300,
+   "sha256": "1fc49b53fc73bffda6a4974d835115e05c7a1bfef2f6bd1b24f3c4a41f499597",
+   "gates": {
+    "G-T1": {
+     "value": "300==300",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extra=2.5",
+     "pass": false,
+     "note": "the extra@72 sustained-motion class (the b12 gateref's known class) \u2014 resolved by the frozen rule"
+    },
+    "G-T2b": {
+     "value": "coverage=1.0, 0 invented",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9343",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=0.4602",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allHardGatesGreen": true
+  },
+  {
+   "clipId": "b2",
+   "reality": "watercolor",
+   "rendererId": "spr-watercolor-dc1",
+   "rendererVersion": "0.1.0",
+   "outputFile": "watercolor-b2.mp4",
+   "gateInput": "raw substrate",
+   "frameCount": 225,
+   "sha256": "378b87e73069f5846655d468305909c50c41136fb5e4962067f5526b82adcee7",
+   "gates": {
+    "G-T1": {
+     "value": "225==225",
+     "pass": true
+    },
+    "G-T2": {
+     "value": "coverage=1.0 extra=3.326",
+     "pass": false,
+     "note": "the close-up extra class (same as rotoscope b2) \u2014 resolved by the frozen rule"
+    },
+    "G-T2b": {
+     "value": "coverage=1.0, 0 invented",
+     "pass": true
+    },
+    "G-T3": {
+     "value": "pearsonR=0.9765",
+     "pass": true
+    },
+    "G-T4": {
+     "value": "percentOfRange=0.9069",
+     "pass": true
+    },
+    "G-T5": {
+     "value": "double render byteIdentical",
+     "pass": true
+    }
+   },
+   "allHardGatesGreen": true
+  }
+ ],
+ "regression": {
+  "cartoonCelB8": "a9e8cd56... BYTE-MATCH",
+  "noirRetroNoirB8": "3eedb423... BYTE-MATCH",
+  "subjectToonB8": "aaac76b7... BYTE-MATCH",
+  "clayToyB8": "69d9ae77... BYTE-MATCH",
+  "playerFocusB8": "3f0be6d2... BYTE-MATCH",
+  "rotoscopeB8": "32c8666c... BYTE-MATCH",
+  "verdict": "6/6 anchors byte-exact \u2014 the watercolor promotion is proven output-neutral"
+ },
+ "fastLoop": {
+  "loop": "b8 first-300, 8 variants",
+  "variants": "see variant-table.json",
+  "emaThesis": "v0-noema T4 0.9023 vs v1 T4 0.6653 (EMA cuts flicker ~26%); VLM duel: no-EMA WORST ('significant edge noise and temporal instability'), recipe BEST ('smooth, stable brushstrokes and painterly texture')",
+  "winner": "v1-recipe (the trial config verbatim)"
+ },
+ "scorecard": {
+  "protocol": "frozen vlm_scorecard.py v2 (7-axis, 15 calls)",
+  "callsOk": "15/15",
+  "meanScores": {
+   "sourceFidelity": 2.6,
+   "temporalConsistency": 2.87,
+   "identityConsistency": 1.8,
+   "motionFidelity": 2.0,
+   "sceneFidelity": 2.2,
+   "stylizationStrength": 4.93
+  },
+  "minAxisMean": 1.8,
+  "overallMean": 2.73,
+  "criticalArtifacts": 53,
+  "totalArtifacts": 100,
+  "tierClaim": 0,
+  "honestVerdict": "HONEST TIER 0 \u2014 the classical painterly family range (between clay 1.80/48 and rotoscope 2.33/62; ss 4.93 near the family max). The painterly abstraction softens identity (ic 1.80) \u2014 the wave-2 neural target remains the identity frontier."
+ },
+ "honestVerdict": {
+  "tier": 0,
+  "gates": "ALL GREEN 3/3 cells (b8 RAW T2 PASS; b12/b2 extra-classes resolved by frozen T2b 1.0/0 \u2014 the pre-adjudicated classes)",
+  "determinism": "3/3 double-render byte-identical",
+  "regression": "6/6 anchors byte-exact (all wave-5 siblings)",
+  "verdict": "DELIVERED as honest Tier 0 \u2014 the last WAVE-2 visual family promoted; every visual-reality row in the work-items doc is now delivered or tiered"
+ },
+ "measuredNextIncrement": "Painterly family: per-pixel coherence-adaptive ellipse sizes (the recorded wave-3 refinement of the trial's fixed-eccentricity simplification) + the neural keyframe accelerator for identity"
+}

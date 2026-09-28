@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - The stylized images lose the wide-angle context and specific player positions of the original frame.\n2. temporalConsistency: 1 - The transition between the two stylized frames represents a complete change in camera angle and subject, not a smooth temporal progression.\n3. identityConsistency: 2 - While a red jersey is consistent, individual facial features and body structures are unrecognizable or inconsistent.\n4. motionFidelity: 1 - The spatial relationship between frames is broken by what appears to be a cut to a different shot rather than continuous motion.\n5. sceneFidelity: 1 - The background changes from an empty pitch to a crowded stadium stand, indicating a loss of spatial consistency.\n6. stylizationStrength: 5 - The watercolor effect is extremely aggressive, completely obscuring fine details and creating an abstract painterly look.\n\nAXES sf=2 tc=1 ic=2 mf=1 scf=1 ss=5\nARTIFACTS limbs=0 players=1 warped=1 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790582460,
+  "id": "20260928160055c0725bd1976649bf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928160055c0725bd1976649bf",
+  "usage": {
+    "completion_tokens": 229,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1396
+  }
+}
