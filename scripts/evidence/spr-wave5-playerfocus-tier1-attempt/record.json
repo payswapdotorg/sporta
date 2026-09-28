@@ -1,0 +1,52 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-H2",
+ "task": "player-focus v0.2.0 Tier-1 critical-clearing attempt \u2014 machine metrics MET, TL visual gate FAILED, claim withheld, v0.1.0 shipped",
+ "generatedAtIso": "2026-09-28T10:40:00+00:00",
+ "engine": "SPE-v1",
+ "base": "9cc1350 (origin/main post w5j)",
+ "branch": "spr/w5h2/tier1-push (evidence + docs only; the engine config reverted to v0.1.0 before commit)",
+ "rootCause": {
+  "sample": "c979pre",
+  "finding": "the temporal pair (frames 971->976) has ORIGINAL mean absdiff 60.07 \u2014 larger than a full broadcast cut (the 979 cut is 34.7); the 970-982 window is a sustained high-chaos transition (diffs 8-49 over 13 frames); the frozen within-shot assumption for the pair does not hold at this sample \u2014 the VLM's 'different shot' judgment measures the SOURCE's own transition, substantially misattributed to the renderer",
+  "class": "frozen-protocol boundary class (cut-adjacent sampling across a source-side transition region)"
+ },
+ "attempt": {
+  "config": {
+   "dimStrength": 0.4,
+   "maskFeather": 35.0
+  },
+  "renders": {
+   "b8": "aa1d025bd2efee48cd1471318fcedf25210a33b682a794304460c230ba8d028a x2 byte-identical (1190f)",
+   "b12": "704c3ff8d39506c99010f0dac9f9e01aa222a6c920a3a96633903d5155d7880e x2 (300f)",
+   "b2": "a40ae5a6a3570a793c64132c027381b781274e100682dc679b6a2dfd08272ded x2 (225f)"
+  },
+  "gates": "ALL RAW PASS 3/3 cells (b8 cov 1.0/extra 0.0 \u2014 better than v0.1.0's 5/6 class; T3 0.9439/0.9314/0.9533; T4 0.6048/0.6721/1.3318)",
+  "scorecard": {
+   "minAxis": 3.6,
+   "critical": 0,
+   "tierClaim": 1,
+   "means": {
+    "sf": 5.0,
+    "tc": 4.0,
+    "ic": 4.67,
+    "mf": 4.4,
+    "scf": 4.4,
+    "ss": 3.6
+   }
+  }
+ },
+ "tlVisualGate": {
+  "verdict": "FAIL",
+  "quote": "The stylized output fails to apply the required 'player focus' treatment (zoom + dim spotlight), instead showing a nearly identical wide shot to the original, and in one instance (t=8) exhibits a catastrophic zoom failure by focusing on a background advertisement logo rather than the players.",
+  "defects": [
+   "over-softening: dim 0.40 + feather 35 reads treatment-absent at wide samples (the v0.1.0 treatment was duel-ranked BEST)",
+   "the ad-board lock at t=8: the motion gate tracks the biggest motion blob \u2014 an animated advertisement, not a player; SHARED by v0.1.0 (same tracker); the TL gate caught what the sample protocol could not"
+  ]
+ },
+ "verdict": {
+  "shippedConfig": "v0.1.0 REVERTED (the duel-winning treatment; all gates green; honest Tier 0 near-miss Tier 1)",
+  "machineTier1": "recorded (critical 0, axes >= 3.60, all raw gates green) \u2014 the claim WITHHELD by the TL gate; nothing laundered",
+  "measuredNextIncrement": "player-priority tracking (kit-color/size/center priors in the motion gate so the spring follows players, not boards) \u2014 then re-run the full protocol"
+ }
+}

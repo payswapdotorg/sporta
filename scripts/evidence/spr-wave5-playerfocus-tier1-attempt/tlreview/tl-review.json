@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "TL_VERDICT=FAIL NOTES=The stylized output fails to apply the required 'player focus' treatment (zoom + dim spotlight), instead showing a nearly identical wide shot to the original, and in one instance (t=8) exhibits a catastrophic zoom failure by focusing on a background advertisement logo rather than the players.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790583357,
+  "id": "20260928161530658af5859ac74381",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928161530658af5859ac74381",
+  "usage": {
+    "completion_tokens": 66,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3533,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3599
+  }
+}

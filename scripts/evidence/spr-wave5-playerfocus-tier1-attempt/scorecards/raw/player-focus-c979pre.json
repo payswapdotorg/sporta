@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: Image 2 matches Image 1's wide shot context perfectly.\n2. temporalConsistency - 2: Image 3 is a completely different camera angle/shot, breaking continuity.\n3. identityConsistency - 4: The player in Image 3 is clearly one of the red players from the original frame.\n4. motionFidelity - 2: Motion cannot be verified across the drastic camera cut to a close-up.\n5. sceneFidelity - 2: Background changes from a wide pitch view to stadium seating.\n6. stylizationStrength - 4: The zoom and focus shift to isolate a player is a clear stylistic choice.\n\nAXES sf=5 tc=2 ic=4 mf=2 scf=2 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790583285,
+  "id": "202609281614397a998c020cc44905",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281614397a998c020cc44905",
+  "usage": {
+    "completion_tokens": 190,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1357
+  }
+}
