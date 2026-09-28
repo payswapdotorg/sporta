@@ -1689,3 +1689,45 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   record.json with the rebuildProvenance block, variant table, 20 gate
   JSONs, scorecards + 15 raw VLM calls, 9 frame PNGs, 16 fastloop-visual
   PNGs + VLM duel, registry listing).
+
+## Session S054 (w5-rebuild) — 2026-09-28 — Resident watch: lane H (SPR205 player-focus) REBUILT from the recorded design, TL-verified, merged + PUSHED
+
+- Rebuild of the reset-lost w5h (phase-2 design verbatim, base e2adeeb):
+  _PlayerFocusState + spr-player-focus-dc1 (additive +352/−0) — static
+  punch-in zoom 1.35 (frame-center fixed warp) + 4D critically-damped
+  spring (k=0.02) on the camshift-tracked soft-focus dim mask; motion gate
+  = the subject-toon MOG2+residual-flow convention; 12-frame flood-immune
+  opening armed ONCE per clip; pos=target=neutral init (no jump); all four
+  dimensions sprung; cut-reset glides the target home. One smoke-caught
+  API-shape bug fixed pre-fastloop (CamShift returns RotatedRect —
+  unpacked via boxPoints; recorded).
+- Fast loop 8 variants: v0-crop-follow (the phase-1 anti-precedent)
+  REJECTED — T3 0.7989 FAIL / T4 1.6391 FAIL (the recorded root cause
+  reproduced: crop translation decorrelates motion, drifts static
+  regions); honest difference: no invented cuts this rebuild (the
+  crop-follow inherits the phase-2 spring fixes — rejection stands on the
+  hard-gate axes). v1–v7 all-gates-green (T3 0.9645–0.9964, T4
+  0.6104–0.8235 — inside the recorded original's ranges). VLM duel
+  BEST=v1-recipe / WORST=v5-zoom-1.5 ("crops out too much") — v1 frozen.
+- Full renders 3/3 double-render BYTE-IDENTICAL: b8 1190f 3f0be6d2… ×2,
+  b12 300f 48059e48… ×2, b2 225f fabb4141… ×2.
+- Gates ALL GREEN 3/3 cells: b12 + b2 RAW T2 PASS (the recorded
+  strongest-cut-behavior claim reproduces); b8 raw-T2 5/6
+  stylization-softened class → frozen T2b 1.0/0 (honest difference from
+  the original's b8 raw-pass — recorded); T3 0.9386/0.9285/0.9528; T4
+  0.6309/0.7020/1.3626 (b2 close-up class — the original's 1.358).
+- Regression 4/4 BYTE-MATCH on the modified tree (cartoon-cel, noir,
+  subject-toon, clay-toy 69d9ae77 — the w5f sibling row).
+- Frozen VLM scorecard 15/15: sf 4.73 / tc 3.80 / ic 4.67 / mf 4.33 /
+  scf 4.07 / ss 3.93; minAxis 3.80, critical 1 → HONEST TIER 0 —
+  NEAR-MISS TIER 1 (bar: criticals=0). Same verdict class as the recorded
+  original (3.67/2) — the program's best VLM family: player-focus
+  3.80/1 > subject-toon 3.40/3 > noir 3.59/1.
+- Evidence: scripts/evidence/spr-wave5-playerfocus/ (README, commands,
+  record.json w/ rebuildProvenance + honest-difference notes, variant
+  table incl. the anti-precedent, gate JSONs, scorecards + 15 raw calls,
+  frames, fastloop-visual + duel). Docs: SPR205 row, tier table
+  +player-focus, this entry, frontier.
+- Branch pushed; merged --no-ff; PUSHED to origin/main; TL audit at the
+  merged tree (b8 independent re-render byte-identical; VLM means
+  recomputed 15/15 exact).

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEST=A WORST=E REASON=Variant A combines a moderate 1.35x zoom with soft dimming to effectively highlight the player while maintaining full context and readability, whereas the extreme 1.5x zoom in E crops out too much of the surrounding action.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790575703,
+  "id": "20260928140819a8fac9a6fca8487d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928140819a8fac9a6fca8487d",
+  "usage": {
+    "completion_tokens": 57,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 4598,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4655
+  }
+}

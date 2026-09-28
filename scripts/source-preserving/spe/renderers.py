@@ -175,6 +175,12 @@ class FrameProcessor:
                 self._clay_toy_state = _ClayToyState(cfg, self.palette)
             out = self._clay_toy_state(bgr, self.frame_index)
 
+        elif reality == "player-focus":
+            if not hasattr(self, "_player_focus_state"):
+                self._player_focus_state = _PlayerFocusState(cfg, self.cuts)
+            out = self._player_focus_state(bgr, self._gray_small(bgr),
+                                           self._is_cut_start())
+
         else:
             raise ValueError(f"unknown reality {reality}")
 
@@ -1765,6 +1771,277 @@ class _ClayToyState:
 
 
 # ---------------------------------------------------------------------------
+# player-focus pipeline state (SPR205) — TL rebuild of the reset-lost w5h
+#
+# The original spr/w5h/playerfocus-trial (local main c1ebaac era) was lost
+# to the 2026-09-27 sandbox reset before its PAT-blocked push reached
+# origin (the lost shas 9e0aa306/fda349d3/f048a10d resolve nowhere on
+# origin and are NOT claimed — every measurement in its evidence pack is
+# FRESH). The recorded design is implemented verbatim, including the
+# phase-1 crop-following-zoom REJECTION (the anti-precedent, re-measured
+# as fast-loop variant v0) and the phase-2 winner: STATIC punch-in zoom
+# z=1.35 (frame-center fixed warp — static regions map to fixed output
+# pixels = T4 clean by construction; uniform motion scaling = T3
+# preserved; cuts pass through the fixed warp) + a 4D critically-damped
+# spring (k=0.02) on the camshift-tracked soft-focus dim mask. The three
+# recorded fast-loop-caught bugs are designed out: the opening window is
+# armed ONCE at clip start (never re-armed — the infinite-reset fix);
+# the spring starts at pos=target=neutral (no init jump); w/h are sprung
+# dimensions (no unsprung mask-size hops). Deterministic-classical,
+# CPU-only (OpenCV + numpy, the frozen engine toolset).
+# ---------------------------------------------------------------------------
+
+
+class _PlayerFocusState:
+    """Streaming state for the SPR205 player-focus pipeline.
+
+    Stage 0  motion_gate: Farneback residual flow > motionKnee @320x180
+              OR MOG2 foreground (history 150, var 18, lr 0.02,
+              cut-reinit — the subject-toon mask convention), open3/
+              close5 morphology — the motion probability map that drives
+              CAMSHIFT.
+    Stage 1  opening     : a 12-frame flood-immune window — the union of
+              the RESIDUAL-FLOW-ONLY motion (MOG2 excluded: its start
+              flood would seed the whole frame) accumulates over the
+              first frames and seeds the initial CAMSHIFT window at
+              frame `openingFrames`. Armed ONCE per clip (frame-count
+              based, never re-armed at cuts — the recorded infinite-
+              reset-loop fix).
+    Stage 2  camshift    : motion-gated probability map, EPS 1 / 10
+              iters, min-window clamp; failure keeps the previous
+              target.
+    Stage 3  spring_4d   : critically damped (k=0.02, ω=√k, ζ=1) spring
+              on (cx, cy, w, h); pos = target at init (no jump); all four
+              dimensions sprung (no unsprung mask-size hops); at engine
+              cuts the TARGET resets to the neutral center window and
+              the spring GLIDES there (smooth, never a single-frame
+              discontinuity — cut preservation).
+    Stage 4  static_zoom : z=1.35 frame-center FIXED warp (phase-2
+              winner). Static regions map to fixed output pixels (T4
+              clean by construction); uniform motion scaling (T3
+              preserved); cuts pass through the fixed warp (raw T2).
+    Stage 5  soft_dim    : the spring rect (feathered σ maskFeather)
+              mapped through the SAME warp; outside dimmed at
+              dimStrength. [phase-1 cropFollow mode: the warp maps the
+              sprung rect to the output instead — the REJECTED
+              anti-precedent, measured as fast-loop v0.]
+
+    Deterministic: MOG2 GMM updates, Farneback, CAMSHIFT and the spring
+    integration are deterministic functions of the frame sequence; no
+    RNG. The spring math runs float64 (scalar state).
+    """
+
+    def __init__(self, cfg: dict, cuts: set):
+        c = self.cfg = cfg
+        self.cuts = cuts
+        # stage 4 — static punch-in zoom (phase-2) / crop-follow (phase-1)
+        self.zoom = float(c.get("zoom", 1.35))
+        self.crop_follow = bool(c.get("cropFollow", False))
+        self.crop_pad = float(c.get("cropPad", 1.25))
+        # stage 0 — motion gate (the subject-toon convention)
+        self.motion_knee = float(c.get("motionKnee", 1.8))
+        self.mog_history = int(c.get("mogHistory", 150))
+        self.mog_var = float(c.get("mogVarThreshold", 18.0))
+        self.mog_lr = float(c.get("mogLearningRate", 0.02))
+        self.mog2 = None  # lazy: created on first frame
+        self._k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        self._k5 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        # stage 1 — opening window (flood-immune, once per clip)
+        self.opening_frames = int(c.get("openingFrames", 12))
+        self.opening_min_union = float(c.get("openingMinUnion", 0.004))
+        # stage 2 — camshift
+        self.cam_eps = float(c.get("camEps", 1.0))
+        self.cam_max_iter = int(c.get("camMaxIter", 10))
+        self.min_window_frac = float(c.get("minWindowFrac", 0.12))
+        # stage 3 — 4D critically damped spring
+        self.spring_k = float(c.get("springK", 0.02))
+        self.omega = np.sqrt(self.spring_k)
+        # stage 5 — soft dim
+        self.dim_strength = float(c.get("dimStrength", 0.45))
+        self.mask_feather = float(c.get("maskFeather", 21.0))
+        # stream state
+        self.frame_index = 0
+        self.prev_gray_small: Optional[np.ndarray] = None
+        self.pos = None            # [cx, cy, w, h] float64 @320x180
+        self.vel = np.zeros(4, dtype=np.float64)
+        self.opening_union: Optional[np.ndarray] = None
+        self.cam_started = False
+
+    # -- helpers ------------------------------------------------------------
+
+    def _neutral(self, sw: int, sh: int) -> np.ndarray:
+        """Neutral center window (spring home; cut-reset target)."""
+        return np.array([sw / 2.0, sh / 2.0, sw * 0.55, sh * 0.65],
+                        dtype=np.float64)
+
+    def _spring_step(self, target: np.ndarray) -> None:
+        """Critically damped 4D spring integration (dt = 1 frame)."""
+        w2 = self.omega * self.omega
+        for i in range(4):
+            a = w2 * (target[i] - self.pos[i]) - 2.0 * self.omega * self.vel[i]
+            self.vel[i] += a
+            self.pos[i] += self.vel[i]
+        # keep w/h positive and bounded
+        sw, sh = self.small_wh
+        self.pos[2] = float(np.clip(self.pos[2], sw * self.min_window_frac,
+                                    sw * 1.4))
+        self.pos[3] = float(np.clip(self.pos[3], sh * self.min_window_frac,
+                                    sh * 1.4))
+
+    # -- pipeline -------------------------------------------------------------
+
+    def __call__(self, bgr: np.ndarray, gray_small: np.ndarray,
+                 cut: bool) -> np.ndarray:
+        h, w = bgr.shape[:2]
+        sh, sw = gray_small.shape[:2]
+        self.small_wh = (sw, sh)
+        clip_start = self.frame_index == 0
+
+        # ---- stage 0: motion probability map (320x180) ------------------
+        motion = np.zeros(gray_small.shape, dtype=np.float32)
+        if self.prev_gray_small is not None and not cut:
+            mag = S.flow_magnitude(self.prev_gray_small, gray_small)
+            motion = (mag > self.motion_knee).astype(np.float32)
+        if cut:
+            # fresh background model for the new scene (no cross-cut bleed)
+            self.mog2 = cv2.createBackgroundSubtractorMOG2(
+                history=self.mog_history, varThreshold=self.mog_var,
+                detectShadows=False)
+            fg255 = self.mog2.apply(bgr, learningRate=1.0)
+        else:
+            if self.mog2 is None:
+                self.mog2 = cv2.createBackgroundSubtractorMOG2(
+                    history=self.mog_history, varThreshold=self.mog_var,
+                    detectShadows=False)
+            fg255 = self.mog2.apply(bgr, learningRate=self.mog_lr)
+        fg = (fg255 > 0).astype(np.float32)
+        fg_small = cv2.resize(fg, (sw, sh), interpolation=cv2.INTER_AREA)
+        prob = np.maximum(motion, fg_small)
+        prob = cv2.morphologyEx(prob, cv2.MORPH_OPEN, self._k3)
+        prob = cv2.morphologyEx(prob, cv2.MORPH_CLOSE, self._k5)
+
+        # ---- stage 1: flood-immune opening (ONCE per clip) ----------------
+        opening = (not self.cam_started
+                   and self.frame_index < self.opening_frames)
+        if opening:
+            flow_only = motion  # MOG2 start-flood immune
+            if self.opening_union is None:
+                self.opening_union = flow_only.copy()
+            else:
+                self.opening_union = np.maximum(self.opening_union, flow_only)
+        seed = None
+        if (not self.cam_started
+                and self.frame_index >= self.opening_frames - 1):
+            self.cam_started = True
+            # the accumulated union seeds the initial CAMSHIFT window (the
+            # 12-frame flood-immune opening); insufficient mass keeps the
+            # neutral window (no forced init, no jump)
+            if self.opening_union is not None:
+                mass = float(self.opening_union.mean())
+                if mass >= self.opening_min_union:
+                    ys, xs = np.nonzero(self.opening_union > 0.5)
+                    if len(xs) >= 8:
+                        seed = (int(xs.min()), int(ys.min()),
+                                int(xs.max() - xs.min() + 1),
+                                int(ys.max() - ys.min() + 1))
+
+        # ---- spring target ---------------------------------------------------
+        if self.pos is None:
+            # init: pos = target = neutral (NO init jump — the recorded fix)
+            self.pos = self._neutral(sw, sh)
+            self.vel = np.zeros(4, dtype=np.float64)
+        target = self.pos.copy()
+        if seed is not None:
+            # opening-seeded target (the spring GLIDES from neutral — smooth)
+            target = np.array(
+                [seed[0] + seed[2] / 2.0, seed[1] + seed[3] / 2.0,
+                 float(seed[2]), float(seed[3])], dtype=np.float64)
+        if self.cam_started and not opening:
+            # ---- stage 2: CAMSHIFT on the motion prob map -----------------
+            if seed is not None:
+                window = seed
+            else:
+                x, y, ww, hh = self.pos.copy()
+                ww = max(ww, sw * self.min_window_frac)
+                hh = max(hh, sh * self.min_window_frac)
+                window = (int(round(x - ww / 2.0)), int(round(y - hh / 2.0)),
+                          int(round(ww)), int(round(hh)))
+            window = (max(0, window[0]), max(0, window[1]),
+                      min(window[2], sw - max(0, window[0])),
+                      min(window[3], sh - max(0, window[1])))
+            if window[2] >= 4 and window[3] >= 4 and prob.sum() > 0:
+                crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
+                        self.cam_max_iter, self.cam_eps)
+                try:
+                    ret, _ = cv2.CamShift(prob.astype(np.uint8), window, crit)
+                    # ret is a RotatedRect ((cx, cy), (w, h), angle) —
+                    # convert to the axis-aligned bounding box
+                    pts = cv2.boxPoints(ret)
+                    x0, y0 = pts.min(axis=0)
+                    x1, y1 = pts.max(axis=0)
+                    bw2, bh2 = float(x1 - x0), float(y1 - y0)
+                    if bw2 >= 4 and bh2 >= 4:
+                        target = np.array(
+                            [x0 + bw2 / 2.0, y0 + bh2 / 2.0,
+                             bw2, bh2], dtype=np.float64)
+                except cv2.error:
+                    pass  # keep previous target deterministically
+        if cut and not clip_start:
+            # cut-reset: the old track is invalid — TARGET returns to the
+            # neutral window and the spring GLIDES (never a jump)
+            target = self._neutral(sw, sh)
+        # ---- stage 3: spring integration ------------------------------------
+        self._spring_step(target)
+
+        # ---- stage 4/5: zoom + soft dim --------------------------------------
+        if self.crop_follow:
+            # phase-1 anti-precedent: the warp maps the sprung rect
+            # (padded) to the output — measured REJECTED (v0)
+            pad = self.crop_pad
+            rw = self.pos[2] * pad
+            rh = self.pos[3] * pad
+            s = max(w / rw, h / rh)
+            M = np.float32([[s, 0.0, w / 2.0 - s * self.pos[0] * (w / sw)],
+                            [0.0, s, h / 2.0 - s * self.pos[1] * (h / sh)]])
+            out = cv2.warpAffine(bgr, M, (w, h),
+                                 flags=cv2.INTER_LINEAR,
+                                 borderMode=cv2.BORDER_REPLICATE)
+        else:
+            # phase-2 winner: STATIC frame-center punch-in (fixed warp)
+            z = self.zoom
+            M = np.float32([[z, 0.0, (1.0 - z) * w / 2.0],
+                            [0.0, z, (1.0 - z) * h / 2.0]])
+            out = cv2.warpAffine(bgr, M, (w, h),
+                                 flags=cv2.INTER_LINEAR,
+                                 borderMode=cv2.BORDER_REPLICATE)
+            # soft dim mask: spring rect (320x180) -> full-res -> through
+            # the same static warp
+            if self.dim_strength > 0.0:
+                m = np.zeros((sh, sw), dtype=np.float32)
+                x0 = int(max(0, self.pos[0] - self.pos[2] / 2.0))
+                y0 = int(max(0, self.pos[1] - self.pos[3] / 2.0))
+                x1 = int(min(sw, self.pos[0] + self.pos[2] / 2.0))
+                y1 = int(min(sh, self.pos[1] + self.pos[3] / 2.0))
+                if x1 > x0 and y1 > y0:
+                    m[y0:y1, x0:x1] = 1.0
+                m = cv2.GaussianBlur(m, (0, 0),
+                                     max(self.mask_feather / 2.0, 1.0))
+                m = cv2.resize(m, (w, h), interpolation=cv2.INTER_LINEAR)
+                m = cv2.warpAffine(m, M, (w, h), flags=cv2.INTER_LINEAR,
+                                   borderMode=cv2.BORDER_REPLICATE)
+                m = cv2.GaussianBlur(m, (0, 0), self.mask_feather)
+                base = out.astype(np.float32)
+                out = np.clip(
+                    np.round(base * (1.0 - self.dim_strength
+                                     * (1.0 - m[..., None]))),
+                    0, 255).astype(np.uint8)
+
+        self.prev_gray_small = gray_small
+        self.frame_index += 1
+        return out
+
+
+# ---------------------------------------------------------------------------
 # registry
 # ---------------------------------------------------------------------------
 
@@ -2274,3 +2551,83 @@ CLAY_TOY = RendererSpec(
 # enters the REGISTRY without modifying any prior declaration or
 # construction line
 REGISTRY[CLAY_TOY.reality] = CLAY_TOY
+
+
+# ---------------------------------------------------------------------------
+# SPR205 Player Focus — wave-5 fresh reality (SPR-W5-H, TL rebuild of the
+# reset-lost w5h)
+#
+# The recorded phase-2 design implemented verbatim: static punch-in zoom
+# z=1.35 (frame-center FIXED warp — T4 clean by construction, T3
+# preserved, cuts pass through) + a 4D critically-damped spring (k=0.02)
+# on the camshift-tracked soft-focus dim mask (motion gate = the
+# subject-toon MOG2+residual-flow convention; 12-frame flood-immune
+# opening armed ONCE per clip; pos=target=neutral at init; all four
+# dimensions sprung; cut-reset glides the target home — never a jump).
+# The phase-1 crop-following-zoom design (the warp follows the sprung
+# rect) is retained as the cropFollow config mode and re-measured as the
+# fast-loop v0 ANTI-PRECEDENT (recorded rejection: invented cuts at
+# track-init and track-hops, T3 0.43-0.71, T4 1.70-2.31 — crop
+# translation decorrelates motion and drifts static regions at ANY
+# damping/zoom). The original w5h was lost to the 2026-09-27 sandbox
+# reset before its PAT-blocked push reached origin; nothing from the
+# lost tree is claimed — all measurements fresh.
+# ---------------------------------------------------------------------------
+
+
+PLAYER_FOCUS = RendererSpec(
+    rendererId="spr-player-focus-dc1", reality="player-focus",
+    family="Player Focus (SPR205)", sprId="SPR205",
+    usesFlow=True,
+    pipeline=[
+        "motion_gate(farneback residual > 1.8 px/f @320x180 OR MOG2 "
+        "fg(history=150, var=18, lr=0.02, cut-reinit), open3/close5 — "
+        "the subject-toon mask convention)",
+        "opening(12-frame flood-immune window: residual-flow-only union "
+        "seeds the initial CAMSHIFT window ONCE per clip — frame-count "
+        "armed, never re-armed at cuts — the recorded infinite-reset fix)",
+        "camshift(motion-gated probability map, EPS 1 / 10 iters, min-window "
+        "clamp; failure keeps the previous target)",
+        "spring_4d(critically damped k=0.02 on (cx, cy, w, h) — ω=√k, ζ=1; "
+        "pos=target=neutral at init (no init jump); all four dimensions "
+        "sprung (no unsprung mask-size hops); cut-reset glides the target "
+        "to the neutral window, never a single-frame discontinuity)",
+        "static_zoom(z=1.35 frame-center FIXED warp — static regions map to "
+        "fixed output pixels (T4 clean by construction), uniform motion "
+        "scaling (T3 preserved), cuts pass through the fixed warp (raw T2))",
+        "soft_dim(spring-rect feathered mask (σ 21) through the same warp; "
+        "outside dimmed at strength 0.45 — the focus emphasis)",
+        "crop-follow mode [config only — the phase-1 ANTI-PRECEDENT, "
+        "fast-loop v0]: the warp maps the sprung padded rect to the output "
+        "— MEASURED AND REJECTED (crop translation decorrelates motion and "
+        "drifts static regions at ANY damping/zoom; invented cuts at "
+        "track-init/@track-hops)",
+    ],
+    description=("Player-focus emphasis: static punch-in zoom with a "
+                 "spring-smoothed soft-focus dim mask tracking the "
+                 "motion-dominant player region. Source-ENHANCING family "
+                 "(the broadcast is preserved; attention is guided). "
+                 "SPR205 trial — TL rebuild of the reset-lost w5h; the "
+                 "crop-following design lives on as the measured "
+                 "anti-precedent."),
+    config={
+        # stage 4 — static zoom (phase-2 winner) / crop-follow (phase-1)
+        "zoom": 1.35, "cropFollow": False, "cropPad": 1.25,
+        # stage 0 — motion gate (subject-toon convention)
+        "motionKnee": 1.8, "mogHistory": 150, "mogVarThreshold": 18.0,
+        "mogLearningRate": 0.02,
+        # stage 1 — opening window (flood-immune, once per clip)
+        "openingFrames": 12, "openingMinUnion": 0.004,
+        # stage 2 — camshift
+        "camEps": 1.0, "camMaxIter": 10, "minWindowFrac": 0.12,
+        # stage 3 — 4D critically damped spring
+        "springK": 0.02,
+        # stage 5 — soft dim
+        "dimStrength": 0.45, "maskFeather": 21.0,
+    },
+)
+
+# additive registry append (SPR-W5-H rebuild): the SPR205 player-focus row
+# enters the REGISTRY without modifying any prior declaration or
+# construction line
+REGISTRY[PLAYER_FOCUS.reality] = PLAYER_FOCUS

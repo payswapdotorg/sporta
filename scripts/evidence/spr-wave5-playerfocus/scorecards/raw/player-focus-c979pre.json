@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 2 - Image 3 is a completely different camera angle/shot, not the same camera context as Image 1.\n2. temporalConsistency: 1 - The transition from Image 2 to Image 3 is a hard cut to a different shot, not a continuous temporal sequence.\n3. identityConsistency: 4 - The player in Image 3 appears visually stable and well-rendered, though only one player is clearly visible.\n4. motionFidelity: 2 - Motion cannot be consistently judged across a camera cut; the spatial relationship to Image 1 is lost.\n5. sceneFidelity: 1 - The background changes entirely from a wide pitch view to a close-up of stadium seats between frames.\n6. stylizationStrength: 5 - The transformation to a close-up player-focus view with prominent overlay graphics is very obvious and strong.\n\nAXES sf=2 tc=1 ic=4 mf=2 scf=1 ss=5\nARTIFACTS limbs=0 players=1 warped=0 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790577422,
+  "id": "202609281436565348203dd2474750",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281436565348203dd2474750",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1397
+  }
+}

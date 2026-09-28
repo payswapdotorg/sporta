@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, camera angle, and match context are perfectly preserved.\n2. temporalConsistency - 4: Players move smoothly between frames with no flickering or morphing.\n3. identityConsistency - 5: Player appearances (kits, numbers) remain stable across all frames.\n4. motionFidelity - 5: Player positions and ball trajectory show natural, consistent progression.\n5. sceneFidelity - 5: Background elements like lines and ads are spatially stable.\n6. stylizationStrength - 5: The transformation to a clean, player-focused look is very obvious.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790577378,
+  "id": "20260928143551f1b126d20c654425",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928143551f1b126d20c654425",
+  "usage": {
+    "completion_tokens": 177,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1344
+  }
+}
