@@ -1917,3 +1917,30 @@ record.json, fastloop/ 6-variant table + trajectory + duel, ab/ the
 mini-A/B, qa/ full-protocol gates, scorecards/ 15-call frozen scorecard,
 tlreview/ the PASS grid + verdict, frames/, commands.md, registry-listing).
 Merged --no-ff; PUSHED.
+
+
+---
+
+## Session S059 (w5h3-audit) — 2026-09-28 — Resident watch TL audit of the w5h3 merge: independent re-render BYTE-IDENTICAL; a record-transcription defect caught and corrected
+
+**Audit:** independent re-render of player-focus b8 at the MERGED tree
+(c35f1c4, fresh process): `0ecfe14ec5bbcf13b7989c9395daa3aa9855306a3033
+5b3fe7d616a9ea3e636` — **BYTE-IDENTICAL** to the recorded pass1/pass2
+pair. The merge is verified end-to-end.
+
+**Incident caught (honest):** the first committed w5h3 record.json carried
+a MIS-TRANSSCRIBED b8 sha tail — a 16-char-truncated console print was
+extended by transcription error instead of re-fetching the full value (the
+w5h "never guess shas" incident class; the w5h occurrence was caught
+pre-commit by the draft review, this one POST-merge by this audit — the
+audit exists precisely for this). The README/commands used explicitly
+truncated 16-char shas (correct); only record.json's full-tail entry was
+wrong. The render artifacts were never wrong (pass1 == pass2 == audit,
+byte-identical, 1190f). True full shas re-fetched via sha256sum and
+corrected in record.json + README §5/§10; this correction commit records
+the incident. b12 (01ce4d920288738f51f6f433672bffbdcaa0c72d31c6cb3ed34a335
+c49b347e6) and b2 (b9e4dc1c6566a87f4559aac263322e7f9c97dd099a3cf7d0f4f708
+a61715a2fb) full shas verified exact.
+
+**Standing lesson re-affirmed:** never transcribe a sha from a truncated
+print — always re-fetch via sha256sum before writing it into a record.

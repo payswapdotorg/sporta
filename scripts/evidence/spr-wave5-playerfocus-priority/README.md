@@ -80,9 +80,9 @@ center-left) is the class. Two fixes were measured:
 
 | cell | frames | sha256 ×2 (byte-identical) | T2 raw | T2b | T3 | T4 |
 |---|---|---|---|---|---|---|
-| b8 | 1190 | `0ecfe14ec5bbcf13…` | 0.67/0 — the stylization-softened class (475/550 dim below the flat 16.0 threshold; **honest difference from w5h v0.1.0's 5/6**: the compact spotlight dims more frame area at cut moments) | **1.0/0 — all 6 matched, ratios ≥ 0.587, 0 invented (the binding deep gate)** | 0.9431 | 0.3490 |
-| b12 | 300 | `01ce4d920288738f…` | **RAW PASS 1.0/0** | 1.0/0 | 0.9455 | 0.4677 |
-| b2 | 225 | `b9e4dc1c6566a87f…` | **RAW PASS 1.0/0** | 1.0/0 | 0.9524 | 0.8559 |
+| b8 | 1190 | `0ecfe14ec5bbcf13b7989c9395daa3aa9855306a303355b3fe7d616a9ea3e636` ×2 | 0.67/0 — the stylization-softened class (475/550 dim below the flat 16.0 threshold; **honest difference from w5h v0.1.0's 5/6**: the compact spotlight dims more frame area at cut moments) | **1.0/0 — all 6 matched, ratios ≥ 0.587, 0 invented (the binding deep gate)** | 0.9431 | 0.3490 |
+| b12 | 300 | `01ce4d920288738f51f6f433672bffbdcaa0c72d31c6cb3ed34a335c49b347e6` ×2 | **RAW PASS 1.0/0** | 1.0/0 | 0.9455 | 0.4677 |
+| b2 | 225 | `b9e4dc1c6566a87f4559aac263322e7f9c97dd099a3cf7d0f4f708a61715a2fb` ×2 | **RAW PASS 1.0/0** | 1.0/0 | 0.9524 | 0.8559 |
 
 ## 6. Regression (7/7 BYTE-MATCH on the modified tree)
 
@@ -153,3 +153,17 @@ Evidence: `fastloop/` (variant table + trajectory + duel + 6 gate JSONs),
 `ab/` (the mini-A/B), `qa/` (full-protocol gates), `scorecards/` (the
 15-call scorecard + raw JSONs), `tlreview/` (the PASS grid + verdict),
 `frames/`, `record.json`, `commands.md`.
+
+## 10. TL audit (post-merge, S059)
+
+Independent re-render of b8 at the MERGED tree (`c35f1c4`), fresh process:
+`0ecfe14ec5bbcf13b7989c9395daa3aa9855306a303355b3fe7d616a9ea3e636` —
+**BYTE-IDENTICAL** to pass1/pass2.
+
+**Audit incident (recorded honestly):** the audit caught a transcription
+defect in this pack's first committed record.json — the b8 sha tail was
+mis-written from a 16-char-truncated console print (the w5h "never guess
+shas" class; that incident was caught pre-commit, this one post-merge by
+the audit). True full shas re-fetched via sha256sum; the correction commit
+carries this note. The render artifacts themselves were never wrong
+(pass1 == pass2 == audit); only the recorded string was.
