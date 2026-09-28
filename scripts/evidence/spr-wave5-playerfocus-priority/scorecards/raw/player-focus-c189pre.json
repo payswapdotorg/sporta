@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images clearly depict the same match, moment (24:15), and camera angle as the original broadcast frame.\n2. temporalConsistency: 3 - While the main players remain stable, background elements and distant players show noticeable flickering and position shifts between the 0.2s interval.\n3. identityConsistency: 4 - The primary players (keeper #3 and #7) maintain consistent visual features, though some background players appear to morph or change appearance slightly.\n4. motionFidelity: 4 - The progression of player limbs and the ball's position between frames is logically consistent with the running action shown in the source.\n5. sceneFidelity: 2 - The stadium background, advertising boards, and field lines exhibit significant warping, drifting, and inconsistent rendering across the frames.\n6. stylizationStrength: 4 - The transformation to a darker, more contrasted \"player-focus\" aesthetic with smoothed textures is very obvious and distinct from the source.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=2 ss=4\nARTIFACTS limbs=1 players=1 warped=3 dupes=0 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591483,
+  "id": "20260928183118412e06fbd795485b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928183118412e06fbd795485b",
+  "usage": {
+    "completion_tokens": 258,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1425
+  }
+}

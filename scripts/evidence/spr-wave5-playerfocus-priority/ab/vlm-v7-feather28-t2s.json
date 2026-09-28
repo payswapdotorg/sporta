@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved.\n2. temporalConsistency - 4: The motion between frames is smooth and logical, though the background is heavily blurred.\n3. identityConsistency - 5: The main player (Balde) and others maintain consistent visual features across frames.\n4. motionFidelity - 4: Player movement (approaching opponent, arm position) is physically consistent with the time gap.\n5. sceneFidelity - 3: The stadium background is spatially present but significantly warped and lacks sharp detail.\n6. stylizationStrength - 5: The heavy blur/bokeh effect is a very obvious and intentional transformation.\n\nAXES sf=5 tc=4 ic=5 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591246,
+  "id": "20260928182721dc0e2c9ce9894697",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928182721dc0e2c9ce9894697",
+  "usage": {
+    "completion_tokens": 195,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1362
+  }
+}

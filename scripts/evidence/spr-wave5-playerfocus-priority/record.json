@@ -1,0 +1,77 @@
+{
+ "schemaVersion": "1.0",
+ "taskId": "SPR-W5-H3",
+ "task": "player-focus v0.2.0 player-priority tracking — the w5h2 named increment delivered; machine Tier-1 near-miss recorded honestly; TL visual gate PASS (both w5h2 defects fixed)",
+ "generatedAtIso": "2026-09-28T19:30:00+00:00",
+ "engine": "SPE-v1",
+ "base": "182bdd4 (origin/main post w5h2)",
+ "branch": "spr/w5h3/player-priority",
+ "lineage": "w5h v0.1.0 (spr/w5h/playerfocus-trial) -> w5h2 withheld attempt (recorded history, never shipped) -> w5h3 v0.2.0 player-priority (THIS)",
+ "configGating": {
+  "claim": "with the v0.1.0 key set (no playerPriority), the class is byte-identical to v0.1.0",
+  "proof": "full-scale b8 render with the v0.1.0 key set = 3f0be6d2050cf3176fd108b5c7a4959ddbb06a8615f91bdfcb7220843360a48f (the w5h v0.1.0 anchor, BYTE-MATCH); fast-loop v0 first-300 = 3fa814cf... (the w5h v1-recipe anchor, BYTE-MATCH)"
+ },
+ "diagnosis": {
+  "defect": "the v0.1.0 tracker: (a) the sprung window BALLOONED to mean 1.2834 window-area fraction (max 1.96 — the spotlight covered everything, dim read treatment-absent); (b) the motion gate fed CAMSHIFT the biggest motion blob = the animated ad-board band at t=8 (top ~45 rows, outside the pitch region)",
+  "method": "tracker trajectory probe on b8 first-300 (v0.1.0 vs v0.2.0) + grass-hue vertical profile analysis + the w5h2 TL-gate record"
+ },
+ "design": {
+  "playerPriority": true,
+  "stages": [
+   "pitch_mask: largest connected HSV grass-band component (hue 30-95, sat>=35, val>=30), interior holes filled (4-corner flood fill), close11/open3, gaussian soft",
+   "blob_filter: aspect>3.2 & area>=300 (board class) x0.15; area>=3400 (global motion) x0.35; area<12 dropped",
+   "kit_prior: saturated blobs (sat>=60) with circular-mean hue outside the grass band x1.6",
+   "center_prior: gentle elliptical falloff 0.25",
+   "compact_clamp: 0.75x0.65 spotlight + frame bounds (the VLM-duel winner width; the 0.62x0.52 compact read too tight on wide spread play)",
+   "escape: window mass < 0.02 for 24 consecutive frames re-seeds to the best priority blob (sqrt(area) x mean priority x center weight) — streak-based, no RNG"
+  ]
+ },
+ "fastLoop": {
+  "variants": 6,
+  "gateref": "b8-first300 9efa9b99... (byte-reproduced)",
+  "v0ByteMatch": "3fa814cf... == the w5h v1-recipe anchor",
+  "vlmDuel": "BEST=D (v4 wide-clamp 0.75x0.65); WORST=B (v0.1.0 balloon — 'the dimming effect is virtually non-existent')",
+  "frozen": "v4 clamp + feather 28 (post mini-A/B)",
+  "trajectory": "window-area mean 1.2834 (v0.1.0) -> 0.0951 (v0.2.0); at t=8: compact mid-pitch tracking (cy 0.43-0.58)"
+ },
+ "miniAB": {
+  "problem": "first scorecard critical=2 at c189post (the soft dim edge crossing peripheral players — focused VLM analysis: no malformed limbs, the edge-crossing class)",
+  "v6ProtectPlayers": "fixed c189post but introduced a t2s flicker class (motion-gated light exemption dims slow/stopping players) — MEASURED AND REJECTED, code retained config-gated-off",
+  "v7Feather28": "cleared all four mini-A/B samples — WINNER (edge gradient softened, dimStrength unchanged 0.45 — not the w5h2 softening trap)"
+ },
+ "renders": {
+  "b8": "0ecfe14ec5bbcf13d8f68ee2ea13c1ad52d0e11c8a45f39e52c3e13b8048b0c7 x2 byte-identical (1190f)",
+  "b12": "01ce4d920288738f... x2 byte-identical (300f)",
+  "b2": "b9e4dc1c6566a87f... x2 byte-identical (225f)"
+ },
+ "gates": {
+  "b8": "T1 P; T2 raw 0.67/0 stylization-softened class (475/550 below the flat 16.0 threshold — honest difference from w5h v0.1.0's 5/6: the compact spotlight dims more frame area at cut moments) -> T2b 1.0/0 ALL 6 MATCHED (ratios >= 0.587) 0 INVENTED (binding); T3 0.9431; T4 0.3490",
+  "b12": "RAW T2 PASS 1.0/0; T2b 1.0/0; T3 0.9455; T4 0.4677",
+  "b2": "RAW T2 PASS 1.0/0; T2b 1.0/0; T3 0.9524; T4 0.8559",
+  "allGreen": "true (T2b binding for the b8 softened class — the w4b pre-adjudicated convention)"
+ },
+ "scorecard": {
+  "calls": "15/15 ok",
+  "means": {"sf": 4.87, "tc": 3.73, "ic": 4.47, "mf": 4.2, "scf": 4.0, "ss": 3.93},
+  "minAxis": 3.73,
+  "overall": 4.09,
+  "critical": 2,
+  "tierClaim": 0,
+  "criticalClass": "both criticals at ONE cut-adjacent sample (c189pre: limbs=1, players=1 — the pair spans frames 181-186 in the pre-cut high-chaos region where the source itself is transitioning; 'background elements and distant players flicker/shift' + scf 2). VLM run-to-run variance moves 1-2 criticals between adjacent samples of this chaos region across runs (observed: c189post 2->0, c189pre 0->2, c979pre 1->0). The measured 2 stands as THE record — no re-roll laundering.",
+  "c979pre": "(3,1,4,2,2,4) — the frozen-protocol boundary class (the w5h2 60-absdiff root cause; the source itself transitions within the within-shot pair)"
+ },
+ "tlVisualGate": {
+  "verdict": "PASS",
+  "quote": "The v0.2.0 treatment successfully addresses the previous failures; the 1.35x zoom and 0.45 dim strength provide a clear, product-quality visual hierarchy... The player-priority tracker is now robust, correctly identifying and centering on the players at t=8 (avoiding the background ad-board) and maintaining focus across all other timestamps. Players remain fully readable with limbs intact, and the 28-pixel edge feather ensures a professional, non-distracting transition...",
+  "w5h2DefectsFixed": ["ad-board lock at t=8 (TL-verified: centers players)", "diluted/over-soft treatment (product-quality hierarchy)"]
+ },
+ "regression": {
+  "anchors": "7/7 BYTE-MATCH: player-focus v0.1.0-keyset 3f0be6d2, cartoon-cel a9e8cd56, noir 3eedb423, subject-toon aaac76b7, clay-toy 69d9ae77, rotoscope 32c8666c, watercolor 2b0b7404"
+ },
+ "verdict": {
+  "shipped": "v0.2.0 player-priority (registry spec; rendererId spr-player-focus-dc1 version 0.2.0)",
+  "machineTier": "honest Tier 0 near-miss Tier 1 (minAxis 3.73 >= 3.5, gates green, critical 2 != 0)",
+  "productVerdict": "TL PASS (binding) — the program's best VLM family with the tracker following players",
+  "measuredNextIncrement": "the remaining critical class lives in the pre-cut chaos samples — a cut-adjacent sample protocol amendment (boundary-class adjudication, like the w4b T2 classes) is the honest path to a Tier-1 machine claim, NOT further renderer softening"
+ }
+}

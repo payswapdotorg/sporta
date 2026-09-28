@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly match the original frame's match, moment, and camera context.\n2. temporalConsistency - 4: Objects remain stable with only minor, natural motion between the two close frames.\n3. identityConsistency - 5: Players maintain consistent visual identities and jersey numbers across all images.\n4. motionFidelity - 4: Player and ball movements are logical and consistent with the short time gap.\n5. sceneFidelity - 5: Stadium background, advertising boards, and field lines are spatially consistent.\n6. stylizationStrength - 3: The transformation is a subtle crop/zoom rather than a heavy artistic style.\n\nAXES sf=5 tc=4 ic=5 mf=4 scf=5 ss=3\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591469,
+  "id": "20260928183107d097867dfbae49bf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928183107d097867dfbae49bf",
+  "usage": {
+    "completion_tokens": 191,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 295
+    },
+    "total_tokens": 1358
+  }
+}

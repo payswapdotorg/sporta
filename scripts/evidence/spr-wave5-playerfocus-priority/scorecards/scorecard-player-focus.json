@@ -1,0 +1,81 @@
+{
+ "family": "player-focus",
+ "rendererId": "spr-player-focus-dc1",
+ "rendererVersion": "0.2.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": "detector miss on stylization-softened cut resolved by the deep correspondence gate (T2b)"
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9431",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.349",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9431,
+  "staticRegionInstability": 0.349,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 4.87,
+   "temporalConsistency": 3.73,
+   "identityConsistency": 4.47,
+   "motionFidelity": 4.2,
+   "sceneFidelity": 4.0,
+   "stylizationStrength": 3.93
+  },
+  "minAxisMean": 3.73,
+  "overallMean": 4.2,
+  "criticalArtifacts": 2,
+  "totalArtifacts": 14,
+  "evidence": [
+   "vlm/player-focus-t2s.json",
+   "vlm/player-focus-t8s.json",
+   "vlm/player-focus-t15s.json",
+   "vlm/player-focus-t30s.json",
+   "vlm/player-focus-t45s.json",
+   "vlm/player-focus-c189pre.json",
+   "vlm/player-focus-c189post.json",
+   "vlm/player-focus-c475pre.json",
+   "vlm/player-focus-c475post.json",
+   "vlm/player-focus-c550pre.json",
+   "vlm/player-focus-c550post.json",
+   "vlm/player-focus-c862pre.json",
+   "vlm/player-focus-c862post.json",
+   "vlm/player-focus-c979pre.json",
+   "vlm/player-focus-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ]
+}

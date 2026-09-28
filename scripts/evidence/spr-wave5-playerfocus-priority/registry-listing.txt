@@ -1,0 +1,13 @@
+anime-npr: spr-anime-npr-dc1 v0.1.0
+cartoon-cel: spr-cartoon-cel-dc1 v0.1.0
+clay-toy: spr-clay-toy-dc1 v0.1.0
+ink-manga: spr-ink-manga-dc1 v0.1.0
+lowpoly-game: spr-lowpoly-game-dc1 v0.1.0
+motion-trails: spr-motion-trails-dc1 v0.1.0
+neon-cyberpunk: spr-neon-cyberpunk-dc1 v0.1.0
+noir-retro: spr-noir-retro-dc1 v0.1.0
+player-focus: spr-player-focus-dc1 v0.2.0
+rotoscope: spr-rotoscope-dc1 v0.1.0
+silhouette-xray: spr-silhouette-xray-dc1 v0.1.0
+subject-toon: spr-subject-toon-dc1 v0.2.0
+watercolor: spr-watercolor-dc1 v0.1.0

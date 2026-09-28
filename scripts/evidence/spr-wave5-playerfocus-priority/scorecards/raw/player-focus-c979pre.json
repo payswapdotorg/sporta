@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 3: Image 2 matches the wide shot, but Image 3 is a completely different camera angle (close-up) of the same match.\n2. temporalConsistency - 1: The transition from the wide pitch view to a tight close-up is a hard cut, not a continuous temporal flow.\n3. identityConsistency - 4: The player in the red kit (Alexis Sánchez) is clearly recognizable and visually stable within each frame.\n4. motionFidelity - 2: Motion cannot be consistently evaluated across such a drastic change in camera perspective and framing.\n5. sceneFidelity - 2: The background changes entirely from the pitch to the stadium stands between the images.\n6. stylizationStrength - 4: The \"player-focus\" transformation (zoom/crop) is very obvious, especially in Image 3.\n\nAXES sf=3 tc=1 ic=4 mf=2 scf=2 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591582,
+  "id": "2026092818321896ab3e16ae594ac6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092818321896ab3e16ae594ac6",
+  "usage": {
+    "completion_tokens": 226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1393
+  }
+}

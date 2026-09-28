@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The stylized images clearly depict the same match, moment (Balde holding the ball), and camera angle as the original.\n2. temporalConsistency: 3 - The main subject is stable, but background players flicker in visibility and the ball disappears between frames.\n3. identityConsistency: 4 - The primary player (Balde) maintains a consistent visual identity across all frames.\n4. motionFidelity: 2 - The motion of the approaching player is jerky and inconsistent with a smooth 0.2s interval; the ball's disappearance breaks physical continuity.\n5. sceneFidelity: 2 - Significant background drift and inconsistent rendering of stadium elements and distant players reduce spatial stability.\n6. stylizationStrength: 4 - The transformation to a player-focused, slightly abstracted style is obvious and effectively isolates the foreground.\n\nAXES sf=5 tc=3 ic=4 mf=2 scf=2 ss=4\nARTIFACTS limbs=0 players=1 warped=0 dupes=0 ball=1 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790591231,
+  "id": "20260928182706d47151d3b4e94669",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928182706d47151d3b4e94669",
+  "usage": {
+    "completion_tokens": 229,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1396
+  }
+}
