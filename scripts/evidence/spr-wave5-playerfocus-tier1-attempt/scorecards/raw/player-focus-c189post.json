@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The scene, camera angle, and player positions in Image 2 perfectly match the original broadcast frame.\n2. temporalConsistency - 4: Player positions shift smoothly between Images 2 and 3 with no flickering or sudden morphing.\n3. identityConsistency - 5: All players maintain consistent visual features (jersey colors, body shapes) across the stylized frames.\n4. motionFidelity - 5: The subtle movement of players between the two frames is physically plausible and matches the game's flow.\n5. sceneFidelity - 5: The background elements, field lines, and advertising boards remain spatially stable and accurate.\n6. stylizationStrength - 2: The transformation is very subtle, appearing mostly as a slight crop or minor color adjustment rather than a distinct style.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=2\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790583205,
+  "id": "202609281613200c7345c7f3d94fcb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609281613200c7345c7f3d94fcb",
+  "usage": {
+    "completion_tokens": 221,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1388
+  }
+}

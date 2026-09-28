@@ -1,0 +1,43 @@
+{
+ "schemaVersion": "2.0",
+ "protocol": "frozen acceptance doc \u00a72 (7-axis) \u2014 v1 4-axis harness was spec-drift, superseded",
+ "samplesPerReality": [
+  "t2s",
+  "t8s",
+  "t15s",
+  "t30s",
+  "t45s",
+  "c189pre",
+  "c189post",
+  "c475pre",
+  "c475post",
+  "c550pre",
+  "c550post",
+  "c862pre",
+  "c862post",
+  "c979pre",
+  "c982post"
+ ],
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ],
+ "perReality": {
+  "player-focus": {
+   "tierClaim": 1,
+   "hardGatesGreen": true,
+   "meanScores": {
+    "sourceFidelity": 5.0,
+    "temporalConsistency": 4.0,
+    "identityConsistency": 4.67,
+    "motionFidelity": 4.4,
+    "sceneFidelity": 4.4,
+    "stylizationStrength": 3.6
+   },
+   "criticalArtifacts": 0,
+   "scoredSamples": 15,
+   "totalSamples": 15,
+   "scorecard": "scorecard-player-focus.json"
+  }
+ }
+}

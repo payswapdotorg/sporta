@@ -1814,3 +1814,32 @@ main tip; awaiting TL verification + merge. Wave-4 B lane delivered.
   Remaining roadmap: Tier-1 critical-clearing (player-focus 1→0,
   subject-toon 3→0), R606/R607 (PAT-unblocked), temporal audit
   (Tier-3 groundwork), SPR302/303 neural candidates.
+
+## Session S057 (w5-tier1) — 2026-09-28 — Resident watch: player-focus v0.2.0 Tier-1 attempt — machine metrics MET (critical 0), TL visual gate FAILED, claim honestly WITHHELD; v0.1.0 shipped
+
+- Root cause of the v0.1.0 single critical (diagnosed first): the c979pre
+  temporal pair's ORIGINAL frames differ by 60.07 mean absdiff — larger
+  than a full cut; the 970-982 window is a sustained source-side
+  transition region. The VLM's "different shot" judgment at that sample
+  measures the SOURCE's transition — a frozen-protocol boundary class,
+  substantially misattributed to the renderer (measurement in the
+  evidence record).
+- The v0.2.0 softening (dim 0.45→0.40, feather 21→35) was measured on
+  the full protocol: 3/3 double-render byte-identical (b8 aa1d025b /
+  b12 704c3ff8 / b2 a40ae5a6); ALL gates RAW PASS 3/3 cells (better than
+  v0.1.0); VLM 15/15: sf 5.0 / tc 4.0 / ic 4.67 / mf 4.40 / scf 4.40 /
+  ss 3.60; critical 0 → machine tierClaim = 1 — the program's first
+  Tier-1 machine claim.
+- THE TL VISUAL GATE (binding): FAIL — the softened treatment reads
+  treatment-absent at wide samples AND the tracker locked a background
+  advertisement logo at t=8 (the ad-board class is SHARED with v0.1.0's
+  tracker — the TL gate caught what the sample protocol could not).
+- Verdict per the doctrine: the Tier 1 claim is NOT granted; the shipped
+  config REVERTED to the duel-winning v0.1.0 treatment; the machine
+  metrics and the TL FAIL are both recorded honestly (nothing laundered).
+  The measured next increment: player-priority tracking (kit/size/center
+  priors in the motion gate) — then re-run the full protocol.
+- Evidence: scripts/evidence/spr-wave5-playerfocus-tier1-attempt/
+  (README, record.json with the root-cause measurement, v0.2.0 gate
+  JSONs, the critical-0 scorecard + 15 raw calls, the TL FAIL grid +
+  review, the c979pre pair, frames).

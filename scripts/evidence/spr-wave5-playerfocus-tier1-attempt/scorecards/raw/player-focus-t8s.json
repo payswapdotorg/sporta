@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, moment, and camera context are identical to the source frame.\n2. temporalConsistency: 4 - Players move smoothly between frames with minimal flickering or morphing.\n3. identityConsistency: 4 - Player appearances remain stable, though some fine details are smoothed.\n4. motionFidelity: 4 - Player and ball trajectories are consistent with the original broadcast timing.\n5. sceneFidelity: 4 - The stadium background and field lines are spatially consistent across frames.\n6. stylizationStrength: 4 - The player-focus transformation is clear, emphasizing subjects over the environment.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790583178,
+  "id": "20260928161254c4947fb2d21f4fd1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928161254c4947fb2d21f4fd1",
+  "usage": {
+    "completion_tokens": 181,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1348
+  }
+}

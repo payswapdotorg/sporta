@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical to the original broadcast frame.\n2. temporalConsistency - 4: Objects remain stable with only minor, natural motion between the 0.2s interval.\n3. identityConsistency - 5: Player appearances (Balde's jersey, the opponent's kit) are visually stable and consistent.\n4. motionFidelity - 5: The movement of the approaching player and the static pose of Balde are perfectly consistent.\n5. sceneFidelity - 5: Stadium background and field lines maintain spatial consistency across all frames.\n6. stylizationStrength - 3: The transformation is a subtle crop/zoom rather than a heavy artistic style.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=5 ss=3\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790583174,
+  "id": "20260928161251ecf741c9bafa4d51",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260928161251ecf741c9bafa4d51",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1367
+  }
+}
