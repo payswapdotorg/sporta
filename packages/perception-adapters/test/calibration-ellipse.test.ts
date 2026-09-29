@@ -12,13 +12,20 @@ import type { DetectorFrameInput } from "../src/index";
 import {
   BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES,
   BroadcastLineCalibrator,
+  buildBroadcastEllipseAnchorFrame,
+  convertBroadcastEllipseAnchor,
   evaluateBroadcastEllipseGridGeometry,
   evaluateBroadcastLineFit,
   fitBroadcastEllipseEvidence,
+  invert3x3,
+  jacobiEigenSym3,
+  poleOfLine,
 } from "../src/calibration/broadcast-line";
+import type { EllipseConic } from "../src/calibration/broadcast-line";
 import {
   CENTER_CIRCLE,
   FRAME_COUNT,
+  H_GT,
   M_PITCH_TO_IMAGE,
   PROBE_PITCH_POINTS,
   arcWindowFrames,
@@ -614,5 +621,464 @@ describe("BroadcastLineCalibrator v0.4.1 — the validation-gate hardening (chai
       expect(record.retryable).toBe(false);
       expect(record.description.length).toBeGreaterThan(40);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.5.0 — the E4b anchor conversion (the Lorentz-frame J-orthogonal exact
+// closure; OPT-IN `ellipseAnchorConversion`, default false — module docs E4b).
+// ---------------------------------------------------------------------------
+
+/** Row-major 3x3 matrix product A·B (the test's own, independent helper). */
+function mat3Mul(a: readonly number[], b: readonly number[]): number[] {
+  const out = new Array<number>(9);
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      out[row * 3 + col] =
+        a[row * 3]! * b[col]! + a[row * 3 + 1]! * b[3 + col]! + a[row * 3 + 2]! * b[6 + col]!;
+    }
+  }
+  return out;
+}
+
+/** The transpose of a row-major 3x3 matrix. */
+function mat3Transpose(m: readonly number[]): number[] {
+  return [m[0]!, m[3]!, m[6]!, m[1]!, m[4]!, m[7]!, m[2]!, m[5]!, m[8]!];
+}
+
+/** The congruence Mᵀ·C·M of row-major 3x3 matrices. */
+function mat3Congruence(m: readonly number[], c: readonly number[]): number[] {
+  return mat3Mul(mat3Transpose(m), mat3Mul(c, m));
+}
+
+/** The matrix-vector product A·v of a row-major 3x3 and a 3-vector. */
+function mat3Apply(m: readonly number[], v: readonly number[]): number[] {
+  return [
+    m[0]! * v[0]! + m[1]! * v[1]! + m[2]! * v[2]!,
+    m[3]! * v[0]! + m[4]! * v[1]! + m[5]! * v[2]!,
+    m[6]! * v[0]! + m[7]! * v[1]! + m[8]! * v[2]!,
+  ];
+}
+
+/** The homogeneous point application of a row-major 3x3 (general z ≠ 1). */
+function mat3ApplyPoint(m: readonly number[], x: number, y: number): { x: number; y: number } {
+  const denominator = m[6]! * x + m[7]! * y + m[8]!;
+  return {
+    x: (m[0]! * x + m[1]! * y + m[2]!) / denominator,
+    y: (m[3]! * x + m[4]! * y + m[5]!) / denominator,
+  };
+}
+
+/** Relative Frobenius deviation ||a − b||_F / ||b||_F of two 3x3 matrices. */
+function relativeFrobenius3(a: readonly number[], b: readonly number[]): number {
+  let diff = 0;
+  let norm = 0;
+  for (let k = 0; k < 9; k += 1) {
+    diff += (a[k]! - b[k]!) ** 2;
+    norm += b[k]! ** 2;
+  }
+  return Math.sqrt(diff / norm);
+}
+
+/** The Lorentz form J = diag(1, 1, −1), row-major. */
+const LORENTZ_J: readonly number[] = [1, 0, 0, 0, 1, 0, 0, 0, -1];
+const IDENTITY_3: readonly number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+
+/**
+ * The world center circle's homogeneous conic matrix (pitch meters), built
+ * from the fixture's model circle (52.5, 34, r = 9.15) — the W side of the
+ * E4b factorization, re-derived independently of the module's constant.
+ */
+function worldCircleConic(): number[] {
+  const cx = CENTER_CIRCLE.cx;
+  const cy = CENTER_CIRCLE.cy;
+  const r = CENTER_CIRCLE.r;
+  return [1, 0, -cx, 0, 1, -cy, -cx, -cy, cx * cx + cy * cy - r * r];
+}
+
+/**
+ * The GROUND-TRUTH image conic in PIXELS: Q_px = S⁻ᵀ·(H_GTᵀ·C_w·H_GT)·S⁻¹
+ * with S = diag(WIDTH, HEIGHT, 1) — the image of the world circle under the
+ * fixture's true pinhole homography, expressed in px coordinates (the
+ * machinery's homographies map NORMALIZED image coords → pitch, so its
+ * internal conic is Q̂ = Sᵀ·Q_px·S; the frame construction must make that
+ * conversion itself — the coordinate-convention trap this suite pins).
+ */
+function groundTruthConicPx(): EllipseConic {
+  const qHat = mat3Congruence(H_GT, worldCircleConic());
+  const sInv = [1 / WIDTH, 0, 0, 0, 1 / HEIGHT, 0, 0, 0, 1]; // S diagonal ⟹ S⁻ᵀ = S⁻¹
+  const qPx = mat3Mul(sInv, mat3Mul(qHat, sInv));
+  return {
+    a: qPx[0]!,
+    b: 2 * qPx[1]!,
+    c: qPx[4]!,
+    d: 2 * qPx[2]!,
+    e: 2 * qPx[5]!,
+    f: qPx[8]!,
+  };
+}
+
+describe("BroadcastLineCalibrator v0.5.0 — the E4b anchor conversion (the Lorentz-frame J-orthogonal exact closure)", () => {
+  test("invert3x3 unit contract: the inverse composes to the identity on both sides; singular and non-finite inputs refuse", () => {
+    const m = [2, 1, 0.5, 1, 3, 0.25, 0.5, 0.25, 1.75];
+    const inverse = invert3x3(m);
+    expect(inverse).toBeDefined();
+    // M·M⁻¹ = I and M⁻¹·M = I (both orders — the defining contract).
+    const right = mat3Mul(m, inverse!);
+    const left = mat3Mul(inverse!, m);
+    for (let k = 0; k < 9; k += 1) {
+      expect(Math.abs(right[k]! - IDENTITY_3[k]!)).toBeLessThan(1e-12);
+      expect(Math.abs(left[k]! - IDENTITY_3[k]!)).toBeLessThan(1e-12);
+    }
+    // An analytic case: diag(2, 4, 8)⁻¹ = diag(1/2, 1/4, 1/8) exactly.
+    expect(invert3x3([2, 0, 0, 0, 4, 0, 0, 0, 8])).toEqual([0.5, 0, 0, 0, 0.25, 0, 0, 0, 0.125]);
+    // Rank-deficient input (rows 0 and 1 proportional) refuses.
+    expect(invert3x3([1, 2, 3, 2, 4, 6, 7, 8, 9])).toBeUndefined();
+    // Non-finite input refuses (never a silently NaN-carrying inverse).
+    expect(invert3x3([1, 0, 0, 0, 1, 0, 0, 0, Number.NaN])).toBeUndefined();
+  });
+
+  test("poleOfLine unit contract: the polar of the pole is the line (the pole-polar duality); the analytic Lorentz pole; singular conics refuse", () => {
+    // (a) The duality round trip: p = C⁻¹·l ⟹ C·p ∝ l — the polar of the
+    //     pole IS the line, the property every projective map preserves (the
+    //     E4b near-line pole row's exactness rests on it).
+    const cWorld = worldCircleConic();
+    const line: [number, number, number] = [0.6, 0.8, -1];
+    const pole = poleOfLine(cWorld, line);
+    expect(pole).toBeDefined();
+    const polar = mat3Apply(cWorld, pole!);
+    const scale = Math.max(Math.abs(polar[0]!), Math.abs(polar[1]!), Math.abs(polar[2]!));
+    for (let k = 0; k < 3; k += 1) {
+      expect(Math.abs(polar[k]! / scale - line[k]!)).toBeLessThan(1e-12);
+    }
+    // (b) The analytic contract against the Lorentz form itself: the pole of
+    //     the line x = 2 w.r.t. the unit circle x² + y² − z² = 0 is the
+    //     point (1/2, 0, 1) (the polar of (1/2, 0) is x = 2 — the classic
+    //     duality), max-abs normalized.
+    expect(poleOfLine(LORENTZ_J, [1, 0, -2])).toEqual([0.5, 0, 1]);
+    // (c) A singular conic refuses (the pole is undefined).
+    expect(poleOfLine([1, 2, 3, 2, 4, 6, 3, 6, 9], [1, 0, 0])).toBeUndefined();
+  });
+
+  test("jacobiEigenSym3 unit contract: A·v = λ·v for every eigenpair, V orthogonal, the analytic spectrum, deterministic", () => {
+    const a = [2, 1, 0, 1, 2, 1, 0, 1, 2];
+    const eigen = jacobiEigenSym3(a);
+    // (a) The DEFINING contract: A·vⱼ = λⱼ·vⱼ for every eigenpair (COLUMN j
+    //     of `vectors` is the unit eigenvector of `values[j]`).
+    for (let j = 0; j < 3; j += 1) {
+      const v = [eigen.vectors[j]!, eigen.vectors[3 + j]!, eigen.vectors[6 + j]!];
+      const av = mat3Apply(a, v);
+      for (let k = 0; k < 3; k += 1) {
+        expect(Math.abs(av[k]! - eigen.values[j]! * v[k]!)).toBeLessThan(1e-12);
+      }
+      expect(Math.hypot(v[0]!, v[1]!, v[2]!)).toBeCloseTo(1, 12);
+    }
+    // (b) V is orthogonal: Vᵀ·V = I.
+    const vt = mat3Transpose(eigen.vectors);
+    const vtv = mat3Mul(vt, eigen.vectors);
+    for (let k = 0; k < 9; k += 1) {
+      expect(Math.abs(vtv[k]! - IDENTITY_3[k]!)).toBeLessThan(1e-12);
+    }
+    // (c) The analytic spectrum: the tridiagonal (2,1,0;1,2,1;0,1,2) has
+    //     eigenvalues exactly {2 − √2, 2, 2 + √2}.
+    const sorted = [...eigen.values].sort((x, y) => x - y);
+    const expected = [2 - Math.SQRT2, 2, 2 + Math.SQRT2];
+    for (let k = 0; k < 3; k += 1) {
+      expect(sorted[k]).toBeCloseTo(expected[k]!, 12);
+    }
+    // (d) Deterministic: a second decomposition deep-equals the first.
+    expect(jacobiEigenSym3(a)).toEqual(eigen);
+    // (e) An already-diagonal matrix returns its own diagonal and the
+    //     identity basis (the sweep breaks before any rotation).
+    const diagonal = jacobiEigenSym3([3, 0, 0, 0, 1, 0, 0, 0, 7]);
+    expect(diagonal.values).toEqual([3, 1, 7]);
+    expect(diagonal.vectors).toEqual([...IDENTITY_3]);
+  });
+
+  test("the ground-truth conic canonicalization: GᵀJG = Q̂ re-derived independently; W·W⁻¹ = I; the sign twin converts; the IMAGINARY class refuses (the px-vs-normalized coordinate-convention trap)", () => {
+    const cWorld = worldCircleConic();
+    const conicPx = groundTruthConicPx();
+    // Sanity of the construction itself: every world-circle sample point
+    // projected through the true pinhole map (pitch → NORMALIZED image →
+    // px, i.e. multiplied by WIDTH/HEIGHT) lies ON the px conic — the
+    // algebraic-to-geometric distance |F| / ‖∇F‖ at the boundary.
+    for (let i = 0; i < 24; i += 1) {
+      const angle = (i * 2 * Math.PI) / 24;
+      const image = projectPitchNormalized(
+        M_PITCH_TO_IMAGE,
+        CENTER_CIRCLE.cx + CENTER_CIRCLE.r * Math.cos(angle),
+        CENTER_CIRCLE.cy + CENTER_CIRCLE.r * Math.sin(angle),
+      );
+      const x = image.x * WIDTH;
+      const y = image.y * HEIGHT;
+      const value =
+        conicPx.a * x * x +
+        conicPx.b * x * y +
+        conicPx.c * y * y +
+        conicPx.d * x +
+        conicPx.e * y +
+        conicPx.f;
+      const gradientX = 2 * conicPx.a * x + conicPx.b * y + conicPx.d;
+      const gradientY = conicPx.b * x + 2 * conicPx.c * y + conicPx.e;
+      expect(Math.abs(value) / Math.hypot(gradientX, gradientY)).toBeLessThan(1e-9);
+    }
+    // The frame: G with GᵀJG = Q̂ — re-derived HERE, independently of the
+    // module's congruence helpers. C_w carries the (2, 1) inertia and the
+    // congruence preserves inertia, so the J-matching representative is
+    // +Q̂ exactly (measured 1.3e-15 relative; the −Q̂ twin sits at 2.0).
+    const frame = buildBroadcastEllipseAnchorFrame(conicPx, WIDTH, HEIGHT);
+    expect(frame).toBeDefined();
+    const qHat = mat3Congruence(H_GT, cWorld);
+    const gJg = mat3Congruence(frame!.g, LORENTZ_J);
+    expect(relativeFrobenius3(gJg, qHat)).toBeLessThan(1e-9);
+    expect(relativeFrobenius3(frame!.qCanon, qHat)).toBeLessThan(1e-9);
+    // The world side: W with WᵀJW = C_w, and both inverses compose to I.
+    expect(relativeFrobenius3(mat3Congruence(frame!.w, LORENTZ_J), cWorld)).toBeLessThan(1e-9);
+    expect(relativeFrobenius3(mat3Mul(frame!.w, frame!.wInverse), IDENTITY_3)).toBeLessThan(1e-12);
+    expect(relativeFrobenius3(mat3Mul(frame!.g, frame!.gInverse), IDENTITY_3)).toBeLessThan(1e-12);
+    // THE SIGN TWIN −Q_px (the same conic — conic matrices are scale-free)
+    // canonicalizes IDENTICALLY: the arrangement is by sign class and the
+    // representative by inertia, never by the input's sign (measured
+    // bit-exact), and the twin CONVERTS the true homography.
+    const conicNeg: EllipseConic = {
+      a: -conicPx.a,
+      b: -conicPx.b,
+      c: -conicPx.c,
+      d: -conicPx.d,
+      e: -conicPx.e,
+      f: -conicPx.f,
+    };
+    const twinFrame = buildBroadcastEllipseAnchorFrame(conicNeg, WIDTH, HEIGHT);
+    expect(twinFrame).toBeDefined();
+    expect(twinFrame!.g).toEqual(frame!.g);
+    const twinConversion = convertBroadcastEllipseAnchor(conicNeg, WIDTH, HEIGHT, H_GT);
+    expect(twinConversion.kind).toBe("converted");
+    if (twinConversion.kind === "converted") {
+      for (let k = 0; k < 9; k += 1) {
+        expect(Math.abs(twinConversion.homography[k]! - H_GT[k]!)).toBeLessThan(1e-9);
+      }
+    }
+    // THE IMAGINARY CLASS refuses: an all-same-sign conic (x² + y² + 1 = 0
+    // — no real points) cannot carry the x² + y² − z² = 0 Lorentz form.
+    const imaginary: EllipseConic = { a: 1, b: 0, c: 1, d: 0, e: 0, f: 1 };
+    expect(buildBroadcastEllipseAnchorFrame(imaginary, WIDTH, HEIGHT)).toBeUndefined();
+    const imaginaryConversion = convertBroadcastEllipseAnchor(imaginary, WIDTH, HEIGHT, H_GT);
+    expect(imaginaryConversion.kind).toBe("unconverted");
+    if (imaginaryConversion.kind === "unconverted") {
+      expect(imaginaryConversion.reason).toBe("conic-canonicalization");
+    }
+  }, 60_000);
+
+  test("the fixed point and the perturbed-H₀ conic-exact closure (world-circle residual < 1e-6 m²)", () => {
+    const conicPx = groundTruthConicPx();
+    // (a) THE FIXED POINT: the closure of the TRUE homography against the
+    //     ground-truth conic is the true homography itself — measured
+    //     EXACTLY (max entry diff 0): N = μ·J fires the fast path
+    //     (deviation ~4.9e-15), which returns M₀/√μ = W⁻¹·P·G/√μ whose
+    //     canonical h[8] = 1 renormalization collapses back onto the input.
+    //     This is also the coordinate-convention proof: the machinery maps
+    //     NORMALIZED image coords → pitch, so the px-conic + true-H pair
+    //     closes over exactly (a px-convention mistake breaks it).
+    const fixed = convertBroadcastEllipseAnchor(conicPx, WIDTH, HEIGHT, H_GT);
+    expect(fixed.kind).toBe("converted");
+    if (fixed.kind === "converted") {
+      expect(fixed.fastPath).toBe(true);
+      expect(fixed.relativeDeviation).toBeLessThan(1e-9);
+      for (let k = 0; k < 9; k += 1) {
+        expect(Math.abs(fixed.homography[k]! - H_GT[k]!)).toBeLessThan(1e-9);
+      }
+    }
+    // (b) THE PERTURBED H₀: a slightly-off homography (entry [2] +1e-3,
+    //     entry [6] −2e-4 — measured deviation 9.1e-5, far from the fast
+    //     path, well inside the admissibility bound) converts through the
+    //     EIGENDECOMPOSITION path, and the closure is conic-EXACT: every
+    //     world-circle sample projected through Ĥ⁻¹ to the image and back
+    //     through H_GT lands ON the world circle (measured worst squared
+    //     residual 4.6e-27 m²).
+    const hPert = H_GT.map((value, k) => (k === 2 ? value + 1e-3 : k === 6 ? value - 2e-4 : value));
+    const perturbed = convertBroadcastEllipseAnchor(conicPx, WIDTH, HEIGHT, hPert as Homography);
+    expect(perturbed.kind).toBe("converted");
+    if (perturbed.kind === "converted") {
+      expect(perturbed.fastPath).toBe(false);
+      expect(perturbed.relativeDeviation).toBeGreaterThan(1e-9);
+      expect(perturbed.relativeDeviation).toBeLessThan(0.1);
+      const inverse = invert3x3(perturbed.homography);
+      expect(inverse).toBeDefined();
+      let worstResidual = 0;
+      for (let i = 0; i < 72; i += 1) {
+        const angle = (i * 2 * Math.PI) / 72;
+        const worldX = CENTER_CIRCLE.cx + CENTER_CIRCLE.r * Math.cos(angle);
+        const worldY = CENTER_CIRCLE.cy + CENTER_CIRCLE.r * Math.sin(angle);
+        // Ĥ⁻¹: pitch → NORMALIZED image (the machinery's convention).
+        const image = mat3ApplyPoint(inverse!, worldX, worldY);
+        // H_GT: normalized image → pitch — the round trip must land back
+        // on the circle (the conic-exact closure property).
+        const back = projectImage(H_GT, image.x, image.y);
+        const radial = Math.hypot(back.x - CENTER_CIRCLE.cx, back.y - CENTER_CIRCLE.cy);
+        worstResidual = Math.max(worstResidual, (radial - CENTER_CIRCLE.r) ** 2);
+      }
+      expect(worstResidual).toBeLessThan(1e-6);
+    }
+    // (c) THE ADMISSIBILITY BOUND's refusing leg: a direction-changing
+    //     scale error (entry [0] doubled — measured deviation 4.4, far
+    //     over the bound) stays UNCONVERTED with the typed reason — the
+    //     closure is never fabricated from anchors that never agreed with
+    //     the conic. (A pure translation shift, by contrast, stays inside
+    //     the bound and converts — the closure PROJECTS it back to
+    //     conic-exactness; the bound refuses inconsistent DIRECTIONS, not
+    //     consistent maps with shifted line rows.)
+    const hWild = H_GT.map((value, k) => (k === 0 ? value * 2 : value));
+    const wild = convertBroadcastEllipseAnchor(conicPx, WIDTH, HEIGHT, hWild as Homography);
+    expect(wild.kind).toBe("unconverted");
+    if (wild.kind === "unconverted") {
+      expect(wild.reason).toBe("admissibility-bound");
+      expect(wild.relativeDeviation).toBeGreaterThan(0.1);
+    }
+  }, 60_000);
+
+  test("the anchors-fight pipeline record: the plain fixture refuses at the unchanged bar (the conic-exact closure contradicts the line evidence)", () => {
+    const frames = arcWindowFrames();
+    // The DEFAULT surface calibrates this fixture (the v0.2.0 test): the
+    // mixed-DLT solve + the E5 refinement COMPROMISE the conic
+    // correspondence against the line evidence and pass the bar.
+    const compromise = new BroadcastLineCalibrator().calibrate({ frames });
+    expect(compromise.confidence).toBeGreaterThan(0.9);
+    // The OPT-IN conversion path replaces the flow with the J-orthogonal
+    // exact closure: the conic correspondence becomes exact BY
+    // CONSTRUCTION, the finalists run the UNCHANGED validation bar WITHOUT
+    // the refinement — and the bar REFUSES honestly. The globally
+    // re-balanced line rows land at lineFit 0.467 (< 0.60) where the
+    // compromise scored confidence 0.921 on the same pixels (the
+    // anchors-fight outcome: the closure makes the conic/line
+    // inconsistency EXPLICIT instead of compromising it away; nothing
+    // laundered).
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({ ellipseAnchorConversion: true }).calibrate({ frames }),
+    );
+    expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+    // The per-candidate ANCHOR RECORD rides the refusal: 30240 scan solves
+    // enumerated, 8 converted (the near-conic-consistent cluster inside
+    // the admissibility bound), and the converted count IS the hypothesis
+    // count on the conversion path.
+    expect(refusal.details.anchorScanSolves).toBe(30240);
+    expect(refusal.details.anchorConverted).toBe(8);
+    expect(refusal.details.hypotheses).toBe(8);
+    // The conic-exact residual rides the refusal (machine epsilon — the
+    // closure IS conic-exact) alongside the failing line-evidence numbers.
+    expect(refusal.details.ellipseMeanPx as number).toBeLessThan(1e-9);
+    expect(refusal.details.lineFit as number).toBeLessThan(0.6);
+    expect(refusal.details.lineFit as number).toBeCloseTo(0.4669, 3);
+    expect(refusal.details.backwardPx as number).toBeCloseTo(4.793, 2);
+    // The chain entry carries the same anchor record (single-conic path:
+    // a one-entry chain).
+    const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    expect(chain.length).toBe(1);
+    expect(chain[0]!.anchorScanSolves).toBe(30240);
+    expect(chain[0]!.anchorConverted).toBe(8);
+    // The line path's refusal rides it (the ellipse path ran after it).
+    expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
+  }, 120_000);
+
+  test("the anchors-fight pipeline record: the offsetCircle fixture (a real grass-backed circle 17 m off the model center) refuses at the unchanged bar on BOTH gates", () => {
+    // The v0.5.0 fixture: the FULL grass-backed circle painted at
+    // (~(69.5, 34), r 9.15) instead of the true center circle — the b5-b
+    // real-window class. The fitted conic is a REAL quota-passing circle,
+    // but the E4b machinery's world-side anchor is the MODEL circle at
+    // (52.5, 34): the closure is conic-exact against the WRONG world
+    // circle and the unchanged bar refuses honestly on BOTH gates (the
+    // conic-exact survivors' line rows fight).
+    const frames = arcWindowFrames({ offsetCircle: true });
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({ ellipseAnchorConversion: true }).calibrate({ frames }),
+    );
+    expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+    // The per-candidate anchor record: 30240 enumerated / 12 converted.
+    expect(refusal.details.anchorScanSolves).toBe(30240);
+    expect(refusal.details.anchorConverted).toBe(12);
+    expect(refusal.details.hypotheses).toBe(12);
+    // The conic-exact residual (machine epsilon) rides the refusal, and
+    // BOTH validation gates fail on this fixture: lineFit 0.340 < 0.60
+    // AND backward 11.37 px > 10.
+    expect(refusal.details.ellipseMeanPx as number).toBeLessThan(1e-9);
+    expect(refusal.details.lineFit as number).toBeLessThan(0.6);
+    expect(refusal.details.lineFit as number).toBeCloseTo(0.3404, 3);
+    expect(refusal.details.backwardPx as number).toBeGreaterThan(10);
+    expect(refusal.details.backwardPx as number).toBeCloseTo(11.373, 2);
+    const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    expect(chain.length).toBe(1);
+    expect(chain[0]!.anchorScanSolves).toBe(30240);
+    expect(chain[0]!.anchorConverted).toBe(12);
+    expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
+  }, 120_000);
+
+  test("the ellipseAnchorConversion option and the E4b diagnostic exports validate fail-loud (RangeError)", () => {
+    expect(
+      () => new BroadcastLineCalibrator({ ellipseAnchorConversion: "yes" as unknown as boolean }),
+    ).toThrow(RangeError);
+    expect(
+      () => new BroadcastLineCalibrator({ ellipseAnchorConversion: 1 as unknown as boolean }),
+    ).toThrow(RangeError);
+    const conicPx = groundTruthConicPx();
+    // The frame export's input contract (finite positive dims, finite
+    // coefficients).
+    expect(() => buildBroadcastEllipseAnchorFrame(conicPx, 0, HEIGHT)).toThrow(RangeError);
+    expect(() => buildBroadcastEllipseAnchorFrame(conicPx, WIDTH, Number.NaN)).toThrow(RangeError);
+    expect(() =>
+      buildBroadcastEllipseAnchorFrame(
+        { a: Number.NaN, b: 0, c: 1, d: 0, e: 0, f: -1 },
+        WIDTH,
+        HEIGHT,
+      ),
+    ).toThrow(RangeError);
+    // The single-shot conversion export's input contract.
+    expect(() => convertBroadcastEllipseAnchor(conicPx, WIDTH, -5, H_GT)).toThrow(RangeError);
+    expect(() =>
+      convertBroadcastEllipseAnchor(conicPx, WIDTH, HEIGHT, [1, 2, 3] as unknown as Homography),
+    ).toThrow(RangeError);
+    expect(() =>
+      convertBroadcastEllipseAnchor(
+        conicPx,
+        WIDTH,
+        HEIGHT,
+        H_GT.map((value, k) => (k === 3 ? Number.NaN : value)) as unknown as Homography,
+      ),
+    ).toThrow(RangeError);
+  });
+
+  test("the conversion-path refusal records are deterministic (two runs deep-equal, both fixtures)", () => {
+    for (const variant of [{}, { offsetCircle: true }] as const) {
+      const frames = arcWindowFrames(variant);
+      const run = (): { classId: string; details: Record<string, unknown> } =>
+        refusalClassOf(() =>
+          new BroadcastLineCalibrator({ ellipseAnchorConversion: true }).calibrate({ frames }),
+        );
+      const first = run();
+      const second = run();
+      expect(second).toEqual(first);
+    }
+  }, 120_000);
+
+  test("the v0.5.0 failure class is additive on the exported taxonomy", () => {
+    const ids = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.map(
+      (record) => record.failureClassId,
+    );
+    // The v0.5.0 typed class (the unconvertible closure), additive — every
+    // prior class present exactly once and no duplicates anywhere.
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.filter((id) => id === "broadcast-line.ellipse-anchor-unconvertible").length).toBe(1);
+    expect(ids).toContain("broadcast-line.no-pitch-visible");
+    expect(ids).toContain("broadcast-line.camera-motion");
+    expect(ids).toContain("broadcast-line.insufficient-line-evidence");
+    expect(ids).toContain("broadcast-line.no-consistent-homography");
+    expect(ids).toContain("broadcast-line.ellipse-evidence-insufficient");
+    expect(ids).toContain("broadcast-line.ellipse-no-consistent-homography");
+    expect(ids).toContain("broadcast-line.ellipse-conic-off-pitch");
+    expect(ids).toContain("broadcast-line.ellipse-degenerate-grid");
+    const record = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.find(
+      (entry) => entry.failureClassId === "broadcast-line.ellipse-anchor-unconvertible",
+    );
+    expect(record).toBeDefined();
+    expect(record!.retryable).toBe(false);
+    expect(record!.description.length).toBeGreaterThan(40);
   });
 });

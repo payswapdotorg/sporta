@@ -42,6 +42,20 @@ export interface RenderVariant {
    * real circle's painted band leaves its interior grass).
    */
   readonly netStructure?: boolean;
+  /**
+   * v0.5.0 anchor-conversion fixture (the b5-b real-window class): paint
+   * the FULL grass-backed circle 17 m RIGHT of the model center
+   * (~(69.5, 34), r 9.15 — mid-grass, clear of every marking) INSTEAD of
+   * the true center circle. The fitted conic is a REAL, quota-passing,
+   * grass-backed circle — but NOT the model's center circle: the E4b
+   * machinery's world-side anchor is the MODEL circle at (52.5, 34), so
+   * the J-orthogonal closure is conic-exact against the WRONG world
+   * circle and the UNCHANGED validation bar refuses honestly (the
+   * anchors-fight outcome: conic-exact survivors whose line rows fight —
+   * the recorded b5-b class where the frame is NOT degenerate, the
+   * conic-exact solves simply contradict the line evidence).
+   */
+  readonly offsetCircle?: boolean;
 }
 
 export const WIDTH = 640;
@@ -165,6 +179,8 @@ interface FixtureArc {
 export const CENTER_CIRCLE: FixtureArc = { cx: 52.5, cy: 34, r: 9.15 };
 export const LEFT_PENALTY_ARC: FixtureArc = { cx: 11, cy: 34, r: 9.15, xMin: 16.5 };
 export const RIGHT_PENALTY_ARC: FixtureArc = { cx: 94, cy: 34, r: 9.15, xMax: 88.5 };
+/** The v0.5.0 anchors-fight fixture circle (17 m off the model center). */
+export const OFFSET_CIRCLE: FixtureArc = { cx: 69.5, cy: 34, r: 9.15 };
 
 export const GRASS: readonly [number, number, number] = [90, 120, 50];
 export const LINE: readonly [number, number, number] = [170, 172, 166];
@@ -322,8 +338,11 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
       paintMarkingPoint(bytes, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
     }
   }
-  if (!variant.skipCenterCircle && !variant.netStructure) {
+  if (!variant.skipCenterCircle && !variant.netStructure && !variant.offsetCircle) {
     paintArc(bytes, CENTER_CIRCLE, variant.centerCircleSpanDeg);
+  }
+  if (variant.offsetCircle) {
+    paintArc(bytes, OFFSET_CIRCLE);
   }
   if (variant.hoardingCurve) {
     paintHoardingCurve(bytes);
