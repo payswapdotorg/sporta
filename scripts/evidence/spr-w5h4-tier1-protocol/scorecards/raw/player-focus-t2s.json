@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are identical, with only the ball and UI elements removed.\n2. temporalConsistency - 4: The scene is stable across the 0.2s interval with no flickering or morphing of objects.\n3. identityConsistency - 5: Player appearances (Balde, the runner) are visually consistent and easily identifiable across all frames.\n4. motionFidelity - 5: The runner's forward motion and Balde's static pose are perfectly consistent with the source and time delta.\n5. sceneFidelity - 4: Background and field lines remain spatially consistent, though slightly softened by the stylization.\n6. stylizationStrength - 4: The transformation to a player-focused, cinematic look is obvious and effective.\n\nAXES sf=5 tc=4 ic=5 mf=5 scf=4 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=1 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790664540,
+  "id": "20260929144854f3929adfd2e945e6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260929144854f3929adfd2e945e6",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1383
+  }
+}

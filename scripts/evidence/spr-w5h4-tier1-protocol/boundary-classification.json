@@ -1,0 +1,344 @@
+{
+ "amendment": "A2 (w5h4) \u2014 cut-adjacent boundary-class adjudication",
+ "rule": {
+  "cutEvents": [
+   [
+    189,
+    189
+   ],
+   [
+    475,
+    475
+   ],
+   [
+    550,
+    550
+   ],
+   [
+    862,
+    862
+   ],
+   [
+    979,
+    982
+   ]
+  ],
+  "preCutWindows": [
+   {
+    "event": [
+     189,
+     189
+    ],
+    "window": [
+     181,
+     188
+    ]
+   },
+   {
+    "event": [
+     475,
+     475
+    ],
+    "window": [
+     467,
+     474
+    ]
+   },
+   {
+    "event": [
+     550,
+     550
+    ],
+    "window": [
+     542,
+     549
+    ]
+   },
+   {
+    "event": [
+     862,
+     862
+    ],
+    "window": [
+     854,
+     861
+    ]
+   },
+   {
+    "event": [
+     979,
+     982
+    ],
+    "window": [
+     971,
+     978
+    ]
+   }
+  ],
+  "wPre": 8,
+  "wPreDerivation": "CUT_OFFSET (3) + TEMPORAL_DELTA (5) \u2014 the frozen scorecard sample design's own backward reach; no new constants",
+  "postCutWindow": null,
+  "clusterGap": 5,
+  "sourceSideOnly": true
+ },
+ "cutRecordSource": "frozen corpus cut record / cuts_deep inputCuts",
+ "samples": [
+  {
+   "sample": "t2s",
+   "kind": "fixed",
+   "frame": 50,
+   "partner": 55,
+   "pairWindow": [
+    50,
+    55
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "t8s",
+   "kind": "fixed",
+   "frame": 200,
+   "partner": 205,
+   "pairWindow": [
+    200,
+    205
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "t15s",
+   "kind": "fixed",
+   "frame": 375,
+   "partner": 380,
+   "pairWindow": [
+    375,
+    380
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "t30s",
+   "kind": "fixed",
+   "frame": 750,
+   "partner": 755,
+   "pairWindow": [
+    750,
+    755
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "t45s",
+   "kind": "fixed",
+   "frame": 1125,
+   "partner": 1130,
+   "pairWindow": [
+    1125,
+    1130
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "c189pre",
+   "kind": "cut-adjacent",
+   "frame": 186,
+   "partner": 181,
+   "pairWindow": [
+    181,
+    186
+   ],
+   "boundaryClass": "source-pre-cut-transition",
+   "isBoundary": true,
+   "matchedSourceWindows": [
+    {
+     "event": [
+      189,
+      189
+     ],
+     "window": [
+      181,
+      188
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "c189post",
+   "kind": "cut-adjacent",
+   "frame": 192,
+   "partner": 197,
+   "pairWindow": [
+    192,
+    197
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "c475pre",
+   "kind": "cut-adjacent",
+   "frame": 472,
+   "partner": 467,
+   "pairWindow": [
+    467,
+    472
+   ],
+   "boundaryClass": "source-pre-cut-transition",
+   "isBoundary": true,
+   "matchedSourceWindows": [
+    {
+     "event": [
+      475,
+      475
+     ],
+     "window": [
+      467,
+      474
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "c475post",
+   "kind": "cut-adjacent",
+   "frame": 478,
+   "partner": 483,
+   "pairWindow": [
+    478,
+    483
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "c550pre",
+   "kind": "cut-adjacent",
+   "frame": 547,
+   "partner": 542,
+   "pairWindow": [
+    542,
+    547
+   ],
+   "boundaryClass": "source-pre-cut-transition",
+   "isBoundary": true,
+   "matchedSourceWindows": [
+    {
+     "event": [
+      550,
+      550
+     ],
+     "window": [
+      542,
+      549
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "c550post",
+   "kind": "cut-adjacent",
+   "frame": 553,
+   "partner": 558,
+   "pairWindow": [
+    553,
+    558
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "c862pre",
+   "kind": "cut-adjacent",
+   "frame": 859,
+   "partner": 854,
+   "pairWindow": [
+    854,
+    859
+   ],
+   "boundaryClass": "source-pre-cut-transition",
+   "isBoundary": true,
+   "matchedSourceWindows": [
+    {
+     "event": [
+      862,
+      862
+     ],
+     "window": [
+      854,
+      861
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "c862post",
+   "kind": "cut-adjacent",
+   "frame": 865,
+   "partner": 870,
+   "pairWindow": [
+    865,
+    870
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  },
+  {
+   "sample": "c979pre",
+   "kind": "cut-adjacent",
+   "frame": 976,
+   "partner": 971,
+   "pairWindow": [
+    971,
+    976
+   ],
+   "boundaryClass": "source-pre-cut-transition",
+   "isBoundary": true,
+   "matchedSourceWindows": [
+    {
+     "event": [
+      979,
+      982
+     ],
+     "window": [
+      971,
+      978
+     ]
+    }
+   ]
+  },
+  {
+   "sample": "c982post",
+   "kind": "cut-adjacent",
+   "frame": 985,
+   "partner": 990,
+   "pairWindow": [
+    985,
+    990
+   ],
+   "boundaryClass": null,
+   "isBoundary": false,
+   "matchedSourceWindows": []
+  }
+ ],
+ "boundarySamples": [
+  "c189pre",
+  "c475pre",
+  "c550pre",
+  "c862pre",
+  "c979pre"
+ ]
+}

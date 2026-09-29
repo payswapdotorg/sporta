@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - Image 2 matches the wide shot context of Image 1 perfectly.\n2. temporalConsistency: 2 - Image 3 is a completely different camera angle (close-up), breaking the expected continuous motion.\n3. identityConsistency: 4 - The player in Image 3 is clearly the same individual from the background of Images 1 and 2, with consistent kit details.\n4. motionFidelity: 1 - Impossible to judge continuous motion due to the abrupt cut to a close-up in Image 3.\n5. sceneFidelity: 2 - While Image 2 is consistent with Image 1, Image 3 shows a totally different part of the stadium (stands vs field).\n6. stylizationStrength: 4 - The \"player-focus\" zoom/crop transformation is very obvious between the source and the stylized frames.\n\nAXES sf=5 tc=2 ic=4 mf=1 scf=2 ss=4\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790664973,
+  "id": "2026092914560734fb9132668f48d9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092914560734fb9132668f48d9",
+  "usage": {
+    "completion_tokens": 230,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1397
+  }
+}

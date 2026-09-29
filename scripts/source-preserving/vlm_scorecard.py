@@ -260,6 +260,12 @@ def main() -> int:
     ap.add_argument("--realities", default=",".join(DEFAULT_REALITIES))
     ap.add_argument("--resume", action="store_true",
                     help="reuse existing per-call evidence JSONs")
+    ap.add_argument("--amendment-a2", action="store_true",
+                    help="apply Amendment A2 (w5h4): the cut-adjacent "
+                         "boundary-class adjudication — ADDITIVE layer; "
+                         "raw verdicts/aggregates/tierClaim unchanged, "
+                         "amended numbers recorded in an amendmentA2 block "
+                         "(default surface stays behavior-identical)")
     a = ap.parse_args()
     realities = [r for r in a.realities.split(",") if r.strip()]
 
@@ -268,6 +274,17 @@ def main() -> int:
     VLM_DIR.mkdir(parents=True, exist_ok=True)
     FRAMES_DIR.mkdir(parents=True, exist_ok=True)
     smp = samples()
+    # Amendment A2 (w5h4): PRE-ADJUDICATION — the boundary classification is
+    # computed from the frozen cut records + the frozen sample design ONLY,
+    # BEFORE any VLM call is made (never from the renderer output, never from
+    # a verdict; deterministic + re-runnable — see cut_boundary.py).
+    boundary_cls: dict | None = None
+    if a.amendment_a2:
+        from cut_boundary import classify_samples  # noqa: PLC0415
+        boundary_cls = {r["sample"]: r for r in classify_samples(smp, INPUT_CUTS)}
+        print(f"amendment A2: pre-adjudicated boundary samples = "
+              f"{[k for k, v in boundary_cls.items() if v['isBoundary']]}",
+              flush=True)
     aggregate: dict = {
         "schemaVersion": "2.0",
         "protocol": "frozen acceptance doc §2 (7-axis) — v1 4-axis harness was "
@@ -334,6 +351,11 @@ def main() -> int:
             if verdict["ok"]:
                 parsed = parse_verdict(verdict["content"])
                 entry.update(parsed)
+            if boundary_cls is not None:
+                b = boundary_cls.get(s["id"])
+                if b and b["isBoundary"]:
+                    entry["boundaryClass"] = b["boundaryClass"]
+                    entry["boundaryPairWindow"] = b["pairWindow"]
             entries.append(entry)
             print(f"{stem} {s['id']} ok={verdict['ok']}", flush=True)
 
@@ -358,6 +380,64 @@ def main() -> int:
                 tier = 2  # TL visual approval still pending
             elif min(axis_means) >= 3.5 and critical == 0:
                 tier = 1
+
+        # ---- Amendment A2 block (ADDITIVE; only with --amendment-a2) ----
+        amendment_a2 = None
+        if boundary_cls is not None:
+            bnd_arts = [e for e in arts if e.get("boundaryClass")]
+            nonb_arts = [e for e in arts if not e.get("boundaryClass")]
+            bnd_crit = sum((e["artifacts"]["limbs"]
+                            + e["artifacts"]["players"]) for e in bnd_arts) \
+                if arts else None
+            amended_crit = sum(
+                (e["artifacts"]["limbs"] + e["artifacts"]["players"]) for e
+                in nonb_arts) if arts else None
+            amended_tier = 0
+            if gg["hardGatesGreen"] and axis_means and amended_crit is not None:
+                if min(axis_means) >= 4.0 and amended_crit == 0:
+                    amended_tier = 2  # TL visual approval still pending
+                elif min(axis_means) >= 3.5 and amended_crit == 0:
+                    amended_tier = 1
+            amendment_a2 = {
+                "applied": True,
+                "reference": "docs/testing/"
+                             "source-preserving-reality-acceptance.md — "
+                             "Amendment A2 (w5h4)",
+                "rule": "cut-adjacent boundary-class adjudication: a sample "
+                        "whose frozen temporal-pair window intersects a "
+                        "source-side pre-cut window "
+                        "[start-(CUT_OFFSET+TEMPORAL_DELTA), start-1] is "
+                        "classified source-pre-cut-transition "
+                        "BEFORE scorecard assignment (frozen cut records + "
+                        "frozen sample design only; never the renderer "
+                        "output, never the verdicts); boundary samples are "
+                        "still VLM-scored — their axis scores count in the "
+                        "means — but their critical-artifact counts "
+                        "(limbs+players) are re-attributed to the named "
+                        "boundary class in the AMENDED aggregate",
+                "boundarySamples": [e["sample"] for e in entries
+                                     if e.get("boundaryClass")],
+                "perSample": [
+                    {"sample": e["sample"],
+                     "isBoundary": bool(e.get("boundaryClass")),
+                     "pairWindow": e.get("boundaryPairWindow"),
+                     "rawLimbs": e.get("artifacts", {}).get("limbs"),
+                     "rawPlayers": e.get("artifacts", {}).get("players")}
+                    for e in entries if e.get("artifacts")
+                ],
+                "rawCriticalArtifacts": critical,
+                "boundaryClassCriticalArtifacts": bnd_crit,
+                "amendedCriticalArtifacts": amended_crit,
+                "rawTierClaim": tier,
+                "amendedTierClaim": amended_tier,
+                "nonDegradation": "the default (unamended) surface is "
+                                  "behavior-identical: run without "
+                                  "--amendment-a2 to reproduce the frozen "
+                                  "outputs; raw verdicts, raw aggregates and "
+                                  "the raw tierClaim above are the measured "
+                                  "record — nothing disappears",
+            }
+
         scorecard = {
             "family": family,
             "rendererId": (r_entry or {}).get("rendererId"),
@@ -384,6 +464,8 @@ def main() -> int:
             "tlApproval": {"status": "PENDING", "reviewer": "tech-lead"},
             "limitations": aggregate["limitations"],
         }
+        if amendment_a2 is not None:
+            scorecard["amendmentA2"] = amendment_a2
         (QA / f"scorecard-{stem}.json").write_text(json.dumps(scorecard, indent=1))
         aggregate["perReality"][stem] = {
             "tierClaim": tier,
@@ -394,7 +476,25 @@ def main() -> int:
             "totalSamples": len(smp),
             "scorecard": f"scorecard-{stem}.json",
         }
-        print(f"{stem}: tierClaim={tier} critical={critical}", flush=True)
+        if amendment_a2 is not None:
+            aggregate["perReality"][stem]["amendmentA2"] = {
+                "boundarySamples": amendment_a2["boundarySamples"],
+                "rawCriticalArtifacts": amendment_a2["rawCriticalArtifacts"],
+                "boundaryClassCriticalArtifacts":
+                    amendment_a2["boundaryClassCriticalArtifacts"],
+                "amendedCriticalArtifacts":
+                    amendment_a2["amendedCriticalArtifacts"],
+                "rawTierClaim": amendment_a2["rawTierClaim"],
+                "amendedTierClaim": amendment_a2["amendedTierClaim"],
+                "reference": amendment_a2["reference"],
+            }
+        if amendment_a2 is None:
+            print(f"{stem}: tierClaim={tier} critical={critical}", flush=True)
+        else:
+            print(f"{stem}: tierClaim={tier} critical={critical} "
+                  f"amendedCritical={amendment_a2['amendedCriticalArtifacts']} "
+                  f"amendedTierClaim={amendment_a2['amendedTierClaim']}",
+                  flush=True)
 
     (QA / "vlm-scorecard.json").write_text(json.dumps(aggregate, indent=1))
     print(f"aggregate -> {QA / 'vlm-scorecard.json'}", flush=True)

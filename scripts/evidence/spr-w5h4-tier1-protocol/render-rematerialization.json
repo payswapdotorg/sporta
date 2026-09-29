@@ -1,0 +1,17 @@
+{
+ "purpose": "the w5h4 scorecard re-run samples the COMMITTED w5h3 v0.2.0 output — the sandbox wiped the w5h3 session out-dirs (/tmp reset), so the committed render was re-materialized deterministically via the frozen recipe and sha-verified byte-identical BEFORE any frame was sampled; the render pipeline/config/renderer code is untouched (zero diff vs main adf265b in scripts/source-preserving/spe/)",
+ "frozenRecipe": "python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 --reality player-focus --out-dir <out> --suffix b8 --frames 2,8,15,30,45   (the w5h3 commands.md §5 pass1 command, verbatim)",
+ "substrate": {
+  "file": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "verified": "== the frozen corpus record (re-verified with sha256sum at session start)"
+ },
+ "rematerializedRender": {
+  "file": "player-focus-b8.mp4",
+  "sha256": "0ecfe14ec5bbcf13b7989c9395daa3aa9855306a303355b3fe7d616a9ea3e636",
+  "frameCount": 1190,
+  "verified": "== the w5h3 committed record (pass1 == pass2 == the TL audit re-render at the merged tree c35f1c4; re-verified with sha256sum this session)"
+ },
+ "conclusion": "the sampled bytes ARE the committed bytes — no re-render in the 'new output' sense occurred; the scorecard's ffmpeg frame extractions ran on the byte-verified artifact",
+ "rendererTreeDiff": "git diff adf265b -- scripts/source-preserving/spe/ is EMPTY on this branch (the render pipeline is untouched — the 'NOT further renderer softening' law)"
+}

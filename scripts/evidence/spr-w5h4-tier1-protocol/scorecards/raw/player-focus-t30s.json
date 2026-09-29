@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (goal kick), and camera angle as the original.\n2. temporalConsistency - 4: Players and background elements remain stable between the two frames with only minor natural motion.\n3. identityConsistency - 5: Player appearances, jersey numbers, and team colors are visually consistent and stable across all frames.\n4. motionFidelity - 4: The subtle shifts in player positions and the goalkeeper's movement align well with the expected 0.2s interval.\n5. sceneFidelity - 4: The stadium, advertising boards, and pitch lines maintain spatial consistency despite some softening.\n6. stylizationStrength - 3: A noticeable smoothing/filtering effect is applied, though it is relatively subtle compared to heavy artistic styles.\n\nAXES sf=5 tc=4 ic=5 mf=4 scf=4 ss=3\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790664668,
+  "id": "202609291451038ac5045332ae4523",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609291451038ac5045332ae4523",
+  "usage": {
+    "completion_tokens": 219,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1386
+  }
+}
