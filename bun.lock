@@ -570,6 +570,16 @@
         "@sporta/contracts": "workspace:*",
       },
     },
+    "packages/organization-registry": {
+      "name": "@sporta/organization-registry",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/output-pipeline": {
       "name": "@sporta/output-pipeline",
       "version": "0.1.0",
@@ -1149,6 +1159,8 @@
     "@sporta/observability": ["@sporta/observability@workspace:packages/observability"],
 
     "@sporta/observation": ["@sporta/observation@workspace:packages/observation"],
+
+    "@sporta/organization-registry": ["@sporta/organization-registry@workspace:packages/organization-registry"],
 
     "@sporta/output-pipeline": ["@sporta/output-pipeline@workspace:packages/output-pipeline"],
 
