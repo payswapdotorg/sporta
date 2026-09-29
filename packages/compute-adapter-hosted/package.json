@@ -14,6 +14,7 @@
     "@sporta/compute-adapter": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/encoding": "workspace:*",
+    "@sporta/media-platform": "workspace:*",
     "@sporta/output-pipeline": "workspace:*",
     "@sporta/renderer-3d": "workspace:*",
     "@sporta/renderer-anime": "workspace:*",

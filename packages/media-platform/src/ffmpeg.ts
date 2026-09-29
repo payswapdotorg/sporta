@@ -85,9 +85,11 @@ interface SpawnResult {
 export class FfmpegTool {
   /** The resolved ffmpeg binary path (tests and operators may inspect it). */
   readonly ffmpegPath: string;
-  private readonly ffprobePath: string;
+  /** The resolved ffprobe binary path (tests and operators may inspect it). */
+  readonly ffprobePath: string;
   private readonly timeoutMs: number;
   private availability: Promise<boolean> | undefined;
+  private versionLine: string | null | undefined;
 
   constructor(options: FfmpegToolOptions = {}) {
     this.ffmpegPath = options.ffmpegPath ?? Bun.which("ffmpeg") ?? "ffmpeg";
@@ -109,6 +111,25 @@ export class FfmpegTool {
       }
     })();
     return this.availability;
+  }
+
+  /**
+   * The measured first `ffmpeg -version` stdout line (the binary's own
+   * build identity — e.g. "ffmpeg version 7.1.5-0+deb13u1 ..."), or `null`
+   * when the binary is not usable. Cached per tool instance. The honest
+   * descriptor/evidence surface (R607 lane B): a toolchain's build
+   * identity is MEASURED, never assumed.
+   */
+  async version(): Promise<string | null> {
+    if (this.versionLine !== undefined) return this.versionLine;
+    try {
+      const result = await this.run([this.ffmpegPath, "-version"]);
+      const firstLine = result.stdout.split("\n", 1)[0]?.trim() ?? "";
+      this.versionLine = result.exitCode === 0 && firstLine.length > 0 ? firstLine : null;
+    } catch {
+      this.versionLine = null;
+    }
+    return this.versionLine;
   }
 
   /** Fails loud when ffmpeg is not usable (the R102 honesty rule). */

@@ -91,3 +91,24 @@ export type {
   ResolvedComputeAdapter,
   ResolveComputeAdapterOptions,
 } from "./env";
+// The MEDIA TOOLCHAIN execution profile (R607 lane B — the W914 http
+// compute adapter against a REAL toolchain worker):
+export {
+  DEFAULT_MEDIA_TOOLCHAIN_BUDGETS,
+  MEDIA_TOOLCHAIN_ADAPTER_ID,
+  MEDIA_TOOLCHAIN_PROVIDER_ID,
+  MediaToolchainWorker,
+  assertMediaToolchainAccounting,
+  createMediaToolchainWorker,
+} from "./media-worker";
+export type {
+  MediaToolchainJobRecord,
+  MediaToolchainStats,
+  MediaToolchainWorkerExecution,
+  MediaToolchainWorkerOptions,
+} from "./media-worker";
+export {
+  createMediaToolchainHttpHandler,
+  createMediaToolchainServer,
+} from "./media-http";
+export type { MediaToolchainServerOptions } from "./media-http";

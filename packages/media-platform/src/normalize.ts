@@ -30,15 +30,13 @@ import {
   NormalizedVideoStream,
 } from "@sporta/contracts";
 import type { MediaManifest, RenderArtifactManifest, SourceAsset } from "@sporta/contracts";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { FfmpegTool } from "./ffmpeg";
-import type { MediaProbe } from "./ffmpeg";
 import { MediaInvalidError } from "./errors";
 import { randomMediaId } from "./ids";
 import type { MediaStoragePort } from "./storage";
 import { sha256OfBytes } from "./storage";
+import { InProcessMediaToolchain } from "./toolchain-executor";
+import type { MediaToolchainExecutor } from "./toolchain";
 
 /**
  * The stream-record types, inferred from the frozen zod schemas (the
@@ -82,6 +80,15 @@ export interface MediaNormalizationServiceOptions {
   storage: MediaStoragePort;
   /** The typed ffmpeg/ffprobe wrapper (default: a stock {@link FfmpegTool}). */
   tool?: FfmpegTool;
+  /**
+   * The media toolchain execution seam (R607 lane B — the W914 http
+   * compute adapter seam): the REAL ffmpeg normalization routes through
+   * it. Default: the IN-PROCESS seam over `tool` (byte-identical to the
+   * pre-seam pipeline — the non-degradation law); a composition may route
+   * the SAME operations through an http toolchain worker
+   * (`./toolchain-http.ts`).
+   */
+  toolchain?: MediaToolchainExecutor;
   /** The injected clock (ms). */
   nowMs: () => number;
   /**
@@ -104,13 +111,15 @@ export interface MediaNormalizationServiceOptions {
  */
 export class MediaNormalizationService {
   private readonly storage: MediaStoragePort;
-  private readonly tool: FfmpegTool;
+  private readonly executor: MediaToolchainExecutor;
   private readonly nowMs: () => number;
   private readonly maxDurationMs: number;
 
   constructor(options: MediaNormalizationServiceOptions) {
     this.storage = options.storage;
-    this.tool = options.tool ?? new FfmpegTool();
+    this.executor =
+      options.toolchain ??
+      new InProcessMediaToolchain({ tool: options.tool ?? new FfmpegTool() });
     this.nowMs = options.nowMs;
     this.maxDurationMs = options.limits?.maxDurationMs ?? 120_000;
   }
@@ -143,25 +152,16 @@ export class MediaNormalizationService {
       );
     }
 
-    // 2. The REAL transcode (temp files; unlinked on every path).
-    const workDir = await mkdtemp(join(tmpdir(), "sporta-normalize-"));
-    let outputProbe: MediaProbe;
-    let outputBytes: Uint8Array;
-    try {
-      const inputPath = join(workDir, "source.mp4");
-      const outputPath = join(workDir, "normalized.mp4");
-      await writeFile(inputPath, sourceBytes);
-      outputProbe = await this.tool.transcodeToNormalizedMp4(inputPath, outputPath);
-      // 3. Re-check the duration bound against the PRODUCED media.
-      if (outputProbe.durationMs > this.maxDurationMs) {
-        throw new MediaInvalidError(
-          `the normalized media measures ${outputProbe.durationMs}ms, over the ${this.maxDurationMs}ms bound`,
-          { assetId: asset.assetId, durationMs: outputProbe.durationMs },
-        );
-      }
-      outputBytes = new Uint8Array(await readFile(outputPath));
-    } finally {
-      await rm(workDir, { recursive: true, force: true });
+    // 2. The REAL transcode through the toolchain seam (in-process by
+    //    default — the same temp-file discipline; or the http toolchain
+    //    worker when the composition routes it).
+    const { outputBytes, outputProbe } = await this.executor.normalizeMedia(sourceBytes);
+    // 3. Re-check the duration bound against the PRODUCED media.
+    if (outputProbe.durationMs > this.maxDurationMs) {
+      throw new MediaInvalidError(
+        `the normalized media measures ${outputProbe.durationMs}ms, over the ${this.maxDurationMs}ms bound`,
+        { assetId: asset.assetId, durationMs: outputProbe.durationMs },
+      );
     }
 
     // 4. Store content-addressed, re-read, hash-verify.
