@@ -140,17 +140,17 @@ python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-b
     --reality silhouette-xray --out-dir /tmp/w5g/out/b8/pass1 --suffix b8 --frames 2,8,15,30,45
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 \
     --reality silhouette-xray --out-dir /tmp/w5g/out/b8/pass2 --suffix b8
-#   -> 1190 frames, sha256 81f5a8ee1ad26cbe739c347438a241bd8ac68b9b604010100fef160b0da0ba1d x2 BYTE-IDENTICAL
+#   -> 1190 frames, sha256 a626bd83eb6aa9fb3abe0538f391a502503477089e02819eb330273db52f45bb x2 BYTE-IDENTICAL
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 \
     --reality silhouette-xray --out-dir /tmp/w5g/out/b12/pass1 --suffix b12 --max-frames 300 --frames 2,8
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8-b12.mp4 \
     --reality silhouette-xray --out-dir /tmp/w5g/out/b12/pass2 --suffix b12 --max-frames 300
-#   -> 300 frames, b7164f47... x2 BYTE-IDENTICAL
+#   -> 300 frames, 44b550e6bdfe7cdcf9e431baf4067601debb4028699128f4c6f0994ad659e490 x2 BYTE-IDENTICAL
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 \
     --reality silhouette-xray --out-dir /tmp/w5g/out/b2/pass1 --suffix b2 --frames 2,8
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/clip-b2-closeup.mp4 \
     --reality silhouette-xray --out-dir /tmp/w5g/out/b2/pass2 --suffix b2
-#   -> 225 frames, d7c791ca... x2 BYTE-IDENTICAL
+#   -> 225 frames, 045978141e336c297d9c1de39a575c1e32f92c8e3627f473929a985d8b6836c0 x2 BYTE-IDENTICAL
 # xray profile cell (shipped profile, full double-render + gates):
 python3 scripts/source-preserving/render.py --clip scripts/evidence/spr-corpus-bytes/b8p3.mp4 \
     --reality silhouette-xray --profile xray --out-dir /tmp/w5g/out/b8-xray/pass1 --suffix b8-xray --frames 2,8,15,30,45
