@@ -41,9 +41,6 @@ import {
 import type { AuthorizationPolicy, SourceAsset } from "@sporta/contracts";
 import { sniffContainer } from "@sporta/ingestion";
 import { MediaRightsError, MediaInvalidError, UploadRejectedError } from "./errors";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { FfmpegTool } from "./ffmpeg";
 import { randomMediaId } from "./ids";
 import { MediaJobService, type MediaJobView } from "./jobs";
@@ -54,6 +51,8 @@ import type {
   SourceAssetRepository,
 } from "./repositories";
 import { MediaNormalizationService, normalizedMediaKey, sourceAssetKey } from "./normalize";
+import { InProcessMediaToolchain } from "./toolchain-executor";
+import type { MediaToolchainExecutor } from "./toolchain";
 import type { MediaStoragePort } from "./storage";
 import { sha256OfBytes } from "./storage";
 import { RenderArtifactConflictError } from "./repositories";
@@ -85,6 +84,17 @@ export interface MediaPlatformServiceOptions {
   /** The typed ffmpeg wrapper (default: a stock {@link FfmpegTool}). */
   tool?: FfmpegTool;
   /**
+   * The media toolchain execution seam (R607 lane B — the W914 http
+   * compute adapter seam): the REAL media operations (the admission probe
+   * AND the ffmpeg normalization) route through it. DEFAULT: the
+   * in-process seam over `tool`/`Bun.which` — byte-identical behavior (the
+   * non-degradation law; the typed ffprobe-absent refusal stays honest
+   * when NO toolchain resolves). A composition routes the SAME operations
+   * through an http toolchain worker by passing
+   * `createHttpMediaToolchain(url)` here (see `./toolchain-http.ts`).
+   */
+  toolchain?: MediaToolchainExecutor;
+  /**
    * Whether `upload` fires the pipeline executor in the background
    * (default true — the observable live states). Tests may set false and
    * await {@link MediaPlatformService.runJob} directly.
@@ -111,7 +121,7 @@ export class MediaPlatformService {
   private readonly artifacts: RenderArtifactRepository;
   private readonly resolvePolicy: RightsPolicyResolver;
   private readonly nowMs: () => number;
-  private readonly tool: FfmpegTool;
+  private readonly seam: MediaToolchainExecutor;
   private readonly autoRun: boolean;
   readonly jobs: MediaJobService;
   private readonly normalizer: MediaNormalizationService;
@@ -124,12 +134,17 @@ export class MediaPlatformService {
     this.artifacts = options.artifacts;
     this.resolvePolicy = options.resolvePolicy;
     this.nowMs = options.nowMs;
-    this.tool = options.tool ?? new FfmpegTool();
+    this.seam =
+      options.toolchain ??
+      new InProcessMediaToolchain({
+        tool: options.tool ?? new FfmpegTool(),
+        nowMs: this.nowMs,
+      });
     this.autoRun = options.autoRun ?? true;
     this.jobs = new MediaJobService({ repository: options.jobs, nowMs: this.nowMs });
     this.normalizer = new MediaNormalizationService({
       storage: this.storage,
-      tool: this.tool,
+      toolchain: this.seam,
       nowMs: this.nowMs,
       limits: { maxDurationMs: UPLOAD_CONSTRAINTS.maxDurationMs },
     });
@@ -268,25 +283,18 @@ export class MediaPlatformService {
     };
   }
 
-  /** Probes the received bytes through the REAL ffprobe (pre-storage). */
+  /** Probes the received bytes through the toolchain seam (pre-storage). */
   private async probeReceivedBytes(bytes: Uint8Array): Promise<ReturnType<FfmpegTool["probe"]>> {
-    const workDir = await mkdtemp(join(tmpdir(), "sporta-upload-"));
-    try {
-      const inputPath = join(workDir, "received.mp4");
-      await writeFile(inputPath, bytes);
-      const probe = await this.tool.probe(inputPath);
-      if (probe.durationMs > UPLOAD_CONSTRAINTS.maxDurationMs) {
-        throw new UploadRejectedError(
-          "duration-over-limit",
-          `the media measures ${probe.durationMs}ms, over the ${UPLOAD_CONSTRAINTS.maxDurationMs}ms bound`,
-          "resource-limit",
-          { durationMs: probe.durationMs, maxDurationMs: UPLOAD_CONSTRAINTS.maxDurationMs },
-        );
-      }
-      return probe;
-    } finally {
-      await rm(workDir, { recursive: true, force: true });
+    const probe = await this.seam.probeMedia(bytes);
+    if (probe.durationMs > UPLOAD_CONSTRAINTS.maxDurationMs) {
+      throw new UploadRejectedError(
+        "duration-over-limit",
+        `the media measures ${probe.durationMs}ms, over the ${UPLOAD_CONSTRAINTS.maxDurationMs}ms bound`,
+        "resource-limit",
+        { durationMs: probe.durationMs, maxDurationMs: UPLOAD_CONSTRAINTS.maxDurationMs },
+      );
     }
+    return probe;
   }
 
   // -------------------------------------------------------------------------

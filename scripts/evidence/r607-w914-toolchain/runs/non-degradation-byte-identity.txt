@@ -1,0 +1,35 @@
+R607 lane B — the non-degradation byte-identity measurement (2026-09-29)
+========================================================================
+
+The SAME deterministic source clip (generateTestMp4: lavfi testsrc video +
+440Hz sine audio, 2s, 320x240, 24fps — real ffmpeg generation) normalized
+through BOTH execution seams:
+
+  (a) the DEFAULT in-process seam (InProcessMediaToolchain — the REAL
+      FfmpegTool in-process, Bun.which-resolved: the pre-seam pipeline's
+      own operations);
+  (b) the http toolchain worker (the external-process golden path, run 3).
+
+Measured (sha256sum, from the bytes on disk — never guessed):
+
+  (source)      4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b  (46076 bytes)
+  (a) in-process normalized  964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce  (46193 bytes)
+  (b) http-worker normalized 964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce  (46193 bytes)
+
+  => BYTE-IDENTICAL: routing the same source through the http toolchain
+     worker produces the same canonical normalized output as the
+     in-process default (the non-degradation law, measured at the byte
+     level; the golden-path.json artifact.contentHash is the same sha).
+
+The exact commands (from packages/compute-adapter-hosted/):
+
+  SRCDIR=$(mktemp -d)
+  bun -e "import { generateTestMp4, InProcessMediaToolchain } from '@sporta/media-platform'; \
+    import { readFile, writeFile } from 'node:fs/promises'; \
+    const src = await generateTestMp4('$SRCDIR/source.mp4', { durationSeconds: 2, withAudio: true }); \
+    const seam = new InProcessMediaToolchain(); \
+    const { outputBytes } = await seam.normalizeMedia(new Uint8Array(await readFile(src))); \
+    await writeFile('$SRCDIR/normalized.mp4', outputBytes);"
+  sha256sum $SRCDIR/source.mp4 $SRCDIR/normalized.mp4
+
+  # (b) is golden-path.json run 3 (external worker), artifact.contentHash.

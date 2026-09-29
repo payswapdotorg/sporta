@@ -116,6 +116,21 @@ export class MediaNotFoundError extends MediaPlatformError {
   }
 }
 
+/**
+ * The configured media toolchain refused a resource bound at its execution
+ * seam (R607 lane B — the W914 http compute adapter): the source or the
+ * normalized artifact exceeds the fail-closed size budget, the measured
+ * execution exceeded the duration budget, or the worker is at its bounded
+ * concurrency (a determinate capacity refusal — never a silent queue).
+ * Classified `resource-limit`.
+ */
+export class MediaToolchainResourceError extends MediaPlatformError {
+  constructor(message: string, details: MediaPlatformErrorDetails = {}) {
+    super(message, "resource-limit", details);
+    this.name = "MediaToolchainResourceError";
+  }
+}
+
 /** Narrow type guard for the classified media-platform error family. */
 export function isMediaPlatformError(err: unknown): err is MediaPlatformError {
   return err instanceof MediaPlatformError;

@@ -1,0 +1,560 @@
+/**
+ * THE MEDIA TOOLCHAIN EXECUTOR (R607 lane B — the W914 http compute adapter
+ * against a REAL toolchain worker): the REAL media operations behind the
+ * classified envelope, plus the in-process DEFAULT seam.
+ *
+ * Two roles, one module:
+ *
+ * 1. `executeMediaToolchainJob` — the WORKER-SIDE execution function the
+ *    hosted media-toolchain worker (`@sporta/compute-adapter-hosted`'s
+ *    media profile) drives: one `MediaToolchainDispatchRequest` becomes one
+ *    executed REAL media operation (ffprobe admission probing / ffmpeg
+ *    canonical normalization) resolved as a classified
+ *    `MediaToolchainResult` envelope — NEVER a thrown error across the
+ *    seam, never silence. Fail-closed budgets are enforced by MEASUREMENT
+ *    against the injected clock; the dispatch's source claims are
+ *    re-measured (byte length, then sha-256) and a lying claim is a typed
+ *    refusal — the producer never trusts the requester's numbers.
+ *
+ * 2. `InProcessMediaToolchain` — the DEFAULT `MediaToolchainExecutor`
+ *    (the non-degradation law): the REAL `FfmpegTool` in THIS process,
+ *    resolving ffmpeg/ffprobe via `Bun.which` — byte-identical behavior to
+ *    the pre-seam pipeline (the same temp-dir discipline, the same typed
+ *    errors, the same measured probes; the seam is additive around the
+ *    unchanged operations).
+ *
+ * PURITY: the executor reads no wall clock (the clock is INJECTED), no
+ * randomness, no env — the only I/O is the REAL ffmpeg/ffprobe subprocess
+ * wrapper and the caller-supplied temp filesystem (the same I/O the
+ * pipeline always performed).
+ */
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { FfmpegTool } from "./ffmpeg";
+import type { MediaProbe } from "./ffmpeg";
+import {
+  FfmpegUnavailableError,
+  MediaInvalidError,
+  MediaRightsError,
+} from "./errors";
+import { NORMALIZATION_RENDERER_ID, NORMALIZATION_RENDERER_VERSION } from "./normalize";
+import { sha256OfBytes } from "./storage";
+import {
+  MediaToolchainDispatchRequest,
+  MediaToolchainResult,
+} from "./toolchain";
+import type {
+  MediaToolchainBudgets,
+  MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
+  MediaToolchainResult as MediaToolchainResultDoc,
+} from "./toolchain";
+
+// ---------------------------------------------------------------------------
+// The worker-side execution (classified envelopes — failures are values)
+// ---------------------------------------------------------------------------
+
+/** What the worker-side executor needs from its host (all injected). */
+export interface MediaToolchainExecutorDeps {
+  /** The REAL typed ffmpeg/ffprobe wrapper (the tool this worker resolves). */
+  tool: FfmpegTool;
+  /** The injected clock (epoch-ms readings; the worker injects a real one). */
+  nowMs: () => number;
+  /** The fail-closed budgets (./toolchain.ts — measured, never self-reported). */
+  budgets: MediaToolchainBudgets;
+}
+
+/** A determinate failure under construction. */
+interface FailureSpec {
+  errorClass: string;
+  message: string;
+  terminal: "non-retryable" | "timeout" | "internal";
+  failureClass: "media-invalid" | "resource-limit" | "rights-denied" | "internal";
+}
+
+/** Builds the failed envelope (never silent — always classified). */
+function failedEnvelope(
+  jobId: string,
+  operation: "probe" | "normalize",
+  failure: FailureSpec,
+  metering: {
+    startedAtMs: number;
+    finishedAtMs: number;
+    ffprobeRuns: number;
+    ffmpegRuns: number;
+    inputBytes: number;
+    outputBytes: number;
+  },
+): MediaToolchainResultDoc {
+  return {
+    jobId,
+    operation,
+    status: "failed",
+    failure: { ...failure, retryable: false },
+    metering: {
+      startedAtMs: metering.startedAtMs,
+      finishedAtMs: metering.finishedAtMs,
+      executionMs: Math.max(0, metering.finishedAtMs - metering.startedAtMs),
+      ffprobeRuns: metering.ffprobeRuns,
+      ffmpegRuns: metering.ffmpegRuns,
+      inputBytes: metering.inputBytes,
+      outputBytes: metering.outputBytes,
+    },
+  };
+}
+
+/** The mutable metering accumulator one execution tracks. */
+interface MeteringState {
+  startedAtMs: number;
+  ffprobeRuns: number;
+  ffmpegRuns: number;
+  inputBytes: number;
+  outputBytes: number;
+}
+
+/**
+ * Executes ONE media-toolchain dispatch request end-to-end. Never throws —
+ * every outcome (including malformed input and internal faults) resolves
+ * as a classified {@link MediaToolchainResult} envelope (failures are
+ * values; the worker's HTTP surface never throws across the wire).
+ */
+export async function executeMediaToolchainJob(
+  request: unknown,
+  deps: MediaToolchainExecutorDeps,
+): Promise<MediaToolchainResultDoc> {
+  const startedAtMs = deps.nowMs();
+  const metering: MeteringState = {
+    startedAtMs,
+    ffprobeRuns: 0,
+    ffmpegRuns: 0,
+    inputBytes: 0,
+    outputBytes: 0,
+  };
+  const finishAt = (): number => deps.nowMs();
+  const fail = (failure: FailureSpec, jobId: string, operation: "probe" | "normalize") =>
+    failedEnvelope(jobId, operation, failure, {
+      startedAtMs,
+      finishedAtMs: finishAt(),
+      ffprobeRuns: metering.ffprobeRuns,
+      ffmpegRuns: metering.ffmpegRuns,
+      inputBytes: metering.inputBytes,
+      outputBytes: metering.outputBytes,
+    });
+
+  // 1. Structural validation of the dispatch request (fail-closed).
+  const parsedRequest = MediaToolchainDispatchRequest.safeParse(request);
+  if (!parsedRequest.success) {
+    const echoJobId =
+      typeof request === "object" &&
+      request !== null &&
+      typeof (request as { job?: { jobId?: unknown } }).job?.jobId === "string"
+        ? (request as { job: { jobId: string } }).job.jobId
+        : "unknown";
+    return fail(
+      {
+        errorClass: "invalid-dispatch",
+        message:
+          "request is not a valid MediaToolchainDispatchRequest: " +
+          parsedRequest.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+        terminal: "non-retryable",
+        failureClass: "internal",
+      },
+      echoJobId,
+      "probe",
+    );
+  }
+  const dispatch: MediaToolchainDispatchRequestDoc = parsedRequest.data;
+  const job = dispatch.job;
+
+  // 2. Decode the materialized source bytes (the inline transport).
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(Buffer.from(dispatch.source.contentBase64, "base64"));
+  } catch (err) {
+    return fail(
+      {
+        errorClass: "invalid-dispatch",
+        message: `the materialized source is not decodable base64: ${err instanceof Error ? err.message : String(err)}`,
+        terminal: "non-retryable",
+        failureClass: "internal",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+  metering.inputBytes = bytes.byteLength;
+
+  // 3. Re-measure the claims (NEVER trusted): size, then content hash.
+  if (bytes.byteLength !== job.source.byteSize) {
+    return fail(
+      {
+        errorClass: "source-size-mismatch",
+        message: `the dispatch claims ${job.source.byteSize} source bytes but ${bytes.byteLength} arrived — a lying claim is never interpreted`,
+        terminal: "non-retryable",
+        failureClass: "internal",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+  const measuredSourceHash = sha256OfBytes(bytes);
+  if (measuredSourceHash !== job.source.contentHash) {
+    return fail(
+      {
+        errorClass: "source-hash-mismatch",
+        message: `the dispatch claims source sha-256 ${job.source.contentHash} but the received bytes hash to ${measuredSourceHash} — a lying claim is never interpreted`,
+        terminal: "non-retryable",
+        failureClass: "internal",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+
+  // 4. Fail-closed source-size budget.
+  if (bytes.byteLength > deps.budgets.maxSourceBytes) {
+    return fail(
+      {
+        errorClass: "source-too-large",
+        message: `the source measures ${bytes.byteLength} bytes, over the fail-closed budget of ${deps.budgets.maxSourceBytes}`,
+        terminal: "non-retryable",
+        failureClass: "resource-limit",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+
+  // 5. Fail-closed rights re-check at the provider (the posture travels:
+  //    the media pipeline references source frames — a posture that denies
+  //    them is refused before ANY tool runs).
+  if (!job.rights.canReferenceSourceFrames) {
+    return fail(
+      {
+        errorClass: "rights-denied",
+        message:
+          "the job's rights posture denies canReferenceSourceFrames — the media pipeline references source frames and is refused (fail-closed)",
+        terminal: "non-retryable",
+        failureClass: "rights-denied",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+
+  // 6. The REAL toolchain availability (the R607 boundary class, honest:
+  //    never faked, never advertised as resolvable when it is not).
+  if (!(await deps.tool.available())) {
+    return fail(
+      {
+        errorClass: "ffmpeg-unavailable",
+        message: `ffmpeg is not usable at '${deps.tool.ffmpegPath}' — the media toolchain cannot execute on this worker (and is never faked)`,
+        terminal: "internal",
+        failureClass: "internal",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+
+  // 7. The operation itself (REAL ffprobe / REAL ffmpeg, temp files
+  //    unlinked on every path — the pipeline's own discipline).
+  try {
+    if (job.operation === "probe") {
+      const workDir = await mkdtemp(join(tmpdir(), "sporta-toolchain-probe-"));
+      let probe: MediaProbe;
+      try {
+        const inputPath = join(workDir, "received.mp4");
+        await writeFile(inputPath, bytes);
+        metering.ffprobeRuns += 1;
+        probe = await deps.tool.probe(inputPath);
+      } finally {
+        await rm(workDir, { recursive: true, force: true });
+      }
+      const envelope = selfChecked(
+        {
+          jobId: job.jobId,
+          operation: "probe",
+          status: "succeeded",
+          sourceProbe: probe,
+          metering: meteringBlock(metering, finishAt()),
+        },
+        job.jobId,
+        "probe",
+      );
+      return envelope;
+    }
+
+    // normalize: the REAL canonical transcode.
+    const workDir = await mkdtemp(join(tmpdir(), "sporta-toolchain-normalize-"));
+    let outputProbe: MediaProbe;
+    let outputBytes: Uint8Array;
+    try {
+      const inputPath = join(workDir, "source.mp4");
+      const outputPath = join(workDir, "normalized.mp4");
+      await writeFile(inputPath, bytes);
+      metering.ffmpegRuns += 1;
+      // The tool's own hasAudioStream probe + the OUTPUT probe are real
+      // ffprobe invocations — counted honestly.
+      metering.ffprobeRuns += 2;
+      outputProbe = await deps.tool.transcodeToNormalizedMp4(inputPath, outputPath);
+      outputBytes = new Uint8Array(await readFile(outputPath));
+    } finally {
+      await rm(workDir, { recursive: true, force: true });
+    }
+    metering.outputBytes = outputBytes.byteLength;
+
+    // 7a. The media policy re-check against the PRODUCED media (defense in
+    //     depth over the dispatching side's own admission checks).
+    if (outputProbe.durationMs > job.mediaPolicy.maxDurationMs) {
+      return fail(
+        {
+          errorClass: "duration-over-limit",
+          message: `the normalized media measures ${outputProbe.durationMs}ms, over the job's ${job.mediaPolicy.maxDurationMs}ms policy bound`,
+          terminal: "non-retryable",
+          failureClass: "media-invalid",
+        },
+        job.jobId,
+        "normalize",
+      );
+    }
+
+    // 7b. Fail-closed artifact-size budget (outputs are NEVER handed back).
+    if (outputBytes.byteLength > deps.budgets.maxArtifactBytes) {
+      return fail(
+        {
+          errorClass: "artifact-too-large",
+          message: `the normalized artifact is ${outputBytes.byteLength} bytes, over the fail-closed budget of ${deps.budgets.maxArtifactBytes} — outputs discarded`,
+          terminal: "non-retryable",
+          failureClass: "resource-limit",
+        },
+        job.jobId,
+        "normalize",
+      );
+    }
+
+    // 7c. The content address + the original-reality artifact block: the
+    //     hash chain source → normalized, every field MEASURED (the
+    //     producer re-hashes the bytes it produced — `integrity.verified`
+    //     is earned by measurement, never asserted from a claim).
+    const contentHash = sha256OfBytes(outputBytes);
+    const primary = outputProbe.videoStreams[0]!;
+    const audioStream = outputProbe.audioStreams[0];
+    const finishedAtMs = finishAt();
+
+    // 7d. Fail-closed duration budget (post-hoc: outputs are DISCARDED).
+    const durationBudgetMs = Math.min(deps.budgets.maxExecutionMs, job.constraints.deadlineMs);
+    const executionMs = Math.max(0, finishedAtMs - startedAtMs);
+    if (executionMs > durationBudgetMs) {
+      return fail(
+        {
+          errorClass: "budget-exceeded",
+          message: `measured execution ${executionMs}ms exceeded the fail-closed budget of ${durationBudgetMs}ms (worker ${deps.budgets.maxExecutionMs}ms / job deadline ${job.constraints.deadlineMs}ms) — outputs discarded`,
+          terminal: "timeout",
+          failureClass: "resource-limit",
+        },
+        job.jobId,
+        "normalize",
+      );
+    }
+
+    return selfChecked(
+      {
+        jobId: job.jobId,
+        operation: "normalize",
+        status: "succeeded",
+        normalized: {
+          contentHash,
+          byteSize: outputBytes.byteLength,
+          probe: outputProbe,
+          contentBase64: Buffer.from(outputBytes).toString("base64"),
+        },
+        artifact: {
+          reality: "original",
+          contentHash,
+          sourceContentHash: measuredSourceHash,
+          byteSize: outputBytes.byteLength,
+          container: "mp4",
+          videoCodec: primary.codec_name ?? "h264",
+          audioCodec: audioStream?.codec_name ?? null,
+          durationMs: outputProbe.durationMs,
+          rendererId: NORMALIZATION_RENDERER_ID,
+          rendererVersion: NORMALIZATION_RENDERER_VERSION,
+          generatedAtMs: finishedAtMs,
+          integrity: { algorithm: "sha256", verified: true },
+        },
+        metering: {
+          startedAtMs,
+          finishedAtMs,
+          executionMs,
+          ffprobeRuns: metering.ffprobeRuns,
+          ffmpegRuns: metering.ffmpegRuns,
+          inputBytes: metering.inputBytes,
+          outputBytes: metering.outputBytes,
+        },
+      },
+      job.jobId,
+      "normalize",
+    );
+  } catch (err) {
+    // The REAL tool refused the media (typed) or faulted (internal) —
+    // classified, never thrown across the seam.
+    if (err instanceof FfmpegUnavailableError) {
+      return fail(
+        {
+          errorClass: "ffmpeg-unavailable",
+          message: err.message,
+          terminal: "internal",
+          failureClass: "internal",
+        },
+        job.jobId,
+        job.operation,
+      );
+    }
+    if (err instanceof MediaRightsError) {
+      return fail(
+        {
+          errorClass: "rights-denied",
+          message: err.message,
+          terminal: "non-retryable",
+          failureClass: "rights-denied",
+        },
+        job.jobId,
+        job.operation,
+      );
+    }
+    if (err instanceof MediaInvalidError) {
+      return fail(
+        {
+          errorClass: "media-invalid",
+          message: err.message,
+          terminal: "non-retryable",
+          failureClass: "media-invalid",
+        },
+        job.jobId,
+        job.operation,
+      );
+    }
+    return fail(
+      {
+        errorClass: "internal",
+        message: err instanceof Error ? err.message : String(err),
+        terminal: "internal",
+        failureClass: "internal",
+      },
+      job.jobId,
+      job.operation,
+    );
+  }
+}
+
+/** Assembles the metering block from the accumulator + a finish reading. */
+function meteringBlock(metering: MeteringState, finishedAtMs: number) {
+  return {
+    startedAtMs: metering.startedAtMs,
+    finishedAtMs,
+    executionMs: Math.max(0, finishedAtMs - metering.startedAtMs),
+    ffprobeRuns: metering.ffprobeRuns,
+    ffmpegRuns: metering.ffmpegRuns,
+    inputBytes: metering.inputBytes,
+    outputBytes: metering.outputBytes,
+  };
+}
+
+/** The fail-loud self-check: a constructed envelope MUST parse (never hand back an invalid one). */
+function selfChecked(
+  envelope: unknown,
+  jobId: string,
+  operation: "probe" | "normalize",
+): MediaToolchainResultDoc {
+  const check = MediaToolchainResult.safeParse(envelope);
+  if (check.success) return check.data;
+  return failedEnvelope(
+    jobId,
+    operation,
+    {
+      errorClass: "invalid-envelope",
+      message:
+        "constructed envelope failed its own schema: " +
+        check.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+      terminal: "internal",
+      failureClass: "internal",
+    },
+    {
+      startedAtMs: (envelope as { metering: { startedAtMs: number } }).metering.startedAtMs,
+      finishedAtMs: (envelope as { metering: { finishedAtMs: number } }).metering.finishedAtMs,
+      ffprobeRuns: (envelope as { metering: { ffprobeRuns: number } }).metering.ffprobeRuns,
+      ffmpegRuns: (envelope as { metering: { ffmpegRuns: number } }).metering.ffmpegRuns,
+      inputBytes: (envelope as { metering: { inputBytes: number } }).metering.inputBytes,
+      outputBytes: (envelope as { metering: { outputBytes: number } }).metering.outputBytes,
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The in-process DEFAULT seam (the non-degradation law)
+// ---------------------------------------------------------------------------
+
+/** Options for {@link InProcessMediaToolchain}. */
+export interface InProcessMediaToolchainOptions {
+  /** The typed ffmpeg wrapper (default: a stock {@link FfmpegTool} — `Bun.which`). */
+  tool?: FfmpegTool;
+  /** The injected clock (default `Date.now` — a composition convenience). */
+  nowMs?: () => number;
+}
+
+/**
+ * The DEFAULT `MediaToolchainExecutor`: the REAL `FfmpegTool` in THIS
+ * process — the pre-seam pipeline's own operations, byte-identical (the
+ * same temp-dir discipline, the same typed errors, the same measured
+ * probes). When ffmpeg/ffprobe do not resolve (`Bun.which`), every
+ * operation throws the typed `FfmpegUnavailableError` — this platform
+ * NEVER fakes a normalization or an admission probe.
+ */
+export class InProcessMediaToolchain {
+  private readonly tool: FfmpegTool;
+  private readonly nowMs: () => number;
+
+  constructor(options: InProcessMediaToolchainOptions = {}) {
+    this.tool = options.tool ?? new FfmpegTool();
+    this.nowMs = options.nowMs ?? Date.now;
+  }
+
+  /** The REAL ffprobe on the received bytes (the R101 admission validation). */
+  async probeMedia(bytes: Uint8Array): Promise<MediaProbe> {
+    const workDir = await mkdtemp(join(tmpdir(), "sporta-upload-"));
+    try {
+      const inputPath = join(workDir, "received.mp4");
+      await writeFile(inputPath, bytes);
+      return await this.tool.probe(inputPath);
+    } finally {
+      await rm(workDir, { recursive: true, force: true });
+    }
+  }
+
+  /** The REAL ffmpeg canonical transcode (the R102 normalization). */
+  async normalizeMedia(bytes: Uint8Array): Promise<{
+    outputBytes: Uint8Array;
+    outputProbe: MediaProbe;
+    executionMs: number;
+  }> {
+    const startedAtMs = this.nowMs();
+    const workDir = await mkdtemp(join(tmpdir(), "sporta-normalize-"));
+    let outputProbe: MediaProbe;
+    let outputBytes: Uint8Array;
+    try {
+      const inputPath = join(workDir, "source.mp4");
+      const outputPath = join(workDir, "normalized.mp4");
+      await writeFile(inputPath, bytes);
+      outputProbe = await this.tool.transcodeToNormalizedMp4(inputPath, outputPath);
+      outputBytes = new Uint8Array(await readFile(outputPath));
+    } finally {
+      await rm(workDir, { recursive: true, force: true });
+    }
+    return {
+      outputBytes,
+      outputProbe,
+      executionMs: Math.max(0, this.nowMs() - startedAtMs),
+    };
+  }
+}

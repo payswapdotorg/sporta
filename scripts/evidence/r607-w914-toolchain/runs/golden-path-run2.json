@@ -1,0 +1,396 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-w914-golden-path",
+  "note": "run at the branch tip (see commands.md for the exact invocations)",
+  "mode": "external-worker",
+  "workerUrl": "http://127.0.0.1:3971",
+  "workerHealth": {
+    "ok": true,
+    "service": "sporta-media-toolchain-worker",
+    "adapterId": "sporta.compute.hosted.media",
+    "providerId": "sporta-media-toolchain-worker-1",
+    "adapterVersion": "0.1"
+  },
+  "descriptor": {
+    "schemaVersion": "1.0",
+    "adapterId": "sporta.compute.hosted.media",
+    "adapterVersion": "0.1",
+    "providerId": "sporta-media-toolchain-worker-1",
+    "providerKind": "cpu-worker",
+    "operations": [
+      "probe",
+      "normalize"
+    ],
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "ffprobePath": "/usr/bin/ffprobe",
+      "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "resolved": true
+    },
+    "budgets": {
+      "maxExecutionMs": 120000,
+      "maxSourceBytes": 209715200,
+      "maxArtifactBytes": 209715200,
+      "maxConcurrentJobs": 1
+    },
+    "costUnits": [
+      {
+        "unitId": "cpu-ms",
+        "unitKind": "time-ms",
+        "description": "measured media-toolchain execution time"
+      },
+      {
+        "unitId": "media-jobs",
+        "unitKind": "count",
+        "description": "executed media-toolchain jobs"
+      },
+      {
+        "unitId": "artifact-bytes",
+        "unitKind": "bytes",
+        "description": "normalized artifact bytes produced"
+      }
+    ]
+  },
+  "localToolchain": {
+    "ffmpegPath": "/usr/bin/ffmpeg",
+    "ffprobePath": "/usr/bin/ffprobe",
+    "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "resolved": true
+  },
+  "source": {
+    "generator": "generateTestMp4 (real ffmpeg lavfi: testsrc video + 440Hz sine audio)",
+    "params": {
+      "durationSeconds": 2,
+      "withAudio": true,
+      "width": 320,
+      "height": 240,
+      "frameRate": 24
+    },
+    "byteSize": 46076,
+    "sha256": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b"
+  },
+  "stages": {
+    "admission": {
+      "assetId": "asset-ab569e39cc67b8e15aba7d0ad9312153",
+      "mediaJobId": "mjob-9f274cf9a3ea45b0db9cf49f51066953",
+      "workerJobId": "mtjob-c4ee149b4bc5d005a1e14cc1115c790a",
+      "workerJob": {
+        "jobId": "mtjob-c4ee149b4bc5d005a1e14cc1115c790a",
+        "sessionId": "media-platform",
+        "operation": "probe",
+        "state": "succeeded",
+        "startedAtMs": 1790662623811,
+        "finishedAtMs": 1790662623898,
+        "result": {
+          "jobId": "mtjob-c4ee149b4bc5d005a1e14cc1115c790a",
+          "status": "succeeded",
+          "operation": "probe",
+          "sourceProbe": {
+            "durationMs": 2000,
+            "videoStreams": [
+              {
+                "index": 0,
+                "codec_type": "video",
+                "codec_name": "h264",
+                "profile": "High",
+                "width": 320,
+                "height": 240,
+                "avg_frame_rate": "24/1",
+                "r_frame_rate": "24/1",
+                "nb_frames": "48",
+                "duration": "2.000000",
+                "bit_rate": "43532"
+              }
+            ],
+            "audioStreams": [
+              {
+                "index": 1,
+                "codec_type": "audio",
+                "codec_name": "aac",
+                "profile": "LC",
+                "avg_frame_rate": "0/0",
+                "r_frame_rate": "0/0",
+                "nb_frames": "95",
+                "duration": "2.000000",
+                "bit_rate": "128129",
+                "channels": 2,
+                "sample_rate": "48000"
+              }
+            ],
+            "frameRateFps": 24,
+            "frameCount": 48,
+            "raw": {
+              "streams": [
+                {
+                  "index": 0,
+                  "codec_type": "video",
+                  "codec_name": "h264",
+                  "profile": "High",
+                  "width": 320,
+                  "height": 240,
+                  "avg_frame_rate": "24/1",
+                  "r_frame_rate": "24/1",
+                  "nb_frames": "48",
+                  "duration": "2.000000",
+                  "bit_rate": "43532"
+                },
+                {
+                  "index": 1,
+                  "codec_type": "audio",
+                  "codec_name": "aac",
+                  "profile": "LC",
+                  "avg_frame_rate": "0/0",
+                  "r_frame_rate": "0/0",
+                  "nb_frames": "95",
+                  "duration": "2.000000",
+                  "bit_rate": "128129",
+                  "channels": 2,
+                  "sample_rate": "48000"
+                }
+              ],
+              "format": {
+                "duration": "2.000000",
+                "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+              }
+            }
+          },
+          "metering": {
+            "startedAtMs": 1790662623812,
+            "finishedAtMs": 1790662623898,
+            "executionMs": 86,
+            "ffprobeRuns": 1,
+            "ffmpegRuns": 0,
+            "inputBytes": 46076,
+            "outputBytes": 0
+          }
+        },
+        "metering": {
+          "startedAtMs": 1790662623812,
+          "finishedAtMs": 1790662623898,
+          "executionMs": 86,
+          "ffprobeRuns": 1,
+          "ffmpegRuns": 0,
+          "inputBytes": 46076,
+          "outputBytes": 0
+        },
+        "duplicateExecutions": 0
+      },
+      "clientWallMs": 110,
+      "workerExecutionMs": 86,
+      "measuredDurationMs": 2000,
+      "videoStreamCount": 1,
+      "audioStreamCount": 1,
+      "uploadState": "stored",
+      "checksumVerified": true
+    },
+    "normalization": {
+      "mediaJobId": "mjob-9f274cf9a3ea45b0db9cf49f51066953",
+      "terminalState": "succeeded",
+      "workerJobId": "mtjob-4e8c729289a759f063c18bed61921f25",
+      "workerExecutionMs": 304,
+      "workerFfprobeRuns": 2,
+      "workerFfmpegRuns": 1,
+      "clientWallMs": 317
+    }
+  },
+  "manifest": {
+    "manifestId": "man-b4cab209fa17b3b1dfbfc668b06b3276",
+    "sourceAssetId": "asset-ab569e39cc67b8e15aba7d0ad9312153",
+    "contentHash": "964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce",
+    "byteSize": 46193,
+    "durationMs": 2000,
+    "frameCount": 48,
+    "video": {
+      "codec": "h264",
+      "widthPx": 320,
+      "heightPx": 240,
+      "frameRateFps": 24,
+      "bitrateKbps": 44
+    },
+    "audio": {
+      "codec": "aac",
+      "channels": 2,
+      "sampleRateHz": 48000
+    }
+  },
+  "artifact": {
+    "artifactId": "art-ebedb1bf0e3954c9bd7d89ec59489039",
+    "reality": "original",
+    "contentHash": "964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce",
+    "byteSize": 46193,
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "durationMs": 2000,
+    "rendererId": "media-platform/normalize",
+    "rendererVersion": "0.1.0",
+    "integrity": {
+      "algorithm": "sha256",
+      "verified": true
+    },
+    "storageKey": "normalized/964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce.mp4"
+  },
+  "hashChain": {
+    "sourceHashMeasured": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+    "assetContentHash": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+    "manifestContentHash": "964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce",
+    "artifactContentHash": "964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce",
+    "storedBytesHashMeasured": "964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce",
+    "storedByteSize": 46193
+  },
+  "playability": {
+    "moovBeforeMdat": true,
+    "moovOffset": 36,
+    "mdatOffset": 2823,
+    "probeDurationMs": 2000,
+    "probeVideoCodec": "h264",
+    "probeAudioCodec": "aac",
+    "playable": true
+  },
+  "accounting": {
+    "stats": {
+      "jobsDispatched": 2,
+      "duplicates": 0,
+      "succeeded": 2,
+      "failed": 0,
+      "inFlight": 0,
+      "capacityRefusals": 0,
+      "usageRecords": 2,
+      "probeRuns": 3,
+      "transcodeRuns": 1,
+      "inputBytes": 92152,
+      "outputBytes": 46193,
+      "totalExecutionMs": 390
+    },
+    "identity1DispatchedEqualsTerminalPlusInFlight": true,
+    "identity2UsageRecordsEqualsTerminal": true,
+    "usageDrainCount": 2,
+    "usageRecords": [
+      {
+        "schemaVersion": "1.0",
+        "jobId": "mtjob-c4ee149b4bc5d005a1e14cc1115c790a",
+        "idempotencyKey": "mtjob-key-9aafcd32260c9baeb8e1d2ac8dcb82bb",
+        "sessionId": "media-platform",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "terminalDisposition": "succeeded",
+        "timing": {
+          "queueWaitMs": 0,
+          "executionMs": 86
+        },
+        "attempts": 1,
+        "claims": 1,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "quantity": 86
+          },
+          {
+            "unitId": "media-jobs",
+            "quantity": 1
+          },
+          {
+            "unitId": "artifact-bytes",
+            "quantity": 0
+          }
+        ],
+        "meteredAtMs": 1790662623902
+      },
+      {
+        "schemaVersion": "1.0",
+        "jobId": "mtjob-4e8c729289a759f063c18bed61921f25",
+        "idempotencyKey": "mtjob-key-bc78475bca936d3017cab209c97cf745",
+        "sessionId": "media-platform",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "terminalDisposition": "succeeded",
+        "timing": {
+          "queueWaitMs": 0,
+          "executionMs": 304
+        },
+        "attempts": 1,
+        "claims": 1,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "quantity": 304
+          },
+          {
+            "unitId": "media-jobs",
+            "quantity": 1
+          },
+          {
+            "unitId": "artifact-bytes",
+            "quantity": 46193
+          }
+        ],
+        "meteredAtMs": 1790662624224
+      }
+    ]
+  },
+  "boundaryRecord": {
+    "note": "the R607 hosted boundary class reproduced at a worker boundary over the wire (the hosted Node serverless runtime ships no ffmpeg/ffprobe — upload REFUSED at admission, typed ffprobe-absent class; nothing faked, nothing stored)",
+    "descriptor": {
+      "schemaVersion": "1.0",
+      "adapterId": "sporta.compute.hosted.media",
+      "adapterVersion": "0.1",
+      "providerId": "sporta-media-toolchain-worker-1",
+      "providerKind": "cpu-worker",
+      "operations": [],
+      "toolchain": {
+        "ffmpegPath": null,
+        "ffprobePath": null,
+        "ffmpegVersion": null,
+        "resolved": false
+      },
+      "budgets": {
+        "maxExecutionMs": 120000,
+        "maxSourceBytes": 209715200,
+        "maxArtifactBytes": 209715200,
+        "maxConcurrentJobs": 1
+      },
+      "costUnits": [
+        {
+          "unitId": "cpu-ms",
+          "unitKind": "time-ms",
+          "description": "measured media-toolchain execution time"
+        },
+        {
+          "unitId": "media-jobs",
+          "unitKind": "count",
+          "description": "executed media-toolchain jobs"
+        },
+        {
+          "unitId": "artifact-bytes",
+          "unitKind": "bytes",
+          "description": "normalized artifact bytes produced"
+        }
+      ]
+    },
+    "dispatchHttpStatusCode": 200,
+    "envelope": {
+      "disposition": "executed",
+      "result": {
+        "jobId": "r607-w914-boundary-probe",
+        "operation": "probe",
+        "status": "failed",
+        "failure": {
+          "errorClass": "ffmpeg-unavailable",
+          "message": "ffmpeg is not usable at '/nonexistent/ffmpeg-binary' — the media toolchain cannot execute on this worker (and is never faked)",
+          "terminal": "internal",
+          "failureClass": "internal",
+          "retryable": false
+        },
+        "metering": {
+          "startedAtMs": 1790662624313,
+          "finishedAtMs": 1790662624314,
+          "executionMs": 1,
+          "ffprobeRuns": 0,
+          "ffmpegRuns": 0,
+          "inputBytes": 46076,
+          "outputBytes": 0
+        }
+      }
+    }
+  }
+}

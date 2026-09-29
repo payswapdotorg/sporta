@@ -96,6 +96,7 @@ import {
   LocalFilesystemStorage,
   MediaPlatformService,
   SqliteMediaPlatformStore,
+  resolveMediaToolchainFromEnv,
 } from "@sporta/media-platform";
 import type { MediaStoragePort } from "@sporta/media-platform";
 import { createDerivedRealityPlane } from "./derived-reality";
@@ -800,6 +801,21 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       process.env.SPORTA_MEDIA_STORAGE ?? "db/media-storage",
       "media-local-fs",
     );
+  // R607 lane B (the W914 http compute adapter seam): the media platform's
+  // REAL toolchain operations (the admission probe + the ffmpeg
+  // normalization) route through the env-selected seam — the DEFAULT is
+  // `in-process` (Bun.which — byte-identical to the pre-seam pipeline; the
+  // typed ffprobe-absent refusal stays honest when no toolchain resolves),
+  // and `MEDIA_TOOLCHAIN=http + MEDIA_TOOLCHAIN_URL=<worker url>` routes the
+  // SAME operations through an external toolchain worker (the seam the
+  // hosted plane would use with a toolchain-capable compute worker).
+  const mediaToolchain = resolveMediaToolchainFromEnv({ nowMs });
+  if (mediaToolchain.toolchain === "http") {
+    console.log(
+      `[sporta] media toolchain: HTTP worker at ${mediaToolchain.workerUrl} ` +
+        `(MEDIA_TOOLCHAIN=http — the admission probe + normalization dispatch over real HTTP)`,
+    );
+  }
   const media = new MediaPlatformService({
     storage: mediaStorage,
     sourceAssets: mediaStore.sourceAssets,
@@ -808,6 +824,7 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     jobs: mediaStore.jobs,
     resolvePolicy: (sessionId) => rightsPolicies.effectiveOf(sessionId),
     nowMs,
+    ...(mediaToolchain.executor === undefined ? {} : { toolchain: mediaToolchain.executor }),
     autoRun: true,
   });
   // R508-R510: the routing render-output writer's late-bound media seam is

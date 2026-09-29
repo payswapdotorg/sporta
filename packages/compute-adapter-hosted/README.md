@@ -61,14 +61,46 @@ The deployed worker route is `apps/web/src/app/api/compute/route.ts`
 (POST = execute → result envelope; GET = health + descriptor) — the frozen
 Worker-C namespace, deferred-import composed per process.
 
+## The media-toolchain execution profile (R607 lane B)
+
+The same package also serves the **media-toolchain worker** — the W914
+http compute adapter against a REAL ffmpeg/ffprobe toolchain (the R607
+media-half unblock). The wire contract, the worker-side classified
+executor, the HTTP client, and the DEFAULT in-process seam live in
+`@sporta/media-platform` (`src/toolchain*.ts` — the media domain owns the
+real media operations); this package adds the worker application + HTTP
+surface:
+
+- `src/media-worker.ts` — `MediaToolchainWorker`: the honest descriptor
+  (the MEASURED `ffmpeg -version` identity; an unresolved toolchain
+  advertises `operations: []`), jobId-idempotent execution, bounded
+  fail-closed concurrency (ONE ffmpeg at a time), per-job records,
+  whole-worker metering + one `ComputeUsageRecord` per terminal job, and
+  `assertMediaToolchainAccounting` (dispatched === terminal + in-flight;
+  usageRecords === terminal);
+- `src/media-http.ts` — the routes: `POST /v1/media/jobs/execute` (the
+  classified result envelope), `GET /v1/media/adapter`, `GET /health`,
+  `GET /v1/media/jobs/:jobId`, `GET /v1/media/usage`, `GET /v1/media/stats`;
+- `scripts/r607-media-toolchain-worker.ts` — the standalone worker entry
+  (fixed local port 3971; the external-toolchain-worker shape a hosted
+  control plane points `MEDIA_TOOLCHAIN_URL` at), and
+  `scripts/r607-w914-golden-path.ts` — the R607 media-leg evidence driver.
+
+Evidence: `scripts/evidence/r607-w914-toolchain/` (the local real-HTTP
+golden path — admission → normalize → hash-chained playable artifact →
+accounting; the hosted Vercel re-run is operator-gated and recorded, not
+faked).
+
 ## Tests
 
-`bun test` — 71 tests / 310 assertions across 7 files: REAL executor paths
+`bun test` — 104 tests / 613 assertions across 9 files: REAL executor paths
 and every determinate failure class, the worker's descriptor/idempotence/
 capacity/metering, the adapter's full ledger semantics (including
 cancel-wins races and deadline disposal), the HTTP surface over a real
-`Bun.serve` socket, env-driven selection, envelope/budget teeth, and the
-constitution boundary scan.
+`Bun.serve` socket, env-driven selection, envelope/budget teeth, the
+constitution boundary scan, and the media-toolchain profile over the REAL
+wire (the golden path, every failure class, the accounting identities, and
+the end-to-end `MediaPlatformService` integration through the http seam).
 
 ## Honest boundaries (this wave)
 

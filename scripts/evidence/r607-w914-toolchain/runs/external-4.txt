@@ -1,0 +1,13 @@
+[driver] mode: EXTERNAL worker at http://127.0.0.1:3971 (the hosted-plane topology)
+=== R607/W914 media-toolchain golden path (measured) ===
+mode:            external-worker (http://127.0.0.1:3971)
+toolchain:       ffmpeg /usr/bin/ffmpeg / ffprobe /usr/bin/ffprobe
+                 ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers
+source:          46076 bytes, sha-256 4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b
+admission:       client 91ms (worker execution 67ms, job mtjob-be8021c627b73a2c903ef90ab45dca57); duration measured 2000ms; 1v/1a streams
+normalization:   client 310ms (worker execution 296ms, job mtjob-9e2700f4231dd71717ace3add24ab707; ffprobe x2, ffmpeg x1)
+artifact:        46193 bytes, sha-256 964cec11407a9c688877c4df9119fd8e96bb034039a8da61a965db6691a7afce (chain: source 4a347893921b… → normalized 964cec11407a…, verified 7/7 links)
+playable:        true (moov@36 before mdat@2823; driver-side ffprobe: h264/aac, 2000ms)
+accounting:      dispatched=2 === succeeded(2) + failed(0) + inFlight(0); usageRecords=2 === terminal(2); usage drain agrees (2); duplicates=0; capacityRefusals=0; probeRuns=3; transcodeRuns=1; in=92152B out=46193B; totalExecutionMs=363
+boundary:        unresolved-toolchain worker → operations [] , dispatch 200 → ffmpeg-unavailable (internal) — the R607 hosted class, honest over the wire
+record:          /home/z/sporta/scripts/evidence/r607-w914-toolchain/golden-path.json
