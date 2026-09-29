@@ -71,7 +71,7 @@ lane is deterministic and preservation-gated (sourceFidelity 4.73–5.0,
 | Reality | VLM min-axis | Critical artifacts | Tier |
 |---|---|---|---|
 | subject-toon (strongest deterministic; v0.2.0 w5a 2026-09-27) | 3.40 | 3 | 0 (near-miss: tc 3.40, criticals 3; ic 4.27 crossed) |
-| player-focus (SPR205, w5h3 v0.2.0 player-priority 2026-09-28) | 3.73 | 2 | 0 — NEAR-MISS Tier 1 (minAxis 3.73 ≥ 3.5, gates green; the 2 criticals at ONE cut-adjacent pre-cut-chaos sample, class diagnosed — no laundering) — TL visual gate PASS (both w5h2 defects fixed: ad-board lock + diluted treatment); the program's best VLM family with the tracker following players |
+| player-focus (SPR205, w5h3 v0.2.0 player-priority 2026-09-28; w5h4 Amendment A2 2026-09-29) | 3.73 (w5h3) / 3.40 (w5h4 re-run) | 2 (w5h3) / 0 (w5h4 re-run) | 0 — the Tier-1 claim WITHHELD: the VLM run-variance band straddles both Tier-1 bars (no same-bytes run meets minAxis ≥ 3.5 AND criticals 0 simultaneously); Amendment A2 adjudicates the w5h3 criticals 2→0 (both inside the source-side pre-cut boundary set) with means unchanged — the amendment works, the axis variance is the binding constraint |
 | noir-retro (noir profile) | 3.59 | 1 | 0 |
 | motion-trails | 3.47 | 2 | 0 |
 | anime-npr | 1.80 | 136 | 0 |
@@ -105,6 +105,38 @@ pre-cut-chaos sample; VLM run-variance across runs recorded),
 **TL visual gate PASS** (both w5h2 defects fixed and TL-verified),
 regression 7/7 byte-match. Evidence:
 `scripts/evidence/spr-wave5-playerfocus-priority/`.
+
+**w5h4 (spr/w5h4/tier1-protocol → merge 3f0a67a, 2026-09-29):** the Tier-1
+cut-adjacent protocol **Amendment A2** (the status-doc #1 increment;
+worker session 59-c, TL-re-verified): a scorecard sample is classified
+`cut-boundary-class` BEFORE scorecard assignment iff its frozen
+temporal-pair window intersects the pre-cut window of a source-side cut
+event from the frozen cut records (CLUSTER_GAP-clustered; zero new
+constants; pure function of cut records + sample design — never derived
+from the renderer output or a verdict). Boundary samples keep their axis
+scores; their limbs+players counts re-attribute to the named
+`source-pre-cut-transition` class, raw verdicts/aggregates/tierClaim
+recorded verbatim alongside (the w4b pre-adjudication precedent applied to
+the VLM scorecard). Delivery: `scripts/source-preserving/cut_boundary.py`
+(+32 checks), the additive `--amendment-a2` flag on `vlm_scorecard.py`
+(default surface behavior-identical), the acceptance-doc Amendment A2
+addendum, evidence `scripts/evidence/spr-w5h4-tier1-protocol/`. Zero
+renderer changes (the spe/ diff is empty). **Honest outcome: the Tier-1
+machine claim WITHHELD** — the fresh 15-call re-run (same byte-verified
+render 0ecfe14e…) measured minAxis 3.40 / criticals 0: the critical bar
+met, the axis bar failed on its own numbers (stylizationStrength 3.40 <
+3.5); the VLM run-variance band straddles BOTH Tier-1 bars (w5h3:
+3.73/2, this run: 3.40/0) — no run of the shipped v0.2.0 meets both
+simultaneously; one run stands as measured. The retrospective
+adjudication (documented analysis): both w5h3 criticals sit inside the
+pre-adjudicated boundary set {c189pre, c475pre, c550pre, c862pre,
+c979pre} → adjudicated 2→0, means unchanged at 3.73 — the amendment
+works as designed. **Next gap (the binding constraint moved):** the
+stylizationStrength axis variance (3.40 vs 3.93 same-bytes runs) — a
+protocol-level variance policy (multi-run medians, or the Tier-3 video
+audit superseding frame-pair judgment), a TL decision, NOT another
+renderer pass. The merge also carries the TL lint-fix 6510a54 (the
+eslint gate joins every TL review).
 
 ### Session w6-spr-5 (2026-09-25, wave-2 worker deliveries + TL audit + merge)
 
@@ -435,13 +467,12 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
    player-priority — the w5h2 named increment; TL gate PASS, machine
    near-miss recorded honestly (see the wave-5 lane records + the
    spr-wave5-playerfocus-priority evidence pack).
-1. **Tier-1 machine claim for player-focus (Worker C lane):** the
-   remaining critical class lives in the pre-cut chaos samples — the
-   honest path is a cut-adjacent sample protocol AMENDMENT (boundary-class
-   adjudication, the w4b T2-class precedent: pre-adjudicate the
-   source-transition samples before scorecard assignment), NOT further
-   renderer softening. Subject-toon criticals 3→0 remains the parallel
-   Tier-2 push.
+1. ~~Tier-1 machine claim for player-focus (Worker C lane)~~ — the
+   protocol AMENDMENT A2 DELIVERED (w5h4, 2026-09-29, merge 3f0a67a); the
+   claim WITHHELD honestly (the VLM variance band straddles both bars —
+   see the w5h4 record). The remaining increment: the protocol-level
+   VARIANCE POLICY (multi-run medians or the Tier-3 video audit) — a TL
+   decision. Subject-toon criticals 3→0 remains the parallel Tier-2 push.
 2. **R606 calibration** (Worker A lane): the ellipse/circle-constrained
    solve + the v0.3.0 flank recovery + the v0.4.0 CONIC-SELECTION CHAIN
    (opt-in — the b3-a machine recovery VLM-FAILS the visual gate: the
