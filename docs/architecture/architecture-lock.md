@@ -86,3 +86,57 @@ A frozen decision can change only after an ADR is created under `docs/adr/`, the
 - recreating a commercial football game or its proprietary assets;
 - supporting every sport before the football vertical works;
 - training a giant foundation model from scratch before validating the product loop.
+
+
+## 16. Reality Engineering Lab
+
+ADR-013 adds a Lab layer for discovering and evaluating production organizations.
+
+- The Lab is additive and does not replace the SWM, renderer, rights, compute or live authorities.
+- Lab simulators are not production truth.
+- Lab scenarios and counterfactual results are explicitly labeled as simulated/model output.
+- Domain Packs keep sport/event-specific rules out of generic Lab infrastructure.
+- Football is the first domain pack; other sports and non-sport events must be able to plug into the same Lab contracts.
+
+## 17. Agent Body and Organization
+
+- An Agent Body is a reusable role/capability/tool/memory/permission/evaluation contract.
+- A model or algorithm inhabits a body through the provider-neutral model/runtime boundary.
+- An Agent Organization is a versioned graph of bodies/instances and delegation/communication edges.
+- A generalist baseline and hand-designed baseline are mandatory comparison points.
+- Organizations cannot mutate authoritative SWM facts or bypass rights/provenance/policy gates.
+
+## 18. Historical corpus and source acquisition
+
+- Historical material may be user-uploaded, fetched through an authorized provider/source adapter, received from an authorized feed, or retained as a reference-only URL.
+- A URL is not proof of transformation rights.
+- Source adapters must fail closed when access/use is not permitted.
+- Acquired artifacts and derived features are content-addressed and provenance-linked.
+- Reusable feature bundles may support repeated Lab replay without repeated media acquisition.
+
+## 19. Organization registry and promotion
+
+- Production organizations are versioned records in one canonical registry.
+- Lifecycle is Draft -> Benchmarked -> Validated -> Canary -> Production -> Retired.
+- Promotion requires reproducibility, benchmark, robustness, rights/provenance, security/policy, and cost/latency gates.
+- Canary failures may trigger automatic rollback.
+- Users may choose among eligible organizations for the declared objective/constraints; no organization is globally hard-coded as universally best.
+
+## 20. User Labs and incentives
+
+- User Labs are tenant-scoped and cannot write directly to production.
+- Users can keep organizations private, publish them, or request governed promotion.
+- Incentives are versioned product policy. Supported mechanisms may include a private-use window up to six months, disclosed discovery/featured benefits, credits, or combinations.
+- Incentives never alter benchmark evidence or silently fabricate quality.
+
+## 21. External platform API/MCP and long-running work
+
+- HTTP APIs and MCP tools map to the same application service authority.
+- External platforms may discover organizations, submit media/feed jobs, observe/cancel long-running jobs, retrieve validated outputs, and import eligible organization versions.
+- No external integration may bypass organization promotion, rights, provenance or security gates.
+- Durable job state lives in Sporta persistence/queues/workers.
+- CopilotKit/OpenMuse/AG-UI or equivalent products may be connected as optional long-running task/human-interaction harnesses, but their internal state is never authoritative.
+
+## 22. Architecture revision
+
+ADR-013 is the controlling architecture change for the Reality Engineering Lab extension. Future changes to the Lab, Agent Body, Organization, promotion, external platform or historical-source authorities require a new ADR or an explicitly linked architecture revision and must update the dependency graph and handoff.

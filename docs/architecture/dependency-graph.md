@@ -105,3 +105,59 @@ M6 3D game-style renderer: W601-W605
 M7 Production hardening: W801-W806
 
 No later milestone may be declared production-ready while its required predecessor acceptance gates remain red.
+
+
+## M8 — Reality Engineering Lab
+
+W006 + W402/W403 -> REL-001 domain pack
+REL-001 -> REL-002 Lab Run
+REL-001 + W403 -> REL-003 world simulator
+REL-001 + model-runtime seam -> REL-004 Agent Body runtime
+REL-004 -> REL-005 Agent Organization
+REL-002 + REL-003 + REL-004 + REL-005 -> REL-006 organization search
+REL-003 + W801/W803 -> REL-007 evaluator/reward
+REL-006 + REL-007 -> REL-008 simulator calibration
+REL-006 + REL-007 -> REL-025 robustness benchmark
+REL-001..REL-008 -> REL-032 second domain proof
+
+## M9 — Historical corpus + long-running execution + external platform
+
+W101-W103 -> REL-009 historical source contract
+REL-009 -> REL-010 provider source adapters
+REL-010 + W403 -> REL-011 corpus/feature pipeline
+W302-W303 -> REL-012 durable Lab workers
+REL-012 -> REL-013 long-running harness adapter
+REL-012 -> REL-014 external HTTP API
+REL-014 -> REL-015 MCP adapter
+REL-009 + REL-012 + REL-014 -> REL-016 external feed processing
+REL-010 + REL-011 -> REL-026 historical acquisition acceptance
+REL-012 + REL-013 -> REL-029 long-run recovery
+REL-014 + REL-015 -> REL-030 API/MCP parity
+REL-016 + REL-024 -> REL-031 external feed end-to-end
+
+## M10 — Organization productization
+
+REL-005..REL-007 -> REL-017 Organization Registry
+REL-017 + W806 -> REL-018 automated promotion/rollback
+REL-017 + W703 -> REL-019 organization choice
+REL-002 + REL-017 + W701 -> REL-020 User Lab UX
+REL-020 + REL-017 -> REL-021 Lab incentive policy
+REL-018 + REL-021 -> REL-022 organization publishing
+REL-018 + REL-022 + REL-015 -> REL-023 external organization exchange
+REL-016 + REL-023 -> REL-024 platform processing workspace
+REL-018 + REL-019 -> REL-033 production organization choice proof
+REL-021 + REL-022 -> REL-034 user-lab incentive proof
+REL-023 + REL-024 + REL-030 -> REL-035 external platform proof
+REL-020 -> REL-027 user-lab isolation
+REL-018 -> REL-028 promotion/rollback acceptance
+
+## M11 — Final integration
+
+REL-026..REL-035 -> REL-036 program integration / drift audit
+
+M8 Lab substrate: REL-001..REL-008
+M9 Historical + external runtime: REL-009..REL-016
+M10 Registry/productization: REL-017..REL-024
+M11 Validation/integration: REL-025..REL-036
+
+R606/R607/L015-L017 remain upstream production gates for claims about current customer-visible readiness. REL completion cannot mark those gates complete.

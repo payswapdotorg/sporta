@@ -13,6 +13,7 @@ Your mission is to:
 3. preserve one canonical Sports World Model across batch, live tracking and broadcast-perception paths;
 4. continuously improve the Technology Plane through benchmarkable model candidates without coupling the product to any model vendor;
 5. keep technologies/provider choices replaceable and evidence-driven.
+6. after current customer-visible gates are protected, execute the additive Reality Engineering Lab program defined in `docs/agent-handoff/reality-engineering-lab-tech-lead.md`.
 
 ## Read first
 

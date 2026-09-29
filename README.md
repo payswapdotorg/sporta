@@ -82,3 +82,21 @@ bun test
 ```
 
 CI runs lint, typecheck, tests, and format checks on pushes to `main` and pull requests.
+
+
+## Reality Engineering Lab
+
+Sporta includes an additive Reality Engineering Lab architecture defined by ADR-013. It can learn and validate Agent Organizations for football, future sports, and other event domains.
+
+Canonical documents:
+- `docs/architecture/reality-engineering-lab.md`
+- `docs/contracts/agent-body-and-organization.md`
+- `docs/contracts/historical-media-and-corpus.md`
+- `docs/contracts/organization-registry-and-promotion.md`
+- `docs/contracts/external-platform-and-mcp.md`
+- `docs/work-items/reality-engineering-lab-work-items.md`
+- `docs/agent-handoff/reality-engineering-lab-tech-lead.md`
+
+Historical matches may be user-fed or discovered through source adapters. Acquisition remains rights/policy gated.
+
+Long-running Lab jobs use Sporta's durable job/workers. CopilotKit/OpenMuse/AG-UI or an equivalent harness may be connected for interactive plans, progress, reconnect and cancellation without becoming a second source of truth.
