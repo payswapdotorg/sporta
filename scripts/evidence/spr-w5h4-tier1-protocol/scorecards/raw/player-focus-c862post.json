@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, moment, and camera context (goal net, background) are perfectly preserved.\n2. temporalConsistency: 3 - The player's pose remains stable, but the background goal net exhibits noticeable spatial warping between frames.\n3. identityConsistency: 4 - The player's facial features, jersey details, and captain's armband are visually stable across all images.\n4. motionFidelity: 3 - The subtle shift in player position is consistent with a 0.2s interval, though limb articulation is slightly soft.\n5. sceneFidelity: 2 - The stadium background, specifically the goal net structure, is heavily distorted and lacks spatial stability.\n6. stylizationStrength: 3 - The transformation is evident as a smoothing/filtering effect, but it lacks a distinct artistic style.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=2 ss=3\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790664961,
+  "id": "20260929145554015fc5ffe6b44759",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260929145554015fc5ffe6b44759",
+  "usage": {
+    "completion_tokens": 225,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1392
+  }
+}

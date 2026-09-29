@@ -86,3 +86,54 @@ b12 container metadata honest-negative — decode-true frame counts stand
 (the 338 stsz sample count is structural: pre-roll GOP packets cannot be
 dropped or re-encoded without corrupting/altering frozen content);
 effective from wave-4.
+
+## Amendment A2 (2026-09-29, w5h4): cut-adjacent boundary-class adjudication (VLM scorecard §2)
+
+A scorecard sample is classified `cut-boundary-class` BEFORE scorecard
+assignment iff the temporal-pair window it evaluates (primary frame + its
+frozen 0.2 s partner, per the §2 sample design) intersects the pre-cut
+window of a SOURCE-side cut event. Cut events = the frozen per-clip cut
+records (the corpus/cuts_deep `inputCuts`), clustered with the scorecard's
+frozen CLUSTER_GAP (5). The pre-cut window of event [start, end] is
+`[start − (CUT_OFFSET 3 + TEMPORAL_DELTA 5), start − 1]` = [start−8,
+start−1] — exactly the backward reach of the frozen pre-sample design (a
+pre sample at start−3 pairs backward to start−8); the source's transition
+completes AT the cut, so the frames strictly before it are the
+transition-in-progress region. No post-cut window: a post sample at end+3
+pairs forward into the new shot (new-shot content, not transition content).
+The rule introduces NO new constants (both numbers are the frozen sample
+design's own) and is a pure function of the cut records + sample set
+(`scripts/source-preserving/cut_boundary.py`, tested in
+`test_cut_boundary.py` — deterministic, re-runnable, computed before any
+VLM call).
+
+EFFECT (scoped to §2's critical-artifact attribution): boundary samples
+are still VLM-scored — their axis scores still count in the means (no
+score laundering; the ≥3.5/≥4.0 axis bars keep pricing boundary-sample
+instability) — but their CRITICAL-artifact counts (limbs+players) are
+re-attributed to the named `source-pre-cut-transition` boundary class in
+the AMENDED aggregate. Basis: the w5h2 979-pre root cause (the source
+pair's own frames differ by 60.07 mean absdiff — larger than the 979 cut
+itself; the source content transitions across the pair, so the VLM's
+"disappearing player"/instability judgment there measures the SOURCE's
+transition, which the renderer must preserve — G-T2, sourceFidelity) and
+the w5h3 189-pre diagnosis (the recorded 2 criticals at c189pre, pair
+frames 181–186 in the source's pre-cut high-chaos region; every critical
+ever observed in this family across runs sits in this class). Precedent:
+the w4b named, scoped, pre-adjudicated boundary classes; amendment A1
+(w4a) for the additive-tool + both-numbers-recorded shape.
+
+NO-LAUNDERING CONDITIONS (all binding): (i) the raw VLM verdicts stay
+recorded verbatim and the raw aggregate/tierClaim stay in the record; (ii)
+axis means are never re-attributed; (iii) an amended tierClaim must cite
+this amendment and carry the raw numbers side by side; (iv) the hard
+gates (§1) are unchanged; (v) the TL visual gate stays binding for
+Tier 2+ and untouched; (vi) the classification derives ONLY from the
+frozen cut records + the frozen sample design — never from the renderer
+output or any VLM verdict (a sample is boundary because the SOURCE cut
+there, not because the score was bad); (vii) one run stands as measured —
+no re-roll laundering. Additive layer: `vlm_scorecard.py --amendment-a2`
+(default surface behavior-identical without the flag); effective from
+wave-5h4. First amended measurement: the w5h4 player-focus re-run
+(`scripts/evidence/spr-w5h4-tier1-protocol/` — the honest near-miss
+recorded there: the claim was WITHHELD on the re-run's own numbers).

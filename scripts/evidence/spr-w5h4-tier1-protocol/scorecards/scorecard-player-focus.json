@@ -1,0 +1,221 @@
+{
+ "family": "player-focus",
+ "rendererId": "spr-player-focus-dc1",
+ "rendererVersion": "0.2.0",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "gates": {
+  "G-T1": {
+   "value": "1190==1190",
+   "pass": true
+  },
+  "G-T2": {
+   "value": "coverage=1.0",
+   "pass": true,
+   "note": "detector miss on stylization-softened cut resolved by the deep correspondence gate (T2b)"
+  },
+  "G-T3": {
+   "value": "pearsonR=0.9431",
+   "pass": true
+  },
+  "G-T4": {
+   "value": "percentOfRange=0.349",
+   "pass": true
+  },
+  "G-T5": {
+   "value": "double render byteIdentical (b8 full-artifact)",
+   "pass": true,
+   "source": "b8 full-artifact"
+  }
+ },
+ "metrics": {
+  "motionCorrelation": 0.9431,
+  "staticRegionInstability": 0.349,
+  "cutCoverage": 1.0
+ },
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 5.0,
+   "temporalConsistency": 3.93,
+   "identityConsistency": 4.47,
+   "motionFidelity": 4.2,
+   "sceneFidelity": 3.87,
+   "stylizationStrength": 3.4
+  },
+  "minAxisMean": 3.4,
+  "overallMean": 4.15,
+  "criticalArtifacts": 0,
+  "totalArtifacts": 9,
+  "evidence": [
+   "vlm/player-focus-t2s.json",
+   "vlm/player-focus-t8s.json",
+   "vlm/player-focus-t15s.json",
+   "vlm/player-focus-t30s.json",
+   "vlm/player-focus-t45s.json",
+   "vlm/player-focus-c189pre.json",
+   "vlm/player-focus-c189post.json",
+   "vlm/player-focus-c475pre.json",
+   "vlm/player-focus-c475post.json",
+   "vlm/player-focus-c550pre.json",
+   "vlm/player-focus-c550post.json",
+   "vlm/player-focus-c862pre.json",
+   "vlm/player-focus-c862post.json",
+   "vlm/player-focus-c979pre.json",
+   "vlm/player-focus-c982post.json"
+  ],
+  "tierThresholds": {
+   "tier1": "hard gates green AND every axis mean >= 3.5 AND critical artifacts = 0",
+   "tier2": "hard gates green AND every axis mean >= 4.0 AND critical artifacts = 0 AND TL visual approval"
+  }
+ },
+ "tierClaim": 0,
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of the full render"
+ ],
+ "amendmentA2": {
+  "applied": true,
+  "reference": "docs/testing/source-preserving-reality-acceptance.md \u2014 Amendment A2 (w5h4)",
+  "rule": "cut-adjacent boundary-class adjudication: a sample whose frozen temporal-pair window intersects a source-side pre-cut window [start-(CUT_OFFSET+TEMPORAL_DELTA), start-1] is classified source-pre-cut-transition BEFORE scorecard assignment (frozen cut records + frozen sample design only; never the renderer output, never the verdicts); boundary samples are still VLM-scored \u2014 their axis scores count in the means \u2014 but their critical-artifact counts (limbs+players) are re-attributed to the named boundary class in the AMENDED aggregate",
+  "boundarySamples": [
+   "c189pre",
+   "c475pre",
+   "c550pre",
+   "c862pre",
+   "c979pre"
+  ],
+  "perSample": [
+   {
+    "sample": "t2s",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "t8s",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "t15s",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "t30s",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "t45s",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c189pre",
+    "isBoundary": true,
+    "pairWindow": [
+     181,
+     186
+    ],
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c189post",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c475pre",
+    "isBoundary": true,
+    "pairWindow": [
+     467,
+     472
+    ],
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c475post",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c550pre",
+    "isBoundary": true,
+    "pairWindow": [
+     542,
+     547
+    ],
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c550post",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c862pre",
+    "isBoundary": true,
+    "pairWindow": [
+     854,
+     859
+    ],
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c862post",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c979pre",
+    "isBoundary": true,
+    "pairWindow": [
+     971,
+     976
+    ],
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   },
+   {
+    "sample": "c982post",
+    "isBoundary": false,
+    "pairWindow": null,
+    "rawLimbs": 0,
+    "rawPlayers": 0
+   }
+  ],
+  "rawCriticalArtifacts": 0,
+  "boundaryClassCriticalArtifacts": 0,
+  "amendedCriticalArtifacts": 0,
+  "rawTierClaim": 0,
+  "amendedTierClaim": 0,
+  "nonDegradation": "the default (unamended) surface is behavior-identical: run without --amendment-a2 to reproduce the frozen outputs; raw verdicts, raw aggregates and the raw tierClaim above are the measured record \u2014 nothing disappears"
+ }
+}

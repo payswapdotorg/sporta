@@ -49,7 +49,6 @@ import {
 } from "@sporta/media-platform";
 import type {
   MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
-  MediaToolchainResult as MediaToolchainResultDoc,
 } from "@sporta/media-platform";
 import type { AuthorizationPolicy } from "@sporta/contracts";
 import { ComputeUsageRecord } from "@sporta/compute-adapter";

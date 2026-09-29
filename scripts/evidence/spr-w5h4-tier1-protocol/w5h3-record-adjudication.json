@@ -1,0 +1,146 @@
+{
+ "analysis": "RETROSPECTIVE (documented analysis of the frozen w5h3 record under Amendment A2 \u2014 NOT a claim; the live amended-protocol verdict comes from the w5h4 fresh re-run)",
+ "source": "scripts/evidence/spr-wave5-playerfocus-priority/scorecards/raw (the committed w5h3 15-call record, verbatim)",
+ "boundarySamples": [
+  "c189pre",
+  "c475pre",
+  "c550pre",
+  "c862pre",
+  "c979pre"
+ ],
+ "perSample": [
+  {
+   "sample": "t2s",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "t8s",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "t15s",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "t30s",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "t45s",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "c189pre",
+   "isBoundary": true,
+   "rawLimbs": 1,
+   "rawPlayers": 1,
+   "critical": 2,
+   "adjudicatedTo": "source-pre-cut-transition"
+  },
+  {
+   "sample": "c189post",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "c475pre",
+   "isBoundary": true,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": "source-pre-cut-transition"
+  },
+  {
+   "sample": "c475post",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "c550pre",
+   "isBoundary": true,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": "source-pre-cut-transition"
+  },
+  {
+   "sample": "c550post",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "c862pre",
+   "isBoundary": true,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": "source-pre-cut-transition"
+  },
+  {
+   "sample": "c862post",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  },
+  {
+   "sample": "c979pre",
+   "isBoundary": true,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": "source-pre-cut-transition"
+  },
+  {
+   "sample": "c982post",
+   "isBoundary": false,
+   "rawLimbs": 0,
+   "rawPlayers": 0,
+   "critical": 0,
+   "adjudicatedTo": null
+  }
+ ],
+ "rawCriticalArtifacts": 2,
+ "boundaryClassCriticalArtifacts": 2,
+ "amendedCriticalArtifacts": 0,
+ "meanScores": {
+  "sourceFidelity": 4.87,
+  "temporalConsistency": 3.73,
+  "identityConsistency": 4.47,
+  "motionFidelity": 4.2,
+  "sceneFidelity": 4.0,
+  "stylizationStrength": 3.93
+ },
+ "minAxisMean": 3.73,
+ "note": "both w5h3 criticals (c189pre limbs=1 players=1) sit inside the pre-adjudicated boundary set \u2014 the amendment reclassifies exactly the recorded critical class; the w5h3 measured means (minAxis 3.73) are unchanged (axis scores are never re-attributed)"
+}

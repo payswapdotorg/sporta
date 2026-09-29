@@ -1,0 +1,40 @@
+1. constants derive from the frozen protocol (no new tuning)
+  ok: W_PRE == CUT_OFFSET + TEMPORAL_DELTA == 8
+  ok: CLUSTER_GAP/FPS/TEMPORAL_DELTA == frozen scorecard values
+2. frozen b8 classification (the w5h4 run's exact set)
+  ok: boundary == exactly the 5 pre-cut samples
+  ok: no post/fixed sample is boundary
+  ok: c979pre pair [971,976] inside the 979/982 cluster pre window
+  ok: c189pre pair [181,186] inside the cut-189 pre window [181,188]
+3. pair windows mirror the frozen vlm_scorecard extraction rule
+  ok: t2s pair == (50, 55)
+  ok: t8s pair == (200, 205)
+  ok: t15s pair == (375, 380)
+  ok: t30s pair == (750, 755)
+  ok: t45s pair == (1125, 1130)
+  ok: c189pre pair == (186, 181)
+  ok: c189post pair == (192, 197)
+  ok: c475pre pair == (472, 467)
+  ok: c475post pair == (478, 483)
+  ok: c550pre pair == (547, 542)
+  ok: c550post pair == (553, 558)
+  ok: c862pre pair == (859, 854)
+  ok: c862post pair == (865, 870)
+  ok: c979pre pair == (976, 971)
+  ok: c982post pair == (985, 990)
+4. determinism (same inputs -> identical classification)
+  ok: classify twice deep-equal
+5. generality (positional rule, not sample-kind special-casing)
+  ok: fixed sample pair [200,205] in cut-208 pre window -> boundary
+  ok: fixed sample far from cuts -> not boundary
+  ok: post sample pair [103,108] never enters the cut-100 pre window
+  ok: pair [199,194] reaching start-6 -> boundary (window interior)
+  ok: pair [204,209] touching start-1 -> boundary (window edge)
+  ok: pair [196,201] overlapping window [197,204] -> boundary
+  ok: pair [191,196] fully below window [197,204] -> NOT boundary
+6. clustering (the frozen scorecard CLUSTER_GAP rule)
+  ok: 979/982 cluster into one event
+  ok: pre windows anchor at the cluster START
+  ok: boundary class name is the named A2 class
+
+ALL 32 CHECKS PASS

@@ -1,0 +1,207 @@
+{
+ "source": "/home/z/sporta/scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+ "frameCount": 1190,
+ "cuts": [
+  189,
+  475,
+  550,
+  862,
+  979,
+  982
+ ],
+ "diffStats": {
+  "median": 3.14,
+  "p90": 11.85,
+  "max": 51.5
+ },
+ "cutAmplitudes": {
+  "189": 32.05,
+  "475": 24.03,
+  "550": 20.09,
+  "862": 33.89,
+  "979": 34.73,
+  "982": 49.34
+ },
+ "samplePairs": [
+  {
+   "sample": "t2s",
+   "frame": 50,
+   "partner": 55,
+   "pairAbsdiff": 18.79,
+   "maxConsecDiffInSpan": 8.99,
+   "meanConsecDiffInSpan": 8.11,
+   "framesCovered": [
+    50,
+    55
+   ]
+  },
+  {
+   "sample": "t8s",
+   "frame": 200,
+   "partner": 205,
+   "pairAbsdiff": 9.58,
+   "maxConsecDiffInSpan": 4.23,
+   "meanConsecDiffInSpan": 4.02,
+   "framesCovered": [
+    200,
+    205
+   ]
+  },
+  {
+   "sample": "t15s",
+   "frame": 375,
+   "partner": 380,
+   "pairAbsdiff": 3.96,
+   "maxConsecDiffInSpan": 1.3,
+   "meanConsecDiffInSpan": 1.14,
+   "framesCovered": [
+    375,
+    380
+   ]
+  },
+  {
+   "sample": "t30s",
+   "frame": 750,
+   "partner": 755,
+   "pairAbsdiff": 5.37,
+   "maxConsecDiffInSpan": 1.78,
+   "meanConsecDiffInSpan": 1.47,
+   "framesCovered": [
+    750,
+    755
+   ]
+  },
+  {
+   "sample": "t45s",
+   "frame": 1125,
+   "partner": 1130,
+   "pairAbsdiff": 3.15,
+   "maxConsecDiffInSpan": 1.43,
+   "meanConsecDiffInSpan": 1.01,
+   "framesCovered": [
+    1125,
+    1130
+   ]
+  },
+  {
+   "sample": "c189pre",
+   "frame": 186,
+   "partner": 181,
+   "pairAbsdiff": 11.74,
+   "maxConsecDiffInSpan": 6.91,
+   "meanConsecDiffInSpan": 6.5,
+   "framesCovered": [
+    181,
+    186
+   ]
+  },
+  {
+   "sample": "c189post",
+   "frame": 192,
+   "partner": 197,
+   "pairAbsdiff": 9.75,
+   "maxConsecDiffInSpan": 4.72,
+   "meanConsecDiffInSpan": 4.63,
+   "framesCovered": [
+    192,
+    197
+   ]
+  },
+  {
+   "sample": "c475pre",
+   "frame": 472,
+   "partner": 467,
+   "pairAbsdiff": 10.4,
+   "maxConsecDiffInSpan": 5.02,
+   "meanConsecDiffInSpan": 4.89,
+   "framesCovered": [
+    467,
+    472
+   ]
+  },
+  {
+   "sample": "c475post",
+   "frame": 478,
+   "partner": 483,
+   "pairAbsdiff": 10.67,
+   "maxConsecDiffInSpan": 7.31,
+   "meanConsecDiffInSpan": 7.01,
+   "framesCovered": [
+    478,
+    483
+   ]
+  },
+  {
+   "sample": "c550pre",
+   "frame": 547,
+   "partner": 542,
+   "pairAbsdiff": 6.28,
+   "maxConsecDiffInSpan": 3.48,
+   "meanConsecDiffInSpan": 2.53,
+   "framesCovered": [
+    542,
+    547
+   ]
+  },
+  {
+   "sample": "c550post",
+   "frame": 553,
+   "partner": 558,
+   "pairAbsdiff": 7.29,
+   "maxConsecDiffInSpan": 2.57,
+   "meanConsecDiffInSpan": 2.28,
+   "framesCovered": [
+    553,
+    558
+   ]
+  },
+  {
+   "sample": "c862pre",
+   "frame": 859,
+   "partner": 854,
+   "pairAbsdiff": 7.73,
+   "maxConsecDiffInSpan": 2.36,
+   "meanConsecDiffInSpan": 2.18,
+   "framesCovered": [
+    854,
+    859
+   ]
+  },
+  {
+   "sample": "c862post",
+   "frame": 865,
+   "partner": 870,
+   "pairAbsdiff": 25.09,
+   "maxConsecDiffInSpan": 14.4,
+   "meanConsecDiffInSpan": 14.23,
+   "framesCovered": [
+    865,
+    870
+   ]
+  },
+  {
+   "sample": "c979pre",
+   "frame": 976,
+   "partner": 971,
+   "pairAbsdiff": 60.07,
+   "maxConsecDiffInSpan": 19.3,
+   "meanConsecDiffInSpan": 13.81,
+   "framesCovered": [
+    971,
+    976
+   ]
+  },
+  {
+   "sample": "c982post",
+   "frame": 985,
+   "partner": 990,
+   "pairAbsdiff": 1.8,
+   "maxConsecDiffInSpan": 0.73,
+   "meanConsecDiffInSpan": 0.6,
+   "framesCovered": [
+    985,
+    990
+   ]
+  }
+ ]
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (24:15), and camera angle as the original broadcast frame.\n2. temporalConsistency - 4: The transition between the two stylized frames is smooth with no jarring flickers or sudden morphing of objects.\n3. identityConsistency - 5: The players' appearances, including jersey numbers and colors, remain visually stable and recognizable across all frames.\n4. motionFidelity - 4: The players and ball move logically between frames, consistent with a running play in a football match.\n5. sceneFidelity - 3: While the general stadium layout is preserved, the background advertising boards and field lines show some spatial warping.\n6. stylizationStrength - 4: The transformation to a darker, more focused player-centric style is obvious and distinct from the original broadcast.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=3 ss=4\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790664922,
+  "id": "20260929145515a6d5c8b486a2443c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260929145515a6d5c8b486a2443c",
+  "usage": {
+    "completion_tokens": 231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1167,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1398
+  }
+}
