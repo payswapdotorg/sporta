@@ -157,7 +157,12 @@ function paintModelMarkings(bytes: Uint8Array, offsetPx: number): void {
     const steps = Math.max(1, Math.ceil((arc.r * angleSpan) / 0.25));
     for (let step = 0; step <= steps; step += 1) {
       const angle = angle0 + (angleSpan * step) / steps;
-      paintMarkingPoint(bytes, arc.cx + arc.r * Math.cos(angle), arc.cy + arc.r * Math.sin(angle), offsetPx);
+      paintMarkingPoint(
+        bytes,
+        arc.cx + arc.r * Math.cos(angle),
+        arc.cy + arc.r * Math.sin(angle),
+        offsetPx,
+      );
     }
   }
 }
@@ -247,39 +252,35 @@ const PROBE_PITCH_POINTS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 describe("BroadcastLineCalibrator (W303-class, R606 fix path)", () => {
-  test(
-    "recovers the broadcast-perspective homography within 2.5 m on 10 probe points",
-    () => {
-      const calibrator = new BroadcastLineCalibrator();
-      const frames = broadcastFrames(FRAME_COUNT);
-      const result = calibrator.calibrate({ frames });
-      let worstMeters = 0;
-      for (const [pitchX, pitchY] of PROBE_PITCH_POINTS) {
-        const image = project(H_GT_INVERSE, pitchX, pitchY);
-        // Fixture sanity: every probe lands inside the frame.
-        expect(image.x).toBeGreaterThan(0);
-        expect(image.x).toBeLessThan(1);
-        expect(image.y).toBeGreaterThan(0);
-        expect(image.y).toBeLessThan(1);
-        const recovered = applyHomography(result.homography, image);
-        const error = Math.hypot(recovered.x - pitchX, recovered.y - pitchY);
-        worstMeters = Math.max(worstMeters, error);
-      }
-      expect(worstMeters).toBeLessThan(2.5);
-      expect(result.confidence).toBeGreaterThan(0.5);
-      expect(result.confidence).toBeLessThanOrEqual(1);
-      expect(result.correspondenceCount).toBe(4);
-      expect(result.cornerSet.cornerOrder).toBe("tl, tr, br, bl");
-      expect(result.cornerSet.corners.length).toBe(4);
-      // The contract payload conforms.
-      const parsed = FieldMappingPayload.safeParse(result.mapping);
-      expect(parsed.success).toBe(true);
-      expect(parsed.data?.cameraHomographyRef).toContain("homography-");
-      // The canonical homography form.
-      expect(result.homography[8]).toBeCloseTo(1, 12);
-    },
-    120_000,
-  );
+  test("recovers the broadcast-perspective homography within 2.5 m on 10 probe points", () => {
+    const calibrator = new BroadcastLineCalibrator();
+    const frames = broadcastFrames(FRAME_COUNT);
+    const result = calibrator.calibrate({ frames });
+    let worstMeters = 0;
+    for (const [pitchX, pitchY] of PROBE_PITCH_POINTS) {
+      const image = project(H_GT_INVERSE, pitchX, pitchY);
+      // Fixture sanity: every probe lands inside the frame.
+      expect(image.x).toBeGreaterThan(0);
+      expect(image.x).toBeLessThan(1);
+      expect(image.y).toBeGreaterThan(0);
+      expect(image.y).toBeLessThan(1);
+      const recovered = applyHomography(result.homography, image);
+      const error = Math.hypot(recovered.x - pitchX, recovered.y - pitchY);
+      worstMeters = Math.max(worstMeters, error);
+    }
+    expect(worstMeters).toBeLessThan(2.5);
+    expect(result.confidence).toBeGreaterThan(0.5);
+    expect(result.confidence).toBeLessThanOrEqual(1);
+    expect(result.correspondenceCount).toBe(4);
+    expect(result.cornerSet.cornerOrder).toBe("tl, tr, br, bl");
+    expect(result.cornerSet.corners.length).toBe(4);
+    // The contract payload conforms.
+    const parsed = FieldMappingPayload.safeParse(result.mapping);
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.cameraHomographyRef).toContain("homography-");
+    // The canonical homography form.
+    expect(result.homography[8]).toBeCloseTo(1, 12);
+  }, 120_000);
 
   test("the moving players are excluded: the static evidence is line-only (poison test)", () => {
     // A player-only fixture (no markings) must refuse: nothing STATIC with

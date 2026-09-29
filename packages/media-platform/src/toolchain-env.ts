@@ -70,9 +70,7 @@ export function mediaToolchainSelectionOf(
   const raw = env["MEDIA_TOOLCHAIN"];
   if (raw === undefined || raw === "") return "in-process";
   if (raw === "in-process" || raw === "http") return raw;
-  throw new Error(
-    `MEDIA_TOOLCHAIN must be one of "in-process" | "http" (got '${raw}')`,
-  );
+  throw new Error(`MEDIA_TOOLCHAIN must be one of "in-process" | "http" (got '${raw}')`);
 }
 
 /**

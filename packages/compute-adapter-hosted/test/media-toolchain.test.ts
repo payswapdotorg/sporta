@@ -47,9 +47,7 @@ import {
   normalizedMediaKey,
   sha256OfBytes,
 } from "@sporta/media-platform";
-import type {
-  MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
-} from "@sporta/media-platform";
+import type { MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc } from "@sporta/media-platform";
 import type { AuthorizationPolicy } from "@sporta/contracts";
 import { ComputeUsageRecord } from "@sporta/compute-adapter";
 import {
@@ -446,19 +444,20 @@ describe("the media toolchain failure classes", () => {
     expect(execution.result.metering.inputBytes).toBe(bytes.byteLength);
   });
 
-  test.skipIf(!hasFfmpeg)("an over-duration OUTPUT refuses with the media-invalid class", async () => {
-    // The policy bound is enforced against the PRODUCED media: a 2s clip
-    // against a 1s bound refuses at the re-check.
-    const worker = realWorker();
-    const bytes = await realMp4Bytes({ durationSeconds: 2, withAudio: false });
-    const execution = await worker.execute(
-      buildMediaDispatch(bytes, { maxDurationMs: 1000 }),
-    );
-    if (execution.kind !== "executed") throw new Error("expected an executed (failed) envelope");
-    expect(execution.result.status).toBe("failed");
-    expect(execution.result.failure?.errorClass).toBe("duration-over-limit");
-    expect(execution.result.failure?.failureClass).toBe("media-invalid");
-  });
+  test.skipIf(!hasFfmpeg)(
+    "an over-duration OUTPUT refuses with the media-invalid class",
+    async () => {
+      // The policy bound is enforced against the PRODUCED media: a 2s clip
+      // against a 1s bound refuses at the re-check.
+      const worker = realWorker();
+      const bytes = await realMp4Bytes({ durationSeconds: 2, withAudio: false });
+      const execution = await worker.execute(buildMediaDispatch(bytes, { maxDurationMs: 1000 }));
+      if (execution.kind !== "executed") throw new Error("expected an executed (failed) envelope");
+      expect(execution.result.status).toBe("failed");
+      expect(execution.result.failure?.errorClass).toBe("duration-over-limit");
+      expect(execution.result.failure?.failureClass).toBe("media-invalid");
+    },
+  );
 
   test.skipIf(!hasFfmpeg)("idempotence: a re-POST answers the SAME envelope, counted", async () => {
     const worker = realWorker();
@@ -555,9 +554,9 @@ describe("the media toolchain HTTP surface", () => {
       const handle = handler();
       const missing = await handle(new Request("http://worker/v1/media/jobs/nope"));
       expect(missing.status).toBe(404);
-      expect(
-        ((await missing.json()) as { error: { errorClass: string } }).error.errorClass,
-      ).toBe("unknown-job");
+      expect(((await missing.json()) as { error: { errorClass: string } }).error.errorClass).toBe(
+        "unknown-job",
+      );
 
       const worker = realWorker();
       const bytes = await realMp4Bytes({ durationSeconds: 1, withAudio: false });
@@ -611,8 +610,11 @@ describe("the media toolchain HTTP surface", () => {
         expect(empty.usageRecords).toBe(0);
 
         await worker.execute(buildMediaDispatch(bytes, { operation: "probe" }));
-        const stats = (await (await fetch(`${base}/v1/media/stats`)).json()) as
-          typeof empty & { succeeded: number; failed: number; inFlight: number };
+        const stats = (await (await fetch(`${base}/v1/media/stats`)).json()) as typeof empty & {
+          succeeded: number;
+          failed: number;
+          inFlight: number;
+        };
         expect(stats.jobsDispatched).toBe(1);
         expect(stats.succeeded).toBe(1);
         expect(stats.inFlight).toBe(0);
@@ -668,12 +670,8 @@ describe("the media toolchain accounting (identities hold at every settle)", () 
       const duplicate = await worker.execute(
         buildMediaDispatch(bytes, { operation: "normalize", jobId: "media-job-acc-2" }),
       );
-      const concurrent = worker.execute(
-        buildMediaDispatch(bytes, { jobId: "media-job-acc-4" }),
-      );
-      const refused = await worker.execute(
-        buildMediaDispatch(bytes, { jobId: "media-job-acc-5" }),
-      );
+      const concurrent = worker.execute(buildMediaDispatch(bytes, { jobId: "media-job-acc-4" }));
+      const refused = await worker.execute(buildMediaDispatch(bytes, { jobId: "media-job-acc-5" }));
       await concurrent;
       expect(ok.kind).toBe("executed");
       expect(timedOut.kind).toBe("executed");

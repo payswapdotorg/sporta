@@ -107,7 +107,11 @@ export function projectImage(h: Homography, u: number, v: number): { x: number; 
   };
 }
 /** Pitch meters → image-normalized through a (possibly non-canonical) matrix. */
-export function projectPitchNormalized(m: Homography, px: number, py: number): { x: number; y: number } {
+export function projectPitchNormalized(
+  m: Homography,
+  px: number,
+  py: number,
+): { x: number; y: number } {
   const denominator = m[6]! * px + m[7]! * py + m[8]!;
   return {
     x: (m[0]! * px + m[1]! * py + m[2]!) / denominator,
@@ -118,10 +122,12 @@ export function projectPitchToPx(px: number, py: number): { x: number; y: number
   const denominator = M_PITCH_TO_IMAGE[6]! * px + M_PITCH_TO_IMAGE[7]! * py + M_PITCH_TO_IMAGE[8]!;
   return {
     x:
-      ((M_PITCH_TO_IMAGE[0]! * px + M_PITCH_TO_IMAGE[1]! * py + M_PITCH_TO_IMAGE[2]!) / denominator) *
+      ((M_PITCH_TO_IMAGE[0]! * px + M_PITCH_TO_IMAGE[1]! * py + M_PITCH_TO_IMAGE[2]!) /
+        denominator) *
       WIDTH,
     y:
-      ((M_PITCH_TO_IMAGE[3]! * px + M_PITCH_TO_IMAGE[4]! * py + M_PITCH_TO_IMAGE[5]!) / denominator) *
+      ((M_PITCH_TO_IMAGE[3]! * px + M_PITCH_TO_IMAGE[4]! * py + M_PITCH_TO_IMAGE[5]!) /
+        denominator) *
       HEIGHT,
   };
 }
@@ -221,7 +227,10 @@ function paintNetStructureDisk(bytes: Uint8Array): void {
     for (let x = Math.floor(center.x) - margin; x <= Math.ceil(center.x) + margin; x += 1) {
       if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) continue;
       const pitch = projectImage(H_GT, x / WIDTH, y / HEIGHT);
-      if (Math.hypot(pitch.x - NET_STRUCTURE_DISK.cx, pitch.y - NET_STRUCTURE_DISK.cy) <= NET_STRUCTURE_DISK.r) {
+      if (
+        Math.hypot(pitch.x - NET_STRUCTURE_DISK.cx, pitch.y - NET_STRUCTURE_DISK.cy) <=
+        NET_STRUCTURE_DISK.r
+      ) {
         setPixel(bytes, x, y, LINE);
       }
     }
@@ -302,7 +311,7 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
     // The ellipse path needs only the same-family parallel touchline
     // pair, so the solve surface is unchanged; the line-path's family
     // starvation (the arc-window class) still holds.
-    segments = segments.filter(([x0, , x1, ]) => !(x0 === 52.5 && x1 === 52.5));
+    segments = segments.filter(([x0, , x1]) => !(x0 === 52.5 && x1 === 52.5));
   }
   for (const [x0, y0, x1, y1] of segments) {
     const length = Math.hypot(x1 - x0, y1 - y0);
@@ -338,7 +347,10 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
   return bytes;
 }
 
-export function arcWindowFrames(variant: RenderVariant = {}, count = FRAME_COUNT): DetectorFrameInput[] {
+export function arcWindowFrames(
+  variant: RenderVariant = {},
+  count = FRAME_COUNT,
+): DetectorFrameInput[] {
   const frames: DetectorFrameInput[] = [];
   for (let index = 0; index < count; index += 1) {
     frames.push(
@@ -365,7 +377,10 @@ export const PROBE_PITCH_POINTS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 /** Reads a typed refusal's failure class (fails the test on success). */
-export function refusalClassOf(calibrate: () => unknown): { classId: string; details: Record<string, unknown> } {
+export function refusalClassOf(calibrate: () => unknown): {
+  classId: string;
+  details: Record<string, unknown>;
+} {
   try {
     calibrate();
   } catch (error) {

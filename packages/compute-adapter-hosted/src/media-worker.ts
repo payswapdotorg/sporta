@@ -215,9 +215,7 @@ export class MediaToolchainWorker {
    * Concurrency is bounded fail-closed: over-budget executions are refused
    * determinately, never queued silently.
    */
-  async execute(
-    request: MediaToolchainDispatchRequestDoc,
-  ): Promise<MediaToolchainWorkerExecution> {
+  async execute(request: MediaToolchainDispatchRequestDoc): Promise<MediaToolchainWorkerExecution> {
     const known = this.records.get(request.job.jobId);
     if (known !== undefined && known.result !== undefined) {
       known.duplicateExecutions += 1;
@@ -324,7 +322,9 @@ export class MediaToolchainWorker {
 }
 
 /** Creates the media-toolchain compute worker application. */
-export function createMediaToolchainWorker(options: MediaToolchainWorkerOptions): MediaToolchainWorker {
+export function createMediaToolchainWorker(
+  options: MediaToolchainWorkerOptions,
+): MediaToolchainWorker {
   return new MediaToolchainWorker(options);
 }
 

@@ -118,8 +118,7 @@ export class MediaNormalizationService {
   constructor(options: MediaNormalizationServiceOptions) {
     this.storage = options.storage;
     this.executor =
-      options.toolchain ??
-      new InProcessMediaToolchain({ tool: options.tool ?? new FfmpegTool() });
+      options.toolchain ?? new InProcessMediaToolchain({ tool: options.tool ?? new FfmpegTool() });
     this.nowMs = options.nowMs;
     this.maxDurationMs = options.limits?.maxDurationMs ?? 120_000;
   }

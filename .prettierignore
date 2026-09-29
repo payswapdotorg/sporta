@@ -4,3 +4,7 @@ bun.lock
 docs/
 *.md
 .next/
+
+# frozen measurement/evidence artifacts — byte identity is the evidence chain
+# (sha-verified records); never reformatted
+scripts/evidence/

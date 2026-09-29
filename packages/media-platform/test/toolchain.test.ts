@@ -269,19 +269,22 @@ describe("the in-process toolchain seam (the REAL default)", () => {
     expect(probe.frameCount).toBeGreaterThanOrEqual(46);
   });
 
-  test.skipIf(!hasFfmpeg)("normalizeMedia returns the canonical output + its measured probe", async () => {
-    const executor = new InProcessMediaToolchain();
-    const bytes = await realMp4Bytes({ durationSeconds: 1, withAudio: true });
-    const outcome = await executor.normalizeMedia(bytes);
-    expect(outcome.outputBytes.byteLength).toBeGreaterThan(0);
-    // The canonical encoding: H.264/AAC (measured from the OUTPUT probe).
-    expect(outcome.outputProbe.videoStreams[0]!.codec_name).toBe("h264");
-    expect(outcome.outputProbe.audioStreams[0]!.codec_name).toBe("aac");
-    expect(outcome.outputProbe.audioStreams[0]!.sample_rate).toBe("48000");
-    // The content address is the sha-256 of the delivered bytes.
-    expect(sha256OfBytes(outcome.outputBytes)).toMatch(/^[0-9a-f]{64}$/);
-    expect(outcome.executionMs).toBeGreaterThanOrEqual(0);
-  });
+  test.skipIf(!hasFfmpeg)(
+    "normalizeMedia returns the canonical output + its measured probe",
+    async () => {
+      const executor = new InProcessMediaToolchain();
+      const bytes = await realMp4Bytes({ durationSeconds: 1, withAudio: true });
+      const outcome = await executor.normalizeMedia(bytes);
+      expect(outcome.outputBytes.byteLength).toBeGreaterThan(0);
+      // The canonical encoding: H.264/AAC (measured from the OUTPUT probe).
+      expect(outcome.outputProbe.videoStreams[0]!.codec_name).toBe("h264");
+      expect(outcome.outputProbe.audioStreams[0]!.codec_name).toBe("aac");
+      expect(outcome.outputProbe.audioStreams[0]!.sample_rate).toBe("48000");
+      // The content address is the sha-256 of the delivered bytes.
+      expect(sha256OfBytes(outcome.outputBytes)).toMatch(/^[0-9a-f]{64}$/);
+      expect(outcome.executionMs).toBeGreaterThanOrEqual(0);
+    },
+  );
 
   test.skipIf(!hasFfmpeg)(
     "the service over an EXPLICIT in-process seam behaves as the default (byte-identical seam law)",
@@ -480,9 +483,9 @@ describe("the env-driven toolchain selection (composition root)", () => {
     expect(resolved.toolchain).toBe("http");
     expect(resolved.workerUrl).toBe("http://127.0.0.1:3971");
     expect(resolved.executor).toBeDefined();
-    expect(() =>
-      resolveMediaToolchainFromEnv({ env: { MEDIA_TOOLCHAIN: "http" } }),
-    ).toThrow(/MEDIA_TOOLCHAIN_URL/);
+    expect(() => resolveMediaToolchainFromEnv({ env: { MEDIA_TOOLCHAIN: "http" } })).toThrow(
+      /MEDIA_TOOLCHAIN_URL/,
+    );
     expect(() => mediaToolchainSelectionOf({ MEDIA_TOOLCHAIN: "gpu" })).toThrow(/MEDIA_TOOLCHAIN/);
   });
 });

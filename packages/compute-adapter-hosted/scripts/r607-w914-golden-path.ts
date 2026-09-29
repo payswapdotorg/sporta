@@ -73,10 +73,7 @@ function argValue(flag: string): string | undefined {
   return at === -1 ? undefined : argv[at + 1];
 }
 const workerUrlArg = argValue("--worker-url");
-const outDir = resolve(
-  import.meta.dirname,
-  "../../../scripts/evidence/r607-w914-toolchain",
-);
+const outDir = resolve(import.meta.dirname, "../../../scripts/evidence/r607-w914-toolchain");
 
 /** A full wall-clock measurement pair (dev-time measurement code). */
 function timed<T>(fn: () => Promise<T>): Promise<{ value: T; wallMs: number }> {
@@ -126,7 +123,9 @@ if (workerUrlArg !== undefined) {
   embeddedWorker = createMediaToolchainWorker({ tool, nowMs: Date.now });
   embeddedServer = createMediaToolchainServer({ worker: embeddedWorker, port: FIXED_PORT });
   base = `http://127.0.0.1:${embeddedServer.port}`;
-  console.log(`[driver] mode: EMBEDDED worker on the fixed port ${FIXED_PORT} (real Bun.serve socket)`);
+  console.log(
+    `[driver] mode: EMBEDDED worker on the fixed port ${FIXED_PORT} (real Bun.serve socket)`,
+  );
 }
 
 // Health + the descriptor, fetched LIVE (never invented).
@@ -267,12 +266,16 @@ try {
       throw new Error("a usage record failed its own Wave-1 schema");
     }
   }
-  const normalizeJobId = (usageFinal.find((r) => {
-    const job = (r as { jobId: string }).jobId;
-    return job !== probeJobId;
-  }) as { jobId: string } | undefined)?.jobId;
+  const normalizeJobId = (
+    usageFinal.find((r) => {
+      const job = (r as { jobId: string }).jobId;
+      return job !== probeJobId;
+    }) as { jobId: string } | undefined
+  )?.jobId;
   if (normalizeJobId === undefined) throw new Error("no normalize usage record found");
-  const normalizeJobRecord = (await (await fetch(`${base}/v1/media/jobs/${normalizeJobId}`)).json()) as {
+  const normalizeJobRecord = (await (
+    await fetch(`${base}/v1/media/jobs/${normalizeJobId}`)
+  ).json()) as {
     result?: {
       artifact?: { sourceContentHash?: string; contentHash?: string };
       metering?: { executionMs: number; ffprobeRuns: number; ffmpegRuns: number };

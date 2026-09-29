@@ -61,10 +61,7 @@ interface ClipSpec {
   readonly frameCount: number;
 }
 
-const CORPUS_DIR = path.resolve(
-  import.meta.dir,
-  "../../../scripts/evidence/spr-corpus-bytes",
-);
+const CORPUS_DIR = path.resolve(import.meta.dir, "../../../scripts/evidence/spr-corpus-bytes");
 const EVIDENCE_DIR = path.resolve(
   import.meta.dir,
   "../../../scripts/evidence/r606-ellipse-constrained",
@@ -179,7 +176,11 @@ function extractFrames(clipPath: string, frameNumbers: readonly number[]): Promi
       for (let i = 0; i < frameNumbers.length; i += 1) {
         const start = i * BYTES_PER_FRAME;
         if (start + BYTES_PER_FRAME > buffer.length) {
-          reject(new Error(`ffmpeg produced ${buffer.length} bytes, expected ${frameNumbers.length * BYTES_PER_FRAME}`));
+          reject(
+            new Error(
+              `ffmpeg produced ${buffer.length} bytes, expected ${frameNumbers.length * BYTES_PER_FRAME}`,
+            ),
+          );
           return;
         }
         frames.push(new Uint8Array(buffer.subarray(start, start + BYTES_PER_FRAME)));
@@ -194,7 +195,12 @@ function extractFrames(clipPath: string, frameNumbers: readonly number[]): Promi
 // ---------------------------------------------------------------------------
 
 type Outcome =
-  | { kind: "calibrated"; confidence: number; correspondenceCount: number; metrics: Record<string, unknown> }
+  | {
+      kind: "calibrated";
+      confidence: number;
+      correspondenceCount: number;
+      metrics: Record<string, unknown>;
+    }
   | { kind: "refused"; failureClassId: string; details: Record<string, unknown> };
 
 function measurePath(
@@ -220,9 +226,7 @@ function measurePath(
         lineFit: metrics.lineFit,
         backwardPx: metrics.backwardPx,
         scoredPixels: metrics.scoredPixels,
-        ...(metrics.ellipseMeanPx !== undefined
-          ? { ellipseMeanPx: metrics.ellipseMeanPx }
-          : {}),
+        ...(metrics.ellipseMeanPx !== undefined ? { ellipseMeanPx: metrics.ellipseMeanPx } : {}),
         ...(metrics.ellipseSupportPx !== undefined
           ? { ellipseSupportPx: metrics.ellipseSupportPx }
           : {}),
@@ -244,9 +248,7 @@ function measurePath(
 }
 
 function jsonSafe(value: unknown): unknown {
-  return JSON.parse(
-    JSON.stringify(value, (_key, v) => (v === undefined ? null : v)),
-  );
+  return JSON.parse(JSON.stringify(value, (_key, v) => (v === undefined ? null : v)));
 }
 
 async function main(): Promise<void> {
@@ -277,10 +279,14 @@ async function main(): Promise<void> {
       verified: true,
     })),
     paths: {
-      v010LineOnly: "BroadcastLineCalibrator({ ellipseConstrained: false }) — the v0.1.0 behavior surface",
-      v020EllipseConstrained: "BroadcastLineCalibrator() — the v0.4.0 DEFAULT (opt-in chain OFF: the v0.3.0-exact single-conic surface — the b3-a visual-gate FAIL keeps the chain opt-in)",
-      v030Surface: "BroadcastLineCalibrator({ ellipseMultiConicSelection: false }) — the v0.3.0 single-conic surface (identical to the default; the explicit control)",
-      v040Chain: "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain + the v0.4.1 VALIDATION-GATE HARDENING (chain-only): the conic grass-support gate (broadcast-line.ellipse-conic-off-pitch — the b3-a goal-structure conics measure median interior green 0.000-0.073 vs 0.27-0.79 grass-backed) + the projected-grid geometry gate (broadcast-line.ellipse-degenerate-grid — the containment invariant; the v0.4.0 b3-a solve was a point-collapse at quad/conic 0.0004)",
+      v010LineOnly:
+        "BroadcastLineCalibrator({ ellipseConstrained: false }) — the v0.1.0 behavior surface",
+      v020EllipseConstrained:
+        "BroadcastLineCalibrator() — the v0.4.0 DEFAULT (opt-in chain OFF: the v0.3.0-exact single-conic surface — the b3-a visual-gate FAIL keeps the chain opt-in)",
+      v030Surface:
+        "BroadcastLineCalibrator({ ellipseMultiConicSelection: false }) — the v0.3.0 single-conic surface (identical to the default; the explicit control)",
+      v040Chain:
+        "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain + the v0.4.1 VALIDATION-GATE HARDENING (chain-only): the conic grass-support gate (broadcast-line.ellipse-conic-off-pitch — the b3-a goal-structure conics measure median interior green 0.000-0.073 vs 0.27-0.79 grass-backed) + the projected-grid geometry gate (broadcast-line.ellipse-degenerate-grid — the containment invariant; the v0.4.0 b3-a solve was a point-collapse at quad/conic 0.0004)",
     },
     windows: [] as unknown[],
     aggregate: {} as Record<string, unknown>,
@@ -322,10 +328,7 @@ async function main(): Promise<void> {
     );
     // The anchor frame for the overlay renderer.
     const anchorIndex = Math.floor((frames.length - 1) / 2);
-    writeFileSync(
-      path.join(FRAMES_DIR, `${window.id}.rgb`),
-      Buffer.from(rawFrames[anchorIndex]!),
-    );
+    writeFileSync(path.join(FRAMES_DIR, `${window.id}.rgb`), Buffer.from(rawFrames[anchorIndex]!));
 
     const v010 = measurePath(frames, false);
     const v020 = measurePath(frames, true);
@@ -384,9 +387,7 @@ async function main(): Promise<void> {
       id: window.id,
       clipId: window.clipId,
       frames: frameNumbers,
-      mediaTimesSec: frameNumbers.map(
-        (n) => +(clip.mediaTimeStartSec + n / 25).toFixed(2),
-      ),
+      mediaTimesSec: frameNumbers.map((n) => +(clip.mediaTimeStartSec + n / 25).toFixed(2)),
       anchorFrame: frameNumbers[anchorIndex]!,
       durationMs: Date.now() - t0,
       v010LineOnly: jsonSafe(v010),

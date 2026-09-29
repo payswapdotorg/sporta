@@ -38,7 +38,9 @@ const resolved = descriptor.toolchain.resolved
   ? `RESOLVED — ffmpeg '${descriptor.toolchain.ffmpegPath}' / ffprobe '${descriptor.toolchain.ffprobePath}'`
   : "UNRESOLVED — this worker advertises NO operations and refuses every dispatch with the typed ffmpeg-unavailable class (honest, never faked)";
 console.log(`[media-toolchain-worker] listening on http://${HOSTNAME}:${server.port}`);
-console.log(`[media-toolchain-worker] adapter ${descriptor.adapterId} v${descriptor.adapterVersion}, provider ${descriptor.providerId}`);
+console.log(
+  `[media-toolchain-worker] adapter ${descriptor.adapterId} v${descriptor.adapterVersion}, provider ${descriptor.providerId}`,
+);
 console.log(`[media-toolchain-worker] toolchain: ${resolved}`);
 if (descriptor.toolchain.ffmpegVersion !== null) {
   console.log(`[media-toolchain-worker] measured identity: ${descriptor.toolchain.ffmpegVersion}`);

@@ -107,8 +107,5 @@ export type {
   MediaToolchainWorkerExecution,
   MediaToolchainWorkerOptions,
 } from "./media-worker";
-export {
-  createMediaToolchainHttpHandler,
-  createMediaToolchainServer,
-} from "./media-http";
+export { createMediaToolchainHttpHandler, createMediaToolchainServer } from "./media-http";
 export type { MediaToolchainServerOptions } from "./media-http";

@@ -40,7 +40,11 @@
  * contract package is left untouched.
  */
 import { z } from "zod";
-import { ComputeJobConstraints, ComputeRightsPosture, ComputeCostUnit } from "@sporta/compute-adapter";
+import {
+  ComputeJobConstraints,
+  ComputeRightsPosture,
+  ComputeCostUnit,
+} from "@sporta/compute-adapter";
 import type { ComputeCostUnit as ComputeCostUnitDoc } from "@sporta/compute-adapter";
 import type { MediaProbe } from "./ffmpeg";
 
@@ -169,36 +173,34 @@ export type MediaToolchainDispatchRequest = z.infer<typeof MediaToolchainDispatc
  * schema mirrors only the fields this contract reads and STRIPS the rest
  * (zod's default): the measured evidence fields are preserved verbatim.
  */
-export const MediaToolchainProbeStream = z
-  .object({
-    index: z.number().int().optional(),
-    codec_type: z.string().optional(),
-    codec_name: z.string().optional(),
-    profile: z.string().optional(),
-    width: z.number().int().optional(),
-    height: z.number().int().optional(),
-    avg_frame_rate: z.string().optional(),
-    r_frame_rate: z.string().optional(),
-    nb_frames: z.string().optional(),
-    duration: z.union([z.number(), z.string()]).optional(),
-    bit_rate: z.string().optional(),
-    channels: z.number().int().optional(),
-    sample_rate: z.string().optional(),
-    sample_rate_hz: z.number().optional(),
-  });
+export const MediaToolchainProbeStream = z.object({
+  index: z.number().int().optional(),
+  codec_type: z.string().optional(),
+  codec_name: z.string().optional(),
+  profile: z.string().optional(),
+  width: z.number().int().optional(),
+  height: z.number().int().optional(),
+  avg_frame_rate: z.string().optional(),
+  r_frame_rate: z.string().optional(),
+  nb_frames: z.string().optional(),
+  duration: z.union([z.number(), z.string()]).optional(),
+  bit_rate: z.string().optional(),
+  channels: z.number().int().optional(),
+  sample_rate: z.string().optional(),
+  sample_rate_hz: z.number().optional(),
+});
 export type MediaToolchainProbeStream = z.infer<typeof MediaToolchainProbeStream>;
 
 /** The raw ffprobe document — EXTERNAL data, same read-and-strip posture. */
-export const MediaToolchainProbeRaw = z
-  .object({
-    streams: z.array(MediaToolchainProbeStream).optional(),
-    format: z
-      .object({
-        duration: z.union([z.number(), z.string()]).optional(),
-        format_name: z.string().optional(),
-      })
-      .optional(),
-  });
+export const MediaToolchainProbeRaw = z.object({
+  streams: z.array(MediaToolchainProbeStream).optional(),
+  format: z
+    .object({
+      duration: z.union([z.number(), z.string()]).optional(),
+      format_name: z.string().optional(),
+    })
+    .optional(),
+});
 export type MediaToolchainProbeRaw = z.infer<typeof MediaToolchainProbeRaw>;
 
 /**
@@ -375,14 +377,21 @@ export const MediaToolchainResult = z
         message: `failure details are only legal when status is "failed" (got "${envelope.status}")`,
       });
     }
-    if (envelope.operation === "probe" && (envelope.normalized !== undefined || envelope.artifact !== undefined)) {
+    if (
+      envelope.operation === "probe" &&
+      (envelope.normalized !== undefined || envelope.artifact !== undefined)
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["normalized"],
         message: "a probe job must not carry normalized output or an artifact",
       });
     }
-    if (envelope.operation === "probe" && envelope.status === "succeeded" && envelope.sourceProbe === undefined) {
+    if (
+      envelope.operation === "probe" &&
+      envelope.status === "succeeded" &&
+      envelope.sourceProbe === undefined
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["sourceProbe"],
@@ -394,7 +403,8 @@ export const MediaToolchainResult = z
         ctx.addIssue({
           code: "custom",
           path: ["sourceProbe"],
-          message: "a normalize job must not carry a source probe (the output probe is the manifest's source)",
+          message:
+            "a normalize job must not carry a source probe (the output probe is the manifest's source)",
         });
       }
       if (envelope.status === "succeeded") {
@@ -409,7 +419,8 @@ export const MediaToolchainResult = z
             ctx.addIssue({
               code: "custom",
               path: ["artifact"],
-              message: "the artifact's contentHash must equal the normalized output's (the content address)",
+              message:
+                "the artifact's contentHash must equal the normalized output's (the content address)",
             });
           }
           if (envelope.normalized.byteSize !== envelope.artifact.byteSize) {
@@ -635,7 +646,11 @@ export type MediaToolchainErrorClass = (typeof MEDIA_TOOLCHAIN_ERROR_CLASSES)[nu
 export const MEDIA_TOOLCHAIN_COST_UNITS: ComputeCostUnitDoc[] = [
   { unitId: "cpu-ms", unitKind: "time-ms", description: "measured media-toolchain execution time" },
   { unitId: "media-jobs", unitKind: "count", description: "executed media-toolchain jobs" },
-  { unitId: "artifact-bytes", unitKind: "bytes", description: "normalized artifact bytes produced" },
+  {
+    unitId: "artifact-bytes",
+    unitKind: "bytes",
+    description: "normalized artifact bytes produced",
+  },
 ];
 
 /** The media-toolchain adapter identity (names logs and usage records). */
