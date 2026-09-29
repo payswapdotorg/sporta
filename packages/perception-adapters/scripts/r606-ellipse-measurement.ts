@@ -2,7 +2,7 @@
  * R606 ellipse/circle-constrained calibration — MACHINE MEASUREMENT DRIVER
  * (DEVELOPMENT-TIME EVIDENCE, not a test).
  *
- * Measures FOUR calibration paths of `BroadcastLineCalibrator` v0.4.1 on
+ * Measures SIX calibration paths of `BroadcastLineCalibrator` v0.5.0 on
  * bounded frame samples of the committed REAL corpus
  * (`scripts/evidence/spr-corpus-bytes/`, sha-256-verified against
  * `scripts/evidence/spr-wave2-corpus/corpus.json` at startup — the frozen
@@ -14,13 +14,27 @@
  *    false`; must be identical to the default — the non-degradation check)
  *  - (d) the v0.4.1 chain (opt-in; carries the validation-gate hardening:
  *    the conic grass-support gate + the projected-grid geometry gate)
+ *  - (e) the v0.5.0 OPT-IN anchor conversion on the default single-conic
+ *    surface (`ellipseAnchorConversion: true` — the J-orthogonal exact
+ *    closure; every enumerated scan solve projected onto the J-orthogonal
+ *    class under the admissibility bound / closure self-check / birth
+ *    conic guard / conic hard guard, NO refinement, the UNCHANGED
+ *    validation bar — the anchors-fight honest refusals)
+ *  - (f) the v0.5.0 OPT-IN anchor conversion on the v0.4.1 conic-selection
+ *    chain (`ellipseAnchorConversion: true, ellipseMultiConicSelection:
+ *    true` — the per-candidate anchor records ride every conicChain entry)
  * per window (multi-frame, the pipeline's real mode) AND per sampled frame
  * (single-frame diagnostics), recording calibrated/refused, confidence,
  * the failure class + measured numbers on refusals, and the fit metrics
- * (lineFit / backward chamfer / ellipse residual) on calibrations.
+ * (lineFit / backward chamfer / ellipse residual) on calibrations. The
+ * corpus-wide E4b anchor-record totals (scan solves enumerated / converted,
+ * the typed unconvertible-refusal firings) aggregate over every conversion-
+ * path conicChain entry.
  *
  * The driver shells out to ffmpeg ONLY for frame extraction (measurement
- * infrastructure); the solve itself is pure deterministic computation.
+ * infrastructure); the solve itself is pure deterministic computation —
+ * durationMs is the ONLY nondeterministic field in the record (stripped for
+ * the two-run deep-equal determinism check).
  *
  * Outputs (into scripts/evidence/r606-ellipse-constrained/):
  *  - measurement.json   — the full per-window / per-frame / aggregate record
@@ -194,17 +208,26 @@ function extractFrames(clipPath: string, frameNumbers: readonly number[]): Promi
 // ---------------------------------------------------------------------------
 
 type Outcome =
-  | { kind: "calibrated"; confidence: number; correspondenceCount: number; metrics: Record<string, unknown> }
+  | {
+    kind: "calibrated";
+    confidence: number;
+    correspondenceCount: number;
+    /** The solved matrix rides the record (the overlay renderer + the non-degradation byte-equality). */
+    homography: number[];
+    metrics: Record<string, unknown>;
+  }
   | { kind: "refused"; failureClassId: string; details: Record<string, unknown> };
 
 function measurePath(
   frames: readonly DetectorFrameInput[],
   ellipseConstrained: boolean,
   ellipseMultiConicSelection?: boolean,
+  ellipseAnchorConversion?: boolean,
 ): Outcome {
   const calibrator = new BroadcastLineCalibrator({
     ellipseConstrained,
     ...(ellipseMultiConicSelection !== undefined ? { ellipseMultiConicSelection } : {}),
+    ...(ellipseAnchorConversion !== undefined ? { ellipseAnchorConversion } : {}),
   });
   try {
     const result = calibrator.calibrate({ frames: [...frames] });
@@ -249,6 +272,38 @@ function jsonSafe(value: unknown): unknown {
   );
 }
 
+/**
+ * The corpus-wide E4b anchor-record totals of one conversion-path outcome:
+ * the scan solves enumerated / solves converted, summed over every
+ * conicChain entry that ran the conversion scan (pre-solve grass refusals
+ * and pre-ellipse refusals carry no anchor record and contribute 0), plus
+ * the count of candidates that refused with the typed
+ * `broadcast-line.ellipse-anchor-unconvertible` class. The FIRST
+ * quota-passer's record rides BOTH the top-level details and chain[0] —
+ * summing over the chain entries alone counts every candidate exactly once.
+ */
+function anchorRecordTotals(outcome: Outcome): {
+  scanSolves: number;
+  converted: number;
+  unconvertibleCandidates: number;
+} {
+  if (outcome.kind !== "refused") return { scanSolves: 0, converted: 0, unconvertibleCandidates: 0 };
+  const chain = outcome.details.conicChain as ReadonlyArray<Record<string, unknown>> | undefined;
+  let scanSolves = 0;
+  let converted = 0;
+  let unconvertibleCandidates = 0;
+  for (const entry of chain ?? []) {
+    if (typeof entry.anchorScanSolves === "number") {
+      scanSolves += entry.anchorScanSolves;
+      if (typeof entry.anchorConverted === "number") converted += entry.anchorConverted;
+    }
+    if (entry.failureClassId === "broadcast-line.ellipse-anchor-unconvertible") {
+      unconvertibleCandidates += 1;
+    }
+  }
+  return { scanSolves, converted, unconvertibleCandidates };
+}
+
 async function main(): Promise<void> {
   // -- 0. Verify the frozen substrate. -------------------------------------
   for (const clip of CLIPS) {
@@ -268,7 +323,7 @@ async function main(): Promise<void> {
   mkdirSync(FRAMES_DIR, { recursive: true });
 
   const record = {
-    schemaVersion: "1.0",
+    schemaVersion: "1.1",
     driver: "packages/perception-adapters/scripts/r606-ellipse-measurement.ts",
     substrateVerification: CLIPS.map((clip) => ({
       clipId: clip.clipId,
@@ -281,6 +336,8 @@ async function main(): Promise<void> {
       v020EllipseConstrained: "BroadcastLineCalibrator() — the v0.4.0 DEFAULT (opt-in chain OFF: the v0.3.0-exact single-conic surface — the b3-a visual-gate FAIL keeps the chain opt-in)",
       v030Surface: "BroadcastLineCalibrator({ ellipseMultiConicSelection: false }) — the v0.3.0 single-conic surface (identical to the default; the explicit control)",
       v040Chain: "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain + the v0.4.1 VALIDATION-GATE HARDENING (chain-only): the conic grass-support gate (broadcast-line.ellipse-conic-off-pitch — the b3-a goal-structure conics measure median interior green 0.000-0.073 vs 0.27-0.79 grass-backed) + the projected-grid geometry gate (broadcast-line.ellipse-degenerate-grid — the containment invariant; the v0.4.0 b3-a solve was a point-collapse at quad/conic 0.0004)",
+      v050AnchorConversion: "BroadcastLineCalibrator({ ellipseAnchorConversion: true }) — the v0.5.0 OPT-IN J-orthogonal exact closure on the default single-conic surface: the image conic and the world circle canonicalize to the Lorentz form J and every enumerated mixed-DLT scan solve is projected onto the J-orthogonal class under the admissibility bound / closure self-check / birth conic guard / conic hard guard, the finalists run the UNCHANGED validation bar WITHOUT the refinement (61-b: the admissibility bound recalibrated to 0.1 on the measured bimodal deviation distribution — the inherited 1e-2 sat below the fitted-conic noise floor and admitted nothing, see the module's ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND record; the closure is conic-exact by construction and the unchanged bar refuses the globally re-balanced solves — the anchors-fight outcome)",
+      v050AnchorConversionChain: "BroadcastLineCalibrator({ ellipseAnchorConversion: true, ellipseMultiConicSelection: true }) — the v0.5.0 OPT-IN closure stacked on the v0.4.1 conic-selection chain: every quota-passing, grass-backed candidate's scan solves run through the closure with the per-candidate anchor record (scan solves enumerated / converted) riding every conicChain entry",
     },
     windows: [] as unknown[],
     aggregate: {} as Record<string, unknown>,
@@ -298,6 +355,28 @@ async function main(): Promise<void> {
   let v040NewlyCalibrated = 0;
   let v040ChainCalibrated = 0;
   let v040ChainNewlyCalibrated = 0;
+  // v0.4.1 chain non-degradation vs the v0.3.0 surface (the "0 on every
+  // path" record: every window a pre-existing path calibrated must
+  // calibrate identically on every later path — the line path calibrates
+  // those windows first, so the opt-in surfaces never even fire).
+  let v040ChainDegradedVsV030 = 0;
+  // v0.5.0 (61-b): the conversion-path counters — calibrated / newly
+  // calibrated / non-degradation, plus the corpus-wide E4b anchor-record
+  // totals and the typed unconvertible-refusal firings.
+  let v050Calibrated = 0;
+  let v050NewlyCalibrated = 0;
+  let v050DegradedVsV030 = 0;
+  let v050ChainCalibrated = 0;
+  let v050ChainNewlyCalibrated = 0;
+  let v050ChainDegradedVsV030 = 0;
+  let v050ScanSolves = 0;
+  let v050Converted = 0;
+  let v050UnconvertibleCandidates = 0;
+  let v050UnconvertibleWindows = 0;
+  let v050ChainScanSolves = 0;
+  let v050ChainConverted = 0;
+  let v050ChainUnconvertibleCandidates = 0;
+  let v050ChainUnconvertibleWindows = 0;
 
   for (const window of WINDOWS) {
     const clip = CLIPS.find((c) => c.clipId === window.clipId)!;
@@ -357,6 +436,10 @@ async function main(): Promise<void> {
 
     const v030 = measurePath(frames, true, false);
     const v040 = measurePath(frames, true, true);
+    // v0.5.0 (61-b): the OPT-IN anchor-conversion paths — (e) on the default
+    // single-conic surface, (f) stacked on the conic-selection chain.
+    const v050 = measurePath(frames, true, undefined, true);
+    const v050Chain = measurePath(frames, true, true, true);
     if (v010.kind === "calibrated") v010Calibrated += 1;
     if (v020.kind === "calibrated") v020Calibrated += 1;
     if (v030.kind === "calibrated") v030Calibrated += 1;
@@ -367,6 +450,12 @@ async function main(): Promise<void> {
     // homography byte-equal). A v0.3.0 REFUSAL improving to a v0.4.0
     // calibration is the increment's purpose, not a degradation (counted
     // separately as newly-calibrated).
+    const degradedVsV030 = (candidate: Outcome): boolean =>
+      v030.kind === "calibrated" &&
+      (candidate.kind === "refused" ||
+        (candidate.kind === "calibrated" &&
+          (candidate.confidence !== v030.confidence ||
+            JSON.stringify(candidate.homography) !== JSON.stringify(v030.homography))));
     if (
       v030.kind === "calibrated" &&
       (v020.kind === "refused" ||
@@ -379,6 +468,28 @@ async function main(): Promise<void> {
     if (v030.kind === "refused" && v020.kind === "calibrated") v040NewlyCalibrated += 1;
     if (v040.kind === "calibrated") v040ChainCalibrated += 1;
     if (v030.kind === "refused" && v040.kind === "calibrated") v040ChainNewlyCalibrated += 1;
+    if (degradedVsV030(v040)) v040ChainDegradedVsV030 += 1;
+    // v0.5.0: the conversion-path counters.
+    if (v050.kind === "calibrated") v050Calibrated += 1;
+    if (v030.kind === "refused" && v050.kind === "calibrated") v050NewlyCalibrated += 1;
+    if (degradedVsV030(v050)) v050DegradedVsV030 += 1;
+    if (v050Chain.kind === "calibrated") v050ChainCalibrated += 1;
+    if (v030.kind === "refused" && v050Chain.kind === "calibrated") v050ChainNewlyCalibrated += 1;
+    if (degradedVsV030(v050Chain)) v050ChainDegradedVsV030 += 1;
+    const v050Totals = anchorRecordTotals(v050);
+    v050ScanSolves += v050Totals.scanSolves;
+    v050Converted += v050Totals.converted;
+    v050UnconvertibleCandidates += v050Totals.unconvertibleCandidates;
+    if (v050.kind === "refused" && v050.failureClassId === "broadcast-line.ellipse-anchor-unconvertible") {
+      v050UnconvertibleWindows += 1;
+    }
+    const v050ChainTotals = anchorRecordTotals(v050Chain);
+    v050ChainScanSolves += v050ChainTotals.scanSolves;
+    v050ChainConverted += v050ChainTotals.converted;
+    v050ChainUnconvertibleCandidates += v050ChainTotals.unconvertibleCandidates;
+    if (v050Chain.kind === "refused" && v050Chain.failureClassId === "broadcast-line.ellipse-anchor-unconvertible") {
+      v050ChainUnconvertibleWindows += 1;
+    }
 
     record.windows.push({
       id: window.id,
@@ -393,6 +504,8 @@ async function main(): Promise<void> {
       v020EllipseConstrained: jsonSafe(v020),
       v030Surface: jsonSafe(v030),
       v040Chain: jsonSafe(v040),
+      v050AnchorConversion: jsonSafe(v050),
+      v050AnchorConversionChain: jsonSafe(v050Chain),
       ellipseEvidence,
       perFrame,
     });
@@ -401,6 +514,8 @@ async function main(): Promise<void> {
         ` | v0.4.0: ${v020.kind === "calibrated" ? `CALIBRATED conf=${v020.confidence.toFixed(3)} lineFit=${(v020.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v020.failureClassId}`}` +
         ` | v0.3.0: ${v030.kind === "calibrated" ? `CALIBRATED conf=${v030.confidence.toFixed(3)}` : `REFUSED ${v030.failureClassId}`}` +
         ` | v0.4.0 chain(opt-in): ${v040.kind === "calibrated" ? `CALIBRATED conf=${v040.confidence.toFixed(3)} lineFit=${(v040.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v040.failureClassId}`}` +
+        ` | v0.5.0 conv(opt-in): ${v050.kind === "calibrated" ? `CALIBRATED conf=${v050.confidence.toFixed(3)}` : `REFUSED ${v050.failureClassId}${v050.kind === "refused" && v050.details.anchorScanSolves !== undefined ? ` [scan ${v050.details.anchorScanSolves}/conv ${v050.details.anchorConverted}]` : ""}`}` +
+        ` | v0.5.0 conv+chain(opt-in): ${v050Chain.kind === "calibrated" ? `CALIBRATED conf=${v050Chain.confidence.toFixed(3)}` : `REFUSED ${v050Chain.failureClassId}`}` +
         ` (${Date.now() - t0}ms)`,
     );
   }
@@ -414,10 +529,33 @@ async function main(): Promise<void> {
     v040NewlyCalibratedWhereV030Refused: v040NewlyCalibrated,
     v040ChainOptInCalibrated: v040ChainCalibrated,
     v040ChainOptInNewlyCalibratedWhereV030Refused: v040ChainNewlyCalibrated,
+    v040ChainOptInNonDegradationViolations: v040ChainDegradedVsV030,
     v020Calibrated,
     v020Refused: WINDOWS.length - v020Calibrated,
     v020CalibratedWhereV010Refused,
     v020RefusedWhereV010Calibrated,
+    // v0.5.0 (61-b, the E4b anchor conversion — honest fresh numbers):
+    v050AnchorConversionCalibrated: v050Calibrated,
+    v050AnchorConversionNewlyCalibratedWhereV030Refused: v050NewlyCalibrated,
+    v050AnchorConversionNonDegradationViolations: v050DegradedVsV030,
+    v050AnchorConversionChainCalibrated: v050ChainCalibrated,
+    v050AnchorConversionChainNewlyCalibratedWhereV030Refused: v050ChainNewlyCalibrated,
+    v050AnchorConversionChainNonDegradationViolations: v050ChainDegradedVsV030,
+    // The corpus-wide E4b anchor records (per conversion path, summed over
+    // every conicChain entry that ran the conversion scan — the per-candidate
+    // records ride the per-window records):
+    v050AnchorConversionScanSolvesEnumerated: v050ScanSolves,
+    v050AnchorConversionSolvesConverted: v050Converted,
+    v050AnchorConversionConversionRate:
+      v050ScanSolves > 0 ? +(v050Converted / v050ScanSolves).toFixed(6) : 0,
+    v050AnchorConversionUnconvertibleRefusalCandidates: v050UnconvertibleCandidates,
+    v050AnchorConversionUnconvertibleRefusalWindows: v050UnconvertibleWindows,
+    v050AnchorConversionChainScanSolvesEnumerated: v050ChainScanSolves,
+    v050AnchorConversionChainSolvesConverted: v050ChainConverted,
+    v050AnchorConversionChainConversionRate:
+      v050ChainScanSolves > 0 ? +(v050ChainConverted / v050ChainScanSolves).toFixed(6) : 0,
+    v050AnchorConversionChainUnconvertibleRefusalCandidates: v050ChainUnconvertibleCandidates,
+    v050AnchorConversionChainUnconvertibleRefusalWindows: v050ChainUnconvertibleWindows,
   };
   writeFileSync(path.join(EVIDENCE_DIR, "measurement.json"), JSON.stringify(record, null, 1));
   console.log("wrote measurement.json");

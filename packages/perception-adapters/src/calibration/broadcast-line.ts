@@ -322,8 +322,9 @@
  *     The converted Ĥ = W⁻¹·P̂·G (canonical h[8] = 1) must pass THE
  *     ADMISSIBILITY BOUND (N's relative deviation from μ·J must be within
  *     the documented bound — only scan solves whose anchors were
- *     near-conic-consistent convert; measured ≈ 2.7% of enumerated scan
- *     solves corpus-wide), THE BIRTH CONIC GUARD (Ĥᵀ·C_w·Ĥ ≈ the conic
+ *     near-conic-consistent convert; 61-b recalibrated the bound to 0.1 on
+ *     the measured bimodal distribution — see the constant's record), THE
+ *     BIRTH CONIC GUARD (Ĥᵀ·C_w·Ĥ ≈ the conic
  *     the solve was born from — the algebraic identity, fail-loud) and
  *     THE CONIC HARD GUARD (the pixel-level mean conic residual vs the
  *     original px conic). The converted candidates run the E4 anti-
@@ -332,9 +333,11 @@
  *     would trade the exactness away), then the UNCHANGED E6 validation
  *     bar: the closure rebalances the line rows globally, and when the
  *     conic-exact solve contradicts the line evidence the bar REFUSES
- *     honestly (the anchors-fight outcome — measured on the synthetic
- *     fixtures: conic-exact residuals ~ 3e-4..1e-2 px with backward > 10
- *     px where the compromise solve passed; nothing laundered). A
+ *     honestly (the anchors-fight outcome — 61-b measured on the synthetic
+ *     fixtures: conic-exact residuals ~1e-13 px, the plain fixture refusing
+ *     at lineFit 0.467 (backward 4.79 px) and the offsetCircle fixture at
+ *     lineFit 0.340 / backward 11.37 px, where the compromise solve passed
+ *     the same fixture at confidence 0.921; nothing laundered). A
  *     candidate whose whole scan enumerated solves but converted nothing
  *     (or whose conic's canonicalization refused — the IMAGINARY class)
  *     refuses with the typed
@@ -610,8 +613,8 @@ const BROADCAST_LINE_DEFAULTS = {
   // acceptance of a hardened-chain calibration on the real corpus.
   ellipseMultiConicSelection: false,
   // v0.5.0 ships the anchor conversion OPT-IN (default false): the
-  // J-orthogonal exact closure is CONIC-EXACT by construction (the
-  // measured synthetic residuals ~ 3e-4..1e-2 px) but the unchanged
+  // J-orthogonal exact closure is CONIC-EXACT by construction (61-b
+  // measured synthetic residuals ~1e-13 px) but the unchanged
   // validation bar REFUSES the globally re-balanced solves on every
   // refusing window (the anchors-fight outcome — the closure makes the
   // conic/line inconsistency explicit instead of compromising it away);
@@ -1843,11 +1846,29 @@ const ELLIPSE_ANCHOR_FAST_PATH_TOL = 1e-9;
  * solves anchored to mutually inconsistent evidence (wrong model values,
  * wrong scan parameter, structure conics fighting the line rows) exceed the
  * bound and stay unconverted — the closure is never FABRICATED from anchors
- * that never agreed with the conic. Measured selectivity (the calibration
- * target): ≈ 0.6% of the enumerated scan solves convert on the synthetic
- * plain fixture, ≈ 2.3% on the real b8p3-b window, ≈ 2.7% corpus-wide.
+ * that never agreed with the conic.
+ *
+ * [61-b RECALIBRATION, honestly recorded: the inherited value 1e-2 (whose
+ * doc claimed a ≈ 0.6%/2.3%/2.7% synthetic/b8p3-b/corpus-wide selectivity,
+ * measured at the PRIOR era's pre-convention-fix tree) sat BELOW the fitted-
+ * conic noise floor of this tree's coordinate-convention-correct machinery:
+ * at 1e-2 NOTHING converted anywhere — not even the TRUE fixture homography
+ * (measured deviation 0.0262 against the plain fixture's fitted conic), so
+ * every window refused `ellipse-anchor-unconvertible` and the documented
+ * anchors-fight outcome class was unreachable. The fresh measured deviation
+ * distribution (30,240 enumerated scan solves per candidate; identical
+ * structure on the synthetic plain/offsetCircle fixtures and the real b8p3-b
+ * window) is cleanly BIMODAL: a right-model/right-scan-parameter cluster in
+ * [0.015, 0.1) — the conic-fit noise floor, 8 solves on plain / 12 on
+ * offsetCircle / 14 on b8p3-b — a thin wrong-scan-parameter drift in
+ * [0.1, 0.3), and the wrong-model mass at [0.3, ∞) (median ≈ 1.9). The
+ * bound 0.1 cuts at the measured edge of the near-consistent cluster: the
+ * documented intent (admit near-consistent, exclude wrong-model AND wrong-
+ * scan-parameter) now holds on this tree's own numbers — plain 30240/8,
+ * offsetCircle 30240/12, b8p3-b 30240/14 (the corpus-wide totals are
+ * recorded in scripts/evidence/r606-ellipse-constrained/).]
  */
-const ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND = 1e-2;
+const ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND = 0.1;
 /**
  * v0.5.0 E4b — the CLOSURE SELF-CHECK tolerance: the projected P̂ must
  * satisfy P̂ᵀJP̂ ≈ J (relative Frobenius, a POSITIVE scale — the negative
@@ -1868,9 +1889,9 @@ const ELLIPSE_ANCHOR_BIRTH_GUARD_REL = 1e-6;
 /**
  * v0.5.0 E4b — the CONIC HARD GUARD (px): the mean pixel-level residual of
  * the world circle sample points projected through Ĥ⁻¹ onto the ORIGINAL
- * px conic. The closure is exact by construction (measured residuals
- * ~3e-4..1.4e-2 px on the real corpus — the 1.4e-2 case is the roundoff of
- * a wildly-conditioned converted homography, still 7x under the guard); a
+ * px conic. The closure is exact by construction (61-b measured residuals
+ * ~1e-13 px at the validation stage on both the synthetic fixtures and
+ * the real corpus refusals — machine-epsilon roundoff); a
  * coordinate-convention or normalization mistake lands orders of magnitude
  * above it — the guard catches what the algebraic identity cannot.
  */

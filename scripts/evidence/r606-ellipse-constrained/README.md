@@ -429,3 +429,189 @@ cannot be followed by a b3-a recovery without first EVIDENCING a
 grass-backed conic on behind-goal views: the penalty-arc-conic prior (the
 fixed-geometry, grass-backed family) or the b8p3-b/f anchor-conversion
 increments (whose per-candidate measured records the chain now carries).
+
+---
+
+# ADDENDUM — v0.5.0 (E4b): the anchor-conversion delivery, Worker 61-b
+
+Session: r606/anchor-conversion (Worker 61-b), 2026-09-29/30. Base: `8d45a75`
+(the E4b WIP checkpoint on `r606/anchor-conversion`, on top of `6b4560e`).
+Substrate: unchanged (the committed corpus bytes, sha-256-verified 4/4 at
+driver startup — the same frozen contract). The driver is now SIX-path
+(`measurement.json` schemaVersion 1.1): the four pre-existing paths are
+byte-identical to the committed v0.4.1 record (verified below), the two new
+paths are the v0.5.0 OPT-IN anchor conversion — (e) on the default
+single-conic surface (`ellipseAnchorConversion: true`) and (f) stacked on
+the conic-selection chain (`ellipseAnchorConversion: true,
+ellipseMultiConicSelection: true`).
+
+## WHAT v0.5.0 is (module docs E4b)
+
+The J-ORTHOGONAL EXACT CLOSURE of the ellipse path's scan solves: the image
+conic (in NORMALIZED image coordinates — the machinery's homographies map
+normalized coords → pitch, NOT px) and the world circle canonicalize to the
+Lorentz form J = diag(1, 1, −1) (G with GᵀJG = qCanon, W with WᵀJW = C_w,
+via the Jacobi eigendecomposition with the odd-sign eigenvalue arranged
+last), so the homography factors as H = W⁻¹·P·G with P J-orthogonal — the
+conic correspondence is then P's DEFINING property, exact for every P. The
+same enumeration driver as E4 runs with the NEAR-LINE POLE ROW added, and
+EVERY enumerated mixed-DLT scan solve H_t becomes M₀ = W·H_t·G⁻¹ and is
+projected onto the J-orthogonal class (the fast path N ≈ μ·J ⟹ M₀/√μ, else
+the eigendecomposition path) under the admissibility bound, the closure
+self-check, the birth conic guard and the conic hard guard. The converted
+candidates run the anti-collapse guards + the combined-objective finalist
+selection WITHOUT the refinement (the closure IS the solve), then the
+UNCHANGED validation bar — when the conic-exact solve contradicts the line
+evidence the bar refuses honestly (the anchors-fight outcome).
+
+## THE 61-b RECALIBRATION (an honest deviation, measured before anything else)
+
+The inherited `ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND = 1e-2` — whose doc claimed
+a ≈ 0.6% / 2.3% / 2.7% synthetic/b8p3-b/corpus-wide selectivity measured at
+the PRIOR era's pre-convention-fix tree — sat BELOW the fitted-conic noise
+floor of this tree's coordinate-convention-correct machinery. Measured
+first, on the adopted WIP:
+
+- the TRUE fixture homography itself deviates **0.0262** against the plain
+  fixture's FITTED conic (the single-shot closure refuses it
+  `admissibility-bound` — the fit error of a 2–3 px painted band on a
+  101×19.6 px ellipse IS the floor);
+- at 1e-2, NOTHING converted anywhere: every enumerated scan solve on every
+  measured window (synthetic plain/offsetCircle, real b8p3-b) exceeded the
+  bound — min observed deviation 1.47e-2 (synthetic) / 1.98e-2 (real) — so
+  every conversion-path window refused
+  `broadcast-line.ellipse-anchor-unconvertible` with the full-scan record
+  (30240/0) and the documented anchors-fight outcome class was UNREACHABLE;
+- the fresh deviation distribution over the 30,240 enumerated solves per
+  candidate is cleanly BIMODAL: a right-model/right-scan-parameter cluster
+  in **[0.015, 0.1)** (the conic-fit noise floor: 8 solves on the synthetic
+  plain fixture, 12 on offsetCircle, 14 on b8p3-b), a thin wrong-scan-
+  parameter drift in [0.1, 0.3), and the wrong-model mass at [0.3, ∞)
+  (median ≈ 1.9).
+
+The bound is recalibrated to **0.1** — the measured edge of the
+near-consistent cluster: the documented intent (admit near-conic-consistent;
+exclude wrong-model AND wrong-scan-parameter) now holds on this tree's own
+numbers. The full record rides the constant's doc comment in
+`broadcast-line.ts`. Everything below is measured at the recalibrated bound.
+
+## RESULTS (the 12-window real corpus, sha-verified; driver re-run ×2
+deep-equal modulo durationMs — PASS)
+
+Aggregate: `v050AnchorConversionCalibrated` **2** (b8p3-c conf 0.832 /
+b8p3-d conf 0.988 — byte-identical to every pre-existing path: the line
+path calibrates those windows first, the ellipse path never runs) ·
+`v050AnchorConversionNewlyCalibratedWhereV030Refused` **0** ·
+`v050AnchorConversionNonDegradationViolations` **0**; the chain-stacked
+variant identical (2 / 0 / 0). Every pre-existing path's record — and every
+per-frame diagnostic — deep-equals the committed v0.4.1 measurement.json
+(the byte-compatibility gate of the driver extension).
+
+**The honest headline, matching the prior era's own claim: 0/12 windows
+newly calibrate under the opt-in conversion.** The mechanism and its
+per-candidate records are the delivery; the recovery claim is NOT made.
+
+The anchors-fight on real evidence — every window whose conversion scan ran
+(path e) refuses at the UNCHANGED validation bar with MACHINE-EPSILON
+conic-exact residuals riding the refusal:
+
+| window | anchor record (scan/conv) | lineFit (< 0.60) | backward (> 10 px) | ellipse residual |
+|---|---|---|---|---|
+| b8p3-b | 30240 / 14 | 0.139 | 13.12 px | 7.96e-14 px |
+| b8p3-f | 30240 / 42 | 0.185 | 20.22 px | 1.30e-12 px |
+| b5-a | 30240 / 6 | 0.414 | 19.08 px | 3.09e-12 px |
+| b5-b | 27720 / 19 | 0.177 | 17.12 px | 9.49e-13 px |
+
+(the closure makes the conic/line inconsistency EXPLICIT — the same windows'
+v0.4.x compromise solves scored lineFit 0.596–0.662 with ellipse residuals
+6–157 px; the conic-exact closures land at lineFit 0.14–0.41 with BOTH gates
+failing, nothing laundered. b8p3-e/g, b3-a, b1-b refuse at
+`ellipse-evidence-insufficient` on path (e) — the single-conic quota never
+passed, the conversion never ran; b8p3-a/b1-a refuse `camera-motion`
+identically on every path.)
+
+On the chain-stacked path (f) the chain candidates that pass the grass gate
+run the same closure: b8p3-e 30240/6 refusing at lineFit 0.142 / backward
+11.10 / ellipseMean 1.33e-13, b1-b identical (the cross-clip determinism
+check b1-b ≡ b8p3-e holds byte-exact), b8p3-f and b5-a identical to path
+(e) (their first quota-passer IS the primary). The typed
+`broadcast-line.ellipse-anchor-unconvertible` refusal fires **0 times as a
+window outcome** and **exactly once as a chain candidate** (b8p3-b's
+conv+chain chain[1]: 20160/0 — a hoarding-adjacent candidate whose whole
+scan exceeded the bound; recorded, not laundered).
+
+Corpus-wide E4b anchor records (summed over every conicChain entry that ran
+the conversion scan): path (e) **118,440** scan solves enumerated / **81**
+converted (0.068%); path (f) **440,987** / **147** (0.033%); combined
+**559,427 / 228** (0.041%).
+
+## Tests
+
+`calibration-ellipse.test.ts` **25/25** (15 prior + **10 new** v0.5.0 tests):
+(a–c) the unit contracts of the returned helpers — `invert3x3` (both-side
+identity composition, singular/non-finite refusal), `poleOfLine` (the
+polar-of-the-pole round trip + the analytic Lorentz pole + singular
+refusal), `jacobiEigenSym3` (A·v = λ·v per eigenpair, V orthogonal, the
+exact {2−√2, 2, 2+√2} spectrum, determinism); (d) the ground-truth conic
+canonicalization — Q_px = S⁻ᵀ(H_GTᵀC_wH_GT)S⁻¹ constructed from the pinhole
+truth, GᵀJG = Q̂ re-derived independently in the test (1.3e-15), W·W⁻¹ = I,
+the sign twin −Q_px canonicalizing bit-identically AND converting, the
+IMAGINARY class refusing, and the px-vs-normalized coordinate-convention
+trap pinned by the construction itself; (e) the fixed point (the closure of
+the true H against the ground-truth conic is H EXACTLY, fast path) + the
+perturbed-H₀ conic-exact closure (eigendecomposition path, world-circle
+round-trip residual 4.6e-27 m² < 1e-6) + the bound's refusing leg (a
+direction-changing scale error stays unconverted); (f–g) the anchors-fight
+pipeline records — the plain fixture (30240/8, lineFit 0.467 < 0.60,
+ellipseMean 5.56e-13 px, the conic-exact refusal where the default surface's
+compromise calibrates at conf 0.921) and the offsetCircle fixture (30240/12,
+lineFit 0.340 / backward 11.37 — both gates); (h) the option/export
+validation (RangeError on every malformed config); (i) the refusal-record
+determinism (two runs deep-equal on both fixtures); (j) the taxonomy
+additivity (the new class once, every prior class intact, no duplicates).
+Full package battery **153/153**, tsc clean, real-to-swm 38/38, eslint 0
+errors on the three touched files.
+
+## DEVIATIONS from the prior era's recorded orientation (honest, measured)
+
+- **The admissibility-bound recalibration** (the record above): the prior
+  era's 1e-2 admitted ≈ 2.7% corpus-wide under its pre-convention-fix
+  deviation distribution; the corrected machinery's distribution is
+  fundamentally different and 1e-2 admitted NOTHING (not even the true
+  homography). The fresh selectivity at 0.1 is 0.041% combined.
+- **Per-candidate anchor records**: prior era b8p3-b 21451/488, b8p3-f
+  21088/133, b5-a 21121/257, b5-b 19184/74; fresh 30240/14, 30240/42,
+  30240/6, 27720/19. The enumeration counts differ (the prior tree's
+  solve-success profile differed — the adopted tree's enumeration is
+  family-cap saturated at 30240 on most windows, 27720 on b5-b with fewer
+  detected lines), and the converted counts sit in the measured
+  near-consistent cluster only.
+- **Corpus-wide totals**: prior ≈ 565,629 / 15,202 (2.7%); fresh combined
+  559,427 / 228 (0.041%) — the enumeration volume reproduces to within
+  ~1%, the conversion volume does not (the bound + distribution record).
+- **The typed unconvertible refusal**: prior era 0 firings on real
+  evidence; fresh: 0 window outcomes, 1 chain candidate (b8p3-b chain[1],
+  20160/0).
+- **The synthetic anchors-fight numbers**: prior era plain 21033/131 with
+  backward > 10; fresh plain 30240/8 refusing on lineFit 0.467 (backward
+  4.79 — the lineFit gate is the refusing one on this tree). offsetCircle:
+  prior 20857/73, lineFit ≈ 0.459, backward ≈ 21.2; fresh 30240/12,
+  lineFit 0.340, backward 11.37 (both gates, same class).
+- **The conic-exact residuals**: prior orientation ~3e-4..1e-2 px; fresh
+  ~1e-13 px (machine epsilon) on every measured refusal.
+- The prior era's HEADLINE claims reproduce exactly: 0/12 newly calibrating
+  under the opt-in conversion; 2/12 on every pre-existing path (b8p3-c
+  conf 0.832 / b8p3-d conf 0.988, byte-identical); non-degradation
+  violations 0 on every path.
+
+## The NEXT measured gap (precise)
+
+The anchors-fight refusals carry lineFit 0.139–0.414 on the four
+solve-reaching real windows — the conic-exact closures contradict the line
+evidence HARD (the fitted conic's own noise floor sits ~0.015–0.1 in N
+deviation while the line rows want the compromise). Any future recovery
+claim needs the two evidence legs to AGREE: either the conic fit tightens
+(sub-pixel conic refinement before the closure) or the line-evidence
+weighting inside the anchor rows is re-examined — a TL decision, recorded
+here rather than laundered. The E4b mechanism itself is delivered and
+measured: exact, deterministic, guarded, and honestly refusing.
