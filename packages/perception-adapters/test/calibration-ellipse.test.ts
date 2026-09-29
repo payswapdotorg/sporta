@@ -11,7 +11,9 @@ import { makeDetectorFrameInput } from "../src/index";
 import type { DetectorFrameInput } from "../src/index";
 import { CandidateFailureError } from "../src/errors";
 import {
+  BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES,
   BroadcastLineCalibrator,
+  evaluateBroadcastEllipseGridGeometry,
   evaluateBroadcastLineFit,
   fitBroadcastEllipseEvidence,
 } from "../src/calibration/broadcast-line";
@@ -481,3 +483,185 @@ describe("BroadcastLineCalibrator v0.2.0 — the ellipse/circle-constrained path
 
 /** Exported for the development-time probe scripts (harness-only). */
 export { arcWindowFrames };
+
+// ---------------------------------------------------------------------------
+// v0.4.1 — the validation-gate hardening (chain-only; the b3-a class).
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the EllipseConic (coefficient form) of an ellipse geometry — the
+ * exact algebraic inverse of the module's `conicGeometry` decomposition —
+ * so the FROZEN b3-a record's geometry (center/semis/rotation, transcribed
+ * at full precision from the committed measurement.json) can drive the
+ * pure grid-geometry gate test.
+ */
+function conicOfGeometry(
+  centerX: number,
+  centerY: number,
+  semiMajor: number,
+  semiMinor: number,
+  rotation: number,
+): { a: number; b: number; c: number; d: number; e: number; f: number } {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  const invA2 = 1 / (semiMajor * semiMajor);
+  const invB2 = 1 / (semiMinor * semiMinor);
+  const q11 = cos * cos * invA2 + sin * sin * invB2;
+  const q22 = sin * sin * invA2 + cos * cos * invB2;
+  const q12 = cos * sin * (invA2 - invB2);
+  return {
+    a: q11,
+    b: 2 * q12,
+    c: q22,
+    d: -2 * (q11 * centerX + q12 * centerY),
+    e: -2 * (q12 * centerX + q22 * centerY),
+    f: q11 * centerX * centerX + 2 * q12 * centerX * centerY + q22 * centerY * centerY - 1,
+  };
+}
+
+describe("BroadcastLineCalibrator v0.4.1 — the validation-gate hardening (chain-only)", () => {
+  test(
+    "a healthy chain calibration is byte-identical with the hardening on (the chain-on plain window equals the chain-off result)",
+    () => {
+      // The plain arc window calibrates through the PRIMARY (the true
+      // circle, quota-passing, grass-supported, its solve a real quad):
+      // the hardening's two gates must PASS it and the chain-on result
+      // must deep-equal the v0.3.0-exact single-conic result — the
+      // hardening adds discrimination, never a disturbance.
+      const frames = arcWindowFrames();
+      const chainOff = new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: false,
+      }).calibrate({ frames });
+      const chainOn = new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+      }).calibrate({ frames });
+      expect(chainOn).toEqual(chainOff);
+      expect(chainOn.confidence).toBeGreaterThan(0.5);
+      expect(chainOn.correspondenceCount).toBe(5);
+    },
+    120_000,
+  );
+
+  test(
+    "the b3-a class (a static non-green structure on the grass): the chain refuses the structure's conic pre-solve with the typed grass class; the default surface is unchanged",
+    () => {
+      // The netStructure fixture: the center circle omitted (out of view —
+      // the real b3-a recorded fact) and a static filled white disk on the
+      // grass whose rim band is a quota-passing conic — the goal/net
+      // structure class the v0.4.0 chain anchored its (VLM-refuted) solve
+      // on. The v0.4.1 grass-support gate must refuse that candidate
+      // BEFORE its solve, the measured median riding the typed refusal.
+      const frames = arcWindowFrames({ netStructure: true });
+      const refusal = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseMultiConicSelection: true }).calibrate({ frames }),
+      );
+      expect(refusal.classId).toBe("broadcast-line.ellipse-conic-off-pitch");
+      // The measured discrimination: the disk's interior is white in every
+      // frame (median ~0.02 measured; a real circle's interior is grass —
+      // 0.90 on the plain fixture, measured) over a full in-bounds sample grid.
+      expect(refusal.details.greenInteriorMedian as number).toBeLessThan(0.1);
+      expect(refusal.details.samplesInBounds as number).toBeGreaterThanOrEqual(50);
+      expect(refusal.details.conicIndex).toBe(0);
+      // The additive chain record: the refused structure candidate FIRST,
+      // then the solved (grass-backed) alternatives with their honest
+      // validation outcomes — every candidate's measured outcome recorded.
+      const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+      expect(chain.length).toBeGreaterThanOrEqual(2);
+      expect(chain[0]!.failureClassId).toBe("broadcast-line.ellipse-conic-off-pitch");
+      expect(chain[0]!.greenInteriorMedian as number).toBeLessThan(0.1);
+      // The DEFAULT surface (chain off) on the same fixture: the honest
+      // v0.3.0 refusal (the quota fails on the global winner) — the
+      // hardening never touches the default path.
+      const v030 = refusalClassOf(() =>
+        new BroadcastLineCalibrator({ ellipseMultiConicSelection: false }).calibrate({ frames }),
+      );
+      expect(v030.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
+      // The recorded line-path refusal rides both.
+      expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
+    },
+    120_000,
+  );
+
+  test(
+    "the projected-grid geometry gate: the FROZEN b3-a chain homography is the degenerate class; a healthy solve's quad contains its conic",
+    () => {
+      // The frozen record (scripts/evidence/r606-ellipse-constrained/
+      // measurement.json, window b3-a, path v040Chain — the WITHHELD
+      // claim): the solved homography, at full recorded precision, and
+      // the winning conic's geometry (conicCandidates[1]). The measured
+      // defect: the WHOLE pitch (corners, interior, circle rim) projects
+      // to image (575, 98) — a point-collapse on the goal-structure
+      // conic that satisfied every v0.4.0 machine gate.
+      const H_B3A: Homography = [
+        -88.36795791427605, 68.61881390163505, 60.73539142302648,
+        -60.681864133921415, 60.247400824810356, 38.14191934597057,
+        -1.5103647140254437, 1.3130296284410223, 1,
+      ];
+      const CONIC_B3A = conicOfGeometry(
+        574.2750799089282, 78.96140444447796,
+        20.321122464326212, 16.722515225559825,
+        (102.27707209379237 * Math.PI) / 180,
+      );
+      const degenerate = evaluateBroadcastEllipseGridGeometry(H_B3A, CONIC_B3A, 640, 360);
+      expect(degenerate.ok).toBe(false);
+      // The conic's area recovers the frozen geometry (~1068 px²)…
+      expect(Math.abs(degenerate.conicAreaPx - Math.PI * 20.321122464326212 * 16.722515225559825))
+        .toBeLessThan(1);
+      // …while the projected pitch quad has ~no area and ~no corner
+      // separation (all four corners at (575, 98): the point-collapse).
+      expect(degenerate.quadAreaPx).toBeLessThan(5);
+      expect(degenerate.cornerMinSeparationPx).toBeLessThan(1);
+      // The healthy surface: the plain fixture's solved homography + its
+      // fitted conic — the projected quad CONTAINS the conic (the
+      // containment invariant) with the measured ~41x area ratio.
+      const frames = arcWindowFrames();
+      const result = new BroadcastLineCalibrator({ ellipseMultiConicSelection: true }).calibrate({
+        frames,
+      });
+      const conic = fitBroadcastEllipseEvidence({ frames }).conic!;
+      const healthy = evaluateBroadcastEllipseGridGeometry(
+        result.homography, conic, 640, 360,
+      );
+      expect(healthy.ok).toBe(true);
+      expect(healthy.quadAreaPx).toBeGreaterThanOrEqual(healthy.conicAreaPx);
+      expect(healthy.quadAreaPx / healthy.conicAreaPx).toBeGreaterThan(10);
+      expect(healthy.cornerMinSeparationPx).toBeGreaterThan(100);
+      // Deterministic: a second evaluation deep-equals.
+      expect(evaluateBroadcastEllipseGridGeometry(H_B3A, CONIC_B3A, 640, 360)).toEqual(degenerate);
+      // Fail-loud validation (the module's diagnostic-export contract).
+      expect(() =>
+        evaluateBroadcastEllipseGridGeometry([1, 2, 3] as unknown as Homography, CONIC_B3A, 640, 360),
+      ).toThrow(RangeError);
+      expect(() =>
+        evaluateBroadcastEllipseGridGeometry(H_B3A, { a: 1, b: 0, c: 1, d: 0, e: 0, f: 0 }, 640, 360),
+      ).toThrow(RangeError);
+      expect(() =>
+        evaluateBroadcastEllipseGridGeometry(H_B3A, CONIC_B3A, 0, 360),
+      ).toThrow(RangeError);
+    },
+    120_000,
+  );
+
+  test("the hardening's failure classes are additive on the exported taxonomy", () => {
+    const ids = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.map((record) => record.failureClassId);
+    // The two v0.4.1 typed classes (the grass-support leg + the
+    // projected-grid geometry leg), additive — every prior class present.
+    expect(ids.filter((id) => id === "broadcast-line.ellipse-conic-off-pitch").length).toBe(1);
+    expect(ids.filter((id) => id === "broadcast-line.ellipse-degenerate-grid").length).toBe(1);
+    expect(ids).toContain("broadcast-line.no-pitch-visible");
+    expect(ids).toContain("broadcast-line.camera-motion");
+    expect(ids).toContain("broadcast-line.insufficient-line-evidence");
+    expect(ids).toContain("broadcast-line.no-consistent-homography");
+    expect(ids).toContain("broadcast-line.ellipse-evidence-insufficient");
+    expect(ids).toContain("broadcast-line.ellipse-no-consistent-homography");
+    const newRecords = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.filter(
+      (record) =>
+        record.failureClassId === "broadcast-line.ellipse-conic-off-pitch" ||
+        record.failureClassId === "broadcast-line.ellipse-degenerate-grid",
+    );
+    for (const record of newRecords) {
+      expect(record.retryable).toBe(false);
+      expect(record.description.length).toBeGreaterThan(40);
+    }
+  });
+});

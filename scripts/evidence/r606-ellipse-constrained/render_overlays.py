@@ -4,13 +4,14 @@ R606 ellipse-constrained measurement — OVERLAY RENDERER.
 
 Reads measurement.json + the anchor frames (frames/<window>.rgb) written by
 the bun driver and renders one PNG per window: the anchor frame dimmed, the
-conic-selection candidate chain of the v0.4.0 measurement (the PRIMARY conic
-cyan; the quota-passing alternatives magenta; the WINNING candidate — the
-one the v0.4.0 calibration actually anchored to, identified by its support
-+ coverage in the metrics — yellow), the v0.1.0 line-only solved pitch grid
-(green, when calibrated), and the v0.4.0 ellipse-constrained solved pitch
-grid (orange, when calibrated) — so a human can visually verify every
-measured outcome.
+conic-selection candidate chain (the PRIMARY conic cyan; the quota-passing
+alternatives magenta; the WINNING candidate — the one the calibration
+actually anchored to, identified by its support + coverage in the metrics —
+yellow), the v0.1.0 line-only solved pitch grid (green, when calibrated), and
+the v0.4.0 ellipse-constrained default's solved pitch grid (orange, when
+calibrated) — so a human can visually verify every measured outcome. v0.4.1:
+the chain line's label carries the chain-only hardening's typed refusal (the
+measured grass median / the measured quad-geometry numbers when present).
 
 Run:  python3 render_overlays.py   (from scripts/evidence/r606-ellipse-constrained/)
 """
@@ -233,7 +234,14 @@ def main():
         label(canvas, outcome_text(v020, "v0.4.0 default"), 8, 48, (0, 165, 255))
         label(canvas, outcome_text(v030, "v0.3.0 single-conic"), 8, 64, (255, 200, 100))
         v040 = window.get("v040Chain") or {}
-        label(canvas, outcome_text(v040, "v0.4.0 chain (opt-in)"), 8, 80, (0, 0, 255))
+        chain_detail = ""
+        if v040.get("kind") == "refused":
+            det = v040.get("details", {})
+            if "greenInteriorMedian" in det:
+                chain_detail = f" grassMedian={det['greenInteriorMedian']:.3f}"
+            elif "quadAreaPx" in det:
+                chain_detail = f" quad/conic={det['quadAreaPx']:.1f}/{det['conicAreaPx']:.1f}px2"
+        label(canvas, outcome_text(v040, "v0.4.1 chain (opt-in)") + chain_detail, 8, 80, (0, 0, 255))
         if v040.get("kind") == "calibrated" and v040.get("homography") is not None:
             draw_grid(canvas, v040["homography"], (0, 0, 255))
         if isinstance(evidence, dict):

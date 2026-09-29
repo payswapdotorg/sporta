@@ -41,9 +41,9 @@ single-frame runs for the v0.1.0/default paths ride every window record
 (diagnostics). The arc-evidence diagnostics record the full candidate
 chain (`conicCandidates`) + the component structure (`arcComponents`).
 The synthetic proof (the chain's refusal surface, the candidate-chain
-records, the option validation, determinism; the package battery 139
+records, the option validation, determinism; the package battery 143
 pass / 0 fail, typecheck clean) lives in the package test suite:
-`packages/perception-adapters/test/calibration-ellipse.test.ts` (11
+`packages/perception-adapters/test/calibration-ellipse.test.ts` (15
 tests) + `test/arc-window-fixture.ts` (the shared pinhole fixture).
 
 ## WHY
@@ -69,7 +69,7 @@ python3 render_overlays.py            # → overlays/<window>.png
 
 # 3. The synthetic proof + full package battery:
 cd packages/perception-adapters
-bun test                              # 137 pass / 0 fail
+bun test                              # 143 pass / 0 fail
 bunx tsc --noEmit                     # clean
 ```
 
@@ -301,3 +301,131 @@ fixture comments: the 150°-arc partial-coverage fit is ill-conditioned
 fixture proves the chain at the conic level; the full synthetic recovery
 stays bounded by the fixture's lineFit noise floor — the real corpus
 carries the machine-recovery evidence (b3-a) and the visual-gate record.
+
+---
+
+# v0.4.1 ADDENDUM — the validation-gate hardening (the b3-a class), 2026-09-29
+
+Branch `r606/validation-gate-hardening` (lane A continuation #3). Base:
+main @ 39863ff (the w5g TL-audit merge). The calibrator is now
+`broadcast-line-calibrator` **v0.4.1** — a behavior-surface change on the
+OPT-IN CHAIN ONLY: **the DEFAULT (chain off) stays v0.3.0-exact
+byte-identical** (verified below; the hardening gates fire exclusively
+when `ellipseMultiConicSelection` is on).
+
+## The increment (two additive, chain-only discrimination gates)
+
+The measured defect (the v0.4.0 withheld claim): the b3-a chain solve was
+a **POINT-COLLAPSE** — all four pitch corners projected to image
+(575, 98), quad area / conic area = 0.0004 — that degenerately collected
+every machine reward (lineFit: the whole image maps onto a model-line
+cluster; backward: the pitch maps onto one static-mask point on the net;
+ellipse residual: the world circle maps onto a single point ON the
+conic). The winning conic (574.3, 79.0) anchors to the goal/net
+STRUCTURE. Two gates close the class:
+
+1. **The conic grass-support gate**
+   (`broadcast-line.ellipse-conic-off-pitch`, module docs E2c): BEFORE a
+   quota-passing chain candidate's solve, the MEDIAN over frames of the
+   per-frame green fraction over a fixed 41×41 parametric interior grid
+   must be ≥ `ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN` = 0.2. A pitch
+   circle is a thin painted band ON grass — its interior reads green in
+   every frame; static structure does not. Measured bounds (verified at
+   this branch): the b3-a quota-passing conics 0.073 / 0.000 / 0.012 (and
+   the coverage-failing fourth candidate 0.049 — the window's ENTIRE
+   candidate set is structure); the other corpus structure conics
+   0.011–0.175; the solve-reaching windows' grass-backed primary conics
+   0.27–0.79 (b8p3-c 0.786 / b8p3-d 0.295 / b8p3-e 0.272 / b5-a 0.703);
+   the synthetic fixture's true circle 0.90. The ANY-frame green UNION is
+   NOT the discriminating statistic (measured inside the b3-a winner: the
+   union lifts to 0.164 vs the 0.073 median; the per-frame values span
+   0.000–0.590 and the LAST frame reads ABOVE the threshold — an
+   ANY-frame/single-frame gate PASSES the structure; the MEDIAN refuses
+   it: static structure is never green, moving occluders — players —
+   clear it). A refused candidate is SKIPPED (the chain continues); its
+   typed refusal is recorded as the chain entry.
+2. **The projected-grid geometry gate**
+   (`broadcast-line.ellipse-degenerate-grid`, module docs E6b): a solve
+   that passed every machine gate must still project the pitch as a REAL
+   quad — the four canonical pitch corners through H⁻¹ finite, within the
+   20×-frame degeneracy bound, pairwise distinct beyond 4 px, and the
+   shoelace quad area ≥ 0.5 × the winning conic's ellipse area (the
+   CONTAINMENT INVARIANT: the pitch rectangle's image CONTAINS the
+   circle's image under any non-degenerate projective map — zero false
+   positives for real cameras by construction; measured: the healthy
+   synthetic chain solve at quad/conic = 41.1, the frozen b3-a solve at
+   0.0004). The new `evaluateBroadcastEllipseGridGeometry` diagnostic
+   export + the frozen-record test regression-lock the class.
+
+## RESULTS (the 12-window real corpus, sha-verified; driver re-run ×2
+deep-equal modulo durationMs)
+
+Aggregate: `v010Calibrated` 2 · `v030Calibrated` 2 ·
+`v040NonDegradationViolations` **0** · `v040ChainOptInCalibrated` **2**
+(previously 3) · `v040ChainOptInNewlyCalibratedWhereV030Refused` **0**.
+
+- **The DEFAULT surface is byte-identical**: every v0.1.0 / default /
+  v0.3.0-control window record (and every per-frame diagnostic) deep-equals
+  the committed v0.4.0 measurement.json modulo durationMs; the calibrated
+  pair unchanged (b8p3-c 0.832, b8p3-d 0.988 — byte-identical ON THE CHAIN
+  too: healthy solves pass both hardening gates).
+- **b3-a REFUSED at the machine bar** — `broadcast-line.ellipse-conic-off-pitch`:
+  ALL THREE quota-passing candidates measure interior-green medians 0.073
+  / 0.000 / 0.012 over full in-bounds grids (1257/1253/1257 samples) —
+  the goal/net-structure class — so the chain refuses every candidate
+  PRE-SOLVE and rethrows the typed refusal with the additive per-candidate
+  `conicChain` record. The v0.4.0 machine-recovery (conf 0.831, lineFit
+  0.731, VLM-refuted) is now an honest typed refusal AT THE MACHINE BAR —
+  not a withheld claim riding the opt-in surface. VLM verification of the
+  refusal (overlays/b3-a.png, 2026-09-29, verbatim): "(1) The CYAN ellipse
+  sits on the **goal/net structure** (specifically, the white goal frame
+  and the netting behind it). (2) The interior of the CYAN ellipse is
+  **predominantly non-green structure** (it contains the white goal frame,
+  the dark netting, and the crowd/stands visible through the net). (3)
+  **No**, a white painted circle-on-grass is not clearly or fully visible
+  in the frame; only fragments of other pitch lines are present." — the
+  machine refusal MATCHES the visual truth.
+- **The chain's calibrated set collapses to the default's** (3/12 → 2/12;
+  the lost calibration is exactly the visually-refuted b3-a — the honest
+  outcome; no calibration the default achieves was lost).
+- Three other windows' chain REFUSALS moved earlier with the typed class
+  (b8p3-b: first quota-passer green 0.175 — the hoarding-curve primary;
+  b8p3-g: 0.093; b5-b: 0.011): in v0.4.0 those first candidates' solves
+  already failed validation (b8p3-b primary lineFit 0.596 / em 156.95;
+  b8p3-g and b5-b same class), so no honest solve was lost — the refusal
+  is now typed and pre-solve. b8p3-e and b5-a unchanged (their first
+  quota-passers are grass-backed; their solves still refuse at validation
+  with the measured numbers).
+
+## Tests
+
+`calibration-ellipse.test.ts` **15/15** — four new v0.4.1 tests: (a) the
+healthy chain calibration is byte-identical with the hardening on
+(chain-on plain window deep-equals chain-off); (b) the b3-a class — the
+new `netStructure` fixture (a static filled white disk ON the grass,
+≥ 10 m from every marking, the center circle omitted = the real window's
+out-of-view fact; its rim band is a quota-passing conic) — refuses with
+the typed grass class pre-solve (measured median ~0.02 over ≥ 50
+in-bounds samples vs 0.90 for the plain fixture's real circle) while the
+DEFAULT surface refuses the same fixture with the v0.3.0 quota class;
+(c) the frozen-b3a-record degenerate-grid gate (the committed v0.4.0
+measurement's homography + winning conic at full recorded precision:
+quad/conic 0.0004, corner separation < 1 px, vs the healthy fixture's
+quad/conic > 10× and separation > 100 px; fail-loud RangeErrors; the
+pure-export determinism); (d) the failure-taxonomy additivity (the two
+new typed classes present exactly once; every prior class intact). Full
+package battery **143/143** (baseline 139 + 4), tsc clean (workspace-wide),
+real-to-swm 38/38 (the calibration seam safe).
+
+## The NEXT measured gap (precise)
+
+b3-a's ENTIRE conic candidate set is structure-anchored — the quota-
+passing candidates measure green medians 0.073/0.000/0.012 and even the
+coverage-failing fourth candidate (a 388×34 px sliver, support 1359,
+coverage 10) measures 0.049 — so NO grass-backed conic is evidenced
+anywhere in the window (the center circle is out of view; the visible
+penalty arc yields no quota-passing candidate). The hardening therefore
+cannot be followed by a b3-a recovery without first EVIDENCING a
+grass-backed conic on behind-goal views: the penalty-arc-conic prior (the
+fixed-geometry, grass-backed family) or the b8p3-b/f anchor-conversion
+increments (whose per-candidate measured records the chain now carries).

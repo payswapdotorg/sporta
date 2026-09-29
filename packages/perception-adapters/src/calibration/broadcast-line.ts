@@ -214,6 +214,25 @@
  *     satisfies lineFit — the machine bar's blind spot on behind-goal
  *     views). The measured next increment: pitch-line-vs-structure
  *     discrimination in the validation before the default flips.
+ * E2c. v0.4.1 CHAIN-ONLY HARDENING, LEG 1 — THE CONIC GRASS-SUPPORT GATE:
+ *     every quota-passing chain candidate's conic interior must be
+ *     GRASS-supported before its solve runs: the MEDIAN over frames of
+ *     the per-frame green fraction over a fixed 41x41 parametric interior
+ *     grid must be >= ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN. A pitch
+ *     circle is a thin painted band ON grass — its conic interior reads
+ *     green in every frame (measured: the solve-reaching windows' primary
+ *     conics 0.27-0.79 — b8p3-c 0.786 / b8p3-d 0.295 / b8p3-e 0.272 /
+ *     b5-a 0.703; the synthetic fixture 0.90); the b3-a goal/net-structure
+ *     conics measure 0.000-0.073 and the other corpus structure conics
+ *     0.011-0.175 (stably non-green — the ANY-frame green UNION does NOT
+ *     discriminate them cleanly: inside the b3-a winner the union lifts to
+ *     0.164 vs the 0.073 median, one late frame reading 0.590 — ABOVE the
+ *     threshold — so an ANY-frame or single-frame statistic passes the
+ *     structure; the per-frame MEDIAN refuses it). A refused candidate is
+ *     skipped (the chain continues), its typed refusal recorded as the
+ *     chain entry — `broadcast-line.ellipse-conic-off-pitch`. Fires ONLY
+ *     when ellipseMultiConicSelection is on: the default surface never
+ *     runs it (byte-identical).
  * E3. EVIDENCE QUOTA (typed refusal below): support >=
  *     ELLIPSE_MIN_SUPPORT_PX AND angular coverage >=
  *     ELLIPSE_MIN_COVERAGE_BINS of the 36 10°-bins around the conic.
@@ -282,6 +301,28 @@
  *     clamp(0.20 + 0.40·lineFit + 0.20·max(0, 1 − backward/10) +
  *     0.20·ellipseReward, 0, 1) — the conic anchor replaces part of the
  *     line-evidence weight, never inflates it.
+ * E6b. v0.4.1 CHAIN-ONLY HARDENING, LEG 2 — THE PROJECTED-GRID GEOMETRY
+ *     GATE: a solve that passed every E6 machine gate must still project
+ *     the pitch as a REAL quad: the four canonical pitch corners through
+ *     H⁻¹ must be finite, pairwise distinct beyond
+ *     ELLIPSE_GRID_MIN_CORNER_SEPARATION_PX, and their shoelace quad
+ *     area must reach ELLIPSE_GRID_MIN_QUAD_AREA_FACTOR × the winning
+ *     conic's ellipse area. The containment invariant makes this
+ *     zero-false-positive for real cameras: the pitch rectangle's image
+ *     CONTAINS the center circle's image (the conic) under any
+ *     non-degenerate projective map, so a valid solve satisfies the area
+ *     floor by construction (measured: the healthy synthetic chain solve
+ *     at quad/conic = 41.1). The measured defect class (b3-a's withheld
+ *     claim): a POINT-COLLAPSE — all four corners at image (575, 98),
+ *     quad/conic = 0.0004 — that satisfied lineFit (the whole image maps
+ *     onto a model-line cluster), backward (the pitch maps onto one
+ *     static-mask point) AND the ellipse residual (the circle maps onto
+ *     a single point ON the conic; the mean-residual gate is degenerately
+ *     satisfiable by any point on the conic). Typed refusal
+ *     `broadcast-line.ellipse-degenerate-grid` with the measured quad
+ *     area / conic area / corner separation. Fires ONLY when
+ *     ellipseMultiConicSelection is on: the default surface never runs
+ *     it (byte-identical).
  * E7. OUTPUT: the same CalibrationResult shape; correspondenceCount = 5
  *     (the 4 circle/pole point anchors + the conic anchor; documented).
  *
@@ -343,33 +384,49 @@ import { isPitchGreen } from "../pixels";
 import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput } from "../adapter";
 
 /**
- * Stable technology identity of this candidate. v0.4.0 (behavior-surface
- * change, the R606 conic-selection increment): the ellipse path's conic
- * selection becomes a FALLBACK CHAIN — the RANSAC winner-by-support is
- * tried first (the exact v0.3.0 primary), and only on its typed refusal
- * do the DISTINCT alternative conics run (the global RANSAC's ranked
- * refit candidates + per-component fits over the sub-dominance arc
- * components), each through the FULL hypothesis → refinement →
- * validation flow (the bar never lowers; the first validation pass
- * wins). Measured defect this addresses: on real broadcast windows the
- * winner-by-support conic is the hoarding/stand-boundary CURVE, not the
- * center circle (b8p3-b: the fitted conic is the top-left background
- * curve while the visible circle sits mid-frame; b8p3-f same class) —
- * the validation gates refused those solves correctly, but nothing
- * ever retried with a different conic. OPT-IN (default false — see
- * BROADCAST_LINE_DEFAULTS): the chain's b3-a machine-recovery fails the
- * VLM visual gate (the goal-structure conic class), so the default
- * surface stays v0.3.0-exact until the validation-gate hardening.
- * v0.3.0 (flank recovery): the straightness-aware Hough-line explain —
+ * Stable technology identity of this candidate. v0.4.1 (behavior-surface
+ * change on the OPT-IN chain only, the R606 validation-gate hardening):
+ * two ADDITIVE discrimination gates fire exclusively on the
+ * ellipseMultiConicSelection path — (leg 1) a quota-passing chain
+ * candidate's conic interior must be GRASS-supported (median over frames
+ * of the per-frame green fraction; the b3-a goal/net-structure conics
+ * measure 0.000-0.073 and the other corpus structure conics 0.011-0.175,
+ * vs 0.27-0.79 for the solve-reaching windows' grass-backed primary
+ * conics) — `broadcast-line.ellipse-conic-off-pitch`; (leg 2) a solve that
+ * passed every machine gate must still project the pitch as a real quad:
+ * the projected pitch quad's area must reach the winning conic's own
+ * ellipse area (the containment invariant — a real camera's pitch image
+ * contains the circle's image; the measured b3-a chain solve is a
+ * point-collapse at quad/conic = 0.0004) —
+ * `broadcast-line.ellipse-degenerate-grid`. The
+ * DEFAULT surface (chain off) is v0.3.0-exact byte-identical. v0.4.0 (the
+ * R606 conic-selection increment): the ellipse path's conic selection
+ * becomes a FALLBACK CHAIN — the RANSAC winner-by-support is tried first
+ * (the exact v0.3.0 primary), and only on its typed refusal do the
+ * DISTINCT alternative conics run (the global RANSAC's ranked refit
+ * candidates + per-component fits over the sub-dominance arc components),
+ * each through the FULL hypothesis → refinement → validation flow (the
+ * bar never lowers; the first validation pass wins). Measured defect
+ * this addresses: on real broadcast windows the winner-by-support conic
+ * is the hoarding/stand-boundary CURVE, not the center circle (b8p3-b:
+ * the fitted conic is the top-left background curve while the visible
+ * circle sits mid-frame; b8p3-f same class) — the validation gates
+ * refused those solves correctly, but nothing ever retried with a
+ * different conic. OPT-IN (default false — see
+ * BROADCAST_LINE_DEFAULTS): the chain's b3-a machine-recovery failed the
+ * VLM visual gate (the goal-structure conic class), which the v0.4.1
+ * hardening now refuses at the machine bar (the b3-a outcome under the
+ * hardened chain is the typed honest refusal). v0.3.0 (flank recovery):
+ * the straightness-aware Hough-line explain —
  * `ellipseStraightnessAwareExplain: false` restores the exact v0.2.0
- * explain surface. v0.2.0: the additive ellipse/circle-constrained
- * path runs after a v0.1.0 line-path `no-consistent-homography`
- * refusal; windows the line path calibrates return byte-identical
- * results. The ADAPTER seam (class shape, method signature, output
- * contract) is unchanged — adapterVersion stays 0.1.0.
+ * explain surface. v0.2.0: the additive ellipse/circle-constrained path
+ * runs after a v0.1.0 line-path `no-consistent-homography` refusal;
+ * windows the line path calibrates return byte-identical results. The
+ * ADAPTER seam (class shape, method signature, output contract) is
+ * unchanged — adapterVersion stays 0.1.0.
  */
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ID = "broadcast-line-calibrator";
-export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.4.0";
+export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.4.1";
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION = "0.1.0";
 
 /**
@@ -412,12 +469,15 @@ export interface BroadcastLineCalibratorOptions {
    * alternative conics (the per-component fits over the sub-dominance
    * arc components, then the global ranked re-fit runners-up, each
    * quota-gated) run through the same full hypothesis → refinement →
-   * validation flow. The default stays false because the chain's
-   * machine-recovery of b3-a FAILS the visual gate (the goal-structure
-   * conic class — the machine bar's line-on-line blind spot, VLM-verified
-   * grid misalignment); the option ships the machinery for
-   * research/diagnostics while the validation-gate hardening increment
-   * is pending.
+   * validation flow. v0.4.1: the chain path now carries the
+   * VALIDATION-GATE HARDENING (two additive discrimination gates — the
+   * conic grass-support gate `broadcast-line.ellipse-conic-off-pitch`
+   * and the projected-grid geometry gate
+   * `broadcast-line.ellipse-degenerate-grid`; see the module docs E2c /
+   * E6b) — the measured b3-a machine-recovery (a goal-structure-anchored
+   * point-collapse that satisfied every v0.4.0 machine gate) now refuses
+   * at the machine bar. The default stays false pending the TL's visual
+   * acceptance of a hardened-chain calibration on the real corpus.
    */
   readonly ellipseMultiConicSelection?: boolean;
 }
@@ -430,14 +490,17 @@ const BROADCAST_LINE_DEFAULTS = {
   ellipseStraightnessAwareExplain: true,
   // v0.4.0 ships the conic-selection chain OPT-IN (default false): the
   // chain machine-recovers a window the single-conic surface refuses
-  // (b3-a, lineFit 0.731), but the VLM visual gate FAILS that recovery
+  // (b3-a, lineFit 0.731), but the VLM visual gate FAILED that recovery
   // (the grid misaligned on all three sharp checks — the winning conic
   // anchors to the goal/net STRUCTURE, the machine bar's line-on-line
   // blind spot on behind-goal views where the static net satisfies the
-  // backward chamfer). The honest shipping state: the default surface
-  // stays v0.3.0-exact; the chain is opt-in for research/diagnostics;
-  // the measured next increment = the validation-gate hardening
-  // (pitch-line-vs-structure discrimination) before the default flips.
+  // backward chamfer). v0.4.1: the chain path carries the
+  // validation-gate hardening (the conic grass-support gate + the
+  // projected-grid geometry gate) — the b3-a class now refuses at the
+  // machine bar with the typed classes; the default surface stays
+  // v0.3.0-exact byte-identical (the hardening fires ONLY on the opt-in
+  // chain path). The chain stays opt-in pending the TL's visual
+  // acceptance of a hardened-chain calibration on the real corpus.
   ellipseMultiConicSelection: false,
 } as const;
 
@@ -500,6 +563,37 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
         "residual gates — the acceptance bar is never lowered for any " +
         "candidate). Both paths' measured reasons ride the refusal details, " +
         "with the per-candidate chain outcomes (conicChain) attached.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-conic-off-pitch",
+    description:
+      "v0.4.1 conic-selection chain (OPT-IN path only): a quota-passing conic " +
+        "candidate's interior is not GRASS-supported — the MEDIAN over frames " +
+        "of the per-frame green fraction inside the conic is below the " +
+        "documented threshold. A pitch circle is a thin painted band ON grass " +
+        "(its conic interior reads green in every frame); the goal/net " +
+        "structure class (b3-a's winning conic, VLM-verified) is stably " +
+        "non-green. The candidate is refused before its solve — the measured " +
+        "median and sample count ride the refusal details. Typed refusal, " +
+        "never a structure-anchored calibration.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-degenerate-grid",
+    description:
+      "v0.4.1 conic-selection chain (OPT-IN path only): the refined " +
+        "homography passed every machine gate (lineFit, backward chamfer, " +
+        "ellipse residual) but its PROJECTED PITCH GRID is degenerate — the " +
+        "four canonical pitch corners project to a collapsed quad (area below " +
+        "the conic's own ellipse area, corners within sub-pixel separation). " +
+        "For any real camera homography the pitch's image CONTAINS the " +
+        "circle's image (the conic) — the containment invariant; the measured " +
+        "b3-a class is a point-collapse that collects the forward/backward/" +
+        "ellipse rewards while mapping the entire pitch onto one image point " +
+        "on the anchoring structure. The measured quad area, conic area, and " +
+        "corner separation ride the refusal details. Typed refusal — the " +
+        "claim is withheld, nothing laundered.",
     retryable: false,
   },
 ];
@@ -1523,6 +1617,74 @@ const ELLIPSE_HYPOTHESIS_FINALISTS = 8;
 const ELLIPSE_DLT_RANK_TOLERANCE = 1e-10;
 
 // ---------------------------------------------------------------------------
+// v0.4.1 — the validation-gate hardening (the b3-a-class fix; frozen
+// constants, each part of the tested contract). CHAIN-ONLY: both gates fire
+// exclusively on the ellipseMultiConicSelection (opt-in) path — the default
+// surface stays v0.3.0-exact byte-identical.
+// ---------------------------------------------------------------------------
+
+/**
+ * v0.4.1 leg 1 — the conic grass-support gate: minimum MEDIAN over frames of
+ * the per-frame green fraction inside a quota-passing chain candidate's
+ * conic. Measured bounds (12-window corpus + the synthetic fixture): the
+ * b3-a quota-passing conics — the goal/net structure — measure 0.000-0.073
+ * (the net region is stably non-green; even its coverage-failing fourth
+ * candidate measures 0.049) and the other corpus structure conics
+ * 0.011-0.175; the solve-reaching windows' grass-backed primary conics
+ * measure 0.27-0.79 (b8p3-c 0.786 / b8p3-d 0.295 / b8p3-e 0.272 / b5-a
+ * 0.703) and the synthetic fixture's true circle 0.90. 0.2 splits the
+ * measured classes. The ANY-frame green UNION is NOT the discriminating
+ * statistic (measured: inside the b3-a winner the union lifts to 0.164 vs
+ * the 0.073 median — the per-frame values span 0.000..0.590 and the LAST
+ * frame reads ABOVE the threshold, so an ANY-frame/single-frame gate
+ * passes the structure); the MEDIAN over frames is: static structure is
+ * never green, moving occluders (players) clear it.
+ */
+const ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN = 0.2;
+/** v0.4.1 leg 1 — the grass-support interior sampling grid steps per semi-axis (41x41 parametric). */
+const ELLIPSE_CONIC_GREEN_GRID_STEPS = 20;
+/**
+ * v0.4.1 leg 1 — minimum in-bounds interior samples for the grass gate to
+ * apply (conics whose interior is mostly out of frame cannot be measured;
+ * the solve's own validation gates handle those).
+ */
+const ELLIPSE_CONIC_GREEN_MIN_SAMPLES = 50;
+/**
+ * v0.4.1 leg 2 — the projected-grid quad-area floor as a fraction of the
+ * winning conic's ellipse area (the containment invariant): the image of
+ * the pitch rectangle CONTAINS the image of the center circle (the conic)
+ * for any real camera homography — projective maps preserve containment —
+ * so area(quad) >= area(conic) holds by construction for every VALID solve;
+ * a collapsed/folded mapping violates it. Measured bounds: the healthy
+ * chain solve of the synthetic arc window measures quad/conic = 41.1; the
+ * b3-a chain solve (the withheld claim — a point-collapse with all four
+ * pitch corners at image (575, 98)) measures 0.0004. 0.5 sits far inside
+ * both margins (the slack absorbs the fitted conic's inexactness: the
+ * validation ties the projected world circle to the conic within 4 px, so
+ * the two areas agree well inside a factor of 2).
+ */
+const ELLIPSE_GRID_MIN_QUAD_AREA_FACTOR = 0.5;
+/**
+ * v0.4.1 leg 2 — minimum projected pitch-corner separation (px). A
+ * quota-passing conic has semi-axes >= 6 px (ELLIPSE_MIN_SEMI_AXIS_PX), so
+ * a valid quad containing it spans >= ~12 px; collapsed quads put the four
+ * corners within sub-pixel distances (b3-a: 0.1 px). 4 px is below every
+ * healthy floor and far above the collapse signature.
+ */
+const ELLIPSE_GRID_MIN_CORNER_SEPARATION_PX = 4;
+/**
+ * v0.4.1 leg 2 — projected-corner magnitude bound (multiples of the frame
+ * dimension): a corner that is non-finite or lands beyond 20x the frame
+ * marks a folded/wrapped mapping (the pitch's finite region maps through
+ * the vanishing line), not a real camera's image. The measured healthy
+ * surfaces stay within 2.4x (b8p3-c's far corner at (-243, 873) px on
+ * 640x360; the synthetic fixture's at 1429 px); 20x is a degeneracy
+ * bound, not a tight calibration — the area/separation gates carry the
+ * measured discrimination.
+ */
+const ELLIPSE_GRID_CORNER_BOUND_FACTOR = 20;
+
+// ---------------------------------------------------------------------------
 // v0.2.0 — the ellipse/circle-constrained machinery (pure, deterministic).
 // ---------------------------------------------------------------------------
 
@@ -2134,6 +2296,56 @@ function conicsDistinct(a: EllipseGeometry, b: EllipseGeometry): boolean {
   let rotationDelta = Math.abs(a.rotation - b.rotation);
   if (rotationDelta > Math.PI) rotationDelta = 2 * Math.PI - rotationDelta;
   return (rotationDelta * 180) / Math.PI >= ELLIPSE_CONIC_DISTINCT_ROTATION_DEG;
+}
+
+/**
+ * v0.4.1 leg 1 — the conic grass-support measurement (module docs E2c):
+ * the MEDIAN over frames of the per-frame green fraction over a fixed
+ * (2·ELLIPSE_CONIC_GREEN_GRID_STEPS+1)² parametric grid inside the conic
+ * (the same ellipse-frame convention as `conicPointAt`). `undefined` when
+ * fewer than ELLIPSE_CONIC_GREEN_MIN_SAMPLES in-bounds samples exist (a
+ * conic whose interior is mostly out of frame cannot be measured — the
+ * solve's own gates handle it). Pure, deterministic.
+ */
+function conicInteriorGrassMedian(
+  geometry: EllipseGeometry,
+  greenMasks: readonly Uint8Array[],
+  width: number,
+  height: number,
+): { readonly median: number; readonly samplesInBounds: number } | undefined {
+  if (greenMasks.length === 0) return undefined;
+  const cos = Math.cos(geometry.rotation);
+  const sin = Math.sin(geometry.rotation);
+  const safeMajor = Math.max(geometry.semiMajor, 1e-9);
+  const safeMinor = Math.max(geometry.semiMinor, 1e-9);
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (let i = -ELLIPSE_CONIC_GREEN_GRID_STEPS; i <= ELLIPSE_CONIC_GREEN_GRID_STEPS; i += 1) {
+    for (let j = -ELLIPSE_CONIC_GREEN_GRID_STEPS; j <= ELLIPSE_CONIC_GREEN_GRID_STEPS; j += 1) {
+      const u = (i / ELLIPSE_CONIC_GREEN_GRID_STEPS) * safeMajor;
+      const v = (j / ELLIPSE_CONIC_GREEN_GRID_STEPS) * safeMinor;
+      if ((u / safeMajor) ** 2 + (v / safeMinor) ** 2 > 1) continue;
+      const x = Math.round(geometry.centerX + u * cos - v * sin);
+      const y = Math.round(geometry.centerY + u * sin + v * cos);
+      if (x < 0 || x >= width || y < 0 || y >= height) continue;
+      xs.push(x);
+      ys.push(y);
+    }
+  }
+  if (xs.length < ELLIPSE_CONIC_GREEN_MIN_SAMPLES) return undefined;
+  const perFrame: number[] = [];
+  for (const mask of greenMasks) {
+    let hits = 0;
+    for (let p = 0; p < xs.length; p += 1) {
+      if (mask[ys[p]! * width + xs[p]!] !== 0) hits += 1;
+    }
+    perFrame.push(hits / xs.length);
+  }
+  perFrame.sort((a, b) => a - b);
+  return {
+    median: perFrame[Math.floor((perFrame.length - 1) / 2)]!,
+    samplesInBounds: xs.length,
+  };
 }
 
 /**
@@ -3162,6 +3374,15 @@ interface CalibrationEvidence {
   readonly scoredFull: number[];
   readonly scoredSub: number[];
   readonly greenSub: number[];
+  /**
+   * v0.4.1: the PER-FRAME green masks (raw `isPitchGreen` per frame, in
+   * input order) — the chain-only conic grass-support gate's evidence
+   * (the median over frames; the calibrator's union/dilatedUnion stay
+   * internal to the steps that consume them). Additive plumbing: the
+   * masks were already computed in step 1; returning them changes no
+   * prior computation.
+   */
+  readonly greenMasks: readonly Uint8Array[];
 }
 
 /**
@@ -3341,6 +3562,7 @@ function extractCalibrationEvidence(
     scoredFull,
     scoredSub,
     greenSub,
+    greenMasks,
   };
 }
 
@@ -3658,6 +3880,125 @@ export function evaluateBroadcastLineFit(
   };
 }
 
+/**
+ * v0.4.1 — the PROJECTED-GRID GEOMETRY measurement (module docs E6b, the
+ * validation-gate hardening leg 2): where a solved image→pitch homography
+ * (canonical h[8] = 1) maps the four canonical pitch corners, and whether
+ * that quad is a REAL camera's image of the pitch rectangle containing the
+ * winning conic (the center circle's image — the containment invariant).
+ * PURE MEASUREMENT — not part of the calibration contract; the
+ * conic-selection chain's validation gate and the tests/evidence driver
+ * use it to measure and regression-lock the degenerate-grid class (the
+ * b3-a point-collapse). `ok` is false exactly when the projected quad is
+ * degenerate: a corner non-finite / beyond the 20x-frame bound, corners
+ * closer than ELLIPSE_GRID_MIN_CORNER_SEPARATION_PX, or the shoelace quad
+ * area below ELLIPSE_GRID_MIN_QUAD_AREA_FACTOR x the conic's ellipse area.
+ * Deterministic; validates its inputs fail-loud (RangeError).
+ */
+export interface BroadcastEllipseGridGeometry {
+  /** The projected pitch-corner image positions (px, canonical order). */
+  readonly cornersPx: readonly { readonly x: number; readonly y: number }[];
+  /** Shoelace area of the projected quad (px²). */
+  readonly quadAreaPx: number;
+  /** The conic's ellipse area π·semiMajor·semiMinor (px²). */
+  readonly conicAreaPx: number;
+  /** Minimum pairwise projected-corner distance (px). */
+  readonly cornerMinSeparationPx: number;
+  /** False = the degenerate-grid class (see the module docs E6b). */
+  readonly ok: boolean;
+}
+
+export function evaluateBroadcastEllipseGridGeometry(
+  homography: Homography,
+  conic: EllipseConic,
+  width: number,
+  height: number,
+): BroadcastEllipseGridGeometry {
+  if (
+    !Array.isArray(homography) ||
+    homography.length !== 9 ||
+    !homography.every((value) => Number.isFinite(value))
+  ) {
+    throw new RangeError(
+      `evaluateBroadcastEllipseGridGeometry: homography must be an array of 9 finite numbers ` +
+        `(got length ${Array.isArray(homography) ? homography.length : "non-array"})`,
+    );
+  }
+  if (
+    conic === null ||
+    typeof conic !== "object" ||
+    ![conic.a, conic.b, conic.c, conic.d, conic.e, conic.f].every((value) =>
+      Number.isFinite(value as number),
+    )
+  ) {
+    throw new RangeError(
+      "evaluateBroadcastEllipseGridGeometry: conic must carry 6 finite coefficients (a..f)",
+    );
+  }
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 1 || height <= 1) {
+    throw new RangeError(
+      `evaluateBroadcastEllipseGridGeometry: width/height must be integers > 1 ` +
+        `(got ${width}x${height})`,
+    );
+  }
+  const geometry = conicGeometry(conic);
+  if (geometry === undefined) {
+    throw new RangeError(
+      "evaluateBroadcastEllipseGridGeometry: conic is not a real non-degenerate ellipse",
+    );
+  }
+  const conicAreaPx = Math.PI * geometry.semiMajor * geometry.semiMinor;
+  let inverse: Homography;
+  try {
+    inverse = invertHomography(homography);
+  } catch {
+    return {
+      cornersPx: [],
+      quadAreaPx: 0,
+      conicAreaPx,
+      cornerMinSeparationPx: 0,
+      ok: false,
+    };
+  }
+  const bound = Math.max(ELLIPSE_GRID_CORNER_BOUND_FACTOR * width, ELLIPSE_GRID_CORNER_BOUND_FACTOR * height);
+  const cornersPx: Array<{ x: number; y: number }> = [];
+  for (const corner of CANONICAL_PITCH_CORNERS) {
+    const projected = applyHomography(inverse, { x: corner.x, y: corner.y });
+    const x = projected.x * width;
+    const y = projected.y * height;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x) > bound || Math.abs(y) > bound) {
+      return {
+        cornersPx,
+        quadAreaPx: 0,
+        conicAreaPx,
+        cornerMinSeparationPx: 0,
+        ok: false,
+      };
+    }
+    cornersPx.push({ x, y });
+  }
+  let shoelace = 0;
+  for (let i = 0; i < cornersPx.length; i += 1) {
+    const p = cornersPx[i]!;
+    const q = cornersPx[(i + 1) % cornersPx.length]!;
+    shoelace += p.x * q.y - q.x * p.y;
+  }
+  const quadAreaPx = Math.abs(shoelace / 2);
+  let cornerMinSeparationPx = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < cornersPx.length; i += 1) {
+    for (let j = i + 1; j < cornersPx.length; j += 1) {
+      cornerMinSeparationPx = Math.min(
+        cornerMinSeparationPx,
+        Math.hypot(cornersPx[i]!.x - cornersPx[j]!.x, cornersPx[i]!.y - cornersPx[j]!.y),
+      );
+    }
+  }
+  const ok =
+    quadAreaPx >= ELLIPSE_GRID_MIN_QUAD_AREA_FACTOR * conicAreaPx &&
+    cornerMinSeparationPx >= ELLIPSE_GRID_MIN_CORNER_SEPARATION_PX;
+  return { cornersPx, quadAreaPx, conicAreaPx, cornerMinSeparationPx, ok };
+}
+
 // ---------------------------------------------------------------------------
 // The candidate.
 // ---------------------------------------------------------------------------
@@ -3814,6 +4155,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       scoredSub,
       greenSub,
       greenTop,
+      greenMasks: evidence.greenMasks,
       anchorFrame,
       linePathFailure: linePathFailure!,
     });
@@ -4019,12 +4361,13 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     readonly scoredSub: readonly number[];
     readonly greenSub: readonly number[];
     readonly greenTop: Int32Array;
+    readonly greenMasks: readonly Uint8Array[];
     readonly anchorFrame: DetectorFrameInput;
     readonly linePathFailure: CandidateFailureError;
   }): CalibrationResult {
     const {
       lines, width, height, staticMask, staticPixels, scoredFull, scoredSub, greenSub,
-      greenTop, anchorFrame, linePathFailure,
+      greenTop, greenMasks, anchorFrame, linePathFailure,
     } = evidence;
     const linePathDetails = {
       linePathFailureClass: linePathFailure.details.failureClassId,
@@ -4083,12 +4426,63 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     // run through the SAME full hypothesis -> refinement -> validation
     // flow; the first validation pass wins; the acceptance bar never
     // lowers for any candidate.
+    // E2c (v0.4.1, CHAIN-ONLY): before a candidate's solve, the CONIC
+    // GRASS-SUPPORT GATE — a quota-passing conic whose interior is not
+    // grass-supported (median over frames below the documented threshold)
+    // anchors to OFF-PITCH structure (the b3-a goal/net class) and is
+    // refused with the typed class, the chain continuing with the next
+    // candidate. The default surface (chain off) never runs this gate.
     const chainFailures: Array<Record<string, unknown>> = [];
     let firstFailure: CandidateFailureError | undefined;
     for (let candidateIndex = 0; candidateIndex < quotaFits.length; candidateIndex += 1) {
+      const candidate = quotaFits[candidateIndex]!;
+      if (this.ellipseMultiConicSelection) {
+        const grass = conicInteriorGrassMedian(candidate.geometry, greenMasks, width, height);
+        if (grass !== undefined && grass.median < ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN) {
+          const refusal = new CandidateFailureError(
+            `BroadcastLineCalibrator: conic-selection chain — quota-passing conic candidate ` +
+              `${candidateIndex} (center (${candidate.geometry.centerX.toFixed(1)}, ` +
+              `${candidate.geometry.centerY.toFixed(1)}) px, semis ` +
+              `${candidate.geometry.semiMajor.toFixed(1)}x${candidate.geometry.semiMinor.toFixed(1)}) is ` +
+              `not GRASS-supported: the median over frames of its interior green fraction is ` +
+              `${grass.median.toFixed(3)} < ${ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN} over ` +
+              `${grass.samplesInBounds} in-bounds samples — the conic anchors to OFF-PITCH ` +
+              `structure (the goal/net class: a pitch circle is a thin painted band ON grass, ` +
+              `green in every frame; static structure is not), so its solve is refused before ` +
+              `it runs — never a structure-anchored calibration`,
+            {
+              failureClassId: "broadcast-line.ellipse-conic-off-pitch",
+              conicIndex: candidateIndex,
+              greenInteriorMedian: grass.median,
+              samplesInBounds: grass.samplesInBounds,
+              supportPx: candidate.supportPx,
+              coverageBins: candidate.coverageBins,
+              conicCenterPx: {
+                x: candidate.geometry.centerX,
+                y: candidate.geometry.centerY,
+              },
+              conicSemiPx: {
+                major: candidate.geometry.semiMajor,
+                minor: candidate.geometry.semiMinor,
+              },
+              ...linePathDetails,
+            },
+          );
+          if (candidateIndex === 0) firstFailure = refusal;
+          chainFailures.push({
+            conicIndex: candidateIndex,
+            failureClassId: "broadcast-line.ellipse-conic-off-pitch",
+            greenInteriorMedian: grass.median,
+            samplesInBounds: grass.samplesInBounds,
+            supportPx: candidate.supportPx,
+            coverageBins: candidate.coverageBins,
+          });
+          continue;
+        }
+      }
       try {
         return this.ellipseSolveForConic(
-          quotaFits[candidateIndex]!, evidence, linePathDetails, arcCount,
+          candidate, evidence, linePathDetails, arcCount,
         );
       } catch (error) {
         if (!(error instanceof CandidateFailureError)) throw error;
@@ -4105,9 +4499,10 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     }
     // Every quota-passing conic candidate refused honestly: rethrow the
     // FIRST quota-passer's refusal (the v0.3.0-exact class, message, and
-    // details when the primary passes the quota) with the additive
-    // per-candidate chain record attached — nothing laundered, every
-    // candidate's measured outcome recorded.
+    // details when the primary passes the quota; the v0.4.1 grass gate's
+    // typed refusal when the first candidate was refused pre-solve) with
+    // the additive per-candidate chain record attached — nothing
+    // laundered, every candidate's measured outcome recorded.
     const failure = firstFailure!;
     throw new CandidateFailureError(failure.message, {
       ...failure.details,
@@ -4431,6 +4826,51 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ...linePathDetails,
         },
       );
+    }
+
+    // E6b (v0.4.1, CHAIN-ONLY): the PROJECTED-GRID GEOMETRY GATE — the
+    // machine gates above are degenerately satisfiable (the measured b3-a
+    // class: a point-collapse H collects lineFit from the whole image
+    // mapping onto a model-line cluster, backward from the pitch mapping
+    // onto one static-mask point, and the ellipse residual from the
+    // circle mapping onto a single point ON the conic). The containment
+    // invariant is not: the pitch's image must contain the conic — a real
+    // camera's quad carries the area floor by construction. The default
+    // surface (chain off) never runs this gate.
+    if (this.ellipseMultiConicSelection) {
+      const grid = evaluateBroadcastEllipseGridGeometry(refined, fit.conic, width, height);
+      if (!grid.ok) {
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: conic-selection chain — the solved homography passed every ` +
+            `machine gate (lineFit ${lineFit.toFixed(3)}, backward ` +
+            `${Number.isFinite(backward) ? backward.toFixed(2) : "∞"} px, ellipse residual ` +
+            `${Number.isFinite(ellipseMetrics.meanPx) ? ellipseMetrics.meanPx.toFixed(2) : "∞"} px) ` +
+            `but its PROJECTED PITCH GRID is degenerate: the four pitch corners project to a ` +
+            `collapsed quad (area ${grid.quadAreaPx.toFixed(1)} px² vs the winning conic's ` +
+            `${grid.conicAreaPx.toFixed(1)} px² — the containment invariant says a real camera's ` +
+            `pitch image CONTAINS the circle's image; minimum corner separation ` +
+            `${grid.cornerMinSeparationPx.toFixed(2)} px) — the solve collapsed the pitch onto ` +
+            `the anchoring structure, collecting the machine rewards degenerately; the claim is ` +
+            `WITHHELD, nothing laundered`,
+          {
+            failureClassId: "broadcast-line.ellipse-degenerate-grid",
+            lineFit,
+            backwardPx: backwardCount > 0 ? backward : undefined,
+            ellipseMeanPx: Number.isFinite(ellipseMetrics.meanPx)
+              ? ellipseMetrics.meanPx
+              : undefined,
+            quadAreaPx: grid.quadAreaPx,
+            conicAreaPx: grid.conicAreaPx,
+            cornerMinSeparationPx: grid.cornerMinSeparationPx,
+            cornersPx: grid.cornersPx,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            scoredPixels: scoredFull.length / 2,
+            hypotheses: hypotheses.length,
+            ...linePathDetails,
+          },
+        );
+      }
     }
     const ellipseReward = Math.min(
       1,
