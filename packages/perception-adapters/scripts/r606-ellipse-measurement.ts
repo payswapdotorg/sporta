@@ -2,13 +2,18 @@
  * R606 ellipse/circle-constrained calibration — MACHINE MEASUREMENT DRIVER
  * (DEVELOPMENT-TIME EVIDENCE, not a test).
  *
- * Measures BOTH calibration paths of `BroadcastLineCalibrator` v0.2.0 on
+ * Measures FOUR calibration paths of `BroadcastLineCalibrator` v0.4.1 on
  * bounded frame samples of the committed REAL corpus
  * (`scripts/evidence/spr-corpus-bytes/`, sha-256-verified against
  * `scripts/evidence/spr-wave2-corpus/corpus.json` at startup — the frozen
  * substrate contract):
  *  - (a) the v0.1.0-equivalent LINE-ONLY path (`ellipseConstrained: false`)
- *  - (b) the v0.2.0 ELLIPSE-CONSTRAINED path (default)
+ *  - (b) the DEFAULT path (the v0.3.0-exact single-conic surface — the
+ *    chain and its v0.4.1 hardening are OPT-IN)
+ *  - (c) the explicit v0.3.0-surface control (`ellipseMultiConicSelection:
+ *    false`; must be identical to the default — the non-degradation check)
+ *  - (d) the v0.4.1 chain (opt-in; carries the validation-gate hardening:
+ *    the conic grass-support gate + the projected-grid geometry gate)
  * per window (multi-frame, the pipeline's real mode) AND per sampled frame
  * (single-frame diagnostics), recording calibrated/refused, confidence,
  * the failure class + measured numbers on refusals, and the fit metrics
@@ -275,7 +280,7 @@ async function main(): Promise<void> {
       v010LineOnly: "BroadcastLineCalibrator({ ellipseConstrained: false }) — the v0.1.0 behavior surface",
       v020EllipseConstrained: "BroadcastLineCalibrator() — the v0.4.0 DEFAULT (opt-in chain OFF: the v0.3.0-exact single-conic surface — the b3-a visual-gate FAIL keeps the chain opt-in)",
       v030Surface: "BroadcastLineCalibrator({ ellipseMultiConicSelection: false }) — the v0.3.0 single-conic surface (identical to the default; the explicit control)",
-      v040Chain: "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain (the measured increment: b3-a machine-recovers at lineFit 0.731, VLM visual gate FAIL — the goal-structure conic class)",
+      v040Chain: "BroadcastLineCalibrator({ ellipseMultiConicSelection: true }) — the OPT-IN conic-selection chain + the v0.4.1 VALIDATION-GATE HARDENING (chain-only): the conic grass-support gate (broadcast-line.ellipse-conic-off-pitch — the b3-a goal-structure conics measure median interior green 0.000-0.073 vs 0.27-0.79 grass-backed) + the projected-grid geometry gate (broadcast-line.ellipse-degenerate-grid — the containment invariant; the v0.4.0 b3-a solve was a point-collapse at quad/conic 0.0004)",
     },
     windows: [] as unknown[],
     aggregate: {} as Record<string, unknown>,

@@ -27,6 +27,21 @@ export interface RenderVariant {
    * recover the circle's component candidate.
    */
   readonly hoardingCurve?: boolean;
+  /**
+   * v0.4.1 hardening fixture (the b3-a class): paint a STATIC FILLED
+   * WHITE DISK (~8 m diameter, mid-grass away from every marking) and
+   * omit the center circle (the real window's circle is out of view) —
+   * the real-window class (clip-b3-fast-action frames 20-120, VLM-
+   * verified): a dense STATIC non-green structure ON the grass whose
+   * rim band survives every arc-evidence filter as a quota-passing
+   * conic. The v0.4.0 chain anchored its solve on exactly such a conic
+   * (the goal/net) and degenerately satisfied every machine gate; the
+   * v0.4.1 grass-support gate must refuse it with the typed
+   * `broadcast-line.ellipse-conic-off-pitch` class (the disk's interior
+   * is white in EVERY frame — the median green fraction ~0 — while a
+   * real circle's painted band leaves its interior grass).
+   */
+  readonly netStructure?: boolean;
 }
 
 export const WIDTH = 640;
@@ -183,6 +198,36 @@ function paintHoardingCurve(bytes: Uint8Array): void {
   }
 }
 
+/**
+ * The v0.4.1 hardening fixture's static structure: a FILLED WHITE DISK
+ * (radius 4 m at pitch (65, 50) — mid-grass, >= 10 m from every marking
+ * and 20 m from the omitted circle's center) — the goal/net-structure
+ * class stand-in: dense, static, non-green, ON the grass. Rasterized in
+ * IMAGE space (every pixel whose back-projected pitch point lies within
+ * the disk): the local-contrast line mask fires only on its RIM (the
+ * grass-to-white transition — the interior has no local contrast), so
+ * the arc evidence is exactly the disk's rim band, the conic fit lands
+ * on the disk's ellipse, and the disk's interior is white in every
+ * frame — the measured b3-a discrimination (median interior green ~0.0
+ * for the structure vs 0.9 for a real grass-backed circle).
+ */
+const NET_STRUCTURE_DISK = { cx: 65, cy: 50, r: 4 };
+
+/** Paints the fixture's static filled white disk (image-space rasterization). */
+function paintNetStructureDisk(bytes: Uint8Array): void {
+  const center = projectPitchToPx(NET_STRUCTURE_DISK.cx, NET_STRUCTURE_DISK.cy);
+  const margin = 32;
+  for (let y = Math.floor(center.y) - margin; y <= Math.ceil(center.y) + margin; y += 1) {
+    for (let x = Math.floor(center.x) - margin; x <= Math.ceil(center.x) + margin; x += 1) {
+      if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) continue;
+      const pitch = projectImage(H_GT, x / WIDTH, y / HEIGHT);
+      if (Math.hypot(pitch.x - NET_STRUCTURE_DISK.cx, pitch.y - NET_STRUCTURE_DISK.cy) <= NET_STRUCTURE_DISK.r) {
+        setPixel(bytes, x, y, LINE);
+      }
+    }
+  }
+}
+
 export function setPixel(
   bytes: Uint8Array,
   x: number,
@@ -268,11 +313,14 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
       paintMarkingPoint(bytes, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
     }
   }
-  if (!variant.skipCenterCircle) {
+  if (!variant.skipCenterCircle && !variant.netStructure) {
     paintArc(bytes, CENTER_CIRCLE, variant.centerCircleSpanDeg);
   }
   if (variant.hoardingCurve) {
     paintHoardingCurve(bytes);
+  }
+  if (variant.netStructure) {
+    paintNetStructureDisk(bytes);
   }
   paintArc(bytes, LEFT_PENALTY_ARC);
   paintArc(bytes, RIGHT_PENALTY_ARC);
