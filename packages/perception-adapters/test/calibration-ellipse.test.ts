@@ -9,7 +9,6 @@ import {
 import type { Homography } from "@sporta/field-mapping";
 import { makeDetectorFrameInput } from "../src/index";
 import type { DetectorFrameInput } from "../src/index";
-import { CandidateFailureError } from "../src/errors";
 import {
   BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES,
   BroadcastLineCalibrator,
@@ -20,13 +19,11 @@ import {
 import {
   CENTER_CIRCLE,
   FRAME_COUNT,
-  H_GT,
   M_PITCH_TO_IMAGE,
   PROBE_PITCH_POINTS,
   arcWindowFrames,
   projectImage,
   projectPitchNormalized,
-  projectPitchToPx,
   refusalClassOf,
   WIDTH,
   HEIGHT,

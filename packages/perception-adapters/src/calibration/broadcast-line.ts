@@ -637,7 +637,6 @@ const HOUGH_THETA_BINS = 180;
  * peaks outrank it; a 16-line cap starves the minority family exactly where
  * it is needed (the measured R606 windows).
  */
-const HOUGH_MAX_LINES = 28;
 /** Hough: per-orientation-family quota within the 28-line cap (see below). */
 const HOUGH_FAMILY_QUOTA = 14;
 /** Hough: suppression-iteration bound (quota-driven loop safety cap). */
@@ -787,7 +786,6 @@ function pointArcDistance(px: number, py: number, arc: ModelArc): number {
   const distance = Math.hypot(vx, vy);
   if (distance > 1e-12) {
     const nx = vx / distance;
-    const ny = vy / distance;
     const onX = (arc.xMin === undefined || arc.cx + arc.r * nx >= arc.xMin) &&
       (arc.xMax === undefined || arc.cx + arc.r * nx <= arc.xMax);
     if (onX) return Math.abs(distance - arc.r);
@@ -1613,8 +1611,6 @@ const ELLIPSE_VALIDATION_MAX_PX = 4;
 const ELLIPSE_VALIDATION_INLIER_FRACTION = 0.8;
 /** Hypothesis finalists promoted from quick score to full score. */
 const ELLIPSE_HYPOTHESIS_FINALISTS = 8;
-/** Mixed DLT: relative rank tolerance for the 8x8 normal equations. */
-const ELLIPSE_DLT_RANK_TOLERANCE = 1e-10;
 
 // ---------------------------------------------------------------------------
 // v0.4.1 — the validation-gate hardening (the b3-a-class fix; frozen
@@ -1789,45 +1785,6 @@ function pointConicDistancePx(geometry: EllipseGeometry, x: number, y: number): 
     (geometry.semiMajor * geometry.semiMinor) /
     Math.hypot(geometry.semiMinor * Math.cos(theta), geometry.semiMajor * Math.sin(theta));
   return Math.abs(radius - boundary);
-}
-
-/** Inverts a 3x3 matrix (adjugate / determinant); `undefined` when singular. */
-function invert3x3(m: readonly number[]): number[] | undefined {
-  const det =
-    m[0]! * (m[4]! * m[8]! - m[5]! * m[7]!) -
-    m[1]! * (m[3]! * m[8]! - m[5]! * m[6]!) +
-    m[2]! * (m[3]! * m[7]! - m[4]! * m[6]!);
-  if (!Number.isFinite(det) || Math.abs(det) <= 1e-12 * Math.max(...m.map(Math.abs), 1)) {
-    return undefined;
-  }
-  return [
-    (m[4]! * m[8]! - m[5]! * m[7]!) / det,
-    (m[2]! * m[7]! - m[1]! * m[8]!) / det,
-    (m[1]! * m[5]! - m[2]! * m[4]!) / det,
-    (m[5]! * m[6]! - m[3]! * m[8]!) / det,
-    (m[0]! * m[8]! - m[2]! * m[6]!) / det,
-    (m[2]! * m[3]! - m[0]! * m[5]!) / det,
-    (m[3]! * m[7]! - m[4]! * m[6]!) / det,
-    (m[1]! * m[6]! - m[0]! * m[7]!) / det,
-    (m[0]! * m[4]! - m[1]! * m[3]!) / det,
-  ];
-}
-
-/**
- * The POLE of a line w.r.t. a conic (`C⁻¹·l`, normalized to affine); the
- * homogeneous scale `w` ~ 0 means the pole is at infinity → `undefined`.
- */
-function poleOfLine(conic: EllipseConic, line: readonly number[]): { x: number; y: number } | undefined {
-  const inverse = invert3x3(conicMatrix(conic));
-  if (inverse === undefined) return undefined;
-  const px = inverse[0]! * line[0]! + inverse[1]! * line[1]! + inverse[2]! * line[2]!;
-  const py = inverse[3]! * line[0]! + inverse[4]! * line[1]! + inverse[5]! * line[2]!;
-  const pw = inverse[6]! * line[0]! + inverse[7]! * line[1]! + inverse[8]! * line[2]!;
-  if (Math.abs(pw) <= 1e-12 * Math.max(Math.abs(px), Math.abs(py), 1)) return undefined;
-  const x = px / pw;
-  const y = py / pw;
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return undefined;
-  return { x, y };
 }
 
 /** The POLAR LINE of a homogeneous point w.r.t. a conic (`C·p`). */
@@ -4366,8 +4323,8 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     readonly linePathFailure: CandidateFailureError;
   }): CalibrationResult {
     const {
-      lines, width, height, staticMask, staticPixels, scoredFull, scoredSub, greenSub,
-      greenTop, greenMasks, anchorFrame, linePathFailure,
+      lines, width, height, staticMask, staticPixels,
+      greenTop, greenMasks, linePathFailure,
     } = evidence;
     const linePathDetails = {
       linePathFailureClass: linePathFailure.details.failureClassId,
@@ -5122,7 +5079,6 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
               if (c00 === undefined || c01 === undefined || c11 === undefined || c10 === undefined) {
                 continue;
               }
-              const cornersPx: readonly Point2D[] = [c00, c01, c11, c10];
               const sideH0 = Math.hypot(c01.x - c00.x, c01.y - c00.y);
               const sideH1 = Math.hypot(c11.x - c10.x, c11.y - c10.y);
               const sideV0 = Math.hypot(c10.x - c00.x, c10.y - c00.y);
