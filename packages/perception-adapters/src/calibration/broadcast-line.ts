@@ -279,6 +279,68 @@
  *     larger-x right of smaller-x) over SAME-FAMILY line pairs only
  *     (cross-family pairs are the line path's (2+2) territory — the
  *     arc-window evidence shape is a parallel pair).
+ * E4b. v0.5.0 ANCHOR CONVERSION (OPT-IN, default false — the
+ *     `ellipseAnchorConversion` option; fires only inside the
+ *     ellipse-constrained path, which itself runs only after the line
+ *     path's solve/refusal per E0): the J-ORTHOGONAL EXACT CLOSURE of the
+ *     ellipse path's scan solves. The E4 anchors satisfy the conic
+ *     correspondence only approximately (the mixed DLT balances the
+ *     conic-derived rows against the line rows; the E5 refinement then
+ *     trades the ellipse residual against the line evidence — a measured
+ *     compromise surface). The conversion makes the conic correspondence
+ *     EXACT BY CONSTRUCTION, in the LORENTZ FRAME: canonicalize the image
+ *     conic (in NORMALIZED image coordinates — the machinery's
+ *     homographies map normalized image coords → pitch, NOT pixels:
+ *     Q̂ = Sᵀ·C_px·S with S = diag(width, height, 1)) and the world circle
+ *     to the Lorentz form J = diag(1, 1, −1) (G with GᵀJG = Q̂ and W with
+ *     WᵀJW = C_w, via the Jacobi eigendecomposition with the odd-sign
+ *     eigenvalue arranged last; the sign-twin conic canonicalizes
+ *     identically — conic matrices are scale-free; the all-same-sign
+ *     IMAGINARY class refuses), so H = W⁻¹·P·G with P J-ORTHOGONAL
+ *     (PᵀJP = J): the conic correspondence is then P's DEFINING property,
+ *     exact for every P. The scan enumerates as in E4 (the same swap ×
+ *     same-family-pair × model-values × flip driver and the same 1-DOF
+ *     coarse+fine parameter scan) with the NEAR-LINE POLE ROW added to
+ *     every base's anchor rows (the pole of the pair's near line — the
+ *     smaller model value, the near touchline / left goal line — w.r.t.
+ *     the conic ↔ w.r.t. the world circle, a well-conditioned point
+ *     correspondence; the FAR line's pole is the measured high-leverage
+ *     class and stays excluded). Every mixed-DLT scan solve H_t becomes
+ *     M₀ = W·H_t·G⁻¹ (the initial Lorentz map); N = M₀ᵀJM₀ measures the
+ *     solve's conic correspondence (N = μ·J ⟺ exact). THE CLOSURE
+ *     projects M₀ onto the J-orthogonal class: the FAST PATH (N ≈ μ·J
+ *     within the documented tolerance ⟹ return M₀/√μ — the NEAREST
+ *     J-orthogonal map; the eigendecomposition path's ULP-level tie order
+ *     in the degenerate eigenpair composes the projection with an
+ *     axis-swap reflection instead — a legitimate J-orthogonal map (the
+ *     conic correspondence holds) but NOT the nearest one, breaking the
+ *     true-H fixed point and needlessly rebalancing the line rows: the
+ *     measured defect this fast path fixes) and otherwise the
+ *     EIGENDECOMPOSITION PATH (Jacobi on N, B = √|Λ|·Vᵀ over the arranged
+ *     eigenpairs, P̂ = M₀·B⁻¹), both under the fail-loud self-check
+ *     (P̂ᵀJP̂ ∝ J with a positive scale — never a silently unverified map).
+ *     The converted Ĥ = W⁻¹·P̂·G (canonical h[8] = 1) must pass THE
+ *     ADMISSIBILITY BOUND (N's relative deviation from μ·J must be within
+ *     the documented bound — only scan solves whose anchors were
+ *     near-conic-consistent convert; measured ≈ 2.7% of enumerated scan
+ *     solves corpus-wide), THE BIRTH CONIC GUARD (Ĥᵀ·C_w·Ĥ ≈ the conic
+ *     the solve was born from — the algebraic identity, fail-loud) and
+ *     THE CONIC HARD GUARD (the pixel-level mean conic residual vs the
+ *     original px conic). The converted candidates run the E4 anti-
+ *     collapse quick guards and the combined-objective finalist selection
+ *     WITHOUT the E5 refinement (the closure IS the solve — the descent
+ *     would trade the exactness away), then the UNCHANGED E6 validation
+ *     bar: the closure rebalances the line rows globally, and when the
+ *     conic-exact solve contradicts the line evidence the bar REFUSES
+ *     honestly (the anchors-fight outcome — measured on the synthetic
+ *     fixtures: conic-exact residuals ~ 3e-4..1e-2 px with backward > 10
+ *     px where the compromise solve passed; nothing laundered). A
+ *     candidate whose whole scan enumerated solves but converted nothing
+ *     (or whose conic's canonicalization refused — the IMAGINARY class)
+ *     refuses with the typed
+ *     `broadcast-line.ellipse-anchor-unconvertible`; the per-candidate
+ *     anchor record (scan solves enumerated / converted) rides every
+ *     conversion-path refusal and every conicChain entry.
  * E5. REFINEMENT: the same coordinate descent as step 7 with THREE ADDED
  *     equal-weight terms, each a measured necessity:
  *     - the ELLIPSE REWARD: world-circle sample points (every 2°)
@@ -384,8 +446,30 @@ import { isPitchGreen } from "../pixels";
 import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput } from "../adapter";
 
 /**
- * Stable technology identity of this candidate. v0.4.1 (behavior-surface
- * change on the OPT-IN chain only, the R606 validation-gate hardening):
+ * Stable technology identity of this candidate. v0.5.0 (behavior-surface
+ * change on the OPT-IN anchor-conversion path only, E4b): when
+ * `ellipseAnchorConversion` is on, a conic candidate's ellipse-path flow is
+ * replaced by the J-ORTHOGONAL EXACT CLOSURE — the image conic (in
+ * NORMALIZED image coordinates) and the world circle canonicalize to the
+ * Lorentz form J = diag(1,1,−1) (G with GᵀJG = Q̂, W with WᵀJW = C_w), the
+ * unknown homography factors as H = W⁻¹·P·G with P J-orthogonal (the conic
+ * correspondence exact by construction), and every mixed-DLT scan solve
+ * H_t (as M₀ = W·H_t·G⁻¹, with N = M₀ᵀJM₀ measuring its conic
+ * correspondence) is projected onto the J-orthogonal class — the FAST PATH
+ * (N ≈ μ·J ⟹ M₀/√μ, the NEAREST map: the eigendecomposition path's
+ * ULP-level tie order in the degenerate eigenpair composes an axis-swap
+ * reflection instead — a legitimate J-orthogonal map but NOT the nearest
+ * one, breaking the true-H fixed point: the measured defect the fast path
+ * fixes) or the EIGENDECOMPOSITION PATH (B = √|Λ|·Vᵀ, P̂ = M₀·B⁻¹), both
+ * under the fail-loud self-check — then the admissibility bound, the birth
+ * conic guard and the conic hard guard. The converted candidates take the
+ * UNCHANGED validation bar WITHOUT the coordinate-descent refinement; a
+ * candidate whose scan converts nothing refuses with the typed
+ * `broadcast-line.ellipse-anchor-unconvertible`, the per-candidate anchor
+ * record (scan solves enumerated / converted) riding every refusal. The
+ * DEFAULT surface (conversion off) is v0.4.1-exact byte-identical. v0.4.1
+ * (behavior-surface change on the OPT-IN chain only, the R606
+ * validation-gate hardening):
  * two ADDITIVE discrimination gates fire exclusively on the
  * ellipseMultiConicSelection path — (leg 1) a quota-passing chain
  * candidate's conic interior must be GRASS-supported (median over frames
@@ -426,7 +510,7 @@ import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput 
  * unchanged — adapterVersion stays 0.1.0.
  */
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ID = "broadcast-line-calibrator";
-export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.4.1";
+export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.5.0";
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION = "0.1.0";
 
 /**
@@ -480,6 +564,29 @@ export interface BroadcastLineCalibratorOptions {
    * acceptance of a hardened-chain calibration on the real corpus.
    */
   readonly ellipseMultiConicSelection?: boolean;
+  /**
+   * v0.5.0: the E4b anchor conversion — the J-orthogonal exact closure of
+   * the ellipse path's scan solves (OPT-IN, default false). Fires only
+   * inside the ellipse-constrained path (which itself runs only after the
+   * line path's refusal, E0): the image conic and the world circle
+   * canonicalize to the Lorentz form J (the homography factors as
+   * H = W⁻¹·P·G with P J-orthogonal, the conic correspondence exact by
+   * construction), and every mixed-DLT scan solve is projected onto the
+   * J-orthogonal class (the fast path N ≈ μ·J ⟹ M₀/√μ, else the
+   * eigendecomposition path) under the admissibility bound, the birth
+   * conic guard and the conic hard guard. The converted candidates take
+   * the UNCHANGED validation bar WITHOUT the coordinate-descent
+   * refinement — the closure rebalances the line rows globally, so when
+   * the conic-exact solve contradicts the line evidence the bar refuses
+   * honestly (the anchors-fight outcome; measured: 0 newly-calibrated
+   * real windows, the conic-exact residuals riding the refusals). A
+   * candidate whose scan converts nothing refuses with the typed
+   * `broadcast-line.ellipse-anchor-unconvertible`. `false` (the default)
+   * restores the EXACT v0.4.1 behavior surface — the conversion never
+   * runs (the measurement driver uses the option to record the v0.5.0
+   * path).
+   */
+  readonly ellipseAnchorConversion?: boolean;
 }
 
 const BROADCAST_LINE_DEFAULTS = {
@@ -502,6 +609,16 @@ const BROADCAST_LINE_DEFAULTS = {
   // chain path). The chain stays opt-in pending the TL's visual
   // acceptance of a hardened-chain calibration on the real corpus.
   ellipseMultiConicSelection: false,
+  // v0.5.0 ships the anchor conversion OPT-IN (default false): the
+  // J-orthogonal exact closure is CONIC-EXACT by construction (the
+  // measured synthetic residuals ~ 3e-4..1e-2 px) but the unchanged
+  // validation bar REFUSES the globally re-balanced solves on every
+  // refusing window (the anchors-fight outcome — the closure makes the
+  // conic/line inconsistency explicit instead of compromising it away);
+  // 0 real windows newly calibrate under it. The mechanism and its honest
+  // per-candidate records are the delivery; the recovery claim is NOT
+  // made.
+  ellipseAnchorConversion: false,
 } as const;
 
 /** Documented failure classes of the broadcast-line field calibrator. */
@@ -594,6 +711,22 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
         "on the anchoring structure. The measured quad area, conic area, and " +
         "corner separation ride the refusal details. Typed refusal — the " +
         "claim is withheld, nothing laundered.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-anchor-unconvertible",
+    description:
+      "v0.5.0 anchor conversion (OPT-IN path only, E4b): the candidate's " +
+        "anchors could not be converted into the J-orthogonal (Lorentz) " +
+        "frame — either the conic's canonicalization refused (the " +
+        "all-same-sign IMAGINARY signature class: a conic with no real " +
+        "points cannot carry the x² + y² − z² = 0 form) or EVERY one of " +
+        "the candidate's enumerated scan solves failed the conversion " +
+        "guards (the admissibility bound: no scan solve's anchors were " +
+        "near-conic-consistent; the closure self-check; the birth conic " +
+        "guard; the conic hard guard). The per-candidate anchor record — " +
+        "the scan solves enumerated and the count converted — rides the " +
+        "refusal details. Typed refusal, never a fabricated closure.",
     retryable: false,
   },
 ];
@@ -1679,6 +1812,76 @@ const ELLIPSE_GRID_MIN_CORNER_SEPARATION_PX = 4;
  * measured discrimination.
  */
 const ELLIPSE_GRID_CORNER_BOUND_FACTOR = 20;
+
+// ---------------------------------------------------------------------------
+// v0.5.0 — the E4b anchor conversion (the Lorentz-frame J-orthogonal exact
+// closure; OPT-IN, `ellipseAnchorConversion`, default false — module docs).
+// ---------------------------------------------------------------------------
+
+/**
+ * v0.5.0 E4b — the FAST PATH tolerance: N = M₀ᵀJM₀ within this RELATIVE
+ * deviation of μ·J (μ = (N₀₀ + N₁₁ − N₂₂)/3) means M₀ is already (near-)
+ * J-orthogonal up to a positive scale, and the NEAREST J-orthogonal map is
+ * M₀/√μ. THE MEASURED DEFECT THIS FIXES: in exactly that (near-)degenerate
+ * case the eigendecomposition path's ULP-level tie order in the degenerate
+ * eigenpair composes the projection with an arbitrary rotation/reflection of
+ * the degenerate plane (B = √|Λ|·Vᵀ with V's pair-basis set by the noise,
+ * the axis-swap reflection in the extreme case) — a LEGITIMATE J-orthogonal
+ * map (the conic correspondence holds) but NOT the nearest one, which breaks
+ * the true-H fixed point (the converted homography is the input conjugated
+ * by a nontrivial projective map) and needlessly rebalances the line rows.
+ * The true-H round trip measures ~1e-12..1e-11 relative; 1e-9 fires the
+ * fast path there with ~100x headroom while staying far under the
+ * admissibility bound's near-consistent class.
+ */
+const ELLIPSE_ANCHOR_FAST_PATH_TOL = 1e-9;
+/**
+ * v0.5.0 E4b — THE ADMISSIBILITY BOUND: a mixed-DLT scan solve converts only
+ * when N = M₀ᵀJM₀ is within this RELATIVE deviation of μ·J — i.e. only scan
+ * solves whose anchors were NEAR-CONIC-CONSISTENT convert (the least-squares
+ * compromise between the conic-derived rows and the line rows stays small);
+ * solves anchored to mutually inconsistent evidence (wrong model values,
+ * wrong scan parameter, structure conics fighting the line rows) exceed the
+ * bound and stay unconverted — the closure is never FABRICATED from anchors
+ * that never agreed with the conic. Measured selectivity (the calibration
+ * target): ≈ 0.6% of the enumerated scan solves convert on the synthetic
+ * plain fixture, ≈ 2.3% on the real b8p3-b window, ≈ 2.7% corpus-wide.
+ */
+const ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND = 1e-2;
+/**
+ * v0.5.0 E4b — the CLOSURE SELF-CHECK tolerance: the projected P̂ must
+ * satisfy P̂ᵀJP̂ ≈ J (relative Frobenius, a POSITIVE scale — the negative
+ * scale −J is the anti-J-orthogonal class and fails the same comparison).
+ * The construction guarantees P̂ᵀJP̂ = J exactly (the eigendecomposition path)
+ * or N/μ (the fast path, within the fast-path tolerance); a violation is a
+ * numerical breakdown, and the map is NEVER used silently unverified.
+ */
+const ELLIPSE_ANCHOR_SELF_CHECK_REL = 1e-6;
+/**
+ * v0.5.0 E4b — the BIRTH CONIC GUARD tolerance: the converted Ĥ must satisfy
+ * Ĥᵀ·C_w·Ĥ ≈ qCanon (relative Frobenius), the conic the solve was born from
+ * (the J-matching representative of the normalized image conic) — the
+ * algebraic identity of the factorization H = W⁻¹·P·G, verified rather than
+ * assumed on every conversion.
+ */
+const ELLIPSE_ANCHOR_BIRTH_GUARD_REL = 1e-6;
+/**
+ * v0.5.0 E4b — the CONIC HARD GUARD (px): the mean pixel-level residual of
+ * the world circle sample points projected through Ĥ⁻¹ onto the ORIGINAL
+ * px conic. The closure is exact by construction (measured residuals
+ * ~3e-4..1.4e-2 px on the real corpus — the 1.4e-2 case is the roundoff of
+ * a wildly-conditioned converted homography, still 7x under the guard); a
+ * coordinate-convention or normalization mistake lands orders of magnitude
+ * above it — the guard catches what the algebraic identity cannot.
+ */
+const ELLIPSE_ANCHOR_CONIC_GUARD_PX = 0.1;
+/**
+ * v0.5.0 E4b — the canonicalization's degenerate-eigenvalue floor (relative
+ * to the largest |eigenvalue|): a conic matrix with a ~zero eigenvalue is a
+ * degenerate conic (a point / a line pair) and cannot carry the non-degenerate
+ * x² + y² − z² = 0 Lorentz form.
+ */
+const ELLIPSE_ANCHOR_EIGEN_ZERO_REL = 1e-9;
 
 // ---------------------------------------------------------------------------
 // v0.2.0 — the ellipse/circle-constrained machinery (pure, deterministic).
@@ -3129,6 +3332,15 @@ interface EllipseBaseAnchors {
  * line rows and vanishing-point rows are scale-invariant in the channel
  * blocks — measured: a near-null direction left the block at 1/31 of the
  * truth).
+ *
+ * v0.5.0 (E4b, ADDITIVE): the optional `nearPole` — the pole of the pair's
+ * NEAR line (the smaller model value) w.r.t. the conic ↔ w.r.t. the world
+ * circle, a well-conditioned point correspondence — is PREPENDED to the
+ * base's point rows. The pole row fires ONLY on the anchor-conversion path
+ * (the default path passes `undefined` and gets the exact v0.2.0-v0.4.1
+ * anchor construction, byte-identical); it is SKIPPED (undefined) when the
+ * pole is at/near infinity (the line passes through the conic's center —
+ * e.g. the model halfway line x = 52.5) or outside the anchor bounds.
  */
 function buildEllipseBaseAnchors(
   conic: EllipseConic,
@@ -3137,6 +3349,7 @@ function buildEllipseBaseAnchors(
   subpixel: ReadonlyMap<HoughLine, { theta: number; rho: number }>,
   width: number,
   height: number,
+  nearPole?: { u: number; v: number; x: number; y: number },
 ): Array<EllipseBaseAnchors> {
   if (a.family !== b.family) return [];
   const linePx = (line: HoughLine): [number, number, number] => {
@@ -3176,6 +3389,7 @@ function buildEllipseBaseAnchors(
     const q1 = flip === 0 ? worldQ[1] : worldQ[0];
     results.push({
       points: [
+        ...(nearPole !== undefined ? [nearPole] : []),
         { ...pxPointToNormalized(imageQ[0]!, width, height), x: q0.x, y: q0.y },
         { ...pxPointToNormalized(imageQ[1]!, width, height), x: q1.x, y: q1.y },
       ],
@@ -3287,6 +3501,540 @@ function forwardScoreOnPoints(h: Homography, points: readonly number[]): number 
     }
   }
   return inliers / (points.length / 2);
+}
+
+// ---------------------------------------------------------------------------
+// v0.5.0 — the E4b anchor-conversion machinery (the Lorentz-frame
+// J-orthogonal exact closure; pure, deterministic; module docs E4b).
+// ---------------------------------------------------------------------------
+
+/** The Lorentz form J = diag(1, 1, −1) as a row-major 3x3 matrix. */
+const LORENTZ_J: readonly number[] = [1, 0, 0, 0, 1, 0, 0, 0, -1];
+
+/**
+ * The world center circle's homogeneous conic matrix (pitch meters):
+ * (x − cx)² + (y − cy)² − r²·z² = 0 for the canonical model circle
+ * (52.5, 34, r = 9.15) — the W side of the E4b factorization.
+ */
+const WORLD_CIRCLE_CONIC: readonly number[] = [
+  1, 0, -CIRCLE_CENTER_X,
+  0, 1, -CIRCLE_CENTER_Y,
+  -CIRCLE_CENTER_X, -CIRCLE_CENTER_Y,
+  CIRCLE_CENTER_X * CIRCLE_CENTER_X + CIRCLE_CENTER_Y * CIRCLE_CENTER_Y - CIRCLE_R * CIRCLE_R,
+];
+
+/** Row-major 3x3 matrix product A·B. */
+function mat3Mul(a: readonly number[], b: readonly number[]): number[] {
+  const out = new Array<number>(9);
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      out[row * 3 + col] =
+        a[row * 3]! * b[col]! +
+        a[row * 3 + 1]! * b[3 + col]! +
+        a[row * 3 + 2]! * b[6 + col]!;
+    }
+  }
+  return out;
+}
+
+/** The congruence Mᵀ·C·M of row-major 3x3 matrices. */
+function mat3Congruence(m: readonly number[], c: readonly number[]): number[] {
+  const cm = mat3Mul(c, m);
+  const out = new Array<number>(9);
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      out[row * 3 + col] =
+        m[row]! * cm[col]! +
+        m[3 + row]! * cm[3 + col]! +
+        m[6 + row]! * cm[6 + col]!;
+    }
+  }
+  return out;
+}
+
+/** The Lorentz congruence Mᵀ·J·M (J = diag(1, 1, −1)) of a row-major 3x3. */
+function mat3JCongruence(m: readonly number[]): number[] {
+  const out = new Array<number>(9);
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      out[row * 3 + col] =
+        m[row]! * m[col]! +
+        m[3 + row]! * m[3 + col]! -
+        m[6 + row]! * m[6 + col]!;
+    }
+  }
+  return out;
+}
+
+/** Relative Frobenius deviation ||a − b||_F / ||b||_F (0 when b = 0). */
+function mat3RelativeFrobenius(a: readonly number[], b: readonly number[]): number {
+  let diff = 0;
+  let norm = 0;
+  for (let k = 0; k < 9; k += 1) {
+    diff += (a[k]! - b[k]!) ** 2;
+    norm += b[k]! ** 2;
+  }
+  if (norm <= 0) return Number.POSITIVE_INFINITY;
+  return Math.sqrt(diff / norm);
+}
+
+/**
+ * The inverse of a row-major 3x3 matrix (the adjugate over the
+ * determinant), or `undefined` for a (near-)singular or non-finite input.
+ * Deterministic. [E4b: the frame's G⁻¹ / W⁻¹ and the conic inverse the pole
+ * rows need; returns WITH its unit-contract test — the 6510a54 lint-fix
+ * law: dead code never ships, live code ships tested.]
+ */
+export function invert3x3(m: readonly number[]): number[] | undefined {
+  const [m0, m1, m2, m3, m4, m5, m6, m7, m8] = [
+    m[0]!, m[1]!, m[2]!, m[3]!, m[4]!, m[5]!, m[6]!, m[7]!, m[8]!,
+  ];
+  if (![m0, m1, m2, m3, m4, m5, m6, m7, m8].every(Number.isFinite)) return undefined;
+  let scale = 0;
+  for (const entry of [m0, m1, m2, m3, m4, m5, m6, m7, m8]) {
+    scale = Math.max(scale, Math.abs(entry));
+  }
+  const det =
+    m0 * (m4 * m8 - m5 * m7) - m1 * (m3 * m8 - m5 * m6) + m2 * (m3 * m7 - m4 * m6);
+  if (!Number.isFinite(det) || Math.abs(det) <= 1e-12 * Math.max(scale, 1e-300)) {
+    return undefined;
+  }
+  const inverse = [
+    (m4 * m8 - m5 * m7) / det, (m2 * m7 - m1 * m8) / det, (m1 * m5 - m2 * m4) / det,
+    (m5 * m6 - m3 * m8) / det, (m0 * m8 - m2 * m6) / det, (m2 * m3 - m0 * m5) / det,
+    (m3 * m7 - m4 * m6) / det, (m1 * m6 - m0 * m7) / det, (m0 * m4 - m1 * m3) / det,
+  ];
+  if (!inverse.every(Number.isFinite)) return undefined;
+  return inverse;
+}
+
+/**
+ * The POLE of a homogeneous line w.r.t. a symmetric row-major 3x3 conic
+ * matrix: the point p = C⁻¹·l (the polar of p is l — the pole-polar
+ * duality every projective map preserves). Returned normalized to
+ * max-abs entry 1 (a homogeneous scale convention); `undefined` for a
+ * singular conic or a non-finite result. Deterministic.
+ * [E4b: the NEAR-LINE POLE ROW — the pole of the pair's near line w.r.t.
+ * the normalized image conic ↔ w.r.t. the world circle, a well-conditioned
+ * point correspondence; the FAR line's pole is the measured high-leverage
+ * class and stays excluded. Returns WITH its unit-contract test.]
+ */
+export function poleOfLine(
+  m: readonly number[],
+  line: readonly number[],
+): [number, number, number] | undefined {
+  const inverse = invert3x3(m);
+  if (inverse === undefined) return undefined;
+  const x = inverse[0]! * line[0]! + inverse[1]! * line[1]! + inverse[2]! * line[2]!;
+  const y = inverse[3]! * line[0]! + inverse[4]! * line[1]! + inverse[5]! * line[2]!;
+  const z = inverse[6]! * line[0]! + inverse[7]! * line[1]! + inverse[8]! * line[2]!;
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return undefined;
+  const scale = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
+  if (scale <= 1e-300) return undefined;
+  return [x / scale, y / scale, z / scale];
+}
+
+/** The Jacobi eigendecomposition result of a symmetric 3x3 matrix. */
+export interface JacobiEigenSym3 {
+  /** The eigenvalues, in the Jacobi's own convergence order. */
+  readonly values: readonly number[];
+  /**
+   * The eigenvector basis, row-major 3x3: COLUMN j is the unit eigenvector
+   * of `values[j]` (A = V·diag(values)·Vᵀ).
+   */
+  readonly vectors: readonly number[];
+}
+
+/**
+ * The JACOBI cyclic eigendecomposition of a symmetric row-major 3x3 matrix:
+ * A = V·diag(values)·Vᵀ with V orthogonal, via the fixed pivot order
+ * ((0,1), (0,2), (1,2)), the smaller-|t| rotation of the classic Jacobi
+ * update, a fixed convergence threshold (off-diagonal Frobenius ≤ 1e-15 of
+ * the matrix scale) and a 50-sweep cap. Deterministic: no sorting, no
+ * randomness, no clock — the eigenpair order is the iteration's own.
+ * [E4b: the Lorentz canonicalization (both conic sides) and the closure
+ * projection's eigendecomposition of N. Returns WITH its unit-contract
+ * test — including the defining A·v = λ·v contract for every eigenpair.]
+ */
+export function jacobiEigenSym3(m: readonly number[]): JacobiEigenSym3 {
+  // Symmetrize defensively (the inputs are symmetric by construction; the
+  // average kills any asymmetric roundtrip noise a caller might carry).
+  const a = [
+    (m[0]! + m[0]!) / 2, (m[1]! + m[3]!) / 2, (m[2]! + m[6]!) / 2,
+    (m[3]! + m[1]!) / 2, (m[4]! + m[4]!) / 2, (m[5]! + m[7]!) / 2,
+    (m[6]! + m[2]!) / 2, (m[7]! + m[5]!) / 2, (m[8]! + m[8]!) / 2,
+  ];
+  const v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  let scale = 0;
+  for (const entry of a) scale = Math.max(scale, Math.abs(entry));
+  if (scale <= 1e-300) return { values: [0, 0, 0], vectors: v };
+  const threshold = 1e-15 * scale;
+  const pivots: ReadonlyArray<readonly [number, number]> = [[0, 1], [0, 2], [1, 2]];
+  for (let sweep = 0; sweep < 50; sweep += 1) {
+    const off = Math.hypot(a[1]!, a[2]!, a[5]!);
+    if (off <= threshold) break;
+    for (const [p, q] of pivots) {
+      const apq = a[p * 3 + q]!;
+      if (Math.abs(apq) <= threshold) continue;
+      const app = a[p * 3 + p]!;
+      const aqq = a[q * 3 + q]!;
+      const tau = (aqq - app) / (2 * apq);
+      // The smaller-|t| root; sign(0) → t = 1 (the 45° rotation zeroes the
+      // off-diagonal for the exactly-degenerate diagonal pair too).
+      const t = tau >= 0
+        ? 1 / (tau + Math.sqrt(1 + tau * tau))
+        : 1 / (tau - Math.sqrt(1 + tau * tau));
+      const c = 1 / Math.sqrt(1 + t * t);
+      const s = t * c;
+      // A ← Jᵀ·A·J (the (p, q) plane rotation), applied column-wise then
+      // row-wise on the symmetric accumulator.
+      for (let k = 0; k < 3; k += 1) {
+        const akp = a[k * 3 + p]!;
+        const akq = a[k * 3 + q]!;
+        a[k * 3 + p] = c * akp - s * akq;
+        a[k * 3 + q] = s * akp + c * akq;
+      }
+      for (let k = 0; k < 3; k += 1) {
+        const apk = a[p * 3 + k]!;
+        const aqk = a[q * 3 + k]!;
+        a[p * 3 + k] = c * apk - s * aqk;
+        a[q * 3 + k] = s * apk + c * aqk;
+      }
+      // V ← V·J (the eigenvector accumulation).
+      for (let k = 0; k < 3; k += 1) {
+        const vkp = v[k * 3 + p]!;
+        const vkq = v[k * 3 + q]!;
+        v[k * 3 + p] = c * vkp - s * vkq;
+        v[k * 3 + q] = s * vkp + c * vkq;
+      }
+    }
+  }
+  return { values: [a[0]!, a[4]!, a[8]!], vectors: v };
+}
+
+/**
+ * Canonicalizes a symmetric row-major 3x3 conic matrix to the Lorentz form
+ * J = diag(1, 1, −1): returns G with Gᵀ·J·G = ±q — the representative whose
+ * inertia matches J (conic matrices are scale-free, so ±q is the SAME
+ * conic; which sign appears is the representative the birth-conic guard
+ * verifies against). The construction: the Jacobi eigendecomposition with
+ * the odd-sign eigenvalue arranged LAST, G = diag(√|λ|)·Vᵀ over the
+ * arranged eigenpairs. `undefined` for the IMAGINARY class (all-same-sign
+ * eigenvalues — a conic with no real points cannot carry the
+ * x² + y² − z² = 0 form) or a degenerate conic (a ~zero eigenvalue). The
+ * SIGN TWIN −q canonicalizes IDENTICALLY (the arrangement is by sign class
+ * and the representative by inertia, never by the input's sign).
+ * Deterministic.
+ */
+function lorentzCanonicalize(q: readonly number[]): number[] | undefined {
+  const eigen = jacobiEigenSym3(q);
+  const values = eigen.values;
+  if (!values.every(Number.isFinite)) return undefined;
+  let maxAbs = 0;
+  for (const value of values) maxAbs = Math.max(maxAbs, Math.abs(value));
+  if (maxAbs <= 1e-300) return undefined;
+  let positives = 0;
+  let negatives = 0;
+  for (const value of values) {
+    if (value > 0) positives += 1;
+    else negatives += 1;
+  }
+  // The IMAGINARY class: an all-same-sign (definite) conic matrix has no
+  // real points, and no real congruence can carry it onto J.
+  if (positives === 3 || negatives === 3) return undefined;
+  // The degenerate class: a ~zero eigenvalue (a point / line-pair conic).
+  for (const value of values) {
+    if (Math.abs(value) <= ELLIPSE_ANCHOR_EIGEN_ZERO_REL * maxAbs) return undefined;
+  }
+  // Arrange the odd-sign eigenvalue LAST (a stable partition of the Jacobi's
+  // own eigenpair order — deterministic, and invariant under the sign twin).
+  const oddIndex = positives === 1
+    ? values.findIndex((value) => value > 0)
+    : values.findIndex((value) => value < 0);
+  if (oddIndex < 0) return undefined;
+  const order = [0, 1, 2].filter((index) => index !== oddIndex);
+  order.push(oddIndex);
+  const vectors = eigen.vectors;
+  const g = new Array<number>(9);
+  for (let row = 0; row < 3; row += 1) {
+    const diagonal = Math.sqrt(Math.abs(values[order[row]!]!));
+    for (let col = 0; col < 3; col += 1) {
+      g[row * 3 + col] = diagonal * vectors[col * 3 + order[row]!]!;
+    }
+  }
+  if (!g.every(Number.isFinite)) return undefined;
+  return g;
+}
+
+/** The E4b Lorentz frame of one (image conic, world circle) correspondence. */
+export interface BroadcastEllipseAnchorFrame {
+  /** G with Gᵀ·J·G = qCanon (row-major 9; NORMALIZED image coordinates). */
+  readonly g: readonly number[];
+  /** G⁻¹ (row-major 9). */
+  readonly gInverse: readonly number[];
+  /** The J-matching representative of the normalized image conic (= GᵀJG). */
+  readonly qCanon: readonly number[];
+  /** W with Wᵀ·J·W = cCanon (row-major 9; pitch meters). */
+  readonly w: readonly number[];
+  /** W⁻¹ (row-major 9). */
+  readonly wInverse: readonly number[];
+  /** The J-matching representative of the world circle (= WᵀJW). */
+  readonly cCanon: readonly number[];
+}
+
+/**
+ * Builds the E4b Lorentz frame: the image conic (in NORMALIZED image
+ * coordinates — the machinery's homographies map normalized image coords →
+ * pitch, NOT pixels: Q̂ = Sᵀ·C_px·S with S = diag(width, height, 1)) and the
+ * world circle both canonicalized to the Lorentz form J = diag(1, 1, −1)
+ * (G with GᵀJG = qCanon, W with WᵀJW = cCanon), so the unknown homography
+ * factors as H = W⁻¹·P·G with P J-ORTHOGONAL — the conic correspondence
+ * Hᵀ·C_w·H = qCanon is then P's DEFINING property, exact for every P.
+ * `undefined` when either canonicalization refuses (the IMAGINARY /
+ * degenerate classes — a fitted real ellipse never refuses; the guard is
+ * fail-loud for the typed unconvertible refusal). Validates its inputs
+ * fail-loud (RangeError) per the diagnostic-export contract.
+ */
+export function buildBroadcastEllipseAnchorFrame(
+  conic: EllipseConic,
+  width: number,
+  height: number,
+): BroadcastEllipseAnchorFrame | undefined {
+  if (
+    !Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0
+  ) {
+    throw new RangeError(
+      `buildBroadcastEllipseAnchorFrame: width/height must be finite positive ` +
+        `(got ${width}x${height})`,
+    );
+  }
+  if (![conic.a, conic.b, conic.c, conic.d, conic.e, conic.f].every(Number.isFinite)) {
+    throw new RangeError(
+      "buildBroadcastEllipseAnchorFrame: the conic coefficients must all be finite",
+    );
+  }
+  const cPx = conicMatrix(conic);
+  // Q̂ = Sᵀ·C_px·S — the conic in NORMALIZED image coordinates.
+  const qHat = [
+    cPx[0]! * width * width, cPx[1]! * width * height, cPx[2]! * width,
+    cPx[3]! * width * height, cPx[4]! * height * height, cPx[5]! * height,
+    cPx[6]! * width, cPx[7]! * height, cPx[8]!,
+  ];
+  const g = lorentzCanonicalize(qHat);
+  if (g === undefined) return undefined;
+  const w = lorentzCanonicalize(WORLD_CIRCLE_CONIC);
+  if (w === undefined) return undefined;
+  const gInverse = invert3x3(g);
+  const wInverse = invert3x3(w);
+  if (gInverse === undefined || wInverse === undefined) return undefined;
+  return {
+    g,
+    gInverse,
+    qCanon: mat3JCongruence(g),
+    w,
+    wInverse,
+    cCanon: mat3JCongruence(w),
+  };
+}
+
+/**
+ * The E4b conversion outcome of ONE homography: the J-orthogonal exact
+ * closure (`converted`, carrying the canonical h[8] = 1 homography, the
+ * measured relative deviation of N from μ·J, and whether the fast path
+ * fired) or the guard that refused it (`unconverted`, with the reason).
+ */
+export type BroadcastEllipseAnchorConversion =
+  | {
+    readonly kind: "converted";
+    readonly homography: Homography;
+    readonly relativeDeviation: number;
+    readonly fastPath: boolean;
+  }
+  | {
+    readonly kind: "unconverted";
+    readonly reason:
+      | "conic-canonicalization"
+      | "admissibility-bound"
+      | "closure-self-check"
+      | "birth-conic-guard"
+      | "conic-hard-guard";
+    readonly relativeDeviation: number;
+  };
+
+/**
+ * The E4b J-ORTHOGONAL EXACT CLOSURE of one homography against one conic
+ * (module docs E4b, the single-shot form — the scan loop calls the shared
+ * per-frame core directly): M₀ = W·H·G⁻¹, N = M₀ᵀJM₀ measures the solve's
+ * conic correspondence (N = μ·J ⟺ exact), and the projection onto the
+ * J-orthogonal class runs the FAST PATH (N ≈ μ·J ⟹ M₀/√μ, the NEAREST map
+ * — the eigendecomposition path's ULP-level tie order in the degenerate
+ * eigenpair composes an arbitrary rotation of the degenerate plane instead,
+ * a legitimate J-orthogonal map but NOT the nearest one, breaking the
+ * true-H fixed point: the measured defect the fast path fixes) or the
+ * EIGENDECOMPOSITION PATH (B with BᵀJB = N, P̂ = M₀·B⁻¹), both under the
+ * fail-loud self-check (P̂ᵀJP̂ ≈ J, a positive scale), then the admissibility
+ * bound, the birth conic guard and the conic hard guard. Validates its
+ * inputs fail-loud (RangeError); refuses (never throws) on the conversion
+ * guards — the typed unconvertible refusal carries the counts.
+ */
+export function convertBroadcastEllipseAnchor(
+  conic: EllipseConic,
+  width: number,
+  height: number,
+  homography: Homography,
+): BroadcastEllipseAnchorConversion {
+  if (
+    !Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0
+  ) {
+    throw new RangeError(
+      `convertBroadcastEllipseAnchor: width/height must be finite positive ` +
+        `(got ${width}x${height})`,
+    );
+  }
+  if (homography.length !== 9 || !homography.every(Number.isFinite)) {
+    throw new RangeError(
+      "convertBroadcastEllipseAnchor: the homography must be 9 finite entries",
+    );
+  }
+  const geometry = conicGeometry(conic);
+  if (geometry === undefined) {
+    return {
+      kind: "unconverted",
+      reason: "conic-canonicalization",
+      relativeDeviation: Number.POSITIVE_INFINITY,
+    };
+  }
+  const frame = buildBroadcastEllipseAnchorFrame(conic, width, height);
+  if (frame === undefined) {
+    return {
+      kind: "unconverted",
+      reason: "conic-canonicalization",
+      relativeDeviation: Number.POSITIVE_INFINITY,
+    };
+  }
+  return convertAnchorWithFrame(frame, geometry, width, height, homography);
+}
+
+/**
+ * The E4b conversion core over a PRE-BUILT frame (the scan loop builds the
+ * frame once per conic candidate and converts every enumerated solve
+ * through it). Pure, deterministic, never throws.
+ */
+function convertAnchorWithFrame(
+  frame: BroadcastEllipseAnchorFrame,
+  geometry: EllipseGeometry,
+  width: number,
+  height: number,
+  homography: Homography,
+): BroadcastEllipseAnchorConversion {
+  // M₀ = W·H_t·G⁻¹ — the initial Lorentz map of the scan solve.
+  const m0 = mat3Mul(frame.w, mat3Mul(homography, frame.gInverse));
+  if (!m0.every(Number.isFinite)) {
+    return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: Number.POSITIVE_INFINITY };
+  }
+  // N = M₀ᵀJM₀; μ = (N₀₀ + N₁₁ − N₂₂)/3 (the J-weighted trace over 3);
+  // dev = max|N − μ·J| / |μ| (the relative deviation from μ·J).
+  const n = mat3JCongruence(m0);
+  let scale = 0;
+  for (const entry of n) scale = Math.max(scale, Math.abs(entry));
+  const mu = (n[0]! + n[4]! - n[8]!) / 3;
+  if (!Number.isFinite(mu) || Math.abs(mu) <= 1e-12 * Math.max(scale, 1e-300)) {
+    return { kind: "unconverted", reason: "admissibility-bound", relativeDeviation: Number.POSITIVE_INFINITY };
+  }
+  const deviation = Math.max(
+    Math.abs(n[0]! - mu),
+    Math.abs(n[4]! - mu),
+    Math.abs(n[8]! + mu),
+    Math.abs(n[1]!),
+    Math.abs(n[2]!),
+    Math.abs(n[5]!),
+  ) / Math.abs(mu);
+  let hRaw: number[];
+  let fastPath = false;
+  if (deviation <= ELLIPSE_ANCHOR_FAST_PATH_TOL && mu > 0) {
+    // THE FAST PATH (the measured fixed-point defect's fix): M₀/√μ IS the
+    // nearest J-orthogonal map; the eigendecomposition path here would
+    // compose the projection with an arbitrary rotation of the degenerate
+    // eigenpair's plane (the ULP-level tie order) — legitimate but not
+    // nearest, breaking the true-H fixed point.
+    fastPath = true;
+    const rootMu = Math.sqrt(mu);
+    const p = m0.map((entry) => entry / rootMu);
+    const selfCheck = mat3JCongruence(p);
+    if (mat3RelativeFrobenius(selfCheck, LORENTZ_J) > ELLIPSE_ANCHOR_SELF_CHECK_REL) {
+      return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+    }
+    // W⁻¹·(M₀/√μ)·G = H_t/√μ exactly (the algebra collapses the frame).
+    hRaw = homography.map((entry) => entry / rootMu);
+  } else {
+    // THE ADMISSIBILITY BOUND: only near-conic-consistent anchors convert.
+    if (deviation > ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND) {
+      return { kind: "unconverted", reason: "admissibility-bound", relativeDeviation: deviation };
+    }
+    // THE EIGENDECOMPOSITION PATH: B with BᵀJB = N (the same Lorentz
+    // canonicalization, on N), P̂ = M₀·B⁻¹.
+    const b = lorentzCanonicalize(n);
+    if (b === undefined) {
+      return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+    }
+    const bInverse = invert3x3(b);
+    if (bInverse === undefined) {
+      return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+    }
+    const p = mat3Mul(m0, bInverse);
+    if (!p.every(Number.isFinite)) {
+      return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+    }
+    // THE FAIL-LOUD SELF-CHECK: P̂ᵀJP̂ must be ≈ J at a POSITIVE scale (the
+    // construction guarantees it; the comparison to +J refuses −J).
+    const selfCheck = mat3JCongruence(p);
+    if (mat3RelativeFrobenius(selfCheck, LORENTZ_J) > ELLIPSE_ANCHOR_SELF_CHECK_REL) {
+      return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+    }
+    hRaw = mat3Mul(frame.wInverse, mat3Mul(p, frame.g));
+  }
+  if (!hRaw.every(Number.isFinite)) {
+    return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
+  }
+  // THE BIRTH CONIC GUARD: Ĥᵀ·C_w·Ĥ ≈ qCanon — the conic the solve was born
+  // from (the algebraic identity of H = W⁻¹·P·G, verified on every closure).
+  const born = mat3Congruence(hRaw, WORLD_CIRCLE_CONIC);
+  if (mat3RelativeFrobenius(born, frame.qCanon) > ELLIPSE_ANCHOR_BIRTH_GUARD_REL) {
+    return { kind: "unconverted", reason: "birth-conic-guard", relativeDeviation: deviation };
+  }
+  // The canonical h[8] = 1 output form (the W203 contract surface).
+  let hRawScale = 0;
+  for (const entry of hRaw) hRawScale = Math.max(hRawScale, Math.abs(entry));
+  if (Math.abs(hRaw[8]!) <= 1e-12 * Math.max(hRawScale, 1e-300)) {
+    return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
+  }
+  const canonical = hRaw.map((entry) => entry / hRaw[8]!);
+  // THE CONIC HARD GUARD: the pixel-level mean residual of the world circle
+  // projected through Ĥ⁻¹ onto the ORIGINAL px conic.
+  let inverse: Homography;
+  try {
+    inverse = invertHomography(canonical);
+  } catch {
+    return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
+  }
+  const samples = worldCircleSamples();
+  let residualSum = 0;
+  for (let p = 0; p < samples.length; p += 2) {
+    const projected = projectSafe(inverse, samples[p]!, samples[p + 1]!);
+    if (projected === undefined) {
+      return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
+    }
+    residualSum += pointConicDistancePx(geometry, projected.x * width, projected.y * height);
+  }
+  if (residualSum / (samples.length / 2) > ELLIPSE_ANCHOR_CONIC_GUARD_PX) {
+    return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
+  }
+  return {
+    kind: "converted",
+    homography: canonical,
+    relativeDeviation: deviation,
+    fastPath,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -3981,6 +4729,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
   private readonly ellipseConstrained: boolean;
   private readonly ellipseStraightnessAware: boolean;
   private readonly ellipseMultiConicSelection: boolean;
+  private readonly ellipseAnchorConversion: boolean;
 
   constructor(options: BroadcastLineCalibratorOptions = {}) {
     const calibratorId = options.calibratorId ?? BROADCAST_LINE_DEFAULTS.calibratorId;
@@ -3993,6 +4742,8 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
     const ellipseMultiConicSelection =
       options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
+    const ellipseAnchorConversion =
+      options.ellipseAnchorConversion ?? BROADCAST_LINE_DEFAULTS.ellipseAnchorConversion;
     if (typeof calibratorId !== "string" || calibratorId.length < 1) {
       throw new RangeError("BroadcastLineCalibrator: calibratorId must be a non-empty string");
     }
@@ -4023,12 +4774,19 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           `(got ${typeof ellipseMultiConicSelection})`,
       );
     }
+    if (typeof ellipseAnchorConversion !== "boolean") {
+      throw new RangeError(
+        `BroadcastLineCalibrator: ellipseAnchorConversion must be a boolean ` +
+          `(got ${typeof ellipseAnchorConversion})`,
+      );
+    }
     this.calibratorId = calibratorId;
     this.minPitchFraction = minPitchFraction;
     this.lineContrastThreshold = lineContrastThreshold;
     this.ellipseConstrained = ellipseConstrained;
     this.ellipseStraightnessAware = ellipseStraightnessAware;
     this.ellipseMultiConicSelection = ellipseMultiConicSelection;
+    this.ellipseAnchorConversion = ellipseAnchorConversion;
     this.descriptor = perceptionDescriptor({
       technologyId: BROADCAST_LINE_FIELD_CALIBRATOR_ID,
       technologyVersion: BROADCAST_LINE_FIELD_CALIBRATOR_VERSION,
@@ -4444,6 +5202,10 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       } catch (error) {
         if (!(error instanceof CandidateFailureError)) throw error;
         if (candidateIndex === 0) firstFailure = error;
+        // v0.5.0: the per-candidate ANCHOR RECORD (scan solves enumerated /
+        // converted) rides every chain entry whose candidate ran the
+        // conversion (pre-solve grass refusals carry none — their scan
+        // never ran).
         chainFailures.push({
           conicIndex: candidateIndex,
           failureClassId: error.details.failureClassId,
@@ -4451,6 +5213,12 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           backwardPx: error.details.backwardPx,
           ellipseMeanPx: error.details.ellipseMeanPx,
           hypotheses: error.details.hypotheses,
+          ...(error.details.anchorScanSolves !== undefined
+            ? {
+              anchorScanSolves: error.details.anchorScanSolves,
+              anchorConverted: error.details.anchorConverted,
+            }
+            : {}),
         });
       }
     }
@@ -4500,7 +5268,93 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     } = evidence;
 
     // E4. Conic-anchored hypotheses (pole-polar anchors + the mixed DLT).
-    const hypotheses = this.ellipseHypotheses(fit.conic, lines, staticPixels, scoredSub, width, height);
+    // E4b (v0.5.0, OPT-IN): when `ellipseAnchorConversion` is on, the flow
+    // is REPLACED by the J-ORTHOGONAL EXACT CLOSURE (module docs E4b): the
+    // conic and the world circle canonicalize to the Lorentz frame, the
+    // SAME enumeration driver runs with the near-line pole row added, and
+    // EVERY scan solve is projected onto the J-orthogonal class under the
+    // conversion guards — the per-candidate anchor record (scan solves
+    // enumerated / converted) rides every conversion-path refusal below.
+    let anchorRecord: { readonly scanSolves: number; readonly converted: number } | undefined;
+    let hypotheses: Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }>;
+    if (this.ellipseAnchorConversion) {
+      const frame = buildBroadcastEllipseAnchorFrame(fit.conic, width, height);
+      if (frame === undefined) {
+        // The conic's canonicalization REFUSED (the IMAGINARY class: a
+        // conic with no real points cannot carry the x² + y² − z² = 0
+        // Lorentz form; the degenerate class) — the typed unconvertible
+        // refusal, never a fabricated closure.
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: ellipse path (anchor conversion) — the candidate's conic ` +
+            `canonicalization REFUSED (the all-same-sign IMAGINARY signature class: a conic ` +
+            `with no real points cannot carry the x² + y² − z² = 0 Lorentz form) — the anchors ` +
+            `cannot be converted into the J-orthogonal (Lorentz) frame; refusing with the ` +
+            `typed class rather than fabricating a closure`,
+          {
+            failureClassId: "broadcast-line.ellipse-anchor-unconvertible",
+            anchorReason: "conic-canonicalization-refused",
+            anchorScanSolves: 0,
+            anchorConverted: 0,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            arcPixels: arcCount,
+            ...linePathDetails,
+          },
+        );
+      }
+      const convertedScan = this.ellipseConvertedHypotheses(
+        fit, frame, lines, staticPixels, scoredSub, width, height,
+      );
+      anchorRecord = { scanSolves: convertedScan.scanSolves, converted: convertedScan.converted };
+      if (convertedScan.scanSolves === 0) {
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: ellipse path (anchor conversion) — no conic-anchored ` +
+            `hypothesis could be built from ${lines.length} detected line(s) (the pole-polar ` +
+            `anchored solve needs at least two line correspondences with usable anchors) — ` +
+            `no consistent homography on this evidence`,
+          {
+            failureClassId: "broadcast-line.ellipse-no-consistent-homography",
+            detectedLines: lines.length,
+            arcPixels: arcCount,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            hypotheses: 0,
+            anchorScanSolves: 0,
+            anchorConverted: 0,
+            ...linePathDetails,
+          },
+        );
+      }
+      if (convertedScan.converted === 0) {
+        // EVERY enumerated scan solve failed the conversion guards (the
+        // admissibility bound: no solve's anchors were near-conic-
+        // consistent; the closure self-check; the birth conic guard; the
+        // conic hard guard) — the typed unconvertible refusal with the
+        // per-candidate anchor record.
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: ellipse path (anchor conversion) — NONE of the candidate's ` +
+            `${convertedScan.scanSolves} enumerated scan solves converted to the J-orthogonal ` +
+            `(Lorentz) frame (every solve failed the conversion guards: the admissibility ` +
+            `bound — no solve's anchors were near-conic-consistent; the closure self-check; ` +
+            `the birth conic guard; the conic hard guard) — refusing with the typed class ` +
+            `rather than fabricating a closure`,
+          {
+            failureClassId: "broadcast-line.ellipse-anchor-unconvertible",
+            anchorReason: "scan-converted-nothing",
+            anchorScanSolves: convertedScan.scanSolves,
+            anchorConverted: 0,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            arcPixels: arcCount,
+            hypotheses: 0,
+            ...linePathDetails,
+          },
+        );
+      }
+      hypotheses = convertedScan.hypotheses;
+    } else {
+      hypotheses = this.ellipseHypotheses(fit.conic, lines, staticPixels, scoredSub, width, height);
+    }
     if (hypotheses.length === 0) {
       throw new CandidateFailureError(
         `BroadcastLineCalibrator: ellipse path — no conic-anchored hypothesis could be built ` +
@@ -4592,6 +5446,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           arcPixels: arcCount,
           supportPx: fit.supportPx,
           coverageBins: fit.coverageBins,
+          ...(anchorRecord !== undefined
+            ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
+            : {}),
           ...linePathDetails,
         },
       );
@@ -4682,44 +5539,62 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     };
     const linePairsEvidence = best.linePairs;
     let refined = [...best.homography];
-    let currentScore = objective(refined);
-    for (let restart = 0; restart < ELLIPSE_REFINEMENT_RESTARTS; restart += 1) {
-      const steps = refined.map((value) =>
-        Math.max(Math.abs(value) * REFINEMENT_STEP_FRACTION, REFINEMENT_STEP_FLOOR),
-      );
-      for (let round = 0; round < REFINEMENT_ROUNDS; round += 1) {
-        for (let parameter = 0; parameter < 8; parameter += 1) {
-          if (steps[parameter]! <= 1e-12) continue;
-          const up = [...refined];
-          up[parameter] = up[parameter]! + steps[parameter]!;
-          const upScore = objective(up);
-          if (upScore > currentScore) {
-            refined = up;
-            currentScore = upScore;
-            continue;
+    if (this.ellipseAnchorConversion) {
+      // E4b: NO E5 refinement — the closure IS the solve (the coordinate
+      // descent would trade the conic exactness away; module docs E4b).
+      // The E6 validation bar below runs on the closure's best finalist,
+      // unchanged.
+    } else {
+      let currentScore = objective(refined);
+      for (let restart = 0; restart < ELLIPSE_REFINEMENT_RESTARTS; restart += 1) {
+        const steps = refined.map((value) =>
+          Math.max(Math.abs(value) * REFINEMENT_STEP_FRACTION, REFINEMENT_STEP_FLOOR),
+        );
+        for (let round = 0; round < REFINEMENT_ROUNDS; round += 1) {
+          for (let parameter = 0; parameter < 8; parameter += 1) {
+            if (steps[parameter]! <= 1e-12) continue;
+            const up = [...refined];
+            up[parameter] = up[parameter]! + steps[parameter]!;
+            const upScore = objective(up);
+            if (upScore > currentScore) {
+              refined = up;
+              currentScore = upScore;
+              continue;
+            }
+            const down = [...refined];
+            down[parameter] = down[parameter]! - steps[parameter]!;
+            const downScore = objective(down);
+            if (downScore > currentScore) {
+              refined = down;
+              currentScore = downScore;
+              continue;
+            }
+            steps[parameter] = steps[parameter]! / 2;
           }
-          const down = [...refined];
-          down[parameter] = down[parameter]! - steps[parameter]!;
-          const downScore = objective(down);
-          if (downScore > currentScore) {
-            refined = down;
-            currentScore = downScore;
-            continue;
-          }
-          steps[parameter] = steps[parameter]! / 2;
         }
       }
     }
 
     // E6. Validation over the FULL scored set + the ellipse gates — the same
-    //     lineFit/backward bar as the line path, never lower.
+    //     lineFit/backward bar as the line path, never lower. On the E4b
+    //     conversion path the bar runs on the anchor-converted (conic-exact)
+    //     homography: the closure rebalances the line rows globally, and when
+    //     the conic-exact solve contradicts the line evidence the bar REFUSES
+    //     honestly (the anchors-fight outcome — the measured synthetic
+    //     residuals ride the refusal; nothing laundered).
+    const solvedLabel = this.ellipseAnchorConversion
+      ? "anchor-converted (conic-exact) homography"
+      : "refined homography";
     if (!this.ellipseGuardsOk(refined, quickPoints, quickGreen)) {
       throw new CandidateFailureError(
-        `BroadcastLineCalibrator: ellipse path — the refined homography collapsed (failed the ` +
-          `projection-spread / green-containment guards after refinement) — refusing honestly`,
+        `BroadcastLineCalibrator: ellipse path — the ${solvedLabel} collapsed (failed the ` +
+          `projection-spread / green-containment guards) — refusing honestly`,
         {
           failureClassId: "broadcast-line.ellipse-no-consistent-homography",
           hypotheses: hypotheses.length,
+          ...(anchorRecord !== undefined
+            ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
+            : {}),
           ...linePathDetails,
         },
       );
@@ -4737,11 +5612,14 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       inverse = invertHomography(refined);
     } catch {
       throw new CandidateFailureError(
-        "BroadcastLineCalibrator: ellipse path — the refined homography is not invertible to " +
+        `BroadcastLineCalibrator: ellipse path — the ${solvedLabel} is not invertible to ` +
           "image coordinates — refusing rather than emit an unmappable calibration",
         {
           failureClassId: "broadcast-line.ellipse-no-consistent-homography",
           lineFit,
+          ...(anchorRecord !== undefined
+            ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
+            : {}),
           ...linePathDetails,
         },
       );
@@ -4764,7 +5642,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       ellipseMetrics.inlierFraction < ELLIPSE_VALIDATION_INLIER_FRACTION
     ) {
       throw new CandidateFailureError(
-        `BroadcastLineCalibrator: ellipse path — refined homography failed validation ` +
+        `BroadcastLineCalibrator: ellipse path — ${solvedLabel} failed validation ` +
           `(lineFit ${lineFit.toFixed(3)} < ${VALIDATION_LINE_FIT_MIN}, backward ` +
           `${backwardCount > 0 ? backward.toFixed(2) : "∞"} px > ${VALIDATION_BACKWARD_MAX_PX}, ` +
           `ellipse residual ${Number.isFinite(ellipseMetrics.meanPx) ? ellipseMetrics.meanPx.toFixed(2) : "∞"} px > ` +
@@ -4780,6 +5658,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ellipseInlierFraction: ellipseMetrics.inlierFraction,
           scoredPixels: scoredFull.length / 2,
           hypotheses: hypotheses.length,
+          ...(anchorRecord !== undefined
+            ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
+            : {}),
           ...linePathDetails,
         },
       );
@@ -4824,6 +5705,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             coverageBins: fit.coverageBins,
             scoredPixels: scoredFull.length / 2,
             hypotheses: hypotheses.length,
+            ...(anchorRecord !== undefined
+              ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
+              : {}),
             ...linePathDetails,
           },
         );
@@ -4980,6 +5864,227 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       }
     }
     return hypotheses;
+  }
+
+  /**
+   * The E4b CONVERSION-PATH hypothesis enumeration (v0.5.0, fires only when
+   * `ellipseAnchorConversion` is on): the SAME driver as `ellipseHypotheses`
+   * — the same swap × same-family-pair × model-values × flip enumeration
+   * with the same ordering priors, the same sub-pixel refinements, and the
+   * same 1-DOF coarse+fine parameter scan — with the NEAR-LINE POLE ROW
+   * added to every base's anchor rows (the pole of the pair's near line —
+   * the smaller model value — w.r.t. the conic ↔ w.r.t. the world circle)
+   * and with EVERY enumerated scan solve run through the J-orthogonal exact
+   * closure (module docs E4b) instead of keeping only each base's
+   * best-scoring solve: each successful mixed-DLT solve H_t becomes M₀ =
+   * W·H_t·G⁻¹ and is projected onto the J-orthogonal class under the
+   * admissibility bound, the closure self-check, the birth conic guard and
+   * the conic hard guard. Returns the CONVERTED candidates plus the
+   * per-candidate anchor record (the scan solves enumerated / converted)
+   * that rides every conversion-path refusal. Deterministic.
+   */
+  private ellipseConvertedHypotheses(
+    fit: ArcConicFit,
+    frame: BroadcastEllipseAnchorFrame,
+    lines: readonly HoughLine[],
+    staticPixels: readonly number[],
+    scoredSub: readonly number[],
+    width: number,
+    height: number,
+  ): {
+    hypotheses: Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }>;
+    scanSolves: number;
+    converted: number;
+  } {
+    const conic = fit.conic;
+    const geometry = fit.geometry;
+    const subpixel = new Map<HoughLine, { theta: number; rho: number }>();
+    for (const line of lines) {
+      subpixel.set(line, refineLineSubpixel(line, staticPixels));
+    }
+    // The scan's mini-forward scoring points (even strided subsample — the
+    // same construction as `ellipseHypotheses`).
+    const scanStride = Math.max(1, Math.ceil(scoredSub.length / 2 / ELLIPSE_SCAN_SCORE_POINTS));
+    const scanPoints: number[] = [];
+    for (let point = 0; point * scanStride < scoredSub.length / 2; point += 1) {
+      const index = point * scanStride * 2;
+      scanPoints.push(scoredSub[index]!, scoredSub[index + 1]!);
+    }
+    const lineNorm = (line: HoughLine): [number, number, number] => {
+      const refined = subpixel.get(line) ?? { theta: line.theta, rho: line.rho };
+      return pxLineToNormalized(
+        [Math.cos(refined.theta), Math.sin(refined.theta), -refined.rho],
+        width,
+        height,
+      );
+    };
+    const modelLineNorm = (family: "x" | "y", value: number): [number, number, number] =>
+      family === "x" ? normalizeLine([1, 0, -value]) : normalizeLine([0, 1, -value]);
+    // Family split + per-family caps (top votes first, as the line path).
+    const horizontal: HoughLine[] = [];
+    const vertical: HoughLine[] = [];
+    for (const line of lines) {
+      if (isHorizontalish(line)) horizontal.push(line);
+      else vertical.push(line);
+    }
+    horizontal.sort((a, b) => b.votes - a.votes);
+    vertical.sort((a, b) => b.votes - a.votes);
+    const familyH = horizontal.slice(0, ELLIPSE_FAMILY_MAX_LINES);
+    const familyV = vertical.slice(0, ELLIPSE_FAMILY_MAX_LINES);
+
+    const hypotheses: Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }> = [];
+    let scanSolves = 0;
+    let converted = 0;
+    const anchorBound = 5;
+    // The scan's closing anchor pair (the same constants as
+    // `scanEllipseHypothesis`): the world circle point at angle 0 + tangent.
+    const tangentWorld = circleTangentAt(SCAN_WORLD_POINT);
+    const solveAt = (
+      base: EllipseBaseAnchors,
+      t: number,
+    ): { homography: Homography; linePairs: readonly MixedLinePair[] } | undefined => {
+      const p = conicPointAt(geometry, t);
+      if (Math.abs(p.x) > 5 * width || Math.abs(p.y) > 5 * height) return undefined;
+      const points: MixedPointPair[] = [
+        ...base.points.map((point) => ({ u: point.u, v: point.v, x: point.x, y: point.y })),
+        { ...pxPointToNormalized(p, width, height), x: SCAN_WORLD_POINT.x, y: SCAN_WORLD_POINT.y },
+      ];
+      const lines: MixedLinePair[] = [
+        ...base.lines.map((line) => ({ image: line.image, pitch: line.pitch })),
+        { image: pxLineToNormalized(conicTangentAt(conic, p), width, height), pitch: tangentWorld },
+      ];
+      const homography = solveMixedDlt(points, lines);
+      if (homography === undefined) return undefined;
+      return { homography, linePairs: lines };
+    };
+    const convertSolve = (candidate: { homography: Homography; linePairs: readonly MixedLinePair[] }): void => {
+      scanSolves += 1;
+      const outcome = convertAnchorWithFrame(frame, geometry, width, height, candidate.homography);
+      if (outcome.kind !== "converted") return;
+      converted += 1;
+      hypotheses.push({ homography: outcome.homography, linePairs: candidate.linePairs });
+    };
+    for (let swap = 0; swap < 2; swap += 1) {
+      const familyForH: "x" | "y" = swap === 0 ? "y" : "x";
+      const familyForV: "x" | "y" = swap === 0 ? "x" : "y";
+      // Same-family pairs only (the arc-window shape; cross-family pairs
+      // are the line path's (2+2) territory — the SAME scope as
+      // `ellipseHypotheses`).
+      interface Assigned {
+        readonly line: HoughLine;
+        readonly family: "x" | "y";
+      }
+      const pairs: Array<[Assigned, Assigned]> = [];
+      for (let i = 0; i < familyH.length; i += 1) {
+        for (let j = i + 1; j < familyH.length; j += 1) {
+          pairs.push([
+            { line: familyH[i]!, family: familyForH },
+            { line: familyH[j]!, family: familyForH },
+          ]);
+        }
+      }
+      for (let i = 0; i < familyV.length; i += 1) {
+        for (let j = i + 1; j < familyV.length; j += 1) {
+          pairs.push([
+            { line: familyV[i]!, family: familyForV },
+            { line: familyV[j]!, family: familyForV },
+          ]);
+        }
+      }
+      for (const [a, b] of pairs) {
+        const valuesFor = (family: "x" | "y"): readonly number[] =>
+          family === "x" ? MODEL_X_FAMILY : MODEL_Y_FAMILY;
+        for (const valueA of valuesFor(a.family)) {
+          for (const valueB of valuesFor(b.family)) {
+            if (valueA === valueB) continue;
+            // The v0.1.0 elevated-camera ordering priors, per model family
+            // (the SAME priors as `ellipseHypotheses`): the larger model y
+            // sits HIGHER (smaller meanY); the larger model x sits RIGHT
+            // (larger meanX).
+            if (a.family === "y") {
+              const [near, far] = valueA < valueB ? [a, b] : [b, a];
+              if (far.line.meanY >= near.line.meanY) continue;
+            } else {
+              const [left, right] = valueA < valueB ? [a, b] : [b, a];
+              if (right.line.meanX <= left.line.meanX) continue;
+            }
+            // THE NEAR-LINE POLE ROW (E4b): the pole of the pair's near
+            // line (the smaller model value — the near touchline / left
+            // goal line) w.r.t. the NORMALIZED image conic ↔ w.r.t. the
+            // world circle — a well-conditioned point correspondence. The
+            // FAR line's pole is the measured high-leverage class and
+            // stays excluded. Skipped when the pole is at/near infinity
+            // (the line through the conic center — e.g. the model halfway
+            // line) or outside the anchor bounds.
+            const nearAssigned = valueA < valueB ? a : b;
+            const nearImageLine = lineNorm(nearAssigned.line);
+            const nearModelLine = modelLineNorm(
+              nearAssigned.family,
+              Math.min(valueA, valueB),
+            );
+            let nearPole: { u: number; v: number; x: number; y: number } | undefined;
+            const imagePole = poleOfLine(frame.qCanon, nearImageLine);
+            const worldPole = poleOfLine(WORLD_CIRCLE_CONIC, nearModelLine);
+            if (imagePole !== undefined && worldPole !== undefined) {
+              const iz = imagePole[2];
+              const wz = worldPole[2];
+              if (Math.abs(iz) > 1e-6 && Math.abs(wz) > 1e-6) {
+                const u = imagePole[0]! / iz;
+                const v = imagePole[1]! / iz;
+                const poleX = worldPole[0]! / wz;
+                const poleY = worldPole[1]! / wz;
+                if (
+                  Number.isFinite(u) && Number.isFinite(v) &&
+                  Number.isFinite(poleX) && Number.isFinite(poleY) &&
+                  Math.abs(u) <= anchorBound && Math.abs(v) <= anchorBound &&
+                  Math.abs(poleX) <= 1000 && Math.abs(poleY) <= 1000
+                ) {
+                  nearPole = { u, v, x: poleX, y: poleY };
+                }
+              }
+            }
+            const bases = buildEllipseBaseAnchors(
+              conic,
+              { line: a.line, family: a.family, value: valueA },
+              { line: b.line, family: b.family, value: valueB },
+              subpixel,
+              width,
+              height,
+              nearPole,
+            );
+            for (const base of bases) {
+              // The SAME 1-DOF coarse+fine scan driver as
+              // `scanEllipseHypothesis` (the coarse grid, then the fine
+              // grid around the coarse best by the mini forward score) —
+              // but EVERY enumerated solve is CONVERTED (E4b) instead of
+              // only the base's best surviving.
+              let bestT = Number.NaN;
+              let bestScore = Number.NEGATIVE_INFINITY;
+              for (let step = 0; step < ELLIPSE_SCAN_COARSE; step += 1) {
+                const t = (step * 2 * Math.PI) / ELLIPSE_SCAN_COARSE;
+                const candidate = solveAt(base, t);
+                if (candidate === undefined) continue;
+                const score = forwardScoreOnPoints(candidate.homography, scanPoints);
+                convertSolve(candidate);
+                if (score > bestScore) {
+                  bestScore = score;
+                  bestT = t;
+                }
+              }
+              if (Number.isNaN(bestT)) continue;
+              const coarseStep = (2 * Math.PI) / ELLIPSE_SCAN_COARSE;
+              for (let step = 1; step < ELLIPSE_SCAN_FINE; step += 1) {
+                const t = bestT - coarseStep + (2 * coarseStep * step) / ELLIPSE_SCAN_FINE;
+                const candidate = solveAt(base, t);
+                if (candidate === undefined) continue;
+                convertSolve(candidate);
+              }
+            }
+          }
+        }
+      }
+    }
+    return { hypotheses, scanSolves, converted };
   }
 
   /**
