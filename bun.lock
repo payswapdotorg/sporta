@@ -344,6 +344,19 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/external-platform": {
+      "name": "@sporta/external-platform",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/durable-jobs": "workspace:*",
+        "@sporta/historical-corpus": "workspace:*",
+        "@sporta/organization-registry": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/field-mapping": {
       "name": "@sporta/field-mapping",
       "version": "0.1.0",
@@ -1145,6 +1158,8 @@
     "@sporta/eval-harness": ["@sporta/eval-harness@workspace:packages/eval-harness"],
 
     "@sporta/evaluation": ["@sporta/evaluation@workspace:packages/evaluation"],
+
+    "@sporta/external-platform": ["@sporta/external-platform@workspace:packages/external-platform"],
 
     "@sporta/field-mapping": ["@sporta/field-mapping@workspace:packages/field-mapping"],
 

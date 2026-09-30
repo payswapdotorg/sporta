@@ -25,13 +25,13 @@ afterAll(() => {
 });
 
 describe("the port surface exposes NO mutating method", () => {
-  test("the method inventory is exactly status/plan/cancellation", async () => {
+  test("the method inventory is exactly status/plan/progress/cancellation", async () => {
     const store = createFileJobStore(join(dir, "surface.journal.json"), {
       clock: createManualClock(),
     });
     await store.enqueue({ jobId: "job-1", kind: "five-step", input: null });
     const port = createHarnessPort(store);
-    expect(Object.keys(port).sort()).toEqual(["cancellation", "plan", "status"]);
+    expect(Object.keys(port).sort()).toEqual(["cancellation", "plan", "progress", "status"]);
   });
 
   test("every mutating operation is absent from the port", async () => {
@@ -119,6 +119,77 @@ describe("the port works over a READER-ONLY object (no mutating capability)", ()
       cancellationRequested: false,
       cancelled: false,
     });
+  });
+});
+
+describe("the resumable-progress projection (REL-013)", () => {
+  test("a mid-flight checkpointed job shows the cursor, the timeline and resume eligibility", async () => {
+    const path = join(dir, "progress-midflight.journal.json");
+    const clock = createManualClock(10_000);
+    const store = createFileJobStore(path, { clock });
+    await store.enqueue({ jobId: "job-1", kind: "five-step", input: null });
+    // Drive two checkpoints by hand (the store is the authority).
+    await store.acquireLease("job-1", "w1", 500);
+    await store.start("job-1", "w1");
+    await store.recordCheckpoint("job-1", "w1", { completedSteps: ["s1"] });
+    await store.continueFromCheckpoint("job-1", "w1");
+    await store.recordCheckpoint("job-1", "w1", { completedSteps: ["s1", "s2"] });
+
+    const port = createHarnessPort(store, { clock });
+    const progress = await port.progress("job-1");
+    expect(progress.state).toBe("checkpointed");
+    expect(progress.timeline.map((entry) => entry.seq)).toEqual([1, 2]);
+    const second = progress.timeline[1];
+    expect(second).toBeDefined();
+    if (second !== undefined) {
+      expect(progress.progressCursor).toEqual({ seq: 2, at: second.at });
+    }
+    expect(progress.resumable).toBe(true); // checkpointed: a live lease can resume
+    expect(progress.leaseExpired).toBe(false); // the manual clock has not advanced
+    expect(progress.attempts).toBe(1);
+    expect(Object.isFrozen(progress)).toBe(true);
+    expect(Object.isFrozen(progress.timeline)).toBe(true);
+
+    // Advance the clock past the lease: the takeover-eligible display flips.
+    clock.advance(1_000);
+    const expired = await port.progress("job-1");
+    expect(expired.leaseExpired).toBe(true);
+    expect(expired.resumable).toBe(true); // still resumable — by takeover
+  });
+
+  test("terminal and exhausted states report honestly", async () => {
+    const path = join(dir, "progress-terminal.journal.json");
+    const clock = createManualClock(10_000);
+    const store = createFileJobStore(path, { clock });
+    await store.enqueue({
+      jobId: "job-1",
+      kind: "boom",
+      input: null,
+      retryPolicy: { maxAttempts: 1, initialBackoffMs: 10, backoffFactor: 1, maxBackoffMs: 10 },
+    });
+    await store.acquireLease("job-1", "w1", 500);
+    await store.start("job-1", "w1");
+    await store.fail("job-1", "w1", "executor exploded");
+
+    const port = createHarnessPort(store, { clock });
+    const failed = await port.progress("job-1");
+    expect(failed.state).toBe("failed");
+    expect(failed.resumable).toBe(false); // maxAttempts 1: the budget is exhausted
+    expect(failed.progressCursor).toBeNull(); // no checkpoint ever persisted
+    expect(failed.timeline).toEqual([]);
+
+    // A failed job WITH a scheduled retry is resumable-by-retry.
+    await store.enqueue({
+      jobId: "job-2",
+      kind: "boom",
+      input: null,
+      retryPolicy: { maxAttempts: 3, initialBackoffMs: 10, backoffFactor: 1, maxBackoffMs: 10 },
+    });
+    await store.acquireLease("job-2", "w1", 500);
+    await store.start("job-2", "w1");
+    await store.fail("job-2", "w1", "transient");
+    const retrying = await port.progress("job-2");
+    expect(retrying.resumable).toBe(true);
   });
 });
 

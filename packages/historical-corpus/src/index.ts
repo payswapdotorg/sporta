@@ -26,9 +26,19 @@
  * - `reference-adapter`: the v0 implementation — pure metadata discovery
  *   over INJECTED fixture metadata (tests provide the fixture store; no
  *   network, no provider SDKs in this slice)
+ * - `connectors`: REL-010 — the `ConnectorAdapter` family over the
+ *   ProviderAdapter seam: the user-upload connector (class 1), the
+ *   authorized-feed connector (class 4, fixture feed store + the
+ *   authorization hook the caller must satisfy) and the reference-only
+ *   discovery connector (class 5 — metadata indexing, NO byte acquisition
+ *   path at all, typed refusal)
  * - `fixtures`: content-addressed benchmark fixtures — the reproducibility
  *   contract (source ref, acquired checksum where applicable, normalized
  *   checksum, time window, feature/decoder versions)
+ * - `benchmark`: REL-011 — the benchmark registrar: immutable,
+ *   content-addressed, reusable registrations over normalized sources
+ *   (reference-only / not-yet-normalized sources refuse typed) + the
+ *   list/lookup query API (by source, window, component version)
  * - `store`: the corpus store — immutable reference-first entries, the
  *   rights gate, the user-fed upload path (bytes + declared basis), the
  *   normalization seam, the benchmark binding, reusable feature-bundle
@@ -97,6 +107,7 @@ export type { AcquisitionEdge, AcquisitionOperation } from "./state-machine";
 export {
   CorpusAccessInvalidError,
   CorpusApiError,
+  CorpusBenchmarkIneligibleError,
   CorpusBytesUnavailableError,
   CorpusConflictError,
   CorpusFixtureMismatchError,
@@ -118,6 +129,29 @@ export type { AuthorizedByteAccess, ProviderAdapter } from "./provider-adapter";
 export { createReferenceAdapter } from "./reference-adapter";
 export type { FixtureMetadataSource, ReferenceAdapterOptions } from "./reference-adapter";
 
+// connectors (REL-010)
+export {
+  CONNECTOR_BASIS_TYPES,
+  CONNECTOR_SOURCE_CLASSES,
+  createAuthorizedFeedConnector,
+  createReferenceOnlyConnector,
+  createUserUploadConnector,
+} from "./connectors";
+export type {
+  AuthorizedFeedAcquisition,
+  AuthorizedFeedConnectorOptions,
+  ConnectorAcquisitionRequest,
+  ConnectorAdapter,
+  ConnectorCapabilities,
+  ConnectorSourceClass,
+  FeedAuthorizationHook,
+  FeedFixtureItem,
+  ReferenceOnlyAcquisition,
+  ReferenceOnlyConnectorOptions,
+  UserUploadAcquisition,
+  UserUploadConnectorOptions,
+} from "./connectors";
+
 // fixtures
 export { createBenchmarkFixture } from "./fixtures";
 export type {
@@ -133,6 +167,16 @@ export {
   ComponentVersionSchema,
   TimeWindowSchema,
 } from "./fixtures";
+
+// benchmark registration (REL-011)
+export { createBenchmarkRegistrar } from "./benchmark";
+export type {
+  BenchmarkQuery,
+  BenchmarkRegistrar,
+  BenchmarkRegistrarOptions,
+  BenchmarkRegistration,
+  BenchmarkRegistrationRequest,
+} from "./benchmark";
 
 // store
 export { createCorpusStore } from "./store";
