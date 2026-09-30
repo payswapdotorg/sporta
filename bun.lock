@@ -287,6 +287,16 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/durable-jobs": {
+      "name": "@sporta/durable-jobs",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/encoding": {
       "name": "@sporta/encoding",
       "version": "0.1.0",
@@ -388,6 +398,16 @@
       "version": "0.1.0",
       "dependencies": {
         "@sporta/observability": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
+    "packages/historical-corpus": {
+      "name": "@sporta/historical-corpus",
+      "version": "0.1.0",
+      "dependencies": {
         "zod": "^4.0.0",
       },
       "devDependencies": {
@@ -1118,6 +1138,8 @@
 
     "@sporta/decoding": ["@sporta/decoding@workspace:packages/decoding"],
 
+    "@sporta/durable-jobs": ["@sporta/durable-jobs@workspace:packages/durable-jobs"],
+
     "@sporta/encoding": ["@sporta/encoding@workspace:packages/encoding"],
 
     "@sporta/eval-harness": ["@sporta/eval-harness@workspace:packages/eval-harness"],
@@ -1133,6 +1155,8 @@
     "@sporta/gpu-worker": ["@sporta/gpu-worker@workspace:packages/gpu-worker"],
 
     "@sporta/health": ["@sporta/health@workspace:packages/health"],
+
+    "@sporta/historical-corpus": ["@sporta/historical-corpus@workspace:packages/historical-corpus"],
 
     "@sporta/identity": ["@sporta/identity@workspace:packages/identity"],
 
