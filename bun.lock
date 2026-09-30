@@ -725,6 +725,16 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/reality-lab": {
+      "name": "@sporta/reality-lab",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/render-orchestration": {
       "name": "@sporta/render-orchestration",
       "version": "0.1.0",
@@ -1203,6 +1213,8 @@
     "@sporta/quality-gates": ["@sporta/quality-gates@workspace:packages/quality-gates"],
 
     "@sporta/real-to-swm": ["@sporta/real-to-swm@workspace:packages/real-to-swm"],
+
+    "@sporta/reality-lab": ["@sporta/reality-lab@workspace:packages/reality-lab"],
 
     "@sporta/render-orchestration": ["@sporta/render-orchestration@workspace:packages/render-orchestration"],
 
