@@ -530,11 +530,52 @@ function providerOfRecords(store: ControlPlaneRecordStore): "neon" | "sqlite" | 
 }
 
 /**
- * The W911 shim's refusal message — the ONE construction error the
- * composition treats as the documented in-memory fallback (every other
- * failure is a real durability fault and fails loud).
+ * The W911 shim's refusal message — ONE construction error the composition
+ * treats as the documented in-memory fallback (every other failure is a
+ * real durability fault and fails loud).
  */
 const SQLITE_SHIM_REFUSAL = "bun:sqlite is available only under the Bun runtime";
+
+/**
+ * The W911 fallback's SECOND honest condition (the R607 B1 hosted
+ * regression): the deployed runtime's FILESYSTEM blocks the durable stores'
+ * on-demand directory creation. Measured on Vercel deploy sporta-6jxv8rvyp
+ * (marker r607b1-ae8c477-1923): the serverless Node process's
+ * `mkdir 'db'` fails ENOENT BEFORE `bun:sqlite` is ever touched (the store
+ * constructors create their parent directory on demand — see
+ * repositories.ts), so the construction dies with a Node errno the
+ * shim-refusal catch never matched; the never-masked rule re-threw it and
+ * the whole composition died → `GET /api/platform/health` answered 500
+ * with an empty body (production was rolled back to 8893926). Those
+ * filesystem refusals are the SAME honest W911 fallback — the in-memory
+ * plane plus the loud banner naming the measured errno (the durability
+ * property stays carried by the sqlite runs under the real Bun runtime).
+ * Classification is by the errno `code` FIELD of a `NodeJS.ErrnoException`
+ * — never a message string (messages drift across runtimes; codes are the
+ * contract).
+ */
+const SQLITE_CONSTRUCTION_BLOCKED_ERRNOS: ReadonlySet<string> = new Set([
+  "ENOENT",
+  "EACCES",
+  "EROFS",
+  "EPERM",
+]);
+
+/**
+ * Whether a durable-store construction failure is the deployed runtime's
+ * FILESYSTEM refusing it — the on-demand db-directory creation failing
+ * ENOENT (the measured hosted shape: an unwritable serverless process
+ * directory), EACCES/EROFS/EPERM (a permission-blocked or read-only db
+ * root). Typed as a predicate so the fallback banners can quote the
+ * measured `code`/`path` honestly.
+ */
+function isSqliteConstructionBlocked(error: unknown): error is NodeJS.ErrnoException {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    SQLITE_CONSTRUCTION_BLOCKED_ERRNOS.has((error as NodeJS.ErrnoException).code ?? "")
+  );
+}
 
 export function createSportaServer(options: SportaServerOptions = {}): SportaServer {
   const nowMs = options.nowMs ?? Date.now;
@@ -768,8 +809,13 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     plane). The run itself stays real end-to-end (pipeline, ffmpeg,
   //     artifacts); only cross-RESTART durability is absent, and that
   //     property is carried by the sqlite runs (the batteries execute the
-  //     real `bun:sqlite` store under the real Bun runtime). Any OTHER
-  //     construction failure is re-thrown — never masked.
+  //     real `bun:sqlite` store under the real Bun runtime). The deployed
+  //     runtime can ALSO block the constructor's on-demand parent-directory
+  //     creation outright (the R607 B1 hosted regression: the serverless
+  //     process's `mkdir db` fails ENOENT before `bun:sqlite` is ever
+  //     touched) — that filesystem refusal is the SAME honest fallback,
+  //     banner'd with the measured errno. Any OTHER construction failure is
+  //     re-thrown — never masked.
   let mediaStore: {
     sourceAssets: import("@sporta/media-platform").SourceAssetRepository;
     manifests: import("@sporta/media-platform").MediaManifestRepository;
@@ -781,13 +827,23 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       options.media?.db ?? process.env.SPORTA_MEDIA_DB ?? "db/media-platform.db",
     );
   } catch (error) {
-    if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+    if (isSqliteConstructionBlocked(error)) {
+      // The R607 B1 hosted shape: the deployed runtime's filesystem blocks
+      // the local db directory — the honest fallback is the same in-memory
+      // plane, with the measured reason in the banner (never masked).
+      console.error(
+        "[sporta] media records are IN-MEMORY this run (the deployed runtime blocks the local db " +
+          `directory: mkdir ${error.path ?? "the db directory"} failed ${error.code}); ` +
+          "restarts do not persist sessions — the durable sqlite store runs under the real Bun runtime",
+      );
+    } else if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
       throw error;
+    } else {
+      console.error(
+        "[sporta] media records are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+          "restarts do not persist sessions — the durable sqlite store runs under the real Bun runtime",
+      );
     }
-    console.error(
-      "[sporta] media records are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
-        "restarts do not persist sessions — the durable sqlite store runs under the real Bun runtime",
-    );
     mediaStore = {
       sourceAssets: new InMemorySourceAssetRepository(),
       manifests: new InMemoryMediaManifestRepository(),
@@ -833,12 +889,13 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
 
   // 6c. The URL-source registration store (W6 Worker B): the durable
   //     sqlite store under the real Bun runtime (the media store's exact
-  //     precedent — WAL, the W911 shim refusal caught → the honest
-  //     in-memory fallback + banner; any OTHER construction failure fails
-  //     loud), wrapped in the VALIDATING store (the structural honesty
-  //     guard: only the transfer seam's integrity+join may ever read
-  //     ACQUIRED). An injected store (tests: the shared-store
-  //     reconstruction rig) bypasses the sqlite construction entirely.
+  //     precedent — WAL, the W911 shim refusal OR a filesystem-blocked db
+  //     directory (R607 B1) caught → the honest in-memory fallback +
+  //     banner; any OTHER construction failure fails loud), wrapped in
+  //     the VALIDATING store (the structural honesty guard: only the
+  //     transfer seam's integrity+join may ever read ACQUIRED). An
+  //     injected store (tests: the shared-store reconstruction rig)
+  //     bypasses the sqlite construction entirely.
   let urlSourceStore: UrlSourceStore;
   if (options.urlSources?.store !== undefined) {
     urlSourceStore = options.urlSources.store;
@@ -848,13 +905,23 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
         options.urlSources?.db ?? process.env.SPORTA_URL_SOURCE_DB ?? "db/url-source.db",
       );
     } catch (error) {
-      if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+      if (isSqliteConstructionBlocked(error)) {
+        // The R607 B1 hosted shape (the media store's exact precedent):
+        // the deployed runtime's filesystem blocks the local db directory.
+        console.error(
+          "[sporta] url-source registrations are IN-MEMORY this run (the deployed runtime blocks " +
+            `the local db directory: mkdir ${error.path ?? "the db directory"} failed ${error.code}); ` +
+            "the acquisition machine's records do not persist across restarts — the durable sqlite " +
+            "store runs under the real Bun runtime",
+        );
+      } else if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
         throw error;
+      } else {
+        console.error(
+          "[sporta] url-source registrations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "the acquisition machine's records do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+        );
       }
-      console.error(
-        "[sporta] url-source registrations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
-          "the acquisition machine's records do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
-      );
       urlSourceStore = new InMemoryUrlSourceStore();
     }
   }
@@ -1046,13 +1113,22 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
       computeDb.run("PRAGMA busy_timeout = 5000;");
       connectionStore = new SqliteConnectionStore(computeDb, { nowMs });
     } catch (error) {
-      if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+      if (isSqliteConstructionBlocked(error)) {
+        // The R607 B1 hosted shape (the media store's exact precedent):
+        // the deployed runtime's filesystem blocks the local db directory.
+        console.error(
+          "[sporta] compute connections are IN-MEMORY this run (the deployed runtime blocks the " +
+            `local db directory: mkdir ${error.path ?? "the db directory"} failed ${error.code}); ` +
+            "connected providers do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+        );
+      } else if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
         throw error;
+      } else {
+        console.error(
+          "[sporta] compute connections are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+            "connected providers do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+        );
       }
-      console.error(
-        "[sporta] compute connections are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
-          "connected providers do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
-      );
       connectionStore = new InMemoryConnectionStore({ nowMs });
     }
   }
@@ -1092,9 +1168,10 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
 
   // 7a. The J010 analyst-annotations store (wave 4): durable sqlite under
   //     the real Bun runtime (the media store's exact precedent — the W911
-  //     shim refusal is caught → the honest in-memory fallback + banner;
-  //     any OTHER construction failure fails loud). Markers + notes only:
-  //     time ranges + backing references, never clip bytes.
+  //     shim refusal OR a filesystem-blocked db directory (R607 B1) is
+  //     caught → the honest in-memory fallback + banner; any OTHER
+  //     construction failure fails loud). Markers + notes only: time
+  //     ranges + backing references, never clip bytes.
   let annotationStore: AnalystAnnotationStore;
   try {
     const annotationsDbPath =
@@ -1104,13 +1181,23 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     }
     annotationStore = new SqliteAnalystAnnotationStore(annotationsDbPath);
   } catch (error) {
-    if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
+    if (isSqliteConstructionBlocked(error)) {
+      // The R607 B1 hosted shape (the media store's exact precedent):
+      // the deployed runtime's filesystem blocks the local db directory.
+      console.error(
+        "[sporta] analyst annotations are IN-MEMORY this run (the deployed runtime blocks the " +
+          `local db directory: mkdir ${error.path ?? "the db directory"} failed ${error.code}); ` +
+          "saved markers and notes do not persist across restarts — the durable sqlite store runs " +
+          "under the real Bun runtime",
+      );
+    } else if (!String(error).includes(SQLITE_SHIM_REFUSAL)) {
       throw error;
+    } else {
+      console.error(
+        "[sporta] analyst annotations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
+          "saved markers and notes do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
+      );
     }
-    console.error(
-      "[sporta] analyst annotations are IN-MEMORY this run (the bundled runtime has no bun:sqlite); " +
-        "saved markers and notes do not persist across restarts — the durable sqlite store runs under the real Bun runtime",
-    );
     annotationStore = new InMemoryAnalystAnnotationStore();
   }
 
