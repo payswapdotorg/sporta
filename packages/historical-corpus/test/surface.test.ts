@@ -10,9 +10,12 @@ import type { CorpusFailureClass } from "../src";
 import {
   ACQUISITION_STATES,
   AVAILABILITY_STATES,
+  CONNECTOR_BASIS_TYPES,
+  CONNECTOR_SOURCE_CLASSES,
   CORPUS_DEFAULT_EPOCH_MS,
   CorpusAccessInvalidError,
   CorpusApiError,
+  CorpusBenchmarkIneligibleError,
   CorpusBytesUnavailableError,
   CorpusConflictError,
   CorpusFixtureMismatchError,
@@ -128,6 +131,7 @@ describe("the typed error family", () => {
       [new CorpusAccessInvalidError("a"), "corpus.access-invalid", "rights"],
       [new CorpusBytesUnavailableError("b"), "corpus.bytes-unavailable", "not-found"],
       [new CorpusFixtureMismatchError("f"), "corpus.fixture-mismatch", "conflict"],
+      [new CorpusBenchmarkIneligibleError("e"), "corpus.benchmark-ineligible", "restriction"],
       [new CorpusInternalError("z"), "corpus.internal", "internal"],
     ];
     for (const [error, code, failureClass] of cases) {
@@ -143,6 +147,21 @@ describe("the typed error family", () => {
     const error = new CorpusRightsBasisRequiredError("no basis", { sourceId: "source-9" });
     expect(error.details).toEqual({ sourceId: "source-9" });
     expect(JSON.parse(JSON.stringify(error.details))).toEqual({ sourceId: "source-9" });
+  });
+});
+
+describe("the connector vocabulary (REL-010)", () => {
+  test("the source classes and the class -> basis mapping are pinned", () => {
+    expect(CONNECTOR_SOURCE_CLASSES).toEqual([
+      "user-fed-upload",
+      "authorized-feed",
+      "reference-only",
+    ]);
+    expect(CONNECTOR_BASIS_TYPES).toEqual({
+      "user-fed-upload": "user-declared-ownership",
+      "authorized-feed": "authorized-feed",
+      "reference-only": "", // no basis can ever authorize bytes for class 5
+    });
   });
 });
 

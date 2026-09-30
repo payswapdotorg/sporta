@@ -27,11 +27,12 @@
  *   execute with resumable checkpoints -> complete/fail/cancelled), the
  *   cooperative-cancellation signal thrown into executors at the honored
  *   checkpoint, and the retry driver hooks
- * - `harness`: the HarnessPort — status/plan/cancellation DISPLAY reads
- *   over the reader-only seam; external harnesses (OpenMuse/CopilotKit/
- *   AG-UI) are adapters, never authorities: the port cannot write job
- *   state (type-level: no mutating method exists; runtime: the surface
- *   test proves it and the views are frozen snapshots)
+ * - `harness`: the HarnessPort — status/plan/PROGRESS/cancellation DISPLAY
+ *   reads over the reader-only seam (REL-013 extends the v0 port with the
+ *   resumable-progress projection); external harnesses (OpenMuse/
+ *   CopilotKit/AG-UI) are adapters, never authorities: the port cannot
+ *   write job state (type-level: no mutating method exists; runtime: the
+ *   surface test proves it and the views are frozen snapshots)
  * - `clock`: the injected clock + id source constitution, plus the
  *   advanceable manual clock the lease/retry tests drive time with
  * - `errors`: the typed error family (lease law, retry exhaustion, store
@@ -113,8 +114,10 @@ export type {
 export { createHarnessPort } from "./harness";
 export type {
   HarnessPort,
+  HarnessPortOptions,
   JobCancellationView,
   JobPlanView,
+  JobProgressView,
   JobStatusView,
   JobStoreReader,
 } from "./harness";

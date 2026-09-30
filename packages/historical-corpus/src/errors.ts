@@ -132,6 +132,20 @@ export class CorpusFixtureMismatchError extends CorpusApiError {
   }
 }
 
+/**
+ * REL-011: a benchmark registration was refused because the source cannot
+ * bear one — benchmarks require ACQUIRED + NORMALIZED bytes, and a
+ * reference-only source can never produce them (a URL is a source
+ * reference, not proof of transformation rights; the class-5 law extends
+ * to the corpus's benchmark bar).
+ */
+export class CorpusBenchmarkIneligibleError extends CorpusApiError {
+  constructor(message: string, details: Record<string, unknown> = {}) {
+    super("restriction", "corpus.benchmark-ineligible", message, details);
+    this.name = "CorpusBenchmarkIneligibleError";
+  }
+}
+
 /** An unexpected internal corpus fault. */
 export class CorpusInternalError extends CorpusApiError {
   constructor(message: string, details: Record<string, unknown> = {}) {
@@ -152,6 +166,7 @@ export type CorpusError =
   | CorpusAccessInvalidError
   | CorpusBytesUnavailableError
   | CorpusFixtureMismatchError
+  | CorpusBenchmarkIneligibleError
   | CorpusInternalError;
 
 /** Type guard: `true` when `value` is a typed corpus error. */
