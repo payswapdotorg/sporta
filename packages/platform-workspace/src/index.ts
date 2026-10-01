@@ -95,3 +95,52 @@ export {
   isWorkspaceError,
 } from "./errors";
 export type { WorkspaceError, WorkspaceFailureClass } from "./errors";
+
+// feed source (REL-031 — the simulated external platform's item stream)
+export { FEED_SOURCE_KIND, createSimulatedExternalFeedSource } from "./feed-source";
+export type {
+  ExternalFeedBatchFamily,
+  ExternalFeedBatchSpec,
+  ExternalFeedItemKind,
+  ExternalFeedItemSpec,
+  ExternalFeedSource,
+  FeedBatchPlanEntry,
+  SimulatedExternalFeedSourceOptions,
+} from "./feed-source";
+
+// feed session (REL-031 — the end-to-end external feed composition)
+export {
+  DEFAULT_FEED_BOUNDS,
+  FeedBoundsSchema,
+  FeedSelectionSpecSchema,
+  createExternalFeed,
+  feedSubmissionKey,
+} from "./feed";
+export type {
+  ExternalFeed,
+  ExternalFeedOptions,
+  FeedBatchArtifact,
+  FeedBatchLineage,
+  FeedBatchQualityGate,
+  FeedBatchRecord,
+  FeedBatchSubmission,
+  FeedBounds,
+  FeedItemRecord,
+  FeedSelectionSpec,
+  FeedSession,
+  FeedSessionRecord,
+  FeedSessionState,
+  FeedSessionTotals,
+  FeedTruncation,
+  FeedTypedRefusal,
+} from "./feed";
+
+// feed errors (the session's own typed family — the authorities' propagate)
+export {
+  FeedApiError,
+  FeedBoundsError,
+  FeedConflictError,
+  FeedValidationError,
+  isFeedError,
+} from "./feed-errors";
+export type { FeedError, FeedFailureClass } from "./feed-errors";
