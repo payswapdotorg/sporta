@@ -49,9 +49,25 @@
  *   (nodes/edges, memory policy, capability bindings, stages, budgets,
  *   termination), the deterministic execution-order walk, and the
  *   generalist single-agent baseline constructor
- * - `evaluation/evaluator`: the v0 evaluator hook (supporting only — the
- *   full reward engine is REL-007): reward dimensions per run + hard
- *   invalidity gates as typed refusals
+ * - `evaluation/evaluator`: the evaluator hook (v0.2 — REL-007 upgraded it
+ *   to delegate to the full reward engine; `result.reward` carries the
+ *   per-run RewardRecord, `overall` stays the plain mean for compatibility)
+ * - `orgsearch/candidates` (REL-005): the typed §5 candidate space — the
+ *   twelve search dimensions as one point, deterministic materialization
+ *   into complete valid organizations, and the three fixture families
+ *   (generalist baseline / hand-designed pipeline / parameterized variants)
+ * - `orgsearch/search` (REL-006): the deterministic, BOUNDED search driver
+ *   over the candidate space — per-candidate REL-A3 metrics (quality,
+ *   hard-gate validity, cost, latency), ranking, winner, the mandatory
+ *   baseline comparison, and honest bound-truncation records
+ * - `reward/engine` (REL-007): the full §8 reward engine — composable
+ *   dimensions, weighted aggregation with VERSIONED weight sets, per-run
+ *   RewardRecords, and hard invalidity as TYPED REFUSALS (HardInvalid)
+ * - `calibration/calibration` (REL-008): prediction-vs-observation records
+ *   per reward dimension (with the observation source class), the
+ *   CalibrationPort adapter interface with configured drift detection (a
+ *   recorded state, never an exception), and the deterministic driver with
+ *   known injected perturbations
  *
  * BOUNDARY DISCIPLINE: the organization lifecycle/promotion authority is
  * `@sporta/organization-registry` (REL-017..019); this package carries no
@@ -277,3 +293,95 @@ export type {
   LabEvaluatorEvidence,
   LabEvaluatorResult,
 } from "./evaluation/evaluator";
+
+// organization candidate space (REL-005)
+export {
+  CANDIDATE_SPECIALIST_ROLES,
+  CandidateSpaceError,
+  candidatePointId,
+  candidatePointViolations,
+  candidateRoleForNode,
+  createCandidateRoleRuntime,
+  createFootballCandidateSpace,
+  defaultFootballCandidateSpaceConfig,
+  fixtureCandidateFamilies,
+  fusionScriptedHandler,
+  generalistBaselineFamily,
+  handDesignedPipelineFamily,
+  parameterizedVariantsFamily,
+  perceptionScriptedHandler,
+  renderScriptedHandler,
+} from "./orgsearch/candidates";
+export type {
+  CandidateDimensionDescriptor,
+  CandidateFamily,
+  CandidateRole,
+  CandidateSpaceConfig,
+  CandidateSpacePoint,
+  CandidateSpaceViolation,
+  CandidateSpecialistRole,
+  CandidateTopology,
+  CapabilityAssignmentKind,
+  CommunicationPattern,
+  ComputeBudgetSplitKind,
+  ExecutionOrderKind,
+  MaterializedCandidate,
+  MemoryPolicyKind,
+  ModelAssignmentKind,
+  OrganizationCandidateSpace,
+  RoleMix,
+  StoppingConditionKind,
+} from "./orgsearch/candidates";
+
+// organization search (REL-006)
+export { deepFreeze, rankCandidateEvaluations, runOrganizationSearch } from "./orgsearch/search";
+export type {
+  BaselineComparison,
+  CandidateEvaluation,
+  CandidateMetrics,
+  OrganizationSearchMode,
+  OrganizationSearchOptions,
+  SearchTruncationRecord,
+  SearchResultRecord,
+} from "./orgsearch/search";
+
+// reward engine (REL-007)
+export {
+  FOOTBALL_REWARD_WEIGHT_SETS,
+  REWARD_ENGINE_ID,
+  REWARD_ENGINE_VERSION,
+  createFootballRewardEngine,
+  createRewardEngine,
+  footballRewardWeightSets,
+  isHardInvalid,
+} from "./reward/engine";
+export type {
+  HardInvalidRefusal,
+  RewardDimensionContribution,
+  RewardDimensionScoreInput,
+  RewardEngine,
+  RewardEngineInput,
+  RewardRecord,
+  RewardWeightSet,
+} from "./reward/engine";
+
+// calibration (REL-008)
+export {
+  createCalibrationPort,
+  detectCalibrationDrift,
+  runCalibration,
+} from "./calibration/calibration";
+export type {
+  CalibrationDimensionComparison,
+  CalibrationDimensionDrift,
+  CalibrationDriftState,
+  CalibrationDriftSummary,
+  CalibrationObservationSource,
+  CalibrationPerturbations,
+  CalibrationPort,
+  CalibrationRecord,
+  CalibrationRunOptions,
+  CalibrationRunResult,
+  CalibrationTimestampWindow,
+  ObservationSourceClass,
+} from "./calibration/calibration";
