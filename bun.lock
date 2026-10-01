@@ -976,6 +976,17 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/user-labs": {
+      "name": "@sporta/user-labs",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/organization-registry": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/viewer-shell": {
       "name": "@sporta/viewer-shell",
       "version": "0.1.0",
@@ -1252,6 +1263,8 @@
     "@sporta/timeline": ["@sporta/timeline@workspace:packages/timeline"],
 
     "@sporta/transport": ["@sporta/transport@workspace:packages/transport"],
+
+    "@sporta/user-labs": ["@sporta/user-labs@workspace:packages/user-labs"],
 
     "@sporta/viewer-shell": ["@sporta/viewer-shell@workspace:packages/viewer-shell"],
 
