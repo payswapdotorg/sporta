@@ -10,12 +10,15 @@
  * with the connection, and wraps the returned envelope. The parity tests
  * deep-compare this path against the HTTP path per family.
  *
- * Tool families (the contract's own list):
+ * Tool families (the contract's list, extended by the REL-030 read
+ * families over capabilities the contract already names —
+ * "subscribe/poll for progress" and "retrieve evidence/quality metadata"):
  * search_organizations, inspect_organization, launch_lab, submit_video,
- * submit_feed, get_job, cancel_job, get_output, get_evidence,
- * promote_organization — each carrying the service name + version it maps
- * to, plus a human-facing description and input description (the shape an
- * MCP server would advertise in tools/list).
+ * submit_feed, get_job, get_job_progress, cancel_job, get_output,
+ * get_evidence, list_benchmarks, get_benchmark, promote_organization —
+ * each carrying the service name + version it maps to, plus a
+ * human-facing description and input description (the shape an MCP server
+ * would advertise in tools/list).
  */
 import type { PlatformConnection } from "./domain";
 import type { ExternalServiceEnvelope, ExternalServiceName } from "./domain";
@@ -42,7 +45,7 @@ export interface McpToolDefinition {
   readonly input: readonly string[];
 }
 
-/** The contract's ten tool families, 1:1 onto the ten services. */
+/** The versioned tool families, 1:1 onto the versioned services. */
 export const MCP_TOOLS: readonly McpToolDefinition[] = [
   {
     name: "search_organizations",
@@ -101,6 +104,14 @@ export const MCP_TOOLS: readonly McpToolDefinition[] = [
     input: ["jobId"],
   },
   {
+    name: "get_job_progress",
+    service: "getJobProgress",
+    version: EXTERNAL_SERVICE_VERSION,
+    description:
+      "Poll a job's harness progress projection: the durable checkpoint timeline, the progress cursor, resumability and the lease-expiry display (the same view a harness thread renders).",
+    input: ["jobId"],
+  },
+  {
     name: "cancel_job",
     service: "cancelJob",
     version: EXTERNAL_SERVICE_VERSION,
@@ -121,6 +132,22 @@ export const MCP_TOOLS: readonly McpToolDefinition[] = [
     version: EXTERNAL_SERVICE_VERSION,
     description: "Retrieve the evidence bundle (source lineage + quality gate) of a COMPLETED job.",
     input: ["jobId"],
+  },
+  {
+    name: "list_benchmarks",
+    service: "listBenchmarks",
+    version: EXTERNAL_SERVICE_VERSION,
+    description:
+      "Query the content-addressed benchmark registrations (the corpus's reproducibility evidence): filter by source, canonical reference, overlapping window, or pinned component version.",
+    input: ["sourceId?", "canonicalUrl?", "overlappingWindow?", "component?"],
+  },
+  {
+    name: "get_benchmark",
+    service: "getBenchmark",
+    version: EXTERNAL_SERVICE_VERSION,
+    description:
+      "Retrieve one benchmark registration by its content address: the fixture (checksums, window, versions), the source lineage snapshot and the recorded feature bundles.",
+    input: ["registrationId"],
   },
   {
     name: "promote_organization",
@@ -188,7 +215,7 @@ export function createMcpToolSurface(services: ExternalPlatformServices): McpToo
           error: {
             failureClass: "not-found",
             code: "platform.tool-not-found",
-            message: `no MCP tool named "${request.tool}" (the surface exposes exactly the contract's ten families)`,
+            message: `no MCP tool named "${request.tool}" (the surface exposes exactly the versioned tool families, 1:1 onto the services)`,
             details: { tool: request.tool },
           },
         };

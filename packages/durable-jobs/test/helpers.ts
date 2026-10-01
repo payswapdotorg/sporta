@@ -24,10 +24,12 @@ export interface FiveStepOptions {
  * The five-step executor: one checkpoint per step, RESUMABLE from the last
  * checkpoint (completed steps are skipped on resume). Deterministic output
  * artifact refs so the deep-equality comparisons bite on real content.
+ * Declares its code version (the REL-029 lineage leg).
  */
 export function fiveStepExecutor(options: FiveStepOptions = {}): JobExecutor {
   return {
     kind: "five-step",
+    codeVersion: "five-step/v1",
     async execute(ctx) {
       const last = ctx.job.checkpoints[ctx.job.checkpoints.length - 1];
       const completed = new Set<string>(

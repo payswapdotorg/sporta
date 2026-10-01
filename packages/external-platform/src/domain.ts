@@ -34,8 +34,9 @@ import {
   RightsBasisSchema,
   SourceMetadataSchema,
   UserUploadMetadataSchema,
+  type BenchmarkRegistration,
 } from "@sporta/historical-corpus";
-import type { JobState } from "@sporta/durable-jobs";
+import type { JobProgressView, JobState } from "@sporta/durable-jobs";
 
 // ---------------------------------------------------------------------------
 // The versioned service surface
@@ -47,7 +48,15 @@ export const EXTERNAL_SERVICE_VERSION = 1 as const;
 /** The version carried by every service result record. */
 export type ExternalServiceVersion = typeof EXTERNAL_SERVICE_VERSION;
 
-/** The ten versioned application services (the contract's tool families, service-named). */
+/**
+ * The versioned application services (the contract's tool families,
+ * service-named). REL-030 extends the ten with three read families over
+ * capabilities the contract already names: "subscribe/poll for progress"
+ * (getJobProgress — the REL-013 harness progress projection) and
+ * "retrieve evidence/quality metadata" (listBenchmarks/getBenchmark — the
+ * REL-011 benchmark-registration query API). All three are ADDITIVE to the
+ * v1 surface: no existing family's shape changed.
+ */
 export const EXTERNAL_SERVICES = [
   "searchOrganizations",
   "inspectOrganization",
@@ -55,9 +64,12 @@ export const EXTERNAL_SERVICES = [
   "submitMedia",
   "submitFeed",
   "getJob",
+  "getJobProgress",
   "cancelJob",
   "getOutput",
   "getEvidence",
+  "listBenchmarks",
+  "getBenchmark",
   "promoteOrganization",
 ] as const;
 
@@ -205,6 +217,44 @@ export const JobScopedRequestSchema = z.object({
   jobId: z.string().min(1),
 });
 
+// ---------------------------------------------------------------------------
+// Benchmark registration queries (REL-030: "retrieve evidence/quality metadata")
+// ---------------------------------------------------------------------------
+
+/** The window overlap filter (inclusive edges, epoch ms). */
+const OverlappingWindowSchema = z
+  .object({
+    startMs: z.number().int().nonnegative(),
+    endMs: z.number().int().nonnegative(),
+  })
+  .refine((window) => window.startMs <= window.endMs, {
+    message: "overlappingWindow startMs must be <= endMs",
+  });
+
+/** The benchmark-registration query (mirrors the corpus registrar's query API). */
+export const BenchmarkQuerySchema = z.object({
+  /** Only registrations over this corpus source. */
+  sourceId: z.string().min(1).optional(),
+  /** Only registrations over this canonical reference. */
+  canonicalUrl: z.string().min(1).optional(),
+  /** Only registrations whose window overlaps this window (inclusive edges). */
+  overlappingWindow: OverlappingWindowSchema.optional(),
+  /** Only registrations pinning this exact component version. */
+  component: z
+    .object({
+      name: z.string().min(1),
+      version: z.string().min(1),
+    })
+    .optional(),
+});
+
+export type BenchmarkQueryInput = z.infer<typeof BenchmarkQuerySchema>;
+
+/** The benchmark-registration lookup by its content address. */
+export const GetBenchmarkRequestSchema = z.object({
+  registrationId: z.string().min(1),
+});
+
 export const PromoteOrganizationRequestSchema = z.object({
   organizationId: z.string().min(1),
   /**
@@ -291,6 +341,27 @@ export interface GetJobResult {
     readonly updatedAt: number;
     readonly completedAt: number | null;
   };
+}
+
+/**
+ * getJobProgress (REL-030): the harness progress projection — the REL-013
+ * view an OpenMuse/CopilotKit/AG-UI thread renders (the durable checkpoint
+ * timeline, the progress cursor, resumability, the lease-expiry display).
+ * The platform projects the SAME view the durable-jobs HarnessPort serves;
+ * no presentation state lives here.
+ */
+export interface GetJobProgressResult {
+  readonly progress: JobProgressView;
+}
+
+/** listBenchmarks (REL-030): the benchmark-registration query results. */
+export interface ListBenchmarksResult {
+  readonly registrations: readonly BenchmarkRegistration[];
+}
+
+/** getBenchmark (REL-030): one content-addressed benchmark registration. */
+export interface GetBenchmarkResult {
+  readonly registration: BenchmarkRegistration;
 }
 
 /** cancelJob: the cancellation state after the request. */

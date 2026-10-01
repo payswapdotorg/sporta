@@ -13,17 +13,24 @@
  *   OrganizationCatalogQuery/OrganizationSelection (search/inspect),
  *   LabRunRequest, MediaProcessingJob (submitMedia), FeedProcessingJob
  *   (submitFeed), OutputArtifact, EvidenceBundle,
- *   OrganizationPromotionRequest (+ the integration-scope import)
+ *   OrganizationPromotionRequest (+ the integration-scope import) — plus
+ *   the REL-030 read families: getJobProgress (the REL-013 harness
+ *   progress projection) and listBenchmarks/getBenchmark (the REL-011
+ *   benchmark-registration query API over "retrieve evidence/quality
+ *   metadata")
  * - `errors`: the typed platform error family (`platform.*`) + the
  *   transport-neutral TypedErrorRecord every surface maps the four typed
  *   families (platform/corpus/registry/jobs) into
- * - `services`: THE ONE TRUTH — the ten versioned application services.
- *   Long jobs return a durable job identifier immediately (the real
+ * - `services`: THE ONE TRUTH — the versioned application services. Long
+ *   jobs return a durable job identifier immediately (the real
  *   @sporta/durable-jobs store); idempotency keys deduplicate mutations;
  *   reads are tenant-scoped (a foreign job is a typed not-found, never a
  *   leak); rights/policy enforcement is delegated to the corpus state
  *   machine and the registry's promotion gates; output/evidence refuse
- *   typed until completion (fail-closed)
+ *   typed until completion (fail-closed); getJobProgress serves the SAME
+ *   REL-013 HarnessPort projection (reads-only, one truth) and the
+ *   benchmark families query the corpus's own registrar (the REL-011
+ *   authority — the platform never becomes a second one)
  * - `processing`: the media + feed job executors over the durable-jobs
  *   runtime — the contract's pipeline (source validation through the
  *   corpus -> organization selection -> transform -> quality gate ->
@@ -62,12 +69,15 @@ export type {
   ExternalServiceEnvelope,
   ExternalServiceName,
   ExternalServiceVersion,
+  GetBenchmarkResult,
   GetEvidenceResult,
+  GetJobProgressResult,
   GetJobResult,
   GetOutputResult,
   InspectOrganizationResult,
   IntegrationScopeRecord,
   LaunchLabRunResult,
+  ListBenchmarksResult,
   OutputArtifactRecord,
   PlatformConnection,
   PromoteOrganizationResult,
@@ -77,10 +87,12 @@ export type {
   TenantScope,
 } from "./domain";
 export {
+  BenchmarkQuerySchema,
   ChoiceOrderingInputSchema,
   ConnectRequestSchema,
   FeedItemSubmissionSchema,
   FeedOrganizationSelectionSchema,
+  GetBenchmarkRequestSchema,
   InspectOrganizationRequestSchema,
   JobScopedRequestSchema,
   LabRunRequestSchema,
@@ -90,6 +102,7 @@ export {
   SubmitFeedRequestSchema,
   SubmitMediaRequestSchema,
 } from "./domain";
+export type { BenchmarkQueryInput } from "./domain";
 
 // errors
 export {

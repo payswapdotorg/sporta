@@ -32,12 +32,15 @@ import {
   toChoiceCandidate,
 } from "@sporta/organization-registry";
 import type { OrganizationRegistry } from "@sporta/organization-registry";
-import type { CorpusStore, SourceRecord } from "@sporta/historical-corpus";
+import type { BenchmarkRegistrar, CorpusStore, SourceRecord } from "@sporta/historical-corpus";
+import { createHarnessPort } from "@sporta/durable-jobs";
 import type { JobStore } from "@sporta/durable-jobs";
 import type { z } from "zod";
 import type { PlatformConnection } from "./domain";
 import {
   EXTERNAL_SERVICE_VERSION,
+  BenchmarkQuerySchema,
+  GetBenchmarkRequestSchema,
   InspectOrganizationRequestSchema,
   JobScopedRequestSchema,
   LaunchLabRunRequestSchema,
@@ -50,12 +53,15 @@ import type {
   CancelJobResult,
   ExternalServiceEnvelope,
   ExternalServiceName,
+  GetBenchmarkResult,
   GetEvidenceResult,
+  GetJobProgressResult,
   GetJobResult,
   GetOutputResult,
   InspectOrganizationResult,
   IntegrationScopeRecord,
   LaunchLabRunResult,
+  ListBenchmarksResult,
   PromoteOrganizationResult,
   SearchOrganizationsResult,
   SubmitFeedResult,
@@ -78,7 +84,7 @@ import { canonicalJson } from "./hash";
 // The services port
 // ---------------------------------------------------------------------------
 
-/** The ten versioned application services (one truth, two surfaces). */
+/** The versioned application services (one truth, two surfaces). */
 export interface ExternalPlatformServices {
   searchOrganizations(
     connection: PlatformConnection,
@@ -104,6 +110,11 @@ export interface ExternalPlatformServices {
     connection: PlatformConnection,
     request: unknown,
   ): Promise<ExternalServiceEnvelope<GetJobResult>>;
+  /** REL-030: the harness progress projection, tenant-scoped. */
+  getJobProgress(
+    connection: PlatformConnection,
+    request: unknown,
+  ): Promise<ExternalServiceEnvelope<GetJobProgressResult>>;
   cancelJob(
     connection: PlatformConnection,
     request: unknown,
@@ -116,6 +127,16 @@ export interface ExternalPlatformServices {
     connection: PlatformConnection,
     request: unknown,
   ): Promise<ExternalServiceEnvelope<GetEvidenceResult>>;
+  /** REL-030: the benchmark-registration query (evidence/quality metadata). */
+  listBenchmarks(
+    connection: PlatformConnection,
+    request: unknown,
+  ): Promise<ExternalServiceEnvelope<ListBenchmarksResult>>;
+  /** REL-030: one benchmark registration by its content address. */
+  getBenchmark(
+    connection: PlatformConnection,
+    request: unknown,
+  ): Promise<ExternalServiceEnvelope<GetBenchmarkResult>>;
   promoteOrganization(
     connection: PlatformConnection,
     request: unknown,
@@ -127,6 +148,8 @@ export interface ServicesDeps {
   readonly registry: OrganizationRegistry;
   readonly corpus: CorpusStore;
   readonly jobs: JobStore;
+  /** The benchmark registrar (the corpus's own REL-011 authority — the platform only queries it). */
+  readonly benchmarks: BenchmarkRegistrar;
   readonly stores: PlatformStores;
   readonly clock?: () => number;
   readonly idSource?: IdSource;
@@ -141,6 +164,13 @@ export interface ServicesDeps {
 /** Creates the external application services over the shared deps. */
 export function createExternalPlatformServices(deps: ServicesDeps): ExternalPlatformServices {
   const clock = deps.clock ?? createPlatformDefaultClock();
+  /**
+   * THE ONE PROJECTION: getJobProgress serves the SAME view the REL-013
+   * HarnessPort serves — built over the reader-only seam, so the platform
+   * cannot write job state through it (the port exposes reads only, by
+   * construction). Tenant scoping is applied BEFORE the projection runs.
+   */
+  const harness = createHarnessPort(deps.jobs, { clock });
   /** The idempotency registry: `tenant/service/key` -> the stored envelope. */
   const idempotent = new Map<string, unknown>();
   /** The idempotency request digests: `tenant/service/key` -> request canonical JSON. */
@@ -443,6 +473,36 @@ export function createExternalPlatformServices(deps: ServicesDeps): ExternalPlat
           completedAt: record.completedAt,
         },
       });
+    },
+
+    async getJobProgress(connection, request) {
+      const clean = parse(JobScopedRequestSchema, request, "getJobProgress");
+      await scopedJob(connection, clean.jobId); // isolation first, then the projection
+      const progress = await harness.progress(clean.jobId);
+      return envelope("getJobProgress", { progress });
+    },
+
+    async listBenchmarks(connection, request) {
+      // The benchmark catalog is global, content-addressed evidence — like
+      // the organization catalog, it is not tenant-partitioned (nothing
+      // here is caller-owned state). The connection still rides the call
+      // (the surface binding + future policy seams).
+      void connection;
+      const clean = parse(BenchmarkQuerySchema, request, "listBenchmarks");
+      const registrations = await deps.benchmarks.list({
+        sourceId: clean.sourceId,
+        canonicalUrl: clean.canonicalUrl,
+        overlappingWindow: clean.overlappingWindow,
+        component: clean.component,
+      });
+      return envelope("listBenchmarks", { registrations });
+    },
+
+    async getBenchmark(connection, request) {
+      void connection;
+      const clean = parse(GetBenchmarkRequestSchema, request, "getBenchmark");
+      const registration = await deps.benchmarks.get(clean.registrationId);
+      return envelope("getBenchmark", { registration });
     },
 
     async cancelJob(connection, request) {

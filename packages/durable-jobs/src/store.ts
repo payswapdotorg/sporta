@@ -35,6 +35,7 @@ import { EnqueueJobInputSchema, computeBackoffMs } from "./domain";
 import type { EnqueueJobInput } from "./domain";
 import { createDefaultJobIdSource, createJobsDefaultClock } from "./clock";
 import type { IdSource } from "./clock";
+import { canonicalJson } from "./hash";
 import {
   JobsConflictError,
   JobsIllegalTransitionError,
@@ -81,6 +82,8 @@ export interface JobStore {
     readonly state?: JobState;
     readonly kind?: string;
   }): Promise<readonly JobRecord[]>;
+  /** Looks the job an idempotency key converged to, or null (REL-029). */
+  getByIdempotencyKey(idempotencyKey: string): Promise<JobRecord | null>;
   /**
    * Acquires the lease on a queued job — or TAKES OVER an active job whose
    * lease expired (requeue-takeover -> queued -> acquire). A live lease
@@ -90,9 +93,14 @@ export interface JobStore {
   /**
    * Starts execution (leased -> running). Applies the attempts law: a new
    * attempt after a recorded failure increments `attempts`; a takeover
-   * continuation does not.
+   * continuation does not. REL-029: records the starting executor's
+   * declared code version (the artifact-lineage leg).
    */
-  start(jobId: string, workerId: string): Promise<JobRecord>;
+  start(
+    jobId: string,
+    workerId: string,
+    options?: { readonly codeVersion?: string },
+  ): Promise<JobRecord>;
   /**
    * Records a durable checkpoint (running -> checkpointed). Requires a
    * live lease held by the caller. Returns the updated record (the runtime
@@ -148,6 +156,31 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
     const folded = foldJournal(envelope.events);
     events = envelope.events;
     records = new Map([...folded.entries()].map(([id, record]) => [id, deepFreeze(record)]));
+  }
+
+  // -- the idempotency law (REL-029), rebuilt from the same fold ------------
+  // Every record carrying a key re-populates the convergence map (key ->
+  // jobId; the CURRENT record is always re-read from the fold, so a replay
+  // sees the job's live state), and its REQUEST DIGEST is recomputed from
+  // the record's own persisted fields
+  // (kind/input/inputArtifactRefs/retryPolicy) — so the law HOLDS ACROSS
+  // RESTARTS: a fresh store over the same journal converges and conflicts
+  // exactly like the one that wrote it.
+  const idempotencyJobIds = new Map<string, string>();
+  const idempotencyDigests = new Map<string, string>();
+  for (const record of records.values()) {
+    if (record.idempotencyKey !== null) {
+      idempotencyJobIds.set(record.idempotencyKey, record.jobId);
+      idempotencyDigests.set(
+        record.idempotencyKey,
+        canonicalJson({
+          kind: record.kind,
+          input: record.input,
+          inputArtifactRefs: record.inputArtifactRefs,
+          retryPolicy: record.retryPolicy,
+        }),
+      );
+    }
   }
 
   // -- helpers --------------------------------------------------------------
@@ -259,6 +292,32 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
       }
       const clean = parsed.data;
       const jobId = clean.jobId ?? idSource.nextId();
+      // THE IDEMPOTENCY LAW (REL-029): a retry storm's duplicate
+      // submissions converge to the ONE already-enqueued job; the same
+      // key with a DIFFERENT payload is a typed conflict — a mutation is
+      // never silently re-run. The digest covers the payload the job will
+      // actually carry (jobId excluded: it is the outcome, not the request
+      // identity — the minted id survives the round-trip on the record).
+      if (clean.idempotencyKey !== undefined) {
+        const priorJobId = idempotencyJobIds.get(clean.idempotencyKey);
+        if (priorJobId !== undefined) {
+          const prior = mustGet(priorJobId); // the LIVE record (never a stale snapshot)
+          const digest = canonicalJson({
+            kind: clean.kind,
+            input: jsonSafe(clean.input, "the job input"),
+            inputArtifactRefs: clean.inputArtifactRefs,
+            retryPolicy: clean.retryPolicy,
+          });
+          const priorDigest = idempotencyDigests.get(clean.idempotencyKey);
+          if (priorDigest !== digest) {
+            throw new JobsConflictError(
+              `idempotency key ${clean.idempotencyKey} was already used with a DIFFERENT job payload for ${prior.jobId} (repeat the original submission or use a new key; a job is never silently re-run)`,
+              { idempotencyKey: clean.idempotencyKey, existingJobId: prior.jobId },
+            );
+          }
+          return prior; // convergence: the duplicate resolves to the one job
+        }
+      }
       if (records.has(jobId)) {
         throw new JobsConflictError(`job ${jobId} already exists (job ids are unique)`, { jobId });
       }
@@ -268,6 +327,7 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
         kind: clean.kind,
         input: jsonSafe(clean.input, "the job input"),
         inputArtifactRefs: [...clean.inputArtifactRefs],
+        idempotencyKey: clean.idempotencyKey ?? null,
         state: "queued",
         lease: null,
         checkpoints: [],
@@ -277,6 +337,7 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
         failure: null,
         retryAt: null,
         outputArtifactRefs: [],
+        codeVersion: null,
         createdAt: now,
         updatedAt: now,
         completedAt: null,
@@ -295,7 +356,25 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
       }
       events = nextEvents;
       records.set(jobId, record);
+      if (clean.idempotencyKey !== undefined) {
+        idempotencyJobIds.set(clean.idempotencyKey, jobId);
+        idempotencyDigests.set(
+          clean.idempotencyKey,
+          canonicalJson({
+            kind: record.kind,
+            input: record.input,
+            inputArtifactRefs: record.inputArtifactRefs,
+            retryPolicy: record.retryPolicy,
+          }),
+        );
+      }
       return record;
+    },
+
+    async getByIdempotencyKey(idempotencyKey) {
+      ensureHealthy();
+      const jobId = idempotencyJobIds.get(idempotencyKey);
+      return jobId === undefined ? null : mustGet(jobId);
     },
 
     async get(jobId) {
@@ -364,7 +443,7 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
       );
     },
 
-    async start(jobId, workerId) {
+    async start(jobId, workerId, options) {
       ensureHealthy();
       const record = mustGet(jobId);
       requireLiveLease(record, workerId);
@@ -377,6 +456,11 @@ export function createFileJobStore(path: string, options: JobStoreOptions = {}):
         state: "running",
         attempts,
         failure: null,
+        // REL-029: the starting executor's declared code version — the
+        // artifact lineage's "which code version" leg. On a takeover the
+        // replacement worker's executor version wins (the output came from
+        // the attempt that completes the work).
+        ...(options?.codeVersion !== undefined ? { codeVersion: options.codeVersion } : {}),
         updatedAt: now,
       });
     },

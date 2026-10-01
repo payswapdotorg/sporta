@@ -77,8 +77,8 @@ function envelopeOfMcp<T = Record<string, unknown>>(outcome: McpToolCallOutcome)
   return outcome.envelope as { service: string; version: number; result: T };
 }
 
-describe("the tool vocabulary is the contract's ten families, 1:1 onto the services", () => {
-  test("listTools advertises exactly the contract's families", () => {
+describe("the tool vocabulary is the versioned families, 1:1 onto the services", () => {
+  test("listTools advertises exactly the versioned families", () => {
     const { mcp } = { mcp: createMcpToolSurface(null as never) }; // listing needs no services
     const names = mcp.listTools().map((tool) => tool.name);
     expect(names).toEqual([
@@ -88,19 +88,22 @@ describe("the tool vocabulary is the contract's ten families, 1:1 onto the servi
       "submit_video",
       "submit_feed",
       "get_job",
+      "get_job_progress",
       "cancel_job",
       "get_output",
       "get_evidence",
+      "list_benchmarks",
+      "get_benchmark",
       "promote_organization",
     ]);
     // Every tool maps 1:1 onto a distinct versioned service.
     const services = mcp.listTools().map((tool) => tool.service);
-    expect(new Set(services).size).toBe(10);
+    expect(new Set(services).size).toBe(13);
     for (const tool of mcp.listTools()) {
       expect(tool.version).toBe(1);
       expect(tool.description.length).toBeGreaterThan(0);
     }
-    expect(MCP_TOOLS.length).toBe(10);
+    expect(MCP_TOOLS.length).toBe(13);
   });
 });
 

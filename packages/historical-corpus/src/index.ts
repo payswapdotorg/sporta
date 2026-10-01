@@ -45,6 +45,17 @@
  *   references (recorded, never fetched)
  * - `pipeline`: `acquireSourceFromAdapter` — the canonical legal order
  *   (authorize -> retrieve -> record) as one reusable driver
+ * - `provenance`: REL-026 — the acquisition provenance view: the policy
+ *   basis + the acquired digest + the benchmark binding as ONE queryable
+ *   chain (the URL-is-not-rights invariant stays binding: a record that
+ *   never passed the gate shows the basis/digest legs as honest nulls)
+ * - `refusal-ledger`: REL-026 — the typed-refusal audit ledger: every
+ *   bypass-shaped input refuses TYPED, fail-closed, WITH the refusal
+ *   recorded (never silently dropped); recording is never swallowing
+ * - `acquisition-acceptance`: REL-026 — the acceptance journey driver:
+ *   reference-only discovery (with the recorded pre-authorization probe)
+ *   -> rights declaration -> authorized acquisition -> corpus
+ *   registration, with the digest + basis queryable afterwards
  * - `clock` / `hash`: the injected clock + id source (repo constitution)
  *   and the canonical-JSON + SHA-256 primitives
  *
@@ -185,6 +196,29 @@ export type { CorpusStore, CorpusStoreOptions, UserUploadInput } from "./store";
 // pipeline
 export { acquireSourceFromAdapter } from "./pipeline";
 export type { AcquireFromAdapterOptions } from "./pipeline";
+
+// provenance (REL-026)
+export { provenanceOf } from "./provenance";
+export type { AcquisitionProvenance, ProvenanceBasis, ProvenanceNormalization } from "./provenance";
+
+// refusal ledger (REL-026)
+export { createRefusalLedger } from "./refusal-ledger";
+export type {
+  RefusalFilter,
+  RefusalLedger,
+  RefusalLedgerOptions,
+  RefusalRecord,
+} from "./refusal-ledger";
+
+// acquisition acceptance (REL-026)
+export { runAcquisitionJourney } from "./acquisition-acceptance";
+export type {
+  AcquisitionJourneyInput,
+  AcquisitionJourneyOutcome,
+  AcquisitionStageEvidence,
+  DiscoveryStageEvidence,
+  RegistrationStageEvidence,
+} from "./acquisition-acceptance";
 
 // clock + hash
 export {
