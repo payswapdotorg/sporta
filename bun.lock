@@ -680,6 +680,20 @@
         "@types/bun": "^1.2.0",
       },
     },
+    "packages/platform-workspace": {
+      "name": "@sporta/platform-workspace",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sporta/durable-jobs": "workspace:*",
+        "@sporta/external-platform": "workspace:*",
+        "@sporta/historical-corpus": "workspace:*",
+        "@sporta/organization-registry": "workspace:*",
+        "zod": "^4.0.0",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+      },
+    },
     "packages/presentation-director": {
       "name": "@sporta/presentation-director",
       "version": "0.1.0",
@@ -1231,6 +1245,8 @@
     "@sporta/perception-detection": ["@sporta/perception-detection@workspace:packages/perception-detection"],
 
     "@sporta/perception-tracking": ["@sporta/perception-tracking@workspace:packages/perception-tracking"],
+
+    "@sporta/platform-workspace": ["@sporta/platform-workspace@workspace:packages/platform-workspace"],
 
     "@sporta/presentation-director": ["@sporta/presentation-director@workspace:packages/presentation-director"],
 

@@ -1,0 +1,23 @@
+{
+  "name": "@sporta/platform-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sporta/durable-jobs": "workspace:*",
+    "@sporta/external-platform": "workspace:*",
+    "@sporta/historical-corpus": "workspace:*",
+    "@sporta/organization-registry": "workspace:*",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}
