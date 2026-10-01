@@ -176,6 +176,24 @@ export type {
   PrivateWindowStartedEntry,
 } from "./incentives/ledger";
 
+// incentives: publication accrual (REL-034 — the honest publication -> ledger wire)
+export {
+  createPublicationIncentiveAccrual,
+  exchangeEligibilityGaps,
+  incentivePolicyView,
+} from "./incentives/accrual";
+export type {
+  AccrualAttemptRecord,
+  AccrualBenefitOutcome,
+  AccrualGranted,
+  AccrualOptions,
+  AccrualOutcome,
+  AccrualRefusalReason,
+  AccrualRefused,
+  IncentivePolicyView,
+  PublicationIncentiveAccrual,
+} from "./incentives/accrual";
+
 // exchange: publishing (REL-022)
 export {
   PUBLICATION_STATUSES,
