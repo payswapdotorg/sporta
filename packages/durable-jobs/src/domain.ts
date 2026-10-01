@@ -180,6 +180,15 @@ export const EnqueueJobInputSchema = z.object({
   inputArtifactRefs: z.array(z.string().min(1)).default([]),
   /** The bounded-backoff retry policy (default: the repo policy). */
   retryPolicy: RetryPolicySchema.default(DEFAULT_RETRY_POLICY),
+  /**
+   * REL-029 — the caller's idempotency key: duplicate submissions with
+   * the SAME key + the SAME payload converge to the ONE already-enqueued
+   * job (retry storms collapse); the same key with a DIFFERENT payload is
+   * a typed conflict (never silently re-run). The key survives restarts
+   * because it is recorded on the job record and rebuilt by the journal
+   * fold.
+   */
+  idempotencyKey: z.string().min(1).optional(),
 });
 
 /** The enqueue input at the store boundary (the INPUT side: defaulted fields optional). */
@@ -196,6 +205,8 @@ export interface JobRecord {
   readonly kind: string;
   readonly input: unknown;
   readonly inputArtifactRefs: readonly string[];
+  /** REL-029 — the enqueue idempotency key, or null (see EnqueueJobInput). */
+  readonly idempotencyKey: string | null;
   readonly state: JobState;
   readonly lease: JobLease | null;
   readonly checkpoints: readonly JobCheckpoint[];
@@ -207,6 +218,14 @@ export interface JobRecord {
   /** When a failed job may be requeued (null = no retry scheduled). */
   readonly retryAt: number | null;
   readonly outputArtifactRefs: readonly string[];
+  /**
+   * REL-029 — the code version of the executor that (last) started an
+   * attempt: the artifact-lineage leg answering "which code version". Null
+   * until an executor that declares a version starts the job. On a takeover
+   * the REPLACEMENT worker's executor version wins — the output came from
+   * the attempt that completes the work.
+   */
+  readonly codeVersion: string | null;
   readonly createdAt: number;
   readonly updatedAt: number;
   readonly completedAt: number | null;

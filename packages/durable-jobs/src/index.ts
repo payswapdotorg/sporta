@@ -18,11 +18,16 @@
  * - `journal`: the append-only JSON file — events, the atomic-rename
  *   writer (injectable for crash tests), the fail-closed parser, and the
  *   FOLD that rebuilds every record by replaying the journal
- * - `store`: the job store — enqueue, lease acquisition + expiry
- *   takeover, start (the attempts law), checkpoints, resume, complete,
- *   fail (bounded-backoff retryAt), requeueDueRetries, cooperative
- *   cancellation (request + leaseholder honor), and the lease discipline
- *   (a worker whose lease expired can never write again)
+ * - `store`: the job store — enqueue (with the REL-029 idempotency-key
+ *   convergence law), lease acquisition + expiry takeover, start (the
+ *   attempts law + the code-version lineage leg), checkpoints, resume,
+ *   complete, fail (bounded-backoff retryAt), requeueDueRetries,
+ *   cooperative cancellation (request + leaseholder honor), and the lease
+ *   discipline (a worker whose lease expired can never write again)
+ * - `lineage`: REL-029 — the artifact lineage: a pure projection over the
+ *   job record answering "which run, which inputs, which code version"
+ *   (survives restarts/reconnects/retries/cancellations because the
+ *   record IS the fold of the journal)
  * - `runtime`: the WorkerRuntime — runAttempt (acquire -> start ->
  *   execute with resumable checkpoints -> complete/fail/cancelled), the
  *   cooperative-cancellation signal thrown into executors at the honored
@@ -100,6 +105,13 @@ export type {
 // store
 export { createFileJobStore } from "./store";
 export type { JobStore, JobStoreOptions } from "./store";
+
+// lineage (REL-029)
+export { lineageEquals, lineageOf } from "./lineage";
+export type { ArtifactLineage } from "./lineage";
+
+// hash (REL-029)
+export { canonicalJson, sha256Hex } from "./hash";
 
 // runtime
 export { createWorkerRuntime } from "./runtime";

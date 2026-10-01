@@ -43,6 +43,13 @@ export interface JobExecutorContext {
  */
 export interface JobExecutor {
   readonly kind: string;
+  /**
+   * REL-029 — the executor's code version (e.g. "five-step/v1"). Recorded
+   * on the job record at attempt start so the artifact lineage can answer
+   * "which code version" produced the outputs. Optional: an executor that
+   * stays silent records null (honest: undeclared).
+   */
+  readonly codeVersion?: string;
   execute(ctx: JobExecutorContext): Promise<readonly string[] | void>;
 }
 
@@ -90,9 +97,16 @@ export function createWorkerRuntime(options: WorkerRuntimeOptions): WorkerRuntim
       await store.acquireLease(jobId, workerId, leaseTtlMs);
       let record = await store.get(jobId);
 
-      // 2. Start. A cancellation requested before any work ran is honored
-      //    immediately (it is the "next checkpoint" of a not-yet-running job).
-      record = await store.start(jobId, workerId);
+      // 2. Start (recording the executor's declared code version when the
+      //    kind has a registered executor — the lineage's "which code"
+      //    leg; an unregistered kind still fails through the same fail
+      //    path below). A cancellation requested before any work ran is
+      //    honored immediately (it is the "next checkpoint" of a
+      //    not-yet-running job).
+      const knownExecutor = executors.find((candidate) => candidate.kind === record.kind);
+      record = await store.start(jobId, workerId, {
+        codeVersion: knownExecutor?.codeVersion,
+      });
       if (record.cancellationRequested) {
         await store.cancel(jobId, workerId);
         return store.get(jobId);

@@ -32,7 +32,7 @@ import {
 } from "../src";
 
 describe("the versioned service vocabulary", () => {
-  test("the ten services are pinned and every result carries the version", () => {
+  test("the services are pinned and every result carries the version", () => {
     expect(EXTERNAL_SERVICE_VERSION).toBe(1);
     expect(EXTERNAL_SERVICES).toEqual([
       "searchOrganizations",
@@ -41,12 +41,15 @@ describe("the versioned service vocabulary", () => {
       "submitMedia",
       "submitFeed",
       "getJob",
+      "getJobProgress",
       "cancelJob",
       "getOutput",
       "getEvidence",
+      "listBenchmarks",
+      "getBenchmark",
       "promoteOrganization",
     ]);
-    expect(new Set(EXTERNAL_SERVICES).size).toBe(10);
+    expect(new Set(EXTERNAL_SERVICES).size).toBe(13);
   });
 });
 

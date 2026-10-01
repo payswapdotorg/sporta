@@ -53,6 +53,8 @@ export interface JobRecordPatch {
   failure?: JobFailure | null;
   retryAt?: number | null;
   outputArtifactRefs?: string[];
+  /** REL-029 — the executor's code version, recorded at attempt start. */
+  codeVersion?: string;
   updatedAt?: number;
   completedAt?: number | null;
 }
@@ -161,6 +163,7 @@ const PATCH_KEYS: ReadonlySet<string> = new Set([
   "failure",
   "retryAt",
   "outputArtifactRefs",
+  "codeVersion",
   "updatedAt",
   "completedAt",
 ]);

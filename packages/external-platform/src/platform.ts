@@ -12,6 +12,8 @@
  * which is exactly what Gate REL-A7's "reconnect" exercises.
  */
 import type { CorpusStore } from "@sporta/historical-corpus";
+import { createBenchmarkRegistrar } from "@sporta/historical-corpus";
+import type { BenchmarkRegistrar } from "@sporta/historical-corpus";
 import type { JobStore, JobExecutor } from "@sporta/durable-jobs";
 import type { OrganizationRegistry } from "@sporta/organization-registry";
 import type { PlatformConnection } from "./domain";
@@ -44,6 +46,13 @@ export interface ExternalPlatformDeps {
   readonly corpus: CorpusStore;
   /** The durable job store (the canonical long-job state). */
   readonly jobs: JobStore;
+  /**
+   * The benchmark registrar (REL-030 wiring): the corpus's own REL-011
+   * authority over the corpus — the platform only READS it
+   * (listBenchmarks/getBenchmark). Default: a fresh registrar over the
+   * corpus. Pass your own to share one registrar across stacks.
+   */
+  readonly benchmarks?: BenchmarkRegistrar;
   /** Injected clock (default: the deterministic platform clock). */
   readonly clock?: () => number;
   /** Injected id source (default: `conn-1`, `conn-2`, ...). */
@@ -58,7 +67,7 @@ export interface ExternalPlatformDeps {
 
 /** One external platform: services + executors + connection minting. */
 export interface ExternalPlatform {
-  /** The ten versioned application services (the ONE truth). */
+  /** The versioned application services (the ONE truth). */
   readonly services: ExternalPlatformServices;
   /**
    * The job executors an embedding WorkerRuntime registers: the
@@ -94,6 +103,7 @@ export function createExternalPlatform(deps: ExternalPlatformDeps): ExternalPlat
     registry: deps.registry,
     corpus: deps.corpus,
     jobs: deps.jobs,
+    benchmarks: deps.benchmarks ?? createBenchmarkRegistrar(deps.corpus),
     stores,
     clock,
     idSource,

@@ -12,9 +12,12 @@
  * - POST   /v1/media                             -> submitMedia (submit_video)
  * - POST   /v1/feeds                             -> submitFeed (submit_feed)
  * - GET    /v1/jobs/:jobId                       -> getJob
+ * - GET    /v1/jobs/:jobId/progress              -> getJobProgress (REL-030)
  * - POST   /v1/jobs/:jobId/cancellation          -> cancelJob
  * - GET    /v1/jobs/:jobId/output                -> getOutput
  * - GET    /v1/jobs/:jobId/evidence              -> getEvidence
+ * - GET    /v1/benchmarks                        -> listBenchmarks (REL-030)
+ * - GET    /v1/benchmarks/:registrationId        -> getBenchmark (REL-030)
  * - POST   /v1/organizations/:id/promotion       -> promoteOrganization
  *
  * Denied/unknown operations fail closed with useful typed states: unknown
@@ -85,9 +88,16 @@ const ROUTES: readonly Route[] = [
   { method: "POST", pattern: ["v1", "media"], service: "submitMedia" },
   { method: "POST", pattern: ["v1", "feeds"], service: "submitFeed" },
   { method: "GET", pattern: ["v1", "jobs", ":jobId"], service: "getJob" },
+  { method: "GET", pattern: ["v1", "jobs", ":jobId", "progress"], service: "getJobProgress" },
   { method: "POST", pattern: ["v1", "jobs", ":jobId", "cancellation"], service: "cancelJob" },
   { method: "GET", pattern: ["v1", "jobs", ":jobId", "output"], service: "getOutput" },
   { method: "GET", pattern: ["v1", "jobs", ":jobId", "evidence"], service: "getEvidence" },
+  { method: "GET", pattern: ["v1", "benchmarks"], service: "listBenchmarks" },
+  {
+    method: "GET",
+    pattern: ["v1", "benchmarks", ":registrationId"],
+    service: "getBenchmark",
+  },
 ];
 
 /** The HTTP status for a typed failure class (the transport mapping). */
@@ -256,8 +266,17 @@ export function createHttpSurface(
         case "getJob":
         case "cancelJob":
         case "getOutput":
-        case "getEvidence": {
+        case "getEvidence":
+        case "getJobProgress": {
           serviceRequest = { jobId: params.jobId };
+          break;
+        }
+        case "listBenchmarks": {
+          serviceRequest = parseBenchmarkQuery(request.query ?? {});
+          break;
+        }
+        case "getBenchmark": {
+          serviceRequest = { registrationId: params.registrationId };
           break;
         }
         case "promoteOrganization": {
@@ -330,4 +349,40 @@ function parseOrdering(value: string | undefined): Record<string, unknown> | und
     return { kind: "quality-descending", axis: value.slice("quality-descending:".length) };
   }
   return { kind: value }; // the service's schema refuses the unknown kind typed
+}
+
+/**
+ * Parses the benchmark query from query params. Numbers parse when
+ * parseable; garbage surfaces as the raw string so the service's schema
+ * refuses it typed (fail-closed, the eligibility-query precedent).
+ */
+function parseBenchmarkQuery(query: Readonly<Record<string, string>>): Record<string, unknown> {
+  const parsed: Record<string, unknown> = {};
+  for (const key of ["sourceId", "canonicalUrl"] as const) {
+    const value = query[key];
+    if (value !== undefined) parsed[key] = value;
+  }
+  const windowStart = query["windowStartMs"];
+  const windowEnd = query["windowEndMs"];
+  if (windowStart !== undefined || windowEnd !== undefined) {
+    parsed.overlappingWindow = {
+      startMs: parseNumberOrRaw(windowStart ?? "(missing)"),
+      endMs: parseNumberOrRaw(windowEnd ?? "(missing)"),
+    };
+  }
+  const componentName = query["componentName"];
+  const componentVersion = query["componentVersion"];
+  if (componentName !== undefined || componentVersion !== undefined) {
+    parsed.component = {
+      name: componentName ?? "(missing)",
+      version: componentVersion ?? "(missing)",
+    };
+  }
+  return parsed;
+}
+
+/** Parses a query param as a finite non-negative number, or passes the raw string through. */
+function parseNumberOrRaw(value: string): number | string {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : value;
 }
