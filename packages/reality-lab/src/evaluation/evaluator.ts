@@ -1,8 +1,8 @@
 /**
- * The Lab Evaluator v0 (REL-002/003's supporting evaluator hook — the FULL
- * reward engine is REL-007, a later slice).
+ * The Lab Evaluator v0.2 (REL-002/003's supporting evaluator hook, upgraded
+ * by REL-007 to delegate to the full reward engine).
  *
- * What v0 does (honestly):
+ * What it does (honestly):
  * - records the pack's reward dimensions PER RUN, measuring the seven
  *   dimensions that have evidence in a v0 lab run and marking the three
  *   renderer-in-the-loop dimensions (motion fidelity, camera/scene
@@ -10,10 +10,12 @@
  * - applies the pack's hard invalidity gates and returns their typed
  *   refusal records (`HardInvalidityViolation`) alongside the scores — a
  *   hard-invalid run has `valid: false` and NO reward can buy validity
- *   back (the refusal is evidence, never an exception — repo convention).
- *
- * `overall` is the plain mean of measured dimension scores; the weighted
- * aggregate belongs to REL-007's reward engine.
+ *   back (the refusal is evidence, never an exception — repo convention);
+ * - REL-007: delegates the aggregation to the full reward engine and
+ *   attaches the per-run `RewardRecord` (weighted aggregate under the
+ *   default football weight set + the typed `HardInvalid` classification)
+ *   as `result.reward` — ADDITIVE: `overall` stays the plain mean of
+ *   measured dimensions so the v0 signature and semantics are unchanged.
  */
 import type { HardInvalidityViolation, LabClaim, RewardDimension } from "../domain/domain-pack";
 import {
@@ -21,6 +23,7 @@ import {
   FOOTBALL_LAB_EVALUATOR_VERSION,
   FOOTBALL_REWARD_DIMENSIONS,
 } from "../domain/football";
+import { createFootballRewardEngine, type RewardRecord, type RewardEngine } from "../reward/engine";
 
 // ---------------------------------------------------------------------------
 // The evaluator seam
@@ -76,6 +79,12 @@ export interface LabEvaluatorResult {
   /** False when any hard invalidity gate fired. */
   valid: boolean;
   violations: readonly HardInvalidityViolation[];
+  /**
+   * REL-007: the full reward-engine record for this run (weighted aggregate
+   * under the default football weight set + the typed HardInvalid refusal).
+   * Additive field — absent on legacy/synthetic results.
+   */
+  reward?: RewardRecord;
 }
 
 /** The evaluator seam the simulator/ensemble call. */
@@ -105,10 +114,14 @@ function isWellEvidencedClaim(claim: LabClaim, knownEvidence: ReadonlySet<string
 }
 
 /**
- * The football lab evaluator v0: seven measured dimensions, three honest
- * not-measured markers, hard gates as typed refusals.
+ * The football lab evaluator v0.2: seven measured dimensions, three honest
+ * not-measured markers, hard gates as typed refusals, and the FULL reward
+ * engine attached per run (REL-007 delegation).
  */
-export function createFootballLabEvaluator(): LabEvaluator {
+export function createFootballLabEvaluator(
+  options: { rewardEngine?: RewardEngine } = {},
+): LabEvaluator {
+  const rewardEngine = options.rewardEngine ?? createFootballRewardEngine();
   return {
     evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
     version: FOOTBALL_LAB_EVALUATOR_VERSION,
@@ -240,6 +253,17 @@ export function createFootballLabEvaluator(): LabEvaluator {
       const measuredScores = dimensions
         .filter((dimension) => dimension.measured && dimension.score !== null)
         .map((dimension) => dimension.score as number);
+      // REL-007: the full engine — weighted aggregate + typed hard-invalid
+      // refusal — attached alongside the unchanged v0 fields.
+      const reward = rewardEngine.score({
+        dimensionScores: dimensions,
+        hardGateViolations: evidence.violations,
+        provenance: {
+          runId: evidence.runId,
+          evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
+          evaluatorVersion: FOOTBALL_LAB_EVALUATOR_VERSION,
+        },
+      });
       return {
         evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
         version: FOOTBALL_LAB_EVALUATOR_VERSION,
@@ -247,6 +271,7 @@ export function createFootballLabEvaluator(): LabEvaluator {
         overall: meanOf(measuredScores),
         valid: evidence.violations.length === 0,
         violations: [...evidence.violations],
+        reward,
       };
     },
   };
