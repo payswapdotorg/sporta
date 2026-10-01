@@ -159,6 +159,41 @@ export type {
   SimulatorRewardSummary,
 } from "./choice";
 
+// choice evidence (REL-033: the A5 visibility view)
+export { choiceEvidenceFor } from "./choice-evidence";
+export type { ChoiceEvidenceView, CostLatencyView } from "./choice-evidence";
+
+// canary feed + automatic-rollback monitor (REL-033: the REL-A4 wire)
+export { createCanaryFeed, createCanaryMonitor, evaluateCanaryObservations } from "./canary-feed";
+export type {
+  CanaryAssessment,
+  CanaryBreachVerdict,
+  CanaryCheckKind,
+  CanaryFeed,
+  CanaryFeedOptions,
+  CanaryHealthyVerdict,
+  CanaryMonitor,
+  CanaryMonitorOptions,
+  CanaryObservation,
+  CanaryObservationInput,
+  CanaryVerdict,
+  FailedHardCheck,
+  FiredRollback,
+  HardCanaryChecks,
+} from "./canary-feed";
+
+// production-state capture + restoration proof (REL-033)
+export {
+  captureProductionState,
+  diffProductionState,
+  productionStateRestored,
+} from "./production-state";
+export type {
+  ProductionOrganizationRef,
+  ProductionStateDiff,
+  ProductionStateSnapshot,
+} from "./production-state";
+
 // clock + errors
 export {
   REGISTRY_DEFAULT_EPOCH_MS,
