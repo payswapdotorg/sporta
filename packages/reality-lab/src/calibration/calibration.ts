@@ -31,14 +31,20 @@ import { contentId } from "../hash";
 import { LabValidationError } from "../errors";
 import { LAB_SIMULATION_PROVENANCE } from "../provenance";
 import type { LabProvenanceClass } from "../provenance";
-import type { FaultProfile } from "../domain/domain-pack";
+import type { FaultProfile, ScenarioConfigBase } from "../domain/domain-pack";
 import type { FootballDomainPack } from "../domain/football";
-import type { FootballScenarioConfig } from "../domain/scenario";
-import { generateFootballScenario } from "../domain/scenario";
-import type { OrganizationRuntimeBundle } from "../simulation/lab-run";
-import { runEnsemble } from "../robustness/ensemble";
+import type { FootballScenarioConfig, FootballScenarioRecord } from "../domain/scenario";
+import type {
+  DomainPackLabView,
+  DomainRunnerScenario,
+  DomainRunnerTick,
+  DomainSimulationProfile,
+} from "../simulation/domain-profile";
+import { footballDomainSimulationProfile } from "../simulation/football-profile";
+import type { SimulatedTick } from "../simulation/world-simulator";
+import type { OrganizationRuntimeBundle } from "../simulation/domain-lab-run";
+import { runDomainEnsemble, type DomainEnsembleRecord } from "../robustness/ensemble";
 import type { LabEvaluator } from "../evaluation/evaluator";
-import { createFootballLabEvaluator } from "../evaluation/evaluator";
 import { deepFreeze } from "../orgsearch/search";
 
 // ---------------------------------------------------------------------------
@@ -53,21 +59,30 @@ import { deepFreeze } from "../orgsearch/search";
  */
 export type ObservationSourceClass = LabProvenanceClass;
 
-/** Known injected perturbations for a perturbed-ensemble observation source. */
-export interface CalibrationPerturbations {
+/**
+ * Known injected perturbations for a perturbed-ensemble observation source
+ * (the generic, domain-neutral form — REL-032): scenario overrides are
+ * partial configs of whatever domain the calibration runs over.
+ */
+export interface DomainCalibrationPerturbations<
+  TConfig extends ScenarioConfigBase = ScenarioConfigBase,
+> {
   description: string;
   /** A fault profile injected into the observation ensemble. */
   faultProfile?: FaultProfile;
   /** Scenario overrides for the observation ensemble (e.g. sourceProfile: "degraded"). */
-  scenarioOverrides?: Partial<FootballScenarioConfig>;
+  scenarioOverrides?: Partial<TConfig>;
 }
+
+/** The football perturbations (the v0 public shape). */
+export type CalibrationPerturbations = DomainCalibrationPerturbations<FootballScenarioConfig>;
 
 /** Where a calibration's observations come from. */
 export type CalibrationObservationSource =
   | {
       sourceClass: "lab-simulation";
       kind: "perturbed-ensemble";
-      perturbations: CalibrationPerturbations;
+      perturbations: DomainCalibrationPerturbations;
     }
   | {
       sourceClass: "historical-replay" | "real-observation";
@@ -132,7 +147,7 @@ export interface CalibrationRecord {
     sourceClass: ObservationSourceClass;
     kind: CalibrationObservationSource["kind"];
     description: string;
-    perturbations: CalibrationPerturbations | null;
+    perturbations: DomainCalibrationPerturbations | null;
   };
   dimensions: readonly CalibrationDimensionComparison[];
   drift: CalibrationDriftSummary;
@@ -256,6 +271,29 @@ export function createCalibrationPort(options: {
 // The deterministic calibration driver
 // ---------------------------------------------------------------------------
 
+/**
+ * The generic calibration run options (REL-032): the pack view + simulation
+ * profile replace the football pack; the default evaluator is DERIVED from
+ * the profile (matching the v0 football default exactly).
+ */
+export interface DomainCalibrationRunOptions<
+  TConfig extends ScenarioConfigBase = ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig> = DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick = DomainRunnerTick,
+> {
+  domainPack: DomainPackLabView<TConfig, TScenario>;
+  simulationProfile: DomainSimulationProfile<TScenario, TTick>;
+  organization: OrganizationRuntimeBundle;
+  seed: string;
+  /** Seeded runs per ensemble (prediction and observation each). */
+  ensembleSize: number;
+  scenarioConfig?: Partial<TConfig>;
+  observation: CalibrationObservationSource;
+  evaluator?: LabEvaluator;
+  /** The configured drift threshold — detection must fire exactly per it. */
+  driftThreshold: number;
+}
+
 export interface CalibrationRunOptions {
   domainPack: FootballDomainPack;
   organization: OrganizationRuntimeBundle;
@@ -275,7 +313,11 @@ export interface CalibrationRunResult {
   drift: CalibrationDriftState;
 }
 
-function perDimensionMeans(ensemble: ReturnType<typeof runEnsemble>): Map<string, number | null> {
+function perDimensionMeans<
+  TConfig extends ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick,
+>(ensemble: DomainEnsembleRecord<TConfig, TScenario, TTick>): Map<string, number | null> {
   const means = new Map<string, number | null>();
   for (const [dimensionId, value] of Object.entries(
     ensemble.aggregate.expectedScore.perDimension,
@@ -286,13 +328,18 @@ function perDimensionMeans(ensemble: ReturnType<typeof runEnsemble>): Map<string
 }
 
 /**
- * Run the calibration: the prediction ensemble (clean, seeded
- * `${seed}::calibration:prediction`) against the observation source, the
- * per-dimension comparison, the drift record, and drift detection at the
- * configured threshold. Deterministic from the options — same inputs,
- * deep-equal record and drift state.
+ * Run the GENERIC calibration (REL-032): the prediction ensemble (clean,
+ * seeded `${seed}::calibration:prediction`) against the observation source,
+ * the per-dimension comparison, the drift record, and drift detection at
+ * the configured threshold. Deterministic from the options — same inputs,
+ * deep-equal record and drift state. The default evaluator is DERIVED from
+ * the simulation profile (matching the v0 football default exactly).
  */
-export function runCalibration(options: CalibrationRunOptions): CalibrationRunResult {
+export function runDomainCalibration<
+  TConfig extends ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick,
+>(options: DomainCalibrationRunOptions<TConfig, TScenario, TTick>): CalibrationRunResult {
   if (!Number.isInteger(options.ensembleSize) || options.ensembleSize < 1) {
     throw new LabValidationError("ensembleSize must be an integer >= 1");
   }
@@ -311,14 +358,15 @@ export function runCalibration(options: CalibrationRunOptions): CalibrationRunRe
       seen.add(entry.dimensionId);
     }
   }
-  const evaluator = options.evaluator ?? createFootballLabEvaluator();
-  const scenarioConfig = generateFootballScenario(
+  const evaluator = options.evaluator ?? options.simulationProfile.createLabEvaluator();
+  const scenarioConfig = options.domainPack.scenarioGenerator.generate(
     `${options.seed}::calibration:config`,
     options.scenarioConfig,
   ).config;
 
-  const predictionEnsemble = runEnsemble({
+  const predictionEnsemble = runDomainEnsemble({
     domainPack: options.domainPack,
+    simulationProfile: options.simulationProfile,
     organization: options.organization,
     baseSeed: `${options.seed}::calibration:prediction`,
     size: options.ensembleSize,
@@ -332,15 +380,16 @@ export function runCalibration(options: CalibrationRunOptions): CalibrationRunRe
   let perturbations: CalibrationPerturbations | null = null;
   if (options.observation.kind === "perturbed-ensemble") {
     perturbations = options.observation.perturbations;
-    const observationEnsemble = runEnsemble({
+    const observationEnsemble = runDomainEnsemble({
       domainPack: options.domainPack,
+      simulationProfile: options.simulationProfile,
       organization: options.organization,
       baseSeed: `${options.seed}::calibration:observation`,
       size: options.ensembleSize,
       scenarioConfig: {
         ...options.scenarioConfig,
         ...options.observation.perturbations.scenarioOverrides,
-      },
+      } as Partial<TConfig>,
       faultProfile: options.observation.perturbations.faultProfile,
       evaluator,
     });
@@ -437,4 +486,38 @@ export function runCalibration(options: CalibrationRunOptions): CalibrationRunRe
   const frozen = deepFreeze(record);
   const drift = detectCalibrationDrift(frozen, options.driftThreshold);
   return { record: frozen, drift };
+}
+
+// ---------------------------------------------------------------------------
+// The football facade (the v0 public surface, unchanged)
+// ---------------------------------------------------------------------------
+
+function footballDomainOptions(
+  options: CalibrationRunOptions,
+): DomainCalibrationRunOptions<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick> {
+  return {
+    domainPack: options.domainPack,
+    simulationProfile: footballDomainSimulationProfile,
+    organization: options.organization,
+    seed: options.seed,
+    ensembleSize: options.ensembleSize,
+    scenarioConfig: options.scenarioConfig,
+    observation: options.observation,
+    evaluator: options.evaluator,
+    driftThreshold: options.driftThreshold,
+  };
+}
+
+/**
+ * Run the calibration: the prediction ensemble (clean, seeded) against the
+ * observation source, the per-dimension comparison, the drift record, and
+ * drift detection at the configured threshold. Deterministic from the
+ * options — same inputs, deep-equal record and drift state. Delegates to
+ * `runDomainCalibration` with the football profile (REL-032 seam) —
+ * football behavior stays byte-identical.
+ */
+export function runCalibration(options: CalibrationRunOptions): CalibrationRunResult {
+  return runDomainCalibration<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick>(
+    footballDomainOptions(options),
+  );
 }

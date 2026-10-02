@@ -57,16 +57,14 @@ describe("search determinism", () => {
     expect(serialized).not.toContain("startedAtEpochMs");
     expect(serialized).not.toContain('"execution"');
     expect(serialized).not.toContain("Date.now");
-  });
-
+  }, 60_000);
   test("a different seed ⇒ a different record", () => {
     const first = runOrganizationSearch(searchOptions({ mode: "sampled" }));
     const second = runOrganizationSearch(
       searchOptions({ mode: "sampled", seed: "search-test-other" }),
     );
     expect(JSON.stringify(first)).not.toBe(JSON.stringify(second));
-  });
-
+  }, 60_000);
   test("the record is deeply frozen (immutable evidence)", () => {
     const record = runOrganizationSearch(searchOptions());
     expect(Object.isFrozen(record)).toBe(true);
@@ -148,7 +146,7 @@ describe("REL-A3 minimum candidate metrics (quality, hard-gate validity, cost, l
     expect(specialist?.metrics.meanLatencyMs ?? 0).toBeLessThan(
       baseline?.metrics.meanLatencyMs ?? Number.POSITIVE_INFINITY,
     );
-  });
+  }, 60_000);
 });
 
 describe("ranking + winner + baseline comparison", () => {

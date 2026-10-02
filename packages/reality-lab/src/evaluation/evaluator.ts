@@ -114,17 +114,26 @@ function isWellEvidencedClaim(claim: LabClaim, knownEvidence: ReadonlySet<string
 }
 
 /**
- * The football lab evaluator v0.2: seven measured dimensions, three honest
- * not-measured markers, hard gates as typed refusals, and the FULL reward
- * engine attached per run (REL-007 delegation).
+ * The GENERIC lab evaluator factory (REL-032): the v0.2 evaluation logic —
+ * seven measured dimensions (fidelity F1, identity continuity, temporal
+ * consistency, latency, cost, reliability, compute-usage), three honest
+ * not-measured renderer-in-the-loop markers, hard gates as typed refusals,
+ * and the FULL reward engine attached per run — parameterized by the
+ * domain's evaluator identity, declared reward dimensions and reward
+ * engine. The football evaluator (below) delegates with the football
+ * constants; the basketball evaluator (../domain/basketball's profile)
+ * delegates with the basketball constants — identical logic, per-domain
+ * identity, so the §3 "quality evaluators" bullet is one seam.
  */
-export function createFootballLabEvaluator(
-  options: { rewardEngine?: RewardEngine } = {},
-): LabEvaluator {
-  const rewardEngine = options.rewardEngine ?? createFootballRewardEngine();
+export function createLabEvaluator(options: {
+  evaluatorId: string;
+  version: string;
+  dimensions: readonly RewardDimension[];
+  rewardEngine: RewardEngine;
+}): LabEvaluator {
   return {
-    evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
-    version: FOOTBALL_LAB_EVALUATOR_VERSION,
+    evaluatorId: options.evaluatorId,
+    version: options.version,
     evaluate(evidence: LabEvaluatorEvidence): LabEvaluatorResult {
       const dimensions: LabDimensionScore[] = [];
       // --- event-source-fidelity: F1 over (claims <-> event-record observations).
@@ -235,7 +244,7 @@ export function createFootballLabEvaluator(
       });
 
       // --- the three renderer-in-the-loop dimensions (REL-007 territory).
-      for (const dimension of FOOTBALL_REWARD_DIMENSIONS) {
+      for (const dimension of options.dimensions) {
         if (
           dimension.dimensionId === "motion-fidelity" ||
           dimension.dimensionId === "camera-scene-correctness" ||
@@ -255,18 +264,18 @@ export function createFootballLabEvaluator(
         .map((dimension) => dimension.score as number);
       // REL-007: the full engine — weighted aggregate + typed hard-invalid
       // refusal — attached alongside the unchanged v0 fields.
-      const reward = rewardEngine.score({
+      const reward = options.rewardEngine.score({
         dimensionScores: dimensions,
         hardGateViolations: evidence.violations,
         provenance: {
           runId: evidence.runId,
-          evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
-          evaluatorVersion: FOOTBALL_LAB_EVALUATOR_VERSION,
+          evaluatorId: options.evaluatorId,
+          evaluatorVersion: options.version,
         },
       });
       return {
-        evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
-        version: FOOTBALL_LAB_EVALUATOR_VERSION,
+        evaluatorId: options.evaluatorId,
+        version: options.version,
         dimensions,
         overall: meanOf(measuredScores),
         valid: evidence.violations.length === 0,
@@ -275,6 +284,24 @@ export function createFootballLabEvaluator(
       };
     },
   };
+}
+
+/**
+ * The football lab evaluator v0.2: seven measured dimensions, three honest
+ * not-measured markers, hard gates as typed refusals, and the FULL reward
+ * engine attached per run (REL-007 delegation). Since REL-032 this is the
+ * football binding of the generic `createLabEvaluator` factory —
+ * byte-identical behavior, one evaluation seam for every domain pack.
+ */
+export function createFootballLabEvaluator(
+  options: { rewardEngine?: RewardEngine } = {},
+): LabEvaluator {
+  return createLabEvaluator({
+    evaluatorId: FOOTBALL_LAB_EVALUATOR_ID,
+    version: FOOTBALL_LAB_EVALUATOR_VERSION,
+    dimensions: FOOTBALL_REWARD_DIMENSIONS,
+    rewardEngine: options.rewardEngine ?? createFootballRewardEngine(),
+  });
 }
 
 /** The declared reward dimensions this v0 evaluator knows how to score. */

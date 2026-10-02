@@ -333,7 +333,7 @@ export function createRewardEngine(options: {
 }
 
 // ---------------------------------------------------------------------------
-// The football weight sets (versioned) + the football engine convenience
+// The standard weight-set family (REL-032) + the football engine convenience
 // ---------------------------------------------------------------------------
 
 const QUALITY_DIMENSIONS = [
@@ -346,7 +346,7 @@ const QUALITY_DIMENSIONS = [
 ] as const;
 const EFFICIENCY_DIMENSIONS = ["latency", "cost", "reliability", "compute-usage"] as const;
 
-function footballWeights(
+function doubledWeights(
   dimensions: readonly RewardDimension[],
   boost: readonly string[],
 ): Record<string, number> {
@@ -360,34 +360,53 @@ function footballWeights(
 }
 
 /**
- * The versioned football weight sets: the balanced set (the pack's declared
- * weights), a quality-first set (fidelity/consistency/stylization doubled),
- * and an efficiency-first set (latency/cost/reliability/compute doubled).
+ * The standard VERSIONED weight-set family for any domain pack (REL-032):
+ * the balanced set (the pack's declared weights, verbatim), a quality-first
+ * set (fidelity/continuity/consistency/motion/scene/stylization doubled),
+ * and an efficiency-first set (latency/cost/reliability/compute doubled) —
+ * parameterized by the domain id, so every pack gets the same three-set
+ * registry shape. `footballRewardWeightSets` (below) delegates with
+ * "football" and produces byte-identical sets to the v0 inline form; the
+ * basketball engine binds the same helper with "basketball".
  */
-export function footballRewardWeightSets(
+export function standardRewardWeightSets(
+  domainId: string,
   dimensions: readonly RewardDimension[],
 ): readonly RewardWeightSet[] {
   return [
     {
-      weightSetId: "football-balanced",
+      weightSetId: `${domainId}-balanced`,
       version: "0.1",
-      description: "The football pack's declared weights, verbatim.",
+      description: `The ${domainId} pack's declared weights, verbatim.`,
       weights: Object.fromEntries(dimensions.map((d) => [d.dimensionId, d.weight])),
     },
     {
-      weightSetId: "football-quality-first",
+      weightSetId: `${domainId}-quality-first`,
       version: "0.1",
-      description:
-        "Quality dimensions (fidelity, continuity, consistency, motion, scene, stylization) doubled.",
-      weights: footballWeights(dimensions, QUALITY_DIMENSIONS),
+      description: `Quality dimensions (fidelity, continuity, consistency, motion, scene, stylization) doubled.`,
+      weights: doubledWeights(dimensions, QUALITY_DIMENSIONS),
     },
     {
-      weightSetId: "football-efficiency-first",
+      weightSetId: `${domainId}-efficiency-first`,
       version: "0.1",
       description: "Efficiency dimensions (latency, cost, reliability, compute) doubled.",
-      weights: footballWeights(dimensions, EFFICIENCY_DIMENSIONS),
+      weights: doubledWeights(dimensions, EFFICIENCY_DIMENSIONS),
     },
   ];
+}
+
+/**
+ * The versioned football weight sets: the balanced set (the pack's declared
+ * weights), a quality-first set (fidelity/consistency/stylization doubled),
+ * and an efficiency-first set (latency/cost/reliability/compute doubled).
+ * Since REL-032 this delegates to `standardRewardWeightSets("football", ...)`
+ * — the produced sets are byte-identical to the v0 inline form (ids,
+ * versions, descriptions, weights), pinned by the reward-engine tests.
+ */
+export function footballRewardWeightSets(
+  dimensions: readonly RewardDimension[],
+): readonly RewardWeightSet[] {
+  return standardRewardWeightSets("football", dimensions);
 }
 
 /** The versioned football weight sets over the pack's declared dimensions. */
