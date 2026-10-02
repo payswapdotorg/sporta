@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "bun run --filter '@sporta/*' typecheck"
+    "typecheck": "bun run --filter '@sporta/*' typecheck",
+    "typecheck:series": "bash scripts/ci/typecheck-series.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

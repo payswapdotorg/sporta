@@ -20,8 +20,8 @@ jobs:
         run: bun install
       - name: Lint
         run: bun run lint
-      - name: Typecheck
-        run: bun run typecheck
+      - name: Typecheck (sequential — memory discipline on the 2-vCPU hosted runner)
+        run: bun run typecheck:series
       - name: Test
         run: bun test
       - name: Check formatting
