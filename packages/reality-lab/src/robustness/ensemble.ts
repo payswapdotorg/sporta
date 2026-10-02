@@ -4,7 +4,9 @@
  * expected score, variance/uncertainty, seed robustness. (The remaining §9
  * fields — simulator-model agreement, OOD score, cost/latency
  * distribution, known failure envelope, corpus coverage — belong to later
- * slices that have the calibration and corpus seams.)
+ * slices that have the calibration and corpus seams; REL-025's
+ * ./benchmark.ts is that later slice, and it REUSES this module's
+ * aggregate verbatim — same object references, never re-derived.)
  *
  * THE LAWS:
  * - every run's seed derives deterministically from the ensemble base seed
@@ -17,22 +19,39 @@
  *   an ensemble record is pure evidence, no wall clock inside;
  * - the whole record carries the lab-simulation provenance class — an
  *   ensemble of simulations is never production truth.
+ *
+ * REL-032 SEAM NOTE: since the seam generalization the runner logic lives
+ * in `runDomainEnsemble` (below), flowing through `DomainPack` (the §3
+ * contract, via `DomainPackLabView`) + `DomainSimulationProfile`
+ * (../simulation/domain-profile) with the domain's OWN scenario generator
+ * (`domainPack.scenarioGenerator`) and derived evaluator
+ * (`profile.createLabEvaluator()`); the football facade (`runEnsemble`)
+ * delegates with the football profile — football behavior stays
+ * byte-identical, and the seam-neutrality tests pin
+ * `runEnsemble default ≡ derived ≡ explicit`.
  */
 import { contentId } from "../hash";
 import { LAB_SIMULATION_PROVENANCE } from "../provenance";
-import type { FaultProfile } from "../domain/domain-pack";
+import type { FaultProfile, ScenarioConfigBase, ScenarioRecordBase } from "../domain/domain-pack";
 import type { FootballDomainPack } from "../domain/football";
-import { generateFootballScenario, type FootballScenarioConfig } from "../domain/scenario";
+import type { FootballScenarioConfig, FootballScenarioRecord } from "../domain/scenario";
+import type {
+  DomainPackLabView,
+  DomainRunnerScenario,
+  DomainRunnerTick,
+  DomainSimulationProfile,
+} from "../simulation/domain-profile";
+import { footballDomainSimulationProfile } from "../simulation/football-profile";
+import type { SimulatedTick } from "../simulation/world-simulator";
 import { generateFaultSchedule } from "./faults";
 import {
-  deterministicLabRun,
-  runLab,
-  type DeterministicLabRun,
-  type LabRunRecord,
+  deterministicDomainLabRun,
+  runDomainLab,
+  type DomainLabRunRecord,
+  type DeterministicDomainLabRun,
   type OrganizationRuntimeBundle,
-} from "../simulation/lab-run";
+} from "../simulation/domain-lab-run";
 import type { LabEvaluator } from "../evaluation/evaluator";
-import { createFootballLabEvaluator } from "../evaluation/evaluator";
 
 // ---------------------------------------------------------------------------
 // The aggregate (§9 subset) — pure, hand-checkable
@@ -88,10 +107,16 @@ function statsOf(values: readonly (number | null)[]): ScoreStats {
 /**
  * Aggregate run records into the §9 robustness subset. PURE: the same runs
  * always yield the same aggregate — the test suite hand-checks the
- * arithmetic on fixed synthetic scores.
+ * arithmetic on fixed synthetic scores. Accepts ANY domain's run views
+ * (REL-032): the arithmetic reads only `metrics` and `trajectoryHash`.
  */
-export function aggregateLabRuns(
-  runs: readonly (LabRunRecord | DeterministicLabRun)[],
+export function aggregateLabRuns<
+  TScenario extends ScenarioRecordBase = ScenarioRecordBase,
+  TTick extends DomainRunnerTick = DomainRunnerTick,
+>(
+  runs: readonly (
+    DomainLabRunRecord<TScenario, TTick> | DeterministicDomainLabRun<TScenario, TTick>
+  )[],
 ): EnsembleAggregate {
   const overalls = runs.map((run) => run.metrics.overall);
   const overallStats = statsOf(overalls);
@@ -132,19 +157,23 @@ export function aggregateLabRuns(
 }
 
 // ---------------------------------------------------------------------------
-// The ensemble record + runner
+// The ensemble record + runner (generic, REL-032)
 // ---------------------------------------------------------------------------
 
-/** The ensemble record: N deterministic run views + the aggregate. */
-export interface EnsembleRecord {
+/** The generic ensemble record: N deterministic run views + the aggregate. */
+export interface DomainEnsembleRecord<
+  TConfig extends ScenarioConfigBase = ScenarioConfigBase,
+  TScenario extends ScenarioRecordBase<TConfig> = ScenarioRecordBase<TConfig>,
+  TTick extends DomainRunnerTick = DomainRunnerTick,
+> {
   schemaVersion: "lab-ensemble/0.1";
   ensembleId: string;
   baseSeed: string;
   size: number;
   organization: { organizationId: string; version: number };
-  scenarioConfig: FootballScenarioConfig;
+  scenarioConfig: TConfig;
   faultProfileId: string | null;
-  runs: readonly DeterministicLabRun[];
+  runs: readonly DeterministicDomainLabRun<TScenario, TTick>[];
   aggregate: EnsembleAggregate;
   provenance: {
     provenanceClass: typeof LAB_SIMULATION_PROVENANCE;
@@ -152,31 +181,46 @@ export interface EnsembleRecord {
   };
 }
 
-export interface EnsembleOptions {
-  domainPack: FootballDomainPack;
+/** The generic ensemble options (the pack view + the simulation profile). */
+export interface DomainEnsembleOptions<
+  TConfig extends ScenarioConfigBase = ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig> = DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick = DomainRunnerTick,
+> {
+  domainPack: DomainPackLabView<TConfig, TScenario>;
+  simulationProfile: DomainSimulationProfile<TScenario, TTick>;
   organization: OrganizationRuntimeBundle;
   baseSeed: string;
   /** Number of seeded runs (>= 1). */
   size: number;
-  scenarioConfig?: Partial<FootballScenarioConfig>;
+  scenarioConfig?: Partial<TConfig>;
   /** When provided, a per-run seeded fault schedule is injected. */
   faultProfile?: FaultProfile;
   evaluator?: LabEvaluator;
 }
 
 /**
- * Run the ensemble: N runs with deterministic per-run seeds, aggregated
- * into the §9 robustness subset. Same (baseSeed, size, config,
- * organization, profile) ⇒ deep-equal record.
+ * Run the generic ensemble: N runs with deterministic per-run seeds, each
+ * generated by the domain pack's OWN scenario generator, aggregated into
+ * the §9 robustness subset. Same (baseSeed, size, config, organization,
+ * profile) ⇒ deep-equal record. The default evaluator is DERIVED from the
+ * simulation profile (equivalent to passing the domain's evaluator
+ * explicitly — the seam-neutrality tests pin this).
  */
-export function runEnsemble(options: EnsembleOptions): EnsembleRecord {
-  const { domainPack, organization } = options;
-  const evaluator = options.evaluator ?? createFootballLabEvaluator();
+export function runDomainEnsemble<
+  TConfig extends ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick,
+>(
+  options: DomainEnsembleOptions<TConfig, TScenario, TTick>,
+): DomainEnsembleRecord<TConfig, TScenario, TTick> {
+  const { domainPack, simulationProfile, organization } = options;
+  const evaluator = options.evaluator ?? simulationProfile.createLabEvaluator();
   const size = Math.max(1, Math.floor(options.size));
-  const runViews: DeterministicLabRun[] = [];
+  const runViews: DeterministicDomainLabRun<TScenario, TTick>[] = [];
   for (let index = 0; index < size; index++) {
     const runSeed = `${options.baseSeed}::ensemble:${index}`;
-    const scenario = generateFootballScenario(runSeed, options.scenarioConfig);
+    const scenario = domainPack.scenarioGenerator.generate(runSeed, options.scenarioConfig);
     const faultSchedule =
       options.faultProfile !== undefined
         ? generateFaultSchedule({
@@ -185,21 +229,22 @@ export function runEnsemble(options: EnsembleOptions): EnsembleRecord {
             profile: options.faultProfile,
           })
         : undefined;
-    const record = runLab({
+    const record = runDomainLab({
       domainPack,
+      simulationProfile,
       organization,
       scenario,
       faultSchedule,
       evaluator,
     });
-    runViews.push(deterministicLabRun(record));
+    runViews.push(deterministicDomainLabRun(record));
   }
   const aggregate = aggregateLabRuns(runViews);
-  const scenarioConfig = generateFootballScenario(
+  const scenarioConfig = domainPack.scenarioGenerator.generate(
     `${options.baseSeed}::config`,
     options.scenarioConfig,
   ).config;
-  const record: EnsembleRecord = {
+  const record: DomainEnsembleRecord<TConfig, TScenario, TTick> = {
     schemaVersion: "lab-ensemble/0.1",
     ensembleId: "",
     baseSeed: options.baseSeed,
@@ -228,4 +273,54 @@ export function runEnsemble(options: EnsembleOptions): EnsembleRecord {
     runIds: runViews.map((run) => run.runId),
   });
   return record;
+}
+
+// ---------------------------------------------------------------------------
+// The football facade (the v0 public surface, unchanged)
+// ---------------------------------------------------------------------------
+
+/** The ensemble record: N deterministic run views + the aggregate. */
+export type EnsembleRecord = DomainEnsembleRecord<
+  FootballScenarioConfig,
+  FootballScenarioRecord,
+  SimulatedTick
+>;
+
+export interface EnsembleOptions {
+  domainPack: FootballDomainPack;
+  organization: OrganizationRuntimeBundle;
+  baseSeed: string;
+  /** Number of seeded runs (>= 1). */
+  size: number;
+  scenarioConfig?: Partial<FootballScenarioConfig>;
+  /** When provided, a per-run seeded fault schedule is injected. */
+  faultProfile?: FaultProfile;
+  evaluator?: LabEvaluator;
+}
+
+function domainOptions(
+  options: EnsembleOptions,
+): DomainEnsembleOptions<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick> {
+  return {
+    domainPack: options.domainPack,
+    simulationProfile: footballDomainSimulationProfile,
+    organization: options.organization,
+    baseSeed: options.baseSeed,
+    size: options.size,
+    scenarioConfig: options.scenarioConfig,
+    faultProfile: options.faultProfile,
+    evaluator: options.evaluator,
+  };
+}
+
+/**
+ * Run the ensemble: N runs with deterministic per-run seeds, aggregated
+ * into the §9 robustness subset. Same (baseSeed, size, config,
+ * organization, profile) ⇒ deep-equal record. Delegates to
+ * `runDomainEnsemble` with the football profile (REL-032 seam).
+ */
+export function runEnsemble(options: EnsembleOptions): EnsembleRecord {
+  return runDomainEnsemble<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick>(
+    domainOptions(options),
+  );
 }

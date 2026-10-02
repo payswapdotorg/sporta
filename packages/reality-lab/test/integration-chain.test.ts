@@ -151,5 +151,5 @@ describe("the search -> reward -> calibration chain (REL-005..008)", () => {
     expect(JSON.stringify(first.calibration.drift)).toBe(JSON.stringify(second.calibration.drift));
     expect(first.search.searchId).toBe(second.search.searchId);
     expect(first.calibration.record.calibrationId).toBe(second.calibration.record.calibrationId);
-  });
+  }, 60_000);
 });

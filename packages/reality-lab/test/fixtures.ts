@@ -14,6 +14,10 @@ import {
   createGeneralistScriptedRuntime,
   footballDomainPack,
   generateFootballScenario,
+  BASKETBALL_HARD_INVALIDITY_RULES,
+  BASKETBALL_LAB_EVALUATOR_ID,
+  BASKETBALL_LAB_EVALUATOR_VERSION,
+  basketballDomainPack,
   type AgentOrganizationDefinition,
   type AgentBodyDefinition,
   type DeterministicLabRun,
@@ -170,5 +174,58 @@ export function baseOrganizationInput(): MutableOrganization {
       total: { maxCallsPerRun: 200, maxCostUsdPerRun: 2 },
     },
     termination: { conditions: [{ kind: "max-ticks", maxTicks: 50 }] },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Basketball fixtures (REL-032) — the mandatory generalist baseline over the
+// SECOND domain pack, through the same body/organization/runtime seams
+// ---------------------------------------------------------------------------
+
+/** A small, fast basketball scenario config (200 ticks at a 100ms tick). */
+export const BASKETBALL_SMALL_SCENARIO = { matchDurationMs: 20_000, tickMs: 100 } as const;
+
+/** A 10-minute basketball scenario config (exercises the full event taxonomy). */
+export const BASKETBALL_LONG_SCENARIO = { matchDurationMs: 600_000, tickMs: 100 } as const;
+
+/**
+ * The generalist baseline bundle over the basketball pack: the mandatory
+ * single-agent comparison point (contract §Required baselines) with the
+ * SAME deterministic scripted policy — the domain-neutral generalist works
+ * over the second pack unchanged, which is the REL-032 seam proof.
+ */
+export function basketballGeneralistBundle(): {
+  bundle: OrganizationRuntimeBundle;
+  body: AgentBodyDefinition;
+  definition: AgentOrganizationDefinition;
+  runtime: ModelRuntime;
+} {
+  const runtime = createGeneralistScriptedRuntime();
+  const body = createGeneralistBody({
+    domainPackId: basketballDomainPack.domainPackId,
+    evaluator: {
+      evaluatorId: BASKETBALL_LAB_EVALUATOR_ID,
+      version: BASKETBALL_LAB_EVALUATOR_VERSION,
+    },
+    hardRuleIds: BASKETBALL_HARD_INVALIDITY_RULES.map((rule) => rule.ruleId),
+  });
+  const definition = createGeneralistOrganization({
+    body,
+    binding: {
+      modelId: "generalist-scripted-policy",
+      modelVersion: "0.1.0",
+      runtimeId: runtime.runtimeId,
+      runtimeVersion: "0.1.0",
+    },
+  });
+  return {
+    bundle: {
+      definition,
+      bodies: [body],
+      runtimes: new Map([[runtime.runtimeId, runtime]]),
+    },
+    body,
+    definition,
+    runtime,
   };
 }

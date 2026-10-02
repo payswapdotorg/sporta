@@ -68,6 +68,22 @@
  *   CalibrationPort adapter interface with configured drift detection (a
  *   recorded state, never an exception), and the deterministic driver with
  *   known injected perturbations
+ * - `simulation/domain-profile` + `simulation/domain-lab-run` (REL-032):
+ *   the DomainSimulationProfile seam (how a domain RUNS in the generic lab:
+ *   simulator factory, identity ground truth, period label, derived
+ *   evaluator/reward engine) and the generic runner `runDomainLab` — the
+ *   football entry points delegate, so `DomainPack` + profile is the ONE
+ *   seam every domain plugs into (architecture §3, gate REL-A9)
+ * - `domain/basketball` + `simulation/basketball-simulator` (REL-032): the
+ *   SECOND domain pack — the full §3 contract at football's v0 depth, the
+ *   deterministic four-quarter world simulator with discrete-correct
+ *   rim-crossing physics, and the basketball simulation profile
+ * - `robustness/benchmark` (REL-025): `runRobustnessBenchmark` completes
+ *   the architecture §9 record — the REL-003 aggregate reused verbatim,
+ *   measured simulator-model agreement, an OOD family scored through the
+ *   same arithmetic, per-run simulated cost/latency distributions, a
+ *   severity-multiplied failure-envelope sweep with a measured boundary,
+ *   and versioned corpus coverage
  *
  * BOUNDARY DISCIPLINE: the organization lifecycle/promotion authority is
  * `@sporta/organization-registry` (REL-017..019); this package carries no
@@ -385,3 +401,141 @@ export type {
   CalibrationTimestampWindow,
   ObservationSourceClass,
 } from "./calibration/calibration";
+
+// ---------------------------------------------------------------------------
+// REL-032: the domain seam (DomainSimulationProfile + the generic runner)
+// ---------------------------------------------------------------------------
+
+// the seam types
+export type {
+  DomainAppliedFault,
+  DomainPackLabView,
+  DomainRunnerScenario,
+  DomainRunnerTick,
+  DomainSimulator,
+  DomainSimulationProfile,
+  DomainSourceTiming,
+} from "./simulation/domain-profile";
+export { assertProfileMatchesPack } from "./simulation/domain-profile";
+
+// the generic lab runner (the football facade `runLab` delegates here)
+export {
+  assertDomainLabRunReproduces,
+  deterministicDomainLabRun,
+  replayDomainLabRun,
+  runDomainLab,
+} from "./simulation/domain-lab-run";
+export type {
+  DeterministicDomainLabRun,
+  DomainLabRunOptions,
+  DomainLabRunRecord,
+} from "./simulation/domain-lab-run";
+
+// the football profile
+export { footballDomainSimulationProfile } from "./simulation/football-profile";
+
+// the generic ensemble/search/calibration drivers (the football facades delegate)
+export { runDomainEnsemble } from "./robustness/ensemble";
+export type { DomainEnsembleOptions, DomainEnsembleRecord } from "./robustness/ensemble";
+export { runDomainOrganizationSearch } from "./orgsearch/search";
+export type { DomainOrganizationSearchOptions, DomainSearchResultRecord } from "./orgsearch/search";
+export { runDomainCalibration } from "./calibration/calibration";
+export type {
+  DomainCalibrationPerturbations,
+  DomainCalibrationRunOptions,
+} from "./calibration/calibration";
+
+// the shared hard-invalidity rule factory + the generic claim checker
+export { checkLabClaims, createStandardHardInvalidityRules } from "./domain/domain-pack";
+
+// the generic evaluator factory + the standard reward weight-set family
+export { createLabEvaluator } from "./evaluation/evaluator";
+export { standardRewardWeightSets } from "./reward/engine";
+
+// the domain-neutral candidate space + the basketball space
+export {
+  createBasketballCandidateSpace,
+  createDomainCandidateSpace,
+  defaultBasketballCandidateSpaceConfig,
+} from "./orgsearch/candidates";
+
+// ---------------------------------------------------------------------------
+// REL-032: the basketball domain pack (the second domain through the seam)
+// ---------------------------------------------------------------------------
+
+export {
+  BASKETBALL_ACTION_SPACE,
+  BASKETBALL_CAPABILITIES,
+  BASKETBALL_ENTITY_TYPES,
+  BASKETBALL_EVENT_TAXONOMY,
+  BASKETBALL_FAULT_PROFILES,
+  BASKETBALL_HARD_INVALIDITY_RULES,
+  BASKETBALL_OBSERVATION_TAXONOMY,
+  BASKETBALL_QUALITY_EVALUATORS,
+  BASKETBALL_RENDER_TARGETS,
+  BASKETBALL_REWARD_DIMENSIONS,
+  BASKETBALL_REWARD_WEIGHT_SETS,
+  BASKETBALL_DOMAIN_PACK_ID,
+  BASKETBALL_DOMAIN_PACK_VERSION,
+  BASKETBALL_LAB_EVALUATOR_ID,
+  BASKETBALL_LAB_EVALUATOR_VERSION,
+  BasketballBallStateSchema,
+  BasketballCourtFrameSchema,
+  BasketballOfficialStateSchema,
+  BasketballPlayerStateSchema,
+  BasketballWorldStateSchema,
+  basketballDomainPack,
+  basketballRewardWeightSets,
+  basketballScenarioGenerator,
+  checkBasketballClaims,
+  createBasketballLabEvaluator,
+  createBasketballRewardEngine,
+  generateBasketballScenario,
+} from "./domain/basketball";
+export type {
+  BasketballBallState,
+  BasketballBroadcastFrameObservation,
+  BasketballBroadcastVisiblePlayer,
+  BasketballDomainPack,
+  BasketballEventRecordObservation,
+  BasketballObservation,
+  BasketballOfficialState,
+  BasketballPlayerState,
+  BasketballScenarioConfig,
+  BasketballScenarioPlayer,
+  BasketballScenarioRecord,
+  BasketballSimEvent,
+  BasketballTrackingSampleObservation,
+  BasketballWorldState,
+} from "./domain/basketball";
+
+// the basketball world simulator + profile
+export {
+  basketballDomainSimulationProfile,
+  createBasketballWorldSimulator,
+} from "./simulation/basketball-simulator";
+export type {
+  BasketballAppliedFault,
+  BasketballSimulatedTick,
+  BasketballSimulatorOptions,
+  BasketballSourceTiming,
+  BasketballWorldSimulator,
+} from "./simulation/basketball-simulator";
+
+// ---------------------------------------------------------------------------
+// REL-025: the robustness benchmark (the completed §9 record)
+// ---------------------------------------------------------------------------
+
+export { runRobustnessBenchmark } from "./robustness/benchmark";
+export type {
+  BenchmarkCorpusCoverage,
+  CorpusCoverageFamily,
+  CostLatencyDistribution,
+  FailureEnvelopeSeverityRow,
+  KnownFailureEnvelope,
+  RobustnessBenchmarkOptions,
+  RobustnessOodFamily,
+  RobustnessRecord,
+  SimulatorModelAgreement,
+  SimulatorModelClaimAgreement,
+} from "./robustness/benchmark";

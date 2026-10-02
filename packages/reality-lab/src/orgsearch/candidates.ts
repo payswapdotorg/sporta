@@ -375,17 +375,21 @@ export function defaultFootballCandidateSpaceConfig(): CandidateSpaceConfig {
 }
 
 /**
- * Build the football candidate space. The grid is the full §5 product below
- * `config`'s ranges, pruned by the declared couplings (a "single" topology is
- * exactly one body; communication needs peers; delegation depth is capped by
- * the body count). Enumeration order is FIXED (dimension order, values in
- * declared order) so the same config always enumerates identically.
+ * Build the DOMAIN-NEUTRAL candidate space (REL-032): the grid is the full
+ * §5 product below `config`'s ranges, pruned by the declared couplings (a
+ * "single" topology is exactly one body; communication needs peers;
+ * delegation depth is capped by the body count). Enumeration order is
+ * FIXED (dimension order, values in declared order) so the same config
+ * always enumerates identically. `domainLabel` only names the space id —
+ * the grid, roles, bodies and scripted policies are domain-generic (the
+ * candidate-space machinery never touches domain semantics).
  */
-export function createFootballCandidateSpace(
-  config: CandidateSpaceConfig = defaultFootballCandidateSpaceConfig(),
+export function createDomainCandidateSpace(
+  domainLabel: string,
+  config: CandidateSpaceConfig,
 ): OrganizationCandidateSpace {
   validateSpaceConfig(config);
-  const spaceId = `football-candidate-space:${contentId({
+  const spaceId = `${domainLabel}-candidate-space:${contentId({
     kind: "candidate-space/0.1",
     config,
   })}`;
@@ -1266,4 +1270,54 @@ export function parameterizedVariantsFamily(): CandidateFamily {
 /** All three fixture families at once (the §Required baselines comparison set). */
 export function fixtureCandidateFamilies(): readonly CandidateFamily[] {
   return [generalistBaselineFamily(), handDesignedPipelineFamily(), parameterizedVariantsFamily()];
+}
+
+// ---------------------------------------------------------------------------
+// The per-domain space facades (REL-032) — the v0 football surface plus basketball
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the football candidate space: the domain-neutral grid bound to the
+ * football config (delegates to `createDomainCandidateSpace("football", ...)`
+ * — the space id and every produced point are byte-identical to the v0
+ * inline form, pinned by the candidate-space tests).
+ */
+export function createFootballCandidateSpace(
+  config: CandidateSpaceConfig = defaultFootballCandidateSpaceConfig(),
+): OrganizationCandidateSpace {
+  return createDomainCandidateSpace("football", config);
+}
+
+/** The default basketball candidate-space configuration (REL-032). */
+export function defaultBasketballCandidateSpaceConfig(): CandidateSpaceConfig {
+  return {
+    domainPackId: "basketball",
+    evaluatorRef: { evaluatorId: "basketball-lab-evaluator", version: "0.1.0" },
+    hardRuleIds: [
+      "fabricated-canonical-event",
+      "fabricated-identity-as-fact",
+      "rights-policy-violation",
+      "impossible-output-claim",
+      "provenance-bypass",
+      "invalid-artifact-lineage",
+    ],
+    maxBodyCount: 4,
+    maxDelegationDepth: 3,
+    latencyBudgetsMs: [500, 1000, 2000],
+    totalCallsBudget: 600,
+    totalCostBudgetUsd: 3,
+    defaultMaxTicks: 2000,
+  };
+}
+
+/**
+ * Build the basketball candidate space (REL-032): the SAME domain-neutral
+ * grid, roles, scripted policies and honesty rules, bound to the
+ * basketball pack's config — the §5 search space is domain-neutral by
+ * construction, proven by running it over the basketball pack.
+ */
+export function createBasketballCandidateSpace(
+  config: CandidateSpaceConfig = defaultBasketballCandidateSpaceConfig(),
+): OrganizationCandidateSpace {
+  return createDomainCandidateSpace("basketball", config);
 }

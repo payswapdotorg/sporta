@@ -34,16 +34,21 @@
 import { contentId } from "../hash";
 import { LabValidationError } from "../errors";
 import { LAB_SIMULATION_PROVENANCE } from "../provenance";
-import type { FaultProfile } from "../domain/domain-pack";
+import type { FaultProfile, ScenarioConfigBase, ScenarioRecordBase } from "../domain/domain-pack";
 import type { FootballDomainPack } from "../domain/football";
-import type { FootballScenarioConfig } from "../domain/scenario";
-import { generateFootballScenario } from "../domain/scenario";
-import type { DeterministicLabRun } from "../simulation/lab-run";
-import { runEnsemble } from "../robustness/ensemble";
+import type { FootballScenarioConfig, FootballScenarioRecord } from "../domain/scenario";
+import type {
+  DomainPackLabView,
+  DomainRunnerScenario,
+  DomainRunnerTick,
+  DomainSimulationProfile,
+} from "../simulation/domain-profile";
+import { footballDomainSimulationProfile } from "../simulation/football-profile";
+import type { SimulatedTick } from "../simulation/world-simulator";
+import type { DeterministicDomainLabRun } from "../simulation/domain-lab-run";
+import { runDomainEnsemble } from "../robustness/ensemble";
 import type { LabEvaluator } from "../evaluation/evaluator";
-import { createFootballLabEvaluator } from "../evaluation/evaluator";
 import type { RewardEngine } from "../reward/engine";
-import { createFootballRewardEngine } from "../reward/engine";
 import type {
   CandidateSpacePoint,
   MaterializedCandidate,
@@ -123,8 +128,11 @@ export interface BaselineComparison {
   summary: string;
 }
 
-/** The immutable search result record. */
-export interface SearchResultRecord {
+/**
+ * The immutable GENERIC search result record (REL-032): the same fields as
+ * the v0 record, with the scenario config typed by the domain's own config.
+ */
+export interface DomainSearchResultRecord<TConfig extends ScenarioConfigBase = ScenarioConfigBase> {
   schemaVersion: "lab-org-search/0.1";
   searchId: string;
   seed: string;
@@ -136,7 +144,7 @@ export interface SearchResultRecord {
     ensembleSize: number;
     budgetCeilingUsd: number;
     latencyCeilingMs: number;
-    scenarioConfig: FootballScenarioConfig;
+    scenarioConfig: TConfig;
     faultProfileId: string | null;
     evaluatorId: string;
     evaluatorVersion: string;
@@ -169,9 +177,43 @@ export interface SearchResultRecord {
   };
 }
 
+/** The immutable football search result record (the v0 public shape). */
+export type SearchResultRecord = DomainSearchResultRecord<FootballScenarioConfig>;
+
 // ---------------------------------------------------------------------------
 // The search options + driver
 // ---------------------------------------------------------------------------
+
+/**
+ * The generic search options (REL-032): the pack view + simulation profile
+ * replace the football pack; the default evaluator and reward engine are
+ * DERIVED from the profile (matching the v0 football defaults exactly).
+ */
+export interface DomainOrganizationSearchOptions<
+  TConfig extends ScenarioConfigBase = ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig> = DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick = DomainRunnerTick,
+> {
+  domainPack: DomainPackLabView<TConfig, TScenario>;
+  simulationProfile: DomainSimulationProfile<TScenario, TTick>;
+  space: OrganizationCandidateSpace;
+  seed: string;
+  mode: OrganizationSearchMode;
+  /** BOUND: at most this many candidates evaluated (baseline included). */
+  maxCandidates: number;
+  /** Seeded runs per candidate (>= 1). */
+  ensembleSize: number;
+  /** BOUND: cumulative simulated cost ceiling across all evaluated runs. */
+  budgetCeilingUsd: number;
+  /** BOUND: per-candidate mean simulated action-latency ceiling (ms). */
+  latencyCeilingMs: number;
+  scenarioConfig?: Partial<TConfig>;
+  faultProfile?: FaultProfile;
+  evaluator?: LabEvaluator;
+  rewardEngine?: RewardEngine;
+  /** Defaults to the engine's default weight set. */
+  weightSetId?: string;
+}
 
 export interface OrganizationSearchOptions {
   domainPack: FootballDomainPack;
@@ -203,7 +245,9 @@ function meanOfNullable(values: readonly (number | null)[]): number | null {
   return meanOf(values.filter((value): value is number => value !== null));
 }
 
-function meanActionLatency(run: DeterministicLabRun): number | null {
+function meanActionLatency(
+  run: DeterministicDomainLabRun<ScenarioRecordBase, DomainRunnerTick>,
+): number | null {
   if (run.actions.length === 0) return null;
   return (
     run.actions.reduce((sum, action) => sum + action.simulatedLatencyMs, 0) / run.actions.length
@@ -254,15 +298,20 @@ export function rankCandidateEvaluations(
     .map((evaluation, index) => ({ ...evaluation, rank: index + 1 }));
 }
 
-function evaluateCandidate(
-  options: OrganizationSearchOptions,
+function evaluateCandidate<
+  TConfig extends ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick,
+>(
+  options: DomainOrganizationSearchOptions<TConfig, TScenario, TTick>,
   candidate: MaterializedCandidate,
   engine: RewardEngine,
   evaluator: LabEvaluator,
 ): { evaluation: CandidateEvaluation; runCostTotalUsd: number } {
   const baseSeed = `${options.seed}::cand:${candidate.candidateId}`;
-  const ensemble = runEnsemble({
+  const ensemble = runDomainEnsemble({
     domainPack: options.domainPack,
+    simulationProfile: options.simulationProfile,
     organization: candidate.bundle,
     baseSeed,
     size: options.ensembleSize,
@@ -330,10 +379,19 @@ function evaluateCandidate(
 }
 
 /**
- * Run the bounded organization search. Deterministic from
- * (seed, options): the same inputs yield a deep-equal, frozen record.
+ * Run the bounded GENERIC organization search (REL-032). Deterministic from
+ * (seed, options): the same inputs yield a deep-equal, frozen record. The
+ * default reward engine and evaluator are DERIVED from the simulation
+ * profile (matching the v0 football defaults exactly — the seam-neutrality
+ * tests pin this equivalence).
  */
-export function runOrganizationSearch(options: OrganizationSearchOptions): SearchResultRecord {
+export function runDomainOrganizationSearch<
+  TConfig extends ScenarioConfigBase,
+  TScenario extends DomainRunnerScenario<TConfig>,
+  TTick extends DomainRunnerTick,
+>(
+  options: DomainOrganizationSearchOptions<TConfig, TScenario, TTick>,
+): DomainSearchResultRecord<TConfig> {
   if (!Number.isInteger(options.maxCandidates) || options.maxCandidates < 1) {
     throw new LabValidationError("maxCandidates must be an integer >= 1");
   }
@@ -346,10 +404,11 @@ export function runOrganizationSearch(options: OrganizationSearchOptions): Searc
   if (options.latencyCeilingMs < 0) {
     throw new LabValidationError("latencyCeilingMs must be >= 0");
   }
-  const engine = options.rewardEngine ?? createFootballRewardEngine();
-  const evaluator = options.evaluator ?? createFootballLabEvaluator({ rewardEngine: engine });
+  const engine = options.rewardEngine ?? options.simulationProfile.createRewardEngine();
+  const evaluator =
+    options.evaluator ?? options.simulationProfile.createLabEvaluator({ rewardEngine: engine });
   const weightSet = engine.weightSetFor(options.weightSetId);
-  const scenarioConfig = generateFootballScenario(
+  const scenarioConfig = options.domainPack.scenarioGenerator.generate(
     `${options.seed}::config`,
     options.scenarioConfig,
   ).config;
@@ -449,7 +508,7 @@ export function runOrganizationSearch(options: OrganizationSearchOptions): Searc
           `quality ${qualityDelta?.toFixed(4)} (cost ${costDelta?.toFixed(4)} USD, ` +
           `latency ${latencyDelta?.toFixed(2)} ms — negative deltas favor the winner)`;
 
-  const record: SearchResultRecord = {
+  const record: DomainSearchResultRecord<TConfig> = {
     schemaVersion: "lab-org-search/0.1",
     searchId: "",
     seed: options.seed,
@@ -537,4 +596,41 @@ export function runOrganizationSearch(options: OrganizationSearchOptions): Searc
     ranking: record.ranking,
   });
   return deepFreeze(record);
+}
+
+// ---------------------------------------------------------------------------
+// The football facade (the v0 public surface, unchanged)
+// ---------------------------------------------------------------------------
+
+function footballDomainOptions(
+  options: OrganizationSearchOptions,
+): DomainOrganizationSearchOptions<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick> {
+  return {
+    domainPack: options.domainPack,
+    simulationProfile: footballDomainSimulationProfile,
+    space: options.space,
+    seed: options.seed,
+    mode: options.mode,
+    maxCandidates: options.maxCandidates,
+    ensembleSize: options.ensembleSize,
+    budgetCeilingUsd: options.budgetCeilingUsd,
+    latencyCeilingMs: options.latencyCeilingMs,
+    scenarioConfig: options.scenarioConfig,
+    faultProfile: options.faultProfile,
+    evaluator: options.evaluator,
+    rewardEngine: options.rewardEngine,
+    weightSetId: options.weightSetId,
+  };
+}
+
+/**
+ * Run the bounded organization search. Deterministic from
+ * (seed, options): the same inputs yield a deep-equal, frozen record.
+ * Delegates to `runDomainOrganizationSearch` with the football profile
+ * (REL-032 seam) — football behavior stays byte-identical.
+ */
+export function runOrganizationSearch(options: OrganizationSearchOptions): SearchResultRecord {
+  return runDomainOrganizationSearch<FootballScenarioConfig, FootballScenarioRecord, SimulatedTick>(
+    footballDomainOptions(options),
+  );
 }

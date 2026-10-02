@@ -352,3 +352,213 @@ export interface DomainPack<
  * is NEVER production truth".
  */
 export const LabSimulationProvenanceLiteral = z.literal(LAB_SIMULATION_PROVENANCE);
+
+// ---------------------------------------------------------------------------
+// The shared hard-invalidity rule set (REL-032) — the six ADR-013 §8 gate
+// classes as one reusable factory
+// ---------------------------------------------------------------------------
+
+/**
+ * The six ADR-013 §8 hard invalidity gate classes, as pure check functions
+ * over the `LabClaim` model (REL-032). The rules are DOMAIN-NEUTRAL by
+ * construction — they judge claims against the run context (received
+ * evidence, declared render targets, scenario duration, run id, the
+ * lab-simulation provenance law), never against domain semantics. Football
+ * (REL-001) shipped them inline; this factory is the extracted, byte-identical
+ * form so a second domain pack gets the SAME six gates through the same seam
+ * instead of copy-pasting them. Packs that need stricter domain gates may
+ * append their own rules AFTER these.
+ *
+ * The six classes:
+ * 1. fabricated canonical event (no / not-yet-received evidence);
+ * 2. fabricated identity presented as fact (inference laundered into fact);
+ * 3. violation of declared rights/policy (output without a rights basis);
+ * 4. impossible/unsupported output claim (undeclared target / out-of-window);
+ * 5. bypassed provenance (a non-lab-simulation class inside a lab run);
+ * 6. invalid artifact lineage (lineage not rooting at the run).
+ */
+export function createStandardHardInvalidityRules(): readonly HardInvalidityRule[] {
+  const fabricatedCanonicalEventRule: HardInvalidityRule = {
+    ruleId: "fabricated-canonical-event",
+    description:
+      "A canonical event emitted with no (or not-yet-received) supporting observation. " +
+      "Events the organization did not receive as evidence are fabrications.",
+    check(claim: LabClaim, context: HardInvalidityContext): HardInvalidityViolation | null {
+      if (claim.claimKind !== "canonical-event") return null;
+      const unknown = claim.evidenceRefs.filter((ref) => !context.knownEvidenceRefs.has(ref));
+      if (claim.evidenceRefs.length === 0 || unknown.length > 0) {
+        return {
+          ruleId: this.ruleId,
+          claimId: claim.claimId,
+          reason:
+            claim.evidenceRefs.length === 0
+              ? "canonical event emitted with ZERO evidence references"
+              : `canonical event cites evidence the run never provided: ${unknown.join(", ")}`,
+          evidence: { eventKindId: claim.eventKindId, unknownEvidenceRefs: [...unknown] },
+        };
+      }
+      return null;
+    },
+  };
+
+  const fabricatedIdentityRule: HardInvalidityRule = {
+    ruleId: "fabricated-identity-as-fact",
+    description:
+      "An identity inferred (or without evidence) but PRESENTED AS FACT. Inference is " +
+      "legitimate; laundering inference into fact is a hard-invalidity violation.",
+    check(claim: LabClaim): HardInvalidityViolation | null {
+      if (claim.claimKind !== "identity-assertion") return null;
+      const inferringAsFact = claim.presentedAs === "fact" && claim.basis === "inferred";
+      const factWithoutEvidence = claim.presentedAs === "fact" && claim.evidenceRefs.length === 0;
+      if (inferringAsFact || factWithoutEvidence) {
+        return {
+          ruleId: this.ruleId,
+          claimId: claim.claimId,
+          reason: inferringAsFact
+            ? `identity for ${claim.entityId} was INFERRED but presented as fact`
+            : `identity for ${claim.entityId} presented as fact without any evidence`,
+          evidence: {
+            entityId: claim.entityId,
+            presentedAs: claim.presentedAs,
+            basis: claim.basis,
+          },
+        };
+      }
+      return null;
+    },
+  };
+
+  const rightsPolicyRule: HardInvalidityRule = {
+    ruleId: "rights-policy-violation",
+    description:
+      "An output claim produced without a declared rights basis. Transformation without " +
+      "a declared basis violates the rights first-class boundary.",
+    check(claim: LabClaim): HardInvalidityViolation | null {
+      if (claim.claimKind !== "output-claim") return null;
+      if (claim.rightsBasis === null || claim.rightsBasis.length === 0) {
+        return {
+          ruleId: this.ruleId,
+          claimId: claim.claimId,
+          reason: `output claim for target ${claim.renderTargetId} carries NO rights basis`,
+          evidence: { renderTargetId: claim.renderTargetId, rightsBasis: claim.rightsBasis },
+        };
+      }
+      return null;
+    },
+  };
+
+  const impossibleOutputRule: HardInvalidityRule = {
+    ruleId: "impossible-output-claim",
+    description:
+      "A claim of an output the pack cannot produce (undeclared render target) or at a " +
+      "clock time outside the scenario duration.",
+    check(claim: LabClaim, context: HardInvalidityContext): HardInvalidityViolation | null {
+      if (claim.claimKind === "output-claim") {
+        if (!context.renderTargetIds.includes(claim.renderTargetId)) {
+          return {
+            ruleId: this.ruleId,
+            claimId: claim.claimId,
+            reason: `render target ${claim.renderTargetId} is not declared by the domain pack`,
+            evidence: {
+              renderTargetId: claim.renderTargetId,
+              declaredTargets: [...context.renderTargetIds],
+            },
+          };
+        }
+        if (claim.clockMs < 0 || claim.clockMs > context.scenarioDurationMs) {
+          return {
+            ruleId: this.ruleId,
+            claimId: claim.claimId,
+            reason: `output claimed at clock ${claim.clockMs}ms outside scenario duration ${context.scenarioDurationMs}ms`,
+            evidence: { clockMs: claim.clockMs, scenarioDurationMs: context.scenarioDurationMs },
+          };
+        }
+        return null;
+      }
+      if (claim.claimKind === "canonical-event") {
+        if (claim.clockMs < 0 || claim.clockMs > context.scenarioDurationMs) {
+          return {
+            ruleId: this.ruleId,
+            claimId: claim.claimId,
+            reason: `event claimed at clock ${claim.clockMs}ms outside scenario duration ${context.scenarioDurationMs}ms`,
+            evidence: { clockMs: claim.clockMs, scenarioDurationMs: context.scenarioDurationMs },
+          };
+        }
+      }
+      return null;
+    },
+  };
+
+  const provenanceBypassRule: HardInvalidityRule = {
+    ruleId: "provenance-bypass",
+    description:
+      "A lab-run claim whose provenance class is not lab-simulation. A lab run producing " +
+      "real-observation or historical-replay provenance bypasses the lab-to-production " +
+      "boundary — lab world state is NEVER production truth.",
+    check(claim: LabClaim): HardInvalidityViolation | null {
+      if (claim.provenanceClass !== LAB_SIMULATION_PROVENANCE) {
+        return {
+          ruleId: this.ruleId,
+          claimId: claim.claimId,
+          reason:
+            `lab-run claim carries provenance class '${claim.provenanceClass}' — only ` +
+            `'lab-simulation' is legal inside a lab run`,
+          evidence: { provenanceClass: claim.provenanceClass, claimKind: claim.claimKind },
+        };
+      }
+      return null;
+    },
+  };
+
+  const invalidArtifactLineageRule: HardInvalidityRule = {
+    ruleId: "invalid-artifact-lineage",
+    description:
+      "An output claim whose artifact lineage does not root at the run that produced it.",
+    check(claim: LabClaim, context: HardInvalidityContext): HardInvalidityViolation | null {
+      if (claim.claimKind !== "output-claim") return null;
+      const lineage = claim.artifactLineage;
+      if (lineage.length === 0 || lineage[0] !== context.runId) {
+        return {
+          ruleId: this.ruleId,
+          claimId: claim.claimId,
+          reason:
+            lineage.length === 0
+              ? "output claim carries an EMPTY artifact lineage"
+              : `artifact lineage does not root at run ${context.runId}`,
+          evidence: { artifactLineage: [...lineage], runId: context.runId },
+        };
+      }
+      return null;
+    },
+  };
+
+  return [
+    fabricatedCanonicalEventRule,
+    fabricatedIdentityRule,
+    rightsPolicyRule,
+    impossibleOutputRule,
+    provenanceBypassRule,
+    invalidArtifactLineageRule,
+  ];
+}
+
+/**
+ * Run a pack's hard invalidity rules over a claim list, collecting EVERY
+ * firing violation in rule order (REL-032). This is the generic form of the
+ * per-pack claim checkers (`checkFootballClaims`, `checkBasketballClaims`):
+ * a typed refusal list — evidence, never an exception.
+ */
+export function checkLabClaims(
+  claims: readonly LabClaim[],
+  rules: readonly HardInvalidityRule[],
+  context: HardInvalidityContext,
+): HardInvalidityViolation[] {
+  const violations: HardInvalidityViolation[] = [];
+  for (const claim of claims) {
+    for (const rule of rules) {
+      const violation = rule.check(claim, context);
+      if (violation !== null) violations.push(violation);
+    }
+  }
+  return violations;
+}

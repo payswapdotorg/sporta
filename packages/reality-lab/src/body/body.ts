@@ -118,7 +118,15 @@ export const LabBodyInputSchema = z.object({
   runId: z.string().min(1),
   tickIndex: z.number().int().min(0),
   clockMs: z.number().int().min(0),
-  period: z.union([z.literal(1), z.literal(2)]),
+  /**
+   * The domain's period/phase label (REL-032): football runs 1|2 halves,
+   * basketball 1..4 quarters — the generic body contract carries ANY
+   * positive integer; the DOMAIN PACK defines its semantics (the
+   * DomainSimulationProfile's `periodOf` supplies the value). Widened from
+   * the v0 football literal union `1|2` when the seam generalized — every
+   * previously-valid football input (1, 2) remains valid.
+   */
+  period: z.number().int().min(1),
   observations: z.array(
     z.object({
       observationId: z.string().min(1),
