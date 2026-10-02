@@ -230,9 +230,91 @@
  *     threshold — so an ANY-frame or single-frame statistic passes the
  *     structure; the per-frame MEDIAN refuses it). A refused candidate is
  *     skipped (the chain continues), its typed refusal recorded as the
- *     chain entry — `broadcast-line.ellipse-conic-off-pitch`. Fires ONLY
- *     when ellipseMultiConicSelection is on: the default surface never
- *     runs it (byte-identical).
+ *     chain entry — `broadcast-line.ellipse-conic-off-pitch`. Fires when
+ *     ellipseMultiConicSelection is on AND — v0.6.0 — for every
+ *     prior-seeded candidate on the penalty-arc-prior path (the prior
+ *     family carries its own gate application: the b3-a goal/net
+ *     structure class must not re-enter through the prior). The default
+ *     surface (both options off) never runs it (byte-identical).
+ * E2d. v0.6.0 THE PENALTY-ARC-CONIC PRIOR (OPT-IN, default false — the
+ *     `penaltyArcPrior` option; fires only inside the ellipse-constrained
+ *     path, which itself runs only after the line path's refusal, E0): the
+ *     FIXED-GEOMETRY candidate family for behind-goal views. The recorded
+ *     defect (the v0.4.1 chain's measured end state): on behind-goal
+ *     views (the b3-a class) the ENTIRE evidence-derived candidate set is
+ *     structure-anchored — the goal/net curves win the RANSAC support, the
+ *     grass-support gate correctly refuses them (median interior green
+ *     0.000-0.073), the center circle is out of view, and the VISIBLE
+ *     penalty arc yields no center-circle-quota-passing candidate (the
+ *     painted "D" spans only 2·acos((16.5 − 11)/9.15) ≈ 106.10° ≈ 10.6 of
+ *     the 36 10°-coverage bins — the 12-bin center-circle quota refuses
+ *     the arc's own honest full-paint coverage BY GEOMETRY, not by
+ *     noise). The prior SUPPLIES candidates: it seeds (image conic,
+ *     FIXED world circle) pairs — the world side is the penalty arc's
+ *     circle from the module's own canonical pitch-model constants
+ *     (PENALTY_SPOT_LEFT_X = 11 / PENALTY_SPOT_RIGHT_X = 94, cy = 34,
+ *     ARC_RADIUS_M = 9.15, the painted clip at PENALTY_FRONT_X — BOTH
+ *     ends enumerated, left first), the image side comes from the SAME
+ *     arc-evidence fit machinery the chain uses (the per-component fits
+ *     of the sub-dominance arc components FIRST — the same source-priority
+ *     discipline: a dominance-dropped structure is recoverable only
+ *     there — then the global ranked re-fits, band-refined as the
+ *     chain's global runners-up are; NO band refinement on the component
+ *     fits, the same measured-drift rationale), each gated by the
+ *     PENALTY-ARC FAMILY QUOTA: support >= ELLIPSE_MIN_SUPPORT_PX (90,
+ *     UNCHANGED — support is image-side, family-independent) AND
+ *     coverage >= ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS — 10 bins,
+ *     DERIVED from the fixed painted geometry (floor of the painted
+ *     span's own 10°-bin count: a full-paint "D" covers ~10.6 bins, so
+ *     the quota demands the support span essentially the whole painted
+ *     arc while a fragment — e.g. a 40° arc at ~4 bins — still refuses).
+ *     The family quota is a SUPPLY-side gate calibrated to the family's
+ *     own fixed marking; the ACCEPTANCE bar (E6 lineFit / backward /
+ *     ellipse residual / confidence, the E2c grass gate, the E6b
+ *     containment gate) is UNCHANGED and runs on every prior candidate —
+ *     the prior never bypasses or relaxes the hypothesis → refinement →
+ *     validation flow. The E4/E5/E6 machinery runs with the family's
+ *     world circle: the pole-polar/Q anchors, the 1-DOF scan point (the
+ *     painted apex), and the ellipse reward/residual terms over the
+ *     PAINTED ARC's sample points (every 2° over the painted span — the
+ *     family's full marking, exactly as the center-circle family samples
+ *     its full 360° painted circle). Prior candidates run AFTER every
+ *     evidence-derived candidate (the fixed-geometry family is the LAST
+ *     supply: a window any evidence candidate calibrates never reaches
+ *     them). If the prior's candidates cannot evidence, the refusal is
+ *     TYPED with per-candidate records — every conicChain entry and
+ *     refusal detail carries the prior provenance (`prior: "penalty-arc"`
+ *     + `priorEnd: "left" | "right"`) so the record distinguishes
+ *     prior-seeded from evidence-derived candidates; when the prior
+ *     seeds NOTHING (no conic over the arc evidence nor any component
+ *     passes the family quota) and the center-circle quota also failed,
+ *     the typed `broadcast-line.ellipse-penalty-arc-prior-unevidenced`
+ *     refusal fires with the family's best measured support/coverage.
+ *     THE PRIOR FAMILY'S OWN GATE APPLICATION (v0.6.0, the measured
+ *     false-positive closure): the E2c grass gate, the E6b area-form
+ *     containment gate, AND the GEOMETRIC containment gate
+ *     (`broadcast-line.ellipse-prior-quad-containment`) run on every
+ *     prior-seeded solve — the projected pitch quad (the image of the
+ *     105x68 rectangle under H⁻¹) must GEOMETRICALLY contain the prior
+ *     conic's center (the quad convex, consistently oriented, the center
+ *     strictly inside). The invariant is exact, not a threshold: the
+ *     family's world circle (the FULL 360° circle, r = 9.15 at the
+ *     penalty spot) lies strictly inside the pitch rectangle (its disk's
+ *     nearest boundary approach is 1.85 m), so under ANY correct
+ *     homography the conic's interior (the disk's image, a convex subset
+ *     of the quad) contains the conic center inside the quad — a correct
+ *     solve CANNOT violate it. The measured defect it closes (the
+ *     synthetic fixtures, recorded in the v0.6.0 evidence addendum): a
+ *     prior-seeded candidate fitted over arc-crumb/sliver evidence can
+ *     pass every machine gate on a DEGENERATE solve that pulls the
+ *     out-of-view world arc INTO frame onto the sliver (worst-probe
+ *     errors 94.9-294.5 m at conf 0.636-0.814 measured BEFORE the gate;
+ *     every one of those solves projects the pitch as a thin
+ *     band/tiny quad with the conic center 4-85 px OUTSIDE it — the
+ *     invariant refuses them all). The default surface (both options
+ *     off) never runs any of these gates (byte-identical).
+ *     `false` (the default) restores the EXACT v0.5.0 behavior surface —
+ *     the prior never seeds (byte-identical).
  * E3. EVIDENCE QUOTA (typed refusal below): support >=
  *     ELLIPSE_MIN_SUPPORT_PX AND angular coverage >=
  *     ELLIPSE_MIN_COVERAGE_BINS of the 36 10°-bins around the conic.
@@ -385,9 +467,11 @@
  *     a single point ON the conic; the mean-residual gate is degenerately
  *     satisfiable by any point on the conic). Typed refusal
  *     `broadcast-line.ellipse-degenerate-grid` with the measured quad
- *     area / conic area / corner separation. Fires ONLY when
- *     ellipseMultiConicSelection is on: the default surface never runs
- *     it (byte-identical).
+ *     area / conic area / corner separation. Fires when
+ *     ellipseMultiConicSelection is on AND — v0.6.0 — for every prior-
+ *     seeded solve on the penalty-arc-prior path (the prior family
+ *     carries its own gate application); the default surface (both
+ *     options off) never runs it (byte-identical).
  * E7. OUTPUT: the same CalibrationResult shape; correspondenceCount = 5
  *     (the 4 circle/pole point anchors + the conic anchor; documented).
  *
@@ -449,7 +533,38 @@ import { isPitchGreen } from "../pixels";
 import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput } from "../adapter";
 
 /**
- * Stable technology identity of this candidate. v0.5.0 (behavior-surface
+ * Stable technology identity of this candidate. v0.6.0 (behavior-surface
+ * change on the OPT-IN penalty-arc-prior path only, E2d): when
+ * `penaltyArcPrior` is on, the ellipse path's candidate supply gains the
+ * FIXED-GEOMETRY penalty-arc family — (image conic, FIXED world circle)
+ * pairs seeded from the penalty arc's own canonical pitch-model geometry
+ * (PENALTY_SPOT_LEFT_X = 11 / PENALTY_SPOT_RIGHT_X = 94, cy = 34, r =
+ * ARC_RADIUS_M = 9.15, the painted clip at PENALTY_FRONT_X, both ends
+ * enumerated), the image conics from the SAME arc-evidence fit machinery
+ * the chain uses (per-component fits first, then the band-refined global
+ * re-fits), gated by the family quota (support >= 90 UNCHANGED; coverage
+ * >= 10 bins DERIVED from the fixed painted span 2·acos(5.5/9.15) ≈
+ * 106.10° ≈ 10.6 bins — the center-circle quota's 12 bins refuses the
+ * arc's own full-paint coverage BY GEOMETRY, the recorded b3-a defect).
+ * Every prior candidate runs the FULL hypothesis → refinement →
+ * validation flow with the family's world circle threading the E4/E5/E6
+ * machinery (the pole-polar/Q anchors, the 1-DOF scan point at the
+ * painted apex, the ellipse reward/residual over the painted arc's
+ * sample points) under the UNCHANGED acceptance bar INCLUDING the v0.4.1
+ * grass-support and containment gates (the prior family carries its own
+ * gate application — the b3-a goal/net structure class must not re-enter
+ * through the prior), PLUS the prior family's own GEOMETRIC containment
+ * gate (`broadcast-line.ellipse-prior-quad-containment` — the exact
+ * invariant that the projected pitch quad contains the prior conic's
+ * center; the measured false-positive closure for the degenerate
+ * arc-crumb/sliver solve class, module docs E2d); prior candidates run
+ * AFTER every evidence-derived
+ * candidate; every refusal record and conicChain entry carries the prior
+ * provenance (`prior: "penalty-arc"` + `priorEnd`), and a prior that
+ * seeds nothing (with the center-circle quota also failed) refuses with
+ * the typed `broadcast-line.ellipse-penalty-arc-prior-unevidenced`.
+ * The DEFAULT surface (prior off) is v0.5.0-exact byte-identical.
+ * v0.5.0 (behavior-surface
  * change on the OPT-IN anchor-conversion path only, E4b): when
  * `ellipseAnchorConversion` is on, a conic candidate's ellipse-path flow is
  * replaced by the J-ORTHOGONAL EXACT CLOSURE — the image conic (in
@@ -513,7 +628,7 @@ import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput 
  * unchanged — adapterVersion stays 0.1.0.
  */
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ID = "broadcast-line-calibrator";
-export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.5.0";
+export const BROADCAST_LINE_FIELD_CALIBRATOR_VERSION = "0.6.0";
 export const BROADCAST_LINE_FIELD_CALIBRATOR_ADAPTER_VERSION = "0.1.0";
 
 /**
@@ -590,6 +705,34 @@ export interface BroadcastLineCalibratorOptions {
    * path).
    */
   readonly ellipseAnchorConversion?: boolean;
+  /**
+   * v0.6.0: the penalty-arc-conic prior — the FIXED-GEOMETRY candidate
+   * family for behind-goal views (OPT-IN, default false). Fires only
+   * inside the ellipse-constrained path (which itself runs only after
+   * the line path's refusal, E0): the prior seeds (image conic, FIXED
+   * world circle) candidates — the penalty arc's circle from the
+   * canonical pitch-model constants (penalty spot 11/94, cy 34, r 9.15,
+   * the painted clip at the penalty-area front; BOTH ends enumerated) —
+   * with the image conics from the SAME arc-evidence fit machinery the
+   * chain uses, gated by the penalty-arc FAMILY quota (support >= 90
+   * unchanged; coverage >= 10 bins, derived from the fixed painted span
+   * ≈ 106.10° — the center-circle quota's 12 bins refuses the painted
+   * arc's own full coverage by geometry, the recorded b3-a defect).
+   * Every prior candidate runs the FULL hypothesis → refinement →
+   * validation flow under the UNCHANGED bar including the v0.4.1
+   * grass-support and containment gates PLUS the prior family's own
+   * GEOMETRIC containment gate (the projected pitch quad must contain
+   * the prior conic's center — the exact invariant, module docs E2d;
+   * `broadcast-line.ellipse-prior-quad-containment`); prior candidates
+   * run AFTER every evidence-derived candidate; every refusal record
+   * carries the prior provenance. A prior that seeds nothing (with the
+   * center-circle quota also failed) refuses with the typed
+   * `broadcast-line.ellipse-penalty-arc-prior-unevidenced`. `false`
+   * (the default) restores the EXACT v0.5.0 behavior surface — the
+   * prior never seeds (the measurement driver uses the option to record
+   * the v0.6.0 path).
+   */
+  readonly penaltyArcPrior?: boolean;
 }
 
 const BROADCAST_LINE_DEFAULTS = {
@@ -622,6 +765,20 @@ const BROADCAST_LINE_DEFAULTS = {
   // per-candidate records are the delivery; the recovery claim is NOT
   // made.
   ellipseAnchorConversion: false,
+  // v0.6.0 ships the penalty-arc-conic prior OPT-IN (default false): the
+  // fixed-geometry family SUPPLIES candidates the center-circle quota
+  // refuses by geometry (the painted "D" spans ~106° ≈ 10.6 of the 36
+  // coverage bins — the 12-bin center-circle quota refuses the arc's own
+  // full-paint coverage; the recorded b3-a defect: no grass-backed
+  // evidence-derived candidate exists on behind-goal views). The
+  // acceptance bar is UNCHANGED and gates every prior candidate (the
+  // v0.4.1 grass/containment gates included — the prior family carries
+  // its own gate application so the b3-a goal/net structure class cannot
+  // re-enter through the prior); the default surface (prior off) is
+  // v0.5.0-exact byte-identical. The prior stays opt-in pending the
+  // measured real-corpus outcome + the VLM visual gate on any newly
+  // calibrated window (the w5h2/v0.4.0 doctrine).
+  penaltyArcPrior: false,
 } as const;
 
 /** Documented failure classes of the broadcast-line field calibrator. */
@@ -730,6 +887,43 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
       "guard; the conic hard guard). The per-candidate anchor record — " +
       "the scan solves enumerated and the count converted — rides the " +
       "refusal details. Typed refusal, never a fabricated closure.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-penalty-arc-prior-unevidenced",
+    description:
+      "v0.6.0 penalty-arc-conic prior (OPT-IN path only, E2d): the prior " +
+      "seeded NOTHING — no conic fitted over the arc evidence (nor over " +
+      "any sub-dominance arc component) passed the penalty-arc family " +
+      'quota (support >= 90 px UNCHANGED + coverage >= the painted "D" ' +
+      "arc's own bin span, 10 of the 36 10°-bins, derived from the fixed " +
+      "pitch-model geometry) — while the evidence-derived center-circle " +
+      "quota also failed. The prior SUPPLIES candidates only; when it " +
+      "cannot, the refusal is typed with the family's best measured " +
+      "support and coverage riding the details. Typed refusal — never a " +
+      "calibration fabricated from the fixed geometry alone.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-prior-quad-containment",
+    description:
+      "v0.6.0 penalty-arc-conic prior (OPT-IN path only, E2d): a prior- " +
+      "seeded solve that passed every machine gate (lineFit / backward / " +
+      "ellipse residual / confidence) AND the E2c grass + E6b area-form " +
+      "containment gates still projects the pitch as a quad that does NOT " +
+      "geometrically contain the prior conic (the quad non-convex or the " +
+      "conic center strictly outside it). The containment invariant is " +
+      "exact: the family's world circle lies strictly inside the pitch " +
+      "rectangle, so under ANY correct homography the conic's interior " +
+      "(the disk's image) — and with it the conic center — lies inside " +
+      "the projected quad; a violation proves the solve mapped the " +
+      "fixed-geometry arc onto evidence it cannot explain (the measured " +
+      "degenerate class: solves that pull an out-of-view world arc into " +
+      "frame onto arc-crumb/sliver conics, worst-probe errors 94.9-294.5 " +
+      "m at machine-passing confidences, refused by this gate). The " +
+      "refusal carries the projected corners, the conic center, and the " +
+      "minimum signed edge distance. Typed refusal, never a laundered " +
+      "solve.",
     retryable: false,
   },
 ];
@@ -856,6 +1050,21 @@ const ARC_RADIUS_M = 9.15;
 /** Penalty-spot centers, 11 m from each goal line. */
 const PENALTY_SPOT_LEFT_X = 11;
 const PENALTY_SPOT_RIGHT_X = 94;
+/**
+ * v0.6.0 — the painted penalty-arc ("D" arc) geometry: each arc is the
+ * part of its penalty-spot circle OUTSIDE the penalty area (x >=
+ * PENALTY_FRONT_X at the left end, x <= 105 − PENALTY_FRONT_X at the
+ * right end — the MODEL_ARCS clip), so the painted angular span around
+ * the spot is 2·acos((PENALTY_FRONT_X − PENALTY_SPOT_LEFT_X)/ARC_RADIUS_M)
+ * = 2·acos(5.5/9.15) ≈ 1.8519 rad ≈ 106.10° at BOTH ends (the model is
+ * symmetric: 94 − 88.5 = 5.5 = 16.5 − 11). Derived from the module's own
+ * canonical pitch-model constants — no invented numbers.
+ */
+const PENALTY_ARC_PAINTED_HALF_ANGLE = Math.acos(
+  (PENALTY_FRONT_X - PENALTY_SPOT_LEFT_X) / ARC_RADIUS_M,
+);
+/** The painted span (radians) of one penalty arc: ≈ 1.8519 (≈ 106.10°). */
+const PENALTY_ARC_PAINTED_SPAN = 2 * PENALTY_ARC_PAINTED_HALF_ANGLE;
 
 const PITCH_LENGTH = 105;
 const PITCH_WIDTH = 68;
@@ -1777,6 +1986,33 @@ const ELLIPSE_MIN_SUPPORT_PX = 90;
 const ELLIPSE_MIN_COVERAGE_BINS = 12;
 /** Evidence quota: pixels per 10° bin to count it occupied. */
 const ELLIPSE_BIN_OCCUPANCY_PX = 2;
+/**
+ * v0.6.0 (E2d) — the penalty-arc family quota: angular coverage bins (of
+ * the same 36 10°-bin ring) that a PENALTY-ARC-prior candidate's support
+ * must occupy. DERIVED from the fixed painted geometry, not chosen: the
+ * painted "D" spans PENALTY_ARC_PAINTED_SPAN ≈ 1.8519 rad ≈ 106.10°, i.e.
+ * floor(106.10° / 10°) = 10 bins of its own conic ring — the quota demands
+ * the supporting evidence span essentially the whole painted arc while a
+ * fragment (e.g. a 40° arc at ~4 bins) still refuses. This is NOT a
+ * weakened center-circle quota: the center-circle family (a 360° painted
+ * marking) demands 12 bins of ITS OWN full-paint extent; the penalty-arc
+ * family (a ~106° painted marking) demands the floor of ITS OWN painted
+ * extent's bin count. The SUPPORT quota (ELLIPSE_MIN_SUPPORT_PX = 90) is
+ * UNCHANGED — support is image-side and family-independent. SUPPLY-side
+ * gate only: the acceptance bar (E6 + the v0.4.1 gates) never changes for
+ * any candidate of any family.
+ */
+const ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS = Math.floor(
+  (PENALTY_ARC_PAINTED_SPAN / (2 * Math.PI)) * 36,
+);
+/**
+ * v0.6.0 (E2d) — the prior's image-conic cap (the family's own candidate
+ * list, BEFORE the both-ends expansion): the same cap discipline as the
+ * chain's ELLIPSE_MAX_CONIC_CANDIDATES. Each kept conic expands to TWO
+ * prior candidates (left end first, right second), so the prior seeds at
+ * most 2x this many chain entries per window.
+ */
+const ELLIPSE_PENALTY_ARC_MAX_CONIC_CANDIDATES = 4;
 /** Hypothesis enumeration: max lines per image-orientation family entering the ellipse search. */
 const ELLIPSE_FAMILY_MAX_LINES = 4;
 /** Hypothesis enumeration: polar-line/circle intersection margin (m). */
@@ -2300,6 +2536,16 @@ interface ArcConicFit {
   readonly geometry: EllipseGeometry;
   readonly supportPx: number;
   readonly coverageBins: number;
+  /**
+   * v0.6.0 (E2d): the penalty-arc-conic prior provenance — `undefined` for
+   * every evidence-derived candidate (the center-circle interpretation,
+   * the v0.2.0–v0.5.0 surface); `"penalty-arc"` marks a prior-seeded
+   * candidate (the fixed-geometry family) so every chain entry and refusal
+   * record distinguishes prior-seeded from evidence-derived candidates.
+   */
+  readonly prior?: "penalty-arc";
+  /** Which penalty arc (the fixed world circle) a prior candidate carries. */
+  readonly priorEnd?: "left" | "right";
 }
 
 /**
@@ -2718,6 +2964,147 @@ function fitArcConicCandidates(
   return chain;
 }
 
+/**
+ * v0.6.0 (E2d) — the penalty-arc-conic prior's SEED result: the seeded
+ * prior candidates (image conic, fixed world circle) pairs, plus the
+ * family's best measured support/coverage over the source pool (the
+ * honest closest-miss record when nothing passes the family quota).
+ * Deterministic (the same fixed-seed LCG discipline inside every
+ * `rankedConicRefits` call, fixed source order).
+ */
+interface PenaltyArcPriorSeed {
+  /** The prior-seeded candidates (conic-major, end-minor: left first). */
+  readonly candidates: readonly ArcConicFit[];
+  /** The family's best measured support over the source pool (sub-quota included). */
+  readonly bestSupportPx?: number;
+  /** The family's best measured coverage bins over the source pool. */
+  readonly bestCoverageBins?: number;
+}
+
+/**
+ * v0.6.0 (E2d) — THE PENALTY-ARC-CONIC PRIOR'S CANDIDATE SEEDING (module
+ * docs E2d). The prior seeds (image conic, FIXED world circle) pairs:
+ *  - the IMAGE side comes from the SAME arc-evidence fit machinery the
+ *    chain uses, in the SAME source-priority order — the per-component
+ *    fits of the arc components FIRST (size desc, discovery order on
+ *    ties; a dominance-dropped structure is recoverable only there),
+ *    then the GLOBAL ranked re-fits BAND-REFINED exactly as the chain's
+ *    global runners-up are (the component fits get NO band refinement —
+ *    the same measured-drift rationale). Unlike the chain's global
+ *    source, the prior includes the rank-0 refit TOO: under the
+ *    center-circle interpretation it is the primary, but under the
+ *    penalty-arc family it is simply a candidate (on the recorded b3-a
+ *    window the primary IS the visible penalty arc's conic, quota-refused
+ *    by the center-circle coverage gate);
+ *  - every source conic is gated by the PENALTY-ARC FAMILY QUOTA (support
+ *    >= ELLIPSE_MIN_SUPPORT_PX UNCHANGED + coverage >=
+ *    ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS, the painted "D" arc's own
+ *    bin span derived from the fixed pitch-model geometry), deduplicated
+ *    by geometry within the family, capped at
+ *    ELLIPSE_PENALTY_ARC_MAX_CONIC_CANDIDATES conics;
+ *  - each kept conic expands to TWO prior candidates (the LEFT end first,
+ *    then the RIGHT — the two fixed world circles), so the seeded list is
+ *    at most 2x the conic cap; the world side is FIXED — the model
+ *    constants (penalty spot, pitch midline, ARC_RADIUS_M) — never fitted.
+ * PURE, deterministic (fixed LCG seed per fit invocation, fixed
+ * enumeration order). Empty candidates + the best measured numbers when
+ * the family quota refuses every source (the typed unevidenced record).
+ */
+function fitPenaltyArcPriorCandidates(
+  arcPixels: readonly number[],
+  components: readonly (readonly number[])[],
+  staticPixels: readonly number[],
+  width: number,
+  height: number,
+): PenaltyArcPriorSeed {
+  const pointCount = arcPixels.length / 2;
+  if (pointCount < ELLIPSE_MIN_ARC_PIXELS) {
+    return { candidates: [] };
+  }
+  // The source pool, in the chain's source-priority order. Each source
+  // carries its OWN evidence set — the component's pixels for a component
+  // fit, the global (dominance-filtered) arc pixels for a global re-fit —
+  // the same measurement discipline the chain's quota uses.
+  const sources: Array<{
+    readonly conic: EllipseConic;
+    readonly geometry: EllipseGeometry;
+    readonly measureOver: readonly number[];
+  }> = [];
+  const orderedComponents = components
+    .map((component, index) => ({ component, index }))
+    .sort((a, b) => b.component.length - a.component.length || a.index - b.index);
+  for (const { component } of orderedComponents) {
+    if (component.length / 2 < ELLIPSE_MIN_ARC_PIXELS) continue;
+    const componentRefits = rankedConicRefits(component, staticPixels, width, height);
+    if (componentRefits === undefined || componentRefits.length === 0) continue;
+    // NO band refinement for component fits (the same measured-drift
+    // rationale as the chain's component source — module docs E2b).
+    sources.push({
+      conic: componentRefits[0]!.conic,
+      geometry: componentRefits[0]!.geometry,
+      measureOver: component,
+    });
+  }
+  const globalRefits = rankedConicRefits(arcPixels, staticPixels, width, height);
+  if (globalRefits !== undefined) {
+    // INCLUDING rank 0 (the primary's conic — a plain family candidate
+    // under the prior; module docs E2d), band-refined exactly as the
+    // chain's global runners-up are.
+    for (const refit of globalRefits) {
+      const band = bandRefineConic(refit.conic, refit.geometry, staticPixels, width, height);
+      sources.push({ conic: band.conic, geometry: band.geometry, measureOver: arcPixels });
+    }
+  }
+  // The family quota + the best measured (sub-quota) numbers, the kept
+  // conics deduplicated by geometry within the family and capped.
+  const candidates: ArcConicFit[] = [];
+  const keptGeometries: EllipseGeometry[] = [];
+  let bestSupportPx: number | undefined;
+  let bestCoverageBins: number | undefined;
+  for (const source of sources) {
+    const support = conicSupportAndCoverage(source.geometry, source.measureOver);
+    if (
+      bestSupportPx === undefined ||
+      support.supportPx > bestSupportPx ||
+      (support.supportPx === bestSupportPx && support.coverageBins > (bestCoverageBins ?? 0))
+    ) {
+      bestSupportPx = support.supportPx;
+      bestCoverageBins = support.coverageBins;
+    }
+    if (
+      support.supportPx < ELLIPSE_MIN_SUPPORT_PX ||
+      support.coverageBins < ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS
+    ) {
+      continue;
+    }
+    if (keptGeometries.some((kept) => !conicsDistinct(kept, source.geometry))) continue;
+    if (keptGeometries.length >= ELLIPSE_PENALTY_ARC_MAX_CONIC_CANDIDATES) break;
+    keptGeometries.push(source.geometry);
+    // Each kept conic expands to TWO prior candidates — the LEFT end first,
+    // then the RIGHT (the two fixed world circles).
+    candidates.push(
+      {
+        conic: source.conic,
+        geometry: source.geometry,
+        ...support,
+        prior: "penalty-arc",
+        priorEnd: "left",
+      },
+      {
+        conic: source.conic,
+        geometry: source.geometry,
+        ...support,
+        prior: "penalty-arc",
+        priorEnd: "right",
+      },
+    );
+  }
+  return {
+    candidates,
+    ...(bestSupportPx !== undefined ? { bestSupportPx, bestCoverageBins } : {}),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // v0.2.0 — the mixed points+lines DLT hypothesis solver.
 // ---------------------------------------------------------------------------
@@ -2862,12 +3249,97 @@ const CIRCLE_CENTER_Y = MID_Y;
 const CIRCLE_R = ARC_RADIUS_M;
 
 /**
- * The polar line of a model line pair's intersection w.r.t. the world
- * circle: the diameter x = 52.5 (same-family y pair), y = 34 (same-family
- * x pair), or polar_circle(corner) for a cross-family pair. `undefined`
- * when the polar line does not cross the circle (margin-guarded).
+ * v0.6.0 (E2d) — one CONIC-ANCHOR FAMILY's world circle: the circle a
+ * fitted image conic is interpreted against (the E4 pole-polar/Q anchors,
+ * the E4b Lorentz world side, and the E5/E6 reward/residual sample set),
+ * plus the marking's PAINTED angular span `[angle0, angle0 + span)` and
+ * the 1-DOF scan's world anchor angle (any fixed point on the circle
+ * closes the scan's parameterization; the families use the painted
+ * apex). The center-circle family (the v0.2.0–v0.5.0 surface, the ONLY
+ * family the default path ever uses) is the default parameter value of
+ * every family-aware function below — byte-identical threading.
+ */
+export interface BroadcastWorldCircle {
+  /** Circle center (canonical pitch meters). */
+  readonly cx: number;
+  readonly cy: number;
+  /** Circle radius (meters). */
+  readonly r: number;
+  /** The painted marking's angular span start (radians, atan2 convention). */
+  readonly angle0: number;
+  /** The painted marking's angular span length (radians). */
+  readonly span: number;
+  /** The 1-DOF scan's world anchor angle — a fixed painted point. */
+  readonly scanAngle: number;
+}
+
+/** The center circle family: the full 360° painted marking, scan angle 0. */
+const CENTER_CIRCLE_FAMILY: BroadcastWorldCircle = {
+  cx: CIRCLE_CENTER_X,
+  cy: CIRCLE_CENTER_Y,
+  r: CIRCLE_R,
+  angle0: 0,
+  span: 2 * Math.PI,
+  scanAngle: 0,
+};
+
+/**
+ * v0.6.0 — the LEFT penalty arc's family (E2d): the fixed circle around
+ * the LEFT penalty spot (PENALTY_SPOT_LEFT_X, 34, ARC_RADIUS_M), painted
+ * only OUTSIDE the penalty area (the MODEL_ARCS clip at x ≥
+ * PENALTY_FRONT_X → angles within ±PENALTY_ARC_PAINTED_HALF_ANGLE of 0);
+ * the scan anchor is the painted apex at angle 0 ((20.15, 34)).
+ */
+const LEFT_PENALTY_ARC_FAMILY: BroadcastWorldCircle = {
+  cx: PENALTY_SPOT_LEFT_X,
+  cy: MID_Y,
+  r: ARC_RADIUS_M,
+  angle0: -PENALTY_ARC_PAINTED_HALF_ANGLE,
+  span: PENALTY_ARC_PAINTED_SPAN,
+  scanAngle: 0,
+};
+
+/**
+ * v0.6.0 — the RIGHT penalty arc's family (E2d): the mirror of the left
+ * (circle around (PENALTY_SPOT_RIGHT_X, 34), painted x ≤ 105 −
+ * PENALTY_FRONT_X → angles within ±PENALTY_ARC_PAINTED_HALF_ANGLE of π);
+ * the scan anchor is the painted apex at angle π ((84.85, 34)).
+ */
+const RIGHT_PENALTY_ARC_FAMILY: BroadcastWorldCircle = {
+  cx: PENALTY_SPOT_RIGHT_X,
+  cy: MID_Y,
+  r: ARC_RADIUS_M,
+  angle0: Math.PI - PENALTY_ARC_PAINTED_HALF_ANGLE,
+  span: PENALTY_ARC_PAINTED_SPAN,
+  scanAngle: Math.PI,
+};
+
+/** The family of one conic-anchor candidate: the center circle unless the prior marked it. */
+function familyOfCandidate(fit: {
+  readonly prior?: "penalty-arc";
+  readonly priorEnd?: "left" | "right";
+}): BroadcastWorldCircle {
+  if (fit.prior === undefined) return CENTER_CIRCLE_FAMILY;
+  return fit.priorEnd === "right" ? RIGHT_PENALTY_ARC_FAMILY : LEFT_PENALTY_ARC_FAMILY;
+}
+
+/** The family's scan anchor point (the painted apex; the center circle's angle-0 point). */
+function familyScanWorldPoint(family: BroadcastWorldCircle): { x: number; y: number } {
+  return {
+    x: family.cx + family.r * Math.cos(family.scanAngle),
+    y: family.cy + family.r * Math.sin(family.scanAngle),
+  };
+}
+
+/**
+ * The polar line of a model line pair's intersection w.r.t. the family's
+ * world circle: the diameter x = cx (same-family y pair), y = cy
+ * (same-family x pair), or polar_circle(corner) for a cross-family pair.
+ * `undefined` when the polar line does not cross the circle
+ * (margin-guarded).
  */
 function worldPolarLineOfModelPair(
+  family: BroadcastWorldCircle,
   familyA: "x" | "y",
   valueA: number,
   familyB: "x" | "y",
@@ -2876,39 +3348,38 @@ function worldPolarLineOfModelPair(
   let line: [number, number, number];
   if (familyA === familyB) {
     if (familyA === "y") {
-      line = [1, 0, -CIRCLE_CENTER_X];
+      line = [1, 0, -family.cx];
     } else {
-      line = [0, 1, -CIRCLE_CENTER_Y];
+      line = [0, 1, -family.cy];
     }
   } else {
     // The corner (x-value, y-value) — which family supplies which axis.
     const cornerX = familyA === "x" ? valueA : valueB;
     const cornerY = familyA === "y" ? valueA : valueB;
-    const dx = cornerX - CIRCLE_CENTER_X;
-    const dy = cornerY - CIRCLE_CENTER_Y;
+    const dx = cornerX - family.cx;
+    const dy = cornerY - family.cy;
     // polar of (corner): (p−c)·(x−c) = r²  →  dx·x + dy·y − (dx·cx + dy·cy + r²) = 0.
-    line = [dx, dy, -(dx * CIRCLE_CENTER_X + dy * CIRCLE_CENTER_Y + CIRCLE_R * CIRCLE_R)];
+    line = [dx, dy, -(dx * family.cx + dy * family.cy + family.r * family.r)];
   }
   const normalized = normalizeLine(line);
-  const distance = Math.abs(
-    normalized[0] * CIRCLE_CENTER_X + normalized[1] * CIRCLE_CENTER_Y + normalized[2],
-  );
-  if (distance >= CIRCLE_R - ELLIPSE_POLAR_CIRCLE_MARGIN_M) return undefined;
+  const distance = Math.abs(normalized[0] * family.cx + normalized[1] * family.cy + normalized[2]);
+  if (distance >= family.r - ELLIPSE_POLAR_CIRCLE_MARGIN_M) return undefined;
   return normalized;
 }
 
 /**
- * The two intersections of a world line with the center circle (unit-normal
- * line input; `undefined` when it misses). Deterministic order (the
- * −halfChord side along (−b, a) first).
+ * The two intersections of a world line with the family's world circle
+ * (unit-normal line input; `undefined` when it misses). Deterministic order
+ * (the −halfChord side along (−b, a) first).
  */
 function worldLineCircleIntersections(
+  family: BroadcastWorldCircle,
   line: readonly number[],
 ): [{ x: number; y: number }, { x: number; y: number }] | undefined {
-  const foot = -(line[0]! * CIRCLE_CENTER_X + line[1]! * CIRCLE_CENTER_Y + line[2]!);
-  const fx = CIRCLE_CENTER_X + line[0]! * foot;
-  const fy = CIRCLE_CENTER_Y + line[1]! * foot;
-  const halfChordSquared = CIRCLE_R * CIRCLE_R - foot * foot;
+  const foot = -(line[0]! * family.cx + line[1]! * family.cy + line[2]!);
+  const fx = family.cx + line[0]! * foot;
+  const fy = family.cy + line[1]! * foot;
+  const halfChordSquared = family.r * family.r - foot * foot;
   if (halfChordSquared <= 0) return undefined;
   const halfChord = Math.sqrt(halfChordSquared);
   const dirX = -line[1]!;
@@ -3259,13 +3730,24 @@ function refineLineSubpixel(
   return { theta, rho };
 }
 
-/** World-circle sample points (every 2°) for the refinement/validation terms. */
-function worldCircleSamples(): Float64Array {
-  const samples = new Float64Array(ELLIPSE_CIRCLE_SAMPLES * 2);
-  for (let i = 0; i < ELLIPSE_CIRCLE_SAMPLES; i += 1) {
-    const angle = (i * 2 * Math.PI) / ELLIPSE_CIRCLE_SAMPLES;
-    samples[i * 2] = CIRCLE_CENTER_X + CIRCLE_R * Math.cos(angle);
-    samples[i * 2 + 1] = CIRCLE_CENTER_Y + CIRCLE_R * Math.sin(angle);
+/**
+ * The family's painted-marking sample points (every 2° over the painted
+ * span — the family's FULL marking, exactly as the center-circle family
+ * samples its full 360° circle) for the refinement/validation terms.
+ * v0.6.0 (E2d): parameterized over the conic-anchor family; for the
+ * center circle the count is ceil(span / 2°) = ELLIPSE_CIRCLE_SAMPLES and
+ * the angles are (span·i)/count = 2π·i/180 — the EXACT v0.2.0–v0.5.0
+ * samples, bit-for-bit. For a penalty arc (span ≈ 1.8519 rad) the count
+ * is 54 over the painted "D".
+ */
+function worldFamilySamples(family: BroadcastWorldCircle): Float64Array {
+  const step = (2 * Math.PI) / ELLIPSE_CIRCLE_SAMPLES;
+  const count = Math.max(2, Math.ceil(family.span / step));
+  const samples = new Float64Array(count * 2);
+  for (let i = 0; i < count; i += 1) {
+    const angle = family.angle0 + (family.span * i) / count;
+    samples[i * 2] = family.cx + family.r * Math.cos(angle);
+    samples[i * 2 + 1] = family.cy + family.r * Math.sin(angle);
   }
   return samples;
 }
@@ -3276,17 +3758,21 @@ function worldCircleSamples(): Float64Array {
  * (out-of-frame points carry no evidence); 0 when fewer than
  * ELLIPSE_MIN_IN_FRAME_FRACTION of the samples are in frame (a hypothesis
  * that pushes the circle out of view earns nothing). `width`/`height` are
- * pixel dims; the conic is in pixel coordinates.
+ * pixel dims; the conic is in pixel coordinates. v0.6.0: the sample set is
+ * the FAMILY's painted marking (the center circle by default —
+ * byte-identical; a penalty arc's painted span under the prior).
  */
 function ellipseRewardTerm(
   inverse: Homography,
   conic: EllipseConic,
   width: number,
   height: number,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): number {
   const geometry = conicGeometry(conic);
   if (geometry === undefined) return 0;
-  const samples = worldCircleSamples();
+  const samples = worldFamilySamples(family);
+  const sampleCount = samples.length / 2;
   let reward = 0;
   let inFrame = 0;
   for (let p = 0; p < samples.length; p += 2) {
@@ -3301,21 +3787,26 @@ function ellipseRewardTerm(
       Math.max(0, 1 - pointConicDistancePx(geometry, x, y) / ELLIPSE_REFINE_TOLERANCE_PX),
     );
   }
-  if (inFrame < ELLIPSE_MIN_IN_FRAME_FRACTION * ELLIPSE_CIRCLE_SAMPLES) return 0;
-  return reward / ELLIPSE_CIRCLE_SAMPLES;
+  if (inFrame < ELLIPSE_MIN_IN_FRAME_FRACTION * sampleCount) return 0;
+  return reward / sampleCount;
 }
 
-/** The mean conic residual (px) over in-frame projected circle points. */
+/**
+ * The mean conic residual (px) over in-frame projected circle points.
+ * v0.6.0: the sample set is the FAMILY's painted marking (the center
+ * circle by default — byte-identical).
+ */
 function ellipseMeanResidualPx(
   inverse: Homography,
   conic: EllipseConic,
   width: number,
   height: number,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): { meanPx: number; inFrame: number; inlierFraction: number } {
   const geometry = conicGeometry(conic);
   if (geometry === undefined)
     return { meanPx: Number.POSITIVE_INFINITY, inFrame: 0, inlierFraction: 0 };
-  const samples = worldCircleSamples();
+  const samples = worldFamilySamples(family);
   let sum = 0;
   let inFrame = 0;
   let inliers = 0;
@@ -3410,11 +3901,18 @@ function conicTangentAt(
   ];
 }
 
-/** The tangent line to the world center circle at one of its points. */
-function circleTangentAt(point: { x: number; y: number }): [number, number, number] {
-  const a = point.x - CIRCLE_CENTER_X;
-  const b = point.y - CIRCLE_CENTER_Y;
-  return normalizeLine([a, b, -(CIRCLE_R * CIRCLE_R + a * CIRCLE_CENTER_X + b * CIRCLE_CENTER_Y)]);
+/**
+ * The tangent line to the family's world circle at one of its points.
+ * v0.6.0: family-parameterized (the center circle by default — the same
+ * arithmetic, byte-identical).
+ */
+function circleTangentAt(
+  family: BroadcastWorldCircle,
+  point: { x: number; y: number },
+): [number, number, number] {
+  const a = point.x - family.cx;
+  const b = point.y - family.cy;
+  return normalizeLine([a, b, -(family.r * family.r + a * family.cx + b * family.cy)]);
 }
 
 /** A homogeneous px line converted to normalized image coordinates. */
@@ -3461,6 +3959,11 @@ interface EllipseBaseAnchors {
  * anchor construction, byte-identical); it is SKIPPED (undefined) when the
  * pole is at/near infinity (the line passes through the conic's center —
  * e.g. the model halfway line x = 52.5) or outside the anchor bounds.
+ *
+ * v0.6.0 (E2d, ADDITIVE): the optional `family` — the conic-anchor
+ * family's world circle — defaults to the center circle (the exact
+ * v0.2.0–v0.5.0 construction, byte-identical); the penalty-arc prior
+ * passes its fixed world circles.
  */
 function buildEllipseBaseAnchors(
   conic: EllipseConic,
@@ -3470,6 +3973,7 @@ function buildEllipseBaseAnchors(
   width: number,
   height: number,
   nearPole?: { u: number; v: number; x: number; y: number },
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): Array<EllipseBaseAnchors> {
   if (a.family !== b.family) return [];
   const linePx = (line: HoughLine): [number, number, number] => {
@@ -3489,11 +3993,11 @@ function buildEllipseBaseAnchors(
 
   const anchorBound = 5;
   const intersection = intersectLines(linePx(a.line), linePx(b.line));
-  const polarWorld = worldPolarLineOfModelPair(a.family, a.value, b.family, b.value);
+  const polarWorld = worldPolarLineOfModelPair(family, a.family, a.value, b.family, b.value);
   if (intersection === undefined || polarWorld === undefined) return [];
   const polarPx = normalizeLine(polarOfPoint(conic, intersection));
   const imageQ = lineConicIntersections(conic, polarPx);
-  const worldQ = worldLineCircleIntersections(polarWorld);
+  const worldQ = worldLineCircleIntersections(family, polarWorld);
   if (imageQ.length !== 2 || worldQ === undefined) return [];
   if (
     Math.abs(imageQ[0]!.x) > anchorBound * width ||
@@ -3519,11 +4023,11 @@ function buildEllipseBaseAnchors(
         { image: pxLineToNormalized(polarPx, width, height), pitch: polarWorld },
         {
           image: pxLineToNormalized(conicTangentAt(conic, imageQ[0]!), width, height),
-          pitch: circleTangentAt(q0),
+          pitch: circleTangentAt(family, q0),
         },
         {
           image: pxLineToNormalized(conicTangentAt(conic, imageQ[1]!), width, height),
-          pitch: circleTangentAt(q1),
+          pitch: circleTangentAt(family, q1),
         },
       ],
     });
@@ -3543,13 +4047,10 @@ function conicPointAt(geometry: EllipseGeometry, t: number): { x: number; y: num
   };
 }
 
-/** The scan's closing anchors: world circle point at angle 0 and its tangent. */
-const SCAN_WORLD_POINT = { x: CIRCLE_CENTER_X + CIRCLE_R, y: CIRCLE_CENTER_Y };
-
 /**
  * The E4 1-DOF scan closure: two same-family parallel lines + the conic
  * leave exactly one degree of freedom (which conic point is the image of
- * the world circle point at angle 0). The scan closes it deterministically:
+ * the family's scan world point). The scan closes it deterministically:
  * a coarse pass (ELLIPSE_SCAN_COARSE steps over the full conic parameter),
  * then a fine pass around the coarse best (ELLIPSE_SCAN_FINE steps over
  * ±one coarse step), each candidate solved by the mixed DLT over the base
@@ -3557,6 +4058,8 @@ const SCAN_WORLD_POINT = { x: CIRCLE_CENTER_X + CIRCLE_R, y: CIRCLE_CENTER_Y };
  * mini forward score (the line rows' violation grows with the parameter
  * error — the discriminator). The best-scoring candidate of the fine pass
  * is returned (or the coarse best if every fine solve fails).
+ * v0.6.0: the family's scan world point + tangent (the center circle's
+ * angle-0 point — the exact v0.2.0–v0.5.0 construction — by default).
  */
 function scanEllipseHypothesis(
   conic: EllipseConic,
@@ -3565,8 +4068,10 @@ function scanEllipseHypothesis(
   scanPoints: readonly number[],
   width: number,
   height: number,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): { homography: Homography; linePairs: readonly MixedLinePair[] } | undefined {
-  const tangentWorld = circleTangentAt(SCAN_WORLD_POINT);
+  const scanWorldPoint = familyScanWorldPoint(family);
+  const tangentWorld = circleTangentAt(family, scanWorldPoint);
   const solveAt = (
     t: number,
   ): { homography: Homography; linePairs: readonly MixedLinePair[] } | undefined => {
@@ -3574,7 +4079,7 @@ function scanEllipseHypothesis(
     if (Math.abs(p.x) > 5 * width || Math.abs(p.y) > 5 * height) return undefined;
     const points: MixedPointPair[] = [
       ...base.points.map((point) => ({ u: point.u, v: point.v, x: point.x, y: point.y })),
-      { ...pxPointToNormalized(p, width, height), x: SCAN_WORLD_POINT.x, y: SCAN_WORLD_POINT.y },
+      { ...pxPointToNormalized(p, width, height), x: scanWorldPoint.x, y: scanWorldPoint.y },
     ];
     const lines: MixedLinePair[] = [
       ...base.lines.map((line) => ({ image: line.image, pitch: line.pitch })),
@@ -3640,21 +4145,24 @@ function forwardScoreOnPoints(h: Homography, points: readonly number[]): number 
 const LORENTZ_J: readonly number[] = [1, 0, 0, 0, 1, 0, 0, 0, -1];
 
 /**
- * The world center circle's homogeneous conic matrix (pitch meters):
- * (x − cx)² + (y − cy)² − r²·z² = 0 for the canonical model circle
- * (52.5, 34, r = 9.15) — the W side of the E4b factorization.
+ * The homogeneous conic matrix (pitch meters) of a family's world circle:
+ * (x − cx)² + (y − cy)² − r²·z² = 0 — the W side of the E4b factorization.
+ * v0.6.0: family-parameterized; the center-circle value (52.5, 34, 9.15)
+ * is the exact v0.5.0 world conic (the same arithmetic, bit-for-bit).
  */
-const WORLD_CIRCLE_CONIC: readonly number[] = [
-  1,
-  0,
-  -CIRCLE_CENTER_X,
-  0,
-  1,
-  -CIRCLE_CENTER_Y,
-  -CIRCLE_CENTER_X,
-  -CIRCLE_CENTER_Y,
-  CIRCLE_CENTER_X * CIRCLE_CENTER_X + CIRCLE_CENTER_Y * CIRCLE_CENTER_Y - CIRCLE_R * CIRCLE_R,
-];
+function worldCircleConicOf(family: BroadcastWorldCircle): readonly number[] {
+  return [
+    1,
+    0,
+    -family.cx,
+    0,
+    1,
+    -family.cy,
+    -family.cx,
+    -family.cy,
+    family.cx * family.cx + family.cy * family.cy - family.r * family.r,
+  ];
+}
 
 /** Row-major 3x3 matrix product A·B. */
 function mat3Mul(a: readonly number[], b: readonly number[]): number[] {
@@ -3930,6 +4438,12 @@ export interface BroadcastEllipseAnchorFrame {
   readonly wInverse: readonly number[];
   /** The J-matching representative of the world circle (= WᵀJW). */
   readonly cCanon: readonly number[];
+  /**
+   * v0.6.0: the family's world-circle conic matrix the frame was built
+   * from (the birth guard's C_w; the center circle's by default —
+   * byte-identical with the v0.5.0 frame).
+   */
+  readonly worldConic: readonly number[];
 }
 
 /**
@@ -3944,11 +4458,16 @@ export interface BroadcastEllipseAnchorFrame {
  * degenerate classes — a fitted real ellipse never refuses; the guard is
  * fail-loud for the typed unconvertible refusal). Validates its inputs
  * fail-loud (RangeError) per the diagnostic-export contract.
+ * v0.6.0 (E2d, ADDITIVE): the optional `family` — the conic-anchor
+ * family's world circle, whose conic is the W side; defaults to the
+ * center circle (the exact v0.5.0 frame, byte-identical; the penalty-arc
+ * prior passes its fixed world circles).
  */
 export function buildBroadcastEllipseAnchorFrame(
   conic: EllipseConic,
   width: number,
   height: number,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): BroadcastEllipseAnchorFrame | undefined {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
     throw new RangeError(
@@ -3976,7 +4495,8 @@ export function buildBroadcastEllipseAnchorFrame(
   ];
   const g = lorentzCanonicalize(qHat);
   if (g === undefined) return undefined;
-  const w = lorentzCanonicalize(WORLD_CIRCLE_CONIC);
+  const worldConic = worldCircleConicOf(family);
+  const w = lorentzCanonicalize(worldConic);
   if (w === undefined) return undefined;
   const gInverse = invert3x3(g);
   const wInverse = invert3x3(w);
@@ -3988,6 +4508,8 @@ export function buildBroadcastEllipseAnchorFrame(
     w,
     wInverse,
     cCanon: mat3JCongruence(w),
+    /** v0.6.0: the family's world conic (the birth guard's C_w). */
+    worldConic,
   };
 }
 
@@ -4030,12 +4552,16 @@ export type BroadcastEllipseAnchorConversion =
  * bound, the birth conic guard and the conic hard guard. Validates its
  * inputs fail-loud (RangeError); refuses (never throws) on the conversion
  * guards — the typed unconvertible refusal carries the counts.
+ * v0.6.0 (E2d, ADDITIVE): the optional `family` — the conic-anchor family
+ * whose world circle is the W side (the center circle by default —
+ * byte-identical; the penalty-arc prior passes its fixed world circles).
  */
 export function convertBroadcastEllipseAnchor(
   conic: EllipseConic,
   width: number,
   height: number,
   homography: Homography,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): BroadcastEllipseAnchorConversion {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
     throw new RangeError(
@@ -4054,7 +4580,7 @@ export function convertBroadcastEllipseAnchor(
       relativeDeviation: Number.POSITIVE_INFINITY,
     };
   }
-  const frame = buildBroadcastEllipseAnchorFrame(conic, width, height);
+  const frame = buildBroadcastEllipseAnchorFrame(conic, width, height, family);
   if (frame === undefined) {
     return {
       kind: "unconverted",
@@ -4062,13 +4588,15 @@ export function convertBroadcastEllipseAnchor(
       relativeDeviation: Number.POSITIVE_INFINITY,
     };
   }
-  return convertAnchorWithFrame(frame, geometry, width, height, homography);
+  return convertAnchorWithFrame(frame, geometry, width, height, homography, family);
 }
 
 /**
  * The E4b conversion core over a PRE-BUILT frame (the scan loop builds the
  * frame once per conic candidate and converts every enumerated solve
- * through it). Pure, deterministic, never throws.
+ * through it). Pure, deterministic, never throws. v0.6.0: the optional
+ * `family` parameterizes the birth guard's C_w and the conic hard guard's
+ * sample set (the center circle by default — byte-identical).
  */
 function convertAnchorWithFrame(
   frame: BroadcastEllipseAnchorFrame,
@@ -4076,6 +4604,7 @@ function convertAnchorWithFrame(
   width: number,
   height: number,
   homography: Homography,
+  family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
 ): BroadcastEllipseAnchorConversion {
   // M₀ = W·H_t·G⁻¹ — the initial Lorentz map of the scan solve.
   const m0 = mat3Mul(frame.w, mat3Mul(homography, frame.gInverse));
@@ -4156,8 +4685,9 @@ function convertAnchorWithFrame(
     return { kind: "unconverted", reason: "closure-self-check", relativeDeviation: deviation };
   }
   // THE BIRTH CONIC GUARD: Ĥᵀ·C_w·Ĥ ≈ qCanon — the conic the solve was born
-  // from (the algebraic identity of H = W⁻¹·P·G, verified on every closure).
-  const born = mat3Congruence(hRaw, WORLD_CIRCLE_CONIC);
+  // from (the algebraic identity of H = W⁻¹·P·G, verified on every closure;
+  // C_w is the family's world-circle conic).
+  const born = mat3Congruence(hRaw, frame.worldConic);
   if (mat3RelativeFrobenius(born, frame.qCanon) > ELLIPSE_ANCHOR_BIRTH_GUARD_REL) {
     return { kind: "unconverted", reason: "birth-conic-guard", relativeDeviation: deviation };
   }
@@ -4168,15 +4698,17 @@ function convertAnchorWithFrame(
     return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
   }
   const canonical = hRaw.map((entry) => entry / hRaw[8]!);
-  // THE CONIC HARD GUARD: the pixel-level mean residual of the world circle
-  // projected through Ĥ⁻¹ onto the ORIGINAL px conic.
+  // THE CONIC HARD GUARD: the pixel-level mean residual of the family's
+  // painted-marking sample points (the world circle by default; a penalty
+  // arc's painted span under the prior) projected through Ĥ⁻¹ onto the
+  // ORIGINAL px conic.
   let inverse: Homography;
   try {
     inverse = invertHomography(canonical);
   } catch {
     return { kind: "unconverted", reason: "conic-hard-guard", relativeDeviation: deviation };
   }
-  const samples = worldCircleSamples();
+  const samples = worldFamilySamples(family);
   let residualSum = 0;
   for (let p = 0; p < samples.length; p += 2) {
     const projected = projectSafe(inverse, samples[p]!, samples[p + 1]!);
@@ -4222,6 +4754,17 @@ export interface BroadcastEvidenceOptions {
    * every other field are identical either way.
    */
   readonly ellipseMultiConicSelection?: boolean;
+  /**
+   * v0.6.0: the penalty-arc-conic prior (OPT-IN, default false — see the
+   * calibrator option). For the diagnostics the option controls whether
+   * `conicCandidates` also records the prior-seeded family candidates
+   * (each marked `prior: "penalty-arc"` + `priorEnd`); for
+   * `evaluateBroadcastLineFit` the option extends the ellipse-residual
+   * min-over-chain measurement to the prior candidates (each measured
+   * against ITS family's painted-marking samples — the family-honest
+   * residual). Every other field is identical with the option off.
+   */
+  readonly penaltyArcPrior?: boolean;
 }
 
 /** The extracted evidence bundle (steps 0-6 of the calibrator). */
@@ -4496,8 +5039,21 @@ export interface BroadcastConicCandidateDiagnostics {
   readonly supportPx: number;
   /** Occupied 10° coverage bins (of 36) of the candidate's own evidence. */
   readonly coverageBins: number;
-  /** Whether this candidate passes the support + coverage quota. */
+  /**
+   * Whether this candidate passes the support + coverage quota (the
+   * center-circle family's quota for evidence-derived candidates; the
+   * penalty-arc FAMILY quota for prior-seeded ones).
+   */
   readonly quotaPassed: boolean;
+  /**
+   * v0.6.0: the penalty-arc-conic prior provenance — present only on
+   * prior-seeded candidates (the fixed-geometry family; recorded when the
+   * `penaltyArcPrior` evidence option is on, after every evidence-derived
+   * candidate).
+   */
+  readonly prior?: "penalty-arc";
+  /** Which penalty arc (the fixed world circle) a prior candidate carries. */
+  readonly priorEnd?: "left" | "right";
 }
 
 /**
@@ -4520,7 +5076,14 @@ export function fitBroadcastEllipseEvidence(
     BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
   const multiConic =
     options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
-  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware, multiConic);
+  const prior = options.penaltyArcPrior ?? BROADCAST_LINE_DEFAULTS.penaltyArcPrior;
+  validateEvidenceOptions(
+    minPitchFraction,
+    lineContrastThreshold,
+    straightnessAware,
+    multiConic,
+    prior,
+  );
   const evidence = extractCalibrationEvidence(input, minPitchFraction, lineContrastThreshold);
   const arc = extractArcEvidence(
     evidence.staticPixels,
@@ -4534,7 +5097,9 @@ export function fitBroadcastEllipseEvidence(
   const arcPixels = arc.pixels;
   // The chain with the caller's multi-conic surface so the diagnostics
   // record every candidate (the [0] primary is identical for either
-  // option value — the option only appends alternatives).
+  // option value — the option only appends alternatives). v0.6.0: with
+  // the prior on, the prior-seeded family candidates follow every
+  // evidence-derived candidate (each marked with its prior provenance).
   const fits = fitArcConicCandidates(
     arcPixels,
     arc.components,
@@ -4543,6 +5108,16 @@ export function fitBroadcastEllipseEvidence(
     evidence.height,
     multiConic,
   );
+  const priorFits = prior
+    ? fitPenaltyArcPriorCandidates(
+        arcPixels,
+        arc.components,
+        evidence.staticPixels,
+        evidence.width,
+        evidence.height,
+      ).candidates
+    : [];
+  const candidates = [...fits, ...priorFits];
   const fit = fits.length > 0 ? fits[0] : undefined;
   const quotaPassed =
     fit !== undefined &&
@@ -4575,9 +5150,9 @@ export function fitBroadcastEllipseEvidence(
         centerPx: { x: sumX / count, y: sumY / count },
       };
     }),
-    ...(fits.length > 0
+    ...(candidates.length > 0
       ? {
-          conicCandidates: fits.map((candidate) => ({
+          conicCandidates: candidates.map((candidate) => ({
             centerPx: { x: candidate.geometry.centerX, y: candidate.geometry.centerY },
             semiMajorPx: candidate.geometry.semiMajor,
             semiMinorPx: candidate.geometry.semiMinor,
@@ -4585,8 +5160,14 @@ export function fitBroadcastEllipseEvidence(
             supportPx: candidate.supportPx,
             coverageBins: candidate.coverageBins,
             quotaPassed:
-              candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
-              candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
+              candidate.prior !== undefined
+                ? candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+                  candidate.coverageBins >= ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS
+                : candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+                  candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
+            ...(candidate.prior !== undefined
+              ? { prior: candidate.prior, priorEnd: candidate.priorEnd }
+              : {}),
           })),
         }
       : {}),
@@ -4599,6 +5180,7 @@ function validateEvidenceOptions(
   lineContrastThreshold: number,
   straightnessAware?: boolean,
   multiConic?: boolean,
+  prior?: boolean,
 ): void {
   if (!Number.isFinite(minPitchFraction) || minPitchFraction <= 0 || minPitchFraction > 1) {
     throw new RangeError(
@@ -4620,6 +5202,11 @@ function validateEvidenceOptions(
     throw new RangeError(
       `fitBroadcastEllipseEvidence: ellipseMultiConicSelection must be a boolean ` +
         `(got ${typeof multiConic})`,
+    );
+  }
+  if (prior !== undefined && typeof prior !== "boolean") {
+    throw new RangeError(
+      `fitBroadcastEllipseEvidence: penaltyArcPrior must be a boolean (got ${typeof prior})`,
     );
   }
 }
@@ -4646,7 +5233,10 @@ export interface BroadcastLineFitMetrics {
  * calibrator extracts (PURE MEASUREMENT — not part of the calibration
  * contract): the v0.1.0 lineFit over the full scored set, the backward
  * chamfer, and — when the arc evidence passes its quota — the projected
- * center-circle's residual against the fitted conic. Throws the same typed
+ * center-circle's residual against the fitted conic. v0.6.0: with the
+ * `penaltyArcPrior` evidence option on, the ellipse-residual
+ * min-over-chain extends to the prior-seeded candidates (each measured
+ * against ITS family's painted-marking samples). Throws the same typed
  * early-stage refusals as `calibrate`. Deterministic.
  */
 export function evaluateBroadcastLineFit(
@@ -4670,7 +5260,16 @@ export function evaluateBroadcastLineFit(
   const straightnessAware =
     options.ellipseStraightnessAwareExplain ??
     BROADCAST_LINE_DEFAULTS.ellipseStraightnessAwareExplain;
-  validateEvidenceOptions(minPitchFraction, lineContrastThreshold, straightnessAware);
+  const multiConic =
+    options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
+  const prior = options.penaltyArcPrior ?? BROADCAST_LINE_DEFAULTS.penaltyArcPrior;
+  validateEvidenceOptions(
+    minPitchFraction,
+    lineContrastThreshold,
+    straightnessAware,
+    multiConic,
+    prior,
+  );
   const evidence = extractCalibrationEvidence(input, minPitchFraction, lineContrastThreshold);
   const { width, height, staticMask, scoredFull, staticPixels, lines, greenTop } = evidence;
 
@@ -4717,8 +5316,6 @@ export function evaluateBroadcastLineFit(
     height,
     straightnessAware,
   );
-  const multiConic =
-    options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
   const chainFits = fitArcConicCandidates(
     arc.pixels,
     arc.components,
@@ -4732,19 +5329,35 @@ export function evaluateBroadcastLineFit(
       candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
       candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
   );
+  // v0.6.0: with the prior on, the prior-seeded family candidates join
+  // the min-over-chain measurement (each measured against ITS family's
+  // painted-marking samples — the family-honest residual).
+  const priorChain = prior
+    ? fitPenaltyArcPriorCandidates(arc.pixels, arc.components, staticPixels, width, height)
+        .candidates
+    : [];
   const fit = quotaChain[0];
   const quotaPassed =
-    fit !== undefined &&
-    fit.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
-    fit.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS;
+    (fit !== undefined &&
+      fit.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
+      fit.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS) ||
+    priorChain.length > 0;
   let ellipseMeanPx: number | undefined;
   let ellipseSupportPx: number | undefined;
   let ellipseCoverageBins: number | undefined;
-  if (quotaPassed && fit !== undefined) {
+  if (quotaPassed && (fit !== undefined || priorChain.length > 0)) {
     // The minimum mean residual over the quota-passing chain (the primary
-    // first when it alone passes — the v0.3.0 surface, byte-identical).
-    for (const candidate of quotaChain) {
-      const residual = ellipseMeanResidualPx(inverse, candidate.conic, width, height).meanPx;
+    // first when it alone passes — the v0.3.0 surface, byte-identical) and,
+    // with the prior on, the prior-seeded family candidates (family-honest
+    // residuals).
+    for (const candidate of [...quotaChain, ...priorChain]) {
+      const residual = ellipseMeanResidualPx(
+        inverse,
+        candidate.conic,
+        width,
+        height,
+        familyOfCandidate(candidate),
+      ).meanPx;
       if (ellipseMeanPx === undefined || residual < ellipseMeanPx) {
         ellipseMeanPx = residual;
         ellipseSupportPx = candidate.supportPx;
@@ -4888,6 +5501,168 @@ export function evaluateBroadcastEllipseGridGeometry(
   return { cornersPx, quadAreaPx, conicAreaPx, cornerMinSeparationPx, ok };
 }
 
+/**
+ * v0.6.0 (E2d) — the PRIOR FAMILY'S GEOMETRIC CONTAINMENT measurement
+ * (module docs E2d, the measured false-positive closure): whether the
+ * projected pitch quad — the image of the 105x68 pitch rectangle under
+ * the solve's H⁻¹ — GEOMETRICALLY contains the prior candidate's conic
+ * center. The invariant is exact, not a threshold: the penalty-arc
+ * family's world circle (the FULL 360° circle, r = ARC_RADIUS_M at the
+ * penalty spot) lies strictly inside the pitch rectangle (its disk's
+ * nearest boundary approach is 1.85 m), so under ANY correct homography
+ * the conic's interior — the disk's image, a convex subset of the
+ * projected quad — contains the conic center inside the quad: a correct
+ * solve CANNOT violate the gate. A violation proves the solve mapped the
+ * fixed-geometry arc onto evidence it cannot explain (the measured
+ * degenerate class: solves that pull an out-of-view world arc into frame
+ * onto arc-crumb/sliver conics — worst-probe errors 94.9-294.5 m at
+ * machine-passing confidences, every one projecting the pitch as a thin
+ * band or tiny non-convex quad with the conic center 4-85 px outside).
+ * `ok` is false when any projected corner is non-finite / beyond the
+ * E6b corner bound, the quad is non-convex (a real projective image of
+ * a rectangle is a convex quad — a self-intersecting/flipped
+ * orientation is the degenerate class), or the conic center is not
+ * STRICTLY inside the orientation-normalized quad (all four signed edge
+ * distances > 0). PURE MEASUREMENT — the prior path's typed gate and the
+ * tests use it to measure and regression-lock the degenerate class.
+ * Deterministic; validates its inputs fail-loud (RangeError).
+ */
+export interface BroadcastPriorQuadContainment {
+  /** The projected pitch-corner image positions (px, canonical order). */
+  readonly cornersPx: readonly { readonly x: number; readonly y: number }[];
+  /** Shoelace area of the projected quad (px²; 0 on the corner-bound refusal). */
+  readonly quadAreaPx: number;
+  /** The conic's ellipse center (px). */
+  readonly centerPx: { readonly x: number; readonly y: number };
+  /** Whether the orientation-normalized quad is strictly convex. */
+  readonly convex: boolean;
+  /**
+   * The minimum SIGNED distance (px) from the conic center to the quad's
+   * four directed edges (negative = outside that edge; −∞ sentinel on the
+   * corner-bound/inversion refusals).
+   */
+  readonly minSignedEdgeDistancePx: number;
+  /** False = the geometric containment invariant is violated. */
+  readonly ok: boolean;
+}
+
+export function evaluateBroadcastPriorQuadContainment(
+  homography: Homography,
+  conic: EllipseConic,
+  width: number,
+  height: number,
+): BroadcastPriorQuadContainment {
+  if (
+    !Array.isArray(homography) ||
+    homography.length !== 9 ||
+    !homography.every((value) => Number.isFinite(value))
+  ) {
+    throw new RangeError(
+      `evaluateBroadcastPriorQuadContainment: homography must be an array of 9 finite numbers ` +
+        `(got length ${Array.isArray(homography) ? homography.length : "non-array"})`,
+    );
+  }
+  if (
+    conic === null ||
+    typeof conic !== "object" ||
+    ![conic.a, conic.b, conic.c, conic.d, conic.e, conic.f].every((value) =>
+      Number.isFinite(value as number),
+    )
+  ) {
+    throw new RangeError(
+      "evaluateBroadcastPriorQuadContainment: conic must carry 6 finite coefficients (a..f)",
+    );
+  }
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 1 || height <= 1) {
+    throw new RangeError(
+      `evaluateBroadcastPriorQuadContainment: width/height must be integers > 1 ` +
+        `(got ${width}x${height})`,
+    );
+  }
+  const geometry = conicGeometry(conic);
+  if (geometry === undefined) {
+    throw new RangeError(
+      "evaluateBroadcastPriorQuadContainment: conic is not a real non-degenerate ellipse",
+    );
+  }
+  const centerPx = { x: geometry.centerX, y: geometry.centerY };
+  let inverse: Homography;
+  try {
+    inverse = invertHomography(homography);
+  } catch {
+    return {
+      cornersPx: [],
+      quadAreaPx: 0,
+      centerPx,
+      convex: false,
+      minSignedEdgeDistancePx: Number.NEGATIVE_INFINITY,
+      ok: false,
+    };
+  }
+  const bound = Math.max(
+    ELLIPSE_GRID_CORNER_BOUND_FACTOR * width,
+    ELLIPSE_GRID_CORNER_BOUND_FACTOR * height,
+  );
+  const cornersPx: Array<{ x: number; y: number }> = [];
+  for (const corner of CANONICAL_PITCH_CORNERS) {
+    const projected = applyHomography(inverse, { x: corner.x, y: corner.y });
+    const x = projected.x * width;
+    const y = projected.y * height;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x) > bound || Math.abs(y) > bound) {
+      return {
+        cornersPx,
+        quadAreaPx: 0,
+        centerPx,
+        convex: false,
+        minSignedEdgeDistancePx: Number.NEGATIVE_INFINITY,
+        ok: false,
+      };
+    }
+    cornersPx.push({ x, y });
+  }
+  let shoelace = 0;
+  for (let i = 0; i < cornersPx.length; i += 1) {
+    const p = cornersPx[i]!;
+    const q = cornersPx[(i + 1) % cornersPx.length]!;
+    shoelace += p.x * q.y - q.x * p.y;
+  }
+  // Orientation normalization: a real camera's pitch quad is CONVEX in a
+  // consistent winding; a negative shoelace is the flipped winding (the
+  // degenerate class) — normalize to counter-clockwise and let the
+  // convexity + same-side tests decide.
+  const quad = shoelace < 0 ? [...cornersPx].reverse() : cornersPx;
+  let convex = true;
+  let minSignedEdgeDistancePx = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < quad.length; i += 1) {
+    const a = quad[i]!;
+    const b = quad[(i + 1) % quad.length]!;
+    const c = quad[(i + 2) % quad.length]!;
+    const e1x = b.x - a.x;
+    const e1y = b.y - a.y;
+    const e2x = c.x - b.x;
+    const e2y = c.y - b.y;
+    // Consecutive edge cross products must be strictly positive (a convex
+    // counter-clockwise quad); a non-positive cross is the
+    // self-intersecting / collinear degenerate class.
+    if (e1x * e2y - e1y * e2x <= 0) convex = false;
+    const edgeLength = Math.hypot(e1x, e1y);
+    if (edgeLength <= 0) {
+      convex = false;
+      continue;
+    }
+    const signed = (e1x * (centerPx.y - a.y) - e1y * (centerPx.x - a.x)) / edgeLength;
+    if (signed < minSignedEdgeDistancePx) minSignedEdgeDistancePx = signed;
+  }
+  return {
+    cornersPx,
+    quadAreaPx: Math.abs(shoelace / 2),
+    centerPx,
+    convex,
+    minSignedEdgeDistancePx,
+    ok: convex && minSignedEdgeDistancePx > 0,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // The candidate.
 // ---------------------------------------------------------------------------
@@ -4914,6 +5689,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
   private readonly ellipseStraightnessAware: boolean;
   private readonly ellipseMultiConicSelection: boolean;
   private readonly ellipseAnchorConversion: boolean;
+  private readonly penaltyArcPrior: boolean;
 
   constructor(options: BroadcastLineCalibratorOptions = {}) {
     const calibratorId = options.calibratorId ?? BROADCAST_LINE_DEFAULTS.calibratorId;
@@ -4929,6 +5705,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       options.ellipseMultiConicSelection ?? BROADCAST_LINE_DEFAULTS.ellipseMultiConicSelection;
     const ellipseAnchorConversion =
       options.ellipseAnchorConversion ?? BROADCAST_LINE_DEFAULTS.ellipseAnchorConversion;
+    const penaltyArcPrior = options.penaltyArcPrior ?? BROADCAST_LINE_DEFAULTS.penaltyArcPrior;
     if (typeof calibratorId !== "string" || calibratorId.length < 1) {
       throw new RangeError("BroadcastLineCalibrator: calibratorId must be a non-empty string");
     }
@@ -4965,6 +5742,11 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           `(got ${typeof ellipseAnchorConversion})`,
       );
     }
+    if (typeof penaltyArcPrior !== "boolean") {
+      throw new RangeError(
+        `BroadcastLineCalibrator: penaltyArcPrior must be a boolean (got ${typeof penaltyArcPrior})`,
+      );
+    }
     this.calibratorId = calibratorId;
     this.minPitchFraction = minPitchFraction;
     this.lineContrastThreshold = lineContrastThreshold;
@@ -4972,6 +5754,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     this.ellipseStraightnessAware = ellipseStraightnessAware;
     this.ellipseMultiConicSelection = ellipseMultiConicSelection;
     this.ellipseAnchorConversion = ellipseAnchorConversion;
+    this.penaltyArcPrior = penaltyArcPrior;
     this.descriptor = perceptionDescriptor({
       technologyId: BROADCAST_LINE_FIELD_CALIBRATOR_ID,
       technologyVersion: BROADCAST_LINE_FIELD_CALIBRATOR_VERSION,
@@ -5329,8 +6112,69 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
         candidate.supportPx >= ELLIPSE_MIN_SUPPORT_PX &&
         candidate.coverageBins >= ELLIPSE_MIN_COVERAGE_BINS,
     );
-    if (primary === undefined || quotaFits.length === 0) {
+    // E2d (v0.6.0, OPT-IN): the PENALTY-ARC-CONIC PRIOR's candidate supply —
+    // (image conic, FIXED world circle) pairs seeded from the same
+    // arc-evidence fit machinery under the penalty-arc FAMILY quota (module
+    // docs E2d). The prior runs AFTER every evidence-derived candidate
+    // (appended to the chain below); the default surface (prior off) seeds
+    // NOTHING and the flow below is the v0.5.0 surface exactly.
+    const priorSeed = this.penaltyArcPrior
+      ? fitPenaltyArcPriorCandidates(arcPixels, arc.components, staticPixels, width, height)
+      : undefined;
+    const priorFits = priorSeed?.candidates ?? [];
+    // The full candidate supply of the ellipse path: every quota-passing
+    // evidence-derived candidate, then (v0.6.0, OPT-IN) the prior-seeded
+    // family candidates AFTER them (the fixed-geometry family is the LAST
+    // supply — a window any evidence candidate calibrates never reaches
+    // the prior). With the prior OFF the list is exactly the v0.5.0
+    // `quotaFits` (byte-identical surface); with the prior ON a window
+    // whose GLOBAL fit failed but whose component fits pass the family
+    // quota still reaches its prior-seeded supply (the chain's own
+    // source-priority discipline — a dominance-dropped structure is
+    // recoverable only in the component fits).
+    const chainCandidates: readonly ArcConicFit[] = [...quotaFits, ...priorFits];
+    // Refusal condition: NO candidate supply at all — for the prior-OFF
+    // surface exactly the v0.5.0 condition (`primary === undefined || quotaFits.length === 0`:
+    // `primary === undefined` implies `fits` is empty implies `quotaFits` is
+    // empty implies `chainCandidates` is empty, and vice versa); with the
+    // prior ON, the prior's own supply keeps the window in the chain.
+    if (chainCandidates.length === 0) {
       const fit = primary;
+      // The prior's supply refused too (or the prior is off): the refusal is
+      // TYPED with the prior's own measured numbers when the prior is on —
+      // the family's best support/coverage over its source pool — never a
+      // calibration fabricated from the fixed geometry alone.
+      if (this.penaltyArcPrior) {
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: ellipse path (penalty-arc-conic prior) — arc evidence ` +
+            `insufficient (${arcCount} arc pixels; ` +
+            (fit === undefined
+              ? "no sane non-degenerate ellipse among the sampled subsets"
+              : `conic support ${fit.supportPx} px (< ${ELLIPSE_MIN_SUPPORT_PX}) / coverage ` +
+                `${fit.coverageBins} of 36 bins (< ${ELLIPSE_MIN_COVERAGE_BINS})`) +
+            `) AND the penalty-arc prior seeded NOTHING (the family quota — support ` +
+            `>= ${ELLIPSE_MIN_SUPPORT_PX} px, coverage >= ${ELLIPSE_PENALTY_ARC_MIN_COVERAGE_BINS} bins ` +
+            `of the painted "D" arc's own span — refused every source; the family's best measured ` +
+            `support ${priorSeed?.bestSupportPx ?? "n/a"} px / coverage ${priorSeed?.bestCoverageBins ?? "n/a"} bins) ` +
+            `— neither the center-circle family nor the fixed-geometry family is evidenced on ` +
+            `this window; refusing with the typed class rather than fabricating a prior calibration`,
+          {
+            failureClassId: "broadcast-line.ellipse-penalty-arc-prior-unevidenced",
+            arcPixels: arcCount,
+            supportPx: fit?.supportPx,
+            coverageBins: fit?.coverageBins,
+            detectedLines: lines.length,
+            priorSeededCandidates: 0,
+            ...(priorSeed?.bestSupportPx !== undefined
+              ? {
+                  priorBestSupportPx: priorSeed.bestSupportPx,
+                  priorBestCoverageBins: priorSeed.bestCoverageBins,
+                }
+              : {}),
+            ...linePathDetails,
+          },
+        );
+      }
       throw new CandidateFailureError(
         `BroadcastLineCalibrator: ellipse path — arc evidence insufficient (${arcCount} arc ` +
           `pixels; ` +
@@ -5357,22 +6201,31 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     // run through the SAME full hypothesis -> refinement -> validation
     // flow; the first validation pass wins; the acceptance bar never
     // lowers for any candidate.
-    // E2c (v0.4.1, CHAIN-ONLY): before a candidate's solve, the CONIC
-    // GRASS-SUPPORT GATE — a quota-passing conic whose interior is not
-    // grass-supported (median over frames below the documented threshold)
-    // anchors to OFF-PITCH structure (the b3-a goal/net class) and is
-    // refused with the typed class, the chain continuing with the next
-    // candidate. The default surface (chain off) never runs this gate.
+    // E2c (v0.4.1): before a candidate's solve, the CONIC GRASS-SUPPORT
+    // GATE — a quota-passing conic whose interior is not grass-supported
+    // (median over frames below the documented threshold) anchors to
+    // OFF-PITCH structure (the b3-a goal/net class) and is refused with
+    // the typed class, the chain continuing with the next candidate. The
+    // chain path runs it on every candidate AND — v0.6.0 (E2d) — the
+    // prior path runs it on every PRIOR-seeded candidate (the prior
+    // family carries its own gate application); the default surface
+    // (both options off) never runs this gate.
+    // v0.6.0 (E2d): the prior-seeded candidates run LAST in the chain
+    // (see `chainCandidates` above), each carrying its prior provenance on
+    // every record below.
     const chainFailures: Array<Record<string, unknown>> = [];
     let firstFailure: CandidateFailureError | undefined;
-    for (let candidateIndex = 0; candidateIndex < quotaFits.length; candidateIndex += 1) {
-      const candidate = quotaFits[candidateIndex]!;
-      if (this.ellipseMultiConicSelection) {
+    for (let candidateIndex = 0; candidateIndex < chainCandidates.length; candidateIndex += 1) {
+      const candidate = chainCandidates[candidateIndex]!;
+      const isPriorCandidate = candidate.prior !== undefined;
+      if (this.ellipseMultiConicSelection || isPriorCandidate) {
         const grass = conicInteriorGrassMedian(candidate.geometry, greenMasks, width, height);
         if (grass !== undefined && grass.median < ELLIPSE_CONIC_MIN_INTERIOR_GREEN_MEDIAN) {
           const refusal = new CandidateFailureError(
-            `BroadcastLineCalibrator: conic-selection chain — quota-passing conic candidate ` +
-              `${candidateIndex} (center (${candidate.geometry.centerX.toFixed(1)}, ` +
+            `BroadcastLineCalibrator: ${isPriorCandidate ? "penalty-arc-conic prior — " : "conic-selection chain — "}quota-passing ` +
+              `${isPriorCandidate ? "prior-seeded" : "conic"} candidate ${candidateIndex} ` +
+              `${isPriorCandidate ? `(the ${candidate.priorEnd} penalty arc's fixed-geometry family) ` : ""}(center ` +
+              `(${candidate.geometry.centerX.toFixed(1)}, ` +
               `${candidate.geometry.centerY.toFixed(1)}) px, semis ` +
               `${candidate.geometry.semiMajor.toFixed(1)}x${candidate.geometry.semiMinor.toFixed(1)}) is ` +
               `not GRASS-supported: the median over frames of its interior green fraction is ` +
@@ -5396,6 +6249,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
                 major: candidate.geometry.semiMajor,
                 minor: candidate.geometry.semiMinor,
               },
+              ...(isPriorCandidate ? { prior: candidate.prior, priorEnd: candidate.priorEnd } : {}),
               ...linePathDetails,
             },
           );
@@ -5407,6 +6261,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             samplesInBounds: grass.samplesInBounds,
             supportPx: candidate.supportPx,
             coverageBins: candidate.coverageBins,
+            ...(isPriorCandidate ? { prior: candidate.prior, priorEnd: candidate.priorEnd } : {}),
           });
           continue;
         }
@@ -5433,20 +6288,35 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
                 anchorConverted: error.details.anchorConverted,
               }
             : {}),
+          ...(isPriorCandidate ? { prior: candidate.prior, priorEnd: candidate.priorEnd } : {}),
         });
       }
     }
-    // Every quota-passing conic candidate refused honestly: rethrow the
-    // FIRST quota-passer's refusal (the v0.3.0-exact class, message, and
-    // details when the primary passes the quota; the v0.4.1 grass gate's
-    // typed refusal when the first candidate was refused pre-solve) with
+    // Every candidate refused honestly: rethrow the FIRST candidate's
+    // refusal (the v0.3.0-exact class, message, and details when the
+    // primary passes the quota; the v0.4.1 grass gate's typed refusal when
+    // the first candidate was refused pre-solve; the first prior-seeded
+    // candidate's refusal when only the prior supplied candidates) with
     // the additive per-candidate chain record attached — nothing
-    // laundered, every candidate's measured outcome recorded.
+    // laundered, every candidate's measured outcome recorded. v0.6.0: the
+    // prior path's own supply record rides the refusal when the prior is
+    // on (seeded count + the family's best measured numbers).
     const failure = firstFailure!;
     throw new CandidateFailureError(failure.message, {
       ...failure.details,
       failureClassId: failure.details.failureClassId as string,
       conicChain: chainFailures,
+      ...(this.penaltyArcPrior
+        ? {
+            priorSeededCandidates: priorFits.length,
+            ...(priorSeed?.bestSupportPx !== undefined
+              ? {
+                  priorBestSupportPx: priorSeed.bestSupportPx,
+                  priorBestCoverageBins: priorSeed.bestCoverageBins,
+                }
+              : {}),
+          }
+        : {}),
     });
   }
 
@@ -5456,7 +6326,10 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
    * combined-objective finalist selection, the coordinate-descent
    * refinement, and the FULL validation gates (never lowered). Throws the
    * typed refusals of the v0.2.0/v0.3.0 surface verbatim; called per
-   * candidate by the conic-selection chain.
+   * candidate by the conic-selection chain. v0.6.0 (E2d): a PRIOR-seeded
+   * candidate (fit.prior defined) runs the SAME flow against its fixed
+   * penalty-arc world circle (the family threading below) with the prior
+   * provenance riding every refusal record; every gate is the same.
    */
   private ellipseSolveForConic(
     fit: ArcConicFit,
@@ -5487,6 +6360,13 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       greenSub,
       anchorFrame,
     } = evidence;
+    // v0.6.0 (E2d): the candidate's conic-anchor family — the center
+    // circle for every evidence-derived candidate (the exact v0.2.0-v0.5.0
+    // surface, byte-identical); a prior-seeded candidate's FIXED penalty-arc
+    // world circle. The prior provenance rides every refusal record below.
+    const family = familyOfCandidate(fit);
+    const priorDetails =
+      fit.prior !== undefined ? { prior: fit.prior, priorEnd: fit.priorEnd } : {};
 
     // E4. Conic-anchored hypotheses (pole-polar anchors + the mixed DLT).
     // E4b (v0.5.0, OPT-IN): when `ellipseAnchorConversion` is on, the flow
@@ -5496,10 +6376,12 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     // EVERY scan solve is projected onto the J-orthogonal class under the
     // conversion guards — the per-candidate anchor record (scan solves
     // enumerated / converted) rides every conversion-path refusal below.
+    // v0.6.0: the frame + the guards carry the candidate's family world
+    // circle (the center circle for evidence candidates — byte-identical).
     let anchorRecord: { readonly scanSolves: number; readonly converted: number } | undefined;
     let hypotheses: Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }>;
     if (this.ellipseAnchorConversion) {
-      const frame = buildBroadcastEllipseAnchorFrame(fit.conic, width, height);
+      const frame = buildBroadcastEllipseAnchorFrame(fit.conic, width, height, family);
       if (frame === undefined) {
         // The conic's canonicalization REFUSED (the IMAGINARY class: a
         // conic with no real points cannot carry the x² + y² − z² = 0
@@ -5519,6 +6401,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             supportPx: fit.supportPx,
             coverageBins: fit.coverageBins,
             arcPixels: arcCount,
+            ...priorDetails,
             ...linePathDetails,
           },
         );
@@ -5531,6 +6414,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
         scoredSub,
         width,
         height,
+        family,
       );
       anchorRecord = { scanSolves: convertedScan.scanSolves, converted: convertedScan.converted };
       if (convertedScan.scanSolves === 0) {
@@ -5548,6 +6432,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             hypotheses: 0,
             anchorScanSolves: 0,
             anchorConverted: 0,
+            ...priorDetails,
             ...linePathDetails,
           },
         );
@@ -5574,13 +6459,22 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             coverageBins: fit.coverageBins,
             arcPixels: arcCount,
             hypotheses: 0,
+            ...priorDetails,
             ...linePathDetails,
           },
         );
       }
       hypotheses = convertedScan.hypotheses;
     } else {
-      hypotheses = this.ellipseHypotheses(fit.conic, lines, staticPixels, scoredSub, width, height);
+      hypotheses = this.ellipseHypotheses(
+        fit.conic,
+        lines,
+        staticPixels,
+        scoredSub,
+        width,
+        height,
+        family,
+      );
     }
     if (hypotheses.length === 0) {
       throw new CandidateFailureError(
@@ -5595,6 +6489,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           supportPx: fit.supportPx,
           coverageBins: fit.coverageBins,
           hypotheses: 0,
+          ...priorDetails,
           ...linePathDetails,
         },
       );
@@ -5643,7 +6538,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       }
       const quick =
         this.forwardScoreOn(homography, quickPoints) +
-        ellipseRewardTerm(inverse, fit.conic, width, height) +
+        ellipseRewardTerm(inverse, fit.conic, width, height, family) +
         lineConsistencyTerm(homography, hypothesis.linePairs, width, height);
       pushFinalist(homography, quick, hypothesis.linePairs);
     }
@@ -5665,7 +6560,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       }
       const score =
         this.forwardScoreOn(finalist.homography, scoredSub) +
-        ellipseRewardTerm(inverse, fit.conic, width, height) +
+        ellipseRewardTerm(inverse, fit.conic, width, height, family) +
         lineConsistencyTerm(finalist.homography, finalist.linePairs, width, height);
       if (best === undefined || score > best.score) {
         best = { homography: finalist.homography, score, linePairs: finalist.linePairs };
@@ -5685,6 +6580,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ...(anchorRecord !== undefined
             ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
             : {}),
+          ...priorDetails,
           ...linePathDetails,
         },
       );
@@ -5778,7 +6674,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
         forwardSmooth(h) +
         backwardReward +
         greenFraction +
-        ellipseRewardTerm(inverse, fit.conic, width, height) +
+        ellipseRewardTerm(inverse, fit.conic, width, height, family) +
         lineConsistencyTerm(h, linePairsEvidence, width, height)
       );
     };
@@ -5827,9 +6723,11 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     //     the conic-exact solve contradicts the line evidence the bar REFUSES
     //     honestly (the anchors-fight outcome — the measured synthetic
     //     residuals ride the refusal; nothing laundered).
-    const solvedLabel = this.ellipseAnchorConversion
-      ? "anchor-converted (conic-exact) homography"
-      : "refined homography";
+    const solvedLabel =
+      (fit.prior !== undefined ? "penalty-arc-prior (fixed-geometry family) " : "") +
+      (this.ellipseAnchorConversion
+        ? "anchor-converted (conic-exact) homography"
+        : "refined homography");
     if (!this.ellipseGuardsOk(refined, quickPoints, quickGreen)) {
       throw new CandidateFailureError(
         `BroadcastLineCalibrator: ellipse path — the ${solvedLabel} collapsed (failed the ` +
@@ -5840,6 +6738,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ...(anchorRecord !== undefined
             ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
             : {}),
+          ...priorDetails,
           ...linePathDetails,
         },
       );
@@ -5865,6 +6764,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ...(anchorRecord !== undefined
             ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
             : {}),
+          ...priorDetails,
           ...linePathDetails,
         },
       );
@@ -5879,7 +6779,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       backwardSum += chamferAt(projected.x, projected.y);
     }
     const backward = backwardCount > 0 ? backwardSum / backwardCount : Number.POSITIVE_INFINITY;
-    const ellipseMetrics = ellipseMeanResidualPx(inverse, fit.conic, width, height);
+    const ellipseMetrics = ellipseMeanResidualPx(inverse, fit.conic, width, height, family);
     if (
       lineFit < VALIDATION_LINE_FIT_MIN ||
       backward > VALIDATION_BACKWARD_MAX_PX ||
@@ -5906,25 +6806,28 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
           ...(anchorRecord !== undefined
             ? { anchorScanSolves: anchorRecord.scanSolves, anchorConverted: anchorRecord.converted }
             : {}),
+          ...priorDetails,
           ...linePathDetails,
         },
       );
     }
 
-    // E6b (v0.4.1, CHAIN-ONLY): the PROJECTED-GRID GEOMETRY GATE — the
-    // machine gates above are degenerately satisfiable (the measured b3-a
-    // class: a point-collapse H collects lineFit from the whole image
-    // mapping onto a model-line cluster, backward from the pitch mapping
-    // onto one static-mask point, and the ellipse residual from the
-    // circle mapping onto a single point ON the conic). The containment
-    // invariant is not: the pitch's image must contain the conic — a real
-    // camera's quad carries the area floor by construction. The default
-    // surface (chain off) never runs this gate.
-    if (this.ellipseMultiConicSelection) {
+    // E6b (v0.4.1): the PROJECTED-GRID GEOMETRY GATE — the machine gates
+    // above are degenerately satisfiable (the measured b3-a class: a
+    // point-collapse H collects lineFit from the whole image mapping onto
+    // a model-line cluster, backward from the pitch mapping onto one
+    // static-mask point, and the ellipse residual from the circle mapping
+    // onto a single point ON the conic). The containment invariant is not:
+    // the pitch's image must contain the conic — a real camera's quad
+    // carries the area floor by construction. v0.6.0 (E2d): the gate runs
+    // on the chain path AND on every prior-seeded solve (the prior family
+    // carries its own gate application); the default surface (both options
+    // off) never runs this gate.
+    if (this.ellipseMultiConicSelection || fit.prior !== undefined) {
       const grid = evaluateBroadcastEllipseGridGeometry(refined, fit.conic, width, height);
       if (!grid.ok) {
         throw new CandidateFailureError(
-          `BroadcastLineCalibrator: conic-selection chain — the solved homography passed every ` +
+          `BroadcastLineCalibrator: ${fit.prior !== undefined ? "penalty-arc-conic prior" : "conic-selection chain"} — the solved homography passed every ` +
             `machine gate (lineFit ${lineFit.toFixed(3)}, backward ` +
             `${Number.isFinite(backward) ? backward.toFixed(2) : "∞"} px, ellipse residual ` +
             `${Number.isFinite(ellipseMetrics.meanPx) ? ellipseMetrics.meanPx.toFixed(2) : "∞"} px) ` +
@@ -5956,6 +6859,73 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
                   anchorConverted: anchorRecord.converted,
                 }
               : {}),
+            ...priorDetails,
+            ...linePathDetails,
+          },
+        );
+      }
+    }
+
+    // v0.6.0 (E2d, PRIOR-ONLY): THE PRIOR FAMILY'S GEOMETRIC CONTAINMENT
+    // GATE — the E6b area-form proxy above is one-directional (a large
+    // enough quad passes it regardless of where the conic actually sits),
+    // and the measured false-positive class exploits exactly that: a
+    // prior-seeded solve fitted over arc-crumb/sliver evidence passes every
+    // machine gate while projecting the pitch as a thin band or tiny
+    // non-convex quad with the prior conic's center OUTSIDE it (measured:
+    // worst-probe errors 94.9-294.5 m at conf 0.636-0.814 on the synthetic
+    // fixtures, BEFORE this gate). The invariant this gate enforces is
+    // exact: the family's world circle lies strictly inside the pitch
+    // rectangle, so under ANY correct homography the conic's interior —
+    // the disk's image, a convex subset of the projected quad — contains
+    // the conic center INSIDE the quad (module docs E2d; the pure export
+    // evaluateBroadcastPriorQuadContainment). A violation proves the solve
+    // mapped the fixed-geometry arc onto evidence it cannot explain; the
+    // claim is WITHHELD, nothing laundered. The default surface (both
+    // options off) never runs this gate.
+    if (fit.prior !== undefined) {
+      const quad = evaluateBroadcastPriorQuadContainment(refined, fit.conic, width, height);
+      if (!quad.ok) {
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: penalty-arc-conic prior — the prior-seeded solve (the ` +
+            `${fit.priorEnd} penalty arc's fixed-geometry family) passed every machine gate ` +
+            `(lineFit ${lineFit.toFixed(3)}, backward ` +
+            `${Number.isFinite(backward) ? backward.toFixed(2) : "∞"} px, ellipse residual ` +
+            `${Number.isFinite(ellipseMetrics.meanPx) ? ellipseMetrics.meanPx.toFixed(2) : "∞"} px) ` +
+            `but the GEOMETRIC containment invariant is violated: the projected pitch quad ` +
+            `${quad.convex ? "does not contain" : "is not a convex quad containing"} the prior ` +
+            `conic's center (${quad.centerPx.x.toFixed(1)}, ${quad.centerPx.y.toFixed(1)}) px ` +
+            `(minimum signed edge distance ` +
+            `${Number.isFinite(quad.minSignedEdgeDistancePx) ? quad.minSignedEdgeDistancePx.toFixed(1) : "−∞"} px — ` +
+            `the family's world circle lies strictly inside the pitch rectangle, so a correct ` +
+            `solve maps the conic's interior — and with it the center — inside the projected ` +
+            `quad; a violation proves the solve pulled the fixed-geometry arc onto evidence it ` +
+            `cannot explain) — the claim is WITHHELD, nothing laundered`,
+          {
+            failureClassId: "broadcast-line.ellipse-prior-quad-containment",
+            lineFit,
+            backwardPx: backwardCount > 0 ? backward : undefined,
+            ellipseMeanPx: Number.isFinite(ellipseMetrics.meanPx)
+              ? ellipseMetrics.meanPx
+              : undefined,
+            quadAreaPx: quad.quadAreaPx,
+            quadConvex: quad.convex,
+            priorConicCenterPx: quad.centerPx,
+            minSignedEdgeDistancePx: Number.isFinite(quad.minSignedEdgeDistancePx)
+              ? quad.minSignedEdgeDistancePx
+              : undefined,
+            cornersPx: quad.cornersPx,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            scoredPixels: scoredFull.length / 2,
+            hypotheses: hypotheses.length,
+            ...(anchorRecord !== undefined
+              ? {
+                  anchorScanSolves: anchorRecord.scanSolves,
+                  anchorConverted: anchorRecord.converted,
+                }
+              : {}),
+            ...priorDetails,
             ...linePathDetails,
           },
         );
@@ -6007,7 +6977,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
    * v0.1.0 ordering priors, each solved by the mixed points+lines DLT over
    * the pole-polar anchor set (with the exact midline closure for the
    * same-family parallel cases — see `buildEllipseAnchors`). Deterministic
-   * enumeration order: (swap, pair, valueA, valueB, flip).
+   * enumeration order: (swap, pair, valueA, valueB, flip). v0.6.0 (E2d):
+   * the anchors/scan run against the candidate's family world circle (the
+   * center circle by default — byte-identical).
    */
   private ellipseHypotheses(
     conic: EllipseConic,
@@ -6016,6 +6988,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     scoredSub: readonly number[],
     width: number,
     height: number,
+    family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
   ): Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }> {
     // Sub-pixel (theta, rho) per detected line (see refineLineSubpixel) —
     // the anchors are built from these, not the quantized Hough values.
@@ -6094,6 +7067,8 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
               subpixel,
               width,
               height,
+              undefined,
+              family,
             );
             for (const base of bases) {
               const candidate = scanEllipseHypothesis(
@@ -6103,6 +7078,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
                 scanPoints,
                 width,
                 height,
+                family,
               );
               if (candidate === undefined) continue;
               hypotheses.push(candidate);
@@ -6130,6 +7106,9 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
    * the conic hard guard. Returns the CONVERTED candidates plus the
    * per-candidate anchor record (the scan solves enumerated / converted)
    * that rides every conversion-path refusal. Deterministic.
+   * v0.6.0 (E2d): the pole rows / scan point / conversion guards run against
+   * the candidate's family world circle (the center circle by default —
+   * byte-identical).
    */
   private ellipseConvertedHypotheses(
     fit: ArcConicFit,
@@ -6139,6 +7118,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     scoredSub: readonly number[],
     width: number,
     height: number,
+    family: BroadcastWorldCircle = CENTER_CIRCLE_FAMILY,
   ): {
     hypotheses: Array<{ homography: Homography; linePairs: readonly MixedLinePair[] }>;
     scanSolves: number;
@@ -6184,9 +7164,10 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
     let scanSolves = 0;
     let converted = 0;
     const anchorBound = 5;
-    // The scan's closing anchor pair (the same constants as
-    // `scanEllipseHypothesis`): the world circle point at angle 0 + tangent.
-    const tangentWorld = circleTangentAt(SCAN_WORLD_POINT);
+    // The scan's closing anchor pair (the same construction as
+    // `scanEllipseHypothesis`): the family's world-circle scan point + tangent.
+    const scanWorldPoint = familyScanWorldPoint(family);
+    const tangentWorld = circleTangentAt(family, scanWorldPoint);
     const solveAt = (
       base: EllipseBaseAnchors,
       t: number,
@@ -6195,7 +7176,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       if (Math.abs(p.x) > 5 * width || Math.abs(p.y) > 5 * height) return undefined;
       const points: MixedPointPair[] = [
         ...base.points.map((point) => ({ u: point.u, v: point.v, x: point.x, y: point.y })),
-        { ...pxPointToNormalized(p, width, height), x: SCAN_WORLD_POINT.x, y: SCAN_WORLD_POINT.y },
+        { ...pxPointToNormalized(p, width, height), x: scanWorldPoint.x, y: scanWorldPoint.y },
       ];
       const lines: MixedLinePair[] = [
         ...base.lines.map((line) => ({ image: line.image, pitch: line.pitch })),
@@ -6210,7 +7191,14 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
       linePairs: readonly MixedLinePair[];
     }): void => {
       scanSolves += 1;
-      const outcome = convertAnchorWithFrame(frame, geometry, width, height, candidate.homography);
+      const outcome = convertAnchorWithFrame(
+        frame,
+        geometry,
+        width,
+        height,
+        candidate.homography,
+        family,
+      );
       if (outcome.kind !== "converted") return;
       converted += 1;
       hypotheses.push({ homography: outcome.homography, linePairs: candidate.linePairs });
@@ -6272,7 +7260,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             const nearModelLine = modelLineNorm(nearAssigned.family, Math.min(valueA, valueB));
             let nearPole: { u: number; v: number; x: number; y: number } | undefined;
             const imagePole = poleOfLine(frame.qCanon, nearImageLine);
-            const worldPole = poleOfLine(WORLD_CIRCLE_CONIC, nearModelLine);
+            const worldPole = poleOfLine(worldCircleConicOf(family), nearModelLine);
             if (imagePole !== undefined && worldPole !== undefined) {
               const iz = imagePole[2];
               const wz = worldPole[2];
@@ -6303,6 +7291,7 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
               width,
               height,
               nearPole,
+              family,
             );
             for (const base of bases) {
               // The SAME 1-DOF coarse+fine scan driver as
