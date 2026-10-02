@@ -311,10 +311,27 @@
  *     errors 94.9-294.5 m at conf 0.636-0.814 measured BEFORE the gate;
  *     every one of those solves projects the pitch as a thin
  *     band/tiny quad with the conic center 4-85 px OUTSIDE it — the
- *     invariant refuses them all). The default surface (both options
- *     off) never runs any of these gates (byte-identical).
- *     `false` (the default) restores the EXACT v0.5.0 behavior surface —
- *     the prior never seeds (byte-identical).
+ *     invariant refuses them all). FLIGHT 4 ADDS THE WORLD-CIRCLE /
+ *     HORIZON GATE (`broadcast-line.ellipse-prior-world-circle`, the
+ *     closure of the recorded 116.5 m class): the painted-arc image
+ *     residual and the one-directional containment gates leave the FULL-
+ *     circle WORLD-side correspondence unchecked, so a GLOBALLY-WRONG
+ *     solve (measured: pitch corners 503-1753 px outside the 640x360
+ *     frame, the prior conic back-projected 8.2-9560.6 m off the family's
+ *     fixed circle, worst probe error 116.5 m at conf 0.636) passed them
+ *     all. The gate's two legs (both PRIOR-ONLY, the pure export
+ *     `evaluateBroadcastPriorWorldCircle`): (1) the back-projected FULL
+ *     360° conic must land on the family's fixed world circle within the
+ *     calibration's OWN model-distance bar SCORE_RADIUS_M = 1.0 m (the
+ *     same radius the lineFit inlier scoring uses — no new, weaker bar);
+ *     (2) the horizon (H's third row, the pitch plane's vanishing line)
+ *     must not cut the conic or the projected pitch quad — every visible
+ *     finite ground point of a real elevated broadcast camera projects
+ *     strictly on the camera side (exact, no threshold; a straddle is
+ *     the mirrored / flipped / global-wrong orientation class). The
+ *     default surface (both options off) never runs any of these gates
+ *     (byte-identical). `false` (the default) restores the EXACT v0.5.0
+ *     behavior surface — the prior never seeds (byte-identical).
  * E3. EVIDENCE QUOTA (typed refusal below): support >=
  *     ELLIPSE_MIN_SUPPORT_PX AND angular coverage >=
  *     ELLIPSE_MIN_COVERAGE_BINS of the 36 10°-bins around the conic.
@@ -557,7 +574,16 @@ import type { CalibrationResult, PitchCalibrationAdapter, PitchCalibrationInput 
  * gate (`broadcast-line.ellipse-prior-quad-containment` — the exact
  * invariant that the projected pitch quad contains the prior conic's
  * center; the measured false-positive closure for the degenerate
- * arc-crumb/sliver solve class, module docs E2d); prior candidates run
+ * arc-crumb/sliver solve class, module docs E2d) AND — flight 4, the
+ * closure of the recorded 116.5 m globally-wrong solve class — the
+ * WORLD-CIRCLE / HORIZON gate (`broadcast-line.ellipse-prior-world-circle`,
+ * the pure export `evaluateBroadcastPriorWorldCircle`): the back-projected
+ * FULL 360° conic must land on the family's fixed world circle within the
+ * calibration's OWN model-distance bar (SCORE_RADIUS_M = 1.0 m, the same
+ * radius the lineFit's inlier scoring uses) and the horizon (H's third
+ * row, the pitch plane's vanishing line) must not cut the conic or the
+ * projected pitch quad (the exact elevated-view orientation invariant);
+ * prior candidates run
  * AFTER every evidence-derived
  * candidate; every refusal record and conicChain entry carries the prior
  * provenance (`prior: "penalty-arc"` + `priorEnd`), and a prior that
@@ -924,6 +950,32 @@ export const BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES: readonly FailureCl
       "refusal carries the projected corners, the conic center, and the " +
       "minimum signed edge distance. Typed refusal, never a laundered " +
       "solve.",
+    retryable: false,
+  },
+  {
+    failureClassId: "broadcast-line.ellipse-prior-world-circle",
+    description:
+      "v0.6.0 penalty-arc-conic prior (OPT-IN path only, E2d, flight 4 — " +
+      "THE MEASURED CLASS CLOSURE): a prior-seeded solve that passed every " +
+      "machine gate AND the grass / degenerate-grid / quad-containment " +
+      "gates still violates the WORLD-CIRCLE / HORIZON invariant. Leg 1 " +
+      "(the world-side probe, the direction the painted-arc image residual " +
+      "leaves open): the back-projected FULL 360° conic lands more than " +
+      "SCORE_RADIUS_M (1.0 m — the calibration's OWN model-distance bar, " +
+      "the same radius the lineFit's inlier scoring uses) off the family's " +
+      "FIXED world circle. Leg 2 (exact, no threshold): the horizon (the " +
+      "vanishing line of the pitch plane, H's third row) cuts the conic " +
+      "or the projected pitch quad — every visible finite ground point of " +
+      "a real elevated broadcast camera projects strictly on the camera " +
+      "side, so a straddle is the mirrored / flipped / global-wrong " +
+      "orientation class. Closes the recorded flight-3 finding: a " +
+      "synthetic occluded-circle fixture calibrated at machine-passing " +
+      "gates with a 116.5 m worst probe error (the solve's pitch corners " +
+      "projected 503-1753 px outside the 640x360 frame; its prior conic " +
+      "back-projected 8.2-9560.6 m off the fixed world circle). The " +
+      "refusal carries the worst/mean world-side probe errors over the " +
+      "sampled full-ellipse points, the probe bar, and the horizon sign " +
+      "record. Typed refusal — the claim is withheld, nothing laundered.",
     retryable: false,
   },
 ];
@@ -5663,6 +5715,201 @@ export function evaluateBroadcastPriorQuadContainment(
   };
 }
 
+/**
+ * v0.6.0 (flight 4, E2d — THE MEASURED CLASS CLOSURE) — the PRIOR FAMILY'S
+ * WORLD-CIRCLE / HORIZON consistency measurement. Closes the recorded
+ * flight-3 honest finding: a synthetic occluded-circle fixture calibrates
+ * on the prior path with EVERY machine gate passing (lineFit / backward /
+ * ellipse residual over the PAINTED arc samples / grass / E6b area-form /
+ * quad containment) at a worst probe error of 116.5 m — a GLOBALLY-WRONG
+ * world-frame solve. The exploitable gap: the ellipse residual measures
+ * only the painted arc's ~106° span in the IMAGE direction, so a solve
+ * that maps that span onto the fitted conic passes while the remaining
+ * 254° of the correspondence — and the whole world frame — is uncon-
+ * strained (the measured wrong solve maps the pitch quad to corners
+ * 503-1753 px OUTSIDE the 640x360 frame and back-projects the prior
+ * conic 8.2-9560.6 m off the family's fixed world circle). Two legs,
+ * both fired ONLY on prior-seeded solves (never on evidence-derived
+ * candidates; the default surface never runs them):
+ *
+ * (1) THE WORLD-SIDE PROBE (the direction the residual leaves open): the
+ * fitted conic's FULL 360° ellipse — sampled at the module's own
+ * ELLIPSE_CIRCLE_SAMPLES density — is back-projected through the solved
+ * H, and every sample's distance to the family's world circle
+ * |‖p − center‖ − r| must stay within the calibration's OWN model-
+ * distance bar, SCORE_RADIUS_M = 1.0 m — the SAME radius the lineFit's
+ * inlier scoring uses (no new, weaker bar; a correct solve with an
+ * accurate conic measures sub-meter: the painted 2-px band's fit error
+ * is ~0.1-0.3 m at broadcast scales). The prior asserts the pair
+ * (image conic, FIXED world circle); a solve that cannot close the FULL
+ * circle correspondence at the existing bar has mapped the fixed
+ * geometry onto evidence it cannot explain.
+ *
+ * (2) THE HORIZON / ORIENTATION leg (exact, no threshold): the third row
+ * of H is the vanishing line (horizon) of the pitch plane in the image;
+ * every VISIBLE finite ground point — every point of the world circle,
+ * every pitch corner — projects STRICTLY on the camera side of it. The
+ * conic's samples AND the projected pitch quad's corners must all carry
+ * the same strict sign of h6·u + h7·v + h8 (a straddle or a zero is the
+ * mirrored / flipped / global-wrong orientation class). Sign convention
+ * is scale-invariant; an affine solve (h6 = h7 = 0) trivially passes
+ * (the whole plane is the near side).
+ *
+ * PURE MEASUREMENT — the prior path's typed gate and the tests use it to
+ * measure and regression-lock the globally-wrong solve class.
+ * Deterministic; validates its inputs fail-loud (RangeError).
+ */
+export interface BroadcastPriorWorldCircle {
+  /** The WORST world-side probe error (m): max |‖p − center‖ − r| over the back-projected full-ellipse samples. */
+  readonly worstProbeErrorM: number;
+  /** The mean world-side probe error (m) over the back-projected full-ellipse samples. */
+  readonly meanProbeErrorM: number;
+  /** The in-frame count of back-projected full-ellipse samples (finite denominators). */
+  readonly probeSamples: number;
+  /** The minimum SIGNED horizon value h6·u + h7·v + h8 over the conic samples AND the projected pitch corners (0 sentinel when a point sits ON the horizon or the quad collapsed). */
+  readonly minHorizonSigned: number;
+  /** The maximum SIGNED horizon value over the same set (a min/max sign straddle is the orientation-violation class). */
+  readonly maxHorizonSigned: number;
+  /** Whether conic + projected quad all carry one strict sign (the near side). */
+  readonly horizonSideConsistent: boolean;
+  /** False = the world-circle / horizon invariant is violated. */
+  readonly ok: boolean;
+}
+
+export function evaluateBroadcastPriorWorldCircle(
+  homography: Homography,
+  conic: EllipseConic,
+  width: number,
+  height: number,
+  family: BroadcastWorldCircle,
+): BroadcastPriorWorldCircle {
+  if (
+    !Array.isArray(homography) ||
+    homography.length !== 9 ||
+    !homography.every((value) => Number.isFinite(value))
+  ) {
+    throw new RangeError(
+      `evaluateBroadcastPriorWorldCircle: homography must be an array of 9 finite numbers ` +
+        `(got length ${Array.isArray(homography) ? homography.length : "non-array"})`,
+    );
+  }
+  if (
+    conic === null ||
+    typeof conic !== "object" ||
+    ![conic.a, conic.b, conic.c, conic.d, conic.e, conic.f].every((value) =>
+      Number.isFinite(value as number),
+    )
+  ) {
+    throw new RangeError(
+      "evaluateBroadcastPriorWorldCircle: conic must carry 6 finite coefficients (a..f)",
+    );
+  }
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 1 || height <= 1) {
+    throw new RangeError(
+      `evaluateBroadcastPriorWorldCircle: width/height must be integers > 1 (got ${width}x${height})`,
+    );
+  }
+  if (
+    family === null ||
+    typeof family !== "object" ||
+    !Number.isFinite(family.cx) ||
+    !Number.isFinite(family.cy) ||
+    !Number.isFinite(family.r) ||
+    family.r <= 0
+  ) {
+    throw new RangeError(
+      "evaluateBroadcastPriorWorldCircle: family must carry finite cx/cy and r > 0",
+    );
+  }
+  const geometry = conicGeometry(conic);
+  if (geometry === undefined) {
+    throw new RangeError(
+      "evaluateBroadcastPriorWorldCircle: conic is not a real non-degenerate ellipse",
+    );
+  }
+  // Leg 1 — the world-side probe: back-project the FULL 360° ellipse.
+  let worstProbeErrorM = 0;
+  let probeSum = 0;
+  let probeSamples = 0;
+  let minHorizonSigned = Number.POSITIVE_INFINITY;
+  let maxHorizonSigned = Number.NEGATIVE_INFINITY;
+  const h6 = homography[6]!;
+  const h7 = homography[7]!;
+  const h8 = homography[8]!;
+  const recordSide = (side: number): void => {
+    if (side < minHorizonSigned) minHorizonSigned = side;
+    if (side > maxHorizonSigned) maxHorizonSigned = side;
+  };
+  for (let i = 0; i < ELLIPSE_CIRCLE_SAMPLES; i += 1) {
+    const t = (2 * Math.PI * i) / ELLIPSE_CIRCLE_SAMPLES;
+    const point = conicPointAt(geometry, t);
+    const u = point.x / width;
+    const v = point.y / height;
+    const side = h6 * u + h7 * v + h8;
+    recordSide(side);
+    if (Math.abs(side) <= 1e-12) continue; // ON the horizon: the far-side boundary (leg 2 decides)
+    const px = (homography[0]! * u + homography[1]! * v + homography[2]!) / side;
+    const py = (homography[3]! * u + homography[4]! * v + homography[5]!) / side;
+    if (!Number.isFinite(px) || !Number.isFinite(py)) continue;
+    const errorM = Math.abs(Math.hypot(px - family.cx, py - family.cy) - family.r);
+    worstProbeErrorM = Math.max(worstProbeErrorM, errorM);
+    probeSum += errorM;
+    probeSamples += 1;
+  }
+  // Leg 2 — the horizon/orientation consistency: the projected pitch quad's
+  // corners must share the conic's strict sign.
+  let inverse: Homography;
+  try {
+    inverse = invertHomography(homography);
+  } catch {
+    return {
+      worstProbeErrorM: probeSamples > 0 ? worstProbeErrorM : Number.POSITIVE_INFINITY,
+      meanProbeErrorM: probeSamples > 0 ? probeSum / probeSamples : Number.POSITIVE_INFINITY,
+      probeSamples,
+      minHorizonSigned: 0,
+      maxHorizonSigned: 0,
+      horizonSideConsistent: false,
+      ok: false,
+    };
+  }
+  for (const corner of CANONICAL_PITCH_CORNERS) {
+    const denominator = inverse[6]! * corner.x + inverse[7]! * corner.y + inverse[8]!;
+    if (Math.abs(denominator) <= 1e-12) {
+      minHorizonSigned = 0;
+      maxHorizonSigned = 0;
+      continue;
+    }
+    const u = (inverse[0]! * corner.x + inverse[1]! * corner.y + inverse[2]!) / denominator;
+    const v = (inverse[3]! * corner.x + inverse[4]! * corner.y + inverse[5]!) / denominator;
+    if (!Number.isFinite(u) || !Number.isFinite(v)) {
+      minHorizonSigned = 0;
+      maxHorizonSigned = 0;
+      continue;
+    }
+    recordSide(h6 * u + h7 * v + h8);
+  }
+  // A strict shared sign: every recorded horizon value must be strictly
+  // positive (one near side) or strictly negative (the flipped global
+  // scale — still ONE side); a straddle, a zero (a point ON the horizon or
+  // a collapsed quad projection), or an empty set is the orientation-
+  // violation class. The sign test is scale-invariant in H.
+  const horizonSideConsistent =
+    (Number.isFinite(minHorizonSigned) &&
+      Number.isFinite(maxHorizonSigned) &&
+      (minHorizonSigned > 0 || maxHorizonSigned < 0)) ||
+    false;
+  const ok = horizonSideConsistent && probeSamples > 0 && worstProbeErrorM <= SCORE_RADIUS_M;
+  return {
+    worstProbeErrorM,
+    meanProbeErrorM: probeSamples > 0 ? probeSum / probeSamples : Number.POSITIVE_INFINITY,
+    probeSamples,
+    minHorizonSigned,
+    maxHorizonSigned,
+    horizonSideConsistent,
+    ok,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // The candidate.
 // ---------------------------------------------------------------------------
@@ -6286,6 +6533,18 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
             ? {
                 anchorScanSolves: error.details.anchorScanSolves,
                 anchorConverted: error.details.anchorConverted,
+              }
+            : {}),
+          // v0.6.0 (flight 4): the world-circle / horizon gate's measured
+          // numbers ride the chain entry when that gate refused the
+          // candidate (the prior path's class-closure record).
+          ...(error.details.priorWorldWorstProbeErrorM !== undefined
+            ? {
+                priorWorldWorstProbeErrorM: error.details.priorWorldWorstProbeErrorM,
+                priorWorldMeanProbeErrorM: error.details.priorWorldMeanProbeErrorM,
+                priorWorldProbeSamples: error.details.priorWorldProbeSamples,
+                priorWorldProbeBarM: error.details.priorWorldProbeBarM,
+                priorWorldHorizonSideConsistent: error.details.priorWorldHorizonSideConsistent,
               }
             : {}),
           ...(isPriorCandidate ? { prior: candidate.prior, priorEnd: candidate.priorEnd } : {}),
@@ -6915,6 +7174,97 @@ export class BroadcastLineCalibrator implements PitchCalibrationAdapter {
               ? quad.minSignedEdgeDistancePx
               : undefined,
             cornersPx: quad.cornersPx,
+            supportPx: fit.supportPx,
+            coverageBins: fit.coverageBins,
+            scoredPixels: scoredFull.length / 2,
+            hypotheses: hypotheses.length,
+            ...(anchorRecord !== undefined
+              ? {
+                  anchorScanSolves: anchorRecord.scanSolves,
+                  anchorConverted: anchorRecord.converted,
+                }
+              : {}),
+            ...priorDetails,
+            ...linePathDetails,
+          },
+        );
+      }
+    }
+
+    // v0.6.0 (flight 4, E2d, PRIOR-ONLY): THE WORLD-CIRCLE / HORIZON GATE —
+    // THE MEASURED CLASS CLOSURE. The quad-containment gate above is one-
+    // directional (a large enough quad passes it regardless of where the
+    // conic's WORLD side lands), and the E6 ellipse residual measures only
+    // the PAINTED arc span in the IMAGE direction — together they leave the
+    // FULL-circle, WORLD-side correspondence unchecked, the exact gap the
+    // measured false-positive class exploits (module docs E2d, the pure
+    // export evaluateBroadcastPriorWorldCircle): a prior-seeded solve that
+    // passes every machine gate while globally wrong (the recorded 116.5 m
+    // worst-probe solve: pitch corners 503-1753 px outside the frame, the
+    // prior conic back-projected 8.2-9560.6 m off the family's FIXED world
+    // circle). The gate closes it with two legs, both measured in the
+    // record: (1) the back-projected FULL 360° conic must land on the
+    // family's fixed world circle within the calibration's OWN model-
+    // distance bar SCORE_RADIUS_M = 1.0 m (the same radius the lineFit's
+    // inlier scoring uses — no new, weaker bar); (2) the horizon (the
+    // vanishing line of the pitch plane, H's third row) must not cut the
+    // conic or the projected pitch quad — every visible finite ground point
+    // projects strictly on the camera side (an exact invariant of a real
+    // elevated broadcast camera looking at the ground-plane pitch; a
+    // straddle is the mirrored / flipped / global-wrong orientation class).
+    // The gate fires ONLY on prior-seeded solves — never on evidence-
+    // derived candidates — and the default surface (both options off)
+    // never runs it. A violation means the prior's own assertion (this
+    // conic IS the image of this fixed world circle) is contradicted by
+    // the solve; the claim is WITHHELD, nothing laundered.
+    if (fit.prior !== undefined) {
+      const worldCircle = evaluateBroadcastPriorWorldCircle(
+        refined,
+        fit.conic,
+        width,
+        height,
+        family,
+      );
+      if (!worldCircle.ok) {
+        throw new CandidateFailureError(
+          `BroadcastLineCalibrator: penalty-arc-conic prior — the prior-seeded solve (the ` +
+            `${fit.priorEnd} penalty arc's fixed-geometry family) passed every machine gate ` +
+            `(lineFit ${lineFit.toFixed(3)}, backward ` +
+            `${Number.isFinite(backward) ? backward.toFixed(2) : "∞"} px, ellipse residual ` +
+            `${Number.isFinite(ellipseMetrics.meanPx) ? ellipseMetrics.meanPx.toFixed(2) : "∞"} px, ` +
+            `grass + degenerate-grid + quad containment) but the WORLD-CIRCLE / HORIZON invariant ` +
+            `is violated: the back-projected FULL conic lands ` +
+            `${Number.isFinite(worldCircle.worstProbeErrorM) ? worldCircle.worstProbeErrorM.toFixed(1) : "∞"} m ` +
+            `off the family's fixed world circle (worst of ` +
+            `${worldCircle.probeSamples} probe samples, mean ` +
+            `${Number.isFinite(worldCircle.meanProbeErrorM) ? worldCircle.meanProbeErrorM.toFixed(1) : "∞"} m; ` +
+            `the bar is the calibration's OWN model-distance radius ${SCORE_RADIUS_M} m) and the ` +
+            `horizon ${worldCircle.horizonSideConsistent ? "is consistent" : "CUTS the conic / projected pitch quad " + "(the mirrored / flipped / global-wrong orientation class)"} — ` +
+            `the prior asserts this conic IS the image of the fixed circle, and a solve that ` +
+            `cannot close the FULL 360° correspondence at the existing bar has mapped the fixed ` +
+            `geometry onto evidence it cannot explain; the claim is WITHHELD, nothing laundered`,
+          {
+            failureClassId: "broadcast-line.ellipse-prior-world-circle",
+            lineFit,
+            backwardPx: backwardCount > 0 ? backward : undefined,
+            ellipseMeanPx: Number.isFinite(ellipseMetrics.meanPx)
+              ? ellipseMetrics.meanPx
+              : undefined,
+            priorWorldWorstProbeErrorM: Number.isFinite(worldCircle.worstProbeErrorM)
+              ? worldCircle.worstProbeErrorM
+              : undefined,
+            priorWorldMeanProbeErrorM: Number.isFinite(worldCircle.meanProbeErrorM)
+              ? worldCircle.meanProbeErrorM
+              : undefined,
+            priorWorldProbeSamples: worldCircle.probeSamples,
+            priorWorldProbeBarM: SCORE_RADIUS_M,
+            priorWorldHorizonSideConsistent: worldCircle.horizonSideConsistent,
+            priorWorldMinHorizonSigned: Number.isFinite(worldCircle.minHorizonSigned)
+              ? worldCircle.minHorizonSigned
+              : undefined,
+            priorWorldMaxHorizonSigned: Number.isFinite(worldCircle.maxHorizonSigned)
+              ? worldCircle.maxHorizonSigned
+              : undefined,
             supportPx: fit.supportPx,
             coverageBins: fit.coverageBins,
             scoredPixels: scoredFull.length / 2,
