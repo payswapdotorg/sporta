@@ -1,0 +1,26 @@
+{
+  "runId": "musu1zez",
+  "baseUrl": "http://127.0.0.1:3909",
+  "startedAtIso": "2026-10-03T20:16:54.155Z",
+  "flows": [
+    {
+      "id": "live-tactical-gate",
+      "title": "Live tactical gate (L015) — continuous updates, latency, identity, dropout",
+      "status": "failed",
+      "assertions": [],
+      "notes": [
+        "FLOW ABORTED: no live source for the 'drop' scenario in the transport's own listing (8 sources)"
+      ],
+      "screenshots": ["live-tactical-gate-failure.png"]
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 1,
+    "assertions": {
+      "pass": 0,
+      "fail": 0
+    },
+    "exitCode": 1
+  }
+}

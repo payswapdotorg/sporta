@@ -44,6 +44,9 @@ import { realitySwitchFlow } from "./flows/reality-switch";
 import { outputPlaybackFlow } from "./flows/output-playback";
 import { renderFlow } from "./flows/render";
 import { roleSwitchFlow } from "./flows/role-switch";
+import { liveTacticalGateFlow } from "./flows/live-tactical-gate";
+import { liveJourneyFlow } from "./flows/live-journey";
+import { liveToReplayFlow } from "./flows/live-to-replay";
 
 // ------------------------------------------------------------------ options
 
@@ -141,6 +144,14 @@ async function startServer(): Promise<RunningServer> {
   const env = cleanChildEnv();
   env.PORT = String(PORT);
   env.SPORTA_DEMO_ACCOUNT_PASSWORD = DEMO_PASSWORD;
+  // The live gates (L015/L016/L017) require a deployment with the REAL SSE
+  // live transport active — `SPORTA_LIVE_TRANSPORT=sse` is the product's
+  // own documented deployment switch (docs/deployment/DEPLOYMENT.md; the
+  // transport stays honestly unavailable without it). The harness is the
+  // composition root here: it configures the deployment the acceptance
+  // run exercises — the same class of conscious decision as the demo
+  // account password above, never a fixture inside the app.
+  env.SPORTA_LIVE_TRANSPORT = "sse";
   const logFile = join(evidenceDir, "server.log");
   const log = Bun.file(logFile).writer();
   // detached: the server gets its OWN process group, so teardown can signal
@@ -373,6 +384,9 @@ async function main(): Promise<number> {
       { id: "output-playback", run: outputPlaybackFlow },
       { id: "render", run: renderFlow },
       { id: "role-switch", run: roleSwitchFlow },
+      { id: "live-tactical-gate", run: liveTacticalGateFlow },
+      { id: "live-journey", run: liveJourneyFlow },
+      { id: "live-to-replay", run: liveToReplayFlow },
     ];
     const order = onlyFlow !== undefined ? [onlyFlow] : recommendedFlowOrder();
 
