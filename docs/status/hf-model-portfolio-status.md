@@ -1,6 +1,6 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion); HF004 BENCHMARKED-REFUSED (typed, no promotion); HF006 BENCHMARKED (executed, no promotion)
+Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion); HF004 BENCHMARKED-REFUSED (typed, no promotion); HF006 BENCHMARKED (executed, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion)
 Date: 2026-10-03
 
 ## Portfolio
@@ -15,7 +15,7 @@ Date: 2026-10-03
 | HF006 Spivak | ✅ BENCHMARKED (20db83d, flight 3: EXECUTED CPU-host evidence — sha-verified 74 MB checkpoint, the full ResNet-152+dense-UNet chain ran, per-window 94/100 ms p50/p95, honest zero-detections OOD on short fragments, cascade verdict unfavorable on CPU; no promotion) | A |
 | HF007 SoccerChat | NOT_STARTED | A |
 | HF008 VibeVoice/Qwen3-ASR | NOT_STARTED | A+B |
-| HF009 pyannote | NOT_STARTED | A |
+| HF009 pyannote | ✅ BENCHMARKED-REFUSED (abdf172, flight 4: auth-gated-model typed refusal — community-1 is user-conditions-gated, 401 at the pinned revision, no HF token exists in-sandbox; the executed partial: 2 SPR WAVs sha-pinned + the 6-probe hub map + the W208 contract review; ready-to-run full mode; no promotion) | A |
 | HF010 camera-controlled neural renderer | NOT_STARTED | C |
 | HF011 ViewCrafter | NOT_STARTED | C |
 | HF012 Wan2.2 Animate | NOT_STARTED | C |
