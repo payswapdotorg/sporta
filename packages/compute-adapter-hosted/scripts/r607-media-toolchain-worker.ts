@@ -13,6 +13,10 @@
  *
  *   bun run scripts/r607-media-toolchain-worker.ts            # 127.0.0.1:3971
  *   PORT=3972 bun run scripts/r607-media-toolchain-worker.ts  # an alternate fixed port
+ *   HOSTNAME=0.0.0.0 PORT=3971 bun run scripts/r607-media-toolchain-worker.ts
+ *     # bind the public interface (the R607 62-c E2B hosting shape: the
+ *     # worker runs inside an E2B sandbox whose port proxy forwards the
+ *     # public https://{sandboxId}-{port}.e2b.app URL to the bound port)
  *
  * Boot output: the honest descriptor (the MEASURED toolchain resolution +
  * `ffmpeg -version` line + the fail-closed budgets). The process stays up
@@ -27,7 +31,11 @@ import { createMediaToolchainServer, createMediaToolchainWorker } from "../src/i
 import { FfmpegTool } from "@sporta/media-platform";
 
 const PORT = Number(process.env["PORT"] ?? 3971);
-const HOSTNAME = "127.0.0.1";
+// R607 62-c (the E2B failover): HOSTNAME stays 127.0.0.1 by default (the
+// local-real-HTTP boundary); an explicit HOSTNAME env binds the public
+// interface for the E2B-sandbox hosting shape (the sandbox's port proxy
+// forwards the public URL to the bound port — no other behavior changes).
+const HOSTNAME = process.env["HOSTNAME"] ?? "127.0.0.1";
 
 const tool = new FfmpegTool();
 const worker = createMediaToolchainWorker({ tool, nowMs: Date.now });

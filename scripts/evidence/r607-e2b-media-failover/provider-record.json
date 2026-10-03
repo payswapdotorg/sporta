@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-media-failover-provider-record",
+  "provider": {
+    "name": "E2B",
+    "product": "E2B Sandboxes (api.e2b.dev)",
+    "template": {
+      "id": "rki5dems9wqfm4r03t7g",
+      "name": "base"
+    },
+    "sandbox": {
+      "sandboxId": "ikv41gpq99jsnsadltfxr",
+      "envdVersion": "0.6.10",
+      "cpuCount": 2,
+      "memoryMB": 512,
+      "startedAtIso": "2026-10-02T23:59:15.519Z",
+      "lifecycleOnTimeout": "kill",
+      "keepAliveMs": 10800000
+    },
+    "region": {
+      "note": "E2B-managed placement (the SDK exposes no region selector on this plan); the measurable evidence recorded verbatim",
+      "publicResponseHeaders": {
+        "via": "1.1 google",
+        "x-adapter-id": "sporta.compute.hosted.media",
+        "x-provider-id": "sporta-media-toolchain-worker-1",
+        "x-ratelimit-limit": "60000",
+        "x-ratelimit-remaining": "60000",
+        "x-ratelimit-reset": "0",
+        "x-request-id": "b60f67d7-4201-43ec-929f-0fff529eedb3"
+      },
+      "dnsResolution": "3971-ikv41gpq99jsnsadltfxr.e2b.app"
+    },
+    "toolchain": {
+      "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "installPath": "sudo apt-get install -y ffmpeg (Debian bookworm ffmpeg 7:5.1.x + libx264)",
+      "bunVersion": "1.4.2"
+    }
+  },
+  "workers": {
+    "media": {
+      "entry": "packages/compute-adapter-hosted/scripts/r607-media-toolchain-worker.ts",
+      "port": 3971,
+      "publicUrl": "https://3971-ikv41gpq99jsnsadltfxr.e2b.app",
+      "health": {
+        "ok": true,
+        "service": "sporta-media-toolchain-worker",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "adapterVersion": "0.1"
+      },
+      "descriptor": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted.media",
+        "adapterVersion": "0.1",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "providerKind": "cpu-worker",
+        "operations": [
+          "probe",
+          "normalize"
+        ],
+        "toolchain": {
+          "ffmpegPath": "/usr/bin/ffmpeg",
+          "ffprobePath": "/usr/bin/ffprobe",
+          "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+          "resolved": true
+        },
+        "budgets": {
+          "maxExecutionMs": 120000,
+          "maxSourceBytes": 209715200,
+          "maxArtifactBytes": 209715200,
+          "maxConcurrentJobs": 1
+        },
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured media-toolchain execution time"
+          },
+          {
+            "unitId": "media-jobs",
+            "unitKind": "count",
+            "description": "executed media-toolchain jobs"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "normalized artifact bytes produced"
+          }
+        ]
+      },
+      "descriptorHttpStatusCode": 200,
+      "adapterSeam": "MEDIA_TOOLCHAIN=http + MEDIA_TOOLCHAIN_URL (packages/media-platform/src/toolchain-env.ts — the W914 http compute-adapter seam)"
+    },
+    "compute": {
+      "entry": "packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts",
+      "port": 3973,
+      "publicUrl": "https://3973-ikv41gpq99jsnsadltfxr.e2b.app",
+      "health": {
+        "ok": true,
+        "service": "sporta-compute-worker",
+        "adapterId": "sporta.compute.hosted",
+        "providerId": "sporta-compute-worker-1",
+        "adapterVersion": "0.1"
+      },
+      "descriptor": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted",
+        "adapterVersion": "0.1",
+        "providerKind": "cpu-worker",
+        "supportedRenderers": [
+          {
+            "rendererId": "anime-npr.prototype",
+            "rendererVersions": [
+              "0.2.0"
+            ]
+          },
+          {
+            "rendererId": "anime.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "game-3d.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "sporta.testcard",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "tactical.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          }
+        ],
+        "supportedLatencyClasses": [
+          "offline"
+        ],
+        "maxConcurrentJobs": 4,
+        "dispatchTimeoutMs": 5000,
+        "maxJobDeadlineMs": 60000,
+        "minJobDeadlineMs": 1000,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured render+encode execution time"
+          },
+          {
+            "unitId": "render-requests",
+            "unitKind": "count",
+            "description": "renderer plugin invocations"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "encoded artifact bytes stored"
+          }
+        ]
+      },
+      "descriptorHttpStatusCode": 200,
+      "adapterSeam": "COMPUTE_PROVIDER=http + COMPUTE_WORKER_URL (packages/compute-adapter-hosted/src/env.ts — the W914 http compute-adapter seam)",
+      "note": "the design-support worker for the recorded derived-reality ADMISSION gap (the hosted composition's derived plane is local-toolchain-gated; this worker demonstrates the remote execution plane — see the evidence pack README)"
+    }
+  },
+  "provisioning": {
+    "mode": "fresh-provision",
+    "totalMs": 33040,
+    "bundleBuild": "bun build --target=bun (single-file, 1101711B + 1240295B)",
+    "workerStart": {
+      "media": "(reused)",
+      "compute": "(reused)"
+    },
+    "bootLogs": [
+      "[media-toolchain-worker] listening on http://0.0.0.0:3971",
+      "[media-toolchain-worker] adapter sporta.compute.hosted.media v0.1, provider sporta-media-toolchain-worker-1",
+      "[media-toolchain-worker] toolchain: RESOLVED — ffmpeg '/usr/bin/ffmpeg' / ffprobe '/usr/bin/ffprobe'",
+      "[media-toolchain-worker] measured identity: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "[media-toolchain-worker] budgets: maxExecutionMs=120000 maxSourceBytes=209715200 maxArtifactBytes=209715200 maxConcurrentJobs=1 (ONE ffmpeg at a time — the memory discipline)",
+      "[e2b-compute-worker] listening on http://0.0.0.0:3973",
+      "[e2b-compute-worker] adapter sporta.compute.hosted v0.1, providerKind cpu-worker, maxConcurrentJobs 4",
+      "[e2b-compute-worker] supportedRenderers: anime-npr.prototype, anime.prototype, game-3d.prototype, sporta.testcard, tactical.prototype",
+      "[e2b-compute-worker] derived-reality plane: COMPOSED (the local ffmpeg+libx264 toolchain resolved — tactical/game-3d/anime-npr render through the R306 bridges)"
+    ]
+  },
+  "credentialsDiscipline": "E2B_API_KEY env-only (never echoed, never committed; the record contains no secrets — scan target: the 'e2b_' prefix)"
+}

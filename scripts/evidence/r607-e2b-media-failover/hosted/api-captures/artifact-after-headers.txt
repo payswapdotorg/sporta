@@ -1,0 +1,12 @@
+HTTP/2 200 
+age: 0
+cache-control: no-store
+content-type: application/json
+date: Sat, 03 Oct 2026 00:11:00 GMT
+server: Vercel
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-matched-path: /api/watch/[sessionId]/renders/[renderId]/outputs/[segmentId]
+x-sporta-artifact-source: r2
+x-vercel-cache: MISS
+x-vercel-id: hkg1::iad1::hfdph-1790986260053-9c3048d9cdde
+
