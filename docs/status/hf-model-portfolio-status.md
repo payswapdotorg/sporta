@@ -1,6 +1,6 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion)
+Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion); HF004 BENCHMARKED-REFUSED (typed, no promotion)
 Date: 2026-10-03
 
 ## Portfolio
@@ -10,7 +10,7 @@ Date: 2026-10-03
 | HF001 task profiles | NOT_STARTED | TL + A |
 | HF002 provenance ledger | NOT_STARTED | B |
 | HF003 RF-DETR SoccerNet | ✅ BENCHMARKED (9e08ac9, flight 1: CPU-host evidence, no promotion — the candidate stands; the honest domain-mismatch + latency/memory record) | A |
-| HF004 MapAnything | NOT_STARTED | A |
+| HF004 MapAnything | ✅ BENCHMARKED-REFUSED (35f265d, flight 2: resource-infeasible-host typed refusal — 4.91 GB checkpoint vs 1.36 GB disk / 5.58 GiB vs 4.04 GB RAM, preflight executed exit 3; the machine-checked contract-compatibility verdict + the ready-to-run path for a >=16 GB host; no promotion) | A |
 | HF005 SAM3 | NOT_STARTED | A |
 | HF006 Spivak | NOT_STARTED | A |
 | HF007 SoccerChat | NOT_STARTED | A |
