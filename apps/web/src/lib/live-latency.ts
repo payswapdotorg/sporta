@@ -23,6 +23,17 @@
  *
  * Absent metrics stay absent: an empty window has NO p50/p95/max (never a
  * faked zero).
+ *
+ * THE DECLARED LIVE-PATH LATENCY BUDGET (L015 amendment, 2026-10-03, the
+ * TL decision recorded in docs/status/mvp-and-live-reality-status.md):
+ * the live gate's percentile-assertion line asserted against
+ * `LIVE_LATENCY_BUDGET_MS` — the declared budget for the LOCAL-transport
+ * deployment (the same-host SSE transport the W909 harness exercises).
+ * Domain: the same measureLiveLatencyMs chain above (generation → receipt,
+ * real clocks, unsynchronized — the budget bounds the transport+generation
+ * lag, not the clock skew); nearest-rank percentiles (the W306 formula).
+ * The budget is a DECLARATION (a promise the gate holds the deployment
+ * to), never a measurement: measured evidence lives in the e2e reports.
  */
 
 /** The honest snapshot of one live stream's measured latency window. */
@@ -100,3 +111,14 @@ function nearestRank(sorted: readonly number[], p: number): number {
   const rank = Math.ceil(p * sorted.length);
   return sorted[Math.min(sorted.length, Math.max(1, rank)) - 1]!;
 }
+
+/**
+ * The DECLARED live-path latency percentile budget (L015 amendment): the
+ * nearest-rank p50/p95 targets the live gates assert the measured
+ * generation→receipt percentiles against, for the local-transport
+ * deployment. A declaration, never a measurement — see the module doc.
+ */
+export const LIVE_LATENCY_BUDGET_MS: { p50: number; p95: number } = {
+  p50: 250,
+  p95: 1000,
+} as const;

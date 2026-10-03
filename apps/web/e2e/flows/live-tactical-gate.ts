@@ -31,6 +31,7 @@
  *   real /api/live surface and driven through the /live page's own picker;
  *   the only writes the flow performs are through the real register form).
  */
+import { LIVE_LATENCY_BUDGET_MS } from "@/lib/live-latency";
 import type { FlowContext } from "../lib/harness";
 import { ensureSignedOut, liveSourcesOf, registerLiveViewer } from "./live-shared";
 import {
@@ -189,16 +190,19 @@ export async function liveTacticalGateFlow(ctx: FlowContext): Promise<void> {
     latency.count >= NORMAL_WINDOW_MIN_FRAMES && latency.p95Ms >= latency.p50Ms,
     `nearest-rank p50=${latency.p50Ms}ms, p95=${latency.p95Ms}ms over ${latency.count} measured samples`,
   );
-  // THE DECLARED BUDGET: the repo declares NO numeric latency budget for
-  // the live path (SLOs.md scopes the W306 batch/frame pipeline; the
-  // deployment doc records measured evidence, explicitly "never a
-  // promise"; no live SLO row exists anywhere). Recorded honestly as
-  // ABSENT and FAILED — never a pass invented. (Soft check so the flow
-  // continues measuring every other acceptance line.)
+  // THE DECLARED BUDGET (L015 amendment, 2026-10-03): the TL decision —
+  // the live-path latency percentile budget for the local-transport
+  // deployment is now DECLARED in the product's own latency module
+  // (LIVE_LATENCY_BUDGET_MS: p50 ≤ 250ms, p95 ≤ 1000ms, nearest-rank, the
+  // generation→receipt domain). The measured percentiles are asserted
+  // against it. (Soft check so the flow continues measuring every other
+  // acceptance line; the flight-3 record of the pre-amendment state —
+  // "declared budget: ABSENT, FAIL honestly" — lives in the flight's
+  // REPORT and the worklog.)
   check(
     "the measured percentiles are asserted against the declared budget",
-    false,
-    `declared budget: ABSENT — the repo declares no numeric live-path latency percentile budget (packages/slo SLOs.md scope = the W306 batch/frame pipeline; docs/deployment/DEPLOYMENT.md records measured live evidence "never a promise"). Measured: p50=${latency.p50Ms}ms p95=${latency.p95Ms}ms (n=${latency.count}). Budget numbers are proposed to the TL as a docs amendment (see the gate REPORT); this line FAILS honestly until one is declared.`,
+    latency.p50Ms <= LIVE_LATENCY_BUDGET_MS.p50 && latency.p95Ms <= LIVE_LATENCY_BUDGET_MS.p95,
+    `declared budget (LIVE_LATENCY_BUDGET_MS): p50 ≤ ${LIVE_LATENCY_BUDGET_MS.p50}ms, p95 ≤ ${LIVE_LATENCY_BUDGET_MS.p95}ms. Measured: p50=${latency.p50Ms}ms p95=${latency.p95Ms}ms (n=${latency.count}) — ${latency.p50Ms <= LIVE_LATENCY_BUDGET_MS.p50 && latency.p95Ms <= LIVE_LATENCY_BUDGET_MS.p95 ? "WITHIN the declared budget" : "OVER the declared budget (the honest failure)"}.`,
   );
 
   // ------------------------------------------- 5. identity continuity bound
