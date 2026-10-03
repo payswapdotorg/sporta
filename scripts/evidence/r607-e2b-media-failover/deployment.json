@@ -1,0 +1,89 @@
+{
+  "workItem": "R607 62-c — the E2B media failover + the full hosted acceptance re-proof",
+  "worker": "Worker 62-c",
+  "baseCommit": "f3807d33f155e208df4ec36f4219296cc9b06b31 (origin/main)",
+  "branch": "r607/e2b-media-failover",
+  "publicAlias": "https://sporta-flame.vercel.app",
+  "project": {
+    "name": "sporta",
+    "scope": "ekonplacidegmailcoms-projects",
+    "teamId": "team_4KOoA5CgtYaOF85yFXPeMXLt",
+    "rootDirectory": "apps/web",
+    "framework": "nextjs"
+  },
+  "deployments": [
+    {
+      "role": "acceptance-deploy (main + the evidence/dev-script additions, ZERO product-code deltas) — the E2B failover wired",
+      "id": "dpl_DExXPovpx24BwkLFfS6gsJucpT76",
+      "url": "https://sporta-jb3em6zix-ekonplacidegmailcoms-projects.vercel.app",
+      "revision": "89ae99e (f3807d3 + the Leg-1/Leg-2 evidence + the two dev-time worker scripts + devDeps)",
+      "marker": "r607-e2b-1",
+      "createdAtIso": "2026-10-03T00:01:43.315Z",
+      "build": "success (READY)",
+      "health": "200 — env beta-personal, identity neon/ok, artifacts r2/ok, controlPlane neon/ok; the boot banner '[sporta] media toolchain: HTTP worker at https://3971-ikv41gpq99jsnsadltfxr.e2b.app' observed in the runtime log; the COMPUTE_PROVIDER=http boot-time live descriptor fetch from the E2B compute worker SUCCEEDED (a failed fetch would 500 every route — the singleton build fails loud)"
+    },
+    {
+      "role": "acceptance-step-3-redeploy (SAME revision, distinct new deployment id) — the recovery-leg deployment",
+      "id": "dpl_Cr9SwXQF3prrUACFzRQddhsgCzdo",
+      "url": "https://sporta-cthtsayed-ekonplacidegmailcoms-projects.vercel.app",
+      "revision": "89ae99e (identical)",
+      "marker": "r607-e2b-2",
+      "createdAtIso": "2026-10-03T00:09:27.846Z",
+      "build": "success (READY)",
+      "health": "200 — marker r607-e2b-2 verified on the public alias; identity neon/ok, artifacts r2/ok, controlPlane neon/ok"
+    }
+  ],
+  "e2bProvider": {
+    "name": "E2B Sandboxes (api.e2b.dev)",
+    "template": "base (templateId rki5dems9wqfm4r03t7g — Debian 12 bookworm, 2 vCPU / 512MB)",
+    "mediaWorkerUrl": "https://3971-ikv41gpq99jsnsadltfxr.e2b.app",
+    "computeWorkerUrl": "https://3973-ikv41gpq99jsnsadltfxr.e2b.app",
+    "toolchain": "ffmpeg 7:5.1.9-0+deb12u1 (apt) + libx264, bun 1.4.2 (bun.sh installer)",
+    "lifetimeNote": "the E2B plan caps sandbox lifetime at ~70 minutes (setTimeout(3h) is clamped to the plan max) — the hosted acceptance window ran inside one fresh sandbox provisioned immediately before deploy 1; the full provider record with the live capability manifests is provider-record.json",
+    "workerExecutionEvidence": {
+      "mediaWorker": "the golden-path.json record: admission probe + normalization of the REAL corpus clip over the public wire (3 media jobs across the driver runs, accounting identities holding)",
+      "computeWorker": "the HOSTED app's fixture render job render-job-sess-u-a16e733f1c0440c5121adf1a9da79c18-1 executed ON THE E2B WORKER (its own /v1/jobs record: succeeded, artifact 1d5d07df…, 19733B image/svg+xml) — the compute-adapter failover proven end-to-end through the hosted app"
+    }
+  },
+  "envConfiguredForFailover": {
+    "MEDIA_TOOLCHAIN": "http (env id I1QbYbw102O2ybC7)",
+    "MEDIA_TOOLCHAIN_URL": "https://3971-ikv41gpq99jsnsadltfxr.e2b.app (env id iu0c8kUgznFwaH6F)",
+    "COMPUTE_PROVIDER": "http (env id NgYDMHJ24XhCuX0W)",
+    "COMPUTE_WORKER_URL": "https://3973-ikv41gpq99jsnsadltfxr.e2b.app (env id hSpnqXIKbF1Tb2J7)",
+    "SPORTA_MEDIA_STORAGE": "/tmp/sporta-media-storage (env id S3hCYcNVm043A7ZQ — the writable hosted path)",
+    "note": "ZERO product-code changes ride this deployment: the failover is PURE configuration through the EXISTING W914 adapter seams (toolchain-env.ts / compute env.ts)"
+  },
+  "identities": {
+    "acceptance": {
+      "username": "r607e2b-accept-1790985805",
+      "userId": "u-5e3fdf7d42054c489d523cc3902f5945",
+      "note": "fresh-registered through the public UI on deploy 1; re-signed-in on the recovery browser on deploy 2 — SAME userId; the deploy-1 cookie ALSO resolves on deploy 2 (cross-deployment session survival)"
+    }
+  },
+  "fixtureProbe": {
+    "sessionId": "sess-u-a16e733f1c0440c5121adf1a9da79c18",
+    "label": "Derby night at Kings Park",
+    "sourceKind": "fixture (the studio's labeled dev surface — the supplementary probe, clearly NOT the acceptance upload leg)",
+    "renderJobId": "render-job-sess-u-a16e733f1c0440c5121adf1a9da79c18-1",
+    "renderId": "r-u-3109f1827b75379d9fe0d229cc42f464",
+    "artifactSegmentId": "anime-clip-f52a4ff0",
+    "artifactContentHash": "1d5d07dfb4d8d3cdd5b16d388339433770d2ca546c91b473ca4520aacd78a881",
+    "artifactByteLength": 19733,
+    "artifactContentType": "image/svg+xml",
+    "artifactSourceHeader": "x-sporta-artifact-source: r2",
+    "executedOn": "the E2B compute worker (the worker's own job record — the compute-adapter failover)",
+    "recoveredAfterRedeploy": {
+      "identity": true,
+      "preRedeployCookieResolves": true,
+      "libraryRows": "1 before / 1 after (same row)",
+      "watch": true,
+      "realitySwitcherUrlAddressable": true,
+      "artifactsByteIdentical": true
+    }
+  },
+  "credentialsDiscipline": {
+    "VERCEL_TOKEN": "env-only (never echoed into committed files; values never printed)",
+    "E2B_API_KEY": "env-only (the provider record carries no secrets; scan target: the 'e2b_' prefix)",
+    "tokenLeakScan": "the committed tree scanned for 'vcp_' / 'e2b_' / 'napi_' prefixes before the checkpoint commits — zero matches"
+  }
+}

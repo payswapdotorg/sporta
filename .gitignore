@@ -9,3 +9,6 @@ out/
 *.tsbuildinfo
 .vercel
 db/
+
+# R607 62-c: the E2B worker bundle scratch (built at provision time, never committed)
+.e2b-worker-bundles/
