@@ -1,186 +1,181 @@
-===== 64-b REPORT BEGIN =====
+===== 64-c REPORT BEGIN =====
 
-# Worker 64-b delivery — HF004: the MapAnything geometry benchmark evidence
+# Worker 64-c delivery — HF006: the Spivak action-spotting benchmark evidence
 
 ## Manifest
 
-- Branch: `work/hf004-mapanything-benchmark` (from main @ 065714b; never pushed)
-- Commit: `rel(64-b): HF004 — the MapAnything geometry benchmark evidence (CPU-host, fixtures + fx-001)`
-- Work item: HF004 (docs/work-items/hf-model-portfolio-work-items.md)
-- Task profiles: `scene.metric3DReconstruction`, `scene.depth`,
-  `scene.cameraPose`, `scene.covisibility`
+- Branch: `work/hf006-spivak-benchmark` (from main @ f4be9a2; never pushed)
+- Commit: `rel(64-c): HF006 — the Spivak action-spotting benchmark evidence (CPU-host, fixtures + fx-001)`
+- Work item: HF006 (docs/work-items/hf-model-portfolio-work-items.md)
+- Task profile: `football.eventSpotting`
   (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
 - Evidence tree (all committed in-repo):
-  - `scripts/evidence/hf-portfolio/hf004/benchmark_mapanything.py` — the benchmark (preflight EXECUTED on this host: exit 3, the typed refusal; full path ready-to-run on an adequate host)
-  - `scripts/evidence/hf-portfolio/hf004/schema_introspect.py` — the source-verified output-schema extractor (EXECUTED, fail-closed)
-  - `scripts/evidence/hf-portfolio/hf004/contract_compatibility.ts` — the machine-checkable compatibility verdict (EXECUTED, exit 0)
-  - `scripts/evidence/hf-portfolio/hf004/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0)
-  - `scripts/evidence/hf-portfolio/hf004/benchmark-record.json` — the ledger-shaped HF004 record
-  - `scripts/evidence/hf-portfolio/hf004/summary.md` — the markdown summary
-  - `scripts/evidence/hf-portfolio/hf004/results/preflight-refusal.json` — the EXECUTED typed refusal
-  - `scripts/evidence/hf-portfolio/hf004/results/download-probe.json` — the bounded 8 MiB reachability probe
-  - `scripts/evidence/hf-portfolio/hf004/results/model-output-schema.json` — the source-verified output schema
-  - `scripts/evidence/hf-portfolio/hf004/results/contract-compatibility.json` — the field-level compatibility verdict
-- Not committed (by design): the checkpoint (4.91 GB, apache-2.0 — CANNOT
-  even be stored on this host), the mapanything source clone, and the
-  python venv (/home/z/hf-bench-2 — a NEW venv, 64-a's not reused).
+  - `scripts/evidence/hf-portfolio/hf006/benchmark_spivak.py` — the benchmark (EXECUTED end-to-end on this host: feature extraction → normalization → model inference → NMS → structural metrics)
+  - `scripts/evidence/hf-portfolio/hf006/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; pins the record's numbers to the results JSONs)
+  - `scripts/evidence/hf-portfolio/hf006/benchmark-record.json` — the ledger-shaped HF006 record (provenance echo verbatim + the executed run + the typed gaps)
+  - `scripts/evidence/hf-portfolio/hf006/summary.md` — the markdown summary
+  - `scripts/evidence/hf-portfolio/hf006/results/spivak-synthetic-diagnostic-01.json` — the executed fixture run
+  - `scripts/evidence/hf-portfolio/hf006/results/spivak-fx-001.json` — the executed real-clip run
+- Not committed (by design): the checkpoint (74,155,300 B, cc-by-4.0 — sha256-verified vs the HF LFS oid, outside the repo at /home/z/hf-bench-3/hf-model), the ResNet-152 front-end weights, the spivak source clone, and the python venv (/home/z/hf-bench-3 — a NEW venv; 64-a's and 64-b's not reused).
 - FROZEN contracts untouched; provenance-ledger.json untouched; architecture-lock untouched.
 - Guard batteries green: packages/testing hf-ledger.test.ts 8/8;
-  packages/perception-benchmark harness.test.ts (the L010 battery) green.
+  packages/perception-benchmark harness.test.ts (the L010 battery) 8/8.
 
-=== HF004 BENCHMARK REPORT ===
+=== HF006 BENCHMARK REPORT ===
 
-## THE HONEST HEADLINE — a typed refusal, not a benchmark run
+## THE HONEST HEADLINE — executed evidence, honestly unscored
 
-The pinned candidate CANNOT run on this benchmark host. This is arithmetic,
-not a stall and not a mid-run error:
-
-| Constraint | Needed | Host | Verdict |
-|---|---|---|---|
-| Disk: checkpoint + torch-hub DINOv2-giant backbone | 4,914,062,480 + ~1,150,000,000 B | 1,355,993,088 B free | infeasible |
-| RAM: fp32 weights (~4.58 GiB) + activations | ~5.58 GiB (est.) | 4,041.6 MiB total | infeasible |
-
-The download path itself is reachable (bounded 8 MiB probe: 3.76 MiB/s —
-`results/download-probe.json`). `benchmark_mapanything.py --preflight` was
-EXECUTED on this host and emitted the typed refusal
-`resource-infeasible-host` with exit code 3 (`results/preflight-refusal.json`).
-Per the worker brief, the honest delivery is the typed refusal + the
-partial: **the load analysis, the static contract-compatibility review,
-and the ready-to-run script. No quality, latency, or memory number exists
-in this flight, and none is fabricated to stand in** —
-`record-benchmark.ts` fail-closes on any measurement-shaped key.
+The Spivak action-spotting model RAN end-to-end on this host (the EXECUTED
+convention, the HF003 shape): the full chain — keras ResNet-152 feature
+extraction at 2 fps, the zoo MaxAbsScaler normalization, the dense-UNet
+confidence model over its 112-s window, the package's own flexible NMS —
+executed on the Sporta fixture AND the authorized real clip fx-001 (CC0).
+**Temporal precision/recall is NOT MEASURED** because NO event ground truth
+(timestamps + labels) exists anywhere in the repo for benchmarkable media
+— the honest typed gap, with unscored structural evidence recorded instead.
+**Zero detections fired at the model's own 0.5 threshold** on either clip
+(max anchor confidence 0.139 fixture / 0.012 fx-001) — the model functions
+(calibrated, non-degenerate outputs) but 10-12 s fragments in ~90%-padded
+112-s windows are far outside its full-broadcast-game training regime.
 
 ## The model + version + loading recipe
 
 - Candidate (HF002 ledger row, echoed VERBATIM into benchmark-record.json):
-  `facebook/map-anything-apache` @ revision
-  `00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a` (apache-2.0 model + code;
-  datasetProvenance `unknown` — the card states no training corpus).
-- Checkpoint: `model.safetensors`, 4,914,062,480 B; sha256
-  `fa06c0fdccefc5048e072c85935d5789b1e36b307f3859033c17f9dcb9fd5201`
-  (the HF LFS etag of the pinned blob — hub-reported; not locally
-  verifiable on this host, honestly labeled). Never committed, never
-  vendored — the repo records only pins and digests.
-- Architecture (the pinned repo's config.json): DINOv2-giant encoder (24
-  of 40 blocks, torch-hub, patch 14) + 16-layer 1536-dim
-  alternating-attention info sharing + dpt+pose heads
-  (`raydirs+depth+pose+confidence+mask` adaptor) + 1-dim exp metric scale
-  head → the ~1.23B-param fp32 checkpoint.
-- Code pin: mapanything 1.1.4 (not on PyPI) = facebookresearch/map-anything
-  @ git `3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9`, cloned OUTSIDE the
-  repo at /home/z/hf-bench-2/map-anything-src; venv /home/z/hf-bench-2
-  (uv, python 3.12.14 — NEW; 64-a's venv not reused); torch NOT installed
-  (the install + load is the infeasibility).
-- Loading recipe (ready-to-run, in benchmark_mapanything.py):
-  snapshot_download @ the pinned revision → LOCAL sha256 verification vs
-  the pinned etag sha → `MapAnything.from_pretrained(<local dir>)`
-  (construction fetches DINOv2-giant via torch.hub) → `infer(views, ...)`
-  on stride-10 frame windows of the two clips (load_images
-  longest_side/512, fp32 on CPU, memory_efficient_inference, minibatch 1).
+  `yahoo-inc/spivak-action-spotting-soccernet` @ revision
+  `1dced1b7a921f95ab741cad59325ee2e4dc08496` (model cc-by-4.0, code
+  apache-2.0, commercial use yes; weightsProvenance: Yahoo-trained
+  action-spotting models (dense detection anchors), first place in the
+  SoccerNet Challenge 2022, per card; datasetProvenance: SoccerNet).
+- Checkpoint: the zoo's Challenge-Validated resnet_normalized CONFIDENCE
+  model — `variables/variables.data-00000-of-00001`, 74,155,300 B, sha256
+  `af234e7040cde800587cca70ff960bfb93f967df2f66bceb5e2df43b777cf444`
+  (the HF LFS oid at the pinned revision, VERIFIED LOCALLY). Never
+  committed, never vendored.
+- Code pin: github yahoo/spivak @ git
+  `a1a67483966123097447cd9312366c15ca04e9ff` (apache-2.0), cloned
+  OUTSIDE the repo. Runtime: python 3.12.14 venv at /home/z/hf-bench-3
+  (TF 2.21.0-cpu + tf_keras 2.21.0 + tensorflow-probability 0.25.0).
+- Loading recipe (the recorded forensics):
+  1. `tf_keras.models.load_model(compile=False)` — the Keras-2 compat
+     load of the Keras-2-era SavedModel on TF 2.21 — wrapped in the
+     spivak package's own DensePredictor (heads, chunk iterator, flexible
+     NMS), parameterized by the model dir's own shared_args.pkl
+     (chunk_duration 112.0 → 224 frames @ 2 fps, chunk_prediction_border
+     50.0 s, UNet backbone, dense confidence head, 17 challenge classes).
+  2. Feature chain: keras ResNet-152 (avg_pool, 2048-d, 2 fps) → the zoo
+     MaxAbsScaler (`models/resnet_normalizer.pkl`) — the FORENSIC: the
+     scaler's 2048-d fit proves the resnet_normalized family consumes the
+     RAW ResNET_TF2 features, NOT the PCA512 branch of extraction.py.
+  3. Recorded shims: tensorflow_addons (archived, training-only
+     optimizers; raises if ever constructed), skvideo (the skvideo
+     grabber only — the benchmarked path is the DEFAULT opencv/FrameCV
+     grabber), the pre-sklearn-1.1 `clip` attribute patched to False on
+     the zoo scaler (the 1.0.2 semantics).
+  4. Load validation (no committed sample media exists in the zoo):
+     the run itself — healthy feature ranges (raw avg_pool ∈ [0, 26.5]),
+     24 + 20 feature frames at 2 fps matching the clip durations,
+     calibrated non-saturating confidences; the zoo's own
+     validation_evaluation aggregate is the training-regime quality
+     REFERENCE (not this flight's measurement).
 
 ## The fixtures + ground-truth story
 
-1. `synthetic-diagnostic-01` (sha-pinned technology-registry fixture) —
-   the camera-motion FALLBACK input per the brief. Typed gap: **no
-   ground-truthed camera-motion fixture exists in the repo** (the repo's
-   camera contracts are the five FIXED W601 slots + the R606 pitch-ellipse
-   calibration — neither is a camera-motion fixture with pose/depth
-   ground truth); the fixture itself carries no geometry ground truth →
-   unscored.
+1. `synthetic-diagnostic-01` (sha-pinned technology-registry fixture):
+   its annotations carry per-frame SPATIAL discs (players/ball) — NO
+   event timestamps+labels.
 2. `fx-001` (CC0 FIFA Beach Soccer 2021 penalty, the repo's authorized
-   licensed gate clip, sha-pinned) — no geometry ground truth → unscored.
+   licensed gate clip, sha-pinned): no annotations.
 
-Both: status `not-run-resource-refusal` (the model never ran). The
-ready-to-run path would sample stride 10 by decode order (the L010
-convention — 30 + 25 frames, the same frames HF003 saw).
+The repo-wide event-ground-truth search (eval-harness cases,
+technology-registry fixtures, L010 corpus conventions, the J-lane event
+contracts, SWM event timelines) found NONE: real-to-swm EMITS typed event
+candidates (its own model outputs — the W209 candidates-not-applied
+pattern), the reality-lab robustness benchmark's sim events are a
+different domain (simulator ticks, not video media). **Both fixtures are
+therefore UNSCORED structural evidence, labeled as such.**
 
 ## The honest metrics
 
-- **Quality: NOT MEASURED (typed refusal).** No ground truth exists for
-  geometry on either clip anyway — even on adequate hardware the ceiling
-  is unscored-structural evidence (depth consistency, pose sanity,
-  determinism — all implemented in the ready-to-run path).
-- **Latency: NOT MEASURED (typed refusal).** The convention is implemented
-  (per-inference CPU wall-clock, median + nearest-rank p95).
-- **Memory: NOT MEASURED (typed refusal).** GPU honestly N/A on this host;
-  RSS would be the substitute metric; the only honest memory figure in
-  this flight is the refusal arithmetic (4,041.6 MiB total RAM vs ~4.58
-  GiB fp32 weights).
-- **Structural/compatibility verdict (EXECUTED, machine-checkable)**: see
-  below.
+- **Temporal precision/recall: NOT MEASURED (typed gap — no ground
+  truth).** The explicit matching rule IS stated exactly in
+  benchmark-record.json: class-equal + |t_pred − t_gt| ≤ tolerance with a
+  ±1/2/5 s sweep (the SoccerNet tight/average-tolerance convention the
+  spivak configs carry), greedy confidence-descending one-to-one matching
+  — implemented, zero ground-truth rows to match in this sandbox.
+- **Early-detection latency**: the model's own per-window compute latency
+  measured (CPU wall-clock, steady, nearest-rank percentiles):
+  - fixture window mean 93.89 ms / p50 94.28 / p95 100.15 ms;
+  - fx-001 window mean 99.92 ms / p50 89.21 / p95 184.26 ms;
+  - front-end ResNet-152 extraction: 10,508 ms (24 feature frames) /
+    10,808 ms (20 frames) — ~438 ms per feature frame on this 2-vCPU host;
+  - the detection-offset-vs-event-onset distribution: NOT MEASURED
+    (typed — requires event onsets, which do not exist);
+  - measurement kind labeled: repeated-window microbenchmark (the SAME
+    single zero-padded 112-s window run repeatedly; first two lazy-init
+    calls excluded).
+- **Structural (unscored) results**: zero spotted events at threshold
+  0.5 on both clips; max anchor confidence 0.1385 (Kick-off) on the
+  fixture, 0.0121 (Ball out of play) on fx-001; confidence histograms
+  (406/408 and 340/340 anchors below 0.1) + per-class stats committed in
+  the results JSONs.
+- **Memory**: GPU honestly N/A; process RSS 1,568.6 MiB after the run
+  (peak ru_maxrss 1,568.8 MiB).
 
-## The Camera-Director contract-compatibility verdict
+## The cascade cost verdict (the work item's core question)
 
-`contract_compatibility.ts` (exit 0) verified 15 field-level rows against
-the repo's OWN authorities (FROZEN task profiles, renderer contract, SWM
-contract, camera-director sources, scene-projection constants):
-
-- `scene.depth` — **compatible-with-adapter** (depth_z + per-pixel conf;
-  adapter adds the SWM envelope).
-- `scene.cameraPose` — **compatible-with-adapter with typed gaps**:
-  camera_poses/cam_trans/cam_quats (cam2world, OpenCV convention) give the
-  trajectory geometry; the model emits NO timestamps (view order only) and
-  NO pose-level confidence; the world gauge is the model's canonical
-  frame, not the pitch frame.
-- `scene.metric3DReconstruction` — **compatible-with-adapter, metric
-  claim unverified** (pts3d + poses + intrinsics; metric_scaling_factor is
-  the model's own prediction, unscored).
-- `scene.covisibility` — **partial** (no covisibility output; the model's
-  cross-view depth-consistency mechanism is a proxy at best).
-- **Camera Director INPUT — NOT COMPATIBLE (inverse direction)**: the
-  director consumes a policy + W603 match-timeline steps + W209 event
-  candidates and emits cameraSlotId windows over the FIVE canonical fixed
-  slots; NO pose/depth field exists in its contract (source-scanned).
-  MapAnything ESTIMATES cameras from images; the director DICTATES fixed
-  cameras from match state — inverse directions. The model's real
-  consumers are the SWM observation side (via a future envelope-writing
-  adapter) and the renderer.cinematicReCamera "geometry/depth guidance"
-  input (the HF014 provider-neutral camera-intent seam is the referral,
-  not a claim — it is not built).
-- SWM envelope — **does-not-map**: the model emits tensors only;
-  sessionId/schemaVersion/eventTime/source-provenance/confidence-envelope
-  fields must all be synthesized by an observation adapter.
-
-**Overall: PARTIAL COMPATIBILITY, HONESTLY TYPED.** There is also no
-baseline comparison: the repo has NO dense-geometry production path (the
-geometry incumbents — R606 pitch-ellipse calibration, fixed scene-projection
-slots — produce no dense depth/pointmaps).
+On THIS CPU host the Spivak cascade is **NOT cheap**: ≈ 876 ms of compute
+per second of video (2 ResNet-152 feature frames × ~438 ms + ~0.9 ms
+amortized spotting) vs ≈ 740 ms/s for the repo's own vision event path
+(the contrast-context detector at 29.6 ms/frame mean × 25 fps, measured in
+HF003 on this same host, + pure-function impulse logic per
+real-to-swm/src/events.ts). The "cheap cascade before expensive event
+reasoning" premise is a GPU-economics claim — unverified here (no GPU;
+the model card's GPU figures are N/A on this host). The repo has NO
+expensive event-reasoning production path today (HF007 SoccerChat is the
+portfolio plan, not a present cost) — the absence is recorded. Verdict:
+on a CPU host the cascade order does not pay; revisit with GPU evidence
+before HF015.
 
 ## The ledger/record path
 
-- `scripts/evidence/hf-portfolio/hf004/benchmark-record.json` — the
-  ledger-shaped HF004 record (provenance echo verbatim + the typed refusal
-  + the partial-deliverable pointers).
-- `scripts/evidence/hf-portfolio/hf004/record-benchmark.ts` — the
+- `scripts/evidence/hf-portfolio/hf006/benchmark-record.json` — the
+  ledger-shaped HF006 record (the twelve provenance fields echoing the
+  Spivak row verbatim + the executed run's evidence pointers, numbers,
+  typed gaps, and caveats).
+- `scripts/evidence/hf-portfolio/hf006/record-benchmark.ts` — the
   fail-closed validator: EXECUTED, exit 0 (echo vs the HF002 ledger,
-  candidate gating state, executed-refusal pinning, no-fabricated-numbers
-  checks, resolving pointers, honest caveats).
-- `scripts/evidence/hf-portfolio/provenance-ledger.json` — untouched (its
-  row schema is pinned by hf-ledger.test.ts; the run is recorded in
+  candidate gating state, EXECUTED-run numbers PINNED to the committed
+  results JSONs — any drift refuses, typed-gap statements present,
+  resolving pointers, honest caveats).
+- `scripts/evidence/hf-portfolio/provenance-ledger.json` — untouched
+  (its row schema is pinned by hf-ledger.test.ts; the run is recorded in
   benchmark-record.json, not as a ledger row).
 
 ## Limitations
 
-- Zero executed model evidence of any kind on this host (the typed
-  refusal) — the HF003 precedent (executed-but-domain-mismatched evidence)
-  is NOT met here.
-- No geometry ground truth reachable in this sandbox even on adequate
-  hardware (unscored-structural ceiling).
-- The schema review is a source-scan of the pinned code (fail-closed,
-  construction-site-verified), not an import-executed introspection —
-  torch + the model are exactly the infeasibility.
-- The metric-scale claim and the world-gauge alignment to the Sporta pitch
-  frame are unverified by any executed evidence.
+- No event ground truth reachable in this sandbox — temporal P/R has an
+  unscored ceiling here, and the onset-offset distribution cannot exist.
+- Zero detections at the model's own threshold on the only reachable
+  clips (short OOD fragments): no positive spotting evidence at all.
+- The zoo's second temporal-displacement (delta) phase NOT run
+  (confidence-only spotting; timestamps are dense-anchor positions at
+  2 fps).
+- The Keras-2-era checkpoint runs via the tf_keras compat package with
+  recorded archived-dependency shims — an integration risk.
+- The latency numbers are CPU wall-clock on a 2-vCPU host (repeated-window
+  microbenchmark), NOT deployment latency.
 
 ## Promotion-gate referral
 
-The MapAnything candidate remains `candidate` — UNCHANGED. Observed
-blockers for HF015: (1) zero executed benchmark evidence (the typed
-refusal); (2) no geometry ground truth reachable (unscored ceiling); (3)
-datasetProvenance `unknown` — the HF015 license review has not happened;
-(4) the metric claim unverified. This flight recommends NOTHING; the TL
-decides at the HF015 gate alone.
+The Spivak candidate remains `candidate` — UNCHANGED. Observed blockers
+for HF015: (1) no event ground truth reachable (temporal P/R
+unmeasurable in this sandbox); (2) zero detections on the only reachable
+clips — no positive spotting evidence; (3) the cascade cost story is
+unfavorable on CPU hosts (no GPU evidence); (4) the Keras-2-era stack
+integration risk + the SoccerNet dataset lineage unresolved per the
+ledger. This flight recommends NOTHING; the TL decides at the HF015 gate
+alone.
 
 === END REPORT ===
 
-===== 64-b REPORT END =====
+===== 64-c REPORT END =====
