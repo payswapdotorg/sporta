@@ -1,7 +1,7 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: DISCOVERED / NOT YET BENCHMARKED
-Date: 2026-09-20
+Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion)
+Date: 2026-10-03
 
 ## Portfolio
 
@@ -9,7 +9,7 @@ Date: 2026-09-20
 |---|---|---|
 | HF001 task profiles | NOT_STARTED | TL + A |
 | HF002 provenance ledger | NOT_STARTED | B |
-| HF003 RF-DETR SoccerNet | NOT_STARTED | A |
+| HF003 RF-DETR SoccerNet | ✅ BENCHMARKED (9e08ac9, flight 1: CPU-host evidence, no promotion — the candidate stands; the honest domain-mismatch + latency/memory record) | A |
 | HF004 MapAnything | NOT_STARTED | A |
 | HF005 SAM3 | NOT_STARTED | A |
 | HF006 Spivak | NOT_STARTED | A |
