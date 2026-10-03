@@ -2,7 +2,7 @@
  * R606 ellipse/circle-constrained calibration — MACHINE MEASUREMENT DRIVER
  * (DEVELOPMENT-TIME EVIDENCE, not a test).
  *
- * Measures SIX calibration paths of `BroadcastLineCalibrator` v0.5.0 on
+ * Measures SEVEN calibration paths of `BroadcastLineCalibrator` v0.6.0 on
  * bounded frame samples of the committed REAL corpus
  * (`scripts/evidence/spr-corpus-bytes/`, sha-256-verified against
  * `scripts/evidence/spr-wave2-corpus/corpus.json` at startup — the frozen
@@ -23,6 +23,14 @@
  *  - (f) the v0.5.0 OPT-IN anchor conversion on the v0.4.1 conic-selection
  *    chain (`ellipseAnchorConversion: true, ellipseMultiConicSelection:
  *    true` — the per-candidate anchor records ride every conicChain entry)
+ *  - (g) the v0.6.0 OPT-IN penalty-arc-conic prior on the conic-selection
+ *    chain (`ellipseMultiConicSelection: true, penaltyArcPrior: true` —
+ *    the fixed-geometry penalty-arc candidate family seeded AFTER every
+ *    evidence-derived candidate, each prior-seeded solve gated by the
+ *    full machine bar + the prior family's own gates: the E2c grass
+ *    gate, the E6b degenerate-grid gate, the geometric quad-containment
+ *    gate, and flight 4's world-circle/horizon gate — the 116.5 m class
+ *    closure; prior provenance rides every chain entry)
  * per window (multi-frame, the pipeline's real mode) AND per sampled frame
  * (single-frame diagnostics), recording calibrated/refused, confidence,
  * the failure class + measured numbers on refusals, and the fit metrics
@@ -224,15 +232,30 @@ function measurePath(
   ellipseConstrained: boolean,
   ellipseMultiConicSelection?: boolean,
   ellipseAnchorConversion?: boolean,
+  penaltyArcPrior?: boolean,
 ): Outcome {
   const calibrator = new BroadcastLineCalibrator({
     ellipseConstrained,
     ...(ellipseMultiConicSelection !== undefined ? { ellipseMultiConicSelection } : {}),
     ...(ellipseAnchorConversion !== undefined ? { ellipseAnchorConversion } : {}),
+    ...(penaltyArcPrior !== undefined ? { penaltyArcPrior } : {}),
   });
   try {
     const result = calibrator.calibrate({ frames: [...frames] });
-    const metrics = evaluateBroadcastLineFit({ frames: [...frames] }, result.homography);
+    // v0.6.0: on the prior path the metrics' ellipse-residual measurement
+    // is FAMILY-honest (the min-over-chain extends to the prior-seeded
+    // candidates, each measured against ITS family's painted marking) —
+    // thread the path's own options; every other path measures unchanged.
+    const metrics = evaluateBroadcastLineFit(
+      { frames: [...frames] },
+      result.homography,
+      penaltyArcPrior !== undefined
+        ? {
+            penaltyArcPrior,
+            ...(ellipseMultiConicSelection !== undefined ? { ellipseMultiConicSelection } : {}),
+          }
+        : {},
+    );
     return {
       kind: "calibrated",
       confidence: result.confidence,
@@ -321,7 +344,7 @@ async function main(): Promise<void> {
   mkdirSync(FRAMES_DIR, { recursive: true });
 
   const record = {
-    schemaVersion: "1.1",
+    schemaVersion: "1.2",
     driver: "packages/perception-adapters/scripts/r606-ellipse-measurement.ts",
     substrateVerification: CLIPS.map((clip) => ({
       clipId: clip.clipId,
@@ -342,6 +365,8 @@ async function main(): Promise<void> {
         "BroadcastLineCalibrator({ ellipseAnchorConversion: true }) — the v0.5.0 OPT-IN J-orthogonal exact closure on the default single-conic surface: the image conic and the world circle canonicalize to the Lorentz form J and every enumerated mixed-DLT scan solve is projected onto the J-orthogonal class under the admissibility bound / closure self-check / birth conic guard / conic hard guard, the finalists run the UNCHANGED validation bar WITHOUT the refinement (61-b: the admissibility bound recalibrated to 0.1 on the measured bimodal deviation distribution — the inherited 1e-2 sat below the fitted-conic noise floor and admitted nothing, see the module's ELLIPSE_ANCHOR_ADMISSIBILITY_BOUND record; the closure is conic-exact by construction and the unchanged bar refuses the globally re-balanced solves — the anchors-fight outcome)",
       v050AnchorConversionChain:
         "BroadcastLineCalibrator({ ellipseAnchorConversion: true, ellipseMultiConicSelection: true }) — the v0.5.0 OPT-IN closure stacked on the v0.4.1 conic-selection chain: every quota-passing, grass-backed candidate's scan solves run through the closure with the per-candidate anchor record (scan solves enumerated / converted) riding every conicChain entry",
+      v060PriorPath:
+        "BroadcastLineCalibrator({ ellipseMultiConicSelection: true, penaltyArcPrior: true }) — the v0.6.0 OPT-IN penalty-arc-conic prior stacked on the v0.4.1 conic-selection chain (E2d): the FIXED-GEOMETRY penalty-arc candidate family — (image conic, fixed world circle) pairs seeded from the same arc-evidence fit machinery under the penalty-arc FAMILY quota (support >= 90 px + coverage >= 10 bins, the painted \"D\" arc's own span), both ends enumerated, the prior's candidates running AFTER every evidence-derived candidate — each prior-seeded solve through the FULL hypothesis -> refinement -> validation flow with the bar never lowered PLUS the prior family's own gates: the E2c grass gate, the E6b degenerate-grid gate, the geometric quad-containment gate (broadcast-line.ellipse-prior-quad-containment), and flight 4's world-circle/horizon gate (broadcast-line.ellipse-prior-world-circle — the 116.5 m class closure; the world-side probe bar is the calibration's OWN SCORE_RADIUS_M = 1.0 m); prior provenance (prior + priorEnd) rides every chain entry and refusal record",
     },
     windows: [] as unknown[],
     aggregate: {} as Record<string, unknown>,
@@ -381,6 +406,22 @@ async function main(): Promise<void> {
   let v050ChainConverted = 0;
   let v050ChainUnconvertibleCandidates = 0;
   let v050ChainUnconvertibleWindows = 0;
+  // v0.6.0 (62-b, flight 4): the prior-path counters — calibrated / newly
+  // calibrated / non-degradation (vs the v0.3.0 surface, the established
+  // baseline), plus the corpus-wide prior-family record: the seeded
+  // candidate count and the prior-gate typed-refusal firings (world-circle /
+  // quad-containment / unevidenced / grass-on-prior), summed over every
+  // window's chain entries and window outcome.
+  let v060Calibrated = 0;
+  let v060NewlyCalibrated = 0;
+  let v060DegradedVsV030 = 0;
+  let v060SeededCandidates = 0;
+  let v060WorldCircleCandidates = 0;
+  let v060WorldCircleWindows = 0;
+  let v060QuadContainmentCandidates = 0;
+  let v060QuadContainmentWindows = 0;
+  let v060UnevidencedWindows = 0;
+  let v060GrassOnPriorCandidates = 0;
 
   for (const window of WINDOWS) {
     const clip = CLIPS.find((c) => c.clipId === window.clipId)!;
@@ -428,6 +469,46 @@ async function main(): Promise<void> {
       }
     })();
 
+    // v0.6.0 (flight 4, additive): the PRIOR-seeded candidate record for the
+    // overlays — the same diagnostics machinery with the prior option on,
+    // recording ONLY the prior-seeded entries (each carries its geometry +
+    // family provenance) and the family's best measured numbers. The
+    // pre-existing `ellipseEvidence` key above is untouched (byte-identical).
+    const priorEvidence = (() => {
+      try {
+        const diag = fitBroadcastEllipseEvidence(
+          { frames: [...frames] },
+          { ellipseMultiConicSelection: true, penaltyArcPrior: true },
+        );
+        const priorCandidates = (diag.conicCandidates ?? []).filter(
+          (candidate) => candidate.prior !== undefined,
+        );
+        return jsonSafe({
+          arcPixels: diag.arcPixels,
+          priorSeeded: priorCandidates.length,
+          ...(priorCandidates.length > 0
+            ? {
+                priorCandidates: priorCandidates.map((candidate) => ({
+                  centerPx: candidate.centerPx,
+                  semiMajorPx: candidate.semiMajorPx,
+                  semiMinorPx: candidate.semiMinorPx,
+                  rotationDeg: candidate.rotationDeg,
+                  supportPx: candidate.supportPx,
+                  coverageBins: candidate.coverageBins,
+                  quotaPassed: candidate.quotaPassed,
+                  priorEnd: candidate.priorEnd,
+                })),
+              }
+            : {}),
+        });
+      } catch (error) {
+        if (error instanceof CandidateFailureError) {
+          return { stage: error.details.failureClassId };
+        }
+        throw error;
+      }
+    })();
+
     const perFrame = frames.map((frame, k) => ({
       frame: frameNumbers[k]!,
       mediaTimeSec: +(clip.mediaTimeStartSec + frameNumbers[k]! / 25).toFixed(2),
@@ -441,6 +522,11 @@ async function main(): Promise<void> {
     // single-conic surface, (f) stacked on the conic-selection chain.
     const v050 = measurePath(frames, true, undefined, true);
     const v050Chain = measurePath(frames, true, true, true);
+    // v0.6.0 (62-b, flight 4): the OPT-IN penalty-arc-conic prior path —
+    // stacked on the conic-selection chain (the prior's candidates run
+    // AFTER every evidence-derived candidate; every prior-seeded solve
+    // gated by the full machine bar + the prior family's own gates).
+    const v060 = measurePath(frames, true, true, undefined, true);
     if (v010.kind === "calibrated") v010Calibrated += 1;
     if (v020.kind === "calibrated") v020Calibrated += 1;
     if (v030.kind === "calibrated") v030Calibrated += 1;
@@ -497,6 +583,47 @@ async function main(): Promise<void> {
     ) {
       v050ChainUnconvertibleWindows += 1;
     }
+    // v0.6.0: the prior-path counters + the corpus-wide prior-family record.
+    if (v060.kind === "calibrated") v060Calibrated += 1;
+    if (v030.kind === "refused" && v060.kind === "calibrated") v060NewlyCalibrated += 1;
+    if (degradedVsV030(v060)) v060DegradedVsV030 += 1;
+    if (v060.kind === "refused" && typeof v060.details.priorSeededCandidates === "number") {
+      v060SeededCandidates += v060.details.priorSeededCandidates as number;
+    }
+    const v060Chain =
+      v060.kind === "refused"
+        ? (v060.details.conicChain as ReadonlyArray<Record<string, unknown>> | undefined)
+        : undefined;
+    for (const entry of v060Chain ?? []) {
+      if (entry.prior !== "penalty-arc") continue;
+      if (entry.failureClassId === "broadcast-line.ellipse-prior-world-circle") {
+        v060WorldCircleCandidates += 1;
+      }
+      if (entry.failureClassId === "broadcast-line.ellipse-prior-quad-containment") {
+        v060QuadContainmentCandidates += 1;
+      }
+      if (entry.failureClassId === "broadcast-line.ellipse-conic-off-pitch") {
+        v060GrassOnPriorCandidates += 1;
+      }
+    }
+    if (
+      v060.kind === "refused" &&
+      v060.failureClassId === "broadcast-line.ellipse-prior-world-circle"
+    ) {
+      v060WorldCircleWindows += 1;
+    }
+    if (
+      v060.kind === "refused" &&
+      v060.failureClassId === "broadcast-line.ellipse-prior-quad-containment"
+    ) {
+      v060QuadContainmentWindows += 1;
+    }
+    if (
+      v060.kind === "refused" &&
+      v060.failureClassId === "broadcast-line.ellipse-penalty-arc-prior-unevidenced"
+    ) {
+      v060UnevidencedWindows += 1;
+    }
 
     record.windows.push({
       id: window.id,
@@ -511,7 +638,9 @@ async function main(): Promise<void> {
       v040Chain: jsonSafe(v040),
       v050AnchorConversion: jsonSafe(v050),
       v050AnchorConversionChain: jsonSafe(v050Chain),
+      v060PriorPath: jsonSafe(v060),
       ellipseEvidence,
+      priorEvidence,
       perFrame,
     });
     console.log(
@@ -521,6 +650,7 @@ async function main(): Promise<void> {
         ` | v0.4.0 chain(opt-in): ${v040.kind === "calibrated" ? `CALIBRATED conf=${v040.confidence.toFixed(3)} lineFit=${(v040.metrics.lineFit as number).toFixed(3)}` : `REFUSED ${v040.failureClassId}`}` +
         ` | v0.5.0 conv(opt-in): ${v050.kind === "calibrated" ? `CALIBRATED conf=${v050.confidence.toFixed(3)}` : `REFUSED ${v050.failureClassId}${v050.kind === "refused" && v050.details.anchorScanSolves !== undefined ? ` [scan ${v050.details.anchorScanSolves}/conv ${v050.details.anchorConverted}]` : ""}`}` +
         ` | v0.5.0 conv+chain(opt-in): ${v050Chain.kind === "calibrated" ? `CALIBRATED conf=${v050Chain.confidence.toFixed(3)}` : `REFUSED ${v050Chain.failureClassId}`}` +
+        ` | v0.6.0 prior(opt-in): ${v060.kind === "calibrated" ? `CALIBRATED conf=${v060.confidence.toFixed(3)}` : `REFUSED ${v060.failureClassId}${v060.kind === "refused" && typeof v060.details.priorSeededCandidates === "number" ? ` [prior seeded ${v060.details.priorSeededCandidates}]` : ""}`}` +
         ` (${Date.now() - t0}ms)`,
     );
   }
@@ -561,6 +691,18 @@ async function main(): Promise<void> {
       v050ChainScanSolves > 0 ? +(v050ChainConverted / v050ChainScanSolves).toFixed(6) : 0,
     v050AnchorConversionChainUnconvertibleRefusalCandidates: v050ChainUnconvertibleCandidates,
     v050AnchorConversionChainUnconvertibleRefusalWindows: v050ChainUnconvertibleWindows,
+    // v0.6.0 (62-b, flight 4 — the OPT-IN penalty-arc-conic prior path,
+    // honest fresh numbers):
+    v060PriorPathCalibrated: v060Calibrated,
+    v060PriorPathNewlyCalibratedWhereV030Refused: v060NewlyCalibrated,
+    v060PriorPathNonDegradationViolations: v060DegradedVsV030,
+    v060PriorPathSeededCandidates: v060SeededCandidates,
+    v060PriorPathWorldCircleRefusalCandidates: v060WorldCircleCandidates,
+    v060PriorPathWorldCircleRefusalWindows: v060WorldCircleWindows,
+    v060PriorPathQuadContainmentRefusalCandidates: v060QuadContainmentCandidates,
+    v060PriorPathQuadContainmentRefusalWindows: v060QuadContainmentWindows,
+    v060PriorPathUnevidencedRefusalWindows: v060UnevidencedWindows,
+    v060PriorPathGrassOnPriorRefusalCandidates: v060GrassOnPriorCandidates,
   };
   writeFileSync(path.join(EVIDENCE_DIR, "measurement.json"), JSON.stringify(record, null, 1));
   console.log("wrote measurement.json");

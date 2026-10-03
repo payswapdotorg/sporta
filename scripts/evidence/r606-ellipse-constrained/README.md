@@ -615,3 +615,176 @@ claim needs the two evidence legs to AGREE: either the conic fit tightens
 weighting inside the anchor rows is re-examined — a TL decision, recorded
 here rather than laundered. The E4b mechanism itself is delivered and
 measured: exact, deterministic, guarded, and honestly refusing.
+
+---
+
+# ADDENDUM — v0.6.0 (E2d) + flight 4: the penalty-arc-conic prior and the world-circle class closure, Worker 62-b
+
+Session: r606/penalty-arc-prior (Worker 62-b, flight 4), 2026-10-03. Base:
+`d22d4e8` (the leg-B gate checkpoint on `r606/penalty-arc-prior`, on top
+of `c284d7c` — flight 3's v0.6.0 implementation). Substrate: unchanged
+(the committed corpus bytes, sha-256-verified 4/4 at driver startup — the
+same frozen contract). The driver is now SEVEN-path (measurement.json
+schemaVersion 1.2): the six pre-existing paths are field-by-field
+byte-identical to the committed v0.5.0 record (verified below), the new
+path (g) is the v0.6.0 OPT-IN penalty-arc-conic prior stacked on the
+conic-selection chain (`v060PriorPath`: ellipseConstrained +
+ellipseMultiConicSelection + penaltyArcPrior all on).
+
+## WHAT v0.6.0 is (module docs E2d)
+
+The FIXED-GEOMETRY candidate family for behind-goal views (OPT-IN
+`penaltyArcPrior`, default false): the prior SUPPLIES (image conic, FIXED
+world circle) pairs — the world side is the penalty arc's circle from the
+canonical pitch-model constants (spots 11/94, cy 34, r 9.15, the painted
+clip at 16.5/88.5; BOTH ends enumerated), the image side comes from the
+SAME arc-evidence fit machinery the chain uses, gated by the penalty-arc
+FAMILY quota (support ≥ 90 px UNCHANGED + coverage ≥ 10 bins — the floor
+of the painted "D" arc's own ~106.10° span, derived from the fixed
+geometry). Prior candidates run AFTER every evidence-derived candidate,
+each through the FULL hypothesis → refinement → validation flow with the
+bar never lowered, PLUS the prior family's own gates: the E2c grass gate,
+the E6b degenerate-grid gate, the geometric quad-containment gate
+(`broadcast-line.ellipse-prior-quad-containment`), and flight 4's
+WORLD-CIRCLE / HORIZON gate (`broadcast-line.ellipse-prior-world-circle`).
+Prior provenance (`prior: "penalty-arc"` + `priorEnd`) rides every chain
+entry and refusal record. Option-off ⇒ the v0.5.0 surface byte-identical.
+
+## THE CLASS CLOSURE (flight 4's headline — flight 3's honest finding, closed)
+
+Flight 3 recorded (c284d7c, the pre-gate tree): the synthetic
+occluded-circle fixture CALIBRATED on the prior path at machine-passing
+gates (lineFit 0.666 / backward 9.65 px / ellipse residual 0.755 px /
+conf 0.636) with a worst probe error of **116.5 m** over the 6
+PROBE_PITCH_POINTS (per-probe 21.9/48.1/19.4/116.5/19.6/56.2 m) — a
+convex, containment-passing, GLOBALLY-WRONG solve class the then-current
+gates did NOT close. Flight 4 reproduced that solve exactly at c284d7c
+(measured in a side worktree: worst probe 116.51661751121266 m; the
+frozen homography + the calibrated prior candidate's geometry are pinned
+in the test) and closed the class with the world-circle/horizon gate: at
+this tree the SAME fixture refuses — the prior candidate (the RIGHT
+family paired with an arc-crumb sliver conic) passes every machine gate
+at the flight-3 numbers (lineFit 0.6657 / backward 9.6508 / residual
+0.7547) and is refused by the world-circle leg at a measured world-side
+worst error **8.2279 m > 1.0 m** (the calibration's OWN SCORE_RADIUS_M)
+over 180 full-ellipse probes (mean 1.9792 m; the horizon leg alone
+passes on this solve — both legs ride the record). The pure export
+`evaluateBroadcastPriorWorldCircle` regression-locks the frozen pre-gate
+solve: worst 8.2279 m (right family) / 73.364 m (left family), while the
+one-directional quad-containment gate PASSES it (ok=true, convex) — the
+measured record of exactly which gap the world-circle leg closes. The
+quad-containment gate itself is pinned live on two fixtures (a
+machine-passing solve at lineFit 0.8371 / backward 7.30 / residual 1.14
+refused on a non-convex quad with the conic center 12.4 px outside; a
+chain-level refusal at lineFit 0.6135), and the grass gate's
+non-re-entry on prior candidates at measured interior-green medians
+0.000–0.073. VERDICT: **CLOSED at the machine bar** — typed class, gate,
+frozen-record regression lock, and battery.
+
+## RESULTS (the 12-window real corpus, sha-verified; driver re-run ×2
+deep-equal modulo durationMs)
+
+Aggregate (additive keys): `v060PriorPathCalibrated` **2** (b8p3-c conf
+0.832 / b8p3-d conf 0.988 — byte-identical to every pre-existing path:
+the line path calibrates those windows first, the prior never runs) ·
+`v060PriorPathNewlyCalibratedWhereV030Refused` **0** ·
+`v060PriorPathNonDegradationViolations` **0** ·
+`v060PriorPathSeededCandidates` **64** (8 windows × 8 candidates: 4
+conics × 2 ends) · grass-refused prior candidates **30** ·
+world-circle / quad-containment / unevidenced window firings **0 / 0 /
+0**. The six pre-existing paths: every per-window record (12 windows ×
+13 keys) and every per-frame diagnostic field-by-field EQUAL to the
+committed v0.5.0 measurement.json; all 29 committed aggregate keys
+equal; the two driver runs byte-identical modulo durationMs (206,312
+chars of sorted JSON deep-compared).
+
+**The honest headline: on the committed corpus the prior path newly
+calibrates 0/12 windows** — the supply is real (64 prior-seeded
+candidates over the 8 windows that reached the ellipse path, family
+best support 428–1316 px / coverage 10–34 bins recorded per window) but
+every one of them refuses honestly at the machine bar:
+
+| window | v0.6.0 prior (opt-in) | prior-seeded candidates' outcomes |
+|---|---|---|
+| b8p3-c / b8p3-d | CALIBRATED conf 0.832 / 0.988 (the line path first — the prior never ran; byte-identical) | — |
+| b8p3-a / b1-a | camera-motion (identical on every path) | — |
+| b8p3-b | REFUSED ellipse-conic-off-pitch | 8 seeded (best 1052 px/34 bins): 4 grass-refused, 4 validation (lineFit ≤ 0.60) |
+| b8p3-e / b1-b | REFUSED ellipse-no-consistent-homography | 8 seeded (best 587/32): 6 validation (lineFit 0.11–0.28), 2 grass (0.112) — cross-clip determinism b1-b ≡ b8p3-e byte-exact |
+| b8p3-f | REFUSED ellipse-no-consistent-homography | 8 seeded (best 750/21): 4 validation, 4 grass |
+| b8p3-g | REFUSED ellipse-conic-off-pitch | 8 seeded (best 428/32): 2 grass, 6 validation |
+| b3-a | REFUSED ellipse-conic-off-pitch | 8 seeded (best 1316/10): **ALL 8 grass-refused** (interior-green medians 0.000–0.073 — the goal/net-structure class; the behind-goal target window behaves exactly as designed) |
+| b5-a | REFUSED ellipse-no-consistent-homography | 8 seeded (best 678/19): 6 validation, 2 grass |
+| b5-b | REFUSED ellipse-conic-off-pitch | 8 seeded (best 663/19): 6 grass, 2 validation |
+
+No real-window prior candidate reached a machine-passing solve (0
+world-circle / 0 quad-containment firings — the 116.5 m class is
+synthetic; on real evidence the prior's candidates die earlier, at the
+grass gate or validation).
+
+## VLM overlay checks (2026-10-03; overlays/b3-a.png, overlays/b8p3-e.png,
+overlays/b8p3-c.png — the white prior-seeded conics + the labels)
+
+- **b3-a** (the prior's target window): "The frame shows a **behind-the-goal
+  camera view** … the large flat ellipse's interior is mostly non-green
+  content (scoreboard/graphics, stands/crowd); the small top-right
+  ellipses' interiors are mostly non-green (text/logos, stadium
+  structure)" — the machine's grass-gate refusals (medians 0.000–0.073)
+  MATCH the visual truth. The one thin bottom-right sliver reads
+  "mostly green" in the single anchor frame — the documented
+  single-frame-vs-median case (the gate's median over the window's
+  frames is 0.012: the region is not durably grass; the v0.4.1 record
+  established the ANY-frame green union does not discriminate).
+- **b8p3-e**: "a white painted pitch arc is visible … the penalty 'D' arc
+  on the right side of the frame" — but "the WHITE ellipses do NOT align
+  with the visible painted arc … positioned over open pitch space" —
+  the machine record matches: the prior's seeded conics sit away from
+  the visible arc and refuse at validation (lineFit 0.11–0.28) / grass
+  (0.112). No claim made; the refusal is visually honest.
+- **b8p3-c** (the long-calibrated pair, unchanged): "the GREEN and ORANGE
+  projected grids align with each other and the visible white pitch
+  lines … the CYAN ellipse sits ON a visible white painted arc … no
+  obvious misalignments" — the non-degradation is visually confirmed.
+
+## Tests
+
+`calibration-ellipse.test.ts` **35/35** (25 prior + **10 new** v0.6.0
+tests): (a) option validation fail-loud + the default proven OFF
+behaviorally (the discriminating fixture's default chain carries no
+prior entries; prior-on gains 8); (b) identity — explicit `false`
+byte-identical to the default on plain/occluded/netStructure fixtures
+(full-result JSON), the diagnostics surface identical, and the option
+never fires outside the ellipse path (line-only ≡ v0.1.0); (c) the
+healthy window never reaches the prior (prior-on ≡ default, conf 0.921
+byte-identical, while the diagnostics prove the prior WOULD seed); (d)
+quota/provenance — the below-family-quota fixture (touchlines + 40°
+arcs) refuses `ellipse-penalty-arc-prior-unevidenced` (prior seeded 0,
+851 arc px) with the full-paint control seeding 2 at support 186/32
+(the painted "D" passes its own family quota); (e) the grass
+non-re-entry (netStructure: 8 prior-seeded, 2 grass-refused at median
+0.0231 over 1257 samples, provenance riding); (f) the quad-containment
+gate live at both levels (chain: lineFit 0.6135 machine-passing; window:
+lineFit 0.8371 / backward 7.30 / residual 1.14 machine-passing, quad
+non-convex, conic center −12.4 px outside); (g) determinism — two
+prior-path runs serialize byte-identically on every fixture class; (h)
+LEG B closure — the occluded-circle fixture refuses with the typed
+world-circle class (worst 8.2279 m > 1.0 bar, 180 samples, mean 1.9792,
+horizon consistent — the world-probe leg is the refusing one; the
+refused solve's machine numbers pinned); (i) the frozen pre-gate
+regression lock via the pure exports (8.2279 right / 73.364 left /
+quad-containment ok=true on the frozen 116.5 m solve) + the exports'
+fail-loud input contracts; (j) taxonomy additivity (the three new
+classes exactly once, retryable false). Full package battery **163/163**
+(153 baseline + 10), tsc clean, eslint 0 errors, prettier clean on every
+touched file.
+
+## The NEXT measured gap (precise)
+
+On all 8 prior-reachable real windows the family quota's quota-passing
+image-side sources are structure/crumb conics — 30 of 64 prior-seeded
+candidates grass-refused at interior-green medians 0.012–0.112 and the
+rest refused at validation with lineFit 0.11–0.28 against the 0.60 bar —
+while the VISIBLE painted "D" arcs (VLM-verified on b8p3-e: the arc is
+clearly visible at 1609 arc px) yield no seeded conic aligned with them,
+so the next increment is an image-side fit that locks onto the true
+painted penalty-arc band before the prior can calibrate a single real
+window.

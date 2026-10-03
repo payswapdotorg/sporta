@@ -12,6 +12,9 @@ the v0.4.0 ellipse-constrained default's solved pitch grid (orange, when
 calibrated) — so a human can visually verify every measured outcome. v0.4.1:
 the chain line's label carries the chain-only hardening's typed refusal (the
 measured grass median / the measured quad-geometry numbers when present).
+v0.6.0 (flight 4): the prior-seeded penalty-arc-family candidates (the
+`priorEvidence` record) drawn WHITE, the v0.6.0 prior path's outcome label
+carrying the seeded count + the family's best measured support/coverage.
 
 Run:  python3 render_overlays.py   (from scripts/evidence/r606-ellipse-constrained/)
 """
@@ -253,6 +256,50 @@ def main():
                 96,
                 (255, 255, 0),
             )
+        # v0.6.0 (flight 4): the PRIOR-seeded penalty-arc-family candidates
+        # (white) + the prior path's outcome label (seeded count, the
+        # family's best measured support/coverage from the refusal details).
+        prior_evidence = window.get("priorEvidence") or {}
+        v060 = window.get("v060PriorPath") or {}
+        prior_detail = ""
+        if v060.get("kind") == "refused":
+            det = v060.get("details", {})
+            if isinstance(det, dict) and "priorSeededCandidates" in det:
+                best_s = det.get("priorBestSupportPx")
+                best_c = det.get("priorBestCoverageBins")
+                prior_detail = (
+                    f" [prior seeded {det['priorSeededCandidates']}"
+                    + (f", family best {best_s}px/{best_c}bins" if best_s is not None else "")
+                    + "]"
+                )
+        label(
+            canvas,
+            outcome_text(v060, "v0.6.0 prior (opt-in)") + prior_detail,
+            8,
+            112,
+            (255, 255, 255),
+        )
+        if isinstance(prior_evidence, dict):
+            for cand in prior_evidence.get("priorCandidates") or []:
+                if not isinstance(cand, dict) or "centerPx" not in cand:
+                    continue
+                draw_ellipse_geometry(
+                    canvas,
+                    (cand["centerPx"]["x"], cand["centerPx"]["y"]),
+                    cand.get("semiMajorPx", 10),
+                    cand.get("semiMinorPx", 5),
+                    cand.get("rotationDeg", 0),
+                    (255, 255, 255),
+                    1,
+                )
+            if prior_evidence.get("priorSeeded", 0) > 0:
+                label(
+                    canvas,
+                    f"prior-seeded family candidates: {prior_evidence['priorSeeded']} (white; both ends per conic)",
+                    8,
+                    128,
+                    (255, 255, 255),
+                )
         out_path = os.path.join(out_dir, f"{wid}.png")
         cv2.imwrite(out_path, canvas)
         print(f"wrote {out_path}")
