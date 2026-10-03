@@ -1,0 +1,7 @@
+{
+  "repo": "yahoo-inc/spivak-action-spotting-soccernet",
+  "fetchedAtUtc": "2026-10-03T01:40:00Z",
+  "api": {"url": "https://huggingface.co/api/models/yahoo-inc/spivak-action-spotting-soccernet", "httpStatus": 200},
+  "readme": {"url": "https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet/raw/main/README.md", "httpStatus": 200},
+  "page": {"url": "https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet", "httpStatus": 200}
+}

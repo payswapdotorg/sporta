@@ -1,0 +1,7 @@
+{
+  "repo": "microsoft/VibeVoice-ASR-Streaming-1.5B",
+  "fetchedAtUtc": "2026-10-03T01:40:02Z",
+  "api": {"url": "https://huggingface.co/api/models/microsoft/VibeVoice-ASR-Streaming-1.5B", "httpStatus": 200},
+  "readme": {"url": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B/raw/main/README.md", "httpStatus": 200},
+  "page": {"url": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B", "httpStatus": 200}
+}

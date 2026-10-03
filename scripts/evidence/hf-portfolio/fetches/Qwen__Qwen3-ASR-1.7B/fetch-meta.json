@@ -1,0 +1,7 @@
+{
+  "repo": "Qwen/Qwen3-ASR-1.7B",
+  "fetchedAtUtc": "2026-10-03T01:40:03Z",
+  "api": {"url": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-1.7B", "httpStatus": 200},
+  "readme": {"url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/raw/main/README.md", "httpStatus": 200},
+  "page": {"url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B", "httpStatus": 200}
+}

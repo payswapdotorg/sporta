@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://huggingface.co/facebook/sam3/resolve/main/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:11Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:11Z"
+}

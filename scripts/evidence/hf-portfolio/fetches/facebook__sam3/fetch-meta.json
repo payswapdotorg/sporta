@@ -1,0 +1,7 @@
+{
+  "repo": "facebook/sam3",
+  "fetchedAtUtc": "2026-10-03T01:39:59Z",
+  "api": {"url": "https://huggingface.co/api/models/facebook/sam3", "httpStatus": 200},
+  "readme": {"url": "https://huggingface.co/facebook/sam3/resolve/main/README.md", "httpStatus": 200},
+  "page": {"url": "https://huggingface.co/facebook/sam3", "httpStatus": 200}
+}

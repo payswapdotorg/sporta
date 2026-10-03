@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://raw.githubusercontent.com/Lightricks/LTX-2/main/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:14Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:14Z"
+}
