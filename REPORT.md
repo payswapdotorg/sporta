@@ -1,150 +1,186 @@
-# Worker 64-a delivery — HF003: the RF-DETR SoccerNet benchmark evidence
+===== 64-b REPORT BEGIN =====
+
+# Worker 64-b delivery — HF004: the MapAnything geometry benchmark evidence
 
 ## Manifest
 
-- Branch: `work/hf003-rfdetr-benchmark` (from main @ ee0dbfe; never pushed)
-- Commit: `rel(64-a): HF003 — the RF-DETR benchmark evidence (CPU-host, fixture + corpus)`
-- Work item: HF003 (docs/work-items/hf-model-portfolio-work-items.md)
-- Task profile: `football.playerDetection` (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
+- Branch: `work/hf004-mapanything-benchmark` (from main @ 065714b; never pushed)
+- Commit: `rel(64-b): HF004 — the MapAnything geometry benchmark evidence (CPU-host, fixtures + fx-001)`
+- Work item: HF004 (docs/work-items/hf-model-portfolio-work-items.md)
+- Task profiles: `scene.metric3DReconstruction`, `scene.depth`,
+  `scene.cameraPose`, `scene.covisibility`
+  (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
 - Evidence tree (all committed in-repo):
-  - `scripts/evidence/hf-portfolio/hf003/benchmark_rfdetr.py` — the model benchmark
-  - `scripts/evidence/hf-portfolio/hf003/fixture_threshold_sweep.py` — the zero-recall diagnostic
-  - `scripts/evidence/hf-portfolio/hf003/run-baseline.ts` — the current-detector baseline (repo L010 harness)
-  - `scripts/evidence/hf-portfolio/hf003/record-benchmark.ts` — the ledger-pinning validator (exit 0)
-  - `scripts/evidence/hf-portfolio/hf003/benchmark-record.json` — the ledger-shaped HF003 record
-  - `scripts/evidence/hf-portfolio/hf003/summary.md` — the markdown summary
-  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-synthetic-diagnostic-01.json`
-  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-fx-001.json`
-  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-fixture-threshold-sweep.json`
-  - `scripts/evidence/hf-portfolio/hf003/results/baseline-current-detector.json`
-- Not committed (by design): the checkpoint (1.57 GB, apache-2.0, operator
-  download at /home/z/hf-bench — never vendored) and the python venv.
-- FROZEN contracts untouched; provenance-ledger.json untouched (its row schema is
-  test-pinned to exactly the twelve provenance fields; the benchmark run is
-  recorded in benchmark-record.json, which `record-benchmark.ts` pins to the
-  ledger verbatim).
+  - `scripts/evidence/hf-portfolio/hf004/benchmark_mapanything.py` — the benchmark (preflight EXECUTED on this host: exit 3, the typed refusal; full path ready-to-run on an adequate host)
+  - `scripts/evidence/hf-portfolio/hf004/schema_introspect.py` — the source-verified output-schema extractor (EXECUTED, fail-closed)
+  - `scripts/evidence/hf-portfolio/hf004/contract_compatibility.ts` — the machine-checkable compatibility verdict (EXECUTED, exit 0)
+  - `scripts/evidence/hf-portfolio/hf004/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0)
+  - `scripts/evidence/hf-portfolio/hf004/benchmark-record.json` — the ledger-shaped HF004 record
+  - `scripts/evidence/hf-portfolio/hf004/summary.md` — the markdown summary
+  - `scripts/evidence/hf-portfolio/hf004/results/preflight-refusal.json` — the EXECUTED typed refusal
+  - `scripts/evidence/hf-portfolio/hf004/results/download-probe.json` — the bounded 8 MiB reachability probe
+  - `scripts/evidence/hf-portfolio/hf004/results/model-output-schema.json` — the source-verified output schema
+  - `scripts/evidence/hf-portfolio/hf004/results/contract-compatibility.json` — the field-level compatibility verdict
+- Not committed (by design): the checkpoint (4.91 GB, apache-2.0 — CANNOT
+  even be stored on this host), the mapanything source clone, and the
+  python venv (/home/z/hf-bench-2 — a NEW venv, 64-a's not reused).
+- FROZEN contracts untouched; provenance-ledger.json untouched; architecture-lock untouched.
+- Guard batteries green: packages/testing hf-ledger.test.ts 8/8;
+  packages/perception-benchmark harness.test.ts (the L010 battery) green.
 
-=== HF003 BENCHMARK REPORT ===
+=== HF004 BENCHMARK REPORT ===
 
-## Summary
+## THE HONEST HEADLINE — a typed refusal, not a benchmark run
 
-HF003 asked for the first model-portfolio benchmark flight: run the RF-DETR
-SoccerNet candidate against the Sporta benchmark fixtures and at least one
-authorized real clip, compare it against the current detector, record
-latency/GPU-memory/quality, and promote NOTHING without evidence. All four
-measurement legs ran in this sandbox on a CPU-only 2-vCPU host; every number
-below is a single measured run, honestly labeled.
+The pinned candidate CANNOT run on this benchmark host. This is arithmetic,
+not a stall and not a mid-run error:
 
-## The model + version + how loaded
+| Constraint | Needed | Host | Verdict |
+|---|---|---|---|
+| Disk: checkpoint + torch-hub DINOv2-giant backbone | 4,914,062,480 + ~1,150,000,000 B | 1,355,993,088 B free | infeasible |
+| RAM: fp32 weights (~4.58 GiB) + activations | ~5.58 GiB (est.) | 4,041.6 MiB total | infeasible |
 
-- Candidate (HF002 ledger row): `julianzu9612/RFDETR-Soccernet` @ revision
-  `1e388b922a64f2be39cbf1925e5fd5fc4f7dd771`, apache-2.0 (model card), dataset
-  lineage unresolved (SoccerNet corpus terms), codeLicense `unknown`. RF-DETR-Large
-  fine-tuned on SoccerNet-Tracking 2023 (42,750 images; 4 classes:
-  ball/player/referee/goalkeeper).
-- Runtime: python 3.12 venv OUTSIDE the repo (/home/z/hf-bench), rfdetr 1.11.1
-  (PyPI), torch 2.14.1+cpu, opencv-python-headless 5.0.0. Checkpoint
-  `weights/checkpoint_best_regular.pth` (1,566,066,207 bytes; sha256
-  b9ade4bcc2316259582674ebeebbd27bb2e956480428c54114ace567237eb5f9) downloaded
-  from the pinned revision 2026-10-03; never committed.
-- Loading (the honest recipe for a legacy checkpoint on the current package):
-  `rfdetr.from_checkpoint` mis-resolves this checkpoint to the new patch-16
-  RFDETRLarge and stalls on a starter-weights download, so the flight constructs
-  `RFDETRLargeDeprecated` (the original RF-DETR-Large) with every
-  hyperparameter read from the checkpoint's own `args` (dinov2_windowed_base,
-  hidden 384, 3 decoder layers, patch 14, 4 windows, PE 37, 300 queries,
-  group_detr 13, resolution 560), with `num_classes=3` so the package's
-  `num_classes+1` head reproduces the legacy 4-row class head, then loads the
-  state dict (strict=False: missing = `['_kp_active_mask']` — an inert keypoint
-  buffer; unexpected = none). Class mapping per the pinned config.json:
-  0=ball, 1=player, 2=referee, 3=goalkeeper.
-- Load validation before any fixture run: the model's own committed sample frame
-  (1920x1080) → 18 detections at threshold 0.5 (14 player, 2 ball, 2 referee,
-  confidences 0.56–0.89). The model functions.
+The download path itself is reachable (bounded 8 MiB probe: 3.76 MiB/s —
+`results/download-probe.json`). `benchmark_mapanything.py --preflight` was
+EXECUTED on this host and emitted the typed refusal
+`resource-infeasible-host` with exit code 3 (`results/preflight-refusal.json`).
+Per the worker brief, the honest delivery is the typed refusal + the
+partial: **the load analysis, the static contract-compatibility review,
+and the ready-to-run script. No quality, latency, or memory number exists
+in this flight, and none is fabricated to stand in** —
+`record-benchmark.ts` fail-closes on any measurement-shaped key.
 
-## The fixture + real-clip story
+## The model + version + loading recipe
 
-- `synthetic-diagnostic-01` (the Sporta benchmark fixture pair, sha-pinned;
-  annotation coordinate convention verified against the L010 generator math —
-  max center delta 0.0005 px): 30 frames sampled at stride 10 by decode order
-  (the L010 harness convention), SCORED against the exact annotations.
-- `fx-001` — the AUTHORIZED REAL licensed clip (FIFA Beach Soccer World Cup
-  2021 penalty, Wikimedia Commons, CC0-1.0; one of the repo's two L010 gate
-  clips, sha-pinned): 25 frames at stride 10, recorded UNSCORED (no annotations
-  exist — never fabricated). A real clip WITH ground-truth annotations is not
-  reachable in this sandbox; that gap is recorded as a limitation (the
-  annotation-scored comparison exists only on the synthetic fixture).
+- Candidate (HF002 ledger row, echoed VERBATIM into benchmark-record.json):
+  `facebook/map-anything-apache` @ revision
+  `00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a` (apache-2.0 model + code;
+  datasetProvenance `unknown` — the card states no training corpus).
+- Checkpoint: `model.safetensors`, 4,914,062,480 B; sha256
+  `fa06c0fdccefc5048e072c85935d5789b1e36b307f3859033c17f9dcb9fd5201`
+  (the HF LFS etag of the pinned blob — hub-reported; not locally
+  verifiable on this host, honestly labeled). Never committed, never
+  vendored — the repo records only pins and digests.
+- Architecture (the pinned repo's config.json): DINOv2-giant encoder (24
+  of 40 blocks, torch-hub, patch 14) + 16-layer 1536-dim
+  alternating-attention info sharing + dpt+pose heads
+  (`raydirs+depth+pose+confidence+mask` adaptor) + 1-dim exp metric scale
+  head → the ~1.23B-param fp32 checkpoint.
+- Code pin: mapanything 1.1.4 (not on PyPI) = facebookresearch/map-anything
+  @ git `3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9`, cloned OUTSIDE the
+  repo at /home/z/hf-bench-2/map-anything-src; venv /home/z/hf-bench-2
+  (uv, python 3.12.14 — NEW; 64-a's venv not reused); torch NOT installed
+  (the install + load is the infeasibility).
+- Loading recipe (ready-to-run, in benchmark_mapanything.py):
+  snapshot_download @ the pinned revision → LOCAL sha256 verification vs
+  the pinned etag sha → `MapAnything.from_pretrained(<local dir>)`
+  (construction fetches DINOv2-giant via torch.hub) → `infer(views, ...)`
+  on stride-10 frame windows of the two clips (load_images
+  longest_side/512, fp32 on CPU, memory_efficient_inference, minibatch 1).
 
-## Quality (vs annotations AND vs the current detector, IoU 0.5, the repo's
-own greedy label-aware matching)
+## The fixtures + ground-truth story
 
-| Candidate | precision | recall | f1 | ball recall |
-|---|---|---|---|---|
-| RF-DETR SoccerNet (threshold 0.5) | 0.000 | 0.000 | 0.000 | 0.367 (11/30) |
-| RF-DETR (person classes merged) | 0.000 | 0.000 | 0.000 | — |
-| contrast-context-detector (current, J012 production path) | 0.605 | 0.557 | 0.580 | n/a |
-| heuristic-color-detector (weak baseline, context) | 0.993 | 0.987 | 0.990 | n/a |
+1. `synthetic-diagnostic-01` (sha-pinned technology-registry fixture) —
+   the camera-motion FALLBACK input per the brief. Typed gap: **no
+   ground-truthed camera-motion fixture exists in the repo** (the repo's
+   camera contracts are the five FIXED W601 slots + the R606 pitch-ellipse
+   calibration — neither is a camera-motion fixture with pose/depth
+   ground truth); the fixture itself carries no geometry ground truth →
+   unscored.
+2. `fx-001` (CC0 FIFA Beach Soccer 2021 penalty, the repo's authorized
+   licensed gate clip, sha-pinned) — no geometry ground truth → unscored.
 
-The honest reading: RF-DETR produces ZERO player detections on the synthetic
-fixture at the model-card threshold; the threshold-sweep diagnostic
-(results/rfdetr-fixture-threshold-sweep.json) shows the flat colored discs never
-exceed 0.17 confidence while the true 8 px ball is found at 0.49–0.56 — the
-fixture is out-of-distribution for a broadcast-trained detector, so these scores
-measure domain mismatch, not model quality. On the authorized real clip
-(unscored — no annotations exist for either candidate), RF-DETR emits sensible
-output: 107 player + 7 ball + 1 referee + 1 goalkeeper detections over 25 frames
-(4.6 dets/frame, 1 zero-detection frame); the current detector's fx-001 run is
-likewise unscored.
+Both: status `not-run-resource-refusal` (the model never ran). The
+ready-to-run path would sample stride 10 by decode order (the L010
+convention — 30 + 25 frames, the same frames HF003 saw).
 
-## Latency (per-frame wall-clock CPU, 2 vCPU; nearest-rank p50/p95 — the repo
-convention)
+## The honest metrics
 
-| Candidate | fixture mean / p50 / p95 | fx-001 mean / p95 |
-|---|---|---|
-| RF-DETR SoccerNet | 2899 / 2829 / 3211 ms | 3123 / 3335 ms |
-| contrast-context (current) | 29.6 / 23 / 110 ms | 26.1 / 41 ms |
+- **Quality: NOT MEASURED (typed refusal).** No ground truth exists for
+  geometry on either clip anyway — even on adequate hardware the ceiling
+  is unscored-structural evidence (depth consistency, pose sanity,
+  determinism — all implemented in the ready-to-run path).
+- **Latency: NOT MEASURED (typed refusal).** The convention is implemented
+  (per-inference CPU wall-clock, median + nearest-rank p95).
+- **Memory: NOT MEASURED (typed refusal).** GPU honestly N/A on this host;
+  RSS would be the substitute metric; the only honest memory figure in
+  this flight is the refusal arithmetic (4,041.6 MiB total RAM vs ~4.58
+  GiB fp32 weights).
+- **Structural/compatibility verdict (EXECUTED, machine-checkable)**: see
+  below.
 
-~100x slower than the current detector ON THIS CPU HOST. The model card claims
-12–30 FPS on GPU; this flight has NO GPU evidence — the CPU numbers are honest
-wall-clock readings, labeled as such.
+## The Camera-Director contract-compatibility verdict
 
-## Memory
+`contract_compatibility.ts` (exit 0) verified 15 field-level rows against
+the repo's OWN authorities (FROZEN task profiles, renderer contract, SWM
+contract, camera-director sources, scene-projection constants):
 
-**GPU memory: N/A (no GPU on the benchmark host); process RSS recorded
-instead.** RF-DETR inference VmRSS 1136.5–1177.5 MiB per frame, process peak
-(ru_maxrss) 1446.1 MiB; the current-detector baseline process RSS 285.1 MiB.
+- `scene.depth` — **compatible-with-adapter** (depth_z + per-pixel conf;
+  adapter adds the SWM envelope).
+- `scene.cameraPose` — **compatible-with-adapter with typed gaps**:
+  camera_poses/cam_trans/cam_quats (cam2world, OpenCV convention) give the
+  trajectory geometry; the model emits NO timestamps (view order only) and
+  NO pose-level confidence; the world gauge is the model's canonical
+  frame, not the pitch frame.
+- `scene.metric3DReconstruction` — **compatible-with-adapter, metric
+  claim unverified** (pts3d + poses + intrinsics; metric_scaling_factor is
+  the model's own prediction, unscored).
+- `scene.covisibility` — **partial** (no covisibility output; the model's
+  cross-view depth-consistency mechanism is a proxy at best).
+- **Camera Director INPUT — NOT COMPATIBLE (inverse direction)**: the
+  director consumes a policy + W603 match-timeline steps + W209 event
+  candidates and emits cameraSlotId windows over the FIVE canonical fixed
+  slots; NO pose/depth field exists in its contract (source-scanned).
+  MapAnything ESTIMATES cameras from images; the director DICTATES fixed
+  cameras from match state — inverse directions. The model's real
+  consumers are the SWM observation side (via a future envelope-writing
+  adapter) and the renderer.cinematicReCamera "geometry/depth guidance"
+  input (the HF014 provider-neutral camera-intent seam is the referral,
+  not a claim — it is not built).
+- SWM envelope — **does-not-map**: the model emits tensors only;
+  sessionId/schemaVersion/eventTime/source-provenance/confidence-envelope
+  fields must all be synthesized by an observation adapter.
 
-## The ledger record
+**Overall: PARTIAL COMPATIBILITY, HONESTLY TYPED.** There is also no
+baseline comparison: the repo has NO dense-geometry production path (the
+geometry incumbents — R606 pitch-ellipse calibration, fixed scene-projection
+slots — produce no dense depth/pointmaps).
 
-`scripts/evidence/hf-portfolio/hf003/benchmark-record.json` — the ledger-shaped
-HF003 record: the twelve provenance fields echo the RF-DETR row of
-`scripts/evidence/hf-portfolio/provenance-ledger.json` VERBATIM (the ledger's row
-schema is test-pinned to exactly those fields, so the run is recorded here, not
-as a ledger row), plus the run's evidence pointers, numbers, and resource
-caveats. `scripts/evidence/hf-portfolio/hf003/record-benchmark.ts` (exit 0)
-machine-checks the echo, the unchanged `candidate` gating state, the evidence
-pointers, and the caveats. gatingState stays `candidate` — no promotion.
+## The ledger/record path
+
+- `scripts/evidence/hf-portfolio/hf004/benchmark-record.json` — the
+  ledger-shaped HF004 record (provenance echo verbatim + the typed refusal
+  + the partial-deliverable pointers).
+- `scripts/evidence/hf-portfolio/hf004/record-benchmark.ts` — the
+  fail-closed validator: EXECUTED, exit 0 (echo vs the HF002 ledger,
+  candidate gating state, executed-refusal pinning, no-fabricated-numbers
+  checks, resolving pointers, honest caveats).
+- `scripts/evidence/hf-portfolio/provenance-ledger.json` — untouched (its
+  row schema is pinned by hf-ledger.test.ts; the run is recorded in
+  benchmark-record.json, not as a ledger row).
 
 ## Limitations
 
-1. No authorized real clip with ground-truth annotations is reachable in this
-   sandbox → the annotation-scored comparison exists only on the
-   domain-mismatched synthetic fixture.
-2. CPU-only host → no GPU latency or GPU-memory evidence; the model card's GPU
-   figures are unverified by this flight.
-3. Single measured run per clip (30 + 25 sampled frames, stride 10).
-4. Detection-level only: identity-handoff compatibility (a task-profile metric)
-   not measured.
-5. The checkpoint loads only via the legacy-variant recipe recorded above (the
-   current rfdetr `from_checkpoint` mis-resolves it) — reproducibility depends
-   on that recipe plus the pinned revision.
+- Zero executed model evidence of any kind on this host (the typed
+  refusal) — the HF003 precedent (executed-but-domain-mismatched evidence)
+  is NOT met here.
+- No geometry ground truth reachable in this sandbox even on adequate
+  hardware (unscored-structural ceiling).
+- The schema review is a source-scan of the pinned code (fail-closed,
+  construction-site-verified), not an import-executed introspection —
+  torch + the model are exactly the infeasibility.
+- The metric-scale claim and the world-gauge alignment to the Sporta pitch
+  frame are unverified by any executed evidence.
 
 ## Promotion-gate referral
 
-The RF-DETR candidate remains `candidate`; this benchmark recommends NOTHING
-production. Observed HF015 blockers: (1) no scored real-media evidence in this
-flight; (2) CPU-host latency two orders of magnitude above the current detector
-(no GPU evidence); (3) SoccerNet dataset-lineage terms unresolved (the HF015
-license review has not happened). Promotion is the Tech Lead's HF015 gate alone.
+The MapAnything candidate remains `candidate` — UNCHANGED. Observed
+blockers for HF015: (1) zero executed benchmark evidence (the typed
+refusal); (2) no geometry ground truth reachable (unscored ceiling); (3)
+datasetProvenance `unknown` — the HF015 license review has not happened;
+(4) the metric claim unverified. This flight recommends NOTHING; the TL
+decides at the HF015 gate alone.
 
 === END REPORT ===
+
+===== 64-b REPORT END =====

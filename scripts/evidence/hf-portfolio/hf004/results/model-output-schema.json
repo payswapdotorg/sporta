@@ -1,0 +1,113 @@
+{
+  "evidenceId": "hf004-mapanything-output-schema",
+  "method": "SOURCE-SCAN of the pinned mapanything code (not import-executed: torch + the fp32 model are infeasible on this host \u2014 see results/preflight-refusal.json for the typed refusal); every field below is verified against its construction site in the source, fail-closed",
+  "model": {
+    "candidate": "MapAnything",
+    "modelUrl": "https://huggingface.co/facebook/map-anything-apache",
+    "revision": "00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a",
+    "checkpointFile": "model.safetensors",
+    "checkpointBytes": 4914062480,
+    "checkpointSha256": "fa06c0fdccefc5048e072c85935d5789b1e36b307f3859033c17f9dcb9fd5201 (the HF LFS etag of the pinned blob \u2014 the hub-reported sha256; NOT locally verified: the file cannot be stored on this host \u2014 see the typed refusal)"
+  },
+  "code": {
+    "githubUrl": "https://github.com/facebookresearch/map-anything",
+    "commit": "3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9",
+    "packageVersion": "1.1.4",
+    "note": "not on PyPI; shallow clone outside the repo at /home/z/hf-bench-2/map-anything-src (NEVER committed)"
+  },
+  "modelConfigDigest": {
+    "fetchedFrom": "https://huggingface.co/facebook/map-anything-apache/raw/main/config.json @ 00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a",
+    "adaptorType": "raydirs+depth+pose+confidence+mask",
+    "adaptorSceneRepType": "raydirs+depth+pose",
+    "predHeadType": "dpt+pose",
+    "encoder": {
+      "name": "dinov2_giant_24_layers",
+      "size": "giant",
+      "keepFirstNLayers": 24,
+      "usesTorchHub": true,
+      "patchSizeFromPredHead": null
+    },
+    "infoSharing": {
+      "modelType": "alternating_attention",
+      "depth": 16,
+      "dim": 1536
+    },
+    "note": "the pinned checkpoint's own config: DINOv2-giant (24 of 40 blocks kept, torch-hub construction) + a 16-layer 1536-dim alternating-attention information-sharing stage + dpt+pose prediction heads with the raydirs+depth+pose+confidence+mask adaptor"
+  },
+  "inferApi": {
+    "method": "MapAnything.infer(views, ...)",
+    "viewsInput": "List[Dict] per view from mapanything.utils.image.load_images \u2014 image-only mode; the model ALSO accepts geometric inputs (camera_poses/depth as INPUT, the multi-modal mode) per the config's geometric_input_config",
+    "returns": "List[Dict[str, torch.Tensor]] \u2014 one dict per view"
+  },
+  "rawOutputFields": {
+    "pts3d": {
+      "shape": "(B, H, W, 3)",
+      "convention": "dense 3D points in the model's predicted WORLD frame, already multiplied by metric_scaling_factor"
+    },
+    "pts3d_cam": {
+      "shape": "(B, H, W, 3)",
+      "convention": "dense 3D points in CAMERA frame (OpenCV +X Right, +Y Down, +Z Forward), already multiplied by metric_scaling_factor"
+    },
+    "ray_directions": {
+      "shape": "(B, H, W, 3)",
+      "convention": "per-pixel camera-frame ray directions (unit sphere normalized)"
+    },
+    "depth_along_ray": {
+      "shape": "(B, H, W, 1)",
+      "convention": "per-pixel depth along the ray (camera origin -> point), metric-scaled"
+    },
+    "cam_trans": {
+      "shape": "(B, 3)",
+      "convention": "cam2world translation in the model's world gauge, metric-scaled"
+    },
+    "cam_quats": {
+      "shape": "(B, 4)",
+      "convention": "cam2world rotation quaternion in the model's world gauge"
+    },
+    "metric_scaling_factor": {
+      "shape": "(B,)",
+      "convention": "the factored metric scale applied to the normalized geometry (the model's metric claim; exp activation, predicted by the 1-dim scale head)"
+    },
+    "conf": {
+      "shape": "(B, H, W)",
+      "convention": "per-pixel DENSE confidence (exp activation, vmin 1) \u2014 the learning-based confidence head; may be REPLACED by multi-view depth-consistency confidence when use_multiview_confidence=True"
+    },
+    "non_ambiguous_mask": {
+      "shape": "(B, H, W)",
+      "convention": "binary non-ambiguity mask (logits thresholded at 0.5)"
+    },
+    "non_ambiguous_mask_logits": {
+      "shape": "(B, H, W)",
+      "convention": "raw non-ambiguity logits (per-pixel)"
+    }
+  },
+  "postProcessedFields": {
+    "img_no_norm": {
+      "shape": "(B, H, W, 3)",
+      "convention": "denormalized RGB input images (visualization echo)",
+      "addedWhen": "always (step 1 of postprocess_model_outputs_for_inference)"
+    },
+    "depth_z": {
+      "shape": "(B, H, W, 1)",
+      "convention": "Z-depth in camera frame = pts3d_cam[..., 2:3] (step 2)",
+      "addedWhen": "'pts3d_cam' in raw outputs (step 2 guard)"
+    },
+    "intrinsics": {
+      "shape": "(B, 3, 3)",
+      "convention": "pinhole intrinsics RECOVERED from predicted ray_directions (recover_pinhole_intrinsics_from_ray_directions, step 3) \u2014 an estimate, not a calibration input",
+      "addedWhen": "'ray_directions' in raw outputs (step 3 guard)"
+    },
+    "camera_poses": {
+      "shape": "(B, 4, 4)",
+      "convention": "cam2world pose, OpenCV camera convention (+X Right, +Y Down, +Z Forward), world frame = the model's predicted canonical gauge (NOT a pitch/metric ground-truth frame); built from cam_quats (quaternion -> rotation matrix) + cam_trans (step 4)",
+      "addedWhen": "'cam_trans' and 'cam_quats' in raw outputs (step 4 guard)"
+    },
+    "mask": {
+      "shape": "(B, H, W, 1)",
+      "convention": "combined validity mask for dense geometry outputs (edge mask via normals/depth + optional confidence mask), applied when apply_mask=True",
+      "addedWhen": "apply_mask=True (the masking pass)"
+    }
+  },
+  "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+  "recordedAtUtc": "2026-10-03T22:39:49.558984+00:00"
+}
