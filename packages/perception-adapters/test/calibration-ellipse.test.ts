@@ -9,6 +9,7 @@ import {
 import type { Homography } from "@sporta/field-mapping";
 import { makeDetectorFrameInput } from "../src/index";
 import type { DetectorFrameInput } from "../src/index";
+import { CandidateFailureError } from "../src/errors";
 import {
   BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES,
   BroadcastLineCalibrator,
@@ -16,6 +17,8 @@ import {
   convertBroadcastEllipseAnchor,
   evaluateBroadcastEllipseGridGeometry,
   evaluateBroadcastLineFit,
+  evaluateBroadcastPriorQuadContainment,
+  evaluateBroadcastPriorWorldCircle,
   fitBroadcastEllipseEvidence,
   invert3x3,
   jacobiEigenSym3,
@@ -1080,5 +1083,586 @@ describe("BroadcastLineCalibrator v0.5.0 — the E4b anchor conversion (the Lore
     expect(record).toBeDefined();
     expect(record!.retryable).toBe(false);
     expect(record!.description.length).toBeGreaterThan(40);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.6.0 — the penalty-arc-conic prior (E2d; OPT-IN `penaltyArcPrior`,
+// default false) + flight 4's WORLD-CIRCLE / HORIZON class closure (the
+// typed `broadcast-line.ellipse-prior-world-circle` gate, prior-only).
+// ---------------------------------------------------------------------------
+
+describe("BroadcastLineCalibrator v0.6.0 — the penalty-arc-conic prior", () => {
+  test("the penaltyArcPrior option validates fail-loud; the default is OFF (the default chain carries no prior entries)", () => {
+    // (a) Non-boolean refusals, fail-loud, on both surfaces.
+    expect(
+      () => new BroadcastLineCalibrator({ penaltyArcPrior: "yes" as unknown as boolean }),
+    ).toThrow(RangeError);
+    expect(() => new BroadcastLineCalibrator({ penaltyArcPrior: 1 as unknown as boolean })).toThrow(
+      RangeError,
+    );
+    expect(() =>
+      fitBroadcastEllipseEvidence(
+        { frames: arcWindowFrames() },
+        { penaltyArcPrior: "yes" as unknown as boolean },
+      ),
+    ).toThrow(RangeError);
+    // (b) The default is OFF, proven BEHAVIORALLY on the discriminating
+    //     fixture: the occluded-circle window's default chain carries ONLY
+    //     evidence-derived entries (no `prior` field anywhere); with the
+    //     prior ON the same window's chain gains 8 prior-seeded entries —
+    //     if the default were on, the default chain would carry them too.
+    const frames = arcWindowFrames({ skipCenterCircle: true });
+    const defaultRefusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({ ellipseMultiConicSelection: true }).calibrate({ frames }),
+    );
+    const defaultChain = defaultRefusal.details.conicChain as ReadonlyArray<
+      Record<string, unknown>
+    >;
+    expect(defaultChain.length).toBe(3);
+    expect(defaultChain.every((entry) => entry.prior === undefined)).toBe(true);
+    const priorRefusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames }),
+    );
+    const priorChain = priorRefusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    expect(priorChain.length).toBe(11);
+    expect(priorChain.filter((entry) => entry.prior === "penalty-arc").length).toBe(8);
+    // The two extra entries beyond the prior's 8: the same 3 evidence-derived
+    // candidates the default ran (the prior appends AFTER every evidence
+    // candidate — the fixed-geometry family is the LAST supply).
+    expect(priorChain.slice(0, 3).every((entry) => entry.prior === undefined)).toBe(true);
+  }, 120_000);
+
+  test("identity: penaltyArcPrior off (explicit) is byte-identical to the default surface on every fixture class; the option never fires outside the ellipse path", () => {
+    // (a) The calibrated class (plain fixture): default ≡ explicit false,
+    //     full-result JSON byte-identical.
+    const plain = arcWindowFrames();
+    const defaultResult = new BroadcastLineCalibrator().calibrate({ frames: plain });
+    const priorOffResult = new BroadcastLineCalibrator({ penaltyArcPrior: false }).calibrate({
+      frames: plain,
+    });
+    expect(JSON.stringify(priorOffResult)).toBe(JSON.stringify(defaultResult));
+    // (b) The refusing classes: occluded-circle (quota-passer exists) and
+    //     netStructure (structure conic) — refusal details byte-identical.
+    for (const variant of [{ skipCenterCircle: true }, { netStructure: true }] as const) {
+      const frames = arcWindowFrames(variant);
+      const run = (opts?: { penaltyArcPrior?: boolean }): string => {
+        try {
+          const result = new BroadcastLineCalibrator({
+            ellipseMultiConicSelection: true,
+            ...opts,
+          }).calibrate({ frames });
+          return JSON.stringify({ kind: "calibrated", result });
+        } catch (error) {
+          if (!(error instanceof CandidateFailureError)) throw error;
+          return JSON.stringify({
+            kind: "refused",
+            classId: error.details.failureClassId,
+            details: error.details,
+          });
+        }
+      };
+      expect(run({ penaltyArcPrior: false })).toBe(run(undefined));
+    }
+    // (c) The diagnostics surface: explicit false ≡ option absent.
+    const occluded = arcWindowFrames({ skipCenterCircle: true });
+    expect(
+      JSON.stringify(
+        fitBroadcastEllipseEvidence(
+          { frames: occluded },
+          { ellipseMultiConicSelection: true, penaltyArcPrior: false },
+        ),
+      ),
+    ).toBe(
+      JSON.stringify(
+        fitBroadcastEllipseEvidence({ frames: occluded }, { ellipseMultiConicSelection: true }),
+      ),
+    );
+    // (d) The option never fires outside the ellipse-constrained path: the
+    //     line-only path with the prior ON is the v0.1.0 surface exactly.
+    const lineOnly = refusalClassOf(() =>
+      new BroadcastLineCalibrator({ ellipseConstrained: false, penaltyArcPrior: true }).calibrate({
+        frames: occluded,
+      }),
+    );
+    expect(lineOnly.classId).toBe("broadcast-line.no-consistent-homography");
+    expect(lineOnly.details.priorSeededCandidates).toBeUndefined();
+  }, 180_000);
+
+  test("a healthy window never reaches the prior: the prior-on result is byte-identical to the default (the evidence candidate calibrates first)", () => {
+    const frames = arcWindowFrames();
+    const defaultResult = new BroadcastLineCalibrator().calibrate({ frames });
+    const priorOnResult = new BroadcastLineCalibrator({
+      ellipseMultiConicSelection: true,
+      penaltyArcPrior: true,
+    }).calibrate({ frames });
+    expect(JSON.stringify(priorOnResult)).toBe(JSON.stringify(defaultResult));
+    expect(priorOnResult.confidence).toBeCloseTo(0.921, 3);
+    // The diagnostics prove the prior WOULD have seeded on this window (the
+    // candidates exist under the family quota) — the chain simply never
+    // reached them: a window any evidence candidate calibrates never runs
+    // the fixed-geometry family (the LAST-supply discipline).
+    const diagnostics = fitBroadcastEllipseEvidence(
+      { frames },
+      { ellipseMultiConicSelection: true, penaltyArcPrior: true },
+    );
+    const prior = (diagnostics.conicCandidates ?? []).filter((c) => c.prior !== undefined);
+    expect(prior.length).toBeGreaterThan(0);
+    expect(prior.every((c) => c.prior === "penalty-arc")).toBe(true);
+    expect(prior.every((c) => c.priorEnd === "left" || c.priorEnd === "right")).toBe(true);
+  }, 120_000);
+
+  test('quota/provenance: a below-family-quota fixture refuses with the typed unevidenced class; the full-paint "D" passes the family quota the same evidence\'s center-circle quota refuses', () => {
+    // The fixture (touchlines + arcs only — see skipBoxMarkings): the arc
+    // evidence reduces to the painted penalty arcs themselves. A 40°
+    // fragment's sources cannot carry a conic past the family quota (the
+    // painted "D" demands 10 of the 36 bins — a floor DERIVED from the
+    // fixed geometry, not chosen), and the center-circle quota (12 bins)
+    // never passed either — the prior seeded NOTHING.
+    const fragment = arcWindowFrames({
+      skipCenterCircle: true,
+      skipBoxMarkings: true,
+      penaltyArcSpanDeg: 40,
+    });
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames: fragment }),
+    );
+    expect(refusal.classId).toBe("broadcast-line.ellipse-penalty-arc-prior-unevidenced");
+    expect(refusal.details.priorSeededCandidates).toBe(0);
+    expect(refusal.details.arcPixels).toBe(851);
+    // The refusal carries the line path's own failure (the ellipse path ran
+    // after it) — never a calibration fabricated from the fixed geometry.
+    expect(refusal.details.linePathFailureClass).toBe("broadcast-line.no-consistent-homography");
+    // The pre-prior surface on the SAME fixture: the v0.2.0 quota class
+    // (the option-off identity on this fixture class).
+    const priorOff = refusalClassOf(() =>
+      new BroadcastLineCalibrator({ ellipseMultiConicSelection: true }).calibrate({
+        frames: fragment,
+      }),
+    );
+    expect(priorOff.classId).toBe("broadcast-line.ellipse-evidence-insufficient");
+    // (b) The full-paint control — the SAME fixture with the arcs painted
+    //     at their full "D" span: the family quota PASSES on the painted
+    //     marking's own geometry (the seeded candidate measures support
+    //     186 px / coverage 32 bins against the 90-px + 10-bin family
+    //     bar) where the 40° fragment seeded NOTHING — the family quota
+    //     boundary is the painted span itself (the measured candidate
+    //     pool: the wild global-fit conic (support 601, coverage 5)
+    //     fails EVERY quota; the painted-arc sliver is both the window's
+    //     evidence quota-passer and the prior's seeded conic — the same
+    //     image-side fit machinery, the family threading is the only
+    //     difference).
+    const fullPaint = arcWindowFrames({ skipCenterCircle: true, skipBoxMarkings: true });
+    const diagnostics = fitBroadcastEllipseEvidence(
+      { frames: fullPaint },
+      { ellipseMultiConicSelection: true, penaltyArcPrior: true },
+    );
+    const candidates = diagnostics.conicCandidates ?? [];
+    const prior = candidates.filter((c) => c.prior !== undefined);
+    expect(candidates.length).toBe(4);
+    expect(prior.length).toBe(2);
+    expect(prior[0]!.quotaPassed).toBe(true);
+    expect(prior[0]!.supportPx).toBe(186);
+    expect(prior[0]!.coverageBins).toBe(32);
+    // The evidence-derived primary (the wild global fit over the whole arc
+    // pool) fails its quota — `fitted` records the PRIMARY's outcome.
+    expect(diagnostics.fitted).toBe(false);
+    expect(candidates[0]!.quotaPassed).toBe(false);
+    expect(candidates[0]!.coverageBins).toBe(5);
+  }, 120_000);
+
+  test("the prior gates (1): the grass gate refuses prior-seeded structure candidates with provenance (the b3-a class cannot re-enter through the prior)", () => {
+    const frames = arcWindowFrames({ netStructure: true });
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames }),
+    );
+    // The window refuses (first candidate = the structure conic, refused
+    // pre-solve by the v0.4.1 grass gate — the existing hardening surface).
+    expect(refusal.classId).toBe("broadcast-line.ellipse-conic-off-pitch");
+    const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    // The prior seeded 8 candidates on this window (4 conics x 2 ends) and
+    // EVERY prior-seeded candidate refused — two of them at the grass gate
+    // itself, carrying the prior provenance + the measured green median:
+    // the structure class cannot re-enter through the fixed-geometry prior.
+    expect(refusal.details.priorSeededCandidates).toBe(8);
+    const priorEntries = chain.filter((entry) => entry.prior === "penalty-arc");
+    expect(priorEntries.length).toBe(8);
+    const grassEntries = priorEntries.filter(
+      (entry) => entry.failureClassId === "broadcast-line.ellipse-conic-off-pitch",
+    );
+    expect(grassEntries.length).toBe(2);
+    for (const entry of grassEntries) {
+      expect(entry.greenInteriorMedian as number).toBeCloseTo(0.0231, 3);
+      expect(entry.greenInteriorMedian as number).toBeLessThan(0.2);
+      expect(entry.samplesInBounds).toBe(1257);
+      expect(entry.priorEnd === "left" || entry.priorEnd === "right").toBe(true);
+    }
+    // Nothing calibrated — the fixture's honest outcome.
+    expect(chain.length).toBe(11);
+  }, 120_000);
+
+  test("the prior gates (2): the geometric containment gate refuses a machine-passing prior solve (the penalty-spot-outside class) — chain-level and window-level", () => {
+    // (a) Chain-level on the netStructure fixture: the prior candidate at
+    //     chain[5] PASSED every machine gate (lineFit 0.613 >= 0.6,
+    //     backward 2.13 <= 10 px, ellipse residual 0.245 <= 4 px) and the
+    //     grass gate (a different conic's candidate), then the projected
+    //     pitch quad refused to contain the prior conic's center — the
+    //     typed class with the prior provenance riding.
+    const frames = arcWindowFrames({ netStructure: true });
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames }),
+    );
+    const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    const quadEntries = chain.filter(
+      (entry) => entry.failureClassId === "broadcast-line.ellipse-prior-quad-containment",
+    );
+    expect(quadEntries.length).toBe(1);
+    const quad = quadEntries[0]!;
+    expect(quad.prior).toBe("penalty-arc");
+    expect(quad.priorEnd).toBe("left");
+    // The machine-passing numbers of the refused solve (the gate fired
+    // AFTER validation, never instead of it).
+    expect(quad.lineFit as number).toBeCloseTo(0.6135, 3);
+    expect(quad.lineFit as number).toBeGreaterThanOrEqual(0.6);
+    expect(quad.backwardPx as number).toBeCloseTo(2.134, 2);
+    expect(quad.backwardPx as number).toBeLessThanOrEqual(10);
+    expect(quad.ellipseMeanPx as number).toBeCloseTo(0.245, 2);
+    expect(quad.ellipseMeanPx as number).toBeLessThanOrEqual(4);
+    // (b) Window-level on the touchlines + 70°-fragment fixture: the prior
+    //     is the ONLY candidate supply, and its FIRST candidate's solve
+    //     passes every machine gate (lineFit 0.837, backward 7.30,
+    //     ellipse residual 1.14) while projecting the pitch as a
+    //     NON-CONVEX quad with the prior conic's center 12.4 px OUTSIDE it
+    //     — the window itself refuses with the typed class (the purest
+    //     penalty-spot-outside pin: a machine-passing solve, a containment
+    //     violation, a typed refusal — never a laundered calibration).
+    const fragment = arcWindowFrames({
+      skipCenterCircle: true,
+      skipBoxMarkings: true,
+      penaltyArcSpanDeg: 70,
+    });
+    const window = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames: fragment }),
+    );
+    expect(window.classId).toBe("broadcast-line.ellipse-prior-quad-containment");
+    expect(window.details.prior).toBe("penalty-arc");
+    expect(window.details.priorEnd).toBe("left");
+    expect(window.details.lineFit as number).toBeCloseTo(0.8371, 3);
+    expect(window.details.lineFit as number).toBeGreaterThanOrEqual(0.6);
+    expect(window.details.backwardPx as number).toBeCloseTo(7.302, 2);
+    expect(window.details.ellipseMeanPx as number).toBeCloseTo(1.144, 2);
+    expect(window.details.quadConvex).toBe(false);
+    expect(window.details.minSignedEdgeDistancePx as number).toBeCloseTo(-12.395, 2);
+    expect(window.details.minSignedEdgeDistancePx as number).toBeLessThan(0);
+    expect(window.details.priorSeededCandidates).toBe(2);
+  }, 180_000);
+
+  test("determinism: two prior-path runs serialize byte-identically on every fixture class", () => {
+    for (const variant of [
+      { skipCenterCircle: true },
+      { netStructure: true },
+      { skipCenterCircle: true, skipBoxMarkings: true, penaltyArcSpanDeg: 70 },
+    ] as const) {
+      const frames = arcWindowFrames(variant);
+      const run = (): string => {
+        try {
+          const result = new BroadcastLineCalibrator({
+            ellipseMultiConicSelection: true,
+            penaltyArcPrior: true,
+          }).calibrate({ frames });
+          return JSON.stringify({ kind: "calibrated", result });
+        } catch (error) {
+          if (!(error instanceof CandidateFailureError)) throw error;
+          return JSON.stringify({
+            kind: "refused",
+            classId: error.details.failureClassId,
+            details: error.details,
+          });
+        }
+      };
+      expect(run()).toBe(run());
+    }
+  }, 240_000);
+
+  // -------------------------------------------------------------------------
+  // LEG B (flight 4) — THE CLASS CLOSURE: the recorded 116.5 m false-
+  // positive. Flight 3 measured (c284d7c, the pre-gate tree): the
+  // occluded-circle fixture CALIBRATED on the prior path at machine-passing
+  // gates — lineFit 0.666 / backward 9.65 px / ellipse residual 0.755 px /
+  // conf 0.636 — with worst probe error 116.5 m over PROBE_PITCH_POINTS
+  // (per-probe 21.9/48.1/19.4/116.5/19.6/56.2 m): a convex, containment-
+  // passing, GLOBALLY-WRONG solve class the then-current gates did NOT
+  // close. The world-circle/horizon gate at this tree closes it.
+  // -------------------------------------------------------------------------
+
+  /** The frozen PRE-GATE solve (flight 3, c284d7c — full recorded precision). */
+  const FROZEN_PREGATE_H: Homography = [
+    110.93377906728517, -462.9521542152892, 68.11093698895705, -1.2643936944088772,
+    52.77814074111005, -38.94485343364842, 0.16089441679279665, -5.876753546734526, 1,
+  ];
+
+  /**
+   * The two penalty-arc families, re-derived from the canonical model the
+   * way the module derives its own (module-private) constants: spot 11/94,
+   * midline 34, r 9.15, painted clip at x >= 16.5 / x <= 88.5 — the painted
+   * half angle acos(5.5/9.15), the apex scan anchors at angle 0 / π.
+   */
+  const PAINTED_HALF = Math.acos((16.5 - 11) / 9.15);
+  const LEFT_PENALTY_FAMILY = {
+    cx: 11,
+    cy: 34,
+    r: 9.15,
+    angle0: -PAINTED_HALF,
+    span: 2 * PAINTED_HALF,
+    scanAngle: 0,
+  };
+  const RIGHT_PENALTY_FAMILY = {
+    cx: 94,
+    cy: 34,
+    r: 9.15,
+    angle0: Math.PI - PAINTED_HALF,
+    span: 2 * PAINTED_HALF,
+    scanAngle: Math.PI,
+  };
+
+  /**
+   * Rebuild an EllipseConic from (center, semis, rotation) — exact algebra,
+   * the same five numbers the diagnostics record for every fitted conic.
+   */
+  function conicFromEllipseGeometry(
+    cx: number,
+    cy: number,
+    semiMajor: number,
+    semiMinor: number,
+    rotationDeg: number,
+  ): EllipseConic {
+    const theta = (rotationDeg * Math.PI) / 180;
+    const cos = Math.cos(theta);
+    const sin = Math.sin(theta);
+    const a2inv = 1 / (semiMajor * semiMajor);
+    const b2inv = 1 / (semiMinor * semiMinor);
+    const m00 = cos * cos * a2inv + sin * sin * b2inv;
+    const m01 = cos * sin * (a2inv - b2inv);
+    const m11 = sin * sin * a2inv + cos * cos * b2inv;
+    return {
+      a: m00,
+      b: 2 * m01,
+      c: m11,
+      d: -2 * (m00 * cx + m01 * cy),
+      e: -2 * (m01 * cx + m11 * cy),
+      f: m00 * cx * cx + 2 * m01 * cx * cy + m11 * cy * cy - 1,
+    };
+  }
+
+  test("LEG B — the 116.5 m class is CLOSED: the occluded-circle fixture refuses with the typed world-circle class, the prior candidate's measured world-side worst error pinned", () => {
+    const frames = arcWindowFrames({ skipCenterCircle: true });
+    const refusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator({
+        ellipseMultiConicSelection: true,
+        penaltyArcPrior: true,
+      }).calibrate({ frames }),
+    );
+    // The window REFUSES (flight 3 calibrated it at conf 0.636; the claim
+    // is now withheld) — the first candidate's honest validation class
+    // rides the window with the additive chain record.
+    expect(refusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+    expect(refusal.details.priorSeededCandidates).toBe(8);
+    // The closure: exactly ONE chain entry refused by the world-circle
+    // gate — the prior candidate whose solve passed EVERY machine gate at
+    // the flight-3 numbers (lineFit 0.6657 / backward 9.6508 / residual
+    // 0.7547 — the very solve that calibrated at conf 0.636 pre-gate).
+    const chain = refusal.details.conicChain as ReadonlyArray<Record<string, unknown>>;
+    const worldEntries = chain.filter(
+      (entry) => entry.failureClassId === "broadcast-line.ellipse-prior-world-circle",
+    );
+    expect(worldEntries.length).toBe(1);
+    const world = worldEntries[0]!;
+    expect(world.prior).toBe("penalty-arc");
+    expect(world.priorEnd).toBe("right");
+    // The measured world-side numbers (re-measured at this tree; the bar
+    // is the calibration's OWN model-distance radius, 1.0 m).
+    expect(world.priorWorldWorstProbeErrorM as number).toBeCloseTo(8.2279, 3);
+    expect(world.priorWorldWorstProbeErrorM as number).toBeGreaterThan(
+      world.priorWorldProbeBarM as number,
+    );
+    expect(world.priorWorldProbeBarM).toBe(1);
+    expect(world.priorWorldProbeSamples).toBe(180);
+    expect(world.priorWorldMeanProbeErrorM as number).toBeCloseTo(1.9792, 3);
+    // The horizon leg PASSED on this solve (both legs ride the record:
+    // the world-probe leg is the refusing one — the full-circle world
+    // side, exactly the direction the painted-arc image residual leaves
+    // open).
+    expect(world.priorWorldHorizonSideConsistent).toBe(true);
+    // The refused solve's machine-passing numbers — the gate fired AFTER
+    // every machine gate, on a solve that pre-gate CALIBRATED.
+    expect(world.lineFit as number).toBeCloseTo(0.6657, 3);
+    expect(world.lineFit as number).toBeGreaterThanOrEqual(0.6);
+    expect(world.backwardPx as number).toBeCloseTo(9.6508, 2);
+    expect(world.backwardPx as number).toBeLessThanOrEqual(10);
+    expect(world.ellipseMeanPx as number).toBeCloseTo(0.7547, 3);
+    expect(world.ellipseMeanPx as number).toBeLessThanOrEqual(4);
+    // No prior candidate calibrated: every one of the 8 refused.
+    expect(chain.filter((entry) => entry.prior === "penalty-arc").length).toBe(8);
+    // The default surface on the same fixture is UNCHANGED (the existing
+    // v0.3.0 test pins it; asserted here for the closure's prior-only
+    // additivity).
+    const defaultRefusal = refusalClassOf(() =>
+      new BroadcastLineCalibrator().calibrate({ frames }),
+    );
+    expect(defaultRefusal.classId).toBe("broadcast-line.ellipse-no-consistent-homography");
+    expect(defaultRefusal.details.priorSeededCandidates).toBeUndefined();
+  }, 120_000);
+
+  test("LEG B — the frozen pre-gate record: the pure world-circle export refuses the flight-3 116.5 m solve (regression lock); the one-directional gates that passed it", () => {
+    // The frozen solve's prior candidate: the RIGHT family paired with the
+    // arc-crumb sliver conic (center (17.53, 107.53) px, semis 24.93 x
+    // 6.96, rotation 167.903° — the recorded geometry of the conic that
+    // seeded the conf-0.636 calibration at c284d7c).
+    const sliverConic = conicFromEllipseGeometry(
+      17.53080650518137,
+      107.52756428620168,
+      24.930194598078188,
+      6.960671735616222,
+      167.9031199954711,
+    );
+    // Leg 1 — the world-side probe: the back-projected FULL 360° conic
+    // lands 8.23 m off the family's fixed world circle (worst of 180
+    // samples; the bar is 1.0 m) — the gate refuses the frozen solve.
+    const rightFamily = RIGHT_PENALTY_FAMILY;
+    const world = evaluateBroadcastPriorWorldCircle(
+      FROZEN_PREGATE_H,
+      sliverConic,
+      WIDTH,
+      HEIGHT,
+      rightFamily,
+    );
+    expect(world.ok).toBe(false);
+    expect(world.probeSamples).toBe(180);
+    expect(world.worstProbeErrorM).toBeCloseTo(8.2279, 3);
+    expect(world.worstProbeErrorM).toBeGreaterThan(1.0);
+    expect(world.meanProbeErrorM).toBeCloseTo(1.9792, 3);
+    // The horizon leg alone does NOT catch this solve (one strict side —
+    // the recorded reason the gate needs BOTH legs).
+    expect(world.horizonSideConsistent).toBe(true);
+    // The LEFT family pairing of the same frozen solve refuses harder
+    // (73.4 m worst — the mirrored end).
+    const leftWorld = evaluateBroadcastPriorWorldCircle(
+      FROZEN_PREGATE_H,
+      sliverConic,
+      WIDTH,
+      HEIGHT,
+      LEFT_PENALTY_FAMILY,
+    );
+    expect(leftWorld.ok).toBe(false);
+    expect(leftWorld.worstProbeErrorM).toBeCloseTo(73.364, 2);
+    // Leg 2 — the one-directional gates the frozen solve PASSED (the
+    // measured gap the world-circle leg closes): the geometric
+    // containment invariant holds on this solve (a convex quad containing
+    // the conic center) — quad-containment alone could not close the
+    // class; the world-circle leg does.
+    const quad = evaluateBroadcastPriorQuadContainment(
+      FROZEN_PREGATE_H,
+      sliverConic,
+      WIDTH,
+      HEIGHT,
+    );
+    expect(quad.ok).toBe(true);
+    expect(quad.convex).toBe(true);
+    // The export's fail-loud input contract (RangeError).
+    expect(() =>
+      evaluateBroadcastPriorWorldCircle(
+        [1, 2, 3] as unknown as Homography,
+        sliverConic,
+        WIDTH,
+        HEIGHT,
+        rightFamily,
+      ),
+    ).toThrow(RangeError);
+    expect(() =>
+      evaluateBroadcastPriorWorldCircle(
+        FROZEN_PREGATE_H,
+        { a: Number.NaN, b: 0, c: 1, d: 0, e: 0, f: -1 },
+        WIDTH,
+        HEIGHT,
+        rightFamily,
+      ),
+    ).toThrow(RangeError);
+    expect(() =>
+      evaluateBroadcastPriorWorldCircle(FROZEN_PREGATE_H, sliverConic, 0, HEIGHT, rightFamily),
+    ).toThrow(RangeError);
+    expect(() =>
+      evaluateBroadcastPriorWorldCircle(FROZEN_PREGATE_H, sliverConic, WIDTH, HEIGHT, {
+        ...LEFT_PENALTY_FAMILY,
+        cx: Number.NaN,
+      }),
+    ).toThrow(RangeError);
+    expect(() =>
+      evaluateBroadcastPriorQuadContainment(
+        [1, 2, 3] as unknown as Homography,
+        sliverConic,
+        WIDTH,
+        HEIGHT,
+      ),
+    ).toThrow(RangeError);
+    expect(() =>
+      evaluateBroadcastPriorQuadContainment(
+        FROZEN_PREGATE_H,
+        { a: Number.NaN, b: 0, c: 1, d: 0, e: 0, f: -1 },
+        WIDTH,
+        HEIGHT,
+      ),
+    ).toThrow(RangeError);
+  });
+
+  test("the v0.6.0 failure classes are additive on the exported taxonomy", () => {
+    const ids = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.map(
+      (record) => record.failureClassId,
+    );
+    // The three v0.6.0 typed classes (the prior's unevidenced supply
+    // refusal, the geometric containment gate, the world-circle/horizon
+    // class closure), additive — every prior class present exactly once
+    // and no duplicates anywhere.
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(
+      ids.filter((id) => id === "broadcast-line.ellipse-penalty-arc-prior-unevidenced").length,
+    ).toBe(1);
+    expect(ids.filter((id) => id === "broadcast-line.ellipse-prior-quad-containment").length).toBe(
+      1,
+    );
+    expect(ids.filter((id) => id === "broadcast-line.ellipse-prior-world-circle").length).toBe(1);
+    expect(ids).toContain("broadcast-line.no-pitch-visible");
+    expect(ids).toContain("broadcast-line.camera-motion");
+    expect(ids).toContain("broadcast-line.insufficient-line-evidence");
+    expect(ids).toContain("broadcast-line.no-consistent-homography");
+    expect(ids).toContain("broadcast-line.ellipse-evidence-insufficient");
+    expect(ids).toContain("broadcast-line.ellipse-no-consistent-homography");
+    expect(ids).toContain("broadcast-line.ellipse-conic-off-pitch");
+    expect(ids).toContain("broadcast-line.ellipse-degenerate-grid");
+    expect(ids).toContain("broadcast-line.ellipse-anchor-unconvertible");
+    const newRecords = BROADCAST_LINE_FIELD_CALIBRATOR_FAILURE_CLASSES.filter(
+      (record) =>
+        record.failureClassId === "broadcast-line.ellipse-penalty-arc-prior-unevidenced" ||
+        record.failureClassId === "broadcast-line.ellipse-prior-quad-containment" ||
+        record.failureClassId === "broadcast-line.ellipse-prior-world-circle",
+    );
+    for (const record of newRecords) {
+      expect(record.retryable).toBe(false);
+      expect(record.description.length).toBeGreaterThan(40);
+    }
   });
 });

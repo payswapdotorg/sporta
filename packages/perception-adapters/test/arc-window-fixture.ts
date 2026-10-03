@@ -56,6 +56,38 @@ export interface RenderVariant {
    * conic-exact solves simply contradict the line evidence).
    */
   readonly offsetCircle?: boolean;
+  /**
+   * v0.6.0 penalty-arc-prior fixture (the family-quota refusal): paint
+   * BOTH penalty arcs at only this many degrees of their painted span,
+   * CENTERED on each arc's painted apex (the left "D"'s apex points at
+   * the penalty box, angle 0; the right "D"'s apex points back at the
+   * field, angle π) — a fragment whose fitted conic covers ~4 of the 36
+   * 10°-bins against the family quota's 10-bin demand (the painted "D"
+   * arc's own full span ≈ 106.10° ≈ 10.6 bins — the quota is DERIVED
+   * from the fixed geometry, so a 40° fragment refuses BY GEOMETRY while
+   * a full-paint "D" passes). With `skipCenterCircle` too, the fixture
+   * is the prior-UNEVIDENCED class: no evidence-derived candidate passes
+   * the center-circle quota (12 bins) AND no prior source passes the
+   * family quota (10 bins) — the typed
+   * `broadcast-line.ellipse-penalty-arc-prior-unevidenced` refusal fires
+   * with the family's best measured support/coverage riding the details.
+   */
+  readonly penaltyArcSpanDeg?: number;
+  /**
+   * v0.6.0 prior fixture isolation: drop every straight marking except
+   * the two touchlines. The full marking set's box/corner structure
+   * leaves ~2200 px of arc-shaped corner-crumb evidence that ALONE
+   * carries a global re-fit conic past the family quota (measured at
+   * this tree: a 10°-span fixture still seeds 6 prior candidates at
+   * coverage 12-13 bins — the crumbs, not the arcs, carry it); the
+   * crumbs are not penalty-arc evidence but the supply-side quota
+   * cannot tell. The touchlines pair keeps the static-line evidence
+   * (>= 500 px) and the ellipse path's same-family parallel pair while
+   * the arc evidence reduces to the painted arcs themselves — the
+   * honest isolation for the family-quota boundary tests (a fragment
+   * refuses, a full-paint "D" passes, both BY GEOMETRY).
+   */
+  readonly skipBoxMarkings?: boolean;
 }
 
 export const WIDTH = 640;
@@ -298,6 +330,24 @@ export function paintArc(bytes: Uint8Array, arc: FixtureArc, spanDeg?: number): 
   }
 }
 
+/**
+ * v0.6.0 prior fixture helper: paints a CENTERED sub-span of a painted "D"
+ * arc (unlike `paintArc`'s `spanDeg`, which centers on angle 0 — the WRONG
+ * center for the right "D", whose painted span centers on π). The left
+ * "D" (xMin clip) centers on angle 0 (its apex points at the penalty box);
+ * the right "D" (xMax clip) centers on π (its apex points back at the
+ * field) — a reduced span stays inside the arc's own painted region.
+ */
+export function paintArcCenteredSpan(bytes: Uint8Array, arc: FixtureArc, spanDeg: number): void {
+  const center = arc.xMax !== undefined ? Math.PI : 0;
+  const half = (spanDeg * Math.PI) / 360;
+  const steps = Math.max(1, Math.ceil((arc.r * 2 * half) / 0.25));
+  for (let step = 0; step <= steps; step += 1) {
+    const angle = center - half + (2 * half * step) / steps;
+    paintMarkingPoint(bytes, arc.cx + arc.r * Math.cos(angle), arc.cy + arc.r * Math.sin(angle));
+  }
+}
+
 /** Renders one arc-window frame under the pinhole ground truth. */
 function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): Uint8Array {
   const bytes = new Uint8Array(WIDTH * HEIGHT * 3);
@@ -319,6 +369,12 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
     }
   }
   let segments: ReadonlyArray<readonly [number, number, number, number]> = MODEL_SEGMENTS;
+  if (variant.skipBoxMarkings) {
+    // The two full-width touchlines (y = 0 / y = 68) alone.
+    segments = segments.filter(
+      ([, y0, , y1]) => (y0 === 0 && y1 === 0) || (y0 === 68 && y1 === 68),
+    );
+  }
   if (variant.hoardingCurve) {
     // Fixture isolation (documented): the variant OMITS the halfway line —
     // its Hough-quantization "shadow" (the >2 px drift band the explain
@@ -350,8 +406,13 @@ function renderArcWindowFrame(frameIndex: number, variant: RenderVariant = {}): 
   if (variant.netStructure) {
     paintNetStructureDisk(bytes);
   }
-  paintArc(bytes, LEFT_PENALTY_ARC);
-  paintArc(bytes, RIGHT_PENALTY_ARC);
+  if (variant.penaltyArcSpanDeg !== undefined) {
+    paintArcCenteredSpan(bytes, LEFT_PENALTY_ARC, variant.penaltyArcSpanDeg);
+    paintArcCenteredSpan(bytes, RIGHT_PENALTY_ARC, variant.penaltyArcSpanDeg);
+  } else {
+    paintArc(bytes, LEFT_PENALTY_ARC);
+    paintArc(bytes, RIGHT_PENALTY_ARC);
+  }
   for (let k = 0; k < 18; k += 1) {
     const baseX = 15 + ((k * 97 + 31) % 590);
     const baseY = 55 + ((k * 61 + 47) % 250);
