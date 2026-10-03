@@ -1,0 +1,95 @@
+{
+  "candidate": "RF-DETR",
+  "taskProfiles": [
+    "football.playerDetection"
+  ],
+  "modelUrl": "https://huggingface.co/julianzu9612/RFDETR-Soccernet",
+  "revision": "1e388b922a64f2be39cbf1925e5fd5fc4f7dd771",
+  "modelLicense": "apache-2.0",
+  "codeLicense": "unknown",
+  "weightsProvenance": "RF-DETR-Large (COCO-pretrained) fine-tuned on SoccerNet-Tracking 2023 (42,750 annotated images, 4 classes: ball/player/referee/goalkeeper) per the model card.",
+  "datasetProvenance": "SoccerNet-Tracking 2023 (train and reported test metrics, per card).",
+  "commercialUse": "yes",
+  "gatingState": "candidate",
+  "sources": [
+    "https://huggingface.co/julianzu9612/RFDETR-Soccernet",
+    "https://huggingface.co/api/models/julianzu9612/RFDETR-Soccernet",
+    "https://huggingface.co/julianzu9612/RFDETR-Soccernet/raw/main/README.md"
+  ],
+  "recordedAt": "2026-10-03T22:25:00Z",
+  "benchmarkRun": {
+    "workItem": "HF003",
+    "runBy": "Worker A (flight 1, worker 64-a)",
+    "provenanceLedgerEcho": {
+      "note": "the twelve provenance fields above echo the RF-DETR row of scripts/evidence/hf-portfolio/provenance-ledger.json verbatim (candidate, revision, modelUrl, licenses, gatingState unchanged); the ledger's row schema is pinned by packages/testing/test/hf-ledger.test.ts to EXACTLY those twelve fields, so the benchmark run itself is recorded HERE, not as a ledger row \u2014 and the candidate's gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "modelRuntime": {
+      "package": "rfdetr 1.11.1 (PyPI, python 3.12 venv OUTSIDE the repo at /home/z/hf-bench)",
+      "torch": "2.14.1+cpu",
+      "checkpointFile": "weights/checkpoint_best_regular.pth (1,566,066,207 bytes; sha256 b9ade4bcc2316259582674ebeebbd27bb2e956480428c54114ace567237eb5f9; downloaded 2026-10-03, NEVER committed, never vendored)",
+      "loading": "rfdetr.RFDETRLargeDeprecated constructed with the checkpoint's own training args (dinov2_windowed_base, hidden 384, 3 decoder layers, patch 14, 4 windows, PE 37, 300 queries, group_detr 13, resolution 560); num_classes=3 reproduces the legacy checkpoint's exactly-4-row class head (the current package adds a background row); state-dict load strict=False: missing=['_kp_active_mask'] (inert keypoint buffer), unexpected=[]",
+      "loadValidation": "the model's own committed sample frame (examples/sample_soccer_frame.jpg, 1920x1080) produced 18 detections at threshold 0.5 \u2014 14 player, 2 ball, 2 referee, confidences 0.56-0.89 \u2014 before any fixture run"
+    },
+    "fixtures": [
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "scored": true,
+        "evidence": "scripts/evidence/hf-portfolio/hf003/results/rfdetr-synthetic-diagnostic-01.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons \u2014 the repo's authorized licensed gate clip)",
+        "scored": false,
+        "unscoredReason": "no ground-truth annotations exist for this real clip",
+        "evidence": "scripts/evidence/hf-portfolio/hf003/results/rfdetr-fx-001.json"
+      }
+    ],
+    "quality": {
+      "fixturePlayerPrecisionIoU05": 0.0,
+      "fixturePlayerRecallIoU05": 0.0,
+      "fixtureBallRecallIoU05": 0.3667,
+      "fixtureInterpretation": "zero player detections on the synthetic fixture at the model-card threshold 0.5 \u2014 out-of-distribution (flat colored discs, threshold sweep at results/rfdetr-fixture-threshold-sweep.json shows discs never exceed 0.17 confidence); the real-clip run shows the model functioning on footage (107 player detections over 25 fx-001 frames)",
+      "currentDetectorBaseline": {
+        "detector": "contrast-context-detector (the J012 license-clean production path, pure code)",
+        "fixturePrecisionIoU05": 0.6051,
+        "fixtureRecallIoU05": 0.5567,
+        "fixtureF1IoU05": 0.5799,
+        "evidence": "scripts/evidence/hf-portfolio/hf003/results/baseline-current-detector.json"
+      }
+    },
+    "latency": {
+      "fixtureSteadyMeanMs": 2899.34,
+      "fixtureSteadyP50NearestRankMs": 2828.69,
+      "fixtureSteadyP95NearestRankMs": 3210.5,
+      "realClipSteadyMeanMs": 3123.36,
+      "realClipSteadyP95NearestRankMs": 3334.53,
+      "baselineCurrentDetectorFixtureMeanMs": 29.6,
+      "baselineCurrentDetectorFixtureP95Ms": 110.0,
+      "note": "wall-clock CPU readings (2 vCPU, torch 2 threads); percentiles nearest-rank (the repo's convention)"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS recorded instead",
+      "inferenceVmRssMiB": "1136.5-1177.5 (per-frame VmRSS during inference)",
+      "peakRssMiB": 1446.1,
+      "baselineCurrentDetectorProcessRssMiB": 285.1,
+      "note": "the process RSS includes the python interpreter + torch + the fp32 model (~540 MiB weights) + activations; the model card's own GPU figure (~6 GB VRAM) is N/A on this host"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, ~4 GB RAM): GPU memory is honestly N/A; process RSS recorded instead",
+      "CPU inference latency (~2.9-3.1 s/frame) is NOT the deployment latency (the model card reports 12-30 FPS on GPU) \u2014 this flight's latency numbers are honest wall-clock CPU readings, labeled as such",
+      "the synthetic-diagnostic fixture is out-of-distribution for a broadcast-trained detector; its scores measure domain mismatch, not model quality \u2014 the authorized real clip ran unscored (no annotations exist)",
+      "frame sampling: stride 10 by decode order on both clips (the L010 harness convention); 30 fixture frames + 25 fx-001 frames"
+    ],
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "no authorized real clip with ground-truth annotations is reachable in this sandbox \u2014 the quality comparison against annotations exists only on the synthetic fixture (domain-mismatched)",
+        "CPU-host latency (~3 s/frame) is two orders of magnitude above the current detector (~30 ms) on this host; no GPU evidence exists in this flight",
+        "dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger \u2014 the HF015 license review has not happened"
+      ],
+      "note": "UNCHANGED \u2014 this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}

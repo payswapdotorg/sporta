@@ -1,96 +1,150 @@
-# Worker 63-L delivery — L015/L016/L017 live gates (flight 3, local runner)
+# Worker 64-a delivery — HF003: the RF-DETR SoccerNet benchmark evidence
 
-manifest:
-{
-  "branch": "work/L015-017-live-gates",
-  "head": "(see git log — the commit that carries this REPORT)",
-  "filesChanged": [
-    "apps/web/e2e/flows/live-tactical-gate.ts",
-    "apps/web/e2e/flows/live-journey.ts",
-    "apps/web/e2e/flows/live-to-replay.ts",
-    "apps/web/e2e/flows/live-shared.ts",
-    "apps/web/e2e/lib/live-gates.ts",
-    "apps/web/e2e/lib/live-instrument.ts",
-    "apps/web/e2e/lib/inventory.ts",
-    "apps/web/e2e/run.ts",
-    "apps/web/test/e2e-harness.test.ts",
-    "apps/web/e2e/evidence/ (run-musvmk3k, run-musvrvb8, run-musw5ab8 + gate screenshots)"
-  ],
-  "rootBattery": {"see": "the report below — the contention-flake class + the baseline comparison"},
-  "e2eRun": {
-    "executed": true,
-    "flowsPassed": 2,
-    "flowsFailed": 1,
-    "gatesExecuted": ["L015", "L016", "L017"],
-    "gatesDeliveredUnexecuted": [],
-    "flowResults": {
-      "live-tactical-gate (L015)": "run-musvmk3k — 21 assertions passed, 1 soft-check failed (declared latency budget: ABSENT — the honest docs-gap verdict the brief prescribes; see the report)",
-      "live-journey (L016)": "run-musvrvb8 — 17 assertions passed, 0 failed, exit 0",
-      "live-to-replay (L017)": "run-musw5ab8 — 16 assertions passed, 0 failed, exit 0"
-    }
-  },
-  "productChanges": [
-    "NONE — the gates ran against unmodified product surfaces; two harness-side defects were fixed during the flight (see the report)"
-  ]
-}
+## Manifest
 
-=== L015-017 GATE REPORT ===
+- Branch: `work/hf003-rfdetr-benchmark` (from main @ ee0dbfe; never pushed)
+- Commit: `rel(64-a): HF003 — the RF-DETR benchmark evidence (CPU-host, fixture + corpus)`
+- Work item: HF003 (docs/work-items/hf-model-portfolio-work-items.md)
+- Task profile: `football.playerDetection` (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
+- Evidence tree (all committed in-repo):
+  - `scripts/evidence/hf-portfolio/hf003/benchmark_rfdetr.py` — the model benchmark
+  - `scripts/evidence/hf-portfolio/hf003/fixture_threshold_sweep.py` — the zero-recall diagnostic
+  - `scripts/evidence/hf-portfolio/hf003/run-baseline.ts` — the current-detector baseline (repo L010 harness)
+  - `scripts/evidence/hf-portfolio/hf003/record-benchmark.ts` — the ledger-pinning validator (exit 0)
+  - `scripts/evidence/hf-portfolio/hf003/benchmark-record.json` — the ledger-shaped HF003 record
+  - `scripts/evidence/hf-portfolio/hf003/summary.md` — the markdown summary
+  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-synthetic-diagnostic-01.json`
+  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-fx-001.json`
+  - `scripts/evidence/hf-portfolio/hf003/results/rfdetr-fixture-threshold-sweep.json`
+  - `scripts/evidence/hf-portfolio/hf003/results/baseline-current-detector.json`
+- Not committed (by design): the checkpoint (1.57 GB, apache-2.0, operator
+  download at /home/z/hf-bench — never vendored) and the python venv.
+- FROZEN contracts untouched; provenance-ledger.json untouched (its row schema is
+  test-pinned to exactly the twelve provenance fields; the benchmark run is
+  recorded in benchmark-record.json, which `record-benchmark.ts` pins to the
+  ledger verbatim).
 
-## Summary of the implementation
+=== HF003 BENCHMARK REPORT ===
 
-The three final live-gate flows built on the W909 harness (no second harness — the existing runner, inventory, driver, and recorder extended):
+## Summary
 
-- **`flows/live-tactical-gate.ts` (L015)** — the full measurement gate: the transport's own listing discovery (no fixtures), the product's sign-in + picker, the page-side LIVE PROBE (a pure observer wrapping the page's own `EventSource` — every `hello`/`world` event recorded with the browser's real receipt clock; never fabricates or alters a byte), the measured receipt-cadence verdict vs the transport's declared cadence, the rendered-state-follows-frames audit (DOM world versions + entity position deltas), the nearest-rank p50/p95 latency measurement (the W306 formula replicated exactly and pinned against the original's documented examples in the unit battery), the identity-continuity audit, the reconnect-scenario gap accounting (counted missed updates, degraded→nominal quality, visible ticker row), the drop-scenario sequence-gap counting, the probe-verified pre-first-frame no-update control, and the honest `declared budget: ABSENT` verdict.
-- **`flows/live-journey.ts` (L016)** — the exact journey sequence: fresh anonymous browser → the Live nav entry → the honest anonymous refusal (fail-closed, real 401 path) → sign-in through the real register form → live tactical state visible → player AND ball inspection through the product's own entity picker → the interruption (the reconnect scenario's accounted dropout, visible degraded state) → recovery → continue → the finite live window's honest end → the replay of the same session through the same views.
-- **`flows/live-to-replay.ts` (L017)** — the transition gate: the finite window's live run to its honest end (`live-window-complete`), the SAME-surface replay continuation, the session-identity continuity (one session, one selected source), the world-version lineage across the transition (the replay's fact panel's own numbers — no reset), the event-time timebase alignment, the page RELOAD (no second canonical state — the replay record is re-read and re-presented identically), and the recorded-state persistence through the reload.
-- **`flows/live-shared.ts`** — the shared legs (the real register form, the live-sources discovery over the product's own `/api/live`).
-- **`lib/live-gates.ts`** — the driver-level helpers: the probe, the probe-verified page open (the reload loop that guarantees the patch lands before the surface mounts its stream), the picker/entity-inspector/fact readers.
-- **`lib/live-instrument.ts`** — the pure measurement math (unit-battery-tested): the nearest-rank percentile replica, the cadence/identity/position-delta/recovery audits, the source-sequence gap counter, the determinism fingerprint, the scenario/finite source finders.
-- **`lib/inventory.ts` + `run.ts` + `test/e2e-harness.test.ts`** — the three flow ids registered (specs validated against ROUTE_PATHS), the runner wiring (incl. `SPORTA_LIVE_TRANSPORT=sse` — the product's own documented deployment switch, the same class of composition-root decision as the demo-account password), and the pure-model unit tests (the inventory entries, the percentile replica pinned against the W306 originals' examples, the identity audit, the cadence tolerance, the source finders, the fingerprint).
+HF003 asked for the first model-portfolio benchmark flight: run the RF-DETR
+SoccerNet candidate against the Sporta benchmark fixtures and at least one
+authorized real clip, compare it against the current detector, record
+latency/GPU-memory/quality, and promote NOTHING without evidence. All four
+measurement legs ran in this sandbox on a CPU-only 2-vCPU host; every number
+below is a single measured run, honestly labeled.
 
-## Files changed
+## The model + version + how loaded
 
-See the manifest above. 1,769 lines across the six new modules; the inventory/run/test extensions; the evidence (three run dirs + the gate screenshots, all committed under `apps/web/e2e/evidence/`).
+- Candidate (HF002 ledger row): `julianzu9612/RFDETR-Soccernet` @ revision
+  `1e388b922a64f2be39cbf1925e5fd5fc4f7dd771`, apache-2.0 (model card), dataset
+  lineage unresolved (SoccerNet corpus terms), codeLicense `unknown`. RF-DETR-Large
+  fine-tuned on SoccerNet-Tracking 2023 (42,750 images; 4 classes:
+  ball/player/referee/goalkeeper).
+- Runtime: python 3.12 venv OUTSIDE the repo (/home/z/hf-bench), rfdetr 1.11.1
+  (PyPI), torch 2.14.1+cpu, opencv-python-headless 5.0.0. Checkpoint
+  `weights/checkpoint_best_regular.pth` (1,566,066,207 bytes; sha256
+  b9ade4bcc2316259582674ebeebbd27bb2e956480428c54114ace567237eb5f9) downloaded
+  from the pinned revision 2026-10-03; never committed.
+- Loading (the honest recipe for a legacy checkpoint on the current package):
+  `rfdetr.from_checkpoint` mis-resolves this checkpoint to the new patch-16
+  RFDETRLarge and stalls on a starter-weights download, so the flight constructs
+  `RFDETRLargeDeprecated` (the original RF-DETR-Large) with every
+  hyperparameter read from the checkpoint's own `args` (dinov2_windowed_base,
+  hidden 384, 3 decoder layers, patch 14, 4 windows, PE 37, 300 queries,
+  group_detr 13, resolution 560), with `num_classes=3` so the package's
+  `num_classes+1` head reproduces the legacy 4-row class head, then loads the
+  state dict (strict=False: missing = `['_kp_active_mask']` — an inert keypoint
+  buffer; unexpected = none). Class mapping per the pinned config.json:
+  0=ball, 1=player, 2=referee, 3=goalkeeper.
+- Load validation before any fixture run: the model's own committed sample frame
+  (1920x1080) → 18 detections at threshold 0.5 (14 player, 2 ball, 2 referee,
+  confidences 0.56–0.89). The model functions.
 
-## Tests run + exact results
+## The fixture + real-clip story
 
-- **The e2e gate runs** (each flow executed individually — the runner's `--only` mode, production build on :3909, real browser, real SSE transport):
-  - L015 → `evidence/run-musvmk3k/` — **21 passed / 1 failed (soft) / exit 1** — the 1 is `the measured percentiles are asserted against the declared budget` recorded **`declared budget: ABSENT`** exactly as §2 of the brief prescribes ("record declared budget: ABSENT and FAIL that assertion line honestly"): the repo declares NO numeric live-path latency percentile budget anywhere (packages/slo SLOs.md scopes the W306 batch/frame pipeline; docs/deployment/DEPLOYMENT.md records measured live evidence, explicitly "never a promise"). Measured: p50=2ms, p95=10ms (n=16).
-  - L016 → `evidence/run-musvrvb8/` — **17 passed / 0 failed / exit 0** (53,093 ms).
-  - L017 → `evidence/run-musw5ab8/` — **16 passed / 0 failed / exit 0** (20,413 ms).
-- **The root unit battery** (per-package sequential on this loaded 2vCPU sandbox — the single-process root run OOMs under the resident stack, per the memory discipline): packages/* = **6347 pass / 0 fail / 7 skip** (the diff touches apps/web only — identical for both trees); apps/web = **945 pass / 17 fail / 26 skip (988 tests)**. **The same-method baseline comparison** (the identical battery on the stashed untouched main tree, same load): apps/web baseline = **931 pass / 19 fail / 26 skip (976 tests)** — the 17/19 failures are the SAME pre-existing 5000ms-timeout contention class (the W919/capability/operations route tests under load; flight 1 measured the same class), NOT change-borne: **0 NEW failures; +12 new tests (the e2e-harness pure-model tests), all passing**. The e2e-harness test file itself: 0 failures.
+- `synthetic-diagnostic-01` (the Sporta benchmark fixture pair, sha-pinned;
+  annotation coordinate convention verified against the L010 generator math —
+  max center delta 0.0005 px): 30 frames sampled at stride 10 by decode order
+  (the L010 harness convention), SCORED against the exact annotations.
+- `fx-001` — the AUTHORIZED REAL licensed clip (FIFA Beach Soccer World Cup
+  2021 penalty, Wikimedia Commons, CC0-1.0; one of the repo's two L010 gate
+  clips, sha-pinned): 25 frames at stride 10, recorded UNSCORED (no annotations
+  exist — never fabricated). A real clip WITH ground-truth annotations is not
+  reachable in this sandbox; that gap is recorded as a limitation (the
+  annotation-scored comparison exists only on the synthetic fixture).
 
-## e2e evidence pointers
+## Quality (vs annotations AND vs the current detector, IoU 0.5, the repo's
+own greedy label-aware matching)
 
-- L015: `apps/web/e2e/evidence/run-musvmk3k/e2e-report.md` (+ `live-tactical-gate-normal.png`, `live-tactical-gate-reconnect.png`, `live-tactical-gate-failure.png` — the failure screenshot documents the ABSENT-budget verdict state).
-- L016: `apps/web/e2e/evidence/run-musvrvb8/e2e-report.md` (+ `live-journey-live-state.png`, `live-journey-inspect-ball.png`, `live-journey-interruption.png`, `live-journey-replay.png`).
-- L017: `apps/web/e2e/evidence/run-musw5ab8/e2e-report.md` (+ `live-to-replay-window-end.png`, `live-to-replay-after-reload.png`).
+| Candidate | precision | recall | f1 | ball recall |
+|---|---|---|---|---|
+| RF-DETR SoccerNet (threshold 0.5) | 0.000 | 0.000 | 0.000 | 0.367 (11/30) |
+| RF-DETR (person classes merged) | 0.000 | 0.000 | 0.000 | — |
+| contrast-context-detector (current, J012 production path) | 0.605 | 0.557 | 0.580 | n/a |
+| heuristic-color-detector (weak baseline, context) | 0.993 | 0.987 | 0.990 | n/a |
 
-## Per-gate verdict
+The honest reading: RF-DETR produces ZERO player detections on the synthetic
+fixture at the model-card threshold; the threshold-sweep diagnostic
+(results/rfdetr-fixture-threshold-sweep.json) shows the flat colored discs never
+exceed 0.17 confidence while the true 8 px ball is found at 0.49–0.56 — the
+fixture is out-of-distribution for a broadcast-trained detector, so these scores
+measure domain mismatch, not model quality. On the authorized real clip
+(unscored — no annotations exist for either candidate), RF-DETR emits sensible
+output: 107 player + 7 ball + 1 referee + 1 goalkeeper detections over 25 frames
+(4.6 dets/frame, 1 zero-detection frame); the current detector's fx-001 run is
+likewise unscored.
 
-- **L015 — Live tactical gate: PASS (with one honestly-failing measurement line)** — real browser ✅; continuous updates ✅ (measured median 501ms vs declared 500ms, tolerance ±45%); tactical view follows state ✅ (DOM world versions advance; ball maxΔ 3.75m / player 0.47m); latency budget measured ✅ but **declared budget: ABSENT — the line FAILS honestly until the TL declares one** (proposed: p50 ≤ 250ms, p95 ≤ 1000ms for the local-transport deployment — a docs amendment for the TL, never a worker-side invention); identity continuity ✅ (24 entities, 0 switches, late appearances all event-explained); dropout/reconnect visible + recovers ✅ (missedUpdates=8, 800ms gap accounted; quality degraded→nominal; the ticker row visible; versions advance past recovery); drop-scenario gaps counted ✅; no-update window honest ✅ (probe-verified connecting state, zero fabricated versions); no hidden fixture or dev API ✅ (the session under test is the transport's own listed session; the only writes are the real register form).
-- **L016 — Live tracking → SWM → tactical journey gate: PASS** — every journey step asserted with evidence (the anonymous refusal, the sign-in, the live state, the player AND ball inspection, the interruption's visible degraded state, the recovery, the continuation, the finite window's end, the replay).
-- **L017 — Live-to-replay recovery gate: PASS** — same session identity through the transition; world-version lineage preserved (the replay's fact panel: the window's own first/last versions, no reset); event-time timebase aligned (the continuity verdict chip: aligned, not MISALIGNED); the reload re-presents the SAME record (no second canonical state — one selected session, one replay record, identical facts after reload).
+## Latency (per-frame wall-clock CPU, 2 vCPU; nearest-rank p50/p95 — the repo
+convention)
 
-## Known limitations
+| Candidate | fixture mean / p50 / p95 | fx-001 mean / p95 |
+|---|---|---|
+| RF-DETR SoccerNet | 2899 / 2829 / 3211 ms | 3123 / 3335 ms |
+| contrast-context (current) | 29.6 / 23 / 110 ms | 26.1 / 41 ms |
 
-1. **The declared-latency-budget gap (L015)**: the repo declares no numeric live-path latency percentile budget — the assertion line FAILS honestly (per the brief's explicit prescription) and the budget numbers are proposed above as a TL docs amendment.
-2. **The root battery under this sandbox's load**: the single-process root `bun test` OOMs (exit 137) with the full resident stack up; the per-package sequential battery (recorded above) is the honest same-load measurement. The 5000ms-timeout contention-flake class (flight 1: "21 failures — all 5s timeouts, identical on the untouched baseline") reproduces here: 17 (branch) vs 19 (untouched baseline) — the SAME class, load-borne, with the A/B baseline comparison recorded above and in the delivery worklog.
-3. **The receipt-stall watchdog's firing window is unit-proven, not e2e-forced**: every L002 scenario's own no-update gap (600ms delay onset / 800ms reconnect / 1000ms frame-level) is BELOW the 2.5×cadence watchdog tolerance BY DESIGN (they model bounded delivery anomalies, not outages) — the honest e2e negative control is therefore the probe-verified pre-first-frame connecting state, and the watchdog (`liveStaleness`) is pinned by the root battery's unit tests.
+~100x slower than the current detector ON THIS CPU HOST. The model card claims
+12–30 FPS on GPU; this flight has NO GPU evidence — the CPU numbers are honest
+wall-clock readings, labeled as such.
 
-## Architectural concerns
+## Memory
 
-- The live path's latency declaration lives NOWHERE machine-checkable — a `packages/slo` row for the live transport (local deployment) would close the L015 budget line mechanically. TL decision required; the measurement instrument (nearest-rank, the W306 replica) is already in place and pinned.
+**GPU memory: N/A (no GPU on the benchmark host); process RSS recorded
+instead.** RF-DETR inference VmRSS 1136.5–1177.5 MiB per frame, process peak
+(ru_maxrss) 1446.1 MiB; the current-detector baseline process RSS 285.1 MiB.
 
-## Work items blocked by the result
+## The ledger record
 
-- None — L015/L016/L017 are the final core-roadmap items; with these gates delivered, the remaining program is the HF model-portfolio wave and the SPR tail.
+`scripts/evidence/hf-portfolio/hf003/benchmark-record.json` — the ledger-shaped
+HF003 record: the twelve provenance fields echo the RF-DETR row of
+`scripts/evidence/hf-portfolio/provenance-ledger.json` VERBATIM (the ledger's row
+schema is test-pinned to exactly those fields, so the run is recorded here, not
+as a ledger row), plus the run's evidence pointers, numbers, and resource
+caveats. `scripts/evidence/hf-portfolio/hf003/record-benchmark.ts` (exit 0)
+machine-checks the echo, the unchanged `candidate` gating state, the evidence
+pointers, and the caveats. gatingState stays `candidate` — no promotion.
 
-## Harness-side fixes during the flight (honesty record)
+## Limitations
 
-- The flight-2 subagent's L015 no-update control raced (fresh-page open + install + sample round-trips lose to the first frame's ~500ms arrival — 48 samples all post-first-frame). Fixed: the probe-verified reload loop (the patch is guaranteed to wrap the page's EventSource before the surface mounts — "zero captured frames" then means "zero delivered frames").
-- The L017 replay-fact reader queried the tactical surface's stats panel instead of the replay panel's own facts (0→0 fallback). Fixed: the reader now reads `[data-surface='live-replay-controls'] .session-card-facts` directly.
-- A malformed nav selector in live-journey (`nav aref='/live']`) — fixed to `nav a[href='/live']`.
-- No product code was modified — the gates exposed no product gap that required one (the connecting/stall states, the replay facts, the picker/inspector surfaces all behave as the L013/L014 contracts specify).
+1. No authorized real clip with ground-truth annotations is reachable in this
+   sandbox → the annotation-scored comparison exists only on the
+   domain-mismatched synthetic fixture.
+2. CPU-only host → no GPU latency or GPU-memory evidence; the model card's GPU
+   figures are unverified by this flight.
+3. Single measured run per clip (30 + 25 sampled frames, stride 10).
+4. Detection-level only: identity-handoff compatibility (a task-profile metric)
+   not measured.
+5. The checkpoint loads only via the legacy-variant recipe recorded above (the
+   current rfdetr `from_checkpoint` mis-resolves it) — reproducibility depends
+   on that recipe plus the pinned revision.
+
+## Promotion-gate referral
+
+The RF-DETR candidate remains `candidate`; this benchmark recommends NOTHING
+production. Observed HF015 blockers: (1) no scored real-media evidence in this
+flight; (2) CPU-host latency two orders of magnitude above the current detector
+(no GPU evidence); (3) SoccerNet dataset-lineage terms unresolved (the HF015
+license review has not happened). Promotion is the Tech Lead's HF015 gate alone.
 
 === END REPORT ===
