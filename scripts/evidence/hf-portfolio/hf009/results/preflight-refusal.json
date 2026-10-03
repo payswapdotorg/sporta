@@ -1,0 +1,180 @@
+{
+  "evidenceId": "hf009-pyannote-preflight-refusal",
+  "purpose": "HF009 preflight: verify the pinned community-1 pipeline's reachability, the audio fixtures, and the ground-truth situation BEFORE any benchmark claim",
+  "host": {
+    "cpuCores": 2,
+    "gpu": "none (CPU-only benchmark host)",
+    "pythonVenv": "/home/z/hf-bench-4/.venv",
+    "note": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead"
+  },
+  "candidate": "pyannote/speaker-diarization-community-1",
+  "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+  "hfTokenInEnvironment": false,
+  "startedAtUtc": "2026-10-03T23:48:35Z",
+  "fixturePins": {
+    "synthetic-diagnostic-01": {
+      "path": "packages/technology-registry/fixtures/media/synthetic-diagnostic-01-players-and-ball.mp4",
+      "sha256": "e75abe1441fe2e6680b2aad5e7d2e66a5bcd21ab4b91928e25181f90a37f7f76",
+      "pinVerified": true
+    },
+    "fx-001-normalized": {
+      "path": "packages/real-to-swm/fixtures/media/fx-001-normalized.mp4",
+      "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7",
+      "pinVerified": true
+    },
+    "sprclip-b8-inplay-original": {
+      "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+      "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "pinVerified": true
+    },
+    "sprclip-b1-wide-broadcast": {
+      "path": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+      "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+      "pinVerified": true
+    }
+  },
+  "audioFixtures": {
+    "synthetic-diagnostic-01": {
+      "clipId": "synthetic-diagnostic-01",
+      "mediaKind": "synthetic-diagnostic",
+      "audioTrack": "ABSENT (ffprobe: video-only h264 stream \u2014 the repo's synthetic fixture carries no audio at all)",
+      "usableForDiarization": false,
+      "typedGap": "no audio track exists on the synthetic fixture"
+    },
+    "fx-001": {
+      "clipId": "fx-001",
+      "mediaKind": "real-footage",
+      "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons \u2014 the repo's authorized gate clip)",
+      "committedNormalizedClipAudio": "ABSENT (the gate-clips.json normalizeTransform is '-an' \u2014 video-only by design)",
+      "audioLivesOnlyInOriginalSource": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm",
+        "sourceSha256Pin": "a4d163a5bcc54b62d9d09926b56278677e06436c4e9d2b01bd0e137ef8cdf131",
+        "thisFlightFetchStatus": "BLOCKED (HTTP 429 rate-limit on every attempt from this sandbox egress, 2026-10-03: 6 attempts across upload.wikimedia.org and commons.wikimedia.org Special:FilePath with 15-45 s backoff \u2014 an infrastructure wall, NOT a licensing wall; the brief's stall rule applies)",
+        "readyToRunExtraction": "curl -L -A '<descriptive-ua>' -o fx-001-source.webm 'https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm' ; sha256sum fx-001-source.webm (must equal a4d163a5bcc54b62d9d09926b56278677e06436c4e9d2b01bd0e137ef8cdf131) ; ffmpeg -v error -y -i fx-001-source.webm -vn -ac 1 -ar 16000 -c:a pcm_s16le fx-001-audio.wav"
+      },
+      "usableForDiarization": false
+    },
+    "sprclip-b8-inplay-original": {
+      "clipId": "sprclip-b8-inplay-original",
+      "mediaKind": "real-footage",
+      "authorization": "scripts/evidence/spr-corpus-bytes/README.md: acquired broadcast bytes under the recorded R606 registration declaration (analysis / transformation / derivative generation / storage); repo is private \u2014 a local speaker-diarization benchmark run is ANALYSIS, inside the declared scope",
+      "sourcePath": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+      "sourceSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "usableForDiarization": true,
+      "wavPath": "/home/z/hf-bench-4/audio/spr-src-audio.wav",
+      "wavSha256": "ddf9c20335e7c4e7873e9267906682ac21ccfd1a74f841f58e8676fc0a2a7a17",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 16000,
+      "channels": 1,
+      "durationSeconds": 47.624,
+      "wavBytes": 1524050,
+      "extractionCommand": "ffmpeg -v error -y -i <source.mp4> -vn -ac 1 -ar 16000 -c:a pcm_s16le <out.wav>  # pyannote's native input: 16 kHz mono; the card auto-downmixes/resamples but the extraction pins the format explicitly"
+    },
+    "sprclip-b1-wide-broadcast": {
+      "clipId": "sprclip-b1-wide-broadcast",
+      "mediaKind": "real-footage",
+      "authorization": "scripts/evidence/spr-corpus-bytes/README.md: acquired broadcast bytes under the recorded R606 registration declaration (analysis / transformation / derivative generation / storage); repo is private \u2014 a local speaker-diarization benchmark run is ANALYSIS, inside the declared scope",
+      "sourcePath": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+      "sourceSha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+      "usableForDiarization": true,
+      "wavPath": "/home/z/hf-bench-4/audio/spr-b1-audio.wav",
+      "wavSha256": "08c2fcfb8fb1740bf07d29a7e0abc986c1c4832ac2c0877b5de485a735391918",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 16000,
+      "channels": 1,
+      "durationSeconds": 30.07,
+      "wavBytes": 962314,
+      "extractionCommand": "ffmpeg -v error -y -i <source.mp4> -vn -ac 1 -ar 16000 -c:a pcm_s16le <out.wav>  # pyannote's native input: 16 kHz mono; the card auto-downmixes/resamples but the extraction pins the format explicitly"
+    }
+  },
+  "hubProbes": [
+    {
+      "repoId": "pyannote/speaker-diarization-community-1",
+      "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+      "file": "config.yaml",
+      "verdict": "gated-user-conditions",
+      "errorType": "GatedRepoError",
+      "httpStatus": "401",
+      "message": "401 Client Error. (Request ID: Root=1-6ac19454-57f0095503fcae1c55091a80;03d84931-07f9-4b92-aacd-598f65d1d543)\n\nCannot access gated repo for url https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/3533c8cf8e369892e6b79ff1bf80f7b0286a54ee/config.yaml.\nAccess to model pyannote/speaker-diarization-community-1 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "repoId": "pyannote/speaker-diarization-community-1",
+      "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+      "file": "embedding/model.pt",
+      "verdict": "gated-user-conditions",
+      "errorType": "GatedRepoError",
+      "httpStatus": "401",
+      "message": "401 Client Error. (Request ID: Root=1-6ac19454-784c00b9232733514764abf1;88fa5e20-46f9-4484-8b3d-33546b23ce0a)\n\nCannot access gated repo for url https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/3533c8cf8e369892e6b79ff1bf80f7b0286a54ee/embedding/model.pt.\nAccess to model pyannote/speaker-diarization-community-1 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "repoId": "pyannote/speaker-diarization-community-1",
+      "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+      "file": "README.md",
+      "verdict": "accessible-anonymously"
+    },
+    {
+      "repoId": "pyannote/segmentation-3.0",
+      "revision": "main",
+      "file": "config.yaml",
+      "verdict": "gated-user-conditions",
+      "errorType": "GatedRepoError",
+      "httpStatus": "401",
+      "message": "401 Client Error. (Request ID: Root=1-6ac19455-736bdc9a5d24546267d39b00;c2f2cf65-1146-4fd2-8eb0-bcdf3b62a4f8)\n\nCannot access gated repo for url https://huggingface.co/pyannote/segmentation-3.0/resolve/main/config.yaml.\nAccess to model pyannote/segmentation-3.0 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "repoId": "pyannote/wespeaker-english-resemblynet",
+      "revision": "main",
+      "file": "README.md",
+      "verdict": "repo-not-found",
+      "errorType": "RepositoryNotFoundError",
+      "httpStatus": "401",
+      "message": "401 Client Error. (Request ID: Root=1-6ac19455-6ae6349d06921eee7787e763;dcbf22f8-37e2-46ab-998d-5b51ccab73a2)\n\nRepository Not Found for url: https://huggingface.co/pyannote/wespeaker-english-resemblynet/resolve/main/README.md.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.\nFor more details, see https://huggingface.co/docs/huggingface_hub/authentication\nInvalid username or password."
+    },
+    {
+      "repoId": "speechbrain/spkrec-ecapa-voxceleb",
+      "revision": "main",
+      "file": "hyperparams.yaml",
+      "verdict": "accessible-anonymously"
+    }
+  ],
+  "groundTruthSearch": {
+    "derJerVerdict": "NOT MEASURED (typed): no ground-truth speaker annotations exist in the repo for any benchmarkable media",
+    "searched": [
+      "packages/commentary-segmentation/test/fixtures.ts \u2014 a SYNTHETIC inline 30-row 5-speaker match transcript for the W208 tests (not an annotation of any real media; no timestamps-to-audio binding)",
+      "packages/asr \u2014 the W207/W208 speakerLabel passthrough contract only (the adapter owns no annotations; 'W208 owns real diarization' per the source comment)",
+      "packages/real-to-swm + technology-registry fixtures \u2014 spatial discs / vision detections only, no speaker labels",
+      "SWM event timelines \u2014 derived state, never ground truth",
+      "no RTTM or diarization annotation file exists anywhere in-repo"
+    ],
+    "metricImplementationState": "pyannote-metrics 4.1 installed in /home/z/hf-bench-4/.venv; the DER/JER evaluation path is stated exactly (RTTM reference vs hypothesis, optionally the 0.25-s forgiveness collar) \u2014 it has zero ground-truth rows to score in this sandbox"
+  },
+  "refusal": {
+    "verdict": "refused",
+    "type": "auth-gated-model",
+    "reason": "the pinned pipeline pyannote/speaker-diarization-community-1 @3533c8cf8e369892e6b79ff1bf80f7b0286a54ee is USER-CONDITIONS-GATED on the HF Hub: anonymous access 401s with GatedRepoError; the model card's own Setup reads 'Accept user conditions' + 'Create access token'; no HF token exists in this sandbox and accepting user conditions is a HUMAN action (the operator's unblock path, recorded below)",
+    "theExactWall": "401 Client Error. (Request ID: Root=1-6ac19454-57f0095503fcae1c55091a80;03d84931-07f9-4b92-aacd-598f65d1d543)\n\nCannot access gated repo for url https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/3533c8cf8e369892e6b79ff1bf80f7b0286a54ee/config.yaml.\nAccess to model pyannote/speaker-diarization-community-1 is restricted. You must have access to it and be authenticated to access it. Please log in.",
+    "publicComponentsAttempted": [
+      "pyannote/segmentation-3.0 (the fallback segmentation): ALSO gated-user-conditions (401) \u2014 recorded in hubProbes",
+      "pyannote/wespeaker-english-resemblynet: repo-not-found (no standalone public embedding repo)",
+      "speechbrain/spkrec-ecapa-voxceleb: accessible-anonymously but NOT a component of the ledger candidate \u2014 not used as a stand-in (a different model would launder the benchmark claim)",
+      "third-party mirrors of gated pyannote weights: REFUSED on principle (an unofficial re-upload would bypass the user-conditions gate \u2014 recorded, never used)"
+    ],
+    "unblockPath": "an operator with an hf.co account accepts the community-1 user conditions, creates a read token OUTSIDE any repo/log (never committed), downloads the pipeline at the pinned revision to /home/z/hf-bench-4/hf-model-auth (git clone or snapshot_download with the token in the environment only), then re-runs this script: --mode full --pipeline-dir /home/z/hf-bench-4/hf-model-auth",
+    "executedPartial": [
+      "the audio-fixture story: SPR corpus audio extracted to 16 kHz mono WAV (2 files, sha-recorded); the synthetic fixture verified audio-less (typed gap); fx-001's audio verified to live only in the original source (429-blocked this flight, recipe recorded)",
+      "the auth-wall probe map (6 anonymous probes, verdicts + the exact 401 text)",
+      "the repo ground-truth search (DER/JER typed not-measured)",
+      "the FULL mode benchmark script: ready-to-run, fail-closed (never a fabricated number)"
+    ],
+    "notMeasured": [
+      "speaker-segment timelines (turn counts, durations, speech ratio)",
+      "run-to-run determinism",
+      "per-file wall-clock latency and the real-time factor (RTF)",
+      "process RSS at inference",
+      "the unscored structural comparison vs repo-derived timelines",
+      "DER/JER (typed: no ground truth \u2014 see groundTruthSearch)"
+    ]
+  },
+  "completedAtUtc": "2026-10-03T23:48:37Z",
+  "processRssMiB": 37.9
+}
