@@ -1,0 +1,1607 @@
+{
+  "evidenceId": "hf003-rfdetr-fx-001",
+  "model": "julianzu9612/RFDETR-Soccernet @ 1e388b922a64f2be39cbf1925e5fd5fc4f7dd771",
+  "taskProfile": "football.playerDetection",
+  "confidenceThreshold": 0.5,
+  "iouThreshold": 0.5,
+  "stride": 10,
+  "sampling": "cv2.VideoCapture sequential read; every stride-th frame by decode order (the L010 harness convention; matches results/baseline-current-detector.json frame sets)",
+  "startedAtUtc": "2026-10-03T22:16:50.335962+00:00",
+  "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+  "clip": {
+    "clipId": "fx-001",
+    "mediaKind": "real-footage",
+    "licenseId": "CC0-1.0",
+    "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm",
+    "note": "REAL footage (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons, CC0) \u2014 the repo's authorized licensed gate clip. No ground-truth annotations exist \u2014 observations recorded unscored."
+  },
+  "decodedVideoMeta": {
+    "frameCount": 250,
+    "fps": 25.0,
+    "width": 640,
+    "height": 360
+  },
+  "loadInfo": {
+    "variant": "RFDETRLargeDeprecated (the original RF-DETR-Large: dinov2_windowed_base, hidden 384)",
+    "inferenceResolutionPx": 560,
+    "trainArgsEcho": {
+      "num_classes": 4,
+      "resolution": 560,
+      "dec_layers": 3,
+      "hidden_dim": 384,
+      "encoder": "dinov2_windowed_base",
+      "num_queries": 300,
+      "group_detr": 13,
+      "patch_size": 14,
+      "num_windows": 4,
+      "out_feature_indexes": [
+        2,
+        5,
+        8,
+        11
+      ],
+      "projector_scale": [
+        "P3",
+        "P5"
+      ]
+    },
+    "stateDictEntries": 533,
+    "missingKeys": [
+      "_kp_active_mask"
+    ],
+    "unexpectedKeys": [],
+    "classMapping": {
+      "0": "ball",
+      "1": "player",
+      "2": "referee",
+      "3": "goalkeeper"
+    },
+    "classHeadConstruction": "constructed with num_classes=3 so the package's num_classes+1 head reproduces the checkpoint's exactly-4-row classification head (the legacy training code had no background row); class ids are the raw sigmoid-slot indices 0..3 per the model card mapping"
+  },
+  "host": {
+    "cpuCores": 2,
+    "torchThreads": 2,
+    "device": "cpu",
+    "gpu": "none \u2014 GPU memory: N/A; process RSS recorded instead",
+    "torchVersion": "2.14.1+cpu",
+    "rfdetrPackageVersion": "1.11.1 (importlib.metadata)",
+    "opencvVersion": "5.0.0"
+  },
+  "scoring": {
+    "kind": "unscored",
+    "note": "no ground-truth annotations exist for this real clip"
+  },
+  "latencyMs": {
+    "note": "wall-clock CPU readings; first call carries lazy-init warmup",
+    "firstCallMs": 3384.21,
+    "steadyCount": 24,
+    "mean": 3123.36,
+    "min": 2962.58,
+    "max": 3379.68,
+    "p50NearestRank": 3080.53,
+    "p95NearestRank": 3334.53
+  },
+  "memory": {
+    "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+    "vmRssMiBMin": 1138.6,
+    "vmRssMiBMax": 1138.9,
+    "peakRssMiBRuMaxrss": 1446.1
+  },
+  "dropout": {
+    "sampledFrames": 25,
+    "refusedFrames": 0,
+    "zeroDetectionFrames": 1
+  },
+  "classHistogram": {
+    "player": 107,
+    "referee": 1,
+    "ball": 7,
+    "goalkeeper": 1
+  },
+  "frames": [
+    {
+      "frameId": "f-0-0",
+      "decodeOrder": 0,
+      "detectionCount": 8,
+      "detectMs": 3384.21,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-10",
+      "decodeOrder": 10,
+      "detectionCount": 6,
+      "detectMs": 3052.2,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-20",
+      "decodeOrder": 20,
+      "detectionCount": 4,
+      "detectMs": 3262.9,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-30",
+      "decodeOrder": 30,
+      "detectionCount": 6,
+      "detectMs": 3007.82,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-40",
+      "decodeOrder": 40,
+      "detectionCount": 1,
+      "detectMs": 3046.79,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-50",
+      "decodeOrder": 50,
+      "detectionCount": 2,
+      "detectMs": 3195.23,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-60",
+      "decodeOrder": 60,
+      "detectionCount": 2,
+      "detectMs": 2998.26,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-70",
+      "decodeOrder": 70,
+      "detectionCount": 1,
+      "detectMs": 3204.91,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-80",
+      "decodeOrder": 80,
+      "detectionCount": 2,
+      "detectMs": 3131.67,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-90",
+      "decodeOrder": 90,
+      "detectionCount": 4,
+      "detectMs": 3044.44,
+      "vmRssMiB": 1138.7
+    },
+    {
+      "frameId": "f-0-100",
+      "decodeOrder": 100,
+      "detectionCount": 0,
+      "detectMs": 3152.57,
+      "vmRssMiB": 1138.6
+    },
+    {
+      "frameId": "f-0-110",
+      "decodeOrder": 110,
+      "detectionCount": 1,
+      "detectMs": 2962.58,
+      "vmRssMiB": 1138.9
+    },
+    {
+      "frameId": "f-0-120",
+      "decodeOrder": 120,
+      "detectionCount": 3,
+      "detectMs": 3022.58,
+      "vmRssMiB": 1138.9
+    },
+    {
+      "frameId": "f-0-130",
+      "decodeOrder": 130,
+      "detectionCount": 4,
+      "detectMs": 3379.68,
+      "vmRssMiB": 1138.9
+    },
+    {
+      "frameId": "f-0-140",
+      "decodeOrder": 140,
+      "detectionCount": 6,
+      "detectMs": 3030.98,
+      "vmRssMiB": 1138.9
+    },
+    {
+      "frameId": "f-0-150",
+      "decodeOrder": 150,
+      "detectionCount": 7,
+      "detectMs": 3080.53,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-160",
+      "decodeOrder": 160,
+      "detectionCount": 5,
+      "detectMs": 3128.51,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-170",
+      "decodeOrder": 170,
+      "detectionCount": 3,
+      "detectMs": 2987.7,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-180",
+      "decodeOrder": 180,
+      "detectionCount": 8,
+      "detectMs": 3192.22,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-190",
+      "decodeOrder": 190,
+      "detectionCount": 9,
+      "detectMs": 3321.1,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-200",
+      "decodeOrder": 200,
+      "detectionCount": 7,
+      "detectMs": 3169.47,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-210",
+      "decodeOrder": 210,
+      "detectionCount": 8,
+      "detectMs": 3002.6,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-220",
+      "decodeOrder": 220,
+      "detectionCount": 5,
+      "detectMs": 3213.16,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-230",
+      "decodeOrder": 230,
+      "detectionCount": 7,
+      "detectMs": 3038.1,
+      "vmRssMiB": 1138.8
+    },
+    {
+      "frameId": "f-0-240",
+      "decodeOrder": 240,
+      "detectionCount": 7,
+      "detectMs": 3334.53,
+      "vmRssMiB": 1138.7
+    }
+  ],
+  "detections": {
+    "0": [
+      {
+        "boxXyxyPx": [
+          17.92,
+          174.15,
+          47.64,
+          202.49
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7874
+      },
+      {
+        "boxXyxyPx": [
+          52.0,
+          175.14,
+          84.32,
+          203.83
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7824
+      },
+      {
+        "boxXyxyPx": [
+          0.22,
+          168.53,
+          34.51,
+          264.72
+        ],
+        "classId": 2,
+        "className": "referee",
+        "confidence": 0.7384
+      },
+      {
+        "boxXyxyPx": [
+          96.01,
+          177.63,
+          130.41,
+          206.68
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.738
+      },
+      {
+        "boxXyxyPx": [
+          532.56,
+          264.09,
+          593.95,
+          357.74
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7024
+      },
+      {
+        "boxXyxyPx": [
+          251.43,
+          177.61,
+          277.77,
+          213.02
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6503
+      },
+      {
+        "boxXyxyPx": [
+          218.36,
+          153.45,
+          241.88,
+          207.61
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6079
+      },
+      {
+        "boxXyxyPx": [
+          130.29,
+          180.15,
+          161.4,
+          208.44
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5252
+      }
+    ],
+    "10": [
+      {
+        "boxXyxyPx": [
+          94.44,
+          170.71,
+          129.84,
+          200.11
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7719
+      },
+      {
+        "boxXyxyPx": [
+          15.21,
+          167.12,
+          48.34,
+          194.63
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7365
+      },
+      {
+        "boxXyxyPx": [
+          51.99,
+          168.08,
+          83.79,
+          196.76
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7339
+      },
+      {
+        "boxXyxyPx": [
+          128.52,
+          172.36,
+          159.65,
+          201.37
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5977
+      },
+      {
+        "boxXyxyPx": [
+          211.81,
+          135.49,
+          241.94,
+          203.35
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.556
+      },
+      {
+        "boxXyxyPx": [
+          249.18,
+          171.45,
+          284.37,
+          207.65
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5165
+      }
+    ],
+    "20": [
+      {
+        "boxXyxyPx": [
+          23.25,
+          115.53,
+          54.56,
+          143.22
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6374
+      },
+      {
+        "boxXyxyPx": [
+          151.74,
+          302.22,
+          171.16,
+          323.26
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.6234
+      },
+      {
+        "boxXyxyPx": [
+          102.82,
+          119.3,
+          134.99,
+          147.81
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5925
+      },
+      {
+        "boxXyxyPx": [
+          218.67,
+          82.6,
+          244.9,
+          146.08
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5729
+      }
+    ],
+    "30": [
+      {
+        "boxXyxyPx": [
+          138.45,
+          292.39,
+          158.95,
+          314.17
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.6742
+      },
+      {
+        "boxXyxyPx": [
+          607.21,
+          238.96,
+          640.0,
+          253.48
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6064
+      },
+      {
+        "boxXyxyPx": [
+          201.66,
+          70.84,
+          229.62,
+          132.51
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5949
+      },
+      {
+        "boxXyxyPx": [
+          10.02,
+          106.05,
+          41.09,
+          133.22
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5946
+      },
+      {
+        "boxXyxyPx": [
+          46.6,
+          106.24,
+          82.92,
+          135.83
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.576
+      },
+      {
+        "boxXyxyPx": [
+          88.68,
+          109.6,
+          121.81,
+          137.62
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.555
+      }
+    ],
+    "40": [
+      {
+        "boxXyxyPx": [
+          120.5,
+          291.13,
+          140.34,
+          311.88
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.7289
+      }
+    ],
+    "50": [
+      {
+        "boxXyxyPx": [
+          77.58,
+          169.74,
+          131.77,
+          304.06
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7704
+      },
+      {
+        "boxXyxyPx": [
+          468.16,
+          191.43,
+          534.68,
+          352.64
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5565
+      }
+    ],
+    "60": [
+      {
+        "boxXyxyPx": [
+          314.21,
+          189.71,
+          378.81,
+          252.28
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6591
+      },
+      {
+        "boxXyxyPx": [
+          1.63,
+          107.56,
+          34.29,
+          136.95
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.575
+      }
+    ],
+    "70": [
+      {
+        "boxXyxyPx": [
+          93.66,
+          166.75,
+          147.35,
+          295.83
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7479
+      }
+    ],
+    "80": [
+      {
+        "boxXyxyPx": [
+          279.62,
+          197.85,
+          340.95,
+          253.68
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6847
+      },
+      {
+        "boxXyxyPx": [
+          82.63,
+          158.97,
+          148.14,
+          297.67
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5251
+      }
+    ],
+    "90": [
+      {
+        "boxXyxyPx": [
+          282.39,
+          204.29,
+          339.71,
+          258.31
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7316
+      },
+      {
+        "boxXyxyPx": [
+          373.77,
+          181.44,
+          380.96,
+          187.83
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.6023
+      },
+      {
+        "boxXyxyPx": [
+          85.15,
+          79.85,
+          130.36,
+          149.8
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.518
+      },
+      {
+        "boxXyxyPx": [
+          83.24,
+          157.29,
+          129.36,
+          301.34
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5169
+      }
+    ],
+    "100": [],
+    "110": [
+      {
+        "boxXyxyPx": [
+          460.03,
+          176.4,
+          513.41,
+          263.11
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6716
+      }
+    ],
+    "120": [
+      {
+        "boxXyxyPx": [
+          211.25,
+          164.04,
+          266.65,
+          305.16
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5403
+      },
+      {
+        "boxXyxyPx": [
+          181.85,
+          112.94,
+          211.27,
+          141.24
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.508
+      },
+      {
+        "boxXyxyPx": [
+          618.07,
+          240.45,
+          639.71,
+          358.4
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5015
+      }
+    ],
+    "130": [
+      {
+        "boxXyxyPx": [
+          274.57,
+          117.57,
+          309.05,
+          145.53
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7195
+      },
+      {
+        "boxXyxyPx": [
+          232.5,
+          113.43,
+          266.17,
+          143.27
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7023
+      },
+      {
+        "boxXyxyPx": [
+          195.22,
+          114.33,
+          226.97,
+          140.62
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6921
+      },
+      {
+        "boxXyxyPx": [
+          622.91,
+          262.68,
+          639.87,
+          287.92
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.522
+      }
+    ],
+    "140": [
+      {
+        "boxXyxyPx": [
+          213.25,
+          112.92,
+          240.12,
+          142.62
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7196
+      },
+      {
+        "boxXyxyPx": [
+          293.17,
+          117.44,
+          321.06,
+          147.36
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6733
+      },
+      {
+        "boxXyxyPx": [
+          256.5,
+          118.71,
+          287.54,
+          145.31
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6572
+      },
+      {
+        "boxXyxyPx": [
+          335.53,
+          122.13,
+          369.4,
+          150.18
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6443
+      },
+      {
+        "boxXyxyPx": [
+          0.0,
+          218.18,
+          42.87,
+          245.42
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5671
+      },
+      {
+        "boxXyxyPx": [
+          264.32,
+          179.74,
+          323.46,
+          322.96
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5654
+      }
+    ],
+    "150": [
+      {
+        "boxXyxyPx": [
+          60.76,
+          73.8,
+          90.04,
+          182.18
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6781
+      },
+      {
+        "boxXyxyPx": [
+          395.33,
+          130.45,
+          427.89,
+          158.12
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6133
+      },
+      {
+        "boxXyxyPx": [
+          35.49,
+          83.75,
+          62.13,
+          174.04
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.611
+      },
+      {
+        "boxXyxyPx": [
+          160.02,
+          133.05,
+          167.69,
+          139.72
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.5897
+      },
+      {
+        "boxXyxyPx": [
+          12.96,
+          78.69,
+          42.3,
+          160.1
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5615
+      },
+      {
+        "boxXyxyPx": [
+          353.58,
+          126.41,
+          385.05,
+          156.11
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5542
+      },
+      {
+        "boxXyxyPx": [
+          316.7,
+          126.07,
+          347.49,
+          152.84
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5243
+      }
+    ],
+    "160": [
+      {
+        "boxXyxyPx": [
+          73.36,
+          60.13,
+          101.89,
+          139.7
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7075
+      },
+      {
+        "boxXyxyPx": [
+          324.54,
+          171.81,
+          384.95,
+          317.8
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6739
+      },
+      {
+        "boxXyxyPx": [
+          95.68,
+          64.43,
+          121.7,
+          154.89
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6592
+      },
+      {
+        "boxXyxyPx": [
+          120.58,
+          53.82,
+          150.43,
+          155.73
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6424
+      },
+      {
+        "boxXyxyPx": [
+          454.42,
+          112.72,
+          486.91,
+          141.1
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5199
+      }
+    ],
+    "170": [
+      {
+        "boxXyxyPx": [
+          323.15,
+          147.01,
+          380.01,
+          300.32
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6996
+      },
+      {
+        "boxXyxyPx": [
+          478.58,
+          91.14,
+          511.47,
+          118.75
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5803
+      },
+      {
+        "boxXyxyPx": [
+          245.47,
+          142.55,
+          318.97,
+          321.2
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5765
+      }
+    ],
+    "180": [
+      {
+        "boxXyxyPx": [
+          166.14,
+          18.91,
+          194.16,
+          115.49
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.776
+      },
+      {
+        "boxXyxyPx": [
+          119.82,
+          26.36,
+          146.24,
+          105.67
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7618
+      },
+      {
+        "boxXyxyPx": [
+          188.89,
+          25.21,
+          215.8,
+          123.58
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6978
+      },
+      {
+        "boxXyxyPx": [
+          499.44,
+          78.98,
+          531.89,
+          106.96
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6927
+      },
+      {
+        "boxXyxyPx": [
+          139.89,
+          30.77,
+          165.82,
+          121.06
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6511
+      },
+      {
+        "boxXyxyPx": [
+          17.59,
+          36.75,
+          46.77,
+          112.28
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5319
+      },
+      {
+        "boxXyxyPx": [
+          0.26,
+          49.57,
+          19.29,
+          116.66
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5268
+      },
+      {
+        "boxXyxyPx": [
+          302.26,
+          131.96,
+          363.29,
+          298.34
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5226
+      }
+    ],
+    "190": [
+      {
+        "boxXyxyPx": [
+          181.67,
+          19.24,
+          207.93,
+          114.64
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7193
+      },
+      {
+        "boxXyxyPx": [
+          202.98,
+          26.65,
+          230.93,
+          126.5
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7172
+      },
+      {
+        "boxXyxyPx": [
+          155.83,
+          32.11,
+          182.89,
+          122.15
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6744
+      },
+      {
+        "boxXyxyPx": [
+          135.29,
+          26.69,
+          161.36,
+          105.38
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.653
+      },
+      {
+        "boxXyxyPx": [
+          33.11,
+          37.52,
+          61.42,
+          112.31
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6169
+      },
+      {
+        "boxXyxyPx": [
+          0.84,
+          48.74,
+          34.53,
+          117.85
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5555
+      },
+      {
+        "boxXyxyPx": [
+          268.02,
+          36.11,
+          296.63,
+          145.77
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.538
+      },
+      {
+        "boxXyxyPx": [
+          354.51,
+          156.31,
+          388.88,
+          294.04
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5354
+      },
+      {
+        "boxXyxyPx": [
+          515.35,
+          79.63,
+          547.01,
+          107.39
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5005
+      }
+    ],
+    "200": [
+      {
+        "boxXyxyPx": [
+          183.22,
+          21.75,
+          210.75,
+          114.05
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6402
+      },
+      {
+        "boxXyxyPx": [
+          204.11,
+          31.96,
+          232.03,
+          128.88
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6382
+      },
+      {
+        "boxXyxyPx": [
+          137.24,
+          30.72,
+          163.58,
+          107.65
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6372
+      },
+      {
+        "boxXyxyPx": [
+          517.25,
+          81.24,
+          549.31,
+          109.07
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6017
+      },
+      {
+        "boxXyxyPx": [
+          34.22,
+          39.32,
+          63.89,
+          115.14
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5656
+      },
+      {
+        "boxXyxyPx": [
+          156.69,
+          34.48,
+          181.7,
+          122.09
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5643
+      },
+      {
+        "boxXyxyPx": [
+          342.28,
+          140.71,
+          390.95,
+          291.56
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5022
+      }
+    ],
+    "210": [
+      {
+        "boxXyxyPx": [
+          185.4,
+          26.53,
+          213.53,
+          124.49
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6672
+      },
+      {
+        "boxXyxyPx": [
+          139.35,
+          32.96,
+          166.94,
+          110.21
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6612
+      },
+      {
+        "boxXyxyPx": [
+          276.33,
+          150.59,
+          335.05,
+          311.14
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.572
+      },
+      {
+        "boxXyxyPx": [
+          207.01,
+          31.27,
+          235.48,
+          128.86
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5702
+      },
+      {
+        "boxXyxyPx": [
+          360.75,
+          147.27,
+          394.11,
+          295.42
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5641
+      },
+      {
+        "boxXyxyPx": [
+          350.76,
+          157.68,
+          393.8,
+          296.22
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5241
+      },
+      {
+        "boxXyxyPx": [
+          35.29,
+          45.49,
+          66.0,
+          118.39
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5137
+      },
+      {
+        "boxXyxyPx": [
+          157.9,
+          36.56,
+          183.42,
+          125.32
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5114
+      }
+    ],
+    "220": [
+      {
+        "boxXyxyPx": [
+          141.6,
+          39.17,
+          168.26,
+          114.43
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6982
+      },
+      {
+        "boxXyxyPx": [
+          211.4,
+          32.19,
+          239.15,
+          123.19
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6216
+      },
+      {
+        "boxXyxyPx": [
+          187.91,
+          30.46,
+          215.19,
+          129.42
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6016
+      },
+      {
+        "boxXyxyPx": [
+          285.23,
+          82.97,
+          292.17,
+          89.26
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.5555
+      },
+      {
+        "boxXyxyPx": [
+          33.91,
+          47.79,
+          67.87,
+          122.38
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5197
+      }
+    ],
+    "230": [
+      {
+        "boxXyxyPx": [
+          102.09,
+          62.95,
+          131.89,
+          120.43
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7199
+      },
+      {
+        "boxXyxyPx": [
+          187.83,
+          34.81,
+          215.96,
+          140.32
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7119
+      },
+      {
+        "boxXyxyPx": [
+          210.49,
+          33.67,
+          239.74,
+          134.8
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6561
+      },
+      {
+        "boxXyxyPx": [
+          0.0,
+          304.81,
+          30.8,
+          346.66
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6243
+      },
+      {
+        "boxXyxyPx": [
+          325.28,
+          161.85,
+          390.49,
+          309.81
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6029
+      },
+      {
+        "boxXyxyPx": [
+          34.61,
+          51.48,
+          67.58,
+          127.61
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5706
+      },
+      {
+        "boxXyxyPx": [
+          274.58,
+          73.26,
+          302.95,
+          158.28
+        ],
+        "classId": 3,
+        "className": "goalkeeper",
+        "confidence": 0.5334
+      }
+    ],
+    "240": [
+      {
+        "boxXyxyPx": [
+          101.92,
+          51.0,
+          132.18,
+          124.99
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.7656
+      },
+      {
+        "boxXyxyPx": [
+          142.26,
+          46.35,
+          168.91,
+          124.7
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6508
+      },
+      {
+        "boxXyxyPx": [
+          213.92,
+          44.09,
+          240.92,
+          122.48
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6452
+      },
+      {
+        "boxXyxyPx": [
+          35.69,
+          57.29,
+          70.25,
+          131.95
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.6382
+      },
+      {
+        "boxXyxyPx": [
+          189.37,
+          44.3,
+          218.95,
+          146.64
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5868
+      },
+      {
+        "boxXyxyPx": [
+          286.44,
+          92.59,
+          293.42,
+          98.96
+        ],
+        "classId": 0,
+        "className": "ball",
+        "confidence": 0.5415
+      },
+      {
+        "boxXyxyPx": [
+          457.44,
+          187.23,
+          505.55,
+          342.11
+        ],
+        "classId": 1,
+        "className": "player",
+        "confidence": 0.5009
+      }
+    ]
+  },
+  "completedAtUtc": "2026-10-03T22:19:47.043889+00:00"
+}

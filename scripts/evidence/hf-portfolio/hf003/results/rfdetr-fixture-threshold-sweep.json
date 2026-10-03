@@ -1,0 +1,154 @@
+{
+  "evidenceId": "hf003-rfdetr-fixture-threshold-sweep",
+  "purpose": "diagnostic for the zero player-recall on the synthetic fixture: the broadcast-trained model never ranks the flat colored discs as confident players at any threshold in {0.5, 0.3, 0.1, 0.05}",
+  "model": "julianzu9612/RFDETR-Soccernet @ 1e388b922a64f2be39cbf1925e5fd5fc4f7dd771",
+  "fixture": "synthetic-diagnostic-01 (strided frames 0/100/200)",
+  "sweep": [
+    {
+      "frameIndex": 0,
+      "threshold": 0.5,
+      "detectionCount": 0,
+      "classHistogram": {},
+      "confidences": []
+    },
+    {
+      "frameIndex": 0,
+      "threshold": 0.3,
+      "detectionCount": 0,
+      "classHistogram": {},
+      "confidences": []
+    },
+    {
+      "frameIndex": 0,
+      "threshold": 0.1,
+      "detectionCount": 2,
+      "classHistogram": {
+        "ball": 1,
+        "goalkeeper": 1
+      },
+      "confidences": [
+        0.1861,
+        0.1243
+      ]
+    },
+    {
+      "frameIndex": 0,
+      "threshold": 0.05,
+      "detectionCount": 9,
+      "classHistogram": {
+        "ball": 6,
+        "goalkeeper": 3
+      },
+      "confidences": [
+        0.1861,
+        0.1243,
+        0.092,
+        0.0806,
+        0.0645,
+        0.0628,
+        0.0613,
+        0.061,
+        0.0503
+      ]
+    },
+    {
+      "frameIndex": 100,
+      "threshold": 0.5,
+      "detectionCount": 0,
+      "classHistogram": {},
+      "confidences": []
+    },
+    {
+      "frameIndex": 100,
+      "threshold": 0.3,
+      "detectionCount": 1,
+      "classHistogram": {
+        "ball": 1
+      },
+      "confidences": [
+        0.4869
+      ]
+    },
+    {
+      "frameIndex": 100,
+      "threshold": 0.1,
+      "detectionCount": 2,
+      "classHistogram": {
+        "ball": 1,
+        "goalkeeper": 1
+      },
+      "confidences": [
+        0.4869,
+        0.1677
+      ]
+    },
+    {
+      "frameIndex": 100,
+      "threshold": 0.05,
+      "detectionCount": 6,
+      "classHistogram": {
+        "ball": 3,
+        "goalkeeper": 2,
+        "player": 1
+      },
+      "confidences": [
+        0.4869,
+        0.1677,
+        0.082,
+        0.0807,
+        0.0557,
+        0.0516
+      ]
+    },
+    {
+      "frameIndex": 200,
+      "threshold": 0.5,
+      "detectionCount": 1,
+      "classHistogram": {
+        "ball": 1
+      },
+      "confidences": [
+        0.5588
+      ]
+    },
+    {
+      "frameIndex": 200,
+      "threshold": 0.3,
+      "detectionCount": 1,
+      "classHistogram": {
+        "ball": 1
+      },
+      "confidences": [
+        0.5588
+      ]
+    },
+    {
+      "frameIndex": 200,
+      "threshold": 0.1,
+      "detectionCount": 1,
+      "classHistogram": {
+        "ball": 1
+      },
+      "confidences": [
+        0.5588
+      ]
+    },
+    {
+      "frameIndex": 200,
+      "threshold": 0.05,
+      "detectionCount": 3,
+      "classHistogram": {
+        "ball": 1,
+        "player": 1,
+        "goalkeeper": 1
+      },
+      "confidences": [
+        0.5588,
+        0.0636,
+        0.0582
+      ]
+    }
+  ],
+  "conclusion": "out-of-distribution: the discs only attract 0.05-0.17-confidence classifications (mostly ball/goalkeeper); the true white ball is detected at 0.49-0.56. The fixture is a synthetic diagnostic, not a model-quality benchmark for broadcast-trained detectors.",
+  "recordedAtUtc": "2026-10-03T22:22:21.106409+00:00"
+}

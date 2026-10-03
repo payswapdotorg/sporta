@@ -1,0 +1,733 @@
+{
+  "evidenceId": "hf003-baseline-current-detector",
+  "purpose": "HF003 baseline: the current J012 production detector (contrast-context) plus the weak heuristic baseline, run through the repo's own L010 harness over the same clips/stride the RF-DETR python benchmark uses",
+  "host": {
+    "cpuCores": 2,
+    "gpu": "none (CPU-only benchmark host)",
+    "note": "latency numbers are wall-clock CPU readings on this benchmark host; GPU memory is N/A on this host — process RSS recorded instead"
+  },
+  "startedAtUtc": "2026-10-03T22:14:43.541Z",
+  "completedAtUtc": "2026-10-03T22:14:47.004Z",
+  "processRssBytes": 298946560,
+  "runs": [
+    {
+      "candidateRole": "current-detector (production path)",
+      "candidate": {
+        "schemaVersion": "1.1",
+        "candidateId": "contrast-context-detector@0.1.0",
+        "technologyId": "contrast-context-detector",
+        "technologyVersion": "0.1.0",
+        "adapterVersion": "0.1.0",
+        "task": "perception.player-detection",
+        "displayName": "Contrast-context player detector (J012 production path)",
+        "registeredAtMs": 1736164800000,
+        "notes": "Pure-code license-clean production path: surface-agnostic local contrast + surface/ring context gates; deterministic CPU-only; zero external components."
+      },
+      "clip": {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "licenseId": "in-repo-synthetic-diagnostic",
+        "sha256": "e75abe1441fe2e6680b2aad5e7d2e66a5bcd21ab4b91928e25181f90a37f7f76"
+      },
+      "harnessVersion": "0.1.0",
+      "stride": 10,
+      "latencyMs": {
+        "mean": 29.6,
+        "p50": 23,
+        "p95": 110
+      },
+      "dropout": {
+        "sampledFrames": 30,
+        "refusedFrames": 0,
+        "zeroDetectionFrames": 0,
+        "refusalClasses": []
+      },
+      "scoring": {
+        "kind": "ground-truth",
+        "precision": 0.605072463768116,
+        "recall": 0.5566666666666666,
+        "f1": 0.579861111111111
+      },
+      "boundaryNote": "SYNTHETIC-DIAGNOSTIC fixture (NOT real footage); candidate executed per sampled frame; scored against the fixture's exact ground-truth annotations.",
+      "frames": [
+        {
+          "frameId": "f-0-0",
+          "presentationMs": 0,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 68
+        },
+        {
+          "frameId": "f-0-10",
+          "presentationMs": 400,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 32
+        },
+        {
+          "frameId": "f-0-20",
+          "presentationMs": 800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 55
+        },
+        {
+          "frameId": "f-0-30",
+          "presentationMs": 1200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 24
+        },
+        {
+          "frameId": "f-0-40",
+          "presentationMs": 1600,
+          "playerCount": 8,
+          "ballCount": 0,
+          "detectMs": 25
+        },
+        {
+          "frameId": "f-0-50",
+          "presentationMs": 2000,
+          "playerCount": 7,
+          "ballCount": 0,
+          "detectMs": 23
+        },
+        {
+          "frameId": "f-0-60",
+          "presentationMs": 2400,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 26
+        },
+        {
+          "frameId": "f-0-70",
+          "presentationMs": 2800,
+          "playerCount": 8,
+          "ballCount": 0,
+          "detectMs": 24
+        },
+        {
+          "frameId": "f-0-80",
+          "presentationMs": 3200,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 24
+        },
+        {
+          "frameId": "f-0-90",
+          "presentationMs": 3600,
+          "playerCount": 11,
+          "ballCount": 0,
+          "detectMs": 118
+        },
+        {
+          "frameId": "f-0-100",
+          "presentationMs": 4000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 110
+        },
+        {
+          "frameId": "f-0-110",
+          "presentationMs": 4400,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 48
+        },
+        {
+          "frameId": "f-0-120",
+          "presentationMs": 4800,
+          "playerCount": 8,
+          "ballCount": 0,
+          "detectMs": 22
+        },
+        {
+          "frameId": "f-0-130",
+          "presentationMs": 5200,
+          "playerCount": 8,
+          "ballCount": 0,
+          "detectMs": 23
+        },
+        {
+          "frameId": "f-0-140",
+          "presentationMs": 5600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 24
+        },
+        {
+          "frameId": "f-0-150",
+          "presentationMs": 6000,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 23
+        },
+        {
+          "frameId": "f-0-160",
+          "presentationMs": 6400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 23
+        },
+        {
+          "frameId": "f-0-170",
+          "presentationMs": 6800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 24
+        },
+        {
+          "frameId": "f-0-180",
+          "presentationMs": 7200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-190",
+          "presentationMs": 7600,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 21
+        },
+        {
+          "frameId": "f-0-200",
+          "presentationMs": 8000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 13
+        },
+        {
+          "frameId": "f-0-210",
+          "presentationMs": 8400,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-220",
+          "presentationMs": 8800,
+          "playerCount": 8,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-230",
+          "presentationMs": 9200,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 13
+        },
+        {
+          "frameId": "f-0-240",
+          "presentationMs": 9600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-250",
+          "presentationMs": 10000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-260",
+          "presentationMs": 10400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-270",
+          "presentationMs": 10800,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 13
+        },
+        {
+          "frameId": "f-0-280",
+          "presentationMs": 11200,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 14
+        },
+        {
+          "frameId": "f-0-290",
+          "presentationMs": 11600,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 14
+        }
+      ]
+    },
+    {
+      "candidateRole": "weak-baseline (context)",
+      "candidate": {
+        "schemaVersion": "1.1",
+        "candidateId": "heuristic-color-detector@0.1.0",
+        "technologyId": "heuristic-color-detector",
+        "technologyVersion": "0.1.0",
+        "adapterVersion": "0.1.0",
+        "task": "perception.player-detection",
+        "displayName": "Heuristic color-blob player detector (weak baseline)",
+        "registeredAtMs": 1736164800000,
+        "notes": "Weak baseline: grass-calibrated suppression; documented merge/kit limits — the detector that produced the audited empty-SWM failure mode."
+      },
+      "clip": {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "licenseId": "in-repo-synthetic-diagnostic",
+        "sha256": "e75abe1441fe2e6680b2aad5e7d2e66a5bcd21ab4b91928e25181f90a37f7f76"
+      },
+      "harnessVersion": "0.1.0",
+      "stride": 10,
+      "latencyMs": {
+        "mean": 2.8333333333333335,
+        "p50": 2,
+        "p95": 7
+      },
+      "dropout": {
+        "sampledFrames": 30,
+        "refusedFrames": 0,
+        "zeroDetectionFrames": 0,
+        "refusalClasses": []
+      },
+      "scoring": {
+        "kind": "ground-truth",
+        "precision": 0.9932885906040269,
+        "recall": 0.9866666666666667,
+        "f1": 0.9899665551839465
+      },
+      "boundaryNote": "SYNTHETIC-DIAGNOSTIC fixture (NOT real footage); candidate executed per sampled frame; scored against the fixture's exact ground-truth annotations.",
+      "frames": [
+        {
+          "frameId": "f-0-0",
+          "presentationMs": 0,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 7
+        },
+        {
+          "frameId": "f-0-10",
+          "presentationMs": 400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 4
+        },
+        {
+          "frameId": "f-0-20",
+          "presentationMs": 800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-30",
+          "presentationMs": 1200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-40",
+          "presentationMs": 1600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 4
+        },
+        {
+          "frameId": "f-0-50",
+          "presentationMs": 2000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-60",
+          "presentationMs": 2400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-70",
+          "presentationMs": 2800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-80",
+          "presentationMs": 3200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-90",
+          "presentationMs": 3600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-100",
+          "presentationMs": 4000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-110",
+          "presentationMs": 4400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-120",
+          "presentationMs": 4800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-130",
+          "presentationMs": 5200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-140",
+          "presentationMs": 5600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-150",
+          "presentationMs": 6000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-160",
+          "presentationMs": 6400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-170",
+          "presentationMs": 6800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-180",
+          "presentationMs": 7200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-190",
+          "presentationMs": 7600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-200",
+          "presentationMs": 8000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-210",
+          "presentationMs": 8400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-220",
+          "presentationMs": 8800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-230",
+          "presentationMs": 9200,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 12
+        },
+        {
+          "frameId": "f-0-240",
+          "presentationMs": 9600,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-250",
+          "presentationMs": 10000,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-260",
+          "presentationMs": 10400,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-270",
+          "presentationMs": 10800,
+          "playerCount": 10,
+          "ballCount": 0,
+          "detectMs": 3
+        },
+        {
+          "frameId": "f-0-280",
+          "presentationMs": 11200,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 2
+        },
+        {
+          "frameId": "f-0-290",
+          "presentationMs": 11600,
+          "playerCount": 9,
+          "ballCount": 0,
+          "detectMs": 2
+        }
+      ]
+    },
+    {
+      "candidateRole": "current-detector (production path)",
+      "candidate": {
+        "schemaVersion": "1.1",
+        "candidateId": "contrast-context-detector@0.1.0",
+        "technologyId": "contrast-context-detector",
+        "technologyVersion": "0.1.0",
+        "adapterVersion": "0.1.0",
+        "task": "perception.player-detection",
+        "displayName": "Contrast-context player detector (J012 production path)",
+        "registeredAtMs": 1736164800000,
+        "notes": "Pure-code license-clean production path: surface-agnostic local contrast + surface/ring context gates; deterministic CPU-only; zero external components."
+      },
+      "clip": {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "licenseId": "CC0-1.0",
+        "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7"
+      },
+      "harnessVersion": "0.1.0",
+      "stride": 10,
+      "latencyMs": {
+        "mean": 26.08,
+        "p50": 21,
+        "p95": 41
+      },
+      "dropout": {
+        "sampledFrames": 25,
+        "refusedFrames": 0,
+        "zeroDetectionFrames": 0,
+        "refusalClasses": []
+      },
+      "scoring": {
+        "kind": "unscored",
+        "note": "no ground-truth annotations exist for this real clip"
+      },
+      "boundaryNote": "REAL footage; candidate executed per sampled frame; no ground-truth annotations exist for this clip — observations recorded unscored.",
+      "frames": [
+        {
+          "frameId": "f-0-0",
+          "presentationMs": 0,
+          "playerCount": 35,
+          "ballCount": 0,
+          "detectMs": 78
+        },
+        {
+          "frameId": "f-0-10",
+          "presentationMs": 400,
+          "playerCount": 51,
+          "ballCount": 0,
+          "detectMs": 35
+        },
+        {
+          "frameId": "f-0-20",
+          "presentationMs": 800,
+          "playerCount": 40,
+          "ballCount": 0,
+          "detectMs": 30
+        },
+        {
+          "frameId": "f-0-30",
+          "presentationMs": 1200,
+          "playerCount": 27,
+          "ballCount": 0,
+          "detectMs": 28
+        },
+        {
+          "frameId": "f-0-40",
+          "presentationMs": 1600,
+          "playerCount": 35,
+          "ballCount": 0,
+          "detectMs": 30
+        },
+        {
+          "frameId": "f-0-50",
+          "presentationMs": 2000,
+          "playerCount": 29,
+          "ballCount": 0,
+          "detectMs": 27
+        },
+        {
+          "frameId": "f-0-60",
+          "presentationMs": 2400,
+          "playerCount": 28,
+          "ballCount": 0,
+          "detectMs": 27
+        },
+        {
+          "frameId": "f-0-70",
+          "presentationMs": 2800,
+          "playerCount": 32,
+          "ballCount": 0,
+          "detectMs": 31
+        },
+        {
+          "frameId": "f-0-80",
+          "presentationMs": 3200,
+          "playerCount": 38,
+          "ballCount": 0,
+          "detectMs": 29
+        },
+        {
+          "frameId": "f-0-90",
+          "presentationMs": 3600,
+          "playerCount": 36,
+          "ballCount": 0,
+          "detectMs": 41
+        },
+        {
+          "frameId": "f-0-100",
+          "presentationMs": 4000,
+          "playerCount": 37,
+          "ballCount": 0,
+          "detectMs": 21
+        },
+        {
+          "frameId": "f-0-110",
+          "presentationMs": 4400,
+          "playerCount": 39,
+          "ballCount": 0,
+          "detectMs": 21
+        },
+        {
+          "frameId": "f-0-120",
+          "presentationMs": 4800,
+          "playerCount": 34,
+          "ballCount": 0,
+          "detectMs": 20
+        },
+        {
+          "frameId": "f-0-130",
+          "presentationMs": 5200,
+          "playerCount": 32,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-140",
+          "presentationMs": 5600,
+          "playerCount": 28,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-150",
+          "presentationMs": 6000,
+          "playerCount": 39,
+          "ballCount": 0,
+          "detectMs": 21
+        },
+        {
+          "frameId": "f-0-160",
+          "presentationMs": 6400,
+          "playerCount": 35,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-170",
+          "presentationMs": 6800,
+          "playerCount": 31,
+          "ballCount": 0,
+          "detectMs": 20
+        },
+        {
+          "frameId": "f-0-180",
+          "presentationMs": 7200,
+          "playerCount": 23,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-190",
+          "presentationMs": 7600,
+          "playerCount": 32,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-200",
+          "presentationMs": 8000,
+          "playerCount": 37,
+          "ballCount": 0,
+          "detectMs": 20
+        },
+        {
+          "frameId": "f-0-210",
+          "presentationMs": 8400,
+          "playerCount": 34,
+          "ballCount": 0,
+          "detectMs": 20
+        },
+        {
+          "frameId": "f-0-220",
+          "presentationMs": 8800,
+          "playerCount": 34,
+          "ballCount": 0,
+          "detectMs": 19
+        },
+        {
+          "frameId": "f-0-230",
+          "presentationMs": 9200,
+          "playerCount": 34,
+          "ballCount": 0,
+          "detectMs": 20
+        },
+        {
+          "frameId": "f-0-240",
+          "presentationMs": 9600,
+          "playerCount": 32,
+          "ballCount": 0,
+          "detectMs": 19
+        }
+      ]
+    }
+  ]
+}
