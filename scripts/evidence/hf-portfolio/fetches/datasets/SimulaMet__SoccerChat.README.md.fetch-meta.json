@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://huggingface.co/datasets/SimulaMet/SoccerChat/resolve/main/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:16Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:16Z"
+}

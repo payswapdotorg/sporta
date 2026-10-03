@@ -1,0 +1,7 @@
+{
+  "repo": "pyannote/speaker-diarization-community-1",
+  "fetchedAtUtc": "2026-10-03T01:40:04Z",
+  "api": {"url": "https://huggingface.co/api/models/pyannote/speaker-diarization-community-1", "httpStatus": 200},
+  "readme": {"url": "https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/main/README.md", "httpStatus": 200},
+  "page": {"url": "https://huggingface.co/pyannote/speaker-diarization-community-1", "httpStatus": 200}
+}

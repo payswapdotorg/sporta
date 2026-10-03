@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://raw.githubusercontent.com/ByteDance-Seed/depth-anything-3/main/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:15Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:15Z"
+}

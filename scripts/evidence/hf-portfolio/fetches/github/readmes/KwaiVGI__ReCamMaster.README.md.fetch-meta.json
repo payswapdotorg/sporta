@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://raw.githubusercontent.com/KwaiVGI/ReCamMaster/main/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:16Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:16Z"
+}

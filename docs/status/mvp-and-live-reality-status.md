@@ -69,7 +69,7 @@ Date: 2026-09-22
 | Item | State |
 |---|---|
 | HF001 | ✅ COMPLETE |
-| HF002 | ⬜ NOT_STARTED |
+| HF002 | ✅ COMPLETE |
 | HF003 | ⬜ NOT_STARTED |
 | HF004 | ⬜ NOT_STARTED |
 | HF005 | ⬜ NOT_STARTED / gated research |

@@ -1,0 +1,10 @@
+{
+  "fetches": [
+    {
+      "url": "https://raw.githubusercontent.com/facebookresearch/map-anything/main/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T01:40:12Z"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-03T01:40:12Z"
+}
