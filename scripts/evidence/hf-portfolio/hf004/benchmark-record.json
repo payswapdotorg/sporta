@@ -1,0 +1,118 @@
+{
+  "candidate": "MapAnything",
+  "taskProfiles": [
+    "scene.metric3DReconstruction",
+    "scene.depth",
+    "scene.cameraPose",
+    "scene.covisibility"
+  ],
+  "modelUrl": "https://huggingface.co/facebook/map-anything-apache",
+  "revision": "00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a",
+  "modelLicense": "apache-2.0",
+  "codeLicense": "apache-2.0",
+  "weightsProvenance": "official Meta MapAnything feed-forward transformer (\"Apache 2.0 variant of the model\", per card); the card states no training corpus.",
+  "datasetProvenance": "unknown",
+  "commercialUse": "yes",
+  "gatingState": "candidate",
+  "sources": [
+    "https://huggingface.co/facebook/map-anything-apache",
+    "https://huggingface.co/api/models/facebook/map-anything-apache",
+    "https://huggingface.co/facebook/map-anything-apache/raw/main/README.md",
+    "https://github.com/facebookresearch/map-anything",
+    "https://raw.githubusercontent.com/facebookresearch/map-anything/main/LICENSE",
+    "https://raw.githubusercontent.com/facebookresearch/map-anything/main/README.md"
+  ],
+  "recordedAt": "2026-10-04T00:05:00Z",
+  "benchmarkRun": {
+    "workItem": "HF004",
+    "runBy": "Worker A (flight 2, worker 64-b)",
+    "provenanceLedgerEcho": {
+      "note": "the twelve provenance fields above echo the MapAnything row of scripts/evidence/hf-portfolio/provenance-ledger.json verbatim (candidate, revision, modelUrl, licenses, gatingState unchanged); the ledger's row schema is pinned by packages/testing/test/hf-ledger.test.ts, so the benchmark run itself is recorded HERE, not as a ledger row — and the candidate's gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "modelRuntime": {
+      "package": "mapanything 1.1.4 (NOT on PyPI; the pinned source is facebookresearch/map-anything @ git 3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9, shallow-cloned OUTSIDE the repo at /home/z/hf-bench-2/map-anything-src)",
+      "venv": "/home/z/hf-bench-2 (uv, python 3.12.14 — a NEW venv; 64-a's /home/z/hf-bench was NOT reused)",
+      "torch": "NOT INSTALLED — installing torch + loading the pinned fp32 model is exactly the resource infeasibility of the typed refusal below",
+      "checkpointFile": "model.safetensors (4,914,062,480 bytes; sha256 fa06c0fdccefc5048e072c85935d5789b1e36b307f3859033c17f9dcb9fd5201 — the HF LFS etag of the pinned blob, hub-reported; NOT locally verified because the file cannot be stored on this host; NEVER committed, never vendored)",
+      "loading": "the ready-to-run recipe (in benchmark_mapanything.py): huggingface_hub.snapshot_download @ the pinned revision, LOCAL sha256 verification against the pinned etag sha, then MapAnything.from_pretrained(<local dir>) — construction additionally fetches the DINOv2-giant backbone via torch.hub (encoder_config: size=giant, keep_first_n_layers=24, uses_torch_hub=true, per the pinned repo's config.json)",
+      "loadValidation": "REFUSED — the model never loaded on this host: preflight exit code 3, typed refusal 'resource-infeasible-host' (see results/preflight-refusal.json). A bounded 8 MiB network probe proved the download is REACHABLE (~3.8-6.2 MiB/s) — the block is pure resource arithmetic, not a stall"
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "model-download-disk-infeasible: the pinned checkpoint (4,914,062,480 B) + the torch-hub DINOv2-giant backbone (~1,150,000,000 B) exceed the host's free disk (~1,355,993,088 B)",
+        "model-load-ram-infeasible: the fp32 working set (weights ~4.58 GiB + activations) exceeds the host's TOTAL RAM (4,042 MiB)",
+        "runtime-unavailable: torch is not importable in the pinned venv — the install + load is the same infeasibility"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf004/results/preflight-refusal.json",
+      "note": "per the worker brief: the honest delivery is this typed refusal + the partial (load analysis, static contract-compatibility review, ready-to-run script) — never a fabricated benchmark"
+    },
+    "fixtures": [
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "role": "the camera-motion fallback input per the worker brief (NO ground-truthed camera-motion fixture exists in the repo — the typed gap: the repo's camera contracts are the five FIXED W601 slots and the R606 pitch-ellipse calibration, neither of which is a camera-motion fixture with pose/depth ground truth)",
+        "licenseId": "in-repo-synthetic-diagnostic",
+        "scored": false,
+        "unscoredReason": "no ground truth for geometry (camera pose / depth) exists for this fixture",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf004/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "licenseId": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons — the repo's authorized licensed gate clip)",
+        "scored": false,
+        "unscoredReason": "no ground truth for geometry exists for this real clip",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf004/results/preflight-refusal.json"
+      }
+    ],
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight — the model never ran. The honest partial evidence is unscored-structural and static: the source-verified output schema (results/model-output-schema.json) and the machine-checked contract-compatibility verdict (results/contract-compatibility.json)",
+      "contractCompatibilityVerdict": "PARTIAL: scene.depth compatible-with-adapter; scene.cameraPose compatible-with-adapter (typed gaps: no timestamps, no pose-level confidence, model-gauge world frame); scene.metric3DReconstruction compatible-with-adapter (metric claim unverified — no ground truth); scene.covisibility partial (proxy only); Camera Director INPUT not-compatible (inverse direction — the director dictates fixed canonical slots, consumes no pose/depth)",
+      "evidence": "scripts/evidence/hf-portfolio/hf004/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight — the model never ran. The ready-to-run path implements the repo convention (per-inference wall-clock CPU, median + nearest-rank p95, rank = ceil(p/100*n))"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS is the substitute metric — ALSO not measured here (the model never ran)",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 4,042 MiB vs the ~4.58 GiB fp32 weights + activations"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, 4,042 MiB total RAM, ~1.3 GB free disk): GPU memory is honestly N/A; process RSS would be the substitute metric — and the model never ran, so no RSS number exists either",
+      "the typed refusal (resource-infeasible-host) is the flight's core honesty record: the pinned checkpoint is 4,914,062,480 B; the host cannot store it (disk) nor load it (RAM) — no latency, memory, or quality figure in this flight is anything but 'not measured'",
+      "the full benchmark path in benchmark_mapanything.py is READY-TO-RUN on an adequate host (>= 16 GB RAM, >= 8 GB free disk): API usage written against the pinned mapanything source, syntax-checked on this host, sha-verified model download pinned to the ledger revision",
+      "frame sampling convention (the L010 harness convention, stride 10 by decode order) is implemented in the ready-to-run path; 30 fixture frames + 25 fx-001 frames WOULD be the input set (the same frames the HF003 flight saw)",
+      "the latency metric of the ready-to-run path is per-inference CPU wall-clock (median + nearest-rank p95 — the repo convention); NO such figure exists in this flight (the model never ran)"
+    ],
+    "partialDeliverables": {
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf004/results/model-output-schema.json",
+        "description": "the pinned model + code revisions, the checkpoint size/sha256/etag, the config.json architecture digest (DINOv2-giant 24-layer encoder + 16-layer 1536-dim alternating-attention info sharing + dpt+pose heads)"
+      },
+      "staticContractCompatibilityReview": {
+        "path": "scripts/evidence/hf-portfolio/hf004/results/contract-compatibility.json",
+        "description": "15 needle-verified field-level mapping rows vs the repo's FROZEN task profiles, renderer contract, SWM contract, camera-director sources, scene-projection constants"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf004/benchmark_mapanything.py",
+        "description": "preflight mode EXECUTED on this host (exit 3, the typed refusal); full mode ready-to-run on an adequate host"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight; the HF003 precedent (a candidate with executed-but-domain-mismatched evidence) is NOT met here",
+        "no authorized real clip WITH geometry ground truth is reachable in this sandbox — even on adequate hardware, the quality evidence would be unscored-structural (typed gap)",
+        "datasetProvenance is 'unknown' per the ledger (the model card states no training corpus) — the HF015 license review has not happened",
+        "the model's 'metric' claim is unverified by any evidence in this flight"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}

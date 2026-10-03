@@ -1,0 +1,36 @@
+{
+  "evidenceId": "hf004-mapanything-preflight",
+  "model": "facebook/map-anything-apache @ 00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a",
+  "checkpoint": {
+    "file": "model.safetensors",
+    "bytes": 4914062480,
+    "sha256HubReported": "fa06c0fdccefc5048e072c85935d5789b1e36b307f3859033c17f9dcb9fd5201",
+    "sha256Note": "the HF LFS etag of the pinned blob (hub-reported); not locally verified \u2014 the file cannot be stored on this host"
+  },
+  "startedAtUtc": "2026-10-03T22:41:20.642918+00:00",
+  "checks": {
+    "networkProbeReachable": true,
+    "diskFreeBytes": 1355993088,
+    "diskNeededBytesEstimate": 6064062480,
+    "diskFeasible": false,
+    "ramTotalMiB": 4041.6,
+    "ramNeededGiBEstimate": 5.58,
+    "ramFeasible": false,
+    "torchImportable": false,
+    "gpu": "none \u2014 GPU memory honestly N/A; process RSS is the substitute metric"
+  },
+  "torch": {
+    "importable": false,
+    "error": "ModuleNotFoundError(\"No module named 'torch'\")"
+  },
+  "mapanything": "not probed (torch unimportable)",
+  "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "refusalReasons": [
+    "model-download-disk-infeasible: the pinned checkpoint (4,914,062,480 B) + the torch-hub DINOv2-giant backbone (~1,150,000,000 B) exceed the host's free disk (1,355,993,088 B) \u2014 the download is arithmetically impossible, not stalled",
+    "model-load-ram-infeasible: the fp32 working set (weights ~4.58 GiB + activations) exceeds the host's TOTAL RAM (4042 MiB)",
+    "runtime-unavailable: torch is not importable in the pinned venv (/home/z/hf-bench-2) \u2014 installing it + the fp32 model is exactly the resource infeasibility above"
+  ],
+  "note": "per the worker brief: the honest delivery is this typed refusal + the partial (the load analysis, the source-verified contract-compatibility review, and the ready-to-run benchmark path in this same script) \u2014 never a fabricated benchmark"
+}

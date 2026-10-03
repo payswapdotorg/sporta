@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/facebook/map-anything-apache/resolve/main/model.safetensors",
+  "revision": "00f9c245bbcb60522d1ed7f9e9d88462c6e3f38a",
+  "probeBytes": 8388608,
+  "elapsedS": 2.13,
+  "throughputMiBPerS": 3.76,
+  "reachable": true,
+  "note": "bounded 8 MiB range probe (deleted after read; never stored, never a full download)"
+}
