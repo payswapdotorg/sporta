@@ -60,9 +60,9 @@ Date: 2026-09-22
 | L012 | ✅ COMPLETE |
 | L013 | ✅ COMPLETE |
 | L014 | ✅ COMPLETE |
-| L015 | ⬜ NOT_STARTED — final live tactical latency/continuity gate |
-| L016 | ⬜ NOT_STARTED — final live tracking→SWM→tactical journey gate |
-| L017 | ⬜ NOT_STARTED — final live-to-replay recovery gate |
+| L015 | ✅ COMPLETE — gate delivered (commit 3c1432a, flight 3): 21 pass / 1 honest soft-fail (declared latency budget: ABSENT — the docs-gap verdict; budget numbers proposed as a TL amendment) |
+| L016 | ✅ COMPLETE — gate delivered (commit 3c1432a, flight 3): 17 pass / 0 fail, exit 0 |
+| L017 | ✅ COMPLETE — gate delivered (commit 3c1432a, flight 3): 16 pass / 0 fail, exit 0 |
 
 ## Hugging Face Technology Portfolio
 
