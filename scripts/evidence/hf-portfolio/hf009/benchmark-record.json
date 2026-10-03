@@ -1,0 +1,152 @@
+{
+  "candidate": "pyannote",
+  "taskProfiles": [
+    "football.commentarySpeakerDiarization"
+  ],
+  "modelUrl": "https://huggingface.co/pyannote/speaker-diarization-community-1",
+  "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+  "modelLicense": "cc-by-4.0",
+  "codeLicense": "mit",
+  "weightsProvenance": "pyannote `community-1` pretrained diarization pipeline; training and tuning ran on the GENCI Jean Zay supercomputer, per card; training corpora not named.",
+  "datasetProvenance": "eval benchmarks named on card — AISHELL-4, AliMeeting, AMI (IHM/SDM), AVA-AVD, CALLHOME, DIHARD 3, Ego4D, MSDWild, RAMC, REPERE, VoxConverse.",
+  "commercialUse": "yes",
+  "gatingState": "candidate",
+  "sources": [
+    "https://huggingface.co/pyannote/speaker-diarization-community-1",
+    "https://huggingface.co/api/models/pyannote/speaker-diarization-community-1",
+    "https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/main/README.md",
+    "https://github.com/pyannote/pyannote-audio",
+    "https://raw.githubusercontent.com/pyannote/pyannote-audio/main/LICENSE"
+  ],
+  "recordedAt": "2026-10-04T00:02:00Z",
+  "benchmarkRun": {
+    "workItem": "HF009",
+    "runBy": "Worker A (flight 4, worker 64-d)",
+    "provenanceLedgerEcho": {
+      "note": "the twelve provenance fields above echo the pyannote row of scripts/evidence/hf-portfolio/provenance-ledger.json verbatim (candidate, revision, modelUrl, licenses, weightsProvenance, datasetProvenance, gatingState unchanged); the ledger's row schema is pinned by packages/testing/test/hf-ledger.test.ts, so the benchmark run itself is recorded HERE, not as a ledger row — and the candidate's gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "modelRuntime": {
+      "package": "pyannote-audio 4.0.7 via pip (code license MIT — the ledger's codeLicense; the version pinned and recorded from the install), python 3.12.14 venv at /home/z/hf-bench-4 (a NEW venv; 64-a's hf-bench, 64-b's hf-bench-2, 64-c's hf-bench-3 NOT reused)",
+      "torchStack": "torch 2.9.1+cpu + torchaudio 2.9.1 + torchcodec 0.8.0 (CPU-only; CUDA not available on this host — GPU honestly N/A); pyannote-metrics 4.1 installed (the DER/JER implementation, present and stated, never executed on ground truth — none exists)",
+      "pipelineWeights": "NOT DOWNLOADED — the pinned repo is user-conditions-gated (401 GatedRepoError, anonymous, at the pinned revision; the exact wall text is recorded verbatim in results/preflight-refusal.json). The ONLY anonymously-readable file is the model card README.md; the pipeline bytes (config.yaml + embedding/ + plda/ + segmentation) require an authenticated, conditions-accepted account. NO third-party mirror of the gated weights was used — an unofficial re-upload would launder the user-conditions gate",
+      "loading": "the ready-to-run recipe (in benchmark_pyannote.py, the model card's own offline-use convention): an operator accepts the community-1 user conditions, downloads the pipeline at the pinned revision to /home/z/hf-bench-4/hf-model-auth (token in the environment only — NEVER in any repo/log/command line), then Pipeline.from_pretrained(<local dir>) — CPU inference; the card's auto downmix/resample-to-16kHz-mono is pinned explicitly by the ffmpeg extraction",
+      "loadValidation": "REFUSED — the pipeline never loaded on this host: preflight EXECUTED, exit code 3, typed refusal 'auth-gated-model' (see results/preflight-refusal.json). This is a distribution/auth wall, NOT a resource wall: the host can run the pipeline (community-1 is small; the 47.6-s SPR fixture is prepared) — the bytes are simply not authoritatively reachable without a human accepting the conditions"
+    },
+    "typedRefusal": {
+      "type": "auth-gated-model",
+      "reasons": [
+        "user-conditions-gate: pyannote/speaker-diarization-community-1 @ 3533c8cf8e369892e6b79ff1bf80f7b0286a54ee returns 401 GatedRepoError to anonymous access ('Access to model pyannote/speaker-diarization-community-1 is restricted. You must have access to it and be authenticated to access it. Please log in.') — the model card's own Setup section: 'Accept user conditions' + 'Create access token at hf.co/settings/tokens'",
+        "no-credential-in-sandbox: no HF token exists in this sandbox (the operator credentials present are GitHub/Composio keys — they do not authenticate against the HF Hub); creating an account and accepting user conditions is a HUMAN action that cannot be delegated to a worker without laundering the gate",
+        "fallback-components-gated-too: the brief's fallback path 'attempt the public pipeline components' was executed and ALSO refuses: pyannote/segmentation-3.0 is gated (401), pyannote/wespeaker-english-resemblynet does not exist as a standalone repo; speechbrain/spkrec-ecapa-voxceleb IS public but is NOT a component of the ledger candidate (used as a stand-in it would fabricate a community-1 benchmark)"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json",
+      "theExactWall": "GatedRepoError: 401 Client Error — 'Cannot access gated repo for url https://huggingface.co/pyannote/speaker-diarization-community-1/resolve/3533c8cf8e369892e6b79ff1bf80f7b0286a54ee/config.yaml. Access to model pyannote/speaker-diarization-community-1 is restricted. You must have access to it and be authenticated to access it. Please log in.'",
+      "note": "per the worker brief: the honest delivery is this typed refusal + the partial (executed audio-fixture evidence, the executed hub probe map, the repo ground-truth search, the static contract review, the ready-to-run script) — never a fabricated benchmark"
+    },
+    "fixtures": [
+      {
+        "clipId": "sprclip-b8-inplay-original",
+        "mediaKind": "real-footage",
+        "authorization": "scripts/evidence/spr-corpus-bytes/README.md: acquired broadcast bytes under the recorded R606 registration declaration (analysis / transformation / derivative generation / storage); repo is private — a local benchmark run is ANALYSIS, inside the declared scope",
+        "sourceSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a (verified against the corpus pin)",
+        "audioExtracted": "EXECUTED: ffmpeg -v error -y -i b8p3.mp4 -vn -ac 1 -ar 16000 -c:a pcm_s16le spr-src-audio.wav — 47.624 s, 16,000 Hz, 1 channel, PCM16, 1,524,050 B, sha256 ddf9c20335e7c4e7873e9267906682ac21ccfd1a74f841f58e8676fc0a2a7a17",
+        "scored": false,
+        "status": "audio-ready-model-refused",
+        "unscoredReason": "no ground-truth speaker annotations exist for this media (see quality.derJer) AND the model run itself is typed-refused (see typedRefusal)",
+        "evidence": "scripts/evidence/hf-portfolio/hf009/results/audio-fixtures.json"
+      },
+      {
+        "clipId": "sprclip-b1-wide-broadcast",
+        "mediaKind": "real-footage",
+        "authorization": "same R606 registration declaration scope as above (the w3a re-cut of the b8p3 source window)",
+        "sourceSha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307 (verified against the corpus pin)",
+        "audioExtracted": "EXECUTED: ffmpeg -v error -y -i clip-b1-wide-broadcast.mp4 -vn -ac 1 -ar 16000 -c:a pcm_s16le spr-b1-audio.wav — 30.070 s, 16,000 Hz, 1 channel, PCM16, 962,314 B, sha256 08c2fcfb8fb1740bf07d29a7e0abc986c1c4832ac2c0877b5de485a735391918",
+        "scored": false,
+        "status": "audio-ready-model-refused",
+        "unscoredReason": "same as sprclip-b8-inplay-original",
+        "evidence": "scripts/evidence/hf-portfolio/hf009/results/audio-fixtures.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons — the repo's authorized licensed gate clip)",
+        "scored": false,
+        "status": "audio-unreachable-this-flight",
+        "unscoredReason": "the committed normalized clip is video-only by the manifest's own transform ('-an' in gate-clips.json normalizeTransform); the audio lives ONLY in the ORIGINAL source webm at the manifest's canonical URL, whose fetch was HTTP-429-rate-limited on every attempt from this sandbox egress (6 attempts, 15-45 s backoff, both upload.wikimedia.org and the Special:FilePath route — an infrastructure wall, NOT a licensing wall); the sha-pinned ready-to-run extraction recipe is recorded in results/preflight-refusal.json",
+        "evidence": "scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "scored": false,
+        "status": "no-audio-track-typed-gap",
+        "unscoredReason": "ffprobe-verified: the repo's synthetic fixture carries a single video-only h264 stream — NO audio track exists at all; the diarization task has no input on this fixture",
+        "evidence": "scripts/evidence/hf-portfolio/hf009/results/audio-fixtures.json"
+      }
+    ],
+    "quality": {
+      "derJer": "NOT MEASURED (typed): no ground-truth speaker annotations exist anywhere in the repo for benchmarkable media — the repo-wide search is recorded in results/preflight-refusal.json (groundTruthSearch): the commentary-segmentation W208 fixture is a SYNTHETIC inline 30-row 5-speaker test transcript (not an annotation of real media), the ASR adapter owns no annotations (speakerLabel is a passthrough contract), real-to-swm/technology-registry fixtures carry spatial discs only, SWM event timelines are derived state, and no RTTM file exists in-repo. pyannote-metrics 4.1 IS installed and the DER/JER path is stated exactly (RTTM reference vs hypothesis) — zero ground-truth rows to score",
+      "status": "not-measured-typed-refusal",
+      "speakerSegmentTimelines": "NOT MEASURED (the model never ran): the turn-timeline summarizer (turn counts, per-speaker durations, speech ratio, mean/median turn) is implemented in benchmark_pyannote.py's FULL mode and is ready-to-run the moment the authenticated pipeline dir exists",
+      "determinism": "NOT MEASURED (the model never ran): the ready-to-run path compares serialized turn timelines across repeated runs (exact-equality verdict)",
+      "contractCompatibilityVerdict": "COMPATIBLE-WITH-ADAPTER (static, source-scanned this flight; the run is refused): community-1's output (speaker_diarization: (turn, SPEAKER_XX) pairs; exclusive_speaker_diarization for ASR-timestamp reconciliation — the card's own stated feature) maps onto the repo's W208 CommentaryUnit contract: SPEAKER_XX labels -> speakerLabel strings (deterministic adapter mapping), turn.start/end seconds -> startMs/endMs (documented arithmetic), a speaker change is a HARD segmentation boundary in W208 — exactly the diarization turn semantics; the 16 kHz mono input matches the W207 5-s STT windowing seam. TYPED GAPS: (1) no per-turn confidence in the basic output — W209 consumes confidence, so the adapter must omit or provenance-mark a synthesized value; (2) speaker CLUSTER labels are not identities (no commentarySpeaker ground truth exists to name them); (3) the regular timeline may overlap speakers while W208 units are exclusive — the exclusive_speaker_diarization output is the intended fit and its quality is UNVERIFIED (the run is refused); (4) the card's own DER table (community-1 vs legacy 3.1 on twelve benchmarks) is the training-regime REFERENCE, not this flight's measurement",
+      "evidence": "scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "perFileWallClockAndRtf": "NOT MEASURED (the model never ran): the ready-to-run path measures per-file CPU wall-clock over repeated full-pipeline runs (warm-up excluded, identical input, labeled as such — the HF006 microbenchmark convention) and the REAL-TIME FACTOR RTF = processing time / audio duration, the streaming-relevance number for the commentary pipeline",
+      "note": "NO latency number exists in this flight — the wall is the user-conditions gate, not a compute wall: the host CAN run the pipeline (2 vCPU, 4 GB RAM, fixtures prepared); no wall-clock or RTF figure here is anything but 'not measured'"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS is the substitute metric — ALSO not measured here (the model never ran)",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the preflight process RSS of the fixture/preflight work itself (37.9 MiB — recorded in results/preflight-refusal.json); the pipeline's inference RSS will be measured by the ready-to-run path (VmRSS + ru_maxrss)"
+    },
+    "failureModes": {
+      "observed": [
+        "THE AUTH WALL IS ITSELF THE OBSERVED FAILURE MODE #1: the ledger candidate's distribution is user-conditions-gated — any production adoption needs an authenticated HF artifact mirror or a vendor arrangement; an anonymous 'commercialUse: yes' license line does NOT mean anonymously fetchable weights (the HF002 ledger row does not record the gate — a schema observation for the TL)",
+        "the Wikimedia original-source fetch for fx-001's audio was rate-limited (HTTP 429) from this sandbox egress — an infrastructure failure mode of the fixture channel, not of the model; the committed normalized clip is deliberately audio-less ('-an'), so fx-001's diarization story depends on an out-of-repo fetch",
+        "the synthetic fixture has NO audio track: the repo's own benchmark fixture set is structurally unable to exercise ANY audio task profile (football.commentaryASR.*, commentarySpeakerDiarization) — a fixture gap typed here for the whole audio portfolio wave"
+      ],
+      "notObserved": [
+        "short-clip behavior, music/crowd-noise confusion, confidence distribution, speaker-count stability on 10-47 s fragments — NOT OBSERVED (typed): the model never ran; these are the ready-to-run observations the FULL mode will record"
+      ]
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, 4,042 MiB total RAM, ~2.3 GB free disk): GPU memory is honestly N/A; process RSS is the substitute metric — and the model never ran, so no inference RSS exists",
+      "the typed refusal (auth-gated-model) is the flight's core honesty record: the pinned pipeline's weights are user-conditions-gated on the HF Hub; no HF token exists in this sandbox; the model card's own Setup demands a human accepting the conditions — no latency, memory, or quality figure in this flight is anything but 'not measured'",
+      "the brief's expectation 'the community-1 pipeline is NOT token-gated (verify)' was VERIFIED FALSE by the executed probe map (results/preflight-refusal.json hubProbes): 401 GatedRepoError at the pinned revision, config.yaml and embedding/model.pt both; the ONLY public file is the model card README.md",
+      "third-party mirrors of gated pyannote weights were NOT used and MUST NOT be used: an unofficial re-upload would bypass the user-conditions gate (this refusal is recorded, not worked around)",
+      "the FULL mode in benchmark_pyannote.py is READY-TO-RUN the moment an operator-authenticated local copy exists at /home/z/hf-bench-4/hf-model-auth: it fail-closes on a missing pipeline dir, records the weight-file inventory (sizes + sha256) it runs, measures the turn timelines / determinism / per-file wall-clock + RTF / VmRSS + ru_maxrss, and computes the UNSCORED structural alignment against any repo-derived timeline JSON placed next to the results",
+      "the SPR corpus audio is authorized by the repo's own corpus rules (the recorded R606 registration declaration: analysis / transformation / derivative generation / storage; repo private) — the two extracted WAVs live OUTSIDE the repo in /home/z/hf-bench-4/audio and are re-creatable from the committed corpus bytes with the recorded one-line ffmpeg recipe"
+    ],
+    "partialDeliverables": {
+      "executedAudioFixtureEvidence": {
+        "path": "scripts/evidence/hf-portfolio/hf009/results/audio-fixtures.json",
+        "description": "the executed fixture story: 4 fixtures examined (2 SPR audio EXECUTED to 16 kHz mono WAV with shas + durations + the exact extraction command; the synthetic fixture verified audio-less; fx-001's audio verified to live only in the 429-blocked original source with the ready-to-run recipe) + the 4 repo fixture sha pins, all verified"
+      },
+      "executedHubProbeMap": {
+        "path": "scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json",
+        "description": "6 anonymous HF Hub probes with verdicts and the exact 401 wall text: the pinned repo (config.yaml + embedding/model.pt: gated; README.md: public), pyannote/segmentation-3.0 (gated), pyannote/wespeaker-english-resemblynet (not found), speechbrain/spkrec-ecapa-voxceleb (public, non-component)"
+      },
+      "repoGroundTruthSearch": {
+        "path": "scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json",
+        "description": "the DER/JER ground-truth search across commentary-segmentation, asr, real-to-swm, technology-registry and the SWM timelines — no speaker ground truth exists (typed), the synthetic W208 test transcript is not real-media annotation"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf009/benchmark_pyannote.py",
+        "description": "preflight mode EXECUTED on this host (exit 3, the typed refusal, results written); FULL mode ready-to-run against an operator-authenticated local copy of the gated pipeline — fail-closed, records the weight inventory, measures turn timelines/determinism/wall-clock/RTF/RSS, computes the unscored structural alignment"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "the benchmark DID NOT RUN (typed refusal: auth-gated-model) — zero executed quality/latency/memory evidence exists in this flight; the auth wall needs an operator action (accept the user conditions + provide an authenticated local copy) before ANY evidence can exist",
+        "no ground-truth speaker annotations exist in the repo (or the sandbox) for benchmarkable media — DER/JER is unmeasurable here even after the unblock; the honest ceiling is unscored structural evidence",
+        "fx-001's audio (the repo's authorized REAL gate clip) is only in the 429-blocked original source; the SPR corpus clips are the only executed audio — their usage scope is the R606 analysis declaration (a private-repo benchmark), which the HF015 license review must confirm",
+        "the HF002 ledger row does not record the user-conditions gate (a 'commercialUse: yes' row whose weights are access-controlled) — the ledger schema may want a distributionGate field; recorded here for the TL"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "evidenceId": "hf009-pyannote-audio-fixtures",
+  "purpose": "HF009 executed audio-fixture evidence: which audio the repo authorizes for the diarization benchmark and what was actually extracted on this host",
+  "recordedAtUtc": "2026-10-03T23:48:37Z",
+  "extractionCommand": "ffmpeg -v error -y -i <source.mp4> -vn -ac 1 -ar 16000 -c:a pcm_s16le <out.wav>  # pyannote's native input: 16 kHz mono; the card auto-downmixes/resamples but the extraction pins the format explicitly",
+  "fixtures": {
+    "synthetic-diagnostic-01": {
+      "clipId": "synthetic-diagnostic-01",
+      "mediaKind": "synthetic-diagnostic",
+      "audioTrack": "ABSENT (ffprobe: video-only h264 stream \u2014 the repo's synthetic fixture carries no audio at all)",
+      "usableForDiarization": false,
+      "typedGap": "no audio track exists on the synthetic fixture"
+    },
+    "fx-001": {
+      "clipId": "fx-001",
+      "mediaKind": "real-footage",
+      "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons \u2014 the repo's authorized gate clip)",
+      "committedNormalizedClipAudio": "ABSENT (the gate-clips.json normalizeTransform is '-an' \u2014 video-only by design)",
+      "audioLivesOnlyInOriginalSource": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm",
+        "sourceSha256Pin": "a4d163a5bcc54b62d9d09926b56278677e06436c4e9d2b01bd0e137ef8cdf131",
+        "thisFlightFetchStatus": "BLOCKED (HTTP 429 rate-limit on every attempt from this sandbox egress, 2026-10-03: 6 attempts across upload.wikimedia.org and commons.wikimedia.org Special:FilePath with 15-45 s backoff \u2014 an infrastructure wall, NOT a licensing wall; the brief's stall rule applies)",
+        "readyToRunExtraction": "curl -L -A '<descriptive-ua>' -o fx-001-source.webm 'https://upload.wikimedia.org/wikipedia/commons/d/da/2021-08-29_-_FIFA_Beach_Soccer_World_Cup_-_Match_31_-_Switzerland_v_Senegal_-_No%C3%ABl_Ott_scores_a_penalty_kick.webm' ; sha256sum fx-001-source.webm (must equal a4d163a5bcc54b62d9d09926b56278677e06436c4e9d2b01bd0e137ef8cdf131) ; ffmpeg -v error -y -i fx-001-source.webm -vn -ac 1 -ar 16000 -c:a pcm_s16le fx-001-audio.wav"
+      },
+      "usableForDiarization": false
+    },
+    "sprclip-b8-inplay-original": {
+      "clipId": "sprclip-b8-inplay-original",
+      "mediaKind": "real-footage",
+      "authorization": "scripts/evidence/spr-corpus-bytes/README.md: acquired broadcast bytes under the recorded R606 registration declaration (analysis / transformation / derivative generation / storage); repo is private \u2014 a local speaker-diarization benchmark run is ANALYSIS, inside the declared scope",
+      "sourcePath": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+      "sourceSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "usableForDiarization": true,
+      "wavPath": "/home/z/hf-bench-4/audio/spr-src-audio.wav",
+      "wavSha256": "ddf9c20335e7c4e7873e9267906682ac21ccfd1a74f841f58e8676fc0a2a7a17",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 16000,
+      "channels": 1,
+      "durationSeconds": 47.624,
+      "wavBytes": 1524050,
+      "extractionCommand": "ffmpeg -v error -y -i <source.mp4> -vn -ac 1 -ar 16000 -c:a pcm_s16le <out.wav>  # pyannote's native input: 16 kHz mono; the card auto-downmixes/resamples but the extraction pins the format explicitly"
+    },
+    "sprclip-b1-wide-broadcast": {
+      "clipId": "sprclip-b1-wide-broadcast",
+      "mediaKind": "real-footage",
+      "authorization": "scripts/evidence/spr-corpus-bytes/README.md: acquired broadcast bytes under the recorded R606 registration declaration (analysis / transformation / derivative generation / storage); repo is private \u2014 a local speaker-diarization benchmark run is ANALYSIS, inside the declared scope",
+      "sourcePath": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+      "sourceSha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+      "usableForDiarization": true,
+      "wavPath": "/home/z/hf-bench-4/audio/spr-b1-audio.wav",
+      "wavSha256": "08c2fcfb8fb1740bf07d29a7e0abc986c1c4832ac2c0877b5de485a735391918",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 16000,
+      "channels": 1,
+      "durationSeconds": 30.07,
+      "wavBytes": 962314,
+      "extractionCommand": "ffmpeg -v error -y -i <source.mp4> -vn -ac 1 -ar 16000 -c:a pcm_s16le <out.wav>  # pyannote's native input: 16 kHz mono; the card auto-downmixes/resamples but the extraction pins the format explicitly"
+    }
+  },
+  "fixturePins": {
+    "synthetic-diagnostic-01": {
+      "path": "packages/technology-registry/fixtures/media/synthetic-diagnostic-01-players-and-ball.mp4",
+      "sha256": "e75abe1441fe2e6680b2aad5e7d2e66a5bcd21ab4b91928e25181f90a37f7f76",
+      "pinVerified": true
+    },
+    "fx-001-normalized": {
+      "path": "packages/real-to-swm/fixtures/media/fx-001-normalized.mp4",
+      "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7",
+      "pinVerified": true
+    },
+    "sprclip-b8-inplay-original": {
+      "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+      "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "pinVerified": true
+    },
+    "sprclip-b1-wide-broadcast": {
+      "path": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+      "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+      "pinVerified": true
+    }
+  }
+}
