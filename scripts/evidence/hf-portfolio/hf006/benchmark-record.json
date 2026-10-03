@@ -1,0 +1,151 @@
+{
+  "candidate": "Spivak",
+  "taskProfiles": [
+    "football.eventSpotting"
+  ],
+  "modelUrl": "https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet",
+  "revision": "1dced1b7a921f95ab741cad59325ee2e4dc08496",
+  "modelLicense": "cc-by-4.0",
+  "codeLicense": "apache-2.0",
+  "weightsProvenance": "Yahoo-trained action-spotting models (dense detection anchors), first place in the SoccerNet Challenge 2022, per card.",
+  "datasetProvenance": "SoccerNet (action spotting on the SoccerNet dataset, per card and its two cited papers).",
+  "commercialUse": "yes",
+  "gatingState": "candidate",
+  "sources": [
+    "https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet",
+    "https://huggingface.co/api/models/yahoo-inc/spivak-action-spotting-soccernet",
+    "https://huggingface.co/yahoo-inc/spivak-action-spotting-soccernet/raw/main/README.md",
+    "https://github.com/yahoo/spivak",
+    "https://raw.githubusercontent.com/yahoo/spivak/master/LICENSE"
+  ],
+  "recordedAt": "2026-10-03T23:26:00Z",
+  "benchmarkRun": {
+    "workItem": "HF006",
+    "runBy": "Worker A (flight 3, worker 64-c)",
+    "provenanceLedgerEcho": {
+      "note": "the twelve provenance fields above echo the Spivak row of scripts/evidence/hf-portfolio/provenance-ledger.json verbatim (candidate, revision, modelUrl, licenses, weightsProvenance, datasetProvenance, gatingState unchanged); the ledger's row schema is pinned by packages/testing/test/hf-ledger.test.ts to EXACTLY those twelve fields, so the benchmark run itself is recorded HERE, not as a ledger row \u2014 and the candidate's gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "modelRuntime": {
+      "package": "spivak 0.0.0 (github yahoo/spivak @ git a1a67483966123097447cd9312366c15ca04e9ff, installed editable OUTSIDE the repo at /home/z/hf-bench-3/spivak-src)",
+      "tensorflow": "2.21.0 (tensorflow-cpu) + tf_keras 2.21.0 (the Keras-2 compat package; the checkpoint is a Keras-2-era SavedModel) + tensorflow-probability 0.25.0, python 3.12.14 venv at /home/z/hf-bench-3/.venv",
+      "checkpoint": "models/spotting_challenge_validated_resnet_normalized_confidence_zoo_lr5e-4_dwd2e-4_sr0.02_mu0.0/best_model (the zoo's Challenge-Validated resnet_normalized CONFIDENCE model) \u2014 variables/variables.data-00000-of-00001 = 74,155,300 bytes; sha256 af234e7040cde800587cca70ff960bfb93f967df2f66bceb5e2df43b777cf444 = the HF LFS oid at the pinned revision, VERIFIED LOCALLY; downloaded 2026-10-03, NEVER committed, never vendored",
+      "featureFrontEnd": "keras ResNet-152 (resnet152_weights_tf_dim_ordering_tf_kernels.h5, 242,900,224 B, keras-applications) -> 2048-d avg_pool @ 2 fps -> the zoo MaxAbsScaler (models/resnet_normalizer.pkl, 16,722 B, sha256 e949c0f41c5e7cc535c39b7f76264aa36caa54918bb65584d85ea444a96ab1cc, fitted on 2048-dim features) \u2014 the forensic: the scaler's 2048-d fit proves the resnet_normalized family consumes the RAW ResNET_TF2 features, NOT extraction.py's PCA512 branch",
+      "loading": "tf_keras.models.load_model(compile=False) on the Keras-2-era SavedModel, wrapped in the spivak package's own DensePredictor (heads + VideoChunkIteratorProvider + flexible NMS straight from the pinned code); the package's SharedArgs (shared_args.pkl in the model dir) parameterizes everything; recorded shims: tensorflow_addons (archived, training-only optimizers), skvideo (skvideo grabber only \u2014 the benchmarked path is the DEFAULT opencv/FrameCV grabber); the zoo MaxAbsScaler's pre-sklearn-1.1 'clip' attribute patched to False (1.0.2 semantics)",
+      "loadValidation": "no committed sample media exists in the zoo (inference: false on the card) \u2014 the executed validation is the run itself: healthy feature ranges (raw 2048-d avg_pool in [0, 26.5]), 24 + 20 feature frames at 2 fps matching the clip durations, calibrated low confidences (max anchor 0.139 fixture / 0.012 fx-001, never saturating), and the model's own validation_evaluation aggregate shipped in the zoo as the quality REFERENCE (not this flight's measurement)"
+    },
+    "fixtures": [
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "scored": false,
+        "unscoredReason": "the repo's event-fixture search found NO event ground truth: the fixture annotations carry per-frame SPATIAL discs (players/ball) only \u2014 no event timestamps+labels; unscored structural evidence per the brief's fallback",
+        "evidence": "scripts/evidence/hf-portfolio/hf006/results/spivak-synthetic-diagnostic-01.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons \u2014 the repo's authorized licensed gate clip)",
+        "scored": false,
+        "unscoredReason": "no ground-truth annotations exist for this real clip",
+        "evidence": "scripts/evidence/hf-portfolio/hf006/results/spivak-fx-001.json"
+      }
+    ],
+    "quality": {
+      "temporalPrecisionRecall": "NOT MEASURED (typed gap): no event ground truth (timestamps + labels) exists anywhere in the repo for the benchmarked media \u2014 the eval-harness cases, the technology-registry fixtures (spatial discs only), the L010 corpus conventions, the J-lane event contracts (real-to-swm EMITS typed candidates, never ground truth), and the SWM event timelines are all model outputs or spatial annotations; the matching rule was implemented and is stated exactly (see temporalMatchingRule) but has zero ground-truth rows to match",
+      "temporalMatchingRule": "IF event ground truth had existed: a predicted event (class, t_pred) matches a ground-truth event (class, t_gt) iff classes are equal and |t_pred - t_gt| <= tolerance; per-class temporal tolerance-IoU style sweep at +-1 s, +-2 s, +-5 s (the SoccerNet tight/average-tolerance convention the spivak configs carry in evaluation_tolerances.json); greedy one-to-one matching, confidence-descending, ties by earlier time \u2014 never executed on real ground truth in this flight",
+      "structuralResults": {
+        "fixture": {
+          "eventsAtThreshold0.5": 0,
+          "maxAnchorConfidence": 0.1385,
+          "maxConfidenceClass": "Kick-off",
+          "anchors": 408,
+          "confidenceHistogramCounts": [
+            406,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "realClipFx001": {
+          "eventsAtThreshold0.5": 0,
+          "maxAnchorConfidence": 0.0121,
+          "maxConfidenceClass": "Ball out of play",
+          "anchors": 340,
+          "confidenceHistogramCounts": [
+            340,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "interpretation": "the model RAN and produced calibrated non-degenerate outputs (never saturating, per-class differentiation) but fires NO detections at its own 0.5 threshold on 10-12 s fragments: each clip is ONE 112-s window of which ~90% is zero-padding (the package's own VideoChunkIterator convention), far outside the full-broadcast-game context the model was trained on; beach soccer (fx-001) is additionally a domain shift from 11-a-side broadcast"
+      }
+    },
+    "latency": {
+      "measurementKind": "CPU wall-clock, repeated-window microbenchmark (the SAME single zero-padded 112-s window run repeatedly; first two lazy-init calls excluded)",
+      "fixtureWindowSteadyMeanMs": 93.89,
+      "fixtureWindowSteadyP50NearestRankMs": 94.28,
+      "fixtureWindowSteadyP95NearestRankMs": 100.15,
+      "realClipWindowSteadyMeanMs": 99.92,
+      "realClipWindowSteadyP50NearestRankMs": 89.21,
+      "realClipWindowSteadyP95NearestRankMs": 184.26,
+      "frontEndExtractionMs": {
+        "fixture": 10508.0,
+        "fx001": 10808.0,
+        "note": "the ResNet-152 2048-d feature extraction of each whole clip at 2 fps (24 + 20 feature frames) \u2014 the cascade's REAL front-end cost (~438 ms per feature frame on this 2-vCPU host); not amortized per window"
+      },
+      "earlyDetectionLatencyVsOnset": "NOT MEASURED (typed): the detection-offset-vs-event-onset distribution requires event ground truth, which does not exist (see quality.temporalPrecisionRecall); the measurement harness is implemented (the per-window wall-clock distribution above + the event timestamps the NMS emits), it simply has no onset to offset against",
+      "note": "wall-clock CPU readings (2 vCPU); percentiles nearest-rank (the repo's convention)"
+    },
+    "cascadeCost": {
+      "verdict": "on THIS CPU host the Spivak cascade front-end is NOT cheap: ~876 ms of compute per second of video (2 feature frames x ~438 ms ResNet-152 CPU each + ~0.9 ms/s amortized spotting) vs the repo's own vision event path at ~740 ms/s (contrast-context detector 29.6 ms/frame mean x 25 fps, measured in HF003 on this same host) + pure-function impulse logic; the 'cheap cascade before expensive event reasoning' premise does NOT hold on this host \u2014 it is a GPU-economics claim (model-card FPS figures unverified; no GPU here)",
+      "repoEventReasoningPath": {
+        "measured": "contrast-context-detector (the J012 license-clean production path): 29.6 ms/frame mean / 110 ms p95 CPU (HF003, this same host, scripts/evidence/hf-portfolio/hf003/results/baseline-current-detector.json)",
+        "documented": "real-to-swm ball-impulse candidates: deterministic pure functions over detected ball points (packages/real-to-swm/src/events.ts \u2014 NMS clustering, no model call); canonical football events only derivable after pitch calibration via the W005 EventDerivationService (candidates remain candidates until a fusion rule maps them \u2014 the W209 pattern)",
+        "absence": "NO LLM/expensive event-reasoning production path exists in the repo TODAY (the HF007 SoccerChat event-reasoning benchmark is the portfolio plan, not a production path) \u2014 the 'expensive event reasoning' the cascade would front-run is the portfolio's future, not a present cost"
+      },
+      "spivakPerVideoSecond": {
+        "frontEndMsPerFeatureFrame": 437.8,
+        "featureFramesPerVideoSecond": 2.0,
+        "spottingWindowMsPer112SWindow": 93.89,
+        "totalMsPerVideoSecondApprox": 876.0
+      }
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS recorded instead",
+      "vmRssMiBAfterRun": 1568.6,
+      "peakRssMiBRuMaxrss": 1568.8,
+      "note": "the process RSS includes the python interpreter + TF 2.21 + the ResNet-152 front-end (~230 MB fp32 weights) + the 74 MB spotting model + the 224x2048 feature window"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, ~4 GB RAM): GPU memory is honestly N/A; process RSS recorded instead",
+      "CPU inference latency is NOT the deployment latency \u2014 the model card reports GPU-frame rates; this flight's numbers are honest wall-clock CPU readings, labeled as such",
+      "the two benchmark clips are 10-12 s fragments: each runs as ONE zero-padded 112-s window (~90% padding) \u2014 far outside the full-game context the model was trained on; the confidence distributions measure THIS regime, not the model's challenge-regime quality (the zoo's validation_evaluation aggregate is the reference for that)",
+      "the zoo's second temporal-displacement (delta) phase was NOT run: confidence-only spotting; event timestamps are the dense anchor positions at 2 fps",
+      "repeated-window latency microbenchmark: the same single window run repeatedly (identical input) \u2014 labeled as such, never presented as distinct windows",
+      "the zoo normalizer is a sklearn 1.0.2 pickle loaded under sklearn 1.9.1 (InconsistentVersionWarning recorded; MaxAbs transform is scale-invariant; the pre-1.1 'clip' attribute patched to False = the 1.0.2 semantics)"
+    ],
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "no event ground truth exists in the repo (or the sandbox) for any benchmarked media \u2014 temporal precision/recall is unmeasurable here, not merely unmeasured",
+        "zero detections at the model's own 0.5 threshold on the only reachable clips (short OOD fragments) \u2014 no positive spotting evidence at all",
+        "the cascade cost story on a CPU host is UNFAVORABLE (~876 ms/s video vs ~740 ms/s for the repo's pure-code path); no GPU evidence exists in this flight",
+        "the model runs a TF/Keras-2-era stack with archived dependencies (tensorflow_addons shim, skvideo shim, tf_keras compat load) \u2014 an integration risk the HF015 gate must weigh; dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger"
+      ],
+      "note": "UNCHANGED \u2014 this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}

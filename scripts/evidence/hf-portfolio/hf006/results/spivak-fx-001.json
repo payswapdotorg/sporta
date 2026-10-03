@@ -1,0 +1,280 @@
+{
+  "evidenceId": "hf006-spivak-fx-001",
+  "model": "yahoo-inc/spivak-action-spotting-soccernet @ 1dced1b7a921f95ab741cad59325ee2e4dc08496 \u2014 models/spotting_challenge_validated_resnet_normalized_confidence_zoo_lr5e-4_dwd2e-4_sr0.02_mu0.0/best_model (the Challenge-Validated resnet_normalized CONFIDENCE model; the zoo's second temporal-displacement phase NOT run in this flight)",
+  "taskProfile": "football.eventSpotting",
+  "confidenceThreshold": 0.5,
+  "labels": [
+    "Penalty",
+    "Kick-off",
+    "Goal",
+    "Substitution",
+    "Offside",
+    "Shots on target",
+    "Shots off target",
+    "Clearance",
+    "Ball out of play",
+    "Throw-in",
+    "Foul",
+    "Indirect free-kick",
+    "Direct free-kick",
+    "Corner",
+    "Yellow card",
+    "Red card",
+    "Yellow->red card"
+  ],
+  "frameRateHz": 2.0,
+  "window": {
+    "chunkDurationArgSeconds": 112.0,
+    "chunkFrames": 224,
+    "chunkSeconds": 112.0,
+    "chunkPredictionBorderSeconds": 50.0,
+    "note": "each 10-12 s clip is ONE zero-padded 112 s window (the package's own VideoChunkIterator zero-padding convention)"
+  },
+  "startedAtUtc": "2026-10-03T23:19:22.000773+00:00",
+  "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+  "clip": {
+    "clipId": "fx-001",
+    "mediaKind": "real-footage",
+    "licenseId": "CC0-1.0",
+    "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7",
+    "decodedVideoMeta": {
+      "frameCount": 250,
+      "fps": 25.0,
+      "width": 640,
+      "height": 360
+    }
+  },
+  "scoring": {
+    "kind": "unscored-structural",
+    "note": "NO event ground truth exists in the repo for this media (the fixture annotations carry per-frame SPATIAL discs only; the real clip has no annotations) \u2014 spotted-event distributions recorded unscored per the brief's fallback"
+  },
+  "features": {
+    "extractionSeconds": 10.808,
+    "normalizationSeconds": 0.0013,
+    "rawFeatureFrames": 20,
+    "featureDim": 2048,
+    "featuresPerSecond": 2.0,
+    "rawFeaturesMin": 0.0,
+    "rawFeaturesMax": 12.801554679870605,
+    "normalizedFeaturesAbsMax": 0.7351689338684082,
+    "featureFamily": "resnet_normalized = RAW 2048-d ResNET_TF2 @ 2 fps (keras ResNet-152 avg_pool) through the zoo MaxAbsScaler (models/resnet_normalizer.pkl) \u2014 the 2048-d fit of the scaler proves the raw path; extraction.py's PCA512 branch is NOT this family (challenge commands: factor 1.0, input feature name ResNET_TF2)",
+    "normalizer": "MaxAbsScaler (zoo models/resnet_normalizer.pkl, pickled with sklearn 1.0.2; transform applied per feature with the stored scale_ \u2014 the pre-1.1 `clip` attribute patched to False (the 1.0.2 semantics); transform is otherwise scale-invariant across versions; fit on 2048-dim features)"
+  },
+  "loadInfo": {
+    "path": "tf_keras.models.load_model(compile=False) + the spivak package's own DensePredictor (heads, chunk iterator, NMS) \u2014 the Keras-2 compat load of the Keras-2-era SavedModel on TF 2.21",
+    "loadSeconds": 6.24,
+    "shims": [
+      "sys.modules shim for archived tensorflow_addons (training-only optimizers AdamW/SGDW; raises if ever constructed \u2014 the inference path never constructs them; spivak/application/model_creation.py:491,495)",
+      "sys.modules shims (fail-closed, raise if used) for the video-loader modules that could not be installed on this host: ['skvideo', 'skvideo.io'] \u2014 imported at top level by SoccerNetDataLoader; only the skvideo graber and moviepy's duration probe touch them, the benchmarked path is the DEFAULT opencv/FrameCV grabber (moviepy itself was installed and used for the duration probe where present)"
+    ],
+    "checkpoint": {
+      "file": "models/spotting_challenge_validated_resnet_normalized_confidence_zoo_lr5e-4_dwd2e-4_sr0.02_mu0.0/best_model/variables/variables.data-00000-of-00001",
+      "sizeBytes": 74155300,
+      "sha256": "af234e7040cde800587cca70ff960bfb93f967df2f66bceb5e2df43b777cf444",
+      "verification": "sha256 == the HF LFS oid at the pinned revision (verified locally)"
+    },
+    "sharedArgsEcho": {
+      "chunk_duration": 112.0,
+      "chunk_prediction_border": 50.0,
+      "frame_rate": 2.0,
+      "detector": "dense",
+      "backbone": "unet",
+      "feature_name": "resnet_normalized",
+      "nms_window": 20.0,
+      "nms_decay": "suppress",
+      "confidence_weight": 1.0,
+      "delta_weight": 0.0,
+      "sam_rho": 0.02,
+      "width": 16,
+      "unet_layers_start": 0,
+      "unet_layers_end": 6
+    },
+    "twoPhaseNote": "the zoo's temporal-displacement (delta) second phase NOT run \u2014 confidence-only spotting; event timestamps are the dense anchor positions at 2 fps"
+  },
+  "host": {
+    "cpuCores": 2,
+    "device": "cpu",
+    "gpu": "none \u2014 GPU memory: N/A; process RSS recorded instead",
+    "tensorflowVersion": "2.21.0",
+    "spivakCodeCommit": "a1a67483966123097447cd9312366c15ca04e9ff",
+    "spivakModelRevision": "1dced1b7a921f95ab741cad59325ee2e4dc08496"
+  },
+  "latencyMs": {
+    "note": "wall-clock CPU readings; repeated-window microbenchmark (the SAME single zero-padded window run repeatedly); the first two calls carry lazy-init warmup and are excluded",
+    "firstCallMs": 86.61,
+    "steadyCount": 12,
+    "mean": 99.92,
+    "min": 82.41,
+    "max": 184.26,
+    "p50NearestRank": 89.21,
+    "p95NearestRank": 184.26,
+    "frontEndExtractionMs": 10808.0,
+    "frontEndExtractionNote": "the ResNet-152 + PCA512 feature extraction of this clip (the cascade's front-end cost; not amortized per window)"
+  },
+  "memory": {
+    "resourceCaveat": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead",
+    "vmRssMiBAfterRun": 1568.6,
+    "peakRssMiBRuMaxrss": 1568.8
+  },
+  "spottedEvents": {
+    "count": 0,
+    "labelHistogram": {},
+    "events": [],
+    "eventsTruncated": false,
+    "detectionThreshold": 0.5,
+    "nms": "flexible NMS (suppress decay, per-class challenge nms_windows.csv)"
+  },
+  "structure": {
+    "perClass": [
+      {
+        "label": "Penalty",
+        "maxConfidence": 0.0049,
+        "meanConfidence": 0.00087,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Kick-off",
+        "maxConfidence": 0.003,
+        "meanConfidence": 0.00036,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Goal",
+        "maxConfidence": 0.0063,
+        "meanConfidence": 0.00051,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Substitution",
+        "maxConfidence": 0.01,
+        "meanConfidence": 0.00332,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Offside",
+        "maxConfidence": 0.0005,
+        "meanConfidence": 3e-05,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Shots on target",
+        "maxConfidence": 0.007,
+        "meanConfidence": 0.00088,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Shots off target",
+        "maxConfidence": 0.0033,
+        "meanConfidence": 0.00051,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Clearance",
+        "maxConfidence": 0.0019,
+        "meanConfidence": 0.00046,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Ball out of play",
+        "maxConfidence": 0.0121,
+        "meanConfidence": 0.00163,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Throw-in",
+        "maxConfidence": 0.0022,
+        "meanConfidence": 0.00058,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Foul",
+        "maxConfidence": 0.0037,
+        "meanConfidence": 0.00044,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Indirect free-kick",
+        "maxConfidence": 0.0029,
+        "meanConfidence": 0.00053,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Direct free-kick",
+        "maxConfidence": 0.003,
+        "meanConfidence": 0.00089,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Corner",
+        "maxConfidence": 0.0087,
+        "meanConfidence": 0.00355,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Yellow card",
+        "maxConfidence": 0.0084,
+        "meanConfidence": 0.00189,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Red card",
+        "maxConfidence": 0.0042,
+        "meanConfidence": 0.00038,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      },
+      {
+        "label": "Yellow->red card",
+        "maxConfidence": 0.0027,
+        "meanConfidence": 0.00019,
+        "anchorCountAbove0.5": 0,
+        "anchorCountAbove0.9": 0
+      }
+    ],
+    "confidenceHistogramAllAnchors": {
+      "binEdges": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0
+      ],
+      "counts": [
+        340,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "anchorCount": 340,
+    "eventsPerMinuteEquivalent": 0.0
+  },
+  "completedAtUtc": "2026-10-03T23:19:50.323717+00:00"
+}
