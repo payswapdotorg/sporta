@@ -1,0 +1,126 @@
+{
+  "runId": "musv4nrb",
+  "baseUrl": "http://127.0.0.1:3909",
+  "startedAtIso": "2026-10-03T20:46:58.631Z",
+  "flows": [
+    {
+      "id": "live-tactical-gate",
+      "title": "Live tactical gate (L015) — continuous updates, latency, identity, dropout",
+      "status": "failed",
+      "assertions": [
+        {
+          "name": "the live transport really serves the L002 scenario sessions (no fixture: the transport's own listing)",
+          "pass": true,
+          "evidence": "listing: 8 sources (kind=story/tactical/tactical/tactical/tactical/tactical/tactical/tactical); normal=\"Synthetic live tracking — normal delivery\"; reconnect=\"Synthetic live tracking — reconnect\"; drop=\"Synthetic live tracking — scattered drops\""
+        },
+        {
+          "name": "the source is honestly labeled the L002 deterministic synthetic tracking source",
+          "pass": true,
+          "evidence": "sourceNote=\"L002 deterministic synthetic tracking source — scenario 'normal', 600 ticks @ 100ms (every tick delivered in order at the base latency)\""
+        },
+        {
+          "name": "the live tactical surface is LIVE in the real browser with a rendered canvas",
+          "pass": true,
+          "evidence": "data-live-phase=live; canvas count=1; label=\"Live tactical pitch: world version 16, 24 entities at event time 2s\""
+        },
+        {
+          "name": "the probe observed the real stream (the page's own EventSource traffic, no dev API)",
+          "pass": true,
+          "evidence": "probe opens=1; captured world frames=16 (16 on the normal session)"
+        },
+        {
+          "name": "the session under test IS the transport's listed normal session (no hidden session)",
+          "pass": true,
+          "evidence": "captured sessionIds={sess-4}; under test=sess-4"
+        },
+        {
+          "name": "state updates arrive continuously (measured receipt cadence matches the declared cadence)",
+          "pass": true,
+          "evidence": "n=15 intervals; median=500ms (min 490, max 501) vs declared 500ms; tolerance ±45%; frames=16"
+        },
+        {
+          "name": "the rendered tactical state visibly follows state changes (DOM world versions advance with the frames)",
+          "pass": true,
+          "evidence": "polled DOM world versions=[16, 18, 19, 21, 22, 24]; captured at window start=v16, at polls=v24; distinct=6"
+        },
+        {
+          "name": "meaningful state changes arrive (ball and player move beyond the threshold between frames)",
+          "pass": true,
+          "evidence": "ball: max=3.79m mean=3.012m (n=15); player p-home-01: max=0.40m mean=0.219m"
+        },
+        {
+          "name": "the latency measurement produced a real percentile window (never an absent metric claimed as met)",
+          "pass": true,
+          "evidence": "nearest-rank p50=1ms, p95=6ms over 16 measured samples"
+        },
+        {
+          "name": "the measured percentiles are asserted against the declared budget",
+          "pass": false,
+          "evidence": "declared budget: ABSENT — the repo declares no numeric live-path latency percentile budget (packages/slo SLOs.md scope = the W306 batch/frame pipeline; docs/deployment/DEPLOYMENT.md records measured live evidence \"never a promise\"). Measured: p50=1ms p95=6ms (n=16). Budget numbers are proposed to the TL as a docs amendment (see the gate REPORT); this line FAILS honestly until one is declared."
+        },
+        {
+          "name": "identity continuity is bounded (no unexplained re-identification across the window)",
+          "pass": true,
+          "evidence": "24 entities over 16 frames; 0 identity switches; late appearances=0 (all with explicit entity-appeared events)"
+        },
+        {
+          "name": "the reconnect-scenario session is selectable through the product's own live picker",
+          "pass": true,
+          "evidence": "picker answer=\"selected\""
+        },
+        {
+          "name": "the dropout/reconnect scenario ran its gap (the stream's own recovery accounting arrived)",
+          "pass": true,
+          "evidence": "reconnect frames captured=41; recovery event: missedUpdates=8, gapDurationMs=800 (frame #40 of the captured window)"
+        },
+        {
+          "name": "the interruption is EXPLICIT in the stream's own data (degraded quality carried, then recovered to nominal)",
+          "pass": true,
+          "evidence": "captured quality states={nominal,degraded}; quality-degraded/quality-nominal transition events=3 frames; nominal resumption after the recovery=observed"
+        },
+        {
+          "name": "the dropout is VISIBLE in the product surface (the honest event ticker shows the accounted gap)",
+          "pass": true,
+          "evidence": "ticker row=\"source reconnect — 8 updates missed (0.8s gap, accounted)\""
+        },
+        {
+          "name": "the degraded quality state was visible in the surface's own quality fact during the recovery window",
+          "pass": true,
+          "evidence": "quality-fact trajectory during the recovery window=[degraded → degraded → nominal] (the degraded window is 3 frames; the authoritative captured-state assert above carries this line if the poll cadence missed the transient chip)"
+        },
+        {
+          "name": "the stream RECovers and continues (world versions advance past the recovery frame)",
+          "pass": true,
+          "evidence": "world version at recovery=v41; latest captured=v44; frames after recovery=3"
+        },
+        {
+          "name": "the delay-scenario session is selectable through the product's own live picker",
+          "pass": true,
+          "evidence": "picker answer=\"selected\""
+        },
+        {
+          "name": "the view does NOT change during a no-update window (the visible STALLED state, the version frozen, never a fabricated one)",
+          "pass": false,
+          "evidence": "stall trajectory: 26 samples over the delay window; stalled samples=0; frozen world versions during the stall=[]; stalled note observed=false; STALLED canvas marker=false; recovery version observed=none"
+        }
+      ],
+      "notes": [
+        "signed in a fresh viewer account through the real register form (e2e-live-l015-musv4nrb)",
+        "hello: sessionId=sess-4 sourceKind=tactical cadenceMs=500 (the transport's own declaration)",
+        "the surface's own update-rate fact: \"2.1 Hz\"; frames fact: \"16\"",
+        "measured e2e latency (generation→receipt): n=16 p50=1ms p95=6ms max=6ms min=0ms; the surface's own displayed window: \"1 / 6 / 6 ms\"",
+        "FLOW ABORTED: the view does NOT change during a no-update window (the visible STALLED state, the version frozen, never a fabricated one) — stall trajectory: 26 samples over the delay window; stalled samples=0; frozen world versions during the stall=[]; stalled note observed=false; STALLED canvas marker=false; recovery version observed=none"
+      ],
+      "screenshots": ["live-tactical-gate-failure.png"]
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 1,
+    "assertions": {
+      "pass": 17,
+      "fail": 2
+    },
+    "exitCode": 1
+  }
+}

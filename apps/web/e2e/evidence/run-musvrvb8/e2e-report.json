@@ -1,0 +1,118 @@
+{
+  "runId": "musvrvb8",
+  "baseUrl": "http://127.0.0.1:3909",
+  "startedAtIso": "2026-10-03T21:05:01.508Z",
+  "flows": [
+    {
+      "id": "live-journey",
+      "title": "Live journey (L016) — enter live → inspect → interruption → replay",
+      "status": "passed",
+      "assertions": [
+        {
+          "name": "the journey starts from a fresh (anonymous) browser on the home page",
+          "pass": true,
+          "evidence": "title=\"Home\"; account chip absent (anonymous)"
+        },
+        {
+          "name": "the Live entry is reachable through the product's own primary navigation",
+          "pass": true,
+          "evidence": "nav click=\"clicked\"; url=http://127.0.0.1:3909/live"
+        },
+        {
+          "name": "the live page lists the real sources (the transport's own listing)",
+          "pass": true,
+          "evidence": "picker options=8"
+        },
+        {
+          "name": "an anonymous browser is honestly REFUSED the live stream (fail-closed, never a silent anonymous live picture)",
+          "pass": true,
+          "evidence": "data-live-phase=failed; the real 401 path (auth-required) surfaced as the view's own failure state"
+        },
+        {
+          "name": "entering the live match shows LIVE tactical state (frames really arriving)",
+          "pass": true,
+          "evidence": "data-live-phase=live; captured frames=8; canvas label=\"Live tactical pitch: world version 9, 24 entities at event time 1s\""
+        },
+        {
+          "name": "the entity inspector offers the live entities (players and the ball)",
+          "pass": true,
+          "evidence": "picker options=25 (player example=p-home-01, ball=ball-1)"
+        },
+        {
+          "name": "inspecting a PLAYER shows its identity + live state, updating while pinned",
+          "pass": true,
+          "evidence": "pinned=\"p-home-01 · PLAYER · team-home\"; position x 2.70 · y 24.56 → x 2.55 · y 24.16; confidence=0.94"
+        },
+        {
+          "name": "inspecting the BALL shows its identity + live state, updating while pinned",
+          "pass": true,
+          "evidence": "pinned=\"ball-1 · BALL\"; position x 91.76 · y 9.25 → x 84.12 · y 8.89; detection=detected"
+        },
+        {
+          "name": "the interruption source (the L002 reconnect scenario) is selected through the product's picker",
+          "pass": true,
+          "evidence": "picker answer=\"selected\""
+        },
+        {
+          "name": "the interruption is EXPLICIT (the stream's own gap accounting, counted — never silent)",
+          "pass": true,
+          "evidence": "recovery event: missedUpdates=8, gapDurationMs=800; captured frames=41"
+        },
+        {
+          "name": "the interrupted state is VISIBLE to the user (the honest event ticker carries the accounted gap)",
+          "pass": true,
+          "evidence": "ticker row=\"source reconnect — 8 updates missed (0.8s gap, accounted)\""
+        },
+        {
+          "name": "the journey CONTINUES after the recovery (updates keep arriving past the interruption)",
+          "pass": true,
+          "evidence": "world version at recovery=v41; latest=v45 (45 frames captured)"
+        },
+        {
+          "name": "the finite live-window session is selected through the product's picker",
+          "pass": true,
+          "evidence": "picker answer=\"selected\"; label=\"Synthetic live tracking — finite window + replay\""
+        },
+        {
+          "name": "the finite live window streams live state first (the window is live before it ends)",
+          "pass": true,
+          "evidence": "data-live-phase=live"
+        },
+        {
+          "name": "the live window ENDS honestly and the SAME surface opens the replay of the recorded session",
+          "pass": true,
+          "evidence": "data-live-phase=replay; replay controls present; legend=\"Replay the recorded live window — 24 world frames (world v1 → v24)\""
+        },
+        {
+          "name": "the replay carries the recorded session state through the SAME views (world versions + frame accounting visible)",
+          "pass": true,
+          "evidence": "world version fact=\"1 (recorded — of 24)\"; frames fact=\"24 recorded\""
+        },
+        {
+          "name": "the opened replay is user-drivable (a step advances the recorded frame)",
+          "pass": true,
+          "evidence": "scrub label=\"frame 2 / 24 — world v2 @ 0.1s\""
+        }
+      ],
+      "notes": [
+        "signed in a fresh viewer account through the real register form (e2e-live-l016-musvrvb8)",
+        "determinism fingerprint (the journey's normal-session window, first 8 captured frames): v1@0#seq1 v2@100#seq2 v3@200#seq3 v4@300#seq4 v5@400#seq5 v6@500#seq6 v7@600#seq7 v8@700#seq8"
+      ],
+      "screenshots": [
+        "live-journey-live-state.png",
+        "live-journey-inspect-ball.png",
+        "live-journey-interruption.png",
+        "live-journey-replay.png"
+      ]
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "assertions": {
+      "pass": 17,
+      "fail": 0
+    },
+    "exitCode": 0
+  }
+}

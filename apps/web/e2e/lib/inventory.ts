@@ -19,6 +19,9 @@ export const E2E_FLOW_IDS = [
   "output-playback",
   "render",
   "role-switch",
+  "live-tactical-gate",
+  "live-journey",
+  "live-to-replay",
 ] as const;
 
 export type E2EFlowId = (typeof E2E_FLOW_IDS)[number];
@@ -96,6 +99,27 @@ export const E2E_FLOW_INVENTORY: readonly E2EFlowSpec[] = [
       "W909: accessibility smoke (skip-link + landmarks + images alt + contrast spot-check + keyboard nav)",
     routes: ["/", "/watch"],
   },
+  {
+    id: "live-tactical-gate",
+    title: "Live tactical gate (L015) — continuous updates, latency, identity, dropout",
+    covers:
+      "L015: live tactical gate (real browser; continuous updates; tactical follows state; declared percentile latency budget measured; identity continuity bounded; dropout/reconnect visible + recovers; no hidden fixture or developer API)",
+    routes: ["/live", "/auth/signin"],
+  },
+  {
+    id: "live-journey",
+    title: "Live journey (L016) — enter live → inspect → interruption → replay",
+    covers:
+      "L016: live tracking → SWM → tactical journey (fresh browser → enter live match → tactical state → inspect player/ball → tolerate interruption → recover → continue → end live window → open replay)",
+    routes: ["/", "/live", "/auth/signin"],
+  },
+  {
+    id: "live-to-replay",
+    title: "Live-to-replay recovery (L017) — identity/versions/timebase survive the transition",
+    covers:
+      "L017: live-to-replay recovery (same session identity, world versions and timebase survive the live-to-replay transition; reload creates no second canonical state; persisted replayable state intact)",
+    routes: ["/live", "/auth/signin"],
+  },
 ];
 
 /** Type guard for values claimed to be E2E flow ids. */
@@ -133,6 +157,15 @@ export function unknownInventoryRoutes(
  * 6. output-playback — the output document + frame stepping on that page
  * 7. render          — registers a creator and runs the full studio flow
  * 8. role-switch     — grants-only menus, the demo account's five roles
+ * 9. live-tactical-gate — the L015 measurement gate (signs in its own
+ *                        fresh account; runs with the live transport env)
+ * 10. live-journey   — the L016 end-to-end journey (fresh anonymous start)
+ * 11. live-to-replay — the L017 continuity gate (finite window → replay)
+ *
+ * The live gates run AFTER the W909 flows so the original acceptance
+ * surface is proven unchanged first; each live flow signs in its own
+ * fresh account (unique per run + flow), so they are order-independent
+ * with respect to each other but each needs a signed-in browser.
  */
 export function recommendedFlowOrder(): readonly E2EFlowId[] {
   return [
@@ -144,6 +177,9 @@ export function recommendedFlowOrder(): readonly E2EFlowId[] {
     "output-playback",
     "render",
     "role-switch",
+    "live-tactical-gate",
+    "live-journey",
+    "live-to-replay",
   ];
 }
 
