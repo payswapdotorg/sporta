@@ -1,6 +1,6 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: HF001/HF002 COMPLETE; HF015 COMPLETE (the promotion gate — no promotion, machine-checked); HF003/HF006 BENCHMARKED (executed, no promotion); HF004/HF007/HF008/HF010/HF011/HF012/HF013 BENCHMARKED-REFUSED (typed resource, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion); HF014 COMPLETE (the integration flight)
+Status: THE PORTFOLIO COMPLETE — HF001/HF002 + HF015 (the promotion gate — no promotion, machine-checked) + HF014 (the integration) COMPLETE; HF003/HF006 BENCHMARKED (executed, no promotion); HF004/HF007/HF008/HF010/HF011/HF012/HF013 BENCHMARKED-REFUSED (typed resource, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion); HF014 COMPLETE (the integration flight)
 Date: 2026-10-04
 
 ## Portfolio
