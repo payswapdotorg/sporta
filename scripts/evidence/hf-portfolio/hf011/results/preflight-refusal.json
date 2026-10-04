@@ -1,0 +1,67 @@
+{
+  "label": "EXECUTED preflight (HF011) — the typed refusal for ViewCrafter's compute leg",
+  "workItem": "HF011",
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "typedRefusal": {
+    "type": "resource-infeasible-host",
+    "reasons": [
+      "model-download-disk-infeasible (the single-view leg): the pinned composition is 11.85 GiB (12,722,554,077 B: model.ckpt 10,437,548,346 B + the documented DUSt3R dependency 2,285,005,731 B) vs the host's free disk 1.12 GB — 11.4x over; the download itself is the infeasibility (bounded metadata probes only, weights never downloaded)",
+      "model-download-disk-infeasible (the sparse-view leg the acceptance names): 21.57 GiB (23,160,102,423 B — adds model_sparse.ckpt, the checkpoint the README says is 'specifically trained for the sparse view NVS task') = 20.7x the host's free disk",
+      "model-load-ram-infeasible: the repo's OWN reported working set is 23.5 GB GPU memory per 576x1024 25-frame take (the model table, verbatim, a 40G A100, ddim 50, perframe_ae=True) ≈ 5.5x this host's TOTAL RAM (3.95 GiB) — before any DUSt3R/point-cloud or activation memory; no cast/offload posture is recorded in the repo's own docs",
+      "cuda-required (the repo's own documented posture): every shipped inference command pins --device 'cuda:0' (run.sh / run_sparse.sh / run_eval.sh, verbatim) and the pinned stack is torch 1.13.1 + pytorch3d 0.7.5 cu117 on python 3.9.16 — a CUDA-class stack; this host has NO CUDA device; the compute leg is impossible on this host class, independent of RAM/disk",
+      "cpu-latency infeasibility: the reference take is 120 s on a 40G A100 (the repo's own table); a 2 vCPU CPU-only host running 50-step ddim over a 25-frame 576x1024 video-diffusion take is orders of magnitude beyond any benchmark-grade wall-clock — typed honestly as latency, never as 'could never run'",
+      "the head-to-head's OTHER lane (HF010's candidates) is itself resource-refused on this host (the merged HF010 flight's typed refusal: 63-79x free disk) — the comparison this work item requires has NO executable leg on this host; only the design + the shared metric implementations + the machine-checked contract mapping are honestly deliverable here"
+    ]
+  },
+  "fixtureGate": {
+    "ok": true,
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+    "fixtureSetVersion": "hf010.camera-paths@1",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "pinnedSha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "windowCount": 6,
+    "posesPerWindow": 81,
+    "shaMatches": true,
+    "shapeOk": true,
+    "note": "CONSUMED from the merged HF010 delivery — never re-authored, never modified (the brief's mandate)"
+  },
+  "host": {
+    "cpuCount": 2,
+    "totalRamBytes": 4237889536,
+    "totalRamGiB": 3.95,
+    "availableRamBytes": 1893883904,
+    "availableRamGiB": 1.76,
+    "freeDiskBytes": 1119674368,
+    "freeDiskGiB": 1.04,
+    "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)"
+  },
+  "candidate": {
+    "candidate": "ViewCrafter",
+    "repoId": "Drexubery/ViewCrafter_25",
+    "revision": "35af104d9781e9ed5cdaddfcfbbdca5835e1c36f",
+    "reachable": true,
+    "gated": false
+  },
+  "weightsDownloaded": false,
+  "boundedProbesOnly": true,
+  "authGate": {
+    "note": "NO auth wall anywhere for this candidate (the honest contrast with HF010's Meridian/VGGT-Omega manual gate): the pinned repo is gated=False, anonymously reachable; the DUSt3R dependency is not on the HF hub at all — it HEADs 200 anonymously from download.europe.naverlabs.com",
+    "pinnedRepoGated": false,
+    "sparseSiblingGated": false,
+    "dust3rHead": {
+      "url": "https://download.europe.naverlabs.com/ComputerVision/DUSt3R/DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth",
+      "headStatus": 200,
+      "contentLengthBytes": 2285005731,
+      "verdict": "anonymously reachable (200; NO auth wall — unlike HF010's Meridian/VGGT-Omega gate)"
+    }
+  },
+  "partialDelivered": [
+    "the executed load analysis incl. the checkpoint composition + the documented DUSt3R auxiliary + the host-gap arithmetic (results/load-analysis.json)",
+    "the license posture from recorded terms only (results/license-posture.json)",
+    "THE same-fixture comparison design: the source-image design, the frame-horizon rule, the shared-vs-HF011-specific metric split, the head-to-head scoring design (results/comparison-design.json)",
+    "the metric + adapter implementations with exact definitions, self-checked against hand-computed cases (results/metric-selfcheck.json)",
+    "the fixtures-consumption report: every window's 25-pose resampling + spherical adapter output + the typed lens/look gaps (results/fixtures-consumption.json)",
+    "the machine-checkable contract mapping (results/contract-compatibility.json via contract_compatibility.ts)"
+  ]
+}

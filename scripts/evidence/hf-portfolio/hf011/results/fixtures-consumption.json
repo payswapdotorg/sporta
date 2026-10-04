@@ -1,0 +1,523 @@
+{
+  "label": "THE SAME-FIXTURE CONSUMPTION REPORT — what each HF010 window becomes for the ViewCrafter lane (typed, not executed: no renderer-3d frames rendered, no model run on this host)",
+  "fixtureSet": {
+    "version": "hf010.camera-paths@1",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json"
+  },
+  "frameHorizonRule": "resample_pose_indices(81, 25): j_i = round(80*i/24) — the 25 shared target poses BOTH lanes are scored at",
+  "windows": {
+    "hf010-dolly-in-main-touchline": {
+      "intentKind": "dolly-in",
+      "anchorSlotId": "main-touchline",
+      "presentationKind": "live",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": 52.5,
+          "y": -25.0,
+          "z": 20.0
+        },
+        "look": {
+          "x": 52.5,
+          "y": 34.0,
+          "z": 0.0
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 0
+      },
+      "origin": {
+        "x": 52.5,
+        "y": 34.0,
+        "z": 0.0
+      },
+      "referenceRadiusMeters": 62.298,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          0.0
+        ],
+        "dThetaDeg": [
+          0.0,
+          0.0
+        ],
+        "dR": [
+          -0.25,
+          0.0
+        ]
+      },
+      "trajTxt": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 -0 0 -0 0 0 -0 -0 -0 -0 -0 -0 0 0 0 0 0 0 0 -0 -0 0 -0 0 0\n0 -0.0009 -0.0047 -0.0095 -0.0159 -0.0268 -0.0366 -0.0476 -0.0639 -0.0772 -0.0911 -0.1103 -0.125 -0.1397 -0.1589 -0.1728 -0.1861 -0.2024 -0.2134 -0.2232 -0.2341 -0.2405 -0.2453 -0.2491 -0.25\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": []
+        },
+        "lookMotionSurface": {
+          "lookMoves": false,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    },
+    "hf010-orbit-goal-behind-x105": {
+      "intentKind": "orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": 123.0,
+          "y": 34.0,
+          "z": 8.0
+        },
+        "look": {
+          "x": 105.0,
+          "y": 34.0,
+          "z": 1.22
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 0
+      },
+      "origin": {
+        "x": 105.0,
+        "y": 34.0,
+        "z": 1.22
+      },
+      "referenceRadiusMeters": 19.235,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          39.999
+        ],
+        "dThetaDeg": [
+          0.0,
+          7.264
+        ],
+        "dR": [
+          -0.0381,
+          0.0
+        ]
+      },
+      "trajTxt": "0 0.14 0.751 1.522 2.551 4.295 5.858 7.617 10.227 12.347 14.57 17.648 19.999 22.351 25.429 27.653 29.773 32.382 34.14 35.706 37.449 38.479 39.248 39.861 39.999\n0 0.025 0.131 0.266 0.444 0.75 1.027 1.338 1.802 2.182 2.581 3.135 3.561 3.99 4.553 4.962 5.355 5.839 6.167 6.459 6.786 6.978 7.123 7.238 7.264\n0 -0.0002 -0.0009 -0.0017 -0.0029 -0.0048 -0.0065 -0.0085 -0.0112 -0.0134 -0.0157 -0.0187 -0.021 -0.0232 -0.0261 -0.028 -0.0299 -0.0321 -0.0335 -0.0348 -0.0362 -0.0369 -0.0376 -0.038 -0.0381\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": []
+        },
+        "lookMotionSurface": {
+          "lookMoves": false,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    },
+    "hf010-pan-across-box-behind-x0": {
+      "intentKind": "pan",
+      "anchorSlotId": "behind-goal-x0",
+      "presentationKind": "live",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": -20.0,
+          "y": 34.0,
+          "z": 8.0
+        },
+        "look": {
+          "x": 5.5,
+          "y": 26.0,
+          "z": 1.0
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 0
+      },
+      "origin": {
+        "x": 5.5,
+        "y": 26.0,
+        "z": 1.0
+      },
+      "referenceRadiusMeters": 27.627,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          0.0
+        ],
+        "dThetaDeg": [
+          0.0,
+          0.0
+        ],
+        "dR": [
+          0.0,
+          0.0
+        ]
+      },
+      "trajTxt": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": []
+        },
+        "lookMotionSurface": {
+          "lookMoves": true,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    },
+    "hf010-crane-rise-behind-goal-x105": {
+      "intentKind": "crane",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": 125.0,
+          "y": 34.0,
+          "z": 8.0
+        },
+        "look": {
+          "x": 105.0,
+          "y": 34.0,
+          "z": 1.22
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 0
+      },
+      "origin": {
+        "x": 105.0,
+        "y": 34.0,
+        "z": 1.22
+      },
+      "referenceRadiusMeters": 21.118,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          0.0
+        ],
+        "dThetaDeg": [
+          -17.738,
+          0.0
+        ],
+        "dR": [
+          0.0,
+          0.1776
+        ]
+      },
+      "trajTxt": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 -0.072 -0.385 -0.777 -1.3 -2.178 -2.956 -3.822 -5.085 -6.092 -7.133 -8.544 -9.598 -10.631 -11.954 -12.888 -13.758 -14.81 -15.505 -16.113 -16.781 -17.17 -17.459 -17.686 -17.738\n0 0.0004 0.0023 0.0047 0.008 0.0138 0.0192 0.0254 0.0352 0.0434 0.0524 0.0655 0.0759 0.0866 0.1012 0.1121 0.1227 0.1362 0.1455 0.1539 0.1634 0.1691 0.1734 0.1768 0.1776\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": []
+        },
+        "lookMotionSurface": {
+          "lookMoves": false,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    },
+    "hf010-zoom-optical-aerial-tactical": {
+      "intentKind": "zoom-optical",
+      "anchorSlotId": "aerial-tactical",
+      "presentationKind": "live",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": 52.5,
+          "y": 34.0,
+          "z": 60.0
+        },
+        "look": {
+          "x": 52.5,
+          "y": 34.0,
+          "z": 0.0
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 0
+      },
+      "origin": {
+        "x": 52.5,
+        "y": 34.0,
+        "z": 0.0
+      },
+      "referenceRadiusMeters": 60.0,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          0.0
+        ],
+        "dThetaDeg": [
+          0.0,
+          0.0
+        ],
+        "dR": [
+          0.0,
+          0.0
+        ]
+      },
+      "trajTxt": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": [
+            1.022,
+            1.052,
+            1.075,
+            1.097,
+            1.127,
+            1.15,
+            1.173,
+            1.203,
+            1.225,
+            1.248,
+            1.278,
+            1.3,
+            1.323,
+            1.353,
+            1.375,
+            1.397,
+            1.428,
+            1.45,
+            1.473,
+            1.502,
+            1.525,
+            1.548,
+            1.578,
+            1.6
+          ]
+        },
+        "lookMotionSurface": {
+          "lookMoves": false,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    },
+    "hf010-bullet-time-goal-line-x105": {
+      "intentKind": "bullet-time-orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "review",
+      "resampledFrameIndices": [
+        0,
+        3,
+        7,
+        10,
+        13,
+        17,
+        20,
+        23,
+        27,
+        30,
+        33,
+        37,
+        40,
+        43,
+        47,
+        50,
+        53,
+        57,
+        60,
+        63,
+        67,
+        70,
+        73,
+        77,
+        80
+      ],
+      "referencePose": {
+        "frameIndex": 0,
+        "tMs": 0.0,
+        "eye": {
+          "x": 117.124,
+          "y": 27.0,
+          "z": 6.0
+        },
+        "look": {
+          "x": 105.0,
+          "y": 34.0,
+          "z": 1.22
+        },
+        "focalMultiplier": 1.0,
+        "sourceFrame": 40
+      },
+      "origin": {
+        "x": 105.0,
+        "y": 34.0,
+        "z": 1.22
+      },
+      "referenceRadiusMeters": 14.793,
+      "trajectoryDeltaRanges": {
+        "dPhiDeg": [
+          0.0,
+          60.001
+        ],
+        "dThetaDeg": [
+          0.0,
+          0.001
+        ],
+        "dR": [
+          0.0,
+          0.0
+        ]
+      },
+      "trajTxt": "0 0.209 1.129 2.286 3.824 6.44 8.786 11.429 15.341 18.522 21.858 26.475 30.001 33.527 38.144 41.479 44.66 48.573 51.215 53.561 56.178 57.715 58.872 59.792 60.001\n0 0.001 0.001 0.001 0 0 0 0 0 0 0.001 -0 0 -0 0.001 0 0 0 0 0 0 0.001 0.001 0.001 0\n0 0 0 0 0 0 0 0 0 0 0 -0 0 -0 0 0 0 0 0 0 0 0 0 0 0\n",
+      "gaps": {
+        "lensConditioningSurface": {
+          "hasLensSurface": false,
+          "note": "ViewCrafter's documented config surface (config_help.md) has NO focal/intrinsics parameter — every non-1.0 focalMultiplier in the window is UNCONDITIONED (d_r is a camera translation toward the origin, NOT a zoom; the fixture's adversarial pure-optical-zoom window exercises exactly this gap)",
+          "unconditionedSamples": []
+        },
+        "lookMotionSurface": {
+          "lookMoves": false,
+          "note": "the spherical convention aims the camera AT the origin (the reference's center-pixel point); a MOVING look point (the pan window) has no direct surface — it maps only approximately via the d_x/d_y pan deltas (world pan, ranges [-200, 200] / [-100, 100])"
+        }
+      },
+      "invariantsOk": true
+    }
+  },
+  "note": "the trajTxt blocks are the READY-TO-RUN conditioning inputs for --mode single_view_txt (--traj_txt); the sparse leg consumes {G[0], G[24]} per window (the source-image design in results/comparison-design.json)"
+}

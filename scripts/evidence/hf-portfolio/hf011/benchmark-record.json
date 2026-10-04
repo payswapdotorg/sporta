@@ -1,0 +1,184 @@
+{
+  "benchmarkRun": {
+    "workItem": "HF011",
+    "runBy": "Worker 65-b (flight 8, Worker C's renderer wave — the novel-view baseline)",
+    "provenanceLedgerEcho": {
+      "note": "the candidate block echoes the ViewCrafter row of scripts/evidence/hf-portfolio/provenance-ledger.json VERBATIM (all twelve fields, byte-identical — generated programmatically from the ledger, never retyped); validated by record-benchmark.ts",
+      "candidates": [
+        {
+          "candidate": "ViewCrafter",
+          "taskProfiles": [
+            "renderer.cinematicReCamera"
+          ],
+          "modelUrl": "https://huggingface.co/Drexubery/ViewCrafter_25",
+          "revision": "35af104d9781e9ed5cdaddfcfbbdca5835e1c36f",
+          "modelLicense": "apache-2.0",
+          "codeLicense": "apache-2.0",
+          "weightsProvenance": "video diffusion model generating consistent novel views (25 frames) from single/sparse-image conditioning, per card; no further weight origin stated on the card.",
+          "datasetProvenance": "unknown",
+          "commercialUse": "yes",
+          "gatingState": "candidate",
+          "sources": [
+            "https://huggingface.co/Drexubery/ViewCrafter_25",
+            "https://huggingface.co/api/models/Drexubery/ViewCrafter_25",
+            "https://huggingface.co/Drexubery/ViewCrafter_25/raw/main/README.md",
+            "https://github.com/Drexubery/ViewCrafter",
+            "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/LICENSE",
+            "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/README.md"
+          ],
+          "recordedAt": "2026-10-03T01:40:08Z"
+        }
+      ]
+    },
+    "modelRuntime": {
+      "viewcrafter": {
+        "adapter": "Drexubery/ViewCrafter_25 @ 35af104d9781e9ed5cdaddfcfbbdca5835e1c36f — the pinned bare checkpoint tree (model.ckpt 10.44 GB + the 290-byte card); the code, the DUSt3R pose model, and the sparse sibling live in the candidate's own GitHub repo (the card's own 'Check out https://github.com/Drexubery/ViewCrafter')",
+        "architecture": "video diffusion model, single/sparse-image conditioning, 25-frame novel-view output at 576x1024 (the card + the repo model table verbatim: 'ViewCrafter_25|576x1024|25| 23.5GB & 120s (perframe_ae=True)' on a 40G A100, ddim 50 steps); the pipeline's own documented auxiliary: DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth (2,285,005,731 B, naverlabs, REQUIRED by every shipped run script); the sparse leg pins Drexubery/ViewCrafter_25_sparse (model_sparse.ckpt 10.44 GB — 'specifically trained for the sparse view NVS task')",
+        "conditioningModes": "single_view_txt (image + a 3-line traj file: d_phi/d_theta/d_r sequences, each starting with 0, length 2-25), single_view_target (image + spherical target deltas), single_view_eval (a folder of frames — the repo's OWN evaluation convention: first frame = reference, subsequent = target novel views), sparse_view_interp (a folder of sparse images + --bg_trd)",
+        "venv": "/home/z/hf-bench-8 (uv, python 3.12, huggingface_hub 2.1.1 ONLY — a NEW lean venv; no earlier flight's venv reused; torch NOT installed by design)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_novelview.py --mode full): the pinned sha-verified model.ckpt + the DUSt3R checkpoint + the sparse sibling for the sparse leg, staged under the repo's own pinned stack (python 3.9.16, torch 1.13.1, pytorch3d 0.7.5 cu117 — requirements.txt verbatim), driven by the repo's own inference.py at --device cuda:0; the adapter (fixture -> traj_txt) is already computed per window in results/fixtures-consumption.json",
+        "loadValidation": "REFUSED — the model never loaded on this host: preflight exit code 3, typed refusal resource-infeasible-host (the single-view composition 11.85 GiB = 11.4x free disk; the sparse composition 21.57 GiB = 20.7x; the repo-reported 23.5 GB GPU working set ≈ 5.5x TOTAL RAM; every documented command is CUDA-only; 2 vCPU is a latency infeasibility on top) — see results/preflight-refusal.json"
+      }
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "model-download-disk-infeasible (the single-view leg): the pinned composition is 11.85 GiB (model.ckpt + the documented DUSt3R dependency) vs ~1.04 GiB free disk — 11.4x over; the download itself is the infeasibility",
+        "model-download-disk-infeasible (the sparse-view leg the acceptance names): 21.57 GiB = 20.7x free disk (adds model_sparse.ckpt)",
+        "model-load-ram-infeasible: the repo's OWN reported working set is 23.5 GB GPU memory per take ≈ 5.5x this host's TOTAL RAM (3.95 GiB)",
+        "cuda-required (the repo's own documented posture): every shipped command pins --device 'cuda:0'; the pinned stack is torch 1.13.1 + pytorch3d 0.7.5 cu117 on python 3.9.16 — this host has NO CUDA device",
+        "cpu-latency infeasibility: the reference take is 120 s on a 40G A100; a 2 vCPU CPU-only host is orders of magnitude beyond benchmark-grade wall-clock",
+        "the head-to-head's OTHER lane (HF010's candidates) is itself resource-refused on this host (the merged HF010 typed refusal) — the comparison has NO executable leg here; the design + the shared metric implementations + the machine-checked contract mapping are the honest delivery"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf011/results/preflight-refusal.json",
+      "note": "bounded probes ONLY (HF API file-tree metadata, the 290-byte card, the candidate's own GitHub docs, a zero-body DUSt3R HEAD): weights never downloaded, never committed, never vendored; NO auth wall anywhere (the pinned repo gated=False; DUSt3R HEAD 200 anonymous)"
+    },
+    "fixtures": [
+      {
+        "fixtureId": "hf010-dolly-in-main-touchline",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      },
+      {
+        "fixtureId": "hf010-orbit-goal-behind-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      },
+      {
+        "fixtureId": "hf010-pan-across-box-behind-x0",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      },
+      {
+        "fixtureId": "hf010-crane-rise-behind-goal-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      },
+      {
+        "fixtureId": "hf010-zoom-optical-aerial-tactical",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      },
+      {
+        "fixtureId": "hf010-bullet-time-goal-line-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "status": "consumed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the fixture window is sha-verified CONSUMED from the merged HF010 delivery (the same fixtures the acceptance requires), resampled to its 25 shared target poses and converted to ViewCrafter's traj_txt conditioning — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json"
+      }
+    ],
+    "licensePosture": {
+      "status": "argued-from-recorded-terms-only (never legal advice, never a promotion — HF015 owns all adjudication)",
+      "viewcrafter": "production-eligible-by-recorded-terms with the recorded open edges: apache-2.0 / apache-2.0 (the card frontmatter + the fetched full Apache-2.0 LICENSE text, sha-pinned), commercialUse yes, datasetProvenance unknown (the open edge — the corpus is not in the recorded terms), the README's own disclaimer posture note ('an open-source research exploration rather than a commercial product' — a posture note, NOT a license term), and NO auth wall (the contrast with HF010's Meridian/VGGT-Omega manual gate)",
+      "evidence": "scripts/evidence/hf-portfolio/hf011/results/license-posture.json"
+    },
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight — no model ever ran (the typed refusal). The honest partial evidence: THE same-fixture comparison design (the source-image design, the frame-horizon resampling rule, the shared-vs-HF011-specific metric split, the head-to-head scoring design — results/comparison-design.json), the metric + adapter implementations self-checked 23/23 against hand-computed cases (results/metric-selfcheck.json — implementation evidence, NOT a model measurement), and the fixtures-consumption report (every window's 25-pose resampling + spherical adapter output + the typed lens/look gaps)",
+      "contractCompatibilityVerdict": "PARTIAL — the sparse-view IMAGE conditioning class vs the frozen profile: the source-reference input maps-with-adapter, the camera path maps-with-adapter (the implemented spherical adapter; lens absent, moving-look approximate), the SWM snapshot/events input has NO model surface and the static-image class does not consume the SWM's dynamic content (the bullet-time-aligned vs plain-move typed risk); outputs: the alternate-view video maps (25-frame horizon), renderer telemetry + geometry/SWM consistency metadata do-not-map (external measurement only)",
+      "evidence": "scripts/evidence/hf-portfolio/hf011/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight — no model ever ran. The ready-to-run path implements: wall_clock_ms_per_output_second per take (the SHARED cost metric imported from hf010) + cold-start download bytes (11.85 GiB single-view / 21.57 GiB sparse) + the repo's own reference figure recorded as a CARD REPORT (23.5 GB GPU + 120 s per 576x1024 25-frame take on a 40G A100) — never presented as a measurement on this host"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host; peakGpuMemoryGiB is typed N/A, never zero); the repo's own reported 23.5 GB GPU working set is a card-reported figure, recorded as arithmetic input, never a measurement",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 3.95 GiB vs the repo-reported 23.5 GB working set ≈ 5.5x; process RSS would be zero — the model never loaded"
+    },
+    "resourceCaveats": [
+      "GPU N/A honestly (no CUDA device on this host; the repo's own commands are cuda:0-only)",
+      "weights NEVER downloaded (bounded metadata/card/doc probes only; the lean venv carries huggingface_hub alone)",
+      "no fabricated numbers: every metric-shaped value in this record is a design, a hand-computed self-check case, a card-reported figure explicitly labeled as such, or a refusal",
+      "the full-mode host floor (>= 32 GiB RAM, >= 64 GiB free disk, CUDA) is fail-closed and NEGATIVE-TESTED on this host (exit 3)",
+      "the consumed fixture is sha-verified twice (the python preflight exit-2 gate + contract_compatibility.ts) — the same-fixture mandate is enforced, not asserted",
+      "the shared metric implementations are IMPORTED from the merged hf010 flight's benchmark_renderer.py (the same estimator, never re-implemented) — the head-to-head's fairness rule is machine-checkable"
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/preflight-refusal.json",
+        "description": "the EXECUTED preflight (exit 3): the fixture sha gate, host resources, the pinned candidate probe + the sparse sibling + the DUSt3R dependency HEAD, the resource arithmetic, the typed refusal"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/load-analysis.json",
+        "description": "the checkpoint composition at the pinned revision (model.ckpt 10.44 GB), the documented DUSt3R auxiliary (2,285,005,731 B), the sparse sibling, the host-gap arithmetic, the fetched card/doc sha pins"
+      },
+      "licensePosture": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/license-posture.json",
+        "description": "the license-posture verdict argued from the recorded terms only (apache-2.0 both, commercial yes, datasetProvenance unknown as the open edge, the disclaimer posture note, no auth wall)"
+      },
+      "comparisonDesign": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/comparison-design.json",
+        "description": "THE acceptance core: the same-fixture comparison design — the source-image design (the renderer-3d ground-truth renders feeding both lanes; single-view G[0] / sparse {G[0], G[24]}), the frame-horizon rule (81->25 shared target poses, round(80*i/24)), the metric split (SHARED: the PnP camera adherence / temporal / hallucination / pixel-fidelity / cost estimators imported from hf010; HF011-SPECIFIC: sparse-view geometric consistency via depth/point-track reprojection, source-content identity, the 1-vs-2-view ablation; HF010-SIDE comparators typed), the head-to-head scoring design (per-window side-by-side, fairness rules, N/A-typed columns), the resolution adapter"
+      },
+      "metricImplementations": {
+        "path": "scripts/evidence/hf-portfolio/hf011/benchmark_novelview.py",
+        "description": "the metric + adapter implementations with the exact definitions in the module docstring (the shared estimators imported from hf010; psnr_db, source_content_identity_ssim, reprojection_residual_px, the spherical adapter, the resampling rule) — typed not-measured"
+      },
+      "metricSelfCheck": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/metric-selfcheck.json",
+        "description": "the EXECUTED implementation self-verification (23/23: the fixture sha pin + the resampling values + the spherical sign conventions + the traj format contract + the shared-estimator hand values + PSNR/SSIM/reprojection/hallucination/cost hand cases + the all-windows adapter invariants) — implementation evidence, NOT a model measurement"
+      },
+      "fixturesConsumption": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/fixtures-consumption.json",
+        "description": "the SAME-FIXTURE consumption report: each of the 6 HF010 windows resampled to its 25 shared target poses, converted to ViewCrafter's traj_txt conditioning (ready-to-run), with the typed lens + look gaps per window"
+      },
+      "contractMappings": {
+        "path": "scripts/evidence/hf-portfolio/hf011/results/contract-compatibility.json",
+        "description": "the machine-checked mappings: 5 task-profile INPUT rows + 3 OUTPUT rows + the 6-axis conditioning-class comparison (the sparse-view class vs HF010's video class — the HF014 surface) + the rights table + the PARTIAL profile verdict, against 11 needle-checked repo authorities"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf011/benchmark_novelview.py",
+        "description": "preflight mode EXECUTED on this host (exit 3); selfcheck mode EXECUTED (23/23); full mode NEGATIVE-TESTED fail-closed exit 3 (the >= 32 GiB / >= 64 GiB / CUDA host floor) — the driver comments pin the exact execution path an adequate host runs"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "zero executed evidence: the compute leg is resource-refused on this host (and the HF010 comparison lane likewise) — no novel-view fidelity number exists anywhere in this flight",
+        "the head-to-head requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) for BOTH lanes — the HF010 candidates are 20-85 GB compositions and ViewCrafter's own reported working set is 23.5 GB GPU",
+        "datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+        "the sparse-view conditioning class's dynamic-content risk: the static-image conditioning does not consume the SWM's moving entities (bullet-time-aligned vs plain-move windows — the typed hallucination signal), unadjudicated",
+        "the lens-control gap: ViewCrafter has no focal surface — the fixture's adversarial pure-optical-zoom window can never be conditioned faithfully on this candidate (the divergence is the measurement, not a defect to hide)"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone. The recorded value of this flight is the same-fixture comparison design + the shared metric implementations + the machine-checked conditioning-class mapping (the HF014 runway), NOT any measurement."
+    }
+  }
+}

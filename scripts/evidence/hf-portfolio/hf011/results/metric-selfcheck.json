@@ -1,0 +1,179 @@
+{
+  "label": "EXECUTED selfcheck (implementation evidence, NOT a model measurement — no model ran, no weights downloaded)",
+  "cases": [
+    {
+      "case": "fixture-sha-pin",
+      "description": "the consumed fixture is EXACTLY the HF010 pin (hf010.camera-paths@1, sha256 66ef1b4ad68208f9…) — the acceptance's 'same fixtures' enforced",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "resample-81-25-shape",
+      "description": "resample_pose_indices(81, 25) has 25 entries, starts at 0, ends at 80, strictly monotone",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "resample-81-25-values",
+      "description": "the pinned values: i=1 -> 3 (round(80/24)=round(3.33)), i=2 -> 7 (round(6.67)), i=12 -> 40 (the exact midpoint), i=24 -> 80",
+      "expected": [
+        3,
+        7,
+        40,
+        80
+      ],
+      "actual": [
+        3,
+        7,
+        40,
+        80
+      ],
+      "pass": true
+    },
+    {
+      "case": "spherical-radius",
+      "description": "pose_to_spherical((10,0,0), origin): r = 10.0 exactly",
+      "expected": 10.0,
+      "actual": 10.0,
+      "pass": true
+    },
+    {
+      "case": "spherical-initial-phi",
+      "description": "the doc's initial camera (r, 0, 0): azimuth 0.0, elevation 0.0 (the reference convention)",
+      "expected": 0.0,
+      "actual": 0.0,
+      "pass": true
+    },
+    {
+      "case": "spherical-phi-90",
+      "description": "pose_to_spherical((0,10,0), origin): azimuth 90.0 (the camera moved to +y)",
+      "expected": 90.0,
+      "actual": 90.0,
+      "pass": true
+    },
+    {
+      "case": "spherical-d-theta-sign",
+      "description": "d_theta = -(elev - elev0): a camera 30 deg UP (elevation +30) yields d_theta = -30 — the doc's 'a negative d_theta moves the camera up'",
+      "expected": -30.0,
+      "actual": -30.0,
+      "pass": true
+    },
+    {
+      "case": "spherical-d-r-fraction",
+      "description": "d_r is the RELATIVE fraction (r + r*dr): r0=10 -> r1=8 gives -0.2 — run.sh's own --d_r -.2 ('moves the camera forward (closer to the origin)')",
+      "expected": -0.2,
+      "actual": -0.2,
+      "pass": true
+    },
+    {
+      "case": "traj-format",
+      "description": "the traj txt is 3 lines (d_phi / d_theta / d_r), each starting with 0, lengths within [2, 25] (render_help.md verbatim: 'Each sequence should start with 0, and the length of each sequence should range from 2 to 25')",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "traj-dphi-30",
+      "description": "the second pose at azimuth +30 yields d_phi = +30 ('a positive d_phi moves the camera to the right')",
+      "expected": 30.0,
+      "actual": 30.0,
+      "pass": true
+    },
+    {
+      "case": "lens-surface-absent",
+      "description": "the zoom-optical window's non-1.0 focalMultipliers are ALL unconditioned (ViewCrafter documents NO lens/intrinsics surface — the typed gap the adversarial window measures)",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "angular-90-shared",
+      "description": "camera_angular_error_deg (SHARED implementation, imported from hf010) of (1,0,0) vs (0,1,0) = 90.0 — the same hand value as the HF010 selfcheck",
+      "expected": 90.0,
+      "actual": 90.0,
+      "pass": true
+    },
+    {
+      "case": "endpoint-translation-shared",
+      "description": "camera_endpoint_translation_error_m (SHARED) of (10,0,0) vs (7,0,0) = 3.0 m",
+      "expected": 3.0,
+      "actual": 3.0,
+      "pass": true
+    },
+    {
+      "case": "psnr-20db",
+      "description": "psnr_db(mse = 255^2/100 = 650.25) = 20.0 dB (10*log10(100))",
+      "expected": 20.0,
+      "actual": 20.0,
+      "pass": true
+    },
+    {
+      "case": "psnr-40db",
+      "description": "psnr_db(mse = 255^2/10^4 = 6.5025) = 40.0 dB",
+      "expected": 40.0,
+      "actual": 40.0,
+      "pass": true
+    },
+    {
+      "case": "ssim-identity",
+      "description": "ssim_constant_patches(128, 128) = 1.0 — identical constant patches (the shared implementation)",
+      "expected": 1.0,
+      "actual": 1.0,
+      "pass": true
+    },
+    {
+      "case": "ssim-contrast",
+      "description": "ssim_constant_patches(128, 0) = C1/(128^2+C1) = 6.5025/16390.5025 ≈ 0.0003966 (hand-computed closed form)",
+      "expected": 0.0003967236513950686,
+      "actual": 0.00039672365139506867,
+      "pass": true
+    },
+    {
+      "case": "source-identity-1",
+      "description": "source_content_identity_ssim(140, 140) = 1.0 — the reference patch fully preserved",
+      "expected": 1.0,
+      "actual": 1.0,
+      "pass": true
+    },
+    {
+      "case": "reproject-on-axis",
+      "description": "a track point ON the optical axis reprojects to the principal point (640, 360) of the 1280x720 convention — residual vs (640, 360) = 0.0 px",
+      "expected": 0.0,
+      "actual": 0.0,
+      "pass": true
+    },
+    {
+      "case": "reproject-offset",
+      "description": "a track point 2 m up at depth 20 with f=100: v = 360 - 100*2/20 = 350 — residual vs (640, 350) = 0.0, vs (640, 360) = 10.0 px",
+      "expected": 10.0,
+      "actual": 10.0,
+      "pass": true
+    },
+    {
+      "case": "hallucination-rate",
+      "description": "hallucinated_region_rate(30, 1000) = 0.03 (the shared implementation)",
+      "expected": 0.03,
+      "actual": 0.03,
+      "pass": true
+    },
+    {
+      "case": "cost-per-output-second",
+      "description": "wall_clock_ms_per_output_second(120000 ms, 25 frames, 25 fps) = 120000 — the repo's OWN reported 120 s per take (A100) expressed in the shared cost metric",
+      "expected": 120000.0,
+      "actual": 120000.0,
+      "pass": true
+    },
+    {
+      "case": "adapter-invariants-all-windows",
+      "description": "every window's 25-pose trajectory: row 0 all-zero deltas (the reference), 25 rows, the lens gap typed — the doc's format contract",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    }
+  ],
+  "total": 23,
+  "passed": 23,
+  "failures": 0
+}
