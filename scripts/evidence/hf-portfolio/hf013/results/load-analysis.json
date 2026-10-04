@@ -1,0 +1,353 @@
+{
+  "label": "the LTX-2.3 family load analysis (EXECUTED via bounded HF API metadata probes — weights never downloaded)",
+  "probes": {
+    "candidatePinned": {
+      "ok": true,
+      "repoId": "Lightricks/LTX-2.3",
+      "requestedRevision": "3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc",
+      "resolvedSha": "3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc",
+      "gated": false,
+      "note": "the pinned candidate revision (the ledger row's own pin)",
+      "fileCount": 12,
+      "totalBytes": 156009152365
+    },
+    "candidatePinnedFiles": [
+      {
+        "rfilename": ".gitattributes",
+        "sizeBytes": 1571
+      },
+      {
+        "rfilename": "LICENSE",
+        "sizeBytes": 21399
+      },
+      {
+        "rfilename": "README.md",
+        "sizeBytes": 6582
+      },
+      {
+        "rfilename": "ltx-2.3-22b-dev.safetensors",
+        "sizeBytes": 46149344974
+      },
+      {
+        "rfilename": "ltx-2.3-22b-distilled-1.1.safetensors",
+        "sizeBytes": 46149345334
+      },
+      {
+        "rfilename": "ltx-2.3-22b-distilled-lora-384-1.1.safetensors",
+        "sizeBytes": 7605507256
+      },
+      {
+        "rfilename": "ltx-2.3-22b-distilled-lora-384.safetensors",
+        "sizeBytes": 7605507256
+      },
+      {
+        "rfilename": "ltx-2.3-22b-distilled.safetensors",
+        "sizeBytes": 46149345038
+      },
+      {
+        "rfilename": "ltx-2.3-spatial-upscaler-x1.5-1.0.safetensors",
+        "sizeBytes": 1090125794
+      },
+      {
+        "rfilename": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+        "sizeBytes": 995743560
+      },
+      {
+        "rfilename": "ltx-2.3-temporal-upscaler-x2-1.0.safetensors",
+        "sizeBytes": 261944000
+      },
+      {
+        "rfilename": "ltx2.3-open.png",
+        "sizeBytes": 2259601
+      }
+    ],
+    "candidateHeadSha": "3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc",
+    "candidateHeadDrift": false,
+    "auxRepos": {
+      "Lightricks/LTX-2": {
+        "ok": true,
+        "repoId": "Lightricks/LTX-2",
+        "requestedRevision": null,
+        "resolvedSha": "dfcc2108383fe1aaa0584bdf55d368a4bdadd90c",
+        "gated": false,
+        "note": "the LTX-2 component tree — the LTX-2.3 loading recipe's text encoder / VAE / tokenizer sources",
+        "fileCount": 69,
+        "totalBytes": 314346439951
+      },
+      "Lightricks/LTX-2.5": {
+        "ok": true,
+        "repoId": "Lightricks/LTX-2.5",
+        "requestedRevision": null,
+        "resolvedSha": "2356ce76915d6c48d313d7e8b25900e1dd3abaa8",
+        "gated": "auto",
+        "note": "the LTX-2.5 component tree — the current ltx-pipelines quick-start aux source (gated auto)",
+        "fileCount": 17,
+        "totalBytes": 200853702178
+      }
+    },
+    "reachabilityRangeProbes": {
+      "ltx-2.3-22b-dev.safetensors": {
+        "url": "https://huggingface.co/Lightricks/LTX-2.3/resolve/3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc/ltx-2.3-22b-dev.safetensors",
+        "httpStatus": 206,
+        "bytesRead": 1,
+        "verdict": "anonymously-reachable (no auth wall)"
+      },
+      "ltx-2.3-temporal-upscaler-x2-1.0.safetensors": {
+        "url": "https://huggingface.co/Lightricks/LTX-2.3/resolve/3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc/ltx-2.3-temporal-upscaler-x2-1.0.safetensors",
+        "httpStatus": 206,
+        "bytesRead": 1,
+        "verdict": "anonymously-reachable (no auth wall)"
+      }
+    }
+  },
+  "composition": {
+    "label": "the LTX-2.3 checkpoint family at the pinned revision (per-file sizes from the HF API — metadata only, never downloaded)",
+    "candidateTreeBytes": 156009152365,
+    "candidateTreeGiB": 145.295,
+    "candidateCarriesOnlyTransformersAndUpscalers": true,
+    "candidateCarriesOnlyTransformersAndUpscalersNote": "the LTX-2.3 repo has NO text encoder, NO VAEs, NO tokenizer — the documented loading recipe (card → LTX-2 codebase → ltx-pipelines) takes them from the Lightricks/LTX-2 component tree",
+    "auxiliaryComponents": {
+      "source": "Lightricks/LTX-2 (the component tree — probed metadata only)",
+      "textEncoderGemma": 100361856768,
+      "videoVae": 2444982370,
+      "audioVae": 106507972,
+      "vocoder": 111204124,
+      "latentUpsampler": 995743482,
+      "connectors": 2862957976,
+      "tokenizer": 39231898
+    },
+    "members": [
+      {
+        "member": "ltx-2.3-22b-dev",
+        "checkpointBytes": 46149344974,
+        "note": "the full model, flexible and trainable in bf16 (the card's own table)",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 46149344974,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 152076086082,
+        "bf16WorkingSetBytes": 149173896208
+      },
+      {
+        "member": "ltx-2.3-22b-distilled",
+        "checkpointBytes": 46149345038,
+        "note": "the distilled version of the full model, 8 steps, CFG=1 (the card's own table)",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 46149345038,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 152076086146,
+        "bf16WorkingSetBytes": 149173896272
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-1.1",
+        "checkpointBytes": 46149345334,
+        "note": "the distilled v1.1, 8 steps, CFG=1 — improved audio vs v1.0 (the card's own table)",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 46149345334,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 152076086442,
+        "bf16WorkingSetBytes": 149173896568
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-lora-384",
+        "checkpointBytes": 7605507256,
+        "note": "a LoRA version of the distilled model APPLICABLE TO THE FULL MODEL (the card: the LoRA is not standalone — the full 22b dev transformer is also required)",
+        "loraAdapter": true,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 7605507256,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976,
+          "plusDevTransformerForLoRA": 46149344974
+        },
+        "minimalDownloadBytes": 159681593338,
+        "bf16WorkingSetBytes": 156779403464
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-lora-384-1.1",
+        "checkpointBytes": 7605507256,
+        "note": "a LoRA version of the v1.1 distilled model applicable to the full model (same non-standalone rule)",
+        "loraAdapter": true,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 7605507256,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976,
+          "plusDevTransformerForLoRA": 46149344974
+        },
+        "minimalDownloadBytes": 159681593338,
+        "bf16WorkingSetBytes": 156779403464
+      },
+      {
+        "member": "ltx-2.3-spatial-upscaler-x1.5-1.0",
+        "checkpointBytes": 1090125794,
+        "note": "an x1.5 SPATIAL upscaler for the ltx-2.3 LATENTS — a latent-space stage of the multiscale pipeline, NOT a standalone image upscaler",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 1090125794,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 107016866902,
+        "bf16WorkingSetBytes": 104114677028
+      },
+      {
+        "member": "ltx-2.3-spatial-upscaler-x2-1.1",
+        "checkpointBytes": 995743560,
+        "note": "an x2 spatial upscaler for the ltx-2.3 latents (multiscale pipelines)",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 995743560,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 106922484668,
+        "bf16WorkingSetBytes": 104020294794
+      },
+      {
+        "member": "ltx-2.3-temporal-upscaler-x2-1.0",
+        "checkpointBytes": 261944000,
+        "note": "an x2 TEMPORAL upscaler for the ltx-2.3 latents — higher FPS (multiscale pipelines)",
+        "loraAdapter": false,
+        "downloadCompositionBytes": {
+          "ltx23Transformer": 261944000,
+          "textEncoderGemma": 100361856768,
+          "videoVae": 2444982370,
+          "audioVae": 106507972,
+          "vocoder": 111204124,
+          "tokenizer": 39231898,
+          "connectors": 2862957976
+        },
+        "minimalDownloadBytes": 106188685108,
+        "bf16WorkingSetBytes": 103286495234
+      }
+    ]
+  },
+  "arithmetic": {
+    "label": "the host-gap arithmetic (EXECUTED — bounded probes, weights never downloaded)",
+    "host": {
+      "availableRamGiB": 3.947,
+      "freeDiskGiB": 1.037,
+      "cpuCores": 2,
+      "cuda": "N/A — no GPU on the benchmark host"
+    },
+    "perMember": [
+      {
+        "member": "ltx-2.3-22b-dev",
+        "minimalDownloadGiB": 141.632,
+        "downloadVsFreeDisk": 136.6,
+        "bf16WorkingSetGiB": 138.929,
+        "workingSetVsTotalRam": 35.2
+      },
+      {
+        "member": "ltx-2.3-22b-distilled",
+        "minimalDownloadGiB": 141.632,
+        "downloadVsFreeDisk": 136.6,
+        "bf16WorkingSetGiB": 138.929,
+        "workingSetVsTotalRam": 35.2
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-1.1",
+        "minimalDownloadGiB": 141.632,
+        "downloadVsFreeDisk": 136.6,
+        "bf16WorkingSetGiB": 138.929,
+        "workingSetVsTotalRam": 35.2
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-lora-384",
+        "minimalDownloadGiB": 148.715,
+        "downloadVsFreeDisk": 143.4,
+        "bf16WorkingSetGiB": 146.012,
+        "workingSetVsTotalRam": 37.0
+      },
+      {
+        "member": "ltx-2.3-22b-distilled-lora-384-1.1",
+        "minimalDownloadGiB": 148.715,
+        "downloadVsFreeDisk": 143.4,
+        "bf16WorkingSetGiB": 146.012,
+        "workingSetVsTotalRam": 37.0
+      },
+      {
+        "member": "ltx-2.3-spatial-upscaler-x1.5-1.0",
+        "minimalDownloadGiB": 99.667,
+        "downloadVsFreeDisk": 96.1,
+        "bf16WorkingSetGiB": 96.964,
+        "workingSetVsTotalRam": 24.6
+      },
+      {
+        "member": "ltx-2.3-spatial-upscaler-x2-1.1",
+        "minimalDownloadGiB": 99.579,
+        "downloadVsFreeDisk": 96.0,
+        "bf16WorkingSetGiB": 96.876,
+        "workingSetVsTotalRam": 24.5
+      },
+      {
+        "member": "ltx-2.3-temporal-upscaler-x2-1.0",
+        "minimalDownloadGiB": 98.896,
+        "downloadVsFreeDisk": 95.4,
+        "bf16WorkingSetGiB": 96.193,
+        "workingSetVsTotalRam": 24.4
+      }
+    ],
+    "wholeTreeGiB": 145.295,
+    "wholeTreeVsFreeDisk": 140.1,
+    "smallestMemberGiB": 0.244,
+    "verdict": "resource-infeasible-host"
+  },
+  "loadingRecipe": {
+    "documentedSource": "the LTX-2.3 card → the LTX-2 codebase → packages/ltx-pipelines (the card's own 'Run locally' section)",
+    "recipe": [
+      "--transformer-path (one ltx-2.3-22b-*.safetensors from the candidate repo)",
+      "--text-encoder-path (Gemma, from the LTX-2 component tree)",
+      "--video-vae-path + --audio-vae-path (from the LTX-2 component tree)",
+      "--spatial-upsampler-path / --temporal-upscalings (the candidate repo's latent upscalers)",
+      "python -m ltx_pipelines.distilled | ti2vid_two_stages | dfr_pipeline (CUDA-first; no documented CPU-only path)"
+    ],
+    "ltxPipelinesReadmeSha256": "984753627e56687ce3f9001986e5bc072fca85deffcf3d14ce1c05ef8347acb0",
+    "ltxPipelinesReadmeBytes": 3223
+  },
+  "hostAtExecution": {
+    "availableRam": 4237889536,
+    "availableRamGiB": 3.947,
+    "freeDisk": 1113247744,
+    "freeDiskGiB": 1.037,
+    "cpuCores": 2,
+    "cuda": "N/A — no GPU on the benchmark host",
+    "note": "CPU wall-clock context only; GPU N/A honestly (never zero, never invented)"
+  },
+  "note": "the committed bytes are the executing worker's canonical evidence; a re-run differs only in live availableRam/freeDisk stats (the hf010/hf011/hf012 precedent)"
+}

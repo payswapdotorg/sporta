@@ -1,0 +1,36 @@
+{
+  "workItem": "HF013 — Joint audio-video benchmark",
+  "candidate": "LTX-2.3",
+  "pinnedRevision": "3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc",
+  "pinnedRevisionVerified": true,
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "weightsDownloaded": false,
+  "boundedProbesOnly": true,
+  "boundedProbesNote": "HF API metadata (file sizes at the pinned revision) + 1-byte anonymous Range reachability probes + TEXT license-document fetches (~21-30 KB each) — the weights were NEVER downloaded, never committed, never vendored",
+  "authWall": "none — the pinned repo is gated=False and the Range-0 probe returned anonymously (the honest contrast with HF010's Meridian/VGGT-Omega manual gate); the AUX Lightricks/LTX-2.5 repo is gated auto but is NOT a download dependency of the LTX-2.3 recipe (the LTX-2 component tree is ungated)",
+  "host": {
+    "availableRamGiB": 3.947,
+    "freeDiskGiB": 1.037,
+    "cpuCores": 2,
+    "cuda": "N/A — no GPU on the benchmark host"
+  },
+  "reasons": [
+    "the pinned candidate tree alone is 145.295 GiB = 140.1x the host's free disk (1.037 GiB)",
+    "the MINIMAL single-checkpoint loading composition (one 22B transformer + the Gemma text encoder + video/audio VAEs + vocoder + tokenizer from the Lightricks/LTX-2 component tree) is ~98.896 GiB = 95.4x free disk",
+    "the bf16 transformer+encoder working set for the smallest 22B member is 96.193 GiB = 24.4x the host's TOTAL RAM (3.947 GiB)",
+    "the documented recipe is GPU-first: the card's own codebase note ('tested with Python >=3.12, CUDA version >12.7, and supports PyTorch ~= 2.7') and the ltx-pipelines optimization path (FP8 quantization / offload exist 'in cases of GPU memory constraints' — there is no documented CPU-only generation path)",
+    "2-vCPU latency infeasibility: a 22B DiT at 8 distilled steps per frame-batch has no CPU-realtime prospect on 2 vCPU (the honest latency verdict is the typed refusal, never a fabricated number)",
+    "even the smallest artifact (the 0.244 GiB temporal upscaler) is a LATENT-space stage: it consumes ltx-2.3 latents, so it cannot run without the full generation pipeline loaded — there is NO independently-runnable member of this family on this host"
+  ],
+  "executedAtUtc": "2026-10-04T06:03:13Z",
+  "partialDelivered": [
+    "the load analysis per family member (results/load-analysis.json)",
+    "the license posture — FIRST-CLASS, the acceptance's own words (results/license-posture.json)",
+    "the model I/O surface vs the three frozen profiles (results/model-io-surface.json)",
+    "the three-profile metric designs, implemented + self-checked (results/metric-selfcheck.json)",
+    "the upscaling pipeline comparison vs the repo's own output pipeline (results/upscaling-pipeline-comparison.json)",
+    "the machine-checkable contract mapping (results/contract-compatibility.json via contract_compatibility.ts)",
+    "the ready-to-run full mode for an adequate host (fail-closed exit 3 here — negative-tested)"
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "label": "IMPLEMENTATION EVIDENCE — the metric designs self-checked against hand-computed cases. NOT a model measurement: no model ran on this host (the typed refusal); every value below is a hand-computable case of the IMPLEMENTED definitions.",
+  "total": 31,
+  "passed": 31,
+  "failures": 0,
+  "sharedEstimatorsImportedFromHf010": [
+    "ssim_constant_patches",
+    "flow_warp_residual",
+    "_Flow",
+    "hallucinated_region_rate",
+    "wall_clock_ms_per_output_second",
+    "player_identity_stability"
+  ],
+  "theEvidenceChainExclusionVerdict": {
+    "statement": "generated commentary audio can NEVER be evidence-chain audio (the HF007/HF008 transcription-vs-generation boundary; W207/W208 the authorities); machine-check: generated_audio_evidence_exclusion",
+    "machineCheck": "generated_audio_evidence_exclusion",
+    "refusalDirectionProven": true,
+    "acceptedShapes": [
+      "W207: modality audio, provenance OBSERVED, payloadKind transcription (text verbatim)",
+      "W208: provenance DERIVED over observed transcriptions (deterministic segmentation)"
+    ],
+    "refusedShapes": [
+      "provenance GENERATED / payloadKind generation / source audioVideoGeneration-output",
+      "any unknown provenance/payload shape (fail-closed)"
+    ]
+  },
+  "cases": [
+    {
+      "caseId": "av-onset-sync-basic",
+      "description": "onset sync: fps 24, frames [12,24,36] vs onsets [480,1010,1490] ms -> mean |err| = 13.3333 ms",
+      "computed": 13.3333,
+      "expected": 13.3333,
+      "passed": true
+    },
+    {
+      "caseId": "av-onset-sync-perfect",
+      "description": "onset sync: perfectly synced pairs -> 0.0 ms",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "av-xcorr-lag-2-hops",
+      "description": "cross-correlation: audio lags video by 2 hops (hop 40 ms) -> +80 ms",
+      "computed": 80.0,
+      "expected": 80.0,
+      "passed": true
+    },
+    {
+      "caseId": "av-xcorr-aligned",
+      "description": "cross-correlation: identical series -> 0 ms",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "commentary-wer-identical",
+      "description": "WER: identical words -> 0.0",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "commentary-wer-substitution",
+      "description": "WER: 1 substitution of 4 -> 0.25",
+      "computed": 0.25,
+      "expected": 0.25,
+      "passed": true
+    },
+    {
+      "caseId": "commentary-wer-delins",
+      "description": "WER: 1 deletion + 1 insertion of 3 reference words -> 0.6667",
+      "computed": 0.6667,
+      "expected": 0.6667,
+      "passed": true
+    },
+    {
+      "caseId": "audio-hallucination-1-of-3",
+      "description": "audio hallucination: 3 generated (100/320/600), authorized (110/315/1300), tolerance 100 ms — 600 unmatched -> 0.3333",
+      "computed": 0.3333,
+      "expected": 0.3333,
+      "passed": true
+    },
+    {
+      "caseId": "audio-hallucination-zero",
+      "description": "audio hallucination: all matched -> 0.0",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "evidence-exclusion-generated-refused",
+      "description": "THE exclusion: a plan routing GENERATED commentary audio into the evidence chain is REFUSED (the HF007/HF008 boundary; W207/W208 the authorities)",
+      "computed": "REFUSED",
+      "expected": "REFUSED",
+      "passed": true
+    },
+    {
+      "caseId": "evidence-exclusion-transcription-accepted",
+      "description": "the HF008 reversal holds: transcription-of-observed-audio (W207's shape) is ACCEPTED",
+      "computed": "ACCEPTED",
+      "expected": "ACCEPTED",
+      "passed": true
+    },
+    {
+      "caseId": "evidence-exclusion-w208-accepted",
+      "description": "W208's DERIVED-over-observed-transcriptions shape is ACCEPTED (deterministic segmentation, not generation)",
+      "computed": "ACCEPTED",
+      "expected": "ACCEPTED",
+      "passed": true
+    },
+    {
+      "caseId": "evidence-exclusion-unknown-refused",
+      "description": "fail-closed: an unknown provenance/payload shape is REFUSED, never silently admitted (no GENERATED member exists in ProvenanceKind by design)",
+      "computed": "REFUSED",
+      "expected": "REFUSED",
+      "passed": true
+    },
+    {
+      "caseId": "reference-fidelity-mse",
+      "description": "i2v first-frame fidelity: constant 128 vs 120 -> mse 64",
+      "computed": 64.0,
+      "expected": 64.0,
+      "passed": true
+    },
+    {
+      "caseId": "reference-fidelity-psnr",
+      "description": "i2v fidelity: psnr(64) at peak 255 = 10*log10(255^2/64) = 30.0691 dB",
+      "computed": 30.069,
+      "expected": 30.0691,
+      "passed": true
+    },
+    {
+      "caseId": "shared-ssim-hand",
+      "description": "the SHARED hf010 SSIM closed form: mu 128 vs 120 -> (2*128*120 + C1)/(128^2+120^2+C1), C1=6.5025",
+      "computed": 0.997921,
+      "expected": 0.997921,
+      "passed": true
+    },
+    {
+      "caseId": "shared-hallucination-hand",
+      "description": "the SHARED hf010 hallucinated_region_rate: 3 of 100 pixels outside V -> 0.03",
+      "computed": 0.03,
+      "expected": 0.03,
+      "passed": true
+    },
+    {
+      "caseId": "shared-cost-hand",
+      "description": "the SHARED hf010 wall_clock_ms_per_output_second: 120 000 ms over 120 frames at 25 fps -> 25 000",
+      "computed": 25000.0,
+      "expected": 25000.0,
+      "passed": true
+    },
+    {
+      "caseId": "shared-identity-hand",
+      "description": "the SHARED hf010 player_identity_stability: 0 id switches over 2 entities x 25 frames -> 1.0",
+      "computed": 1.0,
+      "expected": 1.0,
+      "passed": true
+    },
+    {
+      "caseId": "shared-flow-residual-zero",
+      "description": "the SHARED hf010 flow_warp_residual: perfect flow -> 0.0",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "roundtrip-identity-mse",
+      "description": "no-lying: identity roundtrip -> mse 0",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "roundtrip-identity-psnr",
+      "description": "no-lying: identity roundtrip -> psnr inf",
+      "computed": "Infinity",
+      "expected": "Infinity",
+      "passed": true
+    },
+    {
+      "caseId": "roundtrip-shift-mse",
+      "description": "no-lying: constant 128 vs 120 -> mse 64",
+      "computed": 64.0,
+      "expected": 64.0,
+      "passed": true
+    },
+    {
+      "caseId": "roundtrip-shift-ssim",
+      "description": "no-lying: constant-patch SSIM closed form (shared estimator)",
+      "computed": 0.997921,
+      "expected": 0.997921,
+      "passed": true
+    },
+    {
+      "caseId": "no-invented-content-2-of-4",
+      "description": "no_invented_content_rate: deviations [1, 30, 2, 60] with tolerance 8 -> 0.5",
+      "computed": 0.5,
+      "expected": 0.5,
+      "passed": true
+    },
+    {
+      "caseId": "high-freq-energy-edge",
+      "description": "high_freq_energy: [0,0,255,0,0] -> 255^2 + 510^2 + 255^2 = 390150",
+      "computed": 390150.0,
+      "expected": 390150.0,
+      "passed": true
+    },
+    {
+      "caseId": "detail-gain-baseline-flat",
+      "description": "detail_preservation_gain: flat baseline (denominator 0) -> 0.0 by the exact definition",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "detail-gain-2x",
+      "description": "detail_preservation_gain: source 10, baseline 30, candidate 50 -> 2.0 (detail beyond the resampling floor)",
+      "computed": 2.0,
+      "expected": 2.0,
+      "passed": true
+    },
+    {
+      "caseId": "temporal-coherence-perfect",
+      "description": "temporal_upscale_motion_coherence: zero residuals over motion 4 -> 0.0",
+      "computed": 0.0,
+      "expected": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "temporal-coherence-half",
+      "description": "temporal coherence: mean residual 2 over motion 4 -> 0.5 (interpolated motion half-off)",
+      "computed": 0.5,
+      "expected": 0.5,
+      "passed": true
+    },
+    {
+      "caseId": "artifact-rate-1-of-3",
+      "description": "artifact_block_boundary_rate: discontinuities [2, 20, 3] with tolerance 5 -> 0.3333",
+      "computed": 0.3333,
+      "expected": 0.3333,
+      "passed": true
+    }
+  ],
+  "executedAtUtc": "2026-10-04T06:05:22Z"
+}

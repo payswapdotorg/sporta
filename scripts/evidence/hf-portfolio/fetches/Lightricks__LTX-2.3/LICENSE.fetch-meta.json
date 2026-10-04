@@ -1,0 +1,13 @@
+{
+  "fetches": [
+    {
+      "url": "https://huggingface.co/Lightricks/LTX-2.3/resolve/3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc/LICENSE",
+      "httpStatus": 200,
+      "bytes": 21399,
+      "sha256": "e28ef68d90e17b06308e4c5cba5c9a967b70c3d67f87ddc3dfc46a312cb6a134",
+      "note": "the HF repo's own LICENSE at the PINNED revision — the LTX-2 Community License Agreement (the LICENSE-2 agreement text, HF-side formatting); fetched bounded by the HF013 flight (a text document, never weights)"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-04T05:59:00Z",
+  "fetchedBy": "HF013 (worker 65-d) — the license-documentation leg, first-class"
+}
