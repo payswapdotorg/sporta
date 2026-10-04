@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-decode-seam-recovery-deploy-record",
+  "note": "the deploy leg the 65-j flight could not execute (its two attempts refused at the account's free-tier daily quota at ~08:55Z Oct 4) — this flight's window re-attempt landed it",
+  "envWiring": {
+    "method": "PATCH v10/projects/sporta/env/{id} (production target, encrypted) — BEFORE the deploy so the new deployment bakes the fresh sandbox URLs",
+    "patches": [
+      {
+        "envVarId": "iu0c8kUgznFwaH6F",
+        "name": "MEDIA_TOOLCHAIN_URL",
+        "value": "https://3971-ifw657jm8lpa5feut1xvr.e2b.app",
+        "httpStatusCode": 200
+      },
+      {
+        "envVarId": "hSpnqXIKbF1Tb2J7",
+        "name": "COMPUTE_WORKER_URL",
+        "value": "https://3973-ifw657jm8lpa5feut1xvr.e2b.app",
+        "httpStatusCode": 200
+      },
+      {
+        "envVarId": "GHJXtTrqEuB1I8pg",
+        "name": "SPORTA_DEPLOY_MARKER",
+        "value": "r607-decode-seam-rerun-1",
+        "httpStatusCode": 200
+      }
+    ],
+    "unpatched": [
+      "MEDIA_TOOLCHAIN=http (the 65-j PATCH, still correct)",
+      "COMPUTE_PROVIDER=http (the 65-j PATCH, still correct)"
+    ]
+  },
+  "deploy": {
+    "command": "bunx vercel deploy --prod --yes --token $VERCEL_TOKEN --project sporta --scope ekonplacidegmailcoms-projects (from the repo root at the seam merge)",
+    "outcome": "DEPLOYED — the quota window had reset (the 65-j typed refusal was api-deployments-free-per-day at ~08:55Z Oct 4; this attempt at ~10:48Z Oct 4 succeeded)",
+    "deploymentId": "dpl_9i2uAP6kHyTLYmM8pApqppiNrogi",
+    "deploymentUrl": "sporta-4mtdi6idm-ekonplacidegmailcoms-projects.vercel.app",
+    "state": "READY",
+    "createdAtMs": 1791110926058,
+    "productionAlias": "https://sporta-flame.vercel.app",
+    "priorDeploymentSuperseded": {
+      "deploymentId": "dpl_Cr9SwXQF3prrUACFzRQddhsgCzdo",
+      "note": "the 62-c deployment whose BAKED COMPUTE_WORKER_URL was the long-dead 62-c sandbox — the production-500 incident's cause; superseded by this deployment"
+    }
+  },
+  "productionMeasured": {
+    "rootHttpStatusCode": 200,
+    "apiPlatformHealth": {
+      "httpStatusCode": 200,
+      "deployMarker": "r607-decode-seam-rerun-1",
+      "note": "the boot-time compute-worker descriptor fetch SUCCEEDED (the live 3973 companion worker) — the production-500 incident (every API route 500ing on the dead baked URL) is CLOSED"
+    }
+  },
+  "credentialsDiscipline": "VERCEL_TOKEN env-only (/home/z/.sporta-env; never echoed in full, never committed; the record carries no secrets)"
+}

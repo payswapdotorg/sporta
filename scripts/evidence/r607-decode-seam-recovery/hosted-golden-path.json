@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-decode-seam-recovery-hosted-golden-path",
+  "clientHonesty": "the client is THIS DRIVER walking the hosted Vercel runtime's public API (register → login → upload-sessions) — the hosted runtime's OWN dispatch through the seam, the leg the 65-j flight recorded as blocked and the 62-c flight measured refusing at the local-ffmpeg decode",
+  "target": {
+    "base": "https://sporta-flame.vercel.app",
+    "expectedDeployMarker": "r607-decode-seam-rerun-1"
+  },
+  "steps": {
+    "boot": {
+      "httpStatusCode": 200,
+      "deployMarker": "r607-decode-seam-rerun-1",
+      "wallMs": 614,
+      "note": "the boot descriptor fetch must SUCCEED (the live compute worker) — the 65-j flight measured this 500ing on the dead 62-c baked URL"
+    },
+    "register": {
+      "httpStatusCode": 200,
+      "body": {
+        "userId": "u-1f6830953cdf41afb282da12f1298bdb",
+        "username": "r607dcsr-mutpjebz",
+        "roles": [
+          "creator",
+          "viewer"
+        ],
+        "createdAtIso": "2026-10-04T10:58:15.504Z",
+        "activeRole": null
+      },
+      "wallMs": 267
+    },
+    "login": {
+      "httpStatusCode": 200,
+      "sessionCookieIssued": true,
+      "body": {
+        "token": "XEXPQ2DK4IZSnCMZ-l5uE61hNDbxT0vzwEjplM6tiJ4",
+        "tokenKind": "bearer",
+        "expiresAtIso": "2026-10-11T10:58:15.782Z",
+        "account": {
+          "userId": "u-1f6830953cdf41afb282da12f1298bdb",
+          "username": "r607dcsr-mutpjebz",
+          "roles": [
+            "creator",
+            "viewer"
+          ],
+          "createdAtIso": "2026-10-04T10:58:15.504Z",
+          "activeRole": null
+        }
+      },
+      "wallMs": 281
+    },
+    "upload": {
+      "httpStatusCode": 201,
+      "wallMs": 4611,
+      "sourceBytes": 38307,
+      "sourceSha256": "7818f8eeab19bc10e9d5451a94cab8c80385add8e5f0a11d778c44d3b2c0ceb9",
+      "body": {
+        "sessionId": "sess-u-bcc69a8ccf283e9027a99e079718976e",
+        "label": "R607 decode-seam recovery hosted golden path",
+        "rightsCapabilities": {
+          "canReferenceSourceFrames": true,
+          "canDeliverLive": false,
+          "canStoreDerivatives": true,
+          "canShare": false
+        },
+        "visibility": "private",
+        "source": {
+          "asset": {
+            "assetId": "asset-5b87746a796526d1813b74ba76d1d729",
+            "contentHash": "7818f8eeab19bc10e9d5451a94cab8c80385add8e5f0a11d778c44d3b2c0ceb9",
+            "byteSize": 38307,
+            "container": "mp4",
+            "durationMs": 2000,
+            "uploadState": "stored",
+            "checksumVerified": true,
+            "declaredRightsPolicyId": "policy-create-studio-upload-1791111496454-3"
+          },
+          "job": {
+            "jobId": "mjob-b926b66a140bafb1b60aed6601eb35c5",
+            "sourceAssetId": "asset-5b87746a796526d1813b74ba76d1d729",
+            "sessionId": "sess-u-bcc69a8ccf283e9027a99e079718976e",
+            "state": "in-flight",
+            "terminal": false,
+            "progress": 0.3333333333333333,
+            "stages": [
+              {
+                "stage": "created",
+                "atMs": 1791111500607,
+                "fraction": 0
+              },
+              {
+                "stage": "upload-complete",
+                "atMs": 1791111500607,
+                "fraction": 0.3333333333333333
+              }
+            ],
+            "createdAtMs": 1791111500607,
+            "updatedAtMs": 1791111500607
+          },
+          "artifact": null
+        },
+        "perception": {
+          "frameCount": 48,
+          "snapshotCount": 2,
+          "eventCount": 0,
+          "degradationCount": 8,
+          "summary": "8 recorded degradation(s) across 9 pipeline stage(s): calibration-unavailable×1, candidate-refused×3, candidate-unavailable×1, detection-observations-not-bridged×1, event-semantics-unavailable×1, football-state-defaults×1"
+        }
+      },
+      "note": "the DECISIVE leg: at the pre-seam shas this refused at new FfmpegDecoderAdapter() (ffprobe absent on the hosted runtime — the 62-c Gap 1); at the seam merge the R207 decode dispatches over the wire to the live E2B worker (MEDIA_TOOLCHAIN=http)"
+    },
+    "mediaJob": {
+      "jobId": "mjob-b926b66a140bafb1b60aed6601eb35c5",
+      "terminal": {
+        "jobId": "mjob-b926b66a140bafb1b60aed6601eb35c5",
+        "sourceAssetId": "asset-5b87746a796526d1813b74ba76d1d729",
+        "sessionId": "sess-u-bcc69a8ccf283e9027a99e079718976e",
+        "state": "succeeded",
+        "terminal": true,
+        "progress": 1,
+        "stages": [
+          {
+            "stage": "created",
+            "atMs": 1791111500607,
+            "fraction": 0
+          },
+          {
+            "stage": "upload-complete",
+            "atMs": 1791111500607,
+            "fraction": 0.3333333333333333
+          },
+          {
+            "stage": "normalization-complete",
+            "atMs": 1791111503869,
+            "fraction": 0.6666666666666666
+          },
+          {
+            "stage": "artifact-stored",
+            "atMs": 1791111503870,
+            "fraction": 1
+          },
+          {
+            "stage": "terminal",
+            "atMs": 1791111503870,
+            "fraction": 1
+          }
+        ],
+        "result": {
+          "manifestId": "man-087c6d99c64f8872bc1396d5e769e62f",
+          "artifactId": "art-5488cd945e49529214ca4d8a8c0be9f7"
+        },
+        "createdAtMs": 1791111500607,
+        "updatedAtMs": 1791111503870
+      }
+    }
+  },
+  "verdict": "PASS — the hosted upload ADMISSION through the seam: the R207 decode executed over the wire (the E2B worker's real ffmpeg), the asset stored + checksum-verified, the media job dispatched (the four-reality Original leg)"
+}

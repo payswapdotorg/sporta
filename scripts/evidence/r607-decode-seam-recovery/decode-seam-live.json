@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-decode-seam-recovery-live-decode",
+  "scope": "the client is this driver over the public wire (the same network position the hosted runtime holds); the hosted leg is the separate hosted-golden-path run",
+  "workerIdentity": {
+    "provider": "E2B",
+    "sandboxId": "ifw657jm8lpa5feut1xvr",
+    "pinnedSha": "920c556c18ba984d22d4bea50895b6a173b0a4bd",
+    "publicUrl": "https://3971-ifw657jm8lpa5feut1xvr.e2b.app",
+    "note": "the worker the hosted runtime's MEDIA_TOOLCHAIN_URL points at (the same network position); the pinned revision carries the decode seam's ADDITIVE decode-probe/decode-frames profile"
+  },
+  "localToolchain": {
+    "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "descriptor": {
+    "operationsAdvertised": [
+      "decode-frames",
+      "decode-probe",
+      "normalize",
+      "probe"
+    ],
+    "operationsExpected": [
+      "decode-frames",
+      "decode-probe",
+      "normalize",
+      "probe"
+    ]
+  },
+  "stages": {
+    "probe": {
+      "operation": "decode-probe",
+      "wallMs": 386,
+      "probe": {
+        "container": "mp4",
+        "durationMs": 2000,
+        "tracks": [
+          {
+            "trackId": "t-0-video",
+            "streamIndex": 0,
+            "kind": "video",
+            "codec": "h264"
+          },
+          {
+            "trackId": "t-1-audio",
+            "streamIndex": 1,
+            "kind": "audio",
+            "codec": "aac"
+          }
+        ]
+      },
+      "selectedVideoStreamIndex": 0,
+      "accounting": {
+        "starting": {
+          "dispatched": 2,
+          "succeeded": 1,
+          "failed": 1
+        },
+        "delta": {
+          "dispatched": 1,
+          "succeeded": 1,
+          "failed": 0
+        }
+      }
+    },
+    "decodeFrames": {
+      "operation": "decode-frames",
+      "wallMs": 2150,
+      "frameCount": 48,
+      "firstFrame": {
+        "frameId": "f-0-0",
+        "presentationMs": 0,
+        "width": 320,
+        "height": 240,
+        "pixelFormat": "rgb24",
+        "byteLength": 230400
+      },
+      "lastFrame": {
+        "frameId": "f-0-47",
+        "presentationMs": 1958.3333333333333
+      },
+      "measuredTotalBytes": 11059200,
+      "budgetBytes": 1073741824,
+      "invariants": {
+        "monotonic": true,
+        "windowRespected": true,
+        "dimsConsistent": true
+      },
+      "accounting": {
+        "starting": {
+          "dispatched": 2,
+          "succeeded": 1,
+          "failed": 1
+        },
+        "delta": {
+          "dispatched": 2,
+          "succeeded": 2,
+          "failed": 0
+        }
+      }
+    },
+    "budgetRefusalNegative": {
+      "operation": "decode-frames",
+      "budgetBytes": 100,
+      "refused": true,
+      "typedErrorClass": "ResourceLimitError",
+      "framesAdmittedBeforeRefusal": 0,
+      "wallMs": 428
+    }
+  },
+  "ledger": {
+    "dispatched": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "usageRecords": 2,
+    "note": "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker"
+  },
+  "accounting": {
+    "startingLedger": {
+      "dispatched": 2,
+      "succeeded": 1,
+      "failed": 1,
+      "usageRecords": 2,
+      "note": "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker"
+    },
+    "stats": {
+      "jobsDispatched": 5,
+      "duplicates": 0,
+      "succeeded": 3,
+      "failed": 2,
+      "inFlight": 0,
+      "capacityRefusals": 0,
+      "usageRecords": 5,
+      "probeRuns": 5,
+      "transcodeRuns": 3,
+      "inputBytes": 230380,
+      "outputBytes": 11059200,
+      "totalExecutionMs": 813
+    },
+    "usageDrainCount": 5,
+    "usageRecordsThisRun": [
+      {
+        "jobId": "mtdec-0ea5604230718b90bd346bce08cf4720"
+      },
+      {
+        "jobId": "mtdec-a500bf5e38573de02e009abb5cab5074"
+      },
+      {
+        "jobId": "mtdec-efe4f6eb0a128583adb0376e8b5cfd84"
+      }
+    ],
+    "identities": "dispatched === terminal; stats === the usage drain (two independent reads); the stages' deltas: probe +1/1/0, frames +1/1/0, refusal +1/0/1"
+  }
+}
