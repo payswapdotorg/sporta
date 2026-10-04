@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, time, and camera angle are perfectly preserved across all frames.\n2. temporalConsistency - 3: The scene is stable, but the players' limbs and bodies morph slightly between frames.\n3. identityConsistency - 2: Players are reduced to abstract blobs; individual features are lost to the style.\n4. motionFidelity - 2: The ball's position is inconsistent (hallucinated in frame 2), and player movements are simplified.\n5. sceneFidelity - 4: The stadium background, lines, and advertising boards remain spatially consistent.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao transformation is very strong and clearly visible.\n\nAXES sf=5 tc=3 ic=2 mf=2 scf=4 ss=5\nARTIFACTS limbs=4 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102277,
+  "id": "20261004162432b931fb3910e84884",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004162432b931fb3910e84884",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1374
+  }
+}

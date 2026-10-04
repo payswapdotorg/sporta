@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and camera angle are perfectly preserved in the stylized versions.\n2. temporalConsistency - 3: While the scene is stable, the players' positions and shapes shift noticeably between the two frames.\n3. identityConsistency - 2: Players are reduced to abstract blobs of color, making individual identification and visual stability very poor.\n4. motionFidelity - 2: Player movements are inconsistent and lack the fluidity suggested by the original broadcast frame.\n5. sceneFidelity - 4: The stadium structure, pitch lines, and background elements remain spatially consistent across all images.\n6. stylizationStrength - 5: The transformation to a flat, high-contrast anime style is extremely obvious and dominant.\n\nAXES sf=5 tc=3 ic=2 mf=2 scf=4 ss=5\nARTIFACTS limbs=5 players=0 warped=3 dupes=0 ball=0 bg=0 tj=2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102272,
+  "id": "202610041624270033f3ea869f4f56",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610041624270033f3ea869f4f56",
+  "usage": {
+    "completion_tokens": 210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1384
+  }
+}

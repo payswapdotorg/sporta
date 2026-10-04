@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) SOURCE IDENTITY: **MATCH.** Same match context (LALIGA, 1-2 score), same primary player (pink kit), same camera angle/position. No major elements invented or lost between original and stylized frames.\n\n(2) CRITICAL ARTIFACTS: **1 (Malformed Limb).** The main player's right arm in Image 2 is severely malformed/fused into the torso. No disappearing or duplicated players; the ball is present and consistent.\n\n(3) STYLIZATION: **YES.** Clear AnimeGANv2 aesthetic applied (flat colors, bold outlines, simplified textures).\n\nVERDICT: **FAIL** — Severe anatomical distortion of the main subject's limb.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102843,
+  "id": "20261004163358736b2ed63644446a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004163358736b2ed63644446a",
+  "usage": {
+    "completion_tokens": 152,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1027,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1179
+  }
+}

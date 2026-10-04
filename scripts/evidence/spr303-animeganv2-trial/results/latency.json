@@ -1,0 +1,626 @@
+{
+ "schemaVersion": "1.0",
+ "flight": "SPR303 \u2014 the executed AnimeGANv2 trial (worker 65-i)",
+ "measurement": "per-frame stylization wall-clock, EXECUTED on this host",
+ "host": {
+  "label": "CPU-only host (onnxruntime CPUExecutionProvider)",
+  "machine": "x86_64",
+  "python": "3.12.14",
+  "onnxruntime": "1.30.0",
+  "vcpu": 2,
+  "gpu": "NONE \u2014 no GPU execution provider on this host (honest)",
+  "provider": "CPUExecutionProvider"
+ },
+ "frameCount": 60,
+ "frameSet": "the frozen 15 scorecard samples + their 15 within-shot \u00b10.2 s partners (30 trial frames) + 30 consecutive mid-shot latency-probe frames (300..329, no cut in [192,472)) \u2014 60 stylizations executed",
+ "perFrame": [
+  {
+   "decodeMs": 33.7,
+   "inferenceMs": 1414.0,
+   "encodeMs": 147.6,
+   "totalMs": 1595.3,
+   "id": "t2s",
+   "sourceT": 2.0,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t2s.png"
+  },
+  {
+   "decodeMs": 5.9,
+   "inferenceMs": 1294.4,
+   "encodeMs": 101.8,
+   "totalMs": 1402.0,
+   "id": "t2sp2",
+   "sourceT": 2.2,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t2sp2.png"
+  },
+  {
+   "decodeMs": 4.6,
+   "inferenceMs": 1210.0,
+   "encodeMs": 88.7,
+   "totalMs": 1303.3,
+   "id": "t8s",
+   "sourceT": 8.0,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t8s.png"
+  },
+  {
+   "decodeMs": 4.6,
+   "inferenceMs": 1234.8,
+   "encodeMs": 89.6,
+   "totalMs": 1328.9,
+   "id": "t8sp2",
+   "sourceT": 8.2,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t8sp2.png"
+  },
+  {
+   "decodeMs": 3.9,
+   "inferenceMs": 1270.2,
+   "encodeMs": 91.0,
+   "totalMs": 1365.1,
+   "id": "t15s",
+   "sourceT": 15.0,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t15s.png"
+  },
+  {
+   "decodeMs": 4.0,
+   "inferenceMs": 1205.3,
+   "encodeMs": 86.0,
+   "totalMs": 1295.3,
+   "id": "t15sp2",
+   "sourceT": 15.2,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t15sp2.png"
+  },
+  {
+   "decodeMs": 5.1,
+   "inferenceMs": 1205.7,
+   "encodeMs": 95.8,
+   "totalMs": 1306.6,
+   "id": "t30s",
+   "sourceT": 30.0,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t30s.png"
+  },
+  {
+   "decodeMs": 5.4,
+   "inferenceMs": 1243.1,
+   "encodeMs": 94.9,
+   "totalMs": 1343.4,
+   "id": "t30sp2",
+   "sourceT": 30.2,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t30sp2.png"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1239.7,
+   "encodeMs": 65.9,
+   "totalMs": 1310.0,
+   "id": "t45s",
+   "sourceT": 45.0,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t45s.png"
+  },
+  {
+   "decodeMs": 31.9,
+   "inferenceMs": 1213.4,
+   "encodeMs": 93.2,
+   "totalMs": 1338.5,
+   "id": "t45sp2",
+   "sourceT": 45.2,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-t45sp2.png"
+  },
+  {
+   "decodeMs": 4.8,
+   "inferenceMs": 1246.8,
+   "encodeMs": 94.4,
+   "totalMs": 1345.9,
+   "id": "c189pre",
+   "sourceT": 7.44,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c189pre.png"
+  },
+  {
+   "decodeMs": 4.7,
+   "inferenceMs": 1242.8,
+   "encodeMs": 71.8,
+   "totalMs": 1319.3,
+   "id": "c189prep2",
+   "sourceT": 7.24,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c189prep2.png"
+  },
+  {
+   "decodeMs": 26.9,
+   "inferenceMs": 1318.8,
+   "encodeMs": 94.0,
+   "totalMs": 1439.7,
+   "id": "c189post",
+   "sourceT": 7.68,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c189post.png"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1222.2,
+   "encodeMs": 90.4,
+   "totalMs": 1317.1,
+   "id": "c189postp2",
+   "sourceT": 7.88,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c189postp2.png"
+  },
+  {
+   "decodeMs": 5.0,
+   "inferenceMs": 1219.4,
+   "encodeMs": 97.6,
+   "totalMs": 1321.9,
+   "id": "c475pre",
+   "sourceT": 18.88,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c475pre.png"
+  },
+  {
+   "decodeMs": 5.1,
+   "inferenceMs": 1253.1,
+   "encodeMs": 90.9,
+   "totalMs": 1349.1,
+   "id": "c475prep2",
+   "sourceT": 18.68,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c475prep2.png"
+  },
+  {
+   "decodeMs": 4.3,
+   "inferenceMs": 1207.2,
+   "encodeMs": 111.2,
+   "totalMs": 1322.7,
+   "id": "c475post",
+   "sourceT": 19.12,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c475post.png"
+  },
+  {
+   "decodeMs": 4.4,
+   "inferenceMs": 1277.1,
+   "encodeMs": 94.9,
+   "totalMs": 1376.5,
+   "id": "c475postp2",
+   "sourceT": 19.32,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c475postp2.png"
+  },
+  {
+   "decodeMs": 5.4,
+   "inferenceMs": 1243.7,
+   "encodeMs": 103.8,
+   "totalMs": 1352.9,
+   "id": "c550pre",
+   "sourceT": 21.88,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c550pre.png"
+  },
+  {
+   "decodeMs": 5.4,
+   "inferenceMs": 1256.8,
+   "encodeMs": 104.1,
+   "totalMs": 1366.4,
+   "id": "c550prep2",
+   "sourceT": 21.68,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c550prep2.png"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1205.2,
+   "encodeMs": 115.0,
+   "totalMs": 1325.1,
+   "id": "c550post",
+   "sourceT": 22.12,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c550post.png"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1344.7,
+   "encodeMs": 68.5,
+   "totalMs": 1418.1,
+   "id": "c550postp2",
+   "sourceT": 22.32,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c550postp2.png"
+  },
+  {
+   "decodeMs": 32.7,
+   "inferenceMs": 1214.8,
+   "encodeMs": 96.6,
+   "totalMs": 1344.0,
+   "id": "c862pre",
+   "sourceT": 34.36,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c862pre.png"
+  },
+  {
+   "decodeMs": 5.3,
+   "inferenceMs": 1233.8,
+   "encodeMs": 91.2,
+   "totalMs": 1330.2,
+   "id": "c862prep2",
+   "sourceT": 34.16,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c862prep2.png"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1267.7,
+   "encodeMs": 98.1,
+   "totalMs": 1370.7,
+   "id": "c862post",
+   "sourceT": 34.6,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c862post.png"
+  },
+  {
+   "decodeMs": 5.2,
+   "inferenceMs": 1283.5,
+   "encodeMs": 103.0,
+   "totalMs": 1391.7,
+   "id": "c862postp2",
+   "sourceT": 34.800000000000004,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c862postp2.png"
+  },
+  {
+   "decodeMs": 3.2,
+   "inferenceMs": 1216.8,
+   "encodeMs": 74.8,
+   "totalMs": 1294.7,
+   "id": "c979pre",
+   "sourceT": 39.04,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c979pre.png"
+  },
+  {
+   "decodeMs": 5.2,
+   "inferenceMs": 1225.1,
+   "encodeMs": 97.8,
+   "totalMs": 1328.2,
+   "id": "c979prep2",
+   "sourceT": 38.839999999999996,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c979prep2.png"
+  },
+  {
+   "decodeMs": 4.1,
+   "inferenceMs": 1196.4,
+   "encodeMs": 87.8,
+   "totalMs": 1288.3,
+   "id": "c982post",
+   "sourceT": 39.4,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c982post.png"
+  },
+  {
+   "decodeMs": 4.1,
+   "inferenceMs": 1237.3,
+   "encodeMs": 92.0,
+   "totalMs": 1333.4,
+   "id": "c982postp2",
+   "sourceT": 39.6,
+   "output": "scripts/evidence/spr303-animeganv2-trial/renders/animeganv2-hayao-c982postp2.png"
+  },
+  {
+   "decodeMs": 4.7,
+   "inferenceMs": 1336.6,
+   "encodeMs": 95.0,
+   "totalMs": 1436.2,
+   "id": "block300",
+   "sourceFrame": 300,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block300.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1313.2,
+   "encodeMs": 94.7,
+   "totalMs": 1412.3,
+   "id": "block301",
+   "sourceFrame": 301,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block301.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.8,
+   "inferenceMs": 1269.2,
+   "encodeMs": 93.4,
+   "totalMs": 1367.5,
+   "id": "block302",
+   "sourceFrame": 302,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block302.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.6,
+   "inferenceMs": 1217.0,
+   "encodeMs": 87.3,
+   "totalMs": 1308.9,
+   "id": "block303",
+   "sourceFrame": 303,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block303.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1261.0,
+   "encodeMs": 66.0,
+   "totalMs": 1331.5,
+   "id": "block304",
+   "sourceFrame": 304,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block304.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 31.9,
+   "inferenceMs": 1205.1,
+   "encodeMs": 101.1,
+   "totalMs": 1338.1,
+   "id": "block305",
+   "sourceFrame": 305,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block305.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 8.7,
+   "inferenceMs": 1239.4,
+   "encodeMs": 93.2,
+   "totalMs": 1341.3,
+   "id": "block306",
+   "sourceFrame": 306,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block306.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1217.3,
+   "encodeMs": 94.2,
+   "totalMs": 1316.0,
+   "id": "block307",
+   "sourceFrame": 307,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block307.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1231.9,
+   "encodeMs": 65.7,
+   "totalMs": 1302.1,
+   "id": "block308",
+   "sourceFrame": 308,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block308.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 32.1,
+   "inferenceMs": 1214.2,
+   "encodeMs": 92.9,
+   "totalMs": 1339.1,
+   "id": "block309",
+   "sourceFrame": 309,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block309.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.5,
+   "inferenceMs": 1326.6,
+   "encodeMs": 93.9,
+   "totalMs": 1425.1,
+   "id": "block310",
+   "sourceFrame": 310,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block310.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1432.0,
+   "encodeMs": 94.1,
+   "totalMs": 1531.0,
+   "id": "block311",
+   "sourceFrame": 311,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block311.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.1,
+   "inferenceMs": 1438.2,
+   "encodeMs": 94.3,
+   "totalMs": 1537.7,
+   "id": "block312",
+   "sourceFrame": 312,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block312.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.1,
+   "inferenceMs": 1451.2,
+   "encodeMs": 93.9,
+   "totalMs": 1550.2,
+   "id": "block313",
+   "sourceFrame": 313,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block313.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1395.6,
+   "encodeMs": 93.8,
+   "totalMs": 1494.4,
+   "id": "block314",
+   "sourceFrame": 314,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block314.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1412.3,
+   "encodeMs": 94.6,
+   "totalMs": 1511.8,
+   "id": "block315",
+   "sourceFrame": 315,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block315.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1400.9,
+   "encodeMs": 93.7,
+   "totalMs": 1499.6,
+   "id": "block316",
+   "sourceFrame": 316,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block316.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1439.1,
+   "encodeMs": 66.5,
+   "totalMs": 1510.6,
+   "id": "block317",
+   "sourceFrame": 317,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block317.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 32.7,
+   "inferenceMs": 1370.9,
+   "encodeMs": 93.0,
+   "totalMs": 1496.5,
+   "id": "block318",
+   "sourceFrame": 318,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block318.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.0,
+   "inferenceMs": 1431.4,
+   "encodeMs": 66.5,
+   "totalMs": 1502.9,
+   "id": "block319",
+   "sourceFrame": 319,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block319.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.8,
+   "inferenceMs": 1449.0,
+   "encodeMs": 93.8,
+   "totalMs": 1547.6,
+   "id": "block320",
+   "sourceFrame": 320,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block320.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1388.9,
+   "encodeMs": 93.9,
+   "totalMs": 1487.7,
+   "id": "block321",
+   "sourceFrame": 321,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block321.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.8,
+   "inferenceMs": 1416.9,
+   "encodeMs": 94.3,
+   "totalMs": 1516.0,
+   "id": "block322",
+   "sourceFrame": 322,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block322.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.1,
+   "inferenceMs": 1394.5,
+   "encodeMs": 93.8,
+   "totalMs": 1493.4,
+   "id": "block323",
+   "sourceFrame": 323,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block323.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.0,
+   "inferenceMs": 1438.8,
+   "encodeMs": 88.3,
+   "totalMs": 1532.0,
+   "id": "block324",
+   "sourceFrame": 324,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block324.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 5.0,
+   "inferenceMs": 1414.0,
+   "encodeMs": 93.4,
+   "totalMs": 1512.3,
+   "id": "block325",
+   "sourceFrame": 325,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block325.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1569.6,
+   "encodeMs": 92.4,
+   "totalMs": 1666.9,
+   "id": "block326",
+   "sourceFrame": 326,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block326.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1440.9,
+   "encodeMs": 92.0,
+   "totalMs": 1537.8,
+   "id": "block327",
+   "sourceFrame": 327,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block327.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.9,
+   "inferenceMs": 1373.3,
+   "encodeMs": 86.8,
+   "totalMs": 1465.1,
+   "id": "block328",
+   "sourceFrame": 328,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block328.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  },
+  {
+   "decodeMs": 4.7,
+   "inferenceMs": 1234.4,
+   "encodeMs": 92.3,
+   "totalMs": 1331.3,
+   "id": "block329",
+   "sourceFrame": 329,
+   "output": "/tmp/spr303-latency-block/animeganv2-hayao-block329.png",
+   "evidenceClass": "latency-probe-only (not VLM evidence)"
+  }
+ ],
+ "p50TotalMs": 1366.4,
+ "p95TotalMs": 1547.6,
+ "p50InferenceMs": 1267.7,
+ "p95InferenceMs": 1440.9,
+ "meanTotalMs": 1402.8,
+ "fullClipArithmetic": "arithmetic FROM the executed p50 (labeled arithmetic, NOT a measured full render): 1190 b8 frames x 1366.4 ms = 27.1 min/clip CPU \u2014 the full-render latency is a typed gap on this trial (trial-is-sampled-frames-not-full-render)",
+ "rendersSha256": {
+  "t2s": "379d19adf6db9b2e6d9804f753d501f79ee4a059342681eeb8ed8dc99c26bc6a",
+  "t2sp2": "1d301f2c0b826b886232b0cb93de9054a736895173927bef75a270617dcdcab0",
+  "t8s": "8d467aa54a4ca0d2bcef0e10d8951cdfb216de939b031a50df78306450e8d7d7",
+  "t8sp2": "b82d47e912378c3b768c4e33104586eecd13c765b6a2fb97d4545ad7080f0093",
+  "t15s": "15d0d83277b34f945137c6098db590dccd36e15f0a0ffd41184347670d2ecc3b",
+  "t15sp2": "237cc529ab11a3298b39822ad6d88fe73aa988ba252e9b63ee9ca734870c745c",
+  "t30s": "2a994efb14aba2e3263232624bb2bfad77f13c223e51670c0f9aa55fccb9f4d2",
+  "t30sp2": "ea4ef6ff515947965efa61d8e1e4fae35e5cff98e945efa9b1feee94eba5c1f5",
+  "t45s": "f41e875e57b5bf508586e138fe07f30e3f4a54703b513d51abe0c59e963dc84d",
+  "t45sp2": "b49831166163334f8c18840960c1a06cf69dd09822fd6e5acbe1fe08c2f88279",
+  "c189pre": "89472d12e6614425cc072ecc848c067a0ac4773cd6e9e8455d8fedcbda8459ce",
+  "c189prep2": "6e9780b8e0a40d70abee2320f40164fb29ee56b60fef2eff504d2b8f6fa0d353",
+  "c189post": "d3c7c9af5444bb87fd5a54d53cdb199b5379ee9e0eb42d9f5d009aa8c4d18b92",
+  "c189postp2": "31278894aef8c7a1245b8da5b3e2801b28d74277944097ef6d00c61ba4ead945",
+  "c475pre": "ab5fe226670bd55a6af0dd3cd395bd6f1335582442dfe069477d72ce8a29f739",
+  "c475prep2": "606be8821d9634678572278b0f67bde4060e804dd6f277ee0ddb9ef615c23c95",
+  "c475post": "4fd1e9438a20c4601440f4cc9d893fe6a9991dc1118286c4e31fd21d161dcc1a",
+  "c475postp2": "4247312460704a1c4bb484f726afe06d92df2f3aaf0c44544df05197856b0664",
+  "c550pre": "467e78d13cccde37d2919bdda3e04328b908a358a45c7a6c3a54c4a6894258d6",
+  "c550prep2": "fee99a5e0f2a4b80099669310927e7f04660196ab36df39eaae4c6c3c1fda735",
+  "c550post": "c442db924bcd94b81284cd674b3d1c6139e54c1e90736e7f204b611b7627b2e7",
+  "c550postp2": "47263cddc8aa2e38a48c1450bf6fc6ff1228a072227dd51aba3b3d56f1ce674d",
+  "c862pre": "f6be2b58139ccb9b06d364671018ac9154872eb08295d93966a356f527de2e7f",
+  "c862prep2": "ac65109de88a4a19cae281f58d7e96f5162fc5fd05ca51b3f2723bba6654da58",
+  "c862post": "41d76e389df03ade99d2da1020e1034d556c75f2f61609f257a54a424802c384",
+  "c862postp2": "acc0599f400f618636e209bd731058f6512d81057bcd1babf47327c882de9cd8",
+  "c979pre": "058b87cff47ccfb51b069b646c4cd314766bd9023f20b7c46c72ba36c8cd85f3",
+  "c979prep2": "9ad1b997f9d3ee0494e97f5e79fd8de71c59a4ce5779a77401440c2779bf6d97",
+  "c982post": "21d2cdf4079cb041a5d21623b2034cb661c564987e72d5ac70196b057feaa5d9",
+  "c982postp2": "4483653cd2f2918b39e0e4a9708ba552c785cbbec729bc9e99b32022922fdbd0"
+ }
+}

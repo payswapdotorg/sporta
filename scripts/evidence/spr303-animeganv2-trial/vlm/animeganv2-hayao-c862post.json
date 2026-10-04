@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same player, match context, and camera angle as the original frame.\n2. temporalConsistency - 2: Significant flickering and morphing of the player's pose and facial features occur between the two frames.\n3. identityConsistency - 3: The player is recognizable, but his facial structure and body proportions shift noticeably between frames.\n4. motionFidelity - 2: The subtle movement of the arm is inconsistent with the drastic changes in the torso and head orientation.\n5. sceneFidelity - 3: The background elements (goal net, grass, scoreboard) remain largely in place but exhibit some warping.\n6. stylizationStrength - 5: The transformation into the Hayao anime style is very distinct and visually obvious.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102326,
+  "id": "202610041625217f17287d0f9f4f7b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610041625217f17287d0f9f4f7b",
+  "usage": {
+    "completion_tokens": 216,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "total_tokens": 1390
+  }
+}

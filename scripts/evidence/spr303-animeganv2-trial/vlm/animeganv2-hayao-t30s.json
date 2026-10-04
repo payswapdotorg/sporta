@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 4: Match, moment, and camera angle are clearly preserved despite the heavy artistic filter.\n2. temporalConsistency - 3: The scene is generally stable, but some background elements and player positions shift slightly between frames.\n3. identityConsistency - 3: Players are recognizable, but their features and kit details fluctuate noticeably between the two stylized frames.\n4. motionFidelity - 3: The general flow of play is maintained, though specific limb movements and ball trajectory are somewhat obscured or altered by the style.\n5. sceneFidelity - 3: The stadium structure and advertising boards remain consistent, but the crowd and field lines show significant warping.\n6. stylizationStrength - 5: The transformation into a distinct Hayao Miyazaki-inspired anime style is very strong and obvious.\n\nAXES sf=4 tc=3 ic=3 mf=3 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102282,
+  "id": "202610041624370f50cac242214b08",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610041624370f50cac242214b08",
+  "usage": {
+    "completion_tokens": 220,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1394
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) SOURCE IDENTITY: Yes, the match moment, players, and camera context are preserved.\n(2) CRITICAL ARTIFACTS: Yes, there are 2 malformed limbs (player #3's legs in Image 3) and 1 ball hallucination (Image 2).\n(3) STYLIZATION: Yes, the anime-style transformation is clearly applied.\n\nVERDICT: FAIL due to severe temporal instability and limb distortion.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102818,
+  "id": "20261004163336a74283e398964cbf",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004163336a74283e398964cbf",
+  "usage": {
+    "completion_tokens": 93,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1052,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1145
+  }
+}

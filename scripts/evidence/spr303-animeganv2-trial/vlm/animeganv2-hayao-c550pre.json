@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are clearly preserved in the stylized versions.\n2. temporalConsistency - 3: The background stadium structure remains stable, but player positions and shapes shift noticeably between the two frames.\n3. identityConsistency - 2: The main goalkeeper is recognizable, but background players lose distinct features and morph significantly.\n4. motionFidelity - 4: The progression of the goalkeeper's kick and the ball's movement is logically consistent with the source.\n5. sceneFidelity - 3: The pitch lines and goalpost are reasonably stable, though the advertising boards and crowd show some warping.\n6. stylizationStrength - 5: The transformation to the AnimeGANv2 Hayao style is very strong and unmistakable.\n\nAXES sf=5 tc=3 ic=2 mf=4 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102312,
+  "id": "20261004162507de52611ca4214040",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004162507de52611ca4214040",
+  "usage": {
+    "completion_tokens": 213,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1387
+  }
+}
