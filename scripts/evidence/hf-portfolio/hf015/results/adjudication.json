@@ -1,0 +1,806 @@
+{
+  "label": "HF015 — the Technology promotion gate adjudication (the Tech Lead's flight; the acceptance's five evidence legs, machine-checked against the recorded evidence)",
+  "acceptanceVerbatim": "only candidates with benchmark, resource, provenance/license, reproducibility and failure evidence can move from candidate to benchmarked/canary/production",
+  "stateLadder": "candidate -> benchmarked -> canary -> production (the ledger contract: nothing starts promoted; only HF015 promotes; the ledger is FROZEN — this adjudication records, never mutates)",
+  "adjudicatedAt": "2026-10-04T07:22:40.548Z",
+  "rows": [
+    {
+      "candidate": "RF-DETR",
+      "ledgerGatingState": "candidate",
+      "flight": "hf003",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "resource",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "provenance-license",
+          "pass": false,
+          "blockers": [
+            "codeLicense is unknown (the linked-code review is unrecorded)"
+          ]
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): no authorized real clip with ground-truth annotations is reachable in this sandbox — the quality comparison against annotations exists only on the synthetic fixture (domain-mismatched)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): CPU-host latency (~3 s/frame) is two orders of magnitude above the current detector (~30 ms) on this host; no GPU evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger — the HF015 license review has not happened"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "codeLicense is unknown (the linked-code review is unrecorded)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no authorized real clip with ground-truth annotations is reachable in this sandbox — the quality comparison against annotations exists only on the synthetic fixture (domain-mismatched)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): CPU-host latency (~3 s/frame) is two orders of magnitude above the current detector (~30 ms) on this host; no GPU evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger — the HF015 license review has not happened"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "MapAnything",
+      "ledgerGatingState": "candidate",
+      "flight": "hf004",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf004 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf004 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight; the HF003 precedent (a candidate with executed-but-domain-mismatched evidence) is NOT met here",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no authorized real clip WITH geometry ground truth is reachable in this sandbox — even on adequate hardware, the quality evidence would be unscored-structural (typed gap)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance is 'unknown' per the ledger (the model card states no training corpus) — the HF015 license review has not happened",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the model's 'metric' claim is unverified by any evidence in this flight"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf004 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf004 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight; the HF003 precedent (a candidate with executed-but-domain-mismatched evidence) is NOT met here",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no authorized real clip WITH geometry ground truth is reachable in this sandbox — even on adequate hardware, the quality evidence would be unscored-structural (typed gap)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance is 'unknown' per the ledger (the model card states no training corpus) — the HF015 license review has not happened",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the model's 'metric' claim is unverified by any evidence in this flight"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "SAM3",
+      "ledgerGatingState": "candidate",
+      "flight": null,
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight exists for SAM3 (the portfolio records none)"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "no flight record — the resource story is unrecorded (fail-closed)"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": false,
+          "blockers": [
+            "commercialUse is \"unclear\" (not a recorded \"yes\")",
+            "modelLicense is \"other (SAM License — custom Meta agreement, repo LICENSE fil\" (not a permissive class)"
+          ]
+        },
+        {
+          "leg": "reproducibility",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight — the re-runnable harness does not resolve"
+          ]
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight — the failure envelope is unrecorded (fail-closed: no record = no evidence)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "no benchmark flight exists for SAM3 (the portfolio records none)",
+        "no flight record — the resource story is unrecorded (fail-closed)",
+        "commercialUse is \"unclear\" (not a recorded \"yes\")",
+        "modelLicense is \"other (SAM License — custom Meta agreement, repo LICENSE fil\" (not a permissive class)",
+        "no benchmark flight — the re-runnable harness does not resolve",
+        "no benchmark flight — the failure envelope is unrecorded (fail-closed: no record = no evidence)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "Spivak",
+      "ledgerGatingState": "candidate",
+      "flight": "hf006",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "resource",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): no event ground truth exists in the repo (or the sandbox) for any benchmarked media — temporal precision/recall is unmeasurable here, not merely unmeasured",
+            "STANDING BLOCKER (recorded by the flight, unresolved): zero detections at the model's own 0.5 threshold on the only reachable clips (short OOD fragments) — no positive spotting evidence at all",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the cascade cost story on a CPU host is UNFAVORABLE (~876 ms/s video vs ~740 ms/s for the repo's pure-code path); no GPU evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the model runs a TF/Keras-2-era stack with archived dependencies (tensorflow_addons shim, skvideo shim, tf_keras compat load) — an integration risk the HF015 gate must weigh; dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "STANDING BLOCKER (recorded by the flight, unresolved): no event ground truth exists in the repo (or the sandbox) for any benchmarked media — temporal precision/recall is unmeasurable here, not merely unmeasured",
+        "STANDING BLOCKER (recorded by the flight, unresolved): zero detections at the model's own 0.5 threshold on the only reachable clips (short OOD fragments) — no positive spotting evidence at all",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the cascade cost story on a CPU host is UNFAVORABLE (~876 ms/s video vs ~740 ms/s for the repo's pure-code path); no GPU evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the model runs a TF/Keras-2-era stack with archived dependencies (tensorflow_addons shim, skvideo shim, tf_keras compat load) — an integration risk the HF015 gate must weigh; dataset lineage (SoccerNet corpus terms) remains unresolved per the ledger"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "SoccerChat",
+      "ledgerGatingState": "candidate",
+      "flight": "hf007",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf007 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf007 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the SoccerChat held-out validation split is SoccerNet-NDA-gated (401 anonymous): even on adequate hardware the paper's own eval protocol needs an operator NDA acceptance first",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no event ground truth exists in the repo for any benchmarkable media (the HF006 verdict): hallucination-rate / event accuracy would be unscored-structural on the repo's own media without an operator-supplied GT timeline",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the SoccerNet-NDA dataset lineage (the ledger row's datasetProvenance) — the videos may not be redistributed or commercially used; the HF015 license review must weigh the model's training-data provenance against the commercialUse yes flag (the ledger row records both facts exactly)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf007 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf007 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the SoccerChat held-out validation split is SoccerNet-NDA-gated (401 anonymous): even on adequate hardware the paper's own eval protocol needs an operator NDA acceptance first",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no event ground truth exists in the repo for any benchmarkable media (the HF006 verdict): hallucination-rate / event accuracy would be unscored-structural on the repo's own media without an operator-supplied GT timeline",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the SoccerNet-NDA dataset lineage (the ledger row's datasetProvenance) — the videos may not be redistributed or commercially used; the HF015 license review must weigh the model's training-data provenance against the commercialUse yes flag (the ledger row records both facts exactly)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "VibeVoice-ASR-Streaming",
+      "ledgerGatingState": "candidate",
+      "flight": "hf008",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf008 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf008 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, BOTH candidates) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no reference transcripts exist for any real commentary audio (the repo-wide ground-truth search): WER/hotword recall need the --ground-truth operator unlock before ANY scored run on ANY hardware",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the audio fixture set has three typed gaps: fx-001's audio is 429-blocked (the sha-pinned re-fetch recipe exists), the synthetic fixture has no audio track at all, and NO per-language fixtures exist for the multilingual protocol",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the hotword VOCABULARY is an authored decision that does not exist (the W401-lane gap: the repo's W209 lexicon and W401 taxonomy are extraction vocabularies, not ASR-biasing name lists)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): speaker-hints quality is unverifiable without a run: VibeVoice's fused attribution is cluster-labels-not-identities (the HF009 verdicts carry over) and no diarization ground truth exists to score it (HF009's repo-wide verdict)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf008 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf008 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, BOTH candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no reference transcripts exist for any real commentary audio (the repo-wide ground-truth search): WER/hotword recall need the --ground-truth operator unlock before ANY scored run on ANY hardware",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the audio fixture set has three typed gaps: fx-001's audio is 429-blocked (the sha-pinned re-fetch recipe exists), the synthetic fixture has no audio track at all, and NO per-language fixtures exist for the multilingual protocol",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the hotword VOCABULARY is an authored decision that does not exist (the W401-lane gap: the repo's W209 lexicon and W401 taxonomy are extraction vocabularies, not ASR-biasing name lists)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): speaker-hints quality is unverifiable without a run: VibeVoice's fused attribution is cluster-labels-not-identities (the HF009 verdicts carry over) and no diarization ground truth exists to score it (HF009's repo-wide verdict)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "Qwen3-ASR",
+      "ledgerGatingState": "candidate",
+      "flight": "hf008",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf008 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf008 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, BOTH candidates) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no reference transcripts exist for any real commentary audio (the repo-wide ground-truth search): WER/hotword recall need the --ground-truth operator unlock before ANY scored run on ANY hardware",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the audio fixture set has three typed gaps: fx-001's audio is 429-blocked (the sha-pinned re-fetch recipe exists), the synthetic fixture has no audio track at all, and NO per-language fixtures exist for the multilingual protocol",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the hotword VOCABULARY is an authored decision that does not exist (the W401-lane gap: the repo's W209 lexicon and W401 taxonomy are extraction vocabularies, not ASR-biasing name lists)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): speaker-hints quality is unverifiable without a run: VibeVoice's fused attribution is cluster-labels-not-identities (the HF009 verdicts carry over) and no diarization ground truth exists to score it (HF009's repo-wide verdict)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf008 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf008 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, BOTH candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no reference transcripts exist for any real commentary audio (the repo-wide ground-truth search): WER/hotword recall need the --ground-truth operator unlock before ANY scored run on ANY hardware",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the audio fixture set has three typed gaps: fx-001's audio is 429-blocked (the sha-pinned re-fetch recipe exists), the synthetic fixture has no audio track at all, and NO per-language fixtures exist for the multilingual protocol",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the hotword VOCABULARY is an authored decision that does not exist (the W401-lane gap: the repo's W209 lexicon and W401 taxonomy are extraction vocabularies, not ASR-biasing name lists)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): speaker-hints quality is unverifiable without a run: VibeVoice's fused attribution is cluster-labels-not-identities (the HF009 verdicts carry over) and no diarization ground truth exists to score it (HF009's repo-wide verdict)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "pyannote",
+      "ledgerGatingState": "candidate",
+      "flight": "hf009",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf009 record is a typed refusal (auth-gated-model) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf009 latency block carries no measured number — the resource story was not executed"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN (typed refusal: auth-gated-model) — zero executed quality/latency/memory evidence exists in this flight; the auth wall needs an operator action (accept the user conditions + provide an authenticated local copy) before ANY evidence can exist",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no ground-truth speaker annotations exist in the repo (or the sandbox) for benchmarkable media — DER/JER is unmeasurable here even after the unblock; the honest ceiling is unscored structural evidence",
+            "STANDING BLOCKER (recorded by the flight, unresolved): fx-001's audio (the repo's authorized REAL gate clip) is only in the 429-blocked original source; the SPR corpus clips are the only executed audio — their usage scope is the R606 analysis declaration (a private-repo benchmark), which the HF015 license review must confirm",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the HF002 ledger row does not record the user-conditions gate (a 'commercialUse: yes' row whose weights are access-controlled) — the ledger schema may want a distributionGate field; recorded here for the TL"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf009 record is a typed refusal (auth-gated-model) — zero executed benchmark evidence",
+        "the hf009 latency block carries no measured number — the resource story was not executed",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN (typed refusal: auth-gated-model) — zero executed quality/latency/memory evidence exists in this flight; the auth wall needs an operator action (accept the user conditions + provide an authenticated local copy) before ANY evidence can exist",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no ground-truth speaker annotations exist in the repo (or the sandbox) for benchmarkable media — DER/JER is unmeasurable here even after the unblock; the honest ceiling is unscored structural evidence",
+        "STANDING BLOCKER (recorded by the flight, unresolved): fx-001's audio (the repo's authorized REAL gate clip) is only in the 429-blocked original source; the SPR corpus clips are the only executed audio — their usage scope is the R606 analysis declaration (a private-repo benchmark), which the HF015 license review must confirm",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the HF002 ledger row does not record the user-conditions gate (a 'commercialUse: yes' row whose weights are access-controlled) — the ledger schema may want a distributionGate field; recorded here for the TL"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "Wan2.2-Fun-Control-Camera",
+      "ledgerGatingState": "candidate",
+      "flight": "hf010",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "ReCamMaster",
+      "ledgerGatingState": "candidate",
+      "flight": "hf010",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "Meridian",
+      "ledgerGatingState": "candidate",
+      "flight": "hf010",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": false,
+          "blockers": [
+            "commercialUse is \"unclear\" (not a recorded \"yes\")",
+            "modelLicense is \"other (minimax-h3-community-license — MiniMax H3 Community L\" (not a permissive class)",
+            "the hf010 license posture records a research-only / watchlist-pending-terms class for this candidate"
+          ]
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+            "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf010 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf010 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "commercialUse is \"unclear\" (not a recorded \"yes\")",
+        "modelLicense is \"other (minimax-h3-community-license — MiniMax H3 Community L\" (not a permissive class)",
+        "the hf010 license posture records a research-only / watchlist-pending-terms class for this candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+        "STANDING BLOCKER (recorded by the flight, unresolved): no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "ViewCrafter",
+      "ledgerGatingState": "candidate",
+      "flight": "hf011",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf011 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf011 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence: the compute leg is resource-refused on this host (and the HF010 comparison lane likewise) — no novel-view fidelity number exists anywhere in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the head-to-head requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) for BOTH lanes — the HF010 candidates are 20-85 GB compositions and ViewCrafter's own reported working set is 23.5 GB GPU",
+            "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the sparse-view conditioning class's dynamic-content risk: the static-image conditioning does not consume the SWM's moving entities (bullet-time-aligned vs plain-move windows — the typed hallucination signal), unadjudicated",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the lens-control gap: ViewCrafter has no focal surface — the fixture's adversarial pure-optical-zoom window can never be conditioned faithfully on this candidate (the divergence is the measurement, not a defect to hide)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf011 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf011 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence: the compute leg is resource-refused on this host (and the HF010 comparison lane likewise) — no novel-view fidelity number exists anywhere in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the head-to-head requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) for BOTH lanes — the HF010 candidates are 20-85 GB compositions and ViewCrafter's own reported working set is 23.5 GB GPU",
+        "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the sparse-view conditioning class's dynamic-content risk: the static-image conditioning does not consume the SWM's moving entities (bullet-time-aligned vs plain-move windows — the typed hallucination signal), unadjudicated",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the lens-control gap: ViewCrafter has no focal surface — the fixture's adversarial pure-optical-zoom window can never be conditioned faithfully on this candidate (the divergence is the measurement, not a defect to hide)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "Wan2.2-Animate",
+      "ledgerGatingState": "candidate",
+      "flight": "hf012",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf012 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf012 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence: the compute leg is resource-refused on this host — no motion-fidelity, identity-stability, or style-adherence number exists anywhere in this flight",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the comparison requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) AND the typed SWM-state-to-performance-video adapter (no repo seam today — an authored HF014-lane decision before any head-to-head)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the recommended --use_flux preprocessing route's third-party dependency (black-forest-labs/FLUX.1-Kontext-dev, gated=auto, license:other) — a resource-independent license posture input for HF015 (the basic retargeting route avoids it)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the multi-entity scale gap: the candidate animates ONE character per run; the SWM scene carries 22 participants + ball — whole-match animation needs N runs + compositing, unadjudicated",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the identity-association gap: the SWM entityId <-> authorized avatar reference mapping is authored input (the W401 territory — no repo re-id seam exists today)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf012 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf012 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence: the compute leg is resource-refused on this host — no motion-fidelity, identity-stability, or style-adherence number exists anywhere in this flight",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the comparison requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) AND the typed SWM-state-to-performance-video adapter (no repo seam today — an authored HF014-lane decision before any head-to-head)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the recommended --use_flux preprocessing route's third-party dependency (black-forest-labs/FLUX.1-Kontext-dev, gated=auto, license:other) — a resource-independent license posture input for HF015 (the basic retargeting route avoids it)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the multi-entity scale gap: the candidate animates ONE character per run; the SWM scene carries 22 participants + ball — whole-match animation needs N runs + compositing, unadjudicated",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the identity-association gap: the SWM entityId <-> authorized avatar reference mapping is authored input (the W401 territory — no repo re-id seam exists today)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "LTX-2.3",
+      "ledgerGatingState": "candidate",
+      "flight": "hf013",
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "the hf013 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "the hf013 record refuses resource-infeasible-host — the host class cannot run the candidate"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": false,
+          "blockers": [
+            "commercialUse is \"unclear\" (not a recorded \"yes\")",
+            "modelLicense is \"other (ltx-2-community-license-agreement — per card license_\" (not a permissive class)",
+            "codeLicense is unknown (the linked-code review is unrecorded)",
+            "the hf013 license posture records a research-only / watchlist-pending-terms class for this candidate"
+          ]
+        },
+        {
+          "leg": "reproducibility",
+          "pass": true,
+          "blockers": []
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence (resource-infeasible on this host; an adequate host is an operator action)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the license posture: research-grade/watchlist-pending-terms — the governing agreement ambiguous among the candidate's own sources + the >= $10M Commercial Entity paid-license terms + Attachment A; commercialUse 'unclear' stands",
+            "STANDING BLOCKER (recorded by the flight, unresolved): codeLicense unknown (probed NOASSERTION) + datasetProvenance unknown",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the evidence-chain exclusion stands regardless of resources (generated commentary audio never evidence — the doctrine is resource-independent, like HF010's license blocker)",
+            "STANDING BLOCKER (recorded by the flight, unresolved): the upscale pixel-domain reading has no direct candidate surface (the latent two-stage design is the only honest mapping)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "the hf013 record is a typed refusal (resource-infeasible-host) — zero executed benchmark evidence",
+        "the hf013 record refuses resource-infeasible-host — the host class cannot run the candidate",
+        "commercialUse is \"unclear\" (not a recorded \"yes\")",
+        "modelLicense is \"other (ltx-2-community-license-agreement — per card license_\" (not a permissive class)",
+        "codeLicense is unknown (the linked-code review is unrecorded)",
+        "the hf013 license posture records a research-only / watchlist-pending-terms class for this candidate",
+        "STANDING BLOCKER (recorded by the flight, unresolved): zero executed evidence (resource-infeasible on this host; an adequate host is an operator action)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the license posture: research-grade/watchlist-pending-terms — the governing agreement ambiguous among the candidate's own sources + the >= $10M Commercial Entity paid-license terms + Attachment A; commercialUse 'unclear' stands",
+        "STANDING BLOCKER (recorded by the flight, unresolved): codeLicense unknown (probed NOASSERTION) + datasetProvenance unknown",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the evidence-chain exclusion stands regardless of resources (generated commentary audio never evidence — the doctrine is resource-independent, like HF010's license blocker)",
+        "STANDING BLOCKER (recorded by the flight, unresolved): the upscale pixel-domain reading has no direct candidate surface (the latent two-stage design is the only honest mapping)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    },
+    {
+      "candidate": "DA3-GIANT",
+      "ledgerGatingState": "watchlist",
+      "flight": null,
+      "verdict": "PROMOTION-REFUSED",
+      "legs": [
+        {
+          "leg": "benchmark",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight exists for DA3-GIANT (the portfolio records none)"
+          ]
+        },
+        {
+          "leg": "resource",
+          "pass": false,
+          "blockers": [
+            "no flight record — the resource story is unrecorded (fail-closed)"
+          ]
+        },
+        {
+          "leg": "provenance-license",
+          "pass": false,
+          "blockers": [
+            "commercialUse is \"no\" (not a recorded \"yes\")",
+            "modelLicense is \"cc-by-nc-4.0\" (not a permissive class)"
+          ]
+        },
+        {
+          "leg": "reproducibility",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight — the re-runnable harness does not resolve"
+          ]
+        },
+        {
+          "leg": "failure",
+          "pass": false,
+          "blockers": [
+            "no benchmark flight — the failure envelope is unrecorded (fail-closed: no record = no evidence)"
+          ]
+        }
+      ],
+      "standingBlockers": [
+        "no benchmark flight exists for DA3-GIANT (the portfolio records none)",
+        "no flight record — the resource story is unrecorded (fail-closed)",
+        "commercialUse is \"no\" (not a recorded \"yes\")",
+        "modelLicense is \"cc-by-nc-4.0\" (not a permissive class)",
+        "no benchmark flight — the re-runnable harness does not resolve",
+        "no benchmark flight — the failure envelope is unrecorded (fail-closed: no record = no evidence)"
+      ],
+      "pathToPromotion": "resolve EVERY standing blocker with NEW recorded evidence (the adequate-host execution, the license-term resolution, the auth-gate unblock, the ground-truth provisioning — each named in the blockers), then re-run this gate"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "promotionEligible": 0,
+    "promotionRefused": 15,
+    "honestPosture": "NO promotion anywhere in the portfolio — every candidate stands at its recorded state with typed, machine-checked blockers; the path to promotion is the recorded blockers themselves (resolve each with new recorded evidence, then re-run the gate)"
+  }
+}
