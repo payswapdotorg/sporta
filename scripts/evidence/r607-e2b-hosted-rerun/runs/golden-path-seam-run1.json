@@ -1,0 +1,402 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-hosted-rerun-golden-path",
+  "note": "the E2B external-toolchain-worker re-run (the W914 golden-path schema; the client is this driver over the public wire — see the honest-scope note in the file header)",
+  "mode": "e2b-external-worker-public-wire",
+  "workerUrl": "https://3971-i0g9kmal3il3lojjarucf.e2b.app",
+  "workerIdentity": {
+    "sandboxId": "i0g9kmal3il3lojjarucf",
+    "pinnedSha": "300c035b4cf0a0e89a4a08c465d9d0104a9b3efd",
+    "clientHonesty": "the client of this run is the orchestrating driver, NOT the hosted Vercel runtime — this record proves the seam + the worker (the admission PASSING through the remote worker at the pinned revision); the hosted runtime's own dispatch is the separate hosted golden-path leg"
+  },
+  "workerHealth": {
+    "ok": true,
+    "service": "sporta-media-toolchain-worker",
+    "adapterId": "sporta.compute.hosted.media",
+    "providerId": "sporta-media-toolchain-worker-1",
+    "adapterVersion": "0.1"
+  },
+  "descriptor": {
+    "schemaVersion": "1.0",
+    "adapterId": "sporta.compute.hosted.media",
+    "adapterVersion": "0.1",
+    "providerId": "sporta-media-toolchain-worker-1",
+    "providerKind": "cpu-worker",
+    "operations": [
+      "probe",
+      "normalize"
+    ],
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "ffprobePath": "/usr/bin/ffprobe",
+      "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "resolved": true
+    },
+    "budgets": {
+      "maxExecutionMs": 120000,
+      "maxSourceBytes": 209715200,
+      "maxArtifactBytes": 209715200,
+      "maxConcurrentJobs": 1
+    },
+    "costUnits": [
+      {
+        "unitId": "cpu-ms",
+        "unitKind": "time-ms",
+        "description": "measured media-toolchain execution time"
+      },
+      {
+        "unitId": "media-jobs",
+        "unitKind": "count",
+        "description": "executed media-toolchain jobs"
+      },
+      {
+        "unitId": "artifact-bytes",
+        "unitKind": "bytes",
+        "description": "normalized artifact bytes produced"
+      }
+    ]
+  },
+  "localToolchain": {
+    "ffmpegPath": "/usr/bin/ffmpeg",
+    "ffprobePath": "/usr/bin/ffprobe",
+    "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "resolved": true,
+    "note": "the DRIVER's local toolchain (identity only — no media operation executes locally in this run; every dispatch went over the wire). The E2B worker's own measured identity is in workerIdentity + the descriptor's toolchain block"
+  },
+  "source": {
+    "generator": "generateTestMp4 (real ffmpeg lavfi: testsrc video + 440Hz sine audio)",
+    "params": {
+      "durationSeconds": 2,
+      "withAudio": true,
+      "width": 320,
+      "height": 240,
+      "frameRate": 24
+    },
+    "byteSize": 46076,
+    "sha256": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b"
+  },
+  "stages": {
+    "admission": {
+      "assetId": "asset-5e086e759917acef606491384cc38a3d",
+      "mediaJobId": "mjob-bc65cc4ae89c4cb623f2b8a7d2ae8e1f",
+      "workerJobId": "mtjob-ac68266e5ac2859ae80b700e1b9fcb12",
+      "workerJob": {
+        "jobId": "mtjob-ac68266e5ac2859ae80b700e1b9fcb12",
+        "sessionId": "media-platform",
+        "operation": "probe",
+        "state": "succeeded",
+        "startedAtMs": 1791104160960,
+        "finishedAtMs": 1791104161084,
+        "result": {
+          "jobId": "mtjob-ac68266e5ac2859ae80b700e1b9fcb12",
+          "status": "succeeded",
+          "operation": "probe",
+          "sourceProbe": {
+            "durationMs": 2000,
+            "videoStreams": [
+              {
+                "index": 0,
+                "codec_type": "video",
+                "codec_name": "h264",
+                "profile": "High",
+                "width": 320,
+                "height": 240,
+                "avg_frame_rate": "24/1",
+                "r_frame_rate": "24/1",
+                "nb_frames": "48",
+                "duration": "2.000000",
+                "bit_rate": "43532"
+              }
+            ],
+            "audioStreams": [
+              {
+                "index": 1,
+                "codec_type": "audio",
+                "codec_name": "aac",
+                "profile": "LC",
+                "avg_frame_rate": "0/0",
+                "r_frame_rate": "0/0",
+                "nb_frames": "95",
+                "duration": "2.000000",
+                "bit_rate": "128129",
+                "channels": 2,
+                "sample_rate": "48000"
+              }
+            ],
+            "frameRateFps": 24,
+            "frameCount": 48,
+            "raw": {
+              "streams": [
+                {
+                  "index": 0,
+                  "codec_type": "video",
+                  "codec_name": "h264",
+                  "profile": "High",
+                  "width": 320,
+                  "height": 240,
+                  "avg_frame_rate": "24/1",
+                  "r_frame_rate": "24/1",
+                  "nb_frames": "48",
+                  "duration": "2.000000",
+                  "bit_rate": "43532"
+                },
+                {
+                  "index": 1,
+                  "codec_type": "audio",
+                  "codec_name": "aac",
+                  "profile": "LC",
+                  "avg_frame_rate": "0/0",
+                  "r_frame_rate": "0/0",
+                  "nb_frames": "95",
+                  "duration": "2.000000",
+                  "bit_rate": "128129",
+                  "channels": 2,
+                  "sample_rate": "48000"
+                }
+              ],
+              "format": {
+                "duration": "2.000000",
+                "format_name": "mov,mp4,m4a,3gp,3g2,mj2"
+              }
+            }
+          },
+          "metering": {
+            "startedAtMs": 1791104160961,
+            "finishedAtMs": 1791104161084,
+            "executionMs": 123,
+            "ffprobeRuns": 1,
+            "ffmpegRuns": 0,
+            "inputBytes": 46076,
+            "outputBytes": 0
+          }
+        },
+        "metering": {
+          "startedAtMs": 1791104160961,
+          "finishedAtMs": 1791104161084,
+          "executionMs": 123,
+          "ffprobeRuns": 1,
+          "ffmpegRuns": 0,
+          "inputBytes": 46076,
+          "outputBytes": 0
+        },
+        "duplicateExecutions": 0
+      },
+      "clientWallMs": 415,
+      "workerExecutionMs": 123,
+      "measuredDurationMs": 2000,
+      "videoStreamCount": 1,
+      "audioStreamCount": 1,
+      "uploadState": "stored",
+      "checksumVerified": true
+    },
+    "normalization": {
+      "mediaJobId": "mjob-bc65cc4ae89c4cb623f2b8a7d2ae8e1f",
+      "terminalState": "succeeded",
+      "workerJobId": "mtjob-5ee87a262fa4072669724e4b2ddbd0cc",
+      "workerExecutionMs": 480,
+      "workerFfprobeRuns": 2,
+      "workerFfmpegRuns": 1,
+      "clientWallMs": 835
+    }
+  },
+  "manifest": {
+    "manifestId": "man-1bab9ae1ad207487f943b4a99ad659e3",
+    "sourceAssetId": "asset-5e086e759917acef606491384cc38a3d",
+    "contentHash": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+    "byteSize": 46195,
+    "durationMs": 2000,
+    "frameCount": 48,
+    "video": {
+      "codec": "h264",
+      "widthPx": 320,
+      "heightPx": 240,
+      "frameRateFps": 24,
+      "bitrateKbps": 44
+    },
+    "audio": {
+      "codec": "aac",
+      "channels": 2,
+      "sampleRateHz": 48000
+    }
+  },
+  "artifact": {
+    "artifactId": "art-1a1e2e1ded3e15d497c1e055768f1a3b",
+    "reality": "original",
+    "contentHash": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+    "byteSize": 46195,
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "durationMs": 2000,
+    "rendererId": "media-platform/normalize",
+    "rendererVersion": "0.1.0",
+    "integrity": {
+      "algorithm": "sha256",
+      "verified": true
+    },
+    "storageKey": "normalized/802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604.mp4"
+  },
+  "hashChain": {
+    "sourceHashMeasured": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+    "assetContentHash": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+    "manifestContentHash": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+    "artifactContentHash": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+    "storedBytesHashMeasured": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+    "storedByteSize": 46195
+  },
+  "playability": {
+    "moovBeforeMdat": true,
+    "moovOffset": 36,
+    "mdatOffset": 2824,
+    "probeDurationMs": 2000,
+    "probeVideoCodec": "h264",
+    "probeAudioCodec": "aac",
+    "playable": true
+  },
+  "accounting": {
+    "stats": {
+      "jobsDispatched": 2,
+      "duplicates": 0,
+      "succeeded": 2,
+      "failed": 0,
+      "inFlight": 0,
+      "capacityRefusals": 0,
+      "usageRecords": 2,
+      "probeRuns": 3,
+      "transcodeRuns": 1,
+      "inputBytes": 92152,
+      "outputBytes": 46195,
+      "totalExecutionMs": 603
+    },
+    "identity1DispatchedEqualsTerminalPlusInFlight": true,
+    "identity2UsageRecordsEqualsTerminal": true,
+    "usageDrainCount": 2,
+    "usageRecords": [
+      {
+        "schemaVersion": "1.0",
+        "jobId": "mtjob-ac68266e5ac2859ae80b700e1b9fcb12",
+        "idempotencyKey": "mtjob-key-9acdabeb451f3b9a38d270650d871616",
+        "sessionId": "media-platform",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "terminalDisposition": "succeeded",
+        "timing": {
+          "queueWaitMs": 0,
+          "executionMs": 123
+        },
+        "attempts": 1,
+        "claims": 1,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "quantity": 123
+          },
+          {
+            "unitId": "media-jobs",
+            "quantity": 1
+          },
+          {
+            "unitId": "artifact-bytes",
+            "quantity": 0
+          }
+        ],
+        "meteredAtMs": 1791104161089
+      },
+      {
+        "schemaVersion": "1.0",
+        "jobId": "mtjob-5ee87a262fa4072669724e4b2ddbd0cc",
+        "idempotencyKey": "mtjob-key-4b25f5b1021dd67abeaf8b2d288262ff",
+        "sessionId": "media-platform",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "terminalDisposition": "succeeded",
+        "timing": {
+          "queueWaitMs": 0,
+          "executionMs": 480
+        },
+        "attempts": 1,
+        "claims": 1,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "quantity": 480
+          },
+          {
+            "unitId": "media-jobs",
+            "quantity": 1
+          },
+          {
+            "unitId": "artifact-bytes",
+            "quantity": 46195
+          }
+        ],
+        "meteredAtMs": 1791104162408
+      }
+    ]
+  },
+  "boundaryRecord": {
+    "note": "the R607 hosted boundary class reproduced at a worker boundary over the wire (the hosted Node serverless runtime ships no ffmpeg/ffprobe — upload REFUSED at admission, typed ffprobe-absent class; nothing faked, nothing stored)",
+    "descriptor": {
+      "schemaVersion": "1.0",
+      "adapterId": "sporta.compute.hosted.media",
+      "adapterVersion": "0.1",
+      "providerId": "sporta-media-toolchain-worker-1",
+      "providerKind": "cpu-worker",
+      "operations": [],
+      "toolchain": {
+        "ffmpegPath": null,
+        "ffprobePath": null,
+        "ffmpegVersion": null,
+        "resolved": false
+      },
+      "budgets": {
+        "maxExecutionMs": 120000,
+        "maxSourceBytes": 209715200,
+        "maxArtifactBytes": 209715200,
+        "maxConcurrentJobs": 1
+      },
+      "costUnits": [
+        {
+          "unitId": "cpu-ms",
+          "unitKind": "time-ms",
+          "description": "measured media-toolchain execution time"
+        },
+        {
+          "unitId": "media-jobs",
+          "unitKind": "count",
+          "description": "executed media-toolchain jobs"
+        },
+        {
+          "unitId": "artifact-bytes",
+          "unitKind": "bytes",
+          "description": "normalized artifact bytes produced"
+        }
+      ]
+    },
+    "dispatchHttpStatusCode": 200,
+    "envelope": {
+      "disposition": "executed",
+      "result": {
+        "jobId": "r607-w914-boundary-probe",
+        "operation": "probe",
+        "status": "failed",
+        "failure": {
+          "errorClass": "ffmpeg-unavailable",
+          "message": "ffmpeg is not usable at '/nonexistent/ffmpeg-binary' — the media toolchain cannot execute on this worker (and is never faked)",
+          "terminal": "internal",
+          "failureClass": "internal",
+          "retryable": false
+        },
+        "metering": {
+          "startedAtMs": 1791104163310,
+          "finishedAtMs": 1791104163310,
+          "executionMs": 0,
+          "ffprobeRuns": 0,
+          "ffmpegRuns": 0,
+          "inputBytes": 46076,
+          "outputBytes": 0
+        }
+      }
+    }
+  }
+}

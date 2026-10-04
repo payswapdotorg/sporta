@@ -1,0 +1,17 @@
+Resolving dependencies
+Resolved, downloaded and extracted [1115]
+Saved lockfile
+Vercel CLI 62.2.0 (Node.js 24.21.0)
+> NOTE: The Vercel CLI now collects telemetry regarding usage of the CLI.
+> This information is used to shape the CLI roadmap and prioritize features.
+> You can learn more, including how to opt-out if you'd not like to participate in this program, by visiting the following URL:
+> https://vercel.com/docs/cli/about-telemetry
+Retrieving project…
+Deploying ekonplacidegmailcoms-projects/sporta
+Uploading [--------------------] (0.0B/4.8MB)
+Uploading [=====---------------] (1.2MB/4.8MB)
+Uploading [==========----------] (2.4MB/4.8MB)
+Uploading [===============-----] (3.6MB/4.8MB)
+Uploading [====================] (4.8MB/4.8MB)
+✗ Resource is limited - try again in 24 hours (more than 100, code: "api-deployments-free-per-day").
+  Check the billing or feature requirement reported above with a team owner. Retry after that requirement is resolved.

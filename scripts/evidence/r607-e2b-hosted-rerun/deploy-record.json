@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-hosted-rerun-deploy-record",
+  "note": "the hosted deployment leg of the R607 E2B re-run — the honest record: the env wiring EXECUTED (PATCH class), the deploy ATTEMPTED and REFUSED (typed provider quota), the current production state MEASURED (the dead ephemeral worker URL baked at the 62-c deploy — the ephemerality doctrine's live proof)",
+  "pinnedRevisionDeployed": {
+    "sha": "300c035b4cf0a0e89a4a08c465d9d0104a9b3efd",
+    "note": "the working tree deployed from = this branch (300c035 + the additive evidence files under scripts/evidence/r607-e2b-hosted-rerun/ — outside the apps/web build root; the built product code is byte-identical to the pinned main sha)"
+  },
+  "envWiring": {
+    "commandClassBrief": "bunx vercel env add MEDIA_TOOLCHAIN http --production --token $VERCEL_TOKEN --project sporta (+ MEDIA_TOOLCHAIN_URL …) — the brief's §6 shape",
+    "adaptation": "the vars ALREADY EXIST on the project (the 62-c posture set them, pointing at the now-dead 62-c sandbox ikv41gpq99jsnsadltfxr) — `env add` would refuse duplicates, so the PATCH shape (the 62-c commands.md §4 precedent) updated the values in place",
+    "patches": [
+      { "name": "MEDIA_TOOLCHAIN", "envId": "I1QbYbw102O2ybC7", "value": "http", "httpStatusCode": 200 },
+      {
+        "name": "MEDIA_TOOLCHAIN_URL",
+        "envId": "iu0c8kUgznFwaH6F",
+        "value": "https://3971-i0g9kmal3il3lojjarucf.e2b.app",
+        "httpStatusCode": 200
+      },
+      {
+        "name": "COMPUTE_WORKER_URL",
+        "envId": "hSpnqXIKbF1Tb2J7",
+        "value": "https://3973-i0g9kmal3il3lojjarucf.e2b.app",
+        "httpStatusCode": 200,
+        "note": "the inherited 62-c COMPUTE_PROVIDER=http posture kept bootable: the composition's boot-time live descriptor fetch is fail-loud, and the project env's compute URL pointed at the DEAD 62-c sandbox — the sandbox therefore also runs the repo's r607-e2b-compute-worker.ts (the companion, recorded in sandbox-record.json)"
+      },
+      { "name": "COMPUTE_PROVIDER", "envId": "NgYDMHJ24XhCuX0W", "value": "http", "httpStatusCode": 200 },
+      {
+        "name": "SPORTA_DEPLOY_MARKER",
+        "envId": "GHJXtTrqEuB1I8pg",
+        "value": "r607-e2b-rerun-1",
+        "httpStatusCode": 200
+      }
+    ],
+    "patchRequestMethod": "PATCH https://api.vercel.com/v10/projects/sporta/env/<id> (Authorization: Bearer $VERCEL_TOKEN — the token value NEVER recorded; env-only)"
+  },
+  "deployAttempts": [
+    {
+      "attempt": 1,
+      "command": "bunx vercel deploy --prod --yes --token $VERCEL_TOKEN --project sporta --scope ekonplacidegmailcoms-projects (from the repo root)",
+      "result": "REFUSED (typed)",
+      "errorCode": "api-deployments-free-per-day",
+      "error": "Resource is limited - try again in 24 hours (more than 100, code: \"api-deployments-free-per-day\")",
+      "note": "the CLI retrieved the project and uploaded the 4.8MB build payload; the deployment CREATION was refused at the account's free-tier daily deployment quota (>100 deploys in the rolling 24h window — the account hosts 45 projects incl. this lane's many prior deploys). NOT a token/permission failure (the env PATCHes and the project/deployment reads all answered 200), NOT a build failure",
+      "log": "runs/deploy-1.txt"
+    },
+    {
+      "attempt": 2,
+      "command": "(identical, retried ~15 minutes later)",
+      "result": "REFUSED (typed, the same quota class)",
+      "errorCode": "api-deployments-free-per-day",
+      "log": "runs/deploy-2.txt"
+    }
+  ],
+  "deployOutcome": {
+    "deploymentId": null,
+    "url": null,
+    "verdict": "NOT DEPLOYED — the deploy leg is honestly BLOCKED at the provider's free-tier daily deployment quota (the typed refusal recorded above; never a fabricated deployment id)",
+    "consequence": "the re-pointed env (MEDIA_TOOLCHAIN_URL / COMPUTE_WORKER_URL → the live E2B sandbox) takes effect ONLY on a NEW deployment (Vercel env values are captured at deploy time) — no deployment landed, so the hosted runtime NEVER dispatched to this flight's E2B worker"
+  },
+  "currentProductionStateMeasured": {
+    "alias": "https://sporta-flame.vercel.app",
+    "servingDeployment": "dpl_Cr9SwXQF3prrUACFzRQddhsgCzdo (the 62-c redeploy, 2026-10-03 — the production alias's live deployment at measurement time)",
+    "rootHtml": { "httpStatusCode": 200 },
+    "apiPlatformHealth": { "httpStatusCode": 500, "body": "(empty — the route fails at the composition boot)" },
+    "signupAttempt": {
+      "route": "POST /api/auth/register",
+      "httpStatusCode": 500,
+      "envelope": {
+        "error": {
+          "failureClass": "internal",
+          "message": "unexpected server failure",
+          "details": { "errorId": "d01b946e-f6b9-40c4-8502-1ac170e02a80" }
+        }
+      }
+    },
+    "runtimeLogVerbatim": [
+      "08:57:44.12  sporta-flame.vercel.app  error  λ POST /api/auth/register",
+      "[api] unhandled error (d01b946e-f6b9-40c4-8502-1ac170e02a80): Error: compute worker descriptor fetch failed: HTTP 502",
+      "    at ... (.next/server/chunks/apps_web_src_server_composition_ts_…js)",
+      "08:57:43.49  sporta-flame.vercel.app  error  λ GET /api/platform/health",
+      "Error: compute worker descriptor fetch failed: HTTP 502"
+    ],
+    "attribution": "the 62-c deployment's BAKED COMPUTE_WORKER_URL (https://3973-ikv41gpq99jsnsadltfxr.e2b.app — the 62-c sandbox, dead since its 3h keep-alive expired) answers 502 at the E2B proxy → the composition's boot-time live compute-worker descriptor fetch (fail-loud by design) throws at singleton build → EVERY API route answers 500 (the shell pages stay 200). THE EPHEMERALITY DOCTRINE MEASURED LIVE: an ephemeral worker URL baked into the production env breaks the hosted API plane when the sandbox dies — the production posture needs a persistent worker host (see README.md's doctrine statement)"
+  },
+  "recoveryPath": {
+    "whenTheQuotaResets": "re-run the recorded procedure end-to-end (all commands in commands.md): 1) orchestrate-e2b.ts (a FRESH E2B sandbox — this flight's sandbox i0g9kmal3il3lojjarucf will be dead by then; the 2h keep-alive cannot span a 24h quota window), 2) PATCH MEDIA_TOOLCHAIN_URL + COMPUTE_WORKER_URL to the fresh sandbox's public URLs, 3) bunx vercel deploy --prod, 4) the hosted golden path (sign-up → upload) against the fresh deployment — the upload's honest expected outcome is recorded in hosted-golden-path.json (the R207 decode gap, upstream of the E2B-wired admission seam, unchanged at this pinned sha)",
+    "theHonestLimit": "until a persistent (non-ephemeral) worker host exists, every hosted deploy that bakes an ephemeral worker URL repeats this measured failure mode when the sandbox dies"
+  },
+  "credentialsDiscipline": "VERCEL_TOKEN + E2B_API_KEY env-only (sourced from ~/.sporta-env per command; never echoed into committed files — the validator scans this evidence tree for the 'e2b_' and 'vcp_' prefixes)"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-hosted-rerun-sandbox-record",
+  "provider": {
+    "name": "E2B",
+    "product": "E2B Sandboxes (api.e2b.dev)",
+    "template": {
+      "id": "rki5dems9wqfm4r03t7g",
+      "name": "base"
+    },
+    "sandbox": {
+      "sandboxId": "i0g9kmal3il3lojjarucf",
+      "envdVersion": "0.6.10",
+      "cpuCount": 2,
+      "memoryMB": 512,
+      "startedAtIso": "2026-10-04T08:50:44.287Z",
+      "lifecycleOnTimeout": "kill",
+      "keepAliveMs": 7200000,
+      "note": "EPHEMERAL BY DESIGN — the sandbox dies at the timeout; the public worker URL is ephemeral evidence (see the ephemerality doctrine in README.md)"
+    },
+    "pinnedRevision": {
+      "sha": "300c035b4cf0a0e89a4a08c465d9d0104a9b3efd",
+      "subject": "status: SPR303 DELIVERED — the executed AnimeGANv2 trial record (the SPR wave-2 trial closed)",
+      "note": "the in-sandbox `git clone` checks out EXACTLY this sha (orchestrate-e2b.ts fails closed on any other HEAD); the worker the hosted runtime dispatches to runs this revision"
+    },
+    "toolchain": {
+      "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "bunVersion": "1.4.2",
+      "libx264Encoders": "2"
+    }
+  },
+  "worker": {
+    "entry": "packages/compute-adapter-hosted/scripts/r607-media-toolchain-worker.ts",
+    "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3971 nohup ~/.bun/bin/bun run scripts/r607-media-toolchain-worker.ts",
+    "port": 3971,
+    "publicUrl": "https://3971-i0g9kmal3il3lojjarucf.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-media-toolchain-worker",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "descriptor": {
+      "httpStatusCode": 200,
+      "body": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted.media",
+        "adapterVersion": "0.1",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "providerKind": "cpu-worker",
+        "operations": [
+          "probe",
+          "normalize"
+        ],
+        "toolchain": {
+          "ffmpegPath": "/usr/bin/ffmpeg",
+          "ffprobePath": "/usr/bin/ffprobe",
+          "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+          "resolved": true
+        },
+        "budgets": {
+          "maxExecutionMs": 120000,
+          "maxSourceBytes": 209715200,
+          "maxArtifactBytes": 209715200,
+          "maxConcurrentJobs": 1
+        },
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured media-toolchain execution time"
+          },
+          {
+            "unitId": "media-jobs",
+            "unitKind": "count",
+            "description": "executed media-toolchain jobs"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "normalized artifact bytes produced"
+          }
+        ]
+      }
+    },
+    "bootLog": [
+      "[media-toolchain-worker] listening on http://0.0.0.0:3971",
+      "[media-toolchain-worker] adapter sporta.compute.hosted.media v0.1, provider sporta-media-toolchain-worker-1",
+      "[media-toolchain-worker] toolchain: RESOLVED — ffmpeg '/usr/bin/ffmpeg' / ffprobe '/usr/bin/ffprobe'",
+      "[media-toolchain-worker] measured identity: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "[media-toolchain-worker] budgets: maxExecutionMs=120000 maxSourceBytes=209715200 maxArtifactBytes=209715200 maxConcurrentJobs=1 (ONE ffmpeg at a time — the memory discipline)"
+    ]
+  },
+  "computeWorkerCompanion": {
+    "entry": "packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts",
+    "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3973 nohup ~/.bun/bin/bun run scripts/r607-e2b-compute-worker.ts",
+    "port": 3973,
+    "publicUrl": "https://3973-i0g9kmal3il3lojjarucf.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-compute-worker",
+        "adapterId": "sporta.compute.hosted",
+        "providerId": "sporta-compute-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "role": "the inherited 62-c project env sets COMPUTE_PROVIDER=http (the composition's boot-time live descriptor fetch is fail-loud) — the sandbox runs the repo's own compute worker so the inherited production posture stays bootable; NOT this flight's evidence subject (the media-toolchain seam is)"
+  },
+  "provisioning": {
+    "mode": "reused-live-sandbox",
+    "totalMs": 4259,
+    "cloneCheckout": "git clone https://github.com/payswapdotorg/sporta.git + git checkout 300c035b4cf0a0e89a4a08c465d9d0104a9b3efd (at /home/user/sporta-repo)",
+    "notes": [
+      "ffmpeg via `sudo apt-get install -y ffmpeg` (Debian bookworm 7:5.1.x + libx264)",
+      "bun via `curl -fsSL https://bun.sh/install | bash`",
+      "the repo workspace installed in-sandbox with `bun install --frozen-lockfile`",
+      "the worker runs from the checked-out pinned revision — never a hand-moved bundle"
+    ]
+  },
+  "credentialsDiscipline": "E2B_API_KEY env-only (never echoed, never committed; the record carries no secrets — scan target: the 'e2b_' prefix)"
+}

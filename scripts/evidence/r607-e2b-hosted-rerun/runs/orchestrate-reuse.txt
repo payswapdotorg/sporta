@@ -1,0 +1,24 @@
+[orchestrate] sandbox: i0g9kmal3il3lojjarucf (REUSED)
+[orchestrate] ffmpeg: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers | /usr/bin/ffmpeg | /usr/bin/ffprobe | 2
+[orchestrate] bun: 1.4.2
+[orchestrate] clone: 300c035b4cf0a0e89a4a08c465d9d0104a9b3efd
+[orchestrate] bun install (repo): (reused)
+[orchestrate] boot log: 
+[media-toolchain-worker] listening on http://0.0.0.0:3971
+[media-toolchain-worker] adapter sporta.compute.hosted.media v0.1, provider sporta-media-toolchain-worker-1
+[media-toolchain-worker] toolchain: RESOLVED — ffmpeg '/usr/bin/ffmpeg' / ffprobe '/usr/bin/ffprobe'
+[media-toolchain-worker] measured identity: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers
+[media-toolchain-worker] budgets: maxExecutionMs=120000 maxSourceBytes=209715200 maxArtifactBytes=209715200 maxConcurrentJobs=1 (ONE ffmpeg at a time — the memory discipline)
+
+[orchestrate] public url: https://3971-i0g9kmal3il3lojjarucf.e2b.app
+[orchestrate] public verification: health HTTP 200 (ok=true) / descriptor HTTP 200 (resolved=true)
+[orchestrate] compute worker (companion): https://3973-i0g9kmal3il3lojjarucf.e2b.app (health HTTP 200)
+[orchestrate] sandbox timeout: 120 minutes
+=== E2B external toolchain worker UP (measured) ===
+sandbox:        i0g9kmal3il3lojjarucf
+pinned sha:     300c035b4cf0a0e89a4a08c465d9d0104a9b3efd
+public url:     https://3971-i0g9kmal3il3lojjarucf.e2b.app (health HTTP 200)
+ffmpeg:         ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers
+keep-alive:     120 minutes
+provision time: 4260ms
+record:         /home/z/sporta/scripts/evidence/r607-e2b-hosted-rerun/sandbox-record.json

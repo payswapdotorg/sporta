@@ -1,0 +1,5 @@
+Vercel CLI 62.2.0 (Node.js 24.21.0)
+Retrieving project…
+Deploying ekonplacidegmailcoms-projects/sporta
+✗ Resource is limited - try again in 24 hours (more than 100, code: "api-deployments-free-per-day").
+  Check the billing or feature requirement reported above with a team owner. Retry after that requirement is resolved.

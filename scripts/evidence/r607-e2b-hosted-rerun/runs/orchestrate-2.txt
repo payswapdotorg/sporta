@@ -1,0 +1,22 @@
+[orchestrate] sandbox: i0g9kmal3il3lojjarucf (fresh)
+[orchestrate] ffmpeg: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers | /usr/bin/ffmpeg | /usr/bin/ffprobe | 2
+[orchestrate] bun: 1.4.2
+[orchestrate] clone: 300c035b4cf0a0e89a4a08c465d9d0104a9b3efd
+[orchestrate] bun install (repo): 167 packages installed [2.61s]
+1640 | 	[_connectrpc_connect.Code.Unauthenticated]: (message) => new AuthenticationError(message),
+1641 | 	[_connectrpc_connect.Code.NotFound]: (message) => new NotFoundError(message),
+1642 | 	[_connectrpc_connect.Code.ResourceExhausted]: (message) => new RateLimitError(`${message}: Rate limit exceeded, please try again later.`),
+1643 | 	[_connectrpc_connect.Code.Unavailable]: formatSandboxTimeoutError,
+1644 | 	[_connectrpc_connect.Code.Canceled]: (message) => new TimeoutError(`${message}: This error is likely due to exceeding 'requestTimeoutMs'. You can pass the request timeout value as an option when making the request.`),
+1645 | 	[_connectrpc_connect.Code.DeadlineExceeded]: (message) => new TimeoutError(`${message}: This error is likely due to exceeding 'timeoutMs' — the total time a long running request (like command execution or directory watch) can be active. It can be modified by passing 'timeoutMs' when making the request. Use '0' to disable the timeout.`)
+                                                                  ^
+TimeoutError: [deadline_exceeded] the operation timed out: This error is likely due to exceeding 'timeoutMs' — the total time a long running request (like command execution or directory watch) can be active. It can be modified by passing 'timeoutMs' when making the request. Use '0' to disable the timeout.
+ statusCode: undefined,
+
+      at 4 (/home/z/sporta/node_modules/.bun/e2b@2.52.0/node_modules/e2b/dist/index.js:1645:60)
+      at handleRpcError (/home/z/sporta/node_modules/.bun/e2b@2.52.0/node_modules/e2b/dist/index.js:1657:71)
+      at handleRpcErrorWithHealthCheck (/home/z/sporta/node_modules/.bun/e2b@2.52.0/node_modules/e2b/dist/index.js:1678:9)
+      at handleEvents (/home/z/sporta/node_modules/.bun/e2b@2.52.0/node_modules/e2b/dist/index.js:2693:34)
+      at async wait (/home/z/sporta/node_modules/.bun/e2b@2.52.0/node_modules/e2b/dist/index.js:2501:9)
+
+Bun v1.3.14 (Linux x64 baseline)

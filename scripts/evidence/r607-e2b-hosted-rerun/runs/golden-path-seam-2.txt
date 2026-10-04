@@ -1,0 +1,13 @@
+[driver] mode: E2B EXTERNAL worker at https://3971-i0g9kmal3il3lojjarucf.e2b.app (the hosted-plane topology, over the public wire)
+=== R607/W914 media-toolchain golden path (measured) ===
+mode:            e2b-external-worker-public-wire (https://3971-i0g9kmal3il3lojjarucf.e2b.app)
+toolchain:       ffmpeg /usr/bin/ffmpeg / ffprobe /usr/bin/ffprobe
+                 ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers
+source:          46076 bytes, sha-256 4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b
+admission:       client 385ms (worker execution 86ms, job mtjob-506f2573fd3201817659c0c006b5eaa6); duration measured 2000ms; 1v/1a streams
+normalization:   client 740ms (worker execution 386ms, job mtjob-efcb4b82fbccd6cf6a4e71a5fb8817f5; ffprobe x2, ffmpeg x1)
+artifact:        46195 bytes, sha-256 802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604 (chain: source 4a347893921b… → normalized 802c5c620779…, verified 7/7 links)
+playable:        true (moov@36 before mdat@2824; driver-side ffprobe: h264/aac, 2000ms)
+accounting:      dispatched=2 === succeeded(2) + failed(0) + inFlight(0); usageRecords=2 === terminal(2); usage drain agrees (2); duplicates=0; capacityRefusals=0; probeRuns=3; transcodeRuns=1; in=92152B out=46195B; totalExecutionMs=472
+boundary:        unresolved-toolchain worker → operations [] , dispatch 200 → ffmpeg-unavailable (internal) — the R607 hosted class, honest over the wire
+record:          /home/z/sporta/scripts/evidence/r607-e2b-hosted-rerun/golden-path-seam.json
