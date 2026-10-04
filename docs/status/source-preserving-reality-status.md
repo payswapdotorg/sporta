@@ -495,8 +495,7 @@ lanes (see `docs/status/lane-coordination.md` and the session-log
    the acceptance re-run once the media path exists).
 4. ~~SPR104/105/106/109/202/205~~ — ALL DELIVERED (w5c/w5e/w5f/w5g/w5h+
 w5h3/w5i/w5j; see the work-items doc). Remaining SPR backlog:
-   SPR302/303 neural candidates (the identity frontier) per the
-   work-items doc.
+   ~~SPR302~~ DELIVERED (0ab5321, flight 14: the 9-candidate x 5-axis feasibility matrix — AnimeGANv2 the wave-2 primary trial pick (CPU-feasible, 4 ungated mirrors; the NC-weights license contradiction recorded) + EbSynth second (our deterministic keyframes); TWO landscape priors overturned by the probe facts: FlowVid artifact-absent (no code/checkpoints released) + ToonCrafter Apache-2.0; no model ran — SPR303 owns the executed trial) + SPR303 (the provider/hosted-inference trial) per the work-items doc.
 5. Video-based temporal audit (Tier-3 groundwork): the frame-pair temporal
    axes are recorded as a limitation; full-video review would replace the
    0.2 s pair judgment.
