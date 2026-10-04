@@ -1,0 +1,50 @@
+{
+  "label": "THE GATE MACHINERY SELF-TESTS — SYNTHETIC requests only (never candidates; never a promotion claim)",
+  "syntheticOnly": "every request here is synthetic; no real candidate is named; no gatingState changes anywhere",
+  "tests": [
+    {
+      "label": "SYNTHETIC fully-evidenced request -> the gate PASSES all five legs (the gate is not a blanket refuser — it can pass a full-evidence chain)",
+      "expected": "pass",
+      "observed": "pass",
+      "ok": true
+    },
+    {
+      "label": "SYNTHETIC request missing the benchmark leg -> refused with EXACTLY that leg's typed blocker",
+      "expected": "refused-on:benchmark",
+      "observed": "refused-on:benchmark",
+      "ok": true
+    },
+    {
+      "label": "SYNTHETIC request missing the resource leg -> refused with EXACTLY that leg's typed blocker",
+      "expected": "refused-on:resource",
+      "observed": "refused-on:resource",
+      "ok": true
+    },
+    {
+      "label": "SYNTHETIC request missing the provenance-license leg -> refused with EXACTLY that leg's typed blocker",
+      "expected": "refused-on:provenance-license",
+      "observed": "refused-on:provenance-license",
+      "ok": true
+    },
+    {
+      "label": "SYNTHETIC request missing the reproducibility leg -> refused with EXACTLY that leg's typed blocker",
+      "expected": "refused-on:reproducibility",
+      "observed": "refused-on:reproducibility",
+      "ok": true
+    },
+    {
+      "label": "SYNTHETIC request missing the failure leg -> refused with EXACTLY that leg's typed blocker",
+      "expected": "refused-on:failure",
+      "observed": "refused-on:failure",
+      "ok": true
+    }
+  ],
+  "legsEnumerated": [
+    "benchmark",
+    "resource",
+    "provenance-license",
+    "reproducibility",
+    "failure"
+  ],
+  "allOk": true
+}
