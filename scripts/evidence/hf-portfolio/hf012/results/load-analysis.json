@@ -1,0 +1,202 @@
+{
+  "label": "the load analysis at the pinned revision — metadata arithmetic ONLY (weights never downloaded, never committed, never vendored)",
+  "candidate": {
+    "repoId": "Wan-AI/Wan2.2-Animate-14B",
+    "revision": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+    "resolvedSha": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+    "revisionMatch": true,
+    "gated": "False",
+    "pipelineTag": "video-to-video",
+    "baseModel": "Wan-AI/Wan2.2-I2V-A14B (per the card frontmatter; the ledger's weightsProvenance row verbatim)",
+    "baseModelProbe": {
+      "repoId": "Wan-AI/Wan2.2-I2V-A14B",
+      "resolvedSha": "206a9ee1b7bfaaf8f7e4d81335650533490646a3",
+      "gated": "False",
+      "licenseTags": [
+        "license:apache-2.0"
+      ],
+      "totalGiB": 117.54,
+      "note": "the ledger's weightsProvenance names it as the base; the Animate tree carries its own inference weights — NOT a download dependency"
+    }
+  },
+  "composition": {
+    "pinnedFileBytes": {
+      "Wan2.1_VAE.pth": 507609928,
+      "diffusion_pytorch_model-00001-of-00004.safetensors": 9875257880,
+      "diffusion_pytorch_model-00002-of-00004.safetensors": 9975378288,
+      "diffusion_pytorch_model-00003-of-00004.safetensors": 9954400528,
+      "diffusion_pytorch_model-00004-of-00004.safetensors": 4744748472,
+      "models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth": 4772359047,
+      "models_t5_umt5-xxl-enc-bf16.pth": 11361920418,
+      "process_checkpoint/det/yolov10m.onnx": 61659339,
+      "process_checkpoint/sam2/sam2_hiera_large.pt": 897952466,
+      "relighting_lora/adapter_model.safetensors": 2873221376,
+      "xlm-roberta-large/pytorch_model.bin": 2244861551
+    },
+    "groups": {
+      "other": {
+        "bytes": 22813141,
+        "files": 16,
+        "GiB": 0.02
+      },
+      "core-vae": {
+        "bytes": 507609928,
+        "files": 1,
+        "GiB": 0.47
+      },
+      "core-diffusion-moe": {
+        "bytes": 34549916007,
+        "files": 5,
+        "GiB": 32.18
+      },
+      "core-clip-encoder": {
+        "bytes": 4772359047,
+        "files": 1,
+        "GiB": 4.44
+      },
+      "core-t5-encoder": {
+        "bytes": 11361920418,
+        "files": 1,
+        "GiB": 10.58
+      },
+      "preprocess-det": {
+        "bytes": 61659339,
+        "files": 1,
+        "GiB": 0.06
+      },
+      "preprocess-pose2d": {
+        "bytes": 2549362899,
+        "files": 394,
+        "GiB": 2.37
+      },
+      "preprocess-sam2": {
+        "bytes": 1561662721,
+        "files": 5,
+        "GiB": 1.45
+      },
+      "optional-relighting-lora": {
+        "bytes": 5746657299,
+        "files": 4,
+        "GiB": 5.35
+      },
+      "preprocess-xlm-roberta-large": {
+        "bytes": 11242573127,
+        "files": 16,
+        "GiB": 10.47
+      }
+    },
+    "coreInferenceBytes": 51191805400,
+    "coreInferenceGiB": 47.68,
+    "coreComponents": {
+      "diffusionMoeShards": "5 files (4 safetensors shards + index), 32.18 GiB",
+      "t5Encoder": "models_t5_umt5-xxl-enc-bf16.pth, 10.58 GiB",
+      "clipEncoder": "models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth, 4.44 GiB",
+      "vae": "Wan2.1_VAE.pth, 0.47 GiB"
+    },
+    "mandatoryPreprocessBytes": 6417546510,
+    "mandatoryPreprocessGiB": 5.98,
+    "wholeTreeBytes": 72376533926,
+    "wholeTreeGiB": 67.41,
+    "xlmRobertaNote": "the tree carries xlm-roberta-large in 4 formats (flax/onnx/pytorch/tf = 10.47 GiB); the breakdown counts the single pytorch_model.bin variant",
+    "relightingNote": "the replacement mode's optional relighting LoRA (adapter_model.safetensors 2.87 GB; the tree also carries a .ckpt twin — both formats 5.35 GiB)"
+  },
+  "loadingRecipe": {
+    "theCardOwnCommand": "huggingface-cli download Wan-AI/Wan2.2-Animate-14B --local-dir ./Wan2.2-Animate-14B (pulls the whole 67.41 GiB tree)",
+    "preprocessing": "python ./wan/modules/animate/preprocess/preprocess_data.py --ckpt_path ./Wan2.2-Animate-14B/process_checkpoint --video_path <driving.mp4> --refer_path <character.jpeg> --save_path <out> --resolution_area 1280 720 --retarget_flag [--use_flux] (animation) / ... --replace_flag (replacement)",
+    "generationSingleGpu": "python generate.py --task animate-14B --ckpt_dir ./Wan2.2-Animate-14B/ --src_root_path <process_results> --refert_num 1",
+    "generationMultiGpu": "python -m torch.distributed.run --nnodes 1 --nproc_per_node 8 generate.py --task animate-14B ... --dit_fsdp --t5_fsdp --ulysses_size 8",
+    "replacementMode": "generate.py ... --replace_flag --use_relighting_lora (adds the optional 2.87 GB relighting LoRA)",
+    "stack": "the repo's requirements (torch>=2.4, flash_attn et al.) — no CPU inference path is documented for the animate task",
+    "dependencies": [
+      "core inference: the 4-shard MoE diffusion (32.18 GiB) + umt5-xxl enc bf16 (10.58 GiB) + CLIP xlm-roberta-large-vit-huge-14 (4.44 GiB) + Wan2.1 VAE (0.47 GiB)",
+      "preprocessing (mandatory pose detection): yolov10m.onnx + vitpose_h_wholebody.onnx + sam2_hiera_large.pt + xlm-roberta-large (one format)",
+      "the RECOMMENDED animation retargeting route (--use_flux): black-forest-labs/FLUX.1-Kontext-dev — GATED auto, license:other, 53.90 GiB",
+      "the replacement mode's optional relighting LoRA (2.87 GB)"
+    ]
+  },
+  "hostGapArithmetic": {
+    "host": {
+      "totalRamGiB": 3.95,
+      "freeDiskGiB": 1.04,
+      "cpuCount": 2,
+      "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)"
+    },
+    "coreInferenceGiB": 47.68,
+    "mandatoryPreprocessGiB": 5.98,
+    "minimalDownloadGiB": 53.65,
+    "wholeTreeGiB": 67.41,
+    "fluxRecommendedRouteGiB": 107.57,
+    "bf16WorkingSetGiB": 47.68,
+    "verdict": "refused",
+    "refusalType": "resource-infeasible-host",
+    "reasons": [
+      "model-download-disk-infeasible (core+mandatory-preprocess): 53.65 GiB vs 1.04 GiB free disk = 51.6x over",
+      "model-download-disk-infeasible (the card's own command): 'huggingface-cli download Wan-AI/Wan2.2-Animate-14B' pulls the WHOLE pinned tree 67.41 GiB = 64.8x free disk",
+      "model-download-disk-infeasible (the RECOMMENDED animation preprocessing route): the --use_flux pose-retargeting route adds the GATED black-forest-labs/FLUX.1-Kontext-dev 53.92 GiB of weights -> the recommended-route total 107.57 GiB = 103.4x free disk",
+      "model-load-ram-infeasible: the bf16 inference working set (MoE diffusion + umt5-xxl + CLIP + VAE resident) ≈ 47.68 GiB = 12.1x this host's TOTAL RAM (3.95 GiB)",
+      "cuda-required (the repo's own documented posture): the single-GPU recipe plus the --dit_fsdp/--t5_fsdp/--ulysses multi-GPU variants; torch>=2.4 + flash_attn in requirements; this host has NO CUDA device",
+      "cpu-latency infeasibility: a 2-vCPU CPU-only host is orders of magnitude beyond benchmark-grade wall-clock for a 14B video diffusion model"
+    ]
+  },
+  "boundedProbes": {
+    "candidateRepo": {
+      "repoId": "Wan-AI/Wan2.2-Animate-14B",
+      "requestedRevision": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+      "resolvedSha": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+      "revisionMatch": true,
+      "gated": "False",
+      "pipelineTag": "video-to-video",
+      "licenseTags": [
+        "license:apache-2.0"
+      ],
+      "fileCount": 444,
+      "totalBytes": 72376533926,
+      "totalGiB": 67.41,
+      "weightsDownloaded": false,
+      "note": "bounded metadata probe (HfApi.model_info files_metadata) — zero weight bytes fetched"
+    },
+    "fluxDependency": {
+      "repoId": "black-forest-labs/FLUX.1-Kontext-dev",
+      "requestedRevision": null,
+      "resolvedSha": "24e9dedc4ef646698dc8eb4e18ae2cec3c9fea0d",
+      "revisionMatch": null,
+      "gated": "auto",
+      "pipelineTag": "image-to-image",
+      "licenseTags": [
+        "license:other"
+      ],
+      "fileCount": 29,
+      "totalBytes": 57890836779,
+      "totalGiB": 53.92,
+      "weightsDownloaded": false,
+      "note": "bounded metadata probe (HfApi.model_info files_metadata) — zero weight bytes fetched",
+      "role": "the UserGuider's RECOMMENDED enhanced pose-retargeting route for animation mode (--use_flux); basic retargeting and no-retarget routes exist without it",
+      "licenseTagAtProbe": "license:other (the hub API tag at probe time)",
+      "authWall": "gated=auto (license acceptance required before weight access; metadata reachable anonymously)"
+    },
+    "fetchedSmallFiles": {
+      "Wan-AI/Wan2.2-Animate-14B::README.md": {
+        "repoId": "Wan-AI/Wan2.2-Animate-14B",
+        "revision": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+        "filename": "README.md",
+        "bytes": 20010,
+        "sha256": "9030b562a976b8bb705a209a98dba1c0d015ca32bb63943893dba7d2ad16eb47"
+      },
+      "github::UserGuider.md": {
+        "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/wan/modules/animate/preprocess/UserGuider.md",
+        "bytes": 4854,
+        "sha256": "689f4adf919c587a5e131ce8ef06f98fe8e7992da58fb2736db81981dbd9a8c3"
+      },
+      "github::LICENSE.txt": {
+        "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/LICENSE.txt",
+        "bytes": 11357,
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      "github::generate.py": {
+        "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/generate.py",
+        "bytes": 20540,
+        "sha256": "cae024b99a3d105fe273a8dfe724ea656f9c1a876ccc8534a8c2fbfb716950e7"
+      }
+    }
+  }
+}

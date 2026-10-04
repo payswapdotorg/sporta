@@ -1,0 +1,198 @@
+{
+  "label": "IMPLEMENTATION self-check — hand-computed metric cases + the no-canonical-truth invariant both ways. NOT a model measurement: no model ran, no renderer rendered; every value below is arithmetic on hand-built inputs.",
+  "metricDesignsUnderTest": [
+    "motion_fidelity_joint_error (meanNormalizedJointError / endpointJointError / velocityDirectionAgreement)",
+    "identity_drift (meanPairwiseIdentityDistance / maxDriftFromReference / driftTrendSlopePerFrame)",
+    "style_adherence_distance (meanStyleDistance / maxStyleDistance / meanChannelShift)",
+    "temporal_consistency_scores + flow_consistency_residual (the SHARED hf010 estimators, imported)",
+    "no_canonical_truth_invariant (the acceptance's own constraint, machine-checkable)"
+  ],
+  "total": 26,
+  "passed": 26,
+  "failures": 0,
+  "failedCaseIds": [],
+  "cases": [
+    {
+      "caseId": "motion-fidelity-mean-A",
+      "description": "mean normalized joint error, 3 frames (0, 0.5, 0)/1.0",
+      "expected": 0.16666666666666666,
+      "actual": 0.16666666666666666,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-endpoint-A",
+      "description": "endpoint joint error (last frame 0)",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-velocity-A",
+      "description": "mean velocity-direction cosine (2 x 1/sqrt(1.25))",
+      "expected": 0.8944271909999159,
+      "actual": 0.8944271909999159,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-perfect-mean",
+      "description": "identical tracks -> 0",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-perfect-velocity",
+      "description": "identical tracks -> direction 1",
+      "expected": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-offset-mean",
+      "description": "constant 0.5 offset -> mean 0.5",
+      "expected": 0.5,
+      "actual": 0.5,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-offset-velocity",
+      "description": "constant offset, same deltas -> direction 1",
+      "expected": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-multijoint-mean",
+      "description": "2 joints, one off by 1px/10 -> mean 0.025",
+      "expected": 0.025,
+      "actual": 0.025,
+      "passed": true
+    },
+    {
+      "caseId": "motion-fidelity-multijoint-endpoint",
+      "description": "endpoint (frame1 mean err)",
+      "expected": 0.05,
+      "actual": 0.05,
+      "passed": true
+    },
+    {
+      "caseId": "identity-mean-pairwise",
+      "description": "3 embeddings at 0/10/20 deg -> mean pairwise cos distance",
+      "expected": 0.03023062439655851,
+      "actual": 0.030230624396558436,
+      "passed": true
+    },
+    {
+      "caseId": "identity-max-drift",
+      "description": "max drift from the 0-deg reference = 1-cos(20 deg)",
+      "expected": 0.06030737921409157,
+      "actual": 0.06030737921409157,
+      "passed": true
+    },
+    {
+      "caseId": "identity-drift-slope",
+      "description": "OLS slope of drift-from-reference over 3 frames = (y2-y0)/2",
+      "expected": 0.030153689607045786,
+      "actual": 0.030153689607045786,
+      "passed": true
+    },
+    {
+      "caseId": "identity-stable-mean",
+      "description": "identical embeddings -> 0",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "identity-stable-slope",
+      "description": "identical embeddings -> slope 0",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "style-mean-distance",
+      "description": "mean style cos distance ((1-0.75/sqrt(0.625)) + (1-0.5/sqrt(0.5)))/2",
+      "expected": 0.17210496038146939,
+      "actual": 0.17210496038146939,
+      "passed": true
+    },
+    {
+      "caseId": "style-max-distance",
+      "description": "max style distance 1-0.5/sqrt(0.5)",
+      "expected": 0.29289321881345254,
+      "actual": 0.29289321881345254,
+      "passed": true
+    },
+    {
+      "caseId": "style-channel-shift",
+      "description": "mean channel shift = (2/255)/6",
+      "expected": 0.00130718954248366,
+      "actual": 0.00130718954248366,
+      "passed": true
+    },
+    {
+      "caseId": "style-perfect",
+      "description": "frames == reference -> 0",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "temporal-ssim-identical",
+      "description": "constant identical frames -> SSIM 1",
+      "expected": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "caseId": "temporal-ssim-step",
+      "description": "constant patches 100 vs 200 -> (2*100*200+C1)/(100^2+200^2+C1)",
+      "expected": 0.8000260066178394,
+      "actual": 0.8000260066178394,
+      "passed": true
+    },
+    {
+      "caseId": "flow-warp-perfect-translation",
+      "description": "constant frames + any flow -> 0 residual",
+      "expected": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "caseId": "flow-warp-step",
+      "description": "step frame + flow (1,0) -> mean |100-180| over 3 px = 80",
+      "expected": 80.0,
+      "actual": 80.0,
+      "passed": true
+    },
+    {
+      "caseId": "invariant-good-plan",
+      "description": "SWM truth + authorized reference + renderer measurand -> invariant HOLDS",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "caseId": "invariant-renderer-truth-refused",
+      "description": "a ground-truth track from the renderer output -> invariant REFUSED",
+      "expected": false,
+      "actual": false,
+      "passed": true
+    },
+    {
+      "caseId": "invariant-renderer-truth-named",
+      "description": "the refusal names the renderer-truth violation",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "caseId": "invariant-animenpr-truth-refused",
+      "description": "the repo's OWN renderer as truth source -> REFUSED too (the C->A boundary binds both lanes)",
+      "expected": false,
+      "actual": false,
+      "passed": true
+    }
+  ]
+}

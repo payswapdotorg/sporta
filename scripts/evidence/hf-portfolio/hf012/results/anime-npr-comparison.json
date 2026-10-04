@@ -1,0 +1,106 @@
+{
+  "label": "STATIC-REVIEW (the capability delta) + typed not-measured (the comparison design) — no model ran, no renderer rendered for this evidence",
+  "capabilityDelta": [
+    {
+      "axis": "conditioning (the input that drives motion)",
+      "animeNprToday": "the canonical SWM snapshot + ordered events, projected through W601 projectScene into the engine's scene — a PURE SWM→scene→pixels pipeline (requiresSourceFrames: false; packages/renderer-3d/src/game/plugin.ts: 'a render projects nothing renderer-side')",
+      "wan22AnimateWouldAdd": "a PERFORMANCE VIDEO + a character reference image: the documented conditioning is video pixels + a pose/face preprocessing pipeline (preprocess_data.py -> src_pose.mp4/src_face.mp4), NOT structured entity state — the SWM-state-to-video adapter gap (see contract-compatibility.json)",
+      "delta": "the repo reads canonical state directly; the candidate reads pixels — an adapter (SWM state -> performance video) must exist before the candidate consumes the repo's truth"
+    },
+    {
+      "axis": "motion fidelity source (the truth the metric scores against)",
+      "animeNprToday": "the SWM entity state IS the input and the truth: player motion is placed at the canonical positions each frame by construction (no tracking error to measure against the SWM — the render IS the projection; the profile's motion-fidelity question degenerates to projection correctness, which the repo pins by determinism tests)",
+      "wan22AnimateWouldAdd": "a learned motion-transfer: the output's pose track must be MEASURED against the canonical entity state (meanNormalizedJointError etc.) — fidelity is an empirical property of the model, not a construction guarantee",
+      "delta": "determinism-pinned projection vs measured learned transfer — the benchmark exists precisely for the second"
+    },
+    {
+      "axis": "identity (the acceptance's temporal identity stability)",
+      "animeNprToday": "identity-stable entity styling is a pure function of the style key (packages/renderer-anime/src/identity.ts) — a per-entity look derived deterministically; a restyle is ONLY a version bump (ANIME_NPR_RENDERER_VERSION 0.2.0, the deliberate-restyle doctrine)",
+      "wan22AnimateWouldAdd": "photoreal/anime identity preservation from the reference image across frames — a learned property, MEASURED (identity_drift against the authorized avatar reference embedding)",
+      "delta": "constructed identity stability vs measured identity stability"
+    },
+    {
+      "axis": "style (the authorized style/avatar reference)",
+      "animeNprToday": "the cel-shaded/NPR style: flat two-tone shading, bold outlines, posterized palette, halftone pitch, speed-line accents (the ADR-009 visibly-different reality; rendererClass stylized-video)",
+      "wan22AnimateWouldAdd": "the style comes from the reference image itself (animation mode animates THE reference character) — style adherence is transfer from the reference, MEASURED (style_adherence_distance)",
+      "delta": "authored procedural style vs reference-transferred style"
+    },
+    {
+      "axis": "output cadence/resolution",
+      "animeNprToday": "ANIME_MP4_SD_TWOS_PROFILE 640x360 @ 12 fps (on-twos, the cel-animation cadence; the J013 budget resolution — 650 036–671 203 B at defaults, ≈65% of the 1 000 000-B hosted budget), SD/HD @ 25 fps remain supported; offline latency class; 4 000 ms default duration; ≤ 2 400 frames; ≤ 64 entities",
+      "wan22AnimateWouldAdd": "the candidate's documented recipe pins --resolution_area 1280 720 (preprocessing) with an fps knob; output length/rate set by the generation config (clip_len/frame_num, sample steps/solver)",
+      "delta": "the repo's cadence is a budget-fit doctrine (on-twos); the candidate's is a generation parameter — the comparison design pins the SAME profile for both lanes"
+    },
+    {
+      "axis": "determinism/contract posture",
+      "animeNprToday": "same profile + same SWM input -> byte-identical artifacts (pinned by test); renderer versions immutable; degradation always flagged with a reason; R2 fail-closed rights (source-frame refs without canReferenceSourceFrames -> rights-denied)",
+      "wan22AnimateWouldAdd": "seeded stochastic diffusion (base_seed, sample_solver/steps/guide_scale); NO renderer-contract surface (no capability document, no rights gate, no degradation flags) — the integration gap the HF014 lane owns",
+      "delta": "a versioned deterministic plugin contract vs an un-contracted model invocation — a provider adapter must synthesize the contract surface"
+    },
+    {
+      "axis": "multi-entity scale",
+      "animeNprToday": "the SWM scene carries up to 64 entities (maxConcurrentEntities) — 22 players + ball + officials by construction",
+      "wan22AnimateWouldAdd": "the candidate animates ONE character per run (the card's animation mode); the replacement mode's own mask extraction is 'designed for single-person videos ONLY' (UserGuider verbatim) — multi-person video 'requires users to develop their own solution'",
+      "delta": "whole-scene rendering vs per-character generation — N runs + a compositing step, a typed scale gap"
+    },
+    {
+      "axis": "compute cost",
+      "animeNprToday": "runs on THIS host (the software engine + ffmpeg; the real-path 12fps render measured in the L014 record within the hosted budget)",
+      "wan22AnimateWouldAdd": "47.68 GiB core weights, GPU-class working set, the FLUX-gated recommended preprocessing route — resource-infeasible on this host (the typed refusal)",
+      "delta": "CPU-feasible today vs GPU-class infeasible here — the adequate-host requirement"
+    }
+  ],
+  "comparisonDesign": {
+    "label": "typed not-measured (the adequate-host comparison design — NO model ran on this host)",
+    "theQuestion": "on the SAME canonical window, does Wan2.2-Animate's animated output track the canonical entity motion with stable identity and adherent style at least as well as the repo's own anime-npr renderer — measured by the SAME estimators?",
+    "fixtures": {
+      "source": "the repo's canonical SWM window (the renderer-3d canonical fixture session / the L005 scenario sessions — the materially-different SWMs the sensitivity battery uses)",
+      "groundTruthTrack": {
+        "provenance": "swm-entity-state",
+        "definition": "the participant entities' positions over the window, sampled at the comparison profile's frame times, projected through W601 projectScene into the output pixel frame (pixels; the same projection both lanes are scored in)"
+      },
+      "authorizedReference": {
+        "provenance": "authorized-avatar-reference",
+        "definition": "the rights-clean target character reference image (the avatar-field posture: renderer-3d's own source renders, or an operator-authorized avatar asset — the R2 rights gate applies; sourceFrameRefs only with canReferenceSourceFrames)"
+      },
+      "theNoCanonicalTruthRule": "the ground truth is the SWM entity state + the authorized reference — NEVER either lane's output. Both lanes' outputs are measurands. Machine-checkable via no_canonical_truth_invariant() (self-checked)."
+    },
+    "lanes": [
+      {
+        "lane": "anime-npr (the repo today)",
+        "invocation": "the anime-npr.prototype @ 0.2.0 plugin through its own renderer contract (RenderRequest with the SAME output profile as the Wan lane)",
+        "conditioning": "the SWM snapshot + events (its native input — no adapter needed)"
+      },
+      {
+        "lane": "Wan2.2-Animate (the candidate)",
+        "invocation": "the pinned revision's documented recipe: preprocess_data.py (--retarget_flag, the basic retargeting route — the FLUX route is the gated optional enhancement) then generate.py --task animate-14B (single-GPU recipe) with base_seed pinned",
+        "conditioning": "THE TYPED ADAPTER: the SWM entity motion -> a performance video (the repo's own renderer output at the same profile may serve as the driving video — conditioning, NOT truth) + the authorized avatar reference image"
+      }
+    ],
+    "profileAlignment": "both lanes render at the SAME resolution/fps/duration (the design pins 640x360 @ 12 fps — the anime-npr default on-twos profile — so the cadence doctrine is part of the comparison, with the 25 fps SD profile as the second condition)",
+    "metrics": {
+      "sharedForBothLanes": [
+        "motion_fidelity_joint_error vs the SWM ground-truth track (meanNormalizedJointError / endpointJointError / velocityDirectionAgreement — the canonical view)",
+        "motion_fidelity_joint_error vs the conditioning performance-video pose track (the model-side view — reported SEPARATELY, never conflated with the canonical view)",
+        "identity_drift (meanPairwiseIdentityDistance / maxDriftFromReference / driftTrendSlopePerFrame — the anchor is the authorized avatar reference)",
+        "style_adherence_distance vs the authorized reference (meanStyleDistance / maxStyleDistance / meanChannelShift)",
+        "temporal_consistency_scores + the flow-warp residual (the SHARED hf010 estimators — imported, never re-implemented)",
+        "wall_clock_ms_per_output_second + cold-start download bytes (cost; GPU peak honestly N/A-typed on this host)"
+      ],
+      "perLaneNotes": "the anime-npr lane's identity/style numbers are expected construction-stable; the Wan lane's are the empirical question — the design records BOTH with the same estimator code and never a silent zero (an unmeasurable column is typed N/A)"
+    },
+    "fairnessRules": [
+      "the SAME pose estimator extracts the output track from BOTH lanes' videos (the candidate's own process_checkpoint/pose2d vitpose, applied identically)",
+      "the SAME identity/style descriptor extractor, applied identically to both lanes' frames and the authorized reference",
+      "the SAME profile (resolution/fps/duration) for both lanes; the same ground-truth SWM window; the same frame indices",
+      "the anime-npr lane runs on THIS host class; the Wan lane needs the adequate host — an unexecuted lane is typed not-run, never scored from a card claim"
+    ]
+  },
+  "sources": [
+    "packages/renderer-3d/src/game/identity.ts (ANIME_NPR_RENDERER_VERSION 0.2.0, ANIME_MP4_SD_TWOS_PROFILE 640x360@12fps, the capability documents)",
+    "packages/renderer-3d/src/game/plugin.ts (the pure SWM→scene→pixels pipeline; R2 rights posture)",
+    "packages/renderer-anime/src/identity.ts (identity-stable entity styling; the deliberate-restyle doctrine)",
+    "docs/research/l014-anime-budget-and-live-replay-presentation.md (the on-twos doctrine, the J013 budget measurements, the version-bump rule)",
+    "the candidate card + UserGuider + generate.py (fetched bounded, sha-pinned in load-analysis.json)"
+  ]
+}

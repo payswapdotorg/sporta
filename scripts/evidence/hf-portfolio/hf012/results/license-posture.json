@@ -1,0 +1,15 @@
+{
+  "status": "argued-from-recorded-terms-only (never legal advice, never a promotion — HF015 owns all adjudication)",
+  "candidate": {
+    "modelLicense": "apache-2.0 (the card frontmatter + the ledger row)",
+    "codeLicense": "apache-2.0 (the LICENSE.txt fetched from the candidate's own code repo, sha-pinned in load-analysis.json)",
+    "commercialUse": "yes (the recorded terms)",
+    "datasetProvenance": "unknown (the open edge — the training corpus is not in the recorded terms)"
+  },
+  "openEdges": [
+    "datasetProvenance unknown — the corpus behind the weights is not in the recorded terms (the standing HF015 input)",
+    "the RECOMMENDED animation preprocessing route (--use_flux) requires black-forest-labs/FLUX.1-Kontext-dev: hub license tag 'license:other', gated=auto — a DIFFERENT licensor's terms cover that dependency's weights (and its outputs per that license family's own text; recorded as a tag-level observation from the probe, the exact terms to be read on the adequate host before any production use — never adjudicated here)",
+    "the replacement mode's relighting LoRA ships inside the candidate's own tree (apache-2.0 by the repo's frontmatter) — recorded, not adjudicated"
+  ],
+  "verdict": "production-eligible-by-recorded-terms for the candidate's own weights, with the datasetProvenance unknown edge and the FLUX-route dependency posture recorded — the basic retargeting route (no FLUX) keeps the dependency set apache-2.0-only; never legal advice"
+}
