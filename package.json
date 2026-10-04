@@ -27,6 +27,7 @@
     "@sporta/compute-adapter": "workspace:*",
     "@sporta/compute-adapter-hosted": "workspace:*",
     "@sporta/contracts": "workspace:*",
+    "@sporta/decoding": "workspace:*",
     "@sporta/field-mapping": "workspace:*",
     "@sporta/health": "workspace:*",
     "@sporta/media-platform": "workspace:*",
