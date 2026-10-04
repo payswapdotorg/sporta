@@ -156,11 +156,14 @@ describe("the media toolchain worker's descriptor (honesty)", () => {
       expect(descriptor.providerKind).toBe("cpu-worker");
       // R607 Gap 1 (the TL-authorized enum extension): the resolved
       // toolchain now also advertises the decode seam's two operations.
+      // R306: + the encode seam's `encode-frames` (the G12 walk's named
+      // next gap — additive, the same law the decode pair landed under).
       expect(descriptor.operations).toEqual([
         "probe",
         "normalize",
         "decode-probe",
         "decode-frames",
+        "encode-frames",
       ]);
       expect(descriptor.toolchain.resolved).toBe(true);
       expect(descriptor.toolchain.ffmpegPath).toBe(tool.ffmpegPath);
@@ -308,11 +311,13 @@ describe("the media toolchain golden path over real HTTP", () => {
         expect(descriptor.toolchain.resolved).toBe(true);
         // R607 Gap 1 (the TL-authorized enum extension): the live descriptor
         // fetched over the wire advertises the decode seam's operations too.
+        // R306: + the encode seam's `encode-frames` (additive).
         expect(descriptor.operations).toEqual([
           "probe",
           "normalize",
           "decode-probe",
           "decode-frames",
+          "encode-frames",
         ]);
 
         const storage = new InMemoryStorage();

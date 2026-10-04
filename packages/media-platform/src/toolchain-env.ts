@@ -27,7 +27,9 @@ import { FfmpegTool } from "./ffmpeg";
 import { InProcessMediaToolchain } from "./toolchain-executor";
 import { createHttpMediaToolchain } from "./toolchain-http";
 import { createHttpDecodePort } from "./decode-http";
+import { createHttpEncodePair } from "./encode-http";
 import type { DecodingService } from "@sporta/decoding";
+import type { HttpEncodePair, SyncHttpTransport } from "./encode-http";
 import type { MediaToolchainExecutor } from "./toolchain";
 
 /** The toolchain-selection vocabulary (closed). */
@@ -54,6 +56,17 @@ export interface ResolvedMediaToolchain {
    * `DecodingService` — the exact `RealToSwmDecodePort` shape.
    */
   decodePort: DecodingService | undefined;
+  /**
+   * The R306 ENCODE PAIR (the injected seam `createDerivedRealityPlane`
+   * accepts — the G12 walk's named next gap, the same seam-class the decode
+   * seam closed): BOTH frozen-SYNC encode surfaces (the R306
+   * `FrameEncoderPort` + the R301 `TacticalVideoCodec`) over the ONE
+   * `encode-frames` wire operation, when `toolchain === "http"`; and
+   * `undefined` for the `in-process` default — the plane then probes its
+   * OWN LOCAL ffmpeg+libx264 toolchain exactly as before, byte-identical
+   * (the non-degradation law).
+   */
+  encodePair: HttpEncodePair | undefined;
   /** The tool the in-process selection resolves (the `Bun.which` answer). */
   tool: FfmpegTool | null;
 }
@@ -68,6 +81,8 @@ export interface ResolveMediaToolchainOptions {
   tool?: FfmpegTool;
   /** Override fetch (tests inject). */
   fetchFn?: typeof fetch;
+  /** The synchronous transport the http encode pair rides (tests inject). */
+  encodeTransport?: SyncHttpTransport;
   /** Override the http dispatch deadline (default 120 000 ms). */
   deadlineMs?: number;
   /** Override the media policy the http dispatches carry (default: R101's bound). */
@@ -114,6 +129,13 @@ export function resolveMediaToolchainFromEnv(
         ...(options.deadlineMs === undefined ? {} : { deadlineMs: options.deadlineMs }),
         ...(options.mediaPolicy === undefined ? {} : { mediaPolicy: options.mediaPolicy }),
       }),
+      // The R306 encode seam's client half: the SAME worker URL, wired as
+      // the derived-reality plane's injected encode pair.
+      encodePair: createHttpEncodePair(workerUrl, {
+        ...(options.encodeTransport === undefined ? {} : { transport: options.encodeTransport }),
+        ...(options.deadlineMs === undefined ? {} : { deadlineMs: options.deadlineMs }),
+        ...(options.mediaPolicy === undefined ? {} : { mediaPolicy: options.mediaPolicy }),
+      }),
       tool: null,
     };
   }
@@ -125,6 +147,10 @@ export function resolveMediaToolchainFromEnv(
     // The non-degradation law: NO decode port for the in-process default —
     // the pipeline constructs its own LOCAL ffmpeg adapter path.
     decodePort: undefined,
+    // The non-degradation law: NO encode pair for the in-process default —
+    // the derived-reality plane probes its own LOCAL ffmpeg+libx264
+    // toolchain exactly as before (the pre-seam code path, unchanged).
+    encodePair: undefined,
     tool,
   };
 }

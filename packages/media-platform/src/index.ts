@@ -119,6 +119,9 @@ export {
   MediaToolchainDecodeWindow,
   MediaToolchainDescriptor,
   MediaToolchainDispatchRequest,
+  MediaToolchainEncodedCodecParams,
+  MediaToolchainEncodedOutput,
+  MediaToolchainEncodeSpec,
   MediaToolchainFailure,
   MediaToolchainJobDescription,
   MediaToolchainMaterializedSource,
@@ -144,6 +147,9 @@ export type {
   MediaToolchainDecodeWindow as MediaToolchainDecodeWindowDoc,
   MediaToolchainDescriptor as MediaToolchainDescriptorDoc,
   MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
+  MediaToolchainEncodedCodecParams as MediaToolchainEncodedCodecParamsDoc,
+  MediaToolchainEncodedOutput as MediaToolchainEncodedOutputDoc,
+  MediaToolchainEncodeSpec as MediaToolchainEncodeSpecDoc,
   MediaToolchainErrorClass,
   MediaToolchainFailure as MediaToolchainFailureDoc,
   MediaToolchainJobDescription as MediaToolchainJobDescriptionDoc,
@@ -175,6 +181,20 @@ export type { HttpMediaToolchainOptions } from "./toolchain-http";
 // path uses.
 export { createHttpDecodePort } from "./decode-http";
 export type { HttpDecodePortOptions } from "./decode-http";
+// The R306 ENCODE SEAM (the G12 walk's named next gap — the same seam-class
+// the decode seam closed): the http encode pair the web composition
+// injects into the derived-reality plane when MEDIA_TOOLCHAIN=http — BOTH
+// frozen-SYNC encode surfaces (the R306 `FrameEncoderPort` + the R301
+// `TacticalVideoCodec`) over the ONE `encode-frames` wire operation,
+// bridged through a bounded synchronous subprocess transport.
+export { childProcessSyncTransport, createHttpEncodePair } from "./encode-http";
+export type {
+  HttpEncodePair,
+  HttpEncodePairOptions,
+  SyncHttpAnswer,
+  SyncHttpInit,
+  SyncHttpTransport,
+} from "./encode-http";
 export { mediaToolchainSelectionOf, resolveMediaToolchainFromEnv } from "./toolchain-env";
 export type {
   MediaToolchainSelection,

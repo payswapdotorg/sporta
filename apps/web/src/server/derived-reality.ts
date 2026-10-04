@@ -31,6 +31,7 @@ import { join } from "node:path";
 import { createDerivedRealityRenderer } from "@sporta/compute-adapter-hosted";
 import type { DerivedRealityRendererPort } from "@sporta/compute-adapter-hosted";
 import { createFfmpegFrameEncoder } from "@sporta/encoding";
+import type { FrameEncoderPort } from "@sporta/encoding";
 import {
   Software3DEngine,
   createAnimeNprRenderer,
@@ -38,7 +39,7 @@ import {
 } from "@sporta/renderer-3d";
 import type { GameRealityRenderer } from "@sporta/renderer-3d";
 import { createFfmpegH264Codec, createTacticalRenderer } from "@sporta/renderer-tactical";
-import type { TacticalRenderer } from "@sporta/renderer-tactical";
+import type { TacticalRenderer, TacticalVideoCodec } from "@sporta/renderer-tactical";
 import type { RendererPlugin } from "@sporta/renderer-contract";
 import type { RendererRegistry } from "@sporta/renderer-contract";
 import type { GameEngineAdapter, RealityKind } from "@sporta/contracts";
@@ -109,6 +110,28 @@ export interface DerivedRealityPlaneOptions {
   tacticalStagingDir?: string;
   /** Override the game-engine staging root (tests; default: the engine's own tmpdir). */
   gameStagingRoot?: string;
+  /**
+   * The INJECTED ENCODE PAIR (the R306 encode seam — the same seam-class
+   * the R207 decode seam closed for the media pipeline): BOTH encode
+   * surfaces the plane probes locally today (the R306 `FrameEncoderPort`
+   * from `@sporta/encoding` + the R301 `TacticalVideoCodec` from
+   * `@sporta/renderer-tactical`), answered REMOTELY over a toolchain
+   * worker's http wire. ABSENT (the default — every existing caller): the
+   * plane probes its OWN LOCAL ffmpeg+libx264 toolchain EXACTLY as today
+   * (`createFfmpegFrameEncoder()` + `createFfmpegH264Codec()` — the
+   * non-degradation law: the local default path stays the same code path,
+   * byte-identical). PRESENT: the plane composes over the injected pair —
+   * the web composition wires the http encode pair when
+   * `MEDIA_TOOLCHAIN=http`, so the derived realities compose on a host
+   * with NO local ffmpeg (the renders' software engines still run locally;
+   * only the ENCODE steps cross the wire).
+   */
+  encode?: {
+    /** The R306 frame encoder (the game-3d/anime-npr bridges' encoder). */
+    frameEncoder: FrameEncoderPort;
+    /** The R301 tactical codec (the tactical renderer's own encoder). */
+    tacticalCodec: TacticalVideoCodec;
+  };
 }
 
 /**
@@ -121,9 +144,26 @@ export function createDerivedRealityPlane(
 ): DerivedRealityPlane | null {
   // The R306 real encoder + the R301 tactical codec: BOTH must probe
   // available (the same system-ffmpeg binary the repo's conventions pin).
-  const frameEncoder = createFfmpegFrameEncoder();
-  const tacticalCodec = createFfmpegH264Codec();
+  // THE NON-DEGRADATION LAW: with NO injected pair (the default — every
+  // existing caller) the two probes below run EXACTLY as before — the same
+  // local factories, the same null-check, the same code path. With an
+  // INJECTED pair (the R306 encode seam — `MEDIA_TOOLCHAIN=http` in the web
+  // composition), the local probing is REPLACED by the pair's own honest
+  // availability (the worker's descriptor: resolved + advertising the
+  // encode-frames operation), unavailable pairs answering the SAME honest
+  // `null` (the plane stays producer-unavailable — never a crash, never a
+  // fabricated producer).
+  const injected = options.encode;
+  const frameEncoder = injected === undefined ? createFfmpegFrameEncoder() : injected.frameEncoder;
+  const tacticalCodec = injected === undefined ? createFfmpegH264Codec() : injected.tacticalCodec;
   if (frameEncoder === null || tacticalCodec === null) {
+    return null;
+  }
+  if (injected !== undefined && (!frameEncoder.available() || !tacticalCodec.available())) {
+    // The injected pair's own honest probe refused (e.g. an unreachable or
+    // non-encoding worker): the SAME honest posture as an absent local
+    // toolchain — the plane does not compose, the derived realities stay
+    // `producer-unavailable` in the catalog.
     return null;
   }
   const tacticalStagingDir =

@@ -72,7 +72,14 @@ const schemaVersionField = z.literal(MEDIA_TOOLCHAIN_SCHEMA_VERSION);
  * R207 pipeline consumes, `decode-frames` answers ONE bounded frame batch
  * for a `[fromMs, toMs)` window (the pipeline's `decodeVideo` iteration
  * becomes a single bounded fetch, which its own decode budget
- * `STUDIO_UPLOAD_DECODE_BUDGET_BYTES` already implies). The existing
+ * `STUDIO_UPLOAD_DECODE_BUDGET_BYTES` already implies). The `encode-frames`
+ * operation is the R306 ENCODE-SEAM ADDITIVE extension (the same seam-class,
+ * the G12 walk's named next gap): the derived-reality plane's mechanical
+ * rgb24-frame-sequence → h264/MP4 encode, executed by the SAME
+ * `FfmpegFrameEncoder` the local path runs (the exact argv, the exact
+ * determinism knobs) — one operation serves BOTH encode surfaces (the R306
+ * `FrameEncoderPort` AND the R301 `TacticalVideoCodec`, whose mechanical
+ * legs are the identical rawvideo → libx264 transcode). The existing
  * `probe`/`normalize` operations are untouched.
  */
 export const MediaToolchainOperation = z.enum([
@@ -80,6 +87,7 @@ export const MediaToolchainOperation = z.enum([
   "normalize",
   "decode-probe",
   "decode-frames",
+  "encode-frames",
 ]);
 export type MediaToolchainOperation = z.infer<typeof MediaToolchainOperation>;
 
@@ -95,8 +103,14 @@ export const MediaToolchainSourceClaims = z
     contentHash: sha256Hex,
     /** The source's byte length (re-measured at the worker). */
     byteSize: z.number().int().min(1),
-    /** The only accepted container (magic-byte checked at the dispatching side). */
-    container: z.literal("mp4"),
+    /**
+     * The bytes' container family. "mp4": an MP4 container (magic-byte
+     * checked at the dispatching side — the upload/decode rail). "rgb24":
+     * a packed raw RGB24 frame sequence (`frameCount × width × height × 3`
+     * bytes — the encode-frames rail; the R306 encode seam's source family).
+     * ADDITIVE enum growth — every pre-extension dispatch carries "mp4".
+     */
+    container: z.enum(["mp4", "rgb24"]),
   })
   .strict();
 export type MediaToolchainSourceClaims = z.infer<typeof MediaToolchainSourceClaims>;
@@ -138,6 +152,29 @@ export const MediaToolchainDecodeWindow = z
 export type MediaToolchainDecodeWindow = z.infer<typeof MediaToolchainDecodeWindow>;
 
 /**
+ * THE encode-frames spec (the R306 encode seam's mechanical frame-sequence
+ * description): the geometry + frame rate of the packed rgb24 byte
+ * sequence riding the dispatch — the exact fields the local
+ * `FfmpegFrameEncoder`'s `admitGeometry`/`admitSource` re-validate against
+ * the bytes (the byte-math `byteSize === frameCount × width × height × 3`
+ * is enforced by the REAL adapter at the worker, fail-closed). Rides the
+ * job description of an `encode-frames` dispatch ONLY (enforced below).
+ */
+export const MediaToolchainEncodeSpec = z
+  .object({
+    /** The frame count of the packed sequence (integer >= 1). */
+    frameCount: z.number().int().min(1),
+    /** Frame width in pixels (integer >= 16 — the local adapter's own bound). */
+    width: z.number().int().min(16),
+    /** Frame height in pixels (integer >= 16 — the local adapter's own bound). */
+    height: z.number().int().min(16),
+    /** Frames per second (may be fractional, e.g. 12.5; finite > 0). */
+    fps: z.number().finite().positive(),
+  })
+  .strict();
+export type MediaToolchainEncodeSpec = z.infer<typeof MediaToolchainEncodeSpec>;
+
+/**
  * THE transport-safe media-toolchain job description: what the dispatching
  * side hands the toolchain worker. Identity (jobId + idempotencyKey),
  * session linkage, the operation, the measured source claims, the rights
@@ -171,6 +208,11 @@ export const MediaToolchainJobDescription = z
      * enforced). ADDITIVE — absent on every probe/normalize dispatch.
      */
     decodeWindow: MediaToolchainDecodeWindow.optional(),
+    /**
+     * The encode-frames spec (present iff operation === "encode-frames";
+     * enforced). ADDITIVE — absent on every probe/normalize/decode dispatch.
+     */
+    encodeSpec: MediaToolchainEncodeSpec.optional(),
   })
   .strict()
   .superRefine((job, ctx) => {
@@ -188,23 +230,58 @@ export const MediaToolchainJobDescription = z
         message: "a decode-frames dispatch must carry its bounded window (decodeWindow)",
       });
     }
+    if (job.operation !== "encode-frames" && job.encodeSpec !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["encodeSpec"],
+        message: `encodeSpec is only legal on an encode-frames dispatch (got "${job.operation}")`,
+      });
+    }
+    if (job.operation === "encode-frames" && job.encodeSpec === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["encodeSpec"],
+        message: "an encode-frames dispatch must carry its frame-sequence spec (encodeSpec)",
+      });
+    }
+    if (job.operation === "encode-frames" && job.source.container !== "rgb24") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["source", "container"],
+        message: `an encode-frames dispatch's source claims must carry the rgb24 container family (got "${job.source.container}")`,
+      });
+    }
+    if (job.operation !== "encode-frames" && job.source.container !== "mp4") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["source", "container"],
+        message: `a ${job.operation} dispatch's source claims must carry the mp4 container family (got "${job.source.container}")`,
+      });
+    }
   });
 export type MediaToolchainJobDescription = z.infer<typeof MediaToolchainJobDescription>;
 
 /**
- * The materialized `source-media` input: the bytes themselves, inline
+ * The materialized source input: the bytes themselves, inline
  * (base64). The Wave-1 materialized layer refuses this kind honestly
  * ("no source-frame transport"); the media-toolchain profile carries the
  * bytes inline because a stateless toolchain worker cannot resolve
  * in-memory refs — exactly the stateless-worker shape
  * `ComputeDispatchRequest` established for the swm kinds.
+ *
+ * The input kind is CLOSED and PAIRED to the operation (enforced on the
+ * dispatch request): `source-media` for the probe/normalize/decode rail
+ * (convention inputId "source-media"), `rgb24-frames` for the encode-frames
+ * rail (convention inputId "frame-sequence" — the R306 encode seam's
+ * packed frame sequence). ADDITIVE enum growth — every pre-extension
+ * dispatch carries "source-media".
  */
 export const MediaToolchainMaterializedSource = z
   .object({
-    /** The manifest-style identity of this input (convention: "source-media"). */
+    /** The manifest-style identity of this input (convention: "source-media" / "frame-sequence"). */
     inputId: nonEmpty,
-    /** The input kind (closed: the only materializable media kind). */
-    kind: z.literal("source-media"),
+    /** The input kind (closed: the two materializable media kinds). */
+    kind: z.enum(["source-media", "rgb24-frames"]),
     /** The source bytes, base64-encoded (standard alphabet, no wrapping). */
     contentBase64: z.string().min(1),
   })
@@ -213,14 +290,29 @@ export type MediaToolchainMaterializedSource = z.infer<typeof MediaToolchainMate
 
 /**
  * The wire request of one media-toolchain dispatch: the transport-safe job
- * description PLUS its materialized source input.
+ * description PLUS its materialized source input. The input kind is paired
+ * fail-closed to the operation (an encode-frames dispatch carries its
+ * rgb24 frame sequence; every other operation carries source media).
  */
 export const MediaToolchainDispatchRequest = z
   .object({
     job: MediaToolchainJobDescription,
     source: MediaToolchainMaterializedSource,
   })
-  .strict();
+  .strict()
+  .superRefine((dispatch, ctx) => {
+    const wantsFrames = dispatch.job.operation === "encode-frames";
+    const carriesFrames = dispatch.source.kind === "rgb24-frames";
+    if (wantsFrames !== carriesFrames) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["source", "kind"],
+        message:
+          `the materialized input kind must match the operation (operation "${dispatch.job.operation}" ` +
+          `carries input kind "${dispatch.source.kind}" — an encode-frames dispatch carries its rgb24 frame sequence, every other operation carries source media)`,
+      });
+    }
+  });
 export type MediaToolchainDispatchRequest = z.infer<typeof MediaToolchainDispatchRequest>;
 
 // ---------------------------------------------------------------------------
@@ -473,6 +565,90 @@ export const MediaToolchainDecodedFrames = z
   .strict();
 export type MediaToolchainDecodedFrames = z.infer<typeof MediaToolchainDecodedFrames>;
 
+// ---------------------------------------------------------------------------
+// The encode-frames result (R306 — the ADDITIVE wire shape the derived-reality
+// plane's encode consumes; the R306 FrameEncodeResult mirrored on the wire)
+// ---------------------------------------------------------------------------
+
+/**
+ * The pinned codec parameters of one REAL encode — `@sporta/encoding`'s
+ * `EncodedCodecParams` mirrored on the wire (every field MEASURED by the
+ * worker's own `FfmpegFrameEncoder`: the container/codec identities, the
+ * deterministic argv summary, the pinned preset/tune/profile/level/crf/
+ * pix_fmt/gop/threads, and the bitexact flag). Structurally pinned to the
+ * exact document the R306 bridges record in every container manifest.
+ */
+export const MediaToolchainEncodedCodecParams = z
+  .object({
+    /** The container identity ("mp4" for the real adapter). */
+    container: nonEmpty,
+    /** The video codec identity ("avc1.42E01E" for the real adapter). */
+    videoCodec: nonEmpty,
+    /** The encoder argv/derivation summary (deterministic, human-readable). */
+    encoder: nonEmpty,
+    preset: nonEmpty,
+    tune: z.string().nullable(),
+    profile: nonEmpty,
+    level: nonEmpty,
+    crf: z.number().nullable(),
+    pixFmt: nonEmpty,
+    gop: z.number().int().nullable(),
+    threads: z.number().int().min(1),
+    bitexact: z.boolean(),
+  })
+  .strict();
+export type MediaToolchainEncodedCodecParams = z.infer<typeof MediaToolchainEncodedCodecParams>;
+
+/**
+ * The encode-frames result — the R306 `FrameEncodeResult` mirrored on the
+ * wire: the REAL encoded MP4 bytes (inline, base64) plus their MEASURED
+ * identity (the content address re-hashed at BOTH boundaries, the geometry,
+ * the clip duration `round(frameCount · 1000 / fps)` — enforced below — and
+ * the worker's own adapter identity: the kind, the probed version, and the
+ * pinned codec parameters actually used). The dispatching side re-measures
+ * every claim at the receiving boundary (the same discipline the decode
+ * batch carries): a lying hash, byte count, or geometry is a typed refusal,
+ * never interpreted.
+ */
+export const MediaToolchainEncodedOutput = z
+  .object({
+    /** sha-256 of the encoded MP4 bytes (64 lowercase hex; re-measured at the worker AND the client). */
+    contentHash: sha256Hex,
+    /** The encoded MP4's byte length (equals the delivered content's). */
+    byteSize: z.number().int().min(1),
+    /** The encoded frame count (equals the dispatch's encodeSpec.frameCount — enforced). */
+    frameCount: z.number().int().min(1),
+    /** Frame width in pixels (equals the dispatch's encodeSpec.width — enforced). */
+    width: z.number().int().min(16),
+    /** Frame height in pixels (equals the dispatch's encodeSpec.height — enforced). */
+    height: z.number().int().min(16),
+    /** Frames per second (equals the dispatch's encodeSpec.fps — enforced). */
+    fps: z.number().finite().positive(),
+    /** The clip duration: `round(frameCount · 1000 / fps)` ms (enforced). */
+    durationMs: z.number().int().positive(),
+    /** The worker adapter's identity ("ffmpeg-libx264" — the SAME kind the local path records). */
+    encoderKind: nonEmpty,
+    /** The worker adapter's probed version (the REMOTE build's measured line). */
+    encoderVersion: z.string().nullable(),
+    /** The pinned codec parameters actually used (MEASURED by the worker's adapter). */
+    codec: MediaToolchainEncodedCodecParams,
+    /** The encoded MP4 bytes, base64-encoded (inline delivery mode). */
+    contentBase64: z.string().min(1),
+  })
+  .strict()
+  .superRefine((output, ctx) => {
+    if (output.durationMs !== Math.round((output.frameCount * 1000) / output.fps)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["durationMs"],
+        message: `durationMs must be round(frameCount · 1000 / fps) = ${Math.round(
+          (output.frameCount * 1000) / output.fps,
+        )} (got ${output.durationMs})`,
+      });
+    }
+  });
+export type MediaToolchainEncodedOutput = z.infer<typeof MediaToolchainEncodedOutput>;
+
 /** The worker's per-job metering counters (the "metered" of the acceptance). */
 export const MediaToolchainMetering = z
   .object({
@@ -507,9 +683,10 @@ export type MediaToolchainMetering = z.infer<typeof MediaToolchainMetering>;
 /**
  * The result envelope of one executed media-toolchain job: success carries
  * the operation's MEASURED outcome (the probe for `probe`, the normalized
- * output + the original-reality artifact for `normalize`); failure carries
- * the classified refusal. Both carry the worker's metering counters. The
- * envelope NEVER throws across the wire and is never silent.
+ * output + the original-reality artifact for `normalize`, the encoded
+ * output for `encode-frames`); failure carries the classified refusal.
+ * Both carry the worker's metering counters. The envelope NEVER throws
+ * across the wire and is never silent.
  */
 export const MediaToolchainResult = z
   .object({
@@ -529,6 +706,8 @@ export const MediaToolchainResult = z
     decodeProbe: MediaToolchainDecodeProbe.optional(),
     /** Present iff operation === "decode-frames" AND status === "succeeded". */
     decodedFrames: MediaToolchainDecodedFrames.optional(),
+    /** Present iff operation === "encode-frames" AND status === "succeeded". ADDITIVE. */
+    encoded: MediaToolchainEncodedOutput.optional(),
     /** Present iff status === "failed". */
     failure: MediaToolchainFailure.optional(),
     /** The worker's metering counters for this job. */
@@ -555,7 +734,8 @@ export const MediaToolchainResult = z
       (envelope.normalized !== undefined ||
         envelope.artifact !== undefined ||
         envelope.decodeProbe !== undefined ||
-        envelope.decodedFrames !== undefined)
+        envelope.decodedFrames !== undefined ||
+        envelope.encoded !== undefined)
     ) {
       ctx.addIssue({
         code: "custom",
@@ -578,7 +758,8 @@ export const MediaToolchainResult = z
       if (
         envelope.sourceProbe !== undefined ||
         envelope.decodeProbe !== undefined ||
-        envelope.decodedFrames !== undefined
+        envelope.decodedFrames !== undefined ||
+        envelope.encoded !== undefined
       ) {
         ctx.addIssue({
           code: "custom",
@@ -625,7 +806,8 @@ export const MediaToolchainResult = z
         envelope.sourceProbe !== undefined ||
         envelope.normalized !== undefined ||
         envelope.artifact !== undefined ||
-        envelope.decodedFrames !== undefined
+        envelope.decodedFrames !== undefined ||
+        envelope.encoded !== undefined
       ) {
         ctx.addIssue({
           code: "custom",
@@ -646,7 +828,8 @@ export const MediaToolchainResult = z
         envelope.sourceProbe !== undefined ||
         envelope.normalized !== undefined ||
         envelope.artifact !== undefined ||
-        envelope.decodeProbe !== undefined
+        envelope.decodeProbe !== undefined ||
+        envelope.encoded !== undefined
       ) {
         ctx.addIssue({
           code: "custom",
@@ -681,6 +864,38 @@ export const MediaToolchainResult = z
           code: "custom",
           path: ["metering"],
           message: "the metering's decodedFrameBytes must equal the delivered batch's totalBytes",
+        });
+      }
+    }
+    if (envelope.operation === "encode-frames") {
+      if (
+        envelope.sourceProbe !== undefined ||
+        envelope.normalized !== undefined ||
+        envelope.artifact !== undefined ||
+        envelope.decodeProbe !== undefined ||
+        envelope.decodedFrames !== undefined
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["encoded"],
+          message: "an encode-frames job must carry ONLY its encoded output",
+        });
+      }
+      if (envelope.status === "succeeded" && envelope.encoded === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["encoded"],
+          message: "a succeeded encode-frames job must carry the measured encoded output",
+        });
+      }
+      if (
+        envelope.encoded !== undefined &&
+        envelope.metering.outputBytes !== envelope.encoded.byteSize
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["metering"],
+          message: "the metering's outputBytes must equal the encoded output's byteSize",
         });
       }
     }
@@ -888,6 +1103,16 @@ export function resolveMediaToolchainBudgets(
  *   maxDecodedFrameBytes)` (non-retryable, resource-limit; outputs
  *   discarded — the R607 Gap 1 frame-budget axis, the same class the local
  *   W102 boundary's `DecodeWindow.maxTotalBytes` enforcement produces);
+ * - `frames-invalid` — the encode-frames dispatch's packed frame sequence
+ *   is malformed (geometry below the local adapter's own bounds, or the
+ *   byte-math `byteSize === frameCount × width × height × 3` disagrees —
+ *   the R306 encode seam's admission axis, the same class the LOCAL
+ *   `FfmpegFrameEncoder`'s `admitGeometry`/`admitSource` produce)
+ *   (non-retryable, media-invalid);
+ * - `encode-failed` — the REAL ffmpeg encode failed at the worker (spawn
+ *   fault, non-zero exit, timeout kill, no output — the local
+ *   `encode-failed` class carried over the wire) (internal; outputs
+ *   discarded — never partial bytes, never a fabricated artifact);
  * - `invalid-envelope` — the constructed envelope failed its own schema
  *   (internal — fail-loud on a construction bug, never handed back).
  */
@@ -903,6 +1128,8 @@ export const MEDIA_TOOLCHAIN_ERROR_CLASSES = [
   "artifact-too-large",
   "budget-exceeded",
   "frame-budget-exceeded",
+  "frames-invalid",
+  "encode-failed",
   "invalid-envelope",
 ] as const;
 export type MediaToolchainErrorClass = (typeof MEDIA_TOOLCHAIN_ERROR_CLASSES)[number];

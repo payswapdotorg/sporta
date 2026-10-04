@@ -606,7 +606,30 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   //     anime-npr) render through the REAL MP4 encode plane; when it does
   //     not, they stay honestly producer-unavailable — never a silent
   //     SVG fallback presented as video.
-  const derivedPlane = createDerivedRealityPlane({ nowMs });
+  //     THE R306 ENCODE SEAM (the G12 walk's named next gap, the same
+  //     seam-class the R207 decode seam closed): the toolchain selection is
+  //     resolved HERE (hoisted from the media block — the SAME resolver, the
+  //     SAME env contract: MEDIA_TOOLCHAIN + MEDIA_TOOLCHAIN_URL), so the
+  //     plane can compose over the INJECTED http encode pair when the
+  //     selection is http — the derived realities then compose on a host
+  //     with NO local ffmpeg (the renders' software engines run locally;
+  //     only the ENCODE steps cross the wire to the toolchain worker). The
+  //     in-process default (including unset) injects NOTHING: the plane
+  //     probes its own local toolchain exactly as before (the
+  //     non-degradation law — the local default stays the same code path).
+  const mediaToolchain = resolveMediaToolchainFromEnv({ nowMs });
+  if (mediaToolchain.toolchain === "http") {
+    console.log(
+      `[sporta] media toolchain: HTTP worker at ${mediaToolchain.workerUrl} ` +
+        `(MEDIA_TOOLCHAIN=http — the admission probe + normalization, the R207 ` +
+        `real-to-SWM decode (decode-probe/decode-frames), AND the R306 derived-reality ` +
+        "encode (encode-frames) dispatch over real HTTP)",
+    );
+  }
+  const derivedPlane = createDerivedRealityPlane({
+    nowMs,
+    ...(mediaToolchain.encodePair === undefined ? {} : { encode: mediaToolchain.encodePair }),
+  });
   if (derivedPlane !== null) derivedPlane.registerRenderers(registry);
   // J004: the ONE-submission plan's producer map, INVERTED from the frozen
   //     derived-reality declarations (reality kind → the producer renderer
@@ -865,14 +888,10 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   // and `MEDIA_TOOLCHAIN=http + MEDIA_TOOLCHAIN_URL=<worker url>` routes the
   // SAME operations through an external toolchain worker (the seam the
   // hosted plane would use with a toolchain-capable compute worker).
-  const mediaToolchain = resolveMediaToolchainFromEnv({ nowMs });
-  if (mediaToolchain.toolchain === "http") {
-    console.log(
-      `[sporta] media toolchain: HTTP worker at ${mediaToolchain.workerUrl} ` +
-        `(MEDIA_TOOLCHAIN=http — the admission probe + normalization AND the R207 ` +
-        "real-to-SWM decode (decode-probe/decode-frames) dispatch over real HTTP)",
-    );
-  }
+  // (The resolver itself runs EARLIER — section 2' — because the R306
+  // encode seam injects its encode pair into the derived-reality plane
+  // BEFORE the media service wires the executor; the resolved value is the
+  // SAME single selection, resolved once.)
   const media = new MediaPlatformService({
     storage: mediaStorage,
     sourceAssets: mediaStore.sourceAssets,
