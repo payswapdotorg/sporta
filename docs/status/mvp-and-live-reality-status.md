@@ -66,23 +66,26 @@ Date: 2026-09-22
 
 ## Hugging Face Technology Portfolio
 
+The authoritative per-item record is `docs/status/hf-model-portfolio-status.md`
+(THE PORTFOLIO COMPLETE, 2026-10-04); this summary table mirrors it.
+
 | Item | State |
 |---|---|
 | HF001 | ✅ COMPLETE |
 | HF002 | ✅ COMPLETE |
-| HF003 | ⬜ NOT_STARTED |
-| HF004 | ⬜ NOT_STARTED |
-| HF005 | ⬜ NOT_STARTED / gated research |
-| HF006 | ⬜ NOT_STARTED |
-| HF007 | ⬜ NOT_STARTED |
-| HF008 | ⬜ NOT_STARTED |
-| HF009 | ⬜ NOT_STARTED |
-| HF010 | ⬜ BENCHMARK HARNESS DESIGNED; NO INFERENCE RUN |
-| HF011 | ⬜ NOT_STARTED |
-| HF012 | ⬜ NOT_STARTED |
-| HF013 | ⬜ BENCHMARK HARNESS DESIGNED; NO INFERENCE RUN |
-| HF014 | ⬜ NOT_STARTED |
-| HF015 | ⬜ NOT_STARTED |
+| HF003 | ✅ BENCHMARKED (no promotion — the honest domain-mismatch + latency/memory record) |
+| HF004 | ✅ BENCHMARKED-REFUSED (resource-infeasible-host, typed) |
+| HF005 | ✅ BENCHMARKED-REFUSED (the SAM License review + the auth-gate refusal — the portfolio's last item closed) |
+| HF006 | ✅ BENCHMARKED (executed CPU-host evidence; cascade verdict unfavorable on CPU — no promotion) |
+| HF007 | ✅ BENCHMARKED-REFUSED (resource-infeasible + the SoccerNet-NDA-gated eval wall, typed) |
+| HF008 | ✅ BENCHMARKED-REFUSED (resource-infeasible, typed; the W208 transcription-reversal verdict delivered) |
+| HF009 | ✅ BENCHMARKED-REFUSED (auth-gated-model, typed; the executed partial recorded) |
+| HF010 | ✅ BENCHMARKED-REFUSED (resource-infeasible, typed; the camera-path fixtures + the HF014 runway delivered) |
+| HF011 | ✅ BENCHMARKED-REFUSED (resource-infeasible, typed; same-fixture comparison design delivered) |
+| HF012 | ✅ BENCHMARKED-REFUSED (resource-infeasible, typed; the motion/identity/style metric designs delivered) |
+| HF013 | ✅ BENCHMARKED-REFUSED (resource-infeasible, typed; the license-edge + the load-bearing audio-doctrine verdicts delivered) |
+| HF014 | ✅ COMPLETE (the camera intent/path emission delivered as code) |
+| HF015 | ✅ COMPLETE (the promotion gate: 15 ledger rows, 15 PROMOTION-REFUSED, 0 eligible — the honest NO-PROMOTION posture, machine-checked) |
 
 ## Current final blockers
 
@@ -95,7 +98,11 @@ Date: 2026-09-22
    LANDED and product-wired (see the R606 row) — synthetic-proven, honest
    refusals on real 640x360 partial views; the remaining increment is the
    ellipse/circle-constrained solve for arc-segment-only windows (or
-   higher-resolution acquisition);
+   higher-resolution acquisition). STATUS 2026-10-04: the solve LANDED and
+   advanced through v0.4.1 (the validation-gate hardening) to v0.6.0 (the
+   penalty-arc-conic prior, merge ce57d6e — the 116.5 m worst-probe honest
+   class closed); what remains on the R606 lane is the OPERATOR's human
+   visual gate (plus (b)/(c) below), never a machine lane;
    (b) the operator ratifies the VPN-egress third-path acquisition
    (recorded honestly; contract frozen in
    docs/contracts/real-source-provenance.md) or supplies cookies.txt for a
@@ -106,20 +113,23 @@ Date: 2026-09-22
    worker-machine access, no dev APIs, no manual DB. The console R606 gate
    (teal panel) presents both asks; the frozen-path re-run channel and the
    dormant re-seed runbook (replay2 scripts/reseed_3101.py) are ready.
-2. R607 public hosted durability / deployment acceptance — behind R606.
-   Deployment freshness recon (2026-09-23 21:52Z, TL): the live production
-   alias https://sporta-flame.vercel.app serves marker `w920-beta-1`
-   (W920-era, 2026-09-16 code @edd0953) — a full week behind current main
-   @aa856c0; Neon identity + controlPlane and R2 artifacts verified
-   configured/ok on the live deployment; api.vercel.com + the public URL are
-   reachable from this sandbox. **The VERCEL_TOKEN is NOT present on the
-   current sandbox instance** (the Sep-20 secrets file holds only
-   GITHUB/COMPOSIO keys; the Sep-16 W920 deploys ran from an earlier
-   environment). R607-A therefore needs the operator to supply the token
-   (operator_inbox.jsonl or an env drop) in the same window as the R606
-   ACCEPT.
+2. R607 CLOSED END-TO-END (2026-10-04, TL merges 920c556 + 51f66a0 + 3accb91 —
+   see the R607 row): the decode seam + the LANDED deploy
+   (dpl_9i2uAP6kHyTLYmM8pApqppiNrogi, marker r607-decode-seam-rerun-1 on
+   the production alias) + the hosted golden-path PASS (the upload 201
+   through the seam, the media job terminal succeeded). The honest remaining
+   sub-item is the EPHEMERALITY FOLLOW-UP — the E2B worker URL baked at this
+   deployment is ephemeral (the sandbox dies at its 2h keep-alive); the
+   production posture needs a PERSISTENT worker host (an operator-facing
+   decision: a long-lived worker deployment or the in-process posture —
+   recorded in the R607 row and the recovery flight's README; never a
+   laundered availability claim). The Sep-23 VERCEL_TOKEN-absence note is
+   superseded — the token has been present and used since the 65-j flight
+   (runtime-env only, /home/z/.sporta-env).
 3. L009 authorized live provider feed access if a real external live feed is required.
-4. L015-L017 final live gates.
+4. L015-L017 final live gates — DELIVERED (flight 3, commit 3c1432a; the
+   L015 latency-budget amendment landed at 582abc9/ee0dbfe:
+   LIVE_LATENCY_BUDGET_MS p50<=250ms p95<=1000ms asserted by the gate).
 5. Real uploaded-session commentary is not yet a general production path.
 6. Highlights remain intentionally unavailable.
 7. HF candidates remain benchmark/provenance work, not production dependencies.
