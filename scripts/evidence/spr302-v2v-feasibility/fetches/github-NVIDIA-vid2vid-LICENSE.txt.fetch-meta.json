@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/NVIDIA/vid2vid/master/LICENSE.txt",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:55Z",
+  "bytes": 2554,
+  "sha256": "cbfe4b869632e01b194018202f365e7611426129279d59f8718112f90e98b617",
+  "note": "the CC BY-NC-SA 4.0 license text the landscape cites (vid2vid red flag)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

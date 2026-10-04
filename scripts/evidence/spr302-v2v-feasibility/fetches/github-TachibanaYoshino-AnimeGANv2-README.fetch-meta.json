@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/TachibanaYoshino/AnimeGANv2/master/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:58Z",
+  "bytes": 7691,
+  "sha256": "6b424121f4c606d5574c3cad43b0e199b78510040c11f3bf31961dc877f40ada",
+  "note": "the TF-original readme (dataset/weights provenance)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

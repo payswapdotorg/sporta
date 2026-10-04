@@ -1,0 +1,10 @@
+{
+  "url": "https://ecnu-cilab.github.io/Diffutoon/",
+  "httpStatus": 404,
+  "fetchedAtUtc": "2026-10-04T08:01:58Z",
+  "bytes": 2048,
+  "sha256": "31a7b6103976a60e9499b6e71f2a9a8cf72731d06610fe8d21fc8f3fada17e5b",
+  "note": "the official Diffutoon project page (records what the official entry point links)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+  "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+}

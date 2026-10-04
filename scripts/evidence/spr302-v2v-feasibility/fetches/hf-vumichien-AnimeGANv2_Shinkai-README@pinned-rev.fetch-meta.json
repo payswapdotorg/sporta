@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/vumichien/AnimeGANv2_Shinkai/resolve/14924f86716b32dc451808a538d75669eb590660/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:56:21Z",
+  "bytes": 729,
+  "sha256": "fe5be1db6529b3f740b86c776dc91861161baf5325a6bf4b6abd1b1f72865ce9",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg"
+}

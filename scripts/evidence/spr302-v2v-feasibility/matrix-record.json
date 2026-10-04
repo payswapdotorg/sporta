@@ -1,0 +1,567 @@
+{
+  "flight": "SPR302 — neural v2v candidate shortlist + feasibility matrix",
+  "recordedAtUtc": "2026-10-04T08:20:00Z",
+  "worker": "65-h (flight 14, the SPR lane, Worker A's technology-evaluation wave)",
+  "workItem": "SPR302 — Neural v2v candidate shortlist + feasibility matrix. Owner: A. Wave: WAVE-1.",
+  "noExecution": {
+    "modelRuns": 0,
+    "policy": "the matrix is the research deliverable; the executed trial is SPR303's WAVE-2 item ('only where legitimately available') — this flight PROMOTES NOTHING",
+    "weightBytesDownloaded": 0,
+    "boundedProbesOnly": "hub metadata API + 1-byte Range reachability (zero weight body bytes) + bounded TEXT-document fetches (LICENSE/README/model-card/terms pages)"
+  },
+  "authorities": {
+    "laneMandate": "docs/contracts/source-preserving-renderer.md (SPE-v1, FROZEN 2026-09-24) — the CONTRACT-FIT axis measures against its hard output invariants: timeline equality (frameCount == input, fps equal, duration delta <= 40 ms, audio passthrough), bit-exact reproducibility, provenance faithfulness, cuts preserved (no cross-cut blending), fail-closed rights",
+    "landscape": "docs/research/source-preserving-technology-landscape.md (Worker A, wave-1) — the classes + the prior claims this matrix CHECKS",
+    "spr301Verdict": "docs/work-items/source-preserving-reality-work-items.md — 'preservation proven: sourceFidelity 4.88-5.0'; the wave-2 neural target is exactly stylizer visual quality",
+    "tierBars": "scripts/evidence/spr-tier2-scorecards/ — the identity axis the scorecards measure (identityConsistency / temporalConsistency are the collapse axes: anime-npr min 1.80, cartoon-cel min 1.53)",
+    "hostMeasured": "results/shortlist-probe.json host block (measured 2026-10-04T07:56:03Z): totalRamMiB 4041.6, freeDiskGiB 6.82, vcpu 2, gpu none"
+  },
+  "matrixAxes": [
+    "RESOURCE — CPU-host feasibility: measured 3.95 GiB RAM / 6.82 GiB free disk / 2 vCPU / no GPU; else the adequate-host class",
+    "LICENSE — permissive / custom / research-only / not-found, from the RECORDED terms only (verbatim citations; never legal advice)",
+    "CONTRACT-FIT — vs the FROZEN SPE-v1 invariants (substrate, cuts preserved, audio passthrough, timeline equality, bit-exact, provenance); typed gaps per threatened invariant",
+    "IDENTITY-RISK — the temporal identity constraint (the 'no slideshow-of-generated-frames' compliance class; the frame-to-frame drift the tier scorecards measure)",
+    "WAVE-2-READINESS — the trial verdict on this flight's facts + the recorded blockers"
+  ],
+  "typedGapVocabulary": [
+    "license-terms-not-found — no license text found at any recorded official path",
+    "weights-provenance-off-hub — weights distributed off the hub (Google Drive / GitHub releases) or in unlicensed community mirrors",
+    "artifact-absent — no public code and/or weights exist (paper-only or explicit no-release)",
+    "not-measured — a measurement-shaped claim with no executed run on this flight (the fabrication guard)",
+    "class-judgment — a recorded reasoning class (no per-candidate measurement), always labeled"
+  ],
+  "candidates": [
+    {
+      "candidate": "AnimeGANv2",
+      "landscapeClass": "per-frame neural style transfer (landscape §4.6; the landscape's 'wave-2 trial with the best cost/benefit')",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "akhaliq/AnimeGANv2-pytorch",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "5f2c6e4bf913b2c76de3a842f8a952b41bab9db9",
+            "totalHubReportedBytes": 8602261,
+            "sizeClassGiB": 0.008,
+            "licenseTags": [],
+            "reachability": "HTTP 206 on face_paint_512_v2.pt via Range bytes=0-0 (0 weight body bytes)",
+            "note": "carries only face_paint_512_v2.pt (the portrait model) — no README on the hub mirror (404, recorded)"
+          },
+          {
+            "repoId": "vumichien/AnimeGANv2_Hayao",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "f84714b47ad2c7e930c5f3d5dff58fe91659be95",
+            "totalHubReportedBytes": 8651941,
+            "sizeClassGiB": 0.008,
+            "licenseTags": [
+              "license:apache-2.0"
+            ],
+            "reachability": "HTTP 206 on AnimeGANv2_Hayao.onnx via Range bytes=0-0 (0 weight body bytes)"
+          },
+          {
+            "repoId": "vumichien/AnimeGANv2_Paprika",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "aff2c6fe956c37d70bf2f80b0e98071997f8b466",
+            "totalHubReportedBytes": 8651933,
+            "sizeClassGiB": 0.008,
+            "licenseTags": [
+              "license:apache-2.0"
+            ],
+            "reachability": "HTTP 206 on AnimeGANv2_Paprika.onnx"
+          },
+          {
+            "repoId": "vumichien/AnimeGANv2_Shinkai",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "14924f86716b32dc451808a538d75669eb590660",
+            "totalHubReportedBytes": 8651484,
+            "sizeClassGiB": 0.008,
+            "licenseTags": [
+              "license:apache-2.0"
+            ],
+            "reachability": "HTTP 206 on AnimeGANv2_Shinkai.onnx"
+          }
+        ],
+        "canonicalNote": "canonical PyTorch port is GitHub bryandlee/animegan2-pytorch; the scenery-style weights (Hayao/Paprika/Shinkai) live in the small ONNX hub mirrors + the GitHub port's release assets"
+      },
+      "resource": {
+        "verdict": "CPU-HOST FEASIBLE (this host)",
+        "facts": "per-style ONNX weights 8,649,739 B (hub-reported, never downloaded) — 0.13% of the measured 6.82 GiB free disk; model + onnxruntime + frame buffers far below the 3.95 GiB RAM bar; no GPU required",
+        "costArithmetic": "class-judgment from the landscape's recorded port speed ('2-3 s on CPU per image', ai-engine.net snippet 2026-09-24): 1190 frames (the b8 envelope) x 2.5 s/frame ≈ 49.6 min/clip — not-measured on this flight",
+        "adequateHostClass": "this host (CPU-only, ONNX or torch-CPU)"
+      },
+      "license": {
+        "verdict": "SPLIT — MIT code (permissive) + NON-COMMERCIAL weights usage terms on the recorded hub mirrors + copyrighted-film-frame training provenance (the typed production blocker)",
+        "code": {
+          "verdict": "permissive (MIT, the PyTorch port)",
+          "citations": [
+            "fetches/github-bryandlee-animegan2-pytorch-LICENSE — 'Permission is hereby granted, free of charge, to any person obtaining a copy of this software... to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies' (Copyright (c) 2021 Bryan Lee)"
+          ]
+        },
+        "weights": {
+          "verdict": "NON-COMMERCIAL usage terms on the hub mirrors + copyrighted-film-frame training provenance (typed blocker for production; research-class trial matches SPR303's 'only where legitimately available')",
+          "citations": [
+            "fetches/hf-vumichien-AnimeGANv2_Hayao-README@pinned-rev — 'This repo is made freely available to academic and non-academic entities for non-commercial purposes such as academic research, teaching, scientific publications... Regarding the request for commercial use, please contact us via email to help you obtain the authorization letter.' (the SAME text on the Paprika and Shinkai cards — fetched)",
+            "fetches/hf-vumichien-AnimeGANv2_Hayao-README@pinned-rev card metadata 'license: apache-2.0' CONTRADICTS the body's non-commercial usage terms — recorded contradiction; the tag plausibly covers the ONNX conversion, the body terms cover the AnimeGAN weights",
+            "fetches/github-TachibanaYoshino-AnimeGANv2-README — the style datasets are named verbatim: 'Miyazaki Hayao — The Wind Rises', 'Makoto Shinkai', 'Paprika' (copyrighted film frames; the TF-original repo has NO LICENSE file — 404 recorded)"
+          ]
+        },
+        "commercialUse": "blocked-by-terms on the recorded mirror text (contact-for-authorization path); the landscape's deferred flag is now a RECORDED NC posture — never legal advice"
+      },
+      "contractFit": {
+        "verdict": "COMPATIBLE-WITH-TYPED-GAPS (the substrate maps per-frame; the preservation invariants it threatens are the TEMPORAL ones)",
+        "substrate": "per-frame pixel-wise appearance transfer — takes OUR source frames as substrate (not generative) — the per-frame substrate preservation that produced sourceFidelity 4.88-5.0 on the deterministic lanes is structurally available",
+        "cutsPreserved": "NOT THREATENED by the model proper (no cross-frame state: independent per-frame mapping cannot blend across cuts); any flow-guided flicker mitigation WE add becomes the cut-reset obligation (the engine's cut-detect stage owns it)",
+        "audioPassthrough": "COMPATIBLE — container-level (ffmpeg -c:a copy), outside the model",
+        "timelineEquality": "frame-count preserving by construction (per-frame map 1:1)",
+        "bitExact": "typed gap — ONNX/torch CPU determinism is verifiable at trial but NOT measured here (not-measured)",
+        "provenance": "compatible with the SPE-v1 provenance block (deterministic tools recordable: onnxruntime/torch versions + pinned weight sha)"
+      },
+      "identityRisk": {
+        "class": "HIGH (the slideshow-of-generated-frames compliance class)",
+        "facts": "independent per-frame mapping with no temporal model = frame-to-frame flicker (the landscape's own 'temporal flicker risk high'); the tier scorecards' collapse axes (identityConsistency, temporalConsistency — anime-npr 1.80 / cartoon-cel 1.53 min-axis) are exactly this risk realized by a per-frame heuristic stylizer; AnimeGANv2 is a LEARNED per-frame map (sharper identity per frame than the heuristics) but carries the same no-temporal-model structure",
+        "mitigationClass": "flow-guided blending / EMA with cut-reset would be OUR engine stage (contract-compatible: trail-accumulate already cut-reset) — not-measured"
+      },
+      "wave2Readiness": {
+        "verdict": "READY — the primary wave-2 trial candidate (the landscape's 'best cost/benefit' CONFIRMED on the resource axis by live probes; the license leg sharpened to the recorded NC usage terms)",
+        "blockers": [
+          "typed: weights usage terms are non-commercial on the recorded mirrors (contact-for-authorization) — production clearance NOT proven; research-class trial only",
+          "typed: temporal identity NOT measured (the flicker axis the scorecards gate on)",
+          "typed: bit-exact determinism NOT measured (trial must prove double-render sha equality)",
+          "typed: hub mirrors are community conversions (weights-provenance-off-hub relative to the canonical GitHub port releases)"
+        ]
+      }
+    },
+    {
+      "candidate": "Diffutoon",
+      "landscapeClass": "diffusion toon shading (landscape §4.5 — 'the quality reference to chase in wave-3+')",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "camenduru/Diffutoon",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "f9672c4ae48287648a4e0711e0ed75d02ce45ee8",
+            "totalHubReportedBytes": 10298992484,
+            "sizeClassGiB": 9.592,
+            "licenseTags": [],
+            "cardLicenseField": null,
+            "reachability": "HTTP 206 on stable_diffusion/aingdiffusion_v12.safetensors (2,132,625,894 B) via Range bytes=0-0 (0 weight body bytes)",
+            "note": "a community asset-tree MIRROR (AnimateDiff + ControlNet x4 + SD1.5 + annotators) — NO README, NO license tags on the hub repo (both 404, recorded)"
+          },
+          {
+            "repoId": "ECNU-CILab/Diffutoon",
+            "exists": false,
+            "finding": "RepositoryNotFoundError — no official hub repo under the recorded canonical id"
+          }
+        ],
+        "officialDistribution": "NOT FOUND from this sandbox — GitHub ECNU-CILab/DiffToon LICENSE+README 404 on BOTH branches (recorded), the GitHub search API returned 0 repository hits for DiffToon, and the official project page https://ecnu-cilab.github.io/Diffutoon/ returns 404 (all fetches recorded in fetches/)"
+      },
+      "resource": {
+        "verdict": "INFEASIBLE on this host",
+        "facts": "the reachable mirror asset tree is 9.59 GiB (hub-reported) vs the measured 6.82 GiB free disk — the tree alone exceeds the disk; the diffusion + ControlNet + AnimateDiff stack is GPU-class (the landscape's needs-gpu) vs no GPU here; RAM 3.95 GiB is below SD-inference working set",
+        "adequateHostClass": "GPU host (>= 10 GiB free disk for the asset tree; the adequate-host class SPR303 would have to provision)"
+      },
+      "license": {
+        "verdict": "NOT-FOUND (typed gap license-terms-not-found)",
+        "citations": [
+          "the recorded NOT-FOUND evidence is the set of executed 404 fetch-metas: fetches/github-ECNU-CILab-DiffToon-LICENSE@main.fetch-meta.json (HTTP 404), fetches/github-ECNU-CILab-DiffToon-LICENSE@master.fetch-meta.json (HTTP 404), fetches/web-ecnu-cilab-Diffutoon-project-page.fetch-meta.json (HTTP 404) — no license text exists at any recorded official path; the only reachable artifact is an untagged community mirror (weightsProvenance unknown)"
+        ],
+        "commercialUse": "unknown — terms not recorded because terms were not found"
+      },
+      "contractFit": {
+        "verdict": "PARTIAL-BY-DESIGN-CLASS (on-mission toon shading over full clips; the threatened invariants are the temporal + reproducibility ones)",
+        "substrate": "conditions on the source video (ControlNet lineart/depth/softedge annotators over the source frames) — the substrate informs the output but through a GENERATIVE diffusion pass (structure regenerated, not mapped)",
+        "cutsPreserved": "typed gap — diffusion conditioning has no cut model; cross-cut blending risk is the documented class failure (the engine's cut-detect stage would need to gate the motion-module conditioning)",
+        "audioPassthrough": "COMPATIBLE (container-level)",
+        "timelineEquality": "achievable class-wise (per-frame conditioned generation) but unproven — not-measured",
+        "bitExact": "typed gap — diffusion sampling is deterministic only under fixed seed + fixed scheduler + fixed runtime; not-measured"
+      },
+      "identityRisk": {
+        "class": "MEDIUM (the motion-module + ControlNet conditioning reduces per-frame independence vs pure NST; the landscape records it as the quality ceiling of the class) — unmeasured on this flight",
+        "facts": "class-judgment; no identity measurement exists for any diffusion candidate in the repo's evidence (the portfolio's 12 typed-refusal rows)"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY (wave-3+ reference, as the landscape says — and the wave-3 case now carries a new recorded blocker)",
+        "blockers": [
+          "typed: resource (GPU-class + 9.59 GiB asset tree > the 6.82 GiB measured disk)",
+          "typed: license-terms-not-found at every recorded official path; official distribution point 404 (project page + GitHub + hub canonical id all recorded absent)",
+          "typed: the only reachable artifact is an unlicensed community mirror (weights-provenance unknown — a provenance-laundering risk class the portfolio refuses on principle)",
+          "typed: temporal identity + determinism not-measured"
+        ]
+      }
+    },
+    {
+      "candidate": "FlowVid",
+      "landscapeClass": "flow-conditioned full V2V (landscape §4.5 — arxiv per the landscape 2312.08126; the official README badge reads 2312.17681 — recorded correction)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "Jeff-Lun/FlowVid",
+            "exists": false,
+            "finding": "RepositoryNotFoundError; the hub search for flowvid returns 0 models"
+          }
+        ]
+      },
+      "artifactState": "ARTIFACT-ABSENT (the decisive live fact): the official GitHub README (fetched, fetches/github-Jeff-LiangF-FlowVid-README) is titled 'FlowVid (NO CODE)' and states verbatim — '[6/30/2024] After half a year of negotiations, I regret to inform you that we are unable to release the FlowVid checkpoints. I understand that this is disappointing to the community, and I sincerely apologize to let you down.' and '[12/28/2023] The official codes and models are currently undergoing a legal review process.'; no LICENSE file (404, recorded); the README recommends TokenFlow and StreamV2V as alternatives (adjacent candidates NOT probed this flight)",
+      "resource": {
+        "verdict": "N/A — no artifact exists to size (the GPU-class label is moot)",
+        "adequateHostClass": "none (no weights, no code)"
+      },
+      "license": {
+        "verdict": "N/A — artifact-absent; nothing to license",
+        "commercialUse": "n/a"
+      },
+      "contractFit": {
+        "verdict": "N/A for trial (no artifact); the flow-conditioned-V2V design (conditioning generation on imperfect optical flows) remains an input to OUR engine's flow-guided mitigation designs",
+        "typedGaps": [
+          "artifact-absent"
+        ]
+      },
+      "identityRisk": {
+        "class": "N/A — no artifact; the paper's flow-conditioning objective targets exactly the temporal-consistency axis (class-judgment, unmeasurable here)"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY — artifact-absent (an explicit no-release statement)",
+        "blockers": [
+          "typed: artifact-absent — the maintainers' own README says the checkpoints will not be released"
+        ]
+      }
+    },
+    {
+      "candidate": "Pix2Video",
+      "landscapeClass": "text-guided V2V editing via image diffusion (landscape §4.5; the README's own citation block says ICCV 2023 — the landscape said CVPR 2023 — recorded correction)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "duyguceylan/Pix2Video",
+            "exists": false,
+            "finding": "RepositoryNotFoundError; the hub search for pix2video returns 0 models"
+          }
+        ]
+      },
+      "artifactState": "code EXISTS on GitHub (README fetched); weights: none released (the pipeline rides on StableDiffusion base models pulled via an HF token — the README's own instruction 'Get huggingface token required to download StableDiffusion models')",
+      "resource": {
+        "verdict": "INFEASIBLE on this host",
+        "facts": "image-diffusion editing chain per frame (SD + custom mydiffusers fork) is GPU-class; the landscape's needs-gpu; no GPU here",
+        "adequateHostClass": "GPU host"
+      },
+      "license": {
+        "verdict": "RESEARCH-ONLY (recorded verbatim)",
+        "citations": [
+          "fetches/github-duyguceylan-Pix2Video-README — 'License: This code is released under the Adobe Research License agreement and is for non-commercial and research purposes only.'; no LICENSE file in the repo (404, recorded)"
+        ],
+        "commercialUse": "blocked by the recorded terms — never legal advice"
+      },
+      "contractFit": {
+        "verdict": "POOR-BY-CLASS (text-guided regeneration per frame threatens the identity + timeline invariants)",
+        "substrate": "the source frames condition the edit but the output is regenerated through diffusion — the slideshow-of-generated-frames risk is the class failure",
+        "cutsPreserved": "typed gap — no cut model; cross-frame blending unhandled (class)",
+        "audioPassthrough": "COMPATIBLE (container-level)",
+        "timelineEquality": "typed gap — unproven",
+        "bitExact": "typed gap — not-measured"
+      },
+      "identityRisk": {
+        "class": "HIGH (per-frame diffusion regeneration with flow/anchor guidance only between keyframes — the class the landscape flags 'cost + temporal risk')"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY",
+        "blockers": [
+          "typed: research-only license (Adobe Research License, non-commercial — recorded verbatim)",
+          "typed: resource (GPU-class)",
+          "typed: no released weights of its own (SD-base dependency)"
+        ]
+      }
+    },
+    {
+      "candidate": "vid2vid (NVIDIA) / few-shot-vid2vid",
+      "landscapeClass": "conditional photoreal V2V synthesis (landscape §4.5 — the CC BY-NC-SA red flag)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "nvidia/vid2vid",
+            "exists": false,
+            "finding": "RepositoryNotFoundError"
+          },
+          {
+            "repoId": "NVlabs/few-shot-vid2vid",
+            "exists": false,
+            "finding": "RepositoryNotFoundError — GitHub-only research code, no official hub weights found"
+          }
+        ]
+      },
+      "resource": {
+        "verdict": "INFEASIBLE on this host",
+        "facts": "GPU-class + pose/segmentation-conditioned (needs per-frame semantic maps — an input pipeline we do not produce on this host); the landscape's needs-gpu",
+        "adequateHostClass": "GPU host + per-frame semantic-map generation"
+      },
+      "license": {
+        "verdict": "NON-COMMERCIAL — the red flag CONFIRMED VERBATIM",
+        "citations": [
+          "fetches/github-NVIDIA-vid2vid-LICENSE.txt — 'Copyright (C) 2017 NVIDIA Corporation... Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode). Permission to use, copy, modify, and distribute this software and its documentation for any non-commercial purpose is hereby granted without fee...'",
+          "fetches: NVlabs/few-shot-vid2vid has NO license file at either recorded path (LICENSE and LICENSE.txt both 404 — typed gap license-terms-not-found for the sibling repo)"
+        ],
+        "commercialUse": "blocked by the recorded terms — never legal advice"
+      },
+      "contractFit": {
+        "verdict": "POOR-BY-CLASS (conditional REGENERATION on pose/segmentation maps — the output is not a mapping of the source pixels; identity + substrate preservation are the threatened invariants)",
+        "typedGaps": [
+          "cuts: no cut model (class)",
+          "timeline: unproven",
+          "bitExact: not-measured"
+        ]
+      },
+      "identityRisk": {
+        "class": "HIGH (full regeneration class; the temporal risk the landscape records for the family)"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY",
+        "blockers": [
+          "typed: non-commercial license (CC BY-NC-SA 4.0, recorded verbatim)",
+          "typed: resource (GPU + per-frame semantic maps)",
+          "typed: no hub weights (GitHub-only research code)"
+        ]
+      }
+    },
+    {
+      "candidate": "ReReVST",
+      "landscapeClass": "zero-shot temporally-consistent VST (landscape §4.6 — the paper is IEEE TIP 2020 per the fetched README's own citation; the landscape said AAAI — recorded correction)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "daooshee/ReReVST",
+            "exists": false,
+            "finding": "RepositoryNotFoundError; hub search for rerevst returns 0 models"
+          }
+        ]
+      },
+      "artifactState": "code EXISTS at GitHub daooshee/ReReVST-Code (GPL-3.0, fetched); weights distributed OFF the hub — the README's own links are Google Drive / Baidu Pan ('Download our final model and replace the empty style_net-TIP-final.pth')",
+      "resource": {
+        "verdict": "CLASS-FEASIBLE on CPU (unmeasured)",
+        "facts": "class-judgment: a 2020-era compact style CNN (style_net) + optical-flow computation — the class that runs on CPU; the landscape's needs-gpu label for the VST family is not resource-mandated by the recorded architecture; latency NOT measured (not-measured)",
+        "adequateHostClass": "likely this host class, pending measurement"
+      },
+      "license": {
+        "verdict": "GPL-3.0 CODE (copyleft — recorded terms); weights terms not stated",
+        "citations": [
+          "fetches/github-daooshee-ReReVST-Code-LICENSE — 'GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007' (full text fetched, 35,149 B)",
+          "fetches/github-daooshee-ReReVST-Code-README — weights via Google Drive/Baidu Pan; training styles from WikiArt/Painter-by-Numbers, content from MSCOCO"
+        ],
+        "commercialUse": "GPL-3.0 copyleft obligations on derivative distribution — recorded terms only, never legal advice; weights terms are a typed gap"
+      },
+      "contractFit": {
+        "verdict": "COMPATIBLE-BY-DESIGN-CLASS (flow-guided temporal regularization — the class designed exactly for the temporal-consistency invariant) WITH typed gaps",
+        "substrate": "VST maps the content frames (the substrate is preserved structurally — a stylization, not a regeneration)",
+        "cutsPreserved": "typed gap — flow-based temporal propagation crosses cuts unless cut-gated (the engine's cut-detect would gate the flow propagation — the same cut-reset contract as trail-accumulate)",
+        "audioPassthrough": "COMPATIBLE (container-level)",
+        "timelineEquality": "class-compatible (per-frame processing + flow refs)",
+        "bitExact": "typed gap — not-measured"
+      },
+      "identityRisk": {
+        "class": "LOW-MEDIUM (relaxation + regularization explicitly targets frame-to-frame consistency — the anti-flicker by design; unmeasured here)"
+      },
+      "wave2Readiness": {
+        "verdict": "PARTIAL (a secondary candidate, behind AnimeGANv2 and EbSynth)",
+        "blockers": [
+          "typed: GPL-3.0 code (copyleft posture — a recorded term, integration decision is the TL's)",
+          "typed: weights-provenance-off-hub (Google Drive/Baidu Pan links — no pinned sha, no reachability probe possible, provenance unverifiable)",
+          "typed: no measured CPU latency or identity numbers (not-measured)",
+          "typed: zero-shot painterly styles (not anime-structure styles — the stylizationStrength axis the wave-2 target wants)"
+        ]
+      }
+    },
+    {
+      "candidate": "CompoundVST",
+      "landscapeClass": "compound temporally-consistent VST (landscape §4.6, NTIRE2023)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "daooshee/CompoundVST",
+            "exists": false,
+            "finding": "RepositoryNotFoundError; hub search for compoundvst returns 0 models"
+          }
+        ]
+      },
+      "artifactState": "ARTIFACT-ABSENT — the GitHub repo daooshee/CompoundVST README is a 69-byte WEBSITE STUB (fetched verbatim: '# Consistent Video Style Transfer via Compound Regularization Website') — no code, no weights, no license (all recorded)",
+      "resource": {
+        "verdict": "N/A — artifact-absent",
+        "adequateHostClass": "none"
+      },
+      "license": {
+        "verdict": "N/A — artifact-absent"
+      },
+      "contractFit": {
+        "verdict": "N/A for trial",
+        "typedGaps": [
+          "artifact-absent"
+        ]
+      },
+      "identityRisk": {
+        "class": "N/A"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY — artifact-absent (website stub only)",
+        "blockers": [
+          "typed: artifact-absent"
+        ]
+      }
+    },
+    {
+      "candidate": "EbSynth",
+      "landscapeClass": "example-based keyframe propagation (landscape §4.7 — 'the highest-leverage wave-2 idea': OUR deterministic frame as the example, EbSynth propagates)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "jamriska/ebsynth",
+            "exists": false,
+            "finding": "RepositoryNotFoundError — a desktop/binary tool + CLI, not a hub model (the class note recorded)"
+          }
+        ]
+      },
+      "artifactState": "open-source code (GitHub jamriska/ebsynth, public domain — fetched) + the proprietary binary/tool with site Terms (fetched) + an accessible CLI (the landscape's 'CLI exists; automation work needed')",
+      "resource": {
+        "verdict": "CPU-CLASS FEASIBLE (class-judgment; unmeasured)",
+        "facts": "the landscape's own recorded classification: 'no GPU required — feasibility GOOD if keyframe authoring is solved'; propagation is patch-synthesis on CPU; latency not-measured on this flight",
+        "adequateHostClass": "this host class, pending measurement"
+      },
+      "license": {
+        "verdict": "DUAL — public-domain CODE (with a recorded patent warning) + proprietary TOOL terms (fetched, favorable for our lane)",
+        "citations": [
+          "fetches/github-jamriska-ebsynth-README — 'The code is released into the public domain. You can do anything you want with it. However, you should be aware that the code implements the PatchMatch algorithm, which is patented by Adobe (U.S. Patent 8,861,869). Other techniques might be patented as well. It is your responsibility to make sure you're not infringing any patent holders' rights by using this code.'",
+          "fetches/web-ebsynth-terms (the site's Terms of Use, 14,327 B) — 'You retain full copyright to the videos you create in EbSynth if you own the copyright to the guiding video and keyframes used as inputs.' AND 'The synthesis process in EbSynth does not utilize AI or pre-trained models, and therefore, does not affect the ownership status of the output video.' AND the SDXL trap: 'EbSynth includes a keyframe generation feature (Generate Image) powered by the SDXL 1.0 model... If you use AI-generated keyframes, your entire output video will be subject to the SDXL license terms.'"
+        ],
+        "commercialUse": "code: public domain (patent risk recorded verbatim — never legal advice); tool: output ownership stays with the clip owner when the keyframes are ours; the SDXL keyframe feature MUST NOT be used (our keyframes are deterministic engine outputs — the trap's own avoidance path, recorded)"
+      },
+      "contractFit": {
+        "verdict": "THE STRONGEST BY CONSTRUCTION (temporal consistency by construction + substrate preservation + no-model provenance)",
+        "substrate": "propagates OUR deterministic stylized keyframe(s) over the source frames — the output is anchored to the source by the guiding video (the substrate is the propagation domain)",
+        "cutsPreserved": "typed gap — propagation ACROSS a cut would blend the wrong shot's example into the next: the engine's cut-detect stage must reseed keyframes at every cut (the cut-reset contract, same as trail-accumulate; the landscape's own failure note: 'large motion/occlusion -> artifacts')",
+        "audioPassthrough": "COMPATIBLE (container-level; EbSynth outputs frames, our encode stage owns the container)",
+        "timelineEquality": "class-compatible (per-frame propagation output 1:1 with input frames)",
+        "bitExact": "typed gap — the binary's determinism unproven (not-measured; the double-render trial would prove it)",
+        "provenance": "compatible — and the no-AI synthesis clause ('does not utilize AI or pre-trained models') is a provenance SIMPLIFICATION for the rights record vs every neural row"
+      },
+      "identityRisk": {
+        "class": "LOW-MEDIUM (identity anchored to OUR keyframes — drift accumulates only over the span between keys; keyframe cadence is the control knob; occlusion/large-motion failure mode is the landscape's recorded class failure — unmeasured here)"
+      },
+      "wave2Readiness": {
+        "verdict": "READY — the second wave-2 trial candidate (the landscape's highest-leverage idea CONFIRMED by the recorded terms: our deterministic keyframes avoid the SDXL trap verbatim)",
+        "blockers": [
+          "typed: CLI automation work (the landscape's 'automation work needed' — an integration flight, not a research gap)",
+          "typed: PatchMatch patent warning recorded verbatim (the public-domain code row)",
+          "typed: determinism not-measured (double-render trial)",
+          "typed: occlusion/large-motion failure mode not-measured (the keyframe-cadence dial unmeasured)"
+        ]
+      }
+    },
+    {
+      "candidate": "ToonCrafter",
+      "landscapeClass": "generative cartoon interpolation (landscape §4.5 — 'website content CC BY-NC-SA -> treat non-commercial until code license verified'; benchmark-only class)",
+      "hub": {
+        "repos": [
+          {
+            "repoId": "Doubiiu/ToonCrafter",
+            "exists": true,
+            "gated": false,
+            "pinnedRevision": "7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf",
+            "totalHubReportedBytes": 12177881800,
+            "sizeClassGiB": 11.342,
+            "licenseTags": [],
+            "cardLicenseField": null,
+            "reachability": "HTTP 206 on model.ckpt (10,502,492,136 B) via Range bytes=0-0 (0 weight body bytes)",
+            "note": "7 files, 11.34 GiB total: model.ckpt 10.5 GB + sketch_encoder.ckpt 1.46 GB + sketch_extractor.pth 218 MB + the LICENSE/README/webp; the LICENSE file is IN the hub tree"
+          }
+        ]
+      },
+      "resource": {
+        "verdict": "INFEASIBLE on this host",
+        "facts": "11.34 GiB (hub-reported, never downloaded) > the measured 6.82 GiB free disk; video-diffusion GPU-class vs no GPU; RAM 3.95 GiB far below the inference working set",
+        "adequateHostClass": "GPU host with >= 12 GiB free disk"
+      },
+      "license": {
+        "verdict": "PERMISSIVE (Apache-2.0) — the landscape's NC posture CORRECTED by the live fetches",
+        "citations": [
+          "fetches/hf-Doubiiu-ToonCrafter-LICENSE@pinned-rev — the full Apache License Version 2.0 text ON THE HUB REPO at the pinned revision (11,331 B; byte-identical sha 0abab4aca9b06b469592c2f7dfdc7bd0bca29b38 with fetches/github-Doubiiu-ToonCrafter-LICENSE — both fetched)",
+          "fetches/hf-Doubiiu-ToonCrafter-README@pinned-rev — 'Feel free to use it under the Apache-2.0 license. Note that we don't have any official commercial product for ToonCrafter currently.'"
+        ],
+        "commercialUse": "Apache-2.0 terms recorded (permissive); the no-official-commercial-product note recorded alongside — never legal advice"
+      },
+      "contractFit": {
+        "verdict": "VIOLATES-BY-CLASS (generative interpolation REGENERATES the motion between two conditioning frames — the landscape's own invariant reasoning, now with the card's own recorded envelope limits)",
+        "cardLimitationsVerbatim": "the fetched card's Limitations block — 'The generated videos are relatively short (2 seconds, FPS=8).' AND 'The autoencoding part of the model is lossy, resulting in slight flickering artifacts.'",
+        "timelineEquality": "INFEASIBLE-CLASS: 2 s @ 8 fps interpolation envelope vs the b8 substrate's 47.6 s @ 25 fps (1190 frames) — a 24x duration and 3x fps gap, plus regenerates in-between motion",
+        "cutsPreserved": "inapplicable (generative interpolation has no substrate timeline to preserve)",
+        "audioPassthrough": "container-level compatible but moot"
+      },
+      "identityRisk": {
+        "class": "N/A for the restyle lane (not a restyle engine); the card's own lossy-autoencoder flickering note is recorded for the benchmark lane"
+      },
+      "wave2Readiness": {
+        "verdict": "NOT READY for SPR302's lane (benchmark-only — the license leg improved, the class verdict stands)",
+        "blockers": [
+          "typed: class — generative interpolation regenerates motion (violates the substrate-preservation mandate for restyle use)",
+          "typed: resource (11.34 GiB + GPU-class)",
+          "typed: envelope (2 s / 8 fps per the card's own limitations)"
+        ]
+      }
+    }
+  ],
+  "priorClaimsChecked": [
+    {
+      "claim": "the landscape: 'the neural anime lane (AnimeGANv2) is the wave-2 trial with the best cost/benefit'",
+      "liveFacts": "the hub mirrors are ungated, HTTP-206 reachable, 8.6 MB per style (0.13% of the measured free disk) — the resource leg of the claim CONFIRMED by probes; the license leg SHARPENED: the mirrors' own READMEs carry non-commercial usage terms for the weights (the apache-2.0 card tag contradicts the body — recorded)",
+      "verdict": "CONFIRMED for a research-class wave-2 trial, with the production-license blocker now RECORDED (not deferred)"
+    },
+    {
+      "claim": "the landscape: 'Diffutoon is the quality reference to chase in wave-3+'",
+      "liveFacts": "the official distribution point is UNREACHABLE (project page 404, GitHub 0 search hits + raw 404s on both branches, no official hub repo); the only reachable artifact is an unlicensed 9.59 GiB community mirror",
+      "verdict": "STANDS as the class judgment; the wave-3 chase case now carries the recorded blocker that the official distribution (and its license) must reappear first"
+    },
+    {
+      "claim": "the landscape: vid2vid 'CC BY-NC-SA 4.0, RED FLAG non-commercial'",
+      "liveFacts": "the LICENSE.txt fetched — 'Licensed under the CC BY-NC-SA 4.0 license... for any non-commercial purpose'",
+      "verdict": "CONFIRMED VERBATIM"
+    },
+    {
+      "claim": "the landscape: ToonCrafter 'website content CC BY-NC-SA 4.0 -> treat non-commercial until code license verified'",
+      "liveFacts": "the GitHub LICENSE is the full Apache-2.0 text and the hub card says 'Feel free to use it under the Apache-2.0 license' (both fetched)",
+      "verdict": "CORRECTED on the license leg (permissive terms recorded); the benchmark-only class verdict STANDS on contract-fit grounds (generative interpolation + the card's own 2 s/8 fps envelope)"
+    },
+    {
+      "claim": "the landscape: FlowVid is a research needs-gpu V2V candidate (arxiv 2312.08126)",
+      "liveFacts": "the official README is titled 'FlowVid (NO CODE)' and states the checkpoints will NOT be released ('unable to release the FlowVid checkpoints', 6/30/2024); the README badge's arxiv id is 2312.17681",
+      "verdict": "SHARPENED to artifact-absent — decisively out of any trial shortlist; the landscape's arxiv id corrected"
+    },
+    {
+      "claim": "the landscape: Pix2Video license 'verification deferred'",
+      "liveFacts": "the README's License section — 'released under the Adobe Research License agreement and is for non-commercial and research purposes only'",
+      "verdict": "RESOLVED to research-only (recorded verbatim)"
+    },
+    {
+      "claim": "the landscape: ReReVST/CompoundVST 'research code, licenses verification deferred'",
+      "liveFacts": "ReReVST-Code carries GPL-3.0 (full text fetched) + Google-Drive weights; CompoundVST is a 69-byte website stub (no code)",
+      "verdict": "RESOLVED — ReReVST GPL-3.0 + off-hub weights; CompoundVST artifact-absent"
+    },
+    {
+      "claim": "the landscape: EbSynth 'terms at ebsynth.com — read before production'",
+      "liveFacts": "the Terms of Use fetched (14,327 B): output copyright retained when the keyframes are ours; the synthesis 'does not utilize AI or pre-trained models'; the SDXL keyframe trap recorded verbatim",
+      "verdict": "RESOLVED — the recorded terms are FAVORABLE for our deterministic-keyframe lane and the SDXL trap has a recorded avoidance path"
+    }
+  ],
+  "recommendation": {
+    "wave2TrialPick": "AnimeGANv2 A/B on the b8 substrate (primary) + EbSynth propagation seeded by our deterministic keyframes (second candidate) — both CPU-class, both with RECORDED terms and typed blockers",
+    "argumentFromTheMatrix": "the resource axis is decisive on this host: only AnimeGANv2 (8.6 MB mirrors, 206-reachable, ungated) and EbSynth (CPU patch-synthesis, no-model) are host-feasible; the diffusion class (Diffutoon 9.59 GiB unlicensed mirror, ToonCrafter 11.34 GiB) exceeds the measured 6.82 GiB disk and the no-GPU bar; two candidates are artifact-absent (FlowVid's own no-release statement, CompoundVST's website stub); two carry recorded non-commercial terms (vid2vid CC BY-NC-SA verbatim, Pix2Video Adobe Research verbatim); ReReVST is the partial (GPL-3.0 + unverifiable off-hub weights). The identity axis favors EbSynth (anchored to OUR keyframes — the anti-slideshow class) while AnimeGANv2 carries the HIGH per-frame-flicker class risk — the A/B pairing IS the wave-2 measurement design: a learned per-frame map vs propagation-from-our-keys on the same substrate, scored by the frozen tier scorecard axes (identityConsistency / temporalConsistency are the collapse axes to beat: anime-npr 1.80 / cartoon-cel 1.53)",
+    "blockersRecordedAbove": "per-candidate wave2Readiness.blockers (typed, never laundered)",
+    "noPromotion": "SPR303 owns the executed trial ('only where legitimately available'); this matrix shortlists only — no renderer registry change, no status claim, no tier claim"
+  },
+  "provenance": {
+    "probeScripts": [
+      "probe_shortlist.py (the hub probes + reachability + first fetch pass — EXECUTED, results/shortlist-probe.json)",
+      "probe_followup.py (the corrected-path fetches + terms + provenance leg — EXECUTED, results/followup-fetches.json)"
+    ],
+    "fetchDocs": "fetches/ (41 fetch attempts recorded: 20 HTTP-200 bounded text-document artifacts fetched + 21 non-200 attempts recorded as honest typed gaps; every attempt carries a .fetch-meta.json — LICENSE/README/model-card/terms pages; ZERO weight bytes)",
+    "venv": "/home/z/hf-bench-12 (fresh, OUTSIDE the repo; huggingface_hub ONLY)"
+  }
+}

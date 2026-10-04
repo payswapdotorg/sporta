@@ -1,0 +1,586 @@
+{
+  "flight": "SPR302 — neural v2v candidate shortlist probe",
+  "probedAtUtc": "2026-10-04T07:56:03Z",
+  "probeMode": "metadata + 1-byte Range reachability + bounded text-document fetches; ZERO weight bytes",
+  "hfLibraryVersion": "2.1.1",
+  "host": {
+    "measuredAtUtc": "2026-10-04T07:56:03Z",
+    "totalRamMiB": 4041.6,
+    "freeDiskGiB": 6.82,
+    "vcpu": 2,
+    "gpu": null,
+    "gpuFinding": "no GPU on this host (the standing SPR/HF-portfolio host fact)"
+  },
+  "shortlist": [
+    {
+      "candidate": "AnimeGANv2",
+      "landscapeClass": "per-frame neural style transfer (landscape §4.6)",
+      "canonicalRepoNote": "canonical PyTorch port is GitHub bryandlee/animegan2-pytorch (MIT); the hub carries small mirrors",
+      "githubRepo": "bryandlee/animegan2-pytorch",
+      "hubProbes": [
+        {
+          "repoId": "akhaliq/AnimeGANv2-pytorch",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "5f2c6e4bf913b2c76de3a842f8a952b41bab9db9",
+          "private": false,
+          "licenseTags": [],
+          "cardLicenseField": null,
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1175
+            },
+            {
+              "file": "face_paint_512_v2.pt",
+              "hubReportedBytes": 8601086
+            }
+          ],
+          "totalHubReportedBytes": 8602261,
+          "sizeClassGiB": 0.008,
+          "reachabilityProbe": {
+            "file": "face_paint_512_v2.pt",
+            "probe": "GET https://huggingface.co/akhaliq/AnimeGANv2-pytorch/resolve/5f2c6e4bf913b2c76de3a842f8a952b41bab9db9/face_paint_512_v2.pt with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        },
+        {
+          "repoId": "vumichien/AnimeGANv2_Hayao",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "f84714b47ad2c7e930c5f3d5dff58fe91659be95",
+          "private": false,
+          "licenseTags": [
+            "license:apache-2.0"
+          ],
+          "cardLicenseField": "apache-2.0",
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1477
+            },
+            {
+              "file": "AnimeGANv2_Hayao.onnx",
+              "hubReportedBytes": 8649739
+            },
+            {
+              "file": "README.md",
+              "hubReportedBytes": 725
+            }
+          ],
+          "totalHubReportedBytes": 8651941,
+          "sizeClassGiB": 0.008,
+          "reachabilityProbe": {
+            "file": "AnimeGANv2_Hayao.onnx",
+            "probe": "GET https://huggingface.co/vumichien/AnimeGANv2_Hayao/resolve/f84714b47ad2c7e930c5f3d5dff58fe91659be95/AnimeGANv2_Hayao.onnx with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        },
+        {
+          "repoId": "vumichien/AnimeGANv2_Paprika",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "aff2c6fe956c37d70bf2f80b0e98071997f8b466",
+          "private": false,
+          "licenseTags": [
+            "license:apache-2.0"
+          ],
+          "cardLicenseField": "apache-2.0",
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1477
+            },
+            {
+              "file": "AnimeGANv2_Paprika.onnx",
+              "hubReportedBytes": 8649729
+            },
+            {
+              "file": "README.md",
+              "hubReportedBytes": 727
+            }
+          ],
+          "totalHubReportedBytes": 8651933,
+          "sizeClassGiB": 0.008,
+          "reachabilityProbe": {
+            "file": "AnimeGANv2_Paprika.onnx",
+            "probe": "GET https://huggingface.co/vumichien/AnimeGANv2_Paprika/resolve/aff2c6fe956c37d70bf2f80b0e98071997f8b466/AnimeGANv2_Paprika.onnx with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        },
+        {
+          "repoId": "vumichien/AnimeGANv2_Shinkai",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "14924f86716b32dc451808a538d75669eb590660",
+          "private": false,
+          "licenseTags": [
+            "license:apache-2.0"
+          ],
+          "cardLicenseField": "apache-2.0",
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1477
+            },
+            {
+              "file": "AnimeGANv2_Shinkai.onnx",
+              "hubReportedBytes": 8649278
+            },
+            {
+              "file": "README.md",
+              "hubReportedBytes": 729
+            }
+          ],
+          "totalHubReportedBytes": 8651484,
+          "sizeClassGiB": 0.008,
+          "reachabilityProbe": {
+            "file": "AnimeGANv2_Shinkai.onnx",
+            "probe": "GET https://huggingface.co/vumichien/AnimeGANv2_Shinkai/resolve/14924f86716b32dc451808a538d75669eb590660/AnimeGANv2_Shinkai.onnx with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        }
+      ]
+    },
+    {
+      "candidate": "Diffutoon",
+      "landscapeClass": "diffusion toon shading (landscape §4.5, the wave-3+ quality reference)",
+      "canonicalRepoNote": "official code is GitHub ECNU-CILab/DiffToon; hub hit is a community asset mirror",
+      "githubRepo": "ECNU-CILab/DiffToon",
+      "hubProbes": [
+        {
+          "repoId": "camenduru/Diffutoon",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "f9672c4ae48287648a4e0711e0ed75d02ce45ee8",
+          "private": false,
+          "licenseTags": [],
+          "cardLicenseField": null,
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1571
+            },
+            {
+              "file": "AnimateDiff/Put AnimateDiff ckpt files here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "AnimateDiff/mm_sd_v15_v2.ckpt",
+              "hubReportedBytes": 1817888431
+            },
+            {
+              "file": "Annotators/ControlNetHED.pth",
+              "hubReportedBytes": 29444406
+            },
+            {
+              "file": "Annotators/Put ControlNet annotators here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "Annotators/dpt_hybrid-midas-501f0c75.pt",
+              "hubReportedBytes": 492757791
+            },
+            {
+              "file": "Annotators/sk_model.pth",
+              "hubReportedBytes": 17173511
+            },
+            {
+              "file": "Annotators/sk_model2.pth",
+              "hubReportedBytes": 17173511
+            },
+            {
+              "file": "BeautifulPrompt/Put BeautifulPrompt models here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "ControlNet/Put ControlNet pth files here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "ControlNet/control_v11f1e_sd15_tile.pth",
+              "hubReportedBytes": 1445235023
+            },
+            {
+              "file": "ControlNet/control_v11f1p_sd15_depth.pth",
+              "hubReportedBytes": 1445235365
+            },
+            {
+              "file": "ControlNet/control_v11p_sd15_lineart.pth",
+              "hubReportedBytes": 1445235365
+            },
+            {
+              "file": "ControlNet/control_v11p_sd15_softedge.pth",
+              "hubReportedBytes": 1445235707
+            },
+            {
+              "file": "HunyuanDiT/Put Hunyuan DiT checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "IpAdapter/Put IP-Adapter checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "RIFE/Put RIFE models here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "input_video.mp4",
+              "hubReportedBytes": 10954250
+            },
+            {
+              "file": "lora/Put lora files here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "stable_diffusion/Put Stable Diffusion checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "stable_diffusion/aingdiffusion_v12.safetensors",
+              "hubReportedBytes": 2132625894
+            },
+            {
+              "file": "stable_diffusion_xl/Put Stable Diffusion XL checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "stable_diffusion_xl_turbo/Put Stable Diffusion XL Turbo checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "stable_video_diffusion/Put Stable Video Diffusion checkpoints here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "textual_inversion/Put Textual Inversion files here.txt",
+              "hubReportedBytes": 0
+            },
+            {
+              "file": "textual_inversion/verybadimagenegative_v1.3.pt",
+              "hubReportedBytes": 31659
+            },
+            {
+              "file": "translator/Put translator models here.txt",
+              "hubReportedBytes": 0
+            }
+          ],
+          "totalHubReportedBytes": 10298992484,
+          "sizeClassGiB": 9.592,
+          "reachabilityProbe": {
+            "file": "stable_diffusion/aingdiffusion_v12.safetensors",
+            "probe": "GET https://huggingface.co/camenduru/Diffutoon/resolve/f9672c4ae48287648a4e0711e0ed75d02ce45ee8/stable_diffusion/aingdiffusion_v12.safetensors with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        },
+        {
+          "repoId": "ECNU-CILab/Diffutoon",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "FlowVid",
+      "landscapeClass": "flow-conditioned full V2V (landscape §4.5, paper 2312.08126)",
+      "canonicalRepoNote": "paper-first; code repo (if public) is GitHub",
+      "githubRepo": "Jeff-Lun/FlowVid",
+      "hubProbes": [
+        {
+          "repoId": "Jeff-Lun/FlowVid",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "Pix2Video",
+      "landscapeClass": "text-guided V2V editing via image diffusion (landscape §4.5, CVPR 2023)",
+      "canonicalRepoNote": "paper-first (openaccess.thecvf.com / duyguceylan.github.io); hub search for pix2video returns nothing",
+      "githubRepo": "duyguceylan/Pix2Video",
+      "hubProbes": [
+        {
+          "repoId": "duyguceylan/Pix2Video",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "vid2vid (NVIDIA)",
+      "landscapeClass": "conditional photoreal V2V synthesis (landscape §4.5, CC BY-NC-SA red flag)",
+      "canonicalRepoNote": "GitHub-only research code; no official hub weights found",
+      "githubRepo": "NVIDIA/vid2vid",
+      "hubProbes": [
+        {
+          "repoId": "nvidia/vid2vid",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        },
+        {
+          "repoId": "NVlabs/few-shot-vid2vid",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "ReReVST",
+      "landscapeClass": "zero-shot recurrent temporally-consistent VST (landscape §4.6, NTIRE2023)",
+      "canonicalRepoNote": "research code; NTIRE2023 challenge repo",
+      "githubRepo": "daooshee/ReReVST-NTIRE2023",
+      "hubProbes": [
+        {
+          "repoId": "daooshee/ReReVST",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "CompoundVST",
+      "landscapeClass": "compound temporally-consistent VST (landscape §4.6, NTIRE2023)",
+      "canonicalRepoNote": "research code; NTIRE2023 challenge repo",
+      "githubRepo": "daooshee/CompoundVST-NTIRE2023",
+      "hubProbes": [
+        {
+          "repoId": "daooshee/CompoundVST",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "EbSynth",
+      "landscapeClass": "example-based keyframe propagation (landscape §4.7, the rotoscope bridge)",
+      "canonicalRepoNote": "a desktop/binary tool + CLI, not a hub model; terms at ebsynth.com",
+      "githubRepo": "jamriska/ebsynth",
+      "hubProbes": [
+        {
+          "repoId": "jamriska/ebsynth",
+          "exists": false,
+          "finding": "RepositoryNotFoundError — no public HF repo under this id"
+        }
+      ]
+    },
+    {
+      "candidate": "ToonCrafter",
+      "landscapeClass": "generative cartoon interpolation (landscape §4.5, NC red-flag class, benchmark-only)",
+      "canonicalRepoNote": "official weights on the hub (ungated); website content CC BY-NC-SA per the landscape",
+      "githubRepo": "Doubiiu/ToonCrafter",
+      "hubProbes": [
+        {
+          "repoId": "Doubiiu/ToonCrafter",
+          "exists": true,
+          "gated": false,
+          "pinnedRevision": "7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf",
+          "private": false,
+          "licenseTags": [],
+          "cardLicenseField": null,
+          "files": [
+            {
+              "file": ".gitattributes",
+              "hubReportedBytes": 1519
+            },
+            {
+              "file": "LICENSE",
+              "hubReportedBytes": 11331
+            },
+            {
+              "file": "README.md",
+              "hubReportedBytes": 2496
+            },
+            {
+              "file": "ToonCrafter.webp",
+              "hubReportedBytes": 759160
+            },
+            {
+              "file": "model.ckpt",
+              "hubReportedBytes": 10502492136
+            },
+            {
+              "file": "sketch_encoder.ckpt",
+              "hubReportedBytes": 1456983199
+            },
+            {
+              "file": "sketch_extractor.pth",
+              "hubReportedBytes": 217631959
+            }
+          ],
+          "totalHubReportedBytes": 12177881800,
+          "sizeClassGiB": 11.342,
+          "reachabilityProbe": {
+            "file": "model.ckpt",
+            "probe": "GET https://huggingface.co/Doubiiu/ToonCrafter/resolve/7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf/model.ckpt with Range: bytes=0-0 (the hf005/hf009 convention)",
+            "httpStatus": 206,
+            "xErrorCode": null,
+            "bodyBytesRead": 1,
+            "weightBytesDownloaded": 0
+          }
+        }
+      ]
+    }
+  ],
+  "documentFetches": [
+    {
+      "url": "https://raw.githubusercontent.com/bryandlee/animegan2-pytorch/main/LICENSE",
+      "httpStatus": 200,
+      "bytes": 1066,
+      "sha256": "0722b5505349ac7ccc5a446da532e81f0962a07a671c6cc1f2f38a4a09c80c45"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/bryandlee/animegan2-pytorch/main/README.md",
+      "httpStatus": 200,
+      "bytes": 4928,
+      "sha256": "4d244bb3b292b55969f32d17122bb8a28c5ecc418e42c207bcf9620521daff5c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ECNU-CILab/DiffToon/main/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ECNU-CILab/DiffToon/main/README.md",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Jeff-Lun/FlowVid/main/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Jeff-Lun/FlowVid/main/README.md",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/duyguceylan/Pix2Video/main/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/duyguceylan/Pix2Video/main/README.md",
+      "httpStatus": 200,
+      "bytes": 1685,
+      "sha256": "df63fd0b4757992348c99dccb910bc665adcc486256c9ce347819a0a88d95bb4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVIDIA/vid2vid/master/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVIDIA/vid2vid/master/README.md",
+      "httpStatus": 200,
+      "bytes": 17535,
+      "sha256": "ac6b9ac398bb897f02feb96243ad552f7a2b2a58083f90dd1b9abe04a5be3bfa"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/ReReVST-NTIRE2023/main/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/ReReVST-NTIRE2023/main/README.md",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/CompoundVST-NTIRE2023/main/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/CompoundVST-NTIRE2023/main/README.md",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jamriska/ebsynth/master/LICENSE",
+      "httpStatus": 404,
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jamriska/ebsynth/master/README.md",
+      "httpStatus": 200,
+      "bytes": 7686,
+      "sha256": "9135a3f5bc7cf2f1a011e667e5e41320d66b6f8f78732870d5a818045f1baf01"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Doubiiu/ToonCrafter/main/LICENSE",
+      "httpStatus": 200,
+      "bytes": 11331,
+      "sha256": "9849d33ce88d14d755c8d71d7c8e6deecf7e9ff8d91a6ca0ee5cd9058120b830"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Doubiiu/ToonCrafter/main/README.md",
+      "httpStatus": 200,
+      "bytes": 9020,
+      "sha256": "2d7a95a3beb6f8399aa4a48b8962f478db7cbf4e46dcdf9ecdf0aec33ad0163c"
+    },
+    {
+      "url": "https://huggingface.co/akhaliq/AnimeGANv2-pytorch/resolve/5f2c6e4bf913b2c76de3a842f8a952b41bab9db9/README.md",
+      "httpStatus": 404,
+      "bytes": 15,
+      "sha256": "f36668ddf22403a332f978057d527cf285b01468bc3431b04094a7bafa6aba59"
+    },
+    {
+      "url": "https://huggingface.co/vumichien/AnimeGANv2_Hayao/resolve/f84714b47ad2c7e930c5f3d5dff58fe91659be95/README.md",
+      "httpStatus": 200,
+      "bytes": 725,
+      "sha256": "948ed04bf933b9570feebcbcf8fa550a7e9739d1484870e492abae678477202e"
+    },
+    {
+      "url": "https://huggingface.co/vumichien/AnimeGANv2_Paprika/resolve/aff2c6fe956c37d70bf2f80b0e98071997f8b466/README.md",
+      "httpStatus": 200,
+      "bytes": 727,
+      "sha256": "64bfc148d6d4228046e9a3b3da7df87c7e90ca450e6dea409282bcd9c85e1645"
+    },
+    {
+      "url": "https://huggingface.co/vumichien/AnimeGANv2_Shinkai/resolve/14924f86716b32dc451808a538d75669eb590660/README.md",
+      "httpStatus": 200,
+      "bytes": 729,
+      "sha256": "fe5be1db6529b3f740b86c776dc91861161baf5325a6bf4b6abd1b1f72865ce9"
+    },
+    {
+      "url": "https://huggingface.co/camenduru/Diffutoon/resolve/f9672c4ae48287648a4e0711e0ed75d02ce45ee8/README.md",
+      "httpStatus": 404,
+      "bytes": 15,
+      "sha256": "f36668ddf22403a332f978057d527cf285b01468bc3431b04094a7bafa6aba59"
+    },
+    {
+      "url": "https://huggingface.co/Doubiiu/ToonCrafter/resolve/7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf/README.md",
+      "httpStatus": 200,
+      "bytes": 2496,
+      "sha256": "76a08319bf9f5d1497c206ff09ef08c954158536ae7613168044b16503973c41"
+    }
+  ]
+}

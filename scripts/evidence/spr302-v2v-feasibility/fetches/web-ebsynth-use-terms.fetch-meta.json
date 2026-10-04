@@ -1,0 +1,10 @@
+{
+  "url": "https://ebsynth.com/use.txt",
+  "httpStatus": 404,
+  "fetchedAtUtc": "2026-10-04T08:01:58Z",
+  "bytes": 0,
+  "sha256": null,
+  "note": "the EbSynth usage terms at the recorded official location (ebsynth.com)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+  "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+}

@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/Jeff-LiangF/FlowVid/main/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:56Z",
+  "bytes": 2488,
+  "sha256": "cff747eed45f383216706784bbf7af2336d46c9b08cf7ae989d826af3a7f9191",
+  "note": "FlowVid readme (code/weights status — the paper-first candidate)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

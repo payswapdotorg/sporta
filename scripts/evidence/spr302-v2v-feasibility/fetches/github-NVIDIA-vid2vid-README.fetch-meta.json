@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/NVIDIA/vid2vid/master/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:56:17Z",
+  "bytes": 17535,
+  "sha256": "ac6b9ac398bb897f02feb96243ad552f7a2b2a58083f90dd1b9abe04a5be3bfa",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg"
+}

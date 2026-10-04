@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/daooshee/ReReVST-Code/master/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:56Z",
+  "bytes": 3025,
+  "sha256": "4779bb989c8a8ef77501650a750fff7a1b8199a1b26c386fe10dcd1d13f6cfed",
+  "note": "ReReVST readme (weights provenance + usage terms)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}
