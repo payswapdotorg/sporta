@@ -148,15 +148,41 @@ const record: Record<string, unknown> = {
 };
 
 try {
-  // --- stage 0: the ledger must start EMPTY (a fresh worker's zero state).
+  // --- stage 0: the ledger's STARTING state, read honestly (the driver is
+  //     re-runnable against a warm worker: the accounting stages below verify
+  //     measured DELTAS — exactly one dispatch per stage, terminal counts
+  //     tracking — rather than absolute zero; the 65-j fresh-worker
+  //     convention recorded the same identities on a cold ledger).
   const stats0 = await fetchStats();
   const usage0 = await fetchUsage();
   assertMediaToolchainAccounting(stats0);
-  if (stats0.jobsDispatched !== 0 || usage0.length !== 0) {
-    throw new Error(
-      `the worker ledger is not empty (dispatched=${stats0.jobsDispatched}, usage=${usage0.length}) — re-run against a fresh worker`,
-    );
-  }
+  const ledger0 = {
+    dispatched: stats0.jobsDispatched,
+    succeeded: stats0.succeeded,
+    failed: stats0.failed,
+    usageRecords: usage0.length,
+    note: "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker",
+  };
+  (record as { ledger?: unknown }).ledger = ledger0;
+
+  const expectDelta = (
+    label: string,
+    stats: MediaToolchainStats,
+    dDispatched: number,
+    dSucceeded: number,
+    dFailed: number,
+  ): void => {
+    const got = {
+      dispatched: stats.jobsDispatched - stats0.jobsDispatched,
+      succeeded: stats.succeeded - stats0.succeeded,
+      failed: stats.failed - stats0.failed,
+    };
+    if (got.dispatched !== dDispatched || got.succeeded !== dSucceeded || got.failed !== dFailed) {
+      throw new Error(
+        `${label} accounting delta: dispatched+${got.dispatched} succeeded+${got.succeeded} failed+${got.failed} (expected +${dDispatched}/+${dSucceeded}/+${dFailed})`,
+      );
+    }
+  };
 
   // --- stage 1: the REAL source clip (real local ffmpeg generation,
   //     deterministic lavfi sources: testsrc video + 440Hz sine audio, 2s,
@@ -196,11 +222,7 @@ try {
     );
   }
   const probeStats = await fetchStats();
-  if (probeStats.jobsDispatched !== 1 || probeStats.succeeded !== 1) {
-    throw new Error(
-      `probe accounting: dispatched=${probeStats.jobsDispatched} succeeded=${probeStats.succeeded} (expected 1/1)`,
-    );
-  }
+  expectDelta("probe", probeStats, 1, 1, 0);
   (record.stages as Record<string, unknown>).probe = {
     operation: "decode-probe",
     wallMs: probeRun.wallMs,
@@ -216,13 +238,16 @@ try {
       })),
     },
     selectedVideoStreamIndex: videoTrack.streamIndex,
-    accounting: { dispatched: probeStats.jobsDispatched, succeeded: probeStats.succeeded },
+    accounting: {
+      starting: { dispatched: stats0.jobsDispatched, succeeded: stats0.succeeded, failed: stats0.failed },
+      delta: { dispatched: 1, succeeded: 1, failed: 0 },
+    },
   };
 
   // --- stage 3: the bounded frame batch OVER THE WIRE (real ffmpeg decode
   //     in the sandbox; ONE decode-frames fetch for [0, 2000) with a real
   //     cumulative budget; every frame's bytes re-measured client-side).
-  const DECODE_BUDGET_BYTES = 8 * 1024 * 1024; // 8 MiB — a real budget for 2s
+  const DECODE_BUDGET_BYTES = 1024 * 1024 * 1024; // 1 GiB — the studio's own STUDIO_UPLOAD_DECODE_BUDGET_BYTES (the pipeline's real posture, mirrored)
   const framesRun = await timed(async () => {
     const frames: NormalizedVideoFrame[] = [];
     for await (const frame of port.decodeVideo(input, videoTrack.streamIndex, {
@@ -256,11 +281,7 @@ try {
     );
   }
   const framesStats = await fetchStats();
-  if (framesStats.jobsDispatched !== 2 || framesStats.succeeded !== 2) {
-    throw new Error(
-      `frames accounting: dispatched=${framesStats.jobsDispatched} succeeded=${framesStats.succeeded} (expected 2/2)`,
-    );
-  }
+  expectDelta("frames", framesStats, 2, 2, 0);
   (record.stages as Record<string, unknown>).decodeFrames = {
     operation: "decode-frames",
     wallMs: framesRun.wallMs,
@@ -280,7 +301,10 @@ try {
     measuredTotalBytes: measuredBytes,
     budgetBytes: DECODE_BUDGET_BYTES,
     invariants: { monotonic, windowRespected, dimsConsistent },
-    accounting: { dispatched: framesStats.jobsDispatched, succeeded: framesStats.succeeded },
+    accounting: {
+      starting: { dispatched: stats0.jobsDispatched, succeeded: stats0.succeeded, failed: stats0.failed },
+      delta: { dispatched: 2, succeeded: 2, failed: 0 },
+    },
   };
 
   // --- stage 4: the fail-closed budget refusal OVER THE WIRE (a 100-byte
@@ -312,11 +336,7 @@ try {
   const finalStats = await fetchStats();
   const finalUsage = await fetchUsage();
   assertMediaToolchainAccounting(finalStats);
-  if (finalStats.jobsDispatched !== 3 || finalStats.succeeded !== 2 || finalStats.failed !== 1) {
-    throw new Error(
-      `final accounting: dispatched=${finalStats.jobsDispatched} succeeded=${finalStats.succeeded} failed=${finalStats.failed} (expected 3/2/1)`,
-    );
-  }
+  expectDelta("final (probe + frames + refusal)", finalStats, 3, 2, 1);
   if (finalUsage.length !== finalStats.jobsDispatched) {
     throw new Error(
       `the usage drain (${finalUsage.length}) disagrees with the dispatched count (${finalStats.jobsDispatched})`,
@@ -331,10 +351,16 @@ try {
     wallMs: negativeRun.wallMs,
   };
   (record as { accounting?: unknown }).accounting = {
+    startingLedger: ledger0,
     stats: finalStats,
     usageDrainCount: finalUsage.length,
-    usageRecords: finalUsage.map((u) => ({ jobId: u.jobId, operation: u.operation, terminal: u.terminal })),
-    identities: "dispatched === terminal; stats === the usage drain (two independent reads)",
+    usageRecordsThisRun: finalUsage.slice(usage0.length).map((u) => ({
+      jobId: u.jobId,
+      operation: u.operation,
+      terminal: u.terminal,
+    })),
+    identities:
+      "dispatched === terminal; stats === the usage drain (two independent reads); the stages' deltas: probe +1/1/0, frames +1/1/0, refusal +1/0/1",
   };
 
   // --- the record.

@@ -165,24 +165,43 @@ if (install.exitCode !== 0) {
 // ---------------------------------------------------------------------------
 // 4. Start the media-toolchain worker AND the companion compute worker on
 //    the public interface (BOTH — the fix-forward: the fresh provision must
-//    leave the inherited COMPUTE_PROVIDER=http posture bootable).
+//    leave the inherited COMPUTE_PROVIDER=http posture bootable). The
+//    starts are IDEMPOTENT (health-check-first, start-if-down) — a re-run
+//    after an SDK deadline retries cleanly instead of double-starting.
 // ---------------------------------------------------------------------------
-if (reuseSandboxId === undefined) {
-  const startMedia = await sandbox.commands.run(
-    `cd ${REPO_DIR}/packages/compute-adapter-hosted && ` +
-      `HOSTNAME=0.0.0.0 PORT=${MEDIA_PORT} nohup ~/.bun/bin/bun run scripts/r607-media-toolchain-worker.ts ` +
-      `> ${MEDIA_WORKER_LOG} 2>&1 < /dev/null & echo MEDIA_PID $!`,
-    { timeoutMs: 30_000 },
+async function ensureWorker(
+  port: number,
+  label: string,
+  entry: string,
+  logFile: string,
+): Promise<void> {
+  const pre = await sandbox.commands.run(
+    `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:${port}/health || true`,
+    { timeoutMs: 15_000 },
   );
-  log("media worker start", startMedia.stdout.trim());
-  const startCompute = await sandbox.commands.run(
-    `cd ${REPO_DIR}/packages/compute-adapter-hosted && ` +
-      `HOSTNAME=0.0.0.0 PORT=${COMPUTE_PORT} nohup ~/.bun/bin/bun run scripts/r607-e2b-compute-worker.ts ` +
-      `> ${COMPUTE_WORKER_LOG} 2>&1 < /dev/null & echo COMPUTE_PID $!`,
-    { timeoutMs: 30_000 },
-  );
-  log("compute worker start", startCompute.stdout.trim());
+  if (pre.stdout.trim() === "200") {
+    log(`${label} start`, `(already healthy on :${port} — idempotent skip)`);
+    return;
+  }
+  try {
+    const start = await sandbox.commands.run(
+      `cd ${REPO_DIR}/packages/compute-adapter-hosted && ` +
+        `HOSTNAME=0.0.0.0 PORT=${port} nohup ~/.bun/bin/bun run scripts/${entry} ` +
+        `> ${logFile} 2>&1 < /dev/null & echo ${label.toUpperCase()}_PID $!`,
+      { timeoutMs: 60_000 },
+    );
+    log(`${label} start`, start.stdout.trim());
+  } catch (error) {
+    // The EMPIRICALLY OBSERVED SDK behavior: the `nohup … &` start command
+    // EXECUTES in-sandbox (the worker boots) but its RPC response is lost
+    // to a deadline_exceeded — twice measured on this provider. The start
+    // is therefore NOT treated as fatal: the bounded health wait below is
+    // the honest arbiter (a worker that did not boot fails it fail-closed).
+    log(`${label} start`, `(start command's RPC response lost: ${String(error).slice(0, 80)} — the health wait arbitrates)`);
+  }
 }
+await ensureWorker(MEDIA_PORT, "media", "r607-media-toolchain-worker.ts", MEDIA_WORKER_LOG);
+await ensureWorker(COMPUTE_PORT, "compute", "r607-e2b-compute-worker.ts", COMPUTE_WORKER_LOG);
 
 // Wait for the local health endpoints (bounded).
 async function waitHealthy(port: number, label: string): Promise<boolean> {
