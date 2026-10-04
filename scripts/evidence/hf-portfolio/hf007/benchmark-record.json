@@ -1,0 +1,159 @@
+{
+  "candidate": "SoccerChat",
+  "taskProfiles": ["football.eventReasoning"],
+  "modelUrl": "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b",
+  "revision": "29871536004c0ac788af09cbb87969ab9f6e1410",
+  "modelLicense": "apache-2.0",
+  "codeLicense": "apache-2.0",
+  "weightsProvenance": "LoRA (PEFT) fine-tune of Qwen/Qwen2-VL-7B-Instruct by SimulaMet, per card.",
+  "datasetProvenance": "SimulaMet/SoccerChat dataset (train plus held-out eval splits, per card); the dataset card states its video clips derive from SoccerNet broadcast footage under the SoccerNet NDA, with video redistribution/commercial use not permitted.",
+  "commercialUse": "yes",
+  "gatingState": "candidate",
+  "sources": [
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b",
+    "https://huggingface.co/api/models/SimulaMet/SoccerChat-qwen2-vl-7b",
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/raw/main/README.md",
+    "https://github.com/simula/SoccerChat",
+    "https://raw.githubusercontent.com/simula/SoccerChat/main/README.md",
+    "https://huggingface.co/datasets/SimulaMet/SoccerChat/resolve/main/README.md"
+  ],
+  "recordedAt": "2026-10-03T01:40:01Z",
+  "benchmarkRun": {
+    "workItem": "HF007",
+    "runBy": "Worker A (flight 5, worker 64-e)",
+    "provenanceLedgerEcho": {
+      "note": "the twelve provenance fields above echo the SoccerChat row of scripts/evidence/hf-portfolio/provenance-ledger.json verbatim (candidate, revision, modelUrl, licenses, gatingState unchanged); the ledger's row schema is pinned by packages/testing/test/hf-ledger.test.ts, so the benchmark run itself is recorded HERE, not as a ledger row — and the candidate's gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "modelRuntime": {
+      "adapter": "SimulaMet/SoccerChat-qwen2-vl-7b adapter_model.safetensors (40,422,208 B; sha256 4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47 — LOCALLY VERIFIED this flight: downloaded in the bounded preflight probe and hashed against the hub LFS oid; NEVER committed, never vendored)",
+      "base": "Qwen/Qwen2-VL-7B-Instruct (the adapter_config.json base_model_name_or_path): 16,582,831,200 B bf16 safetensors across 5 shards, hub-reported LFS oids recorded in results/load-analysis.json — NOT downloaded (the resource refusal); the adapter does NOT pin a base revision (adapter_config revision null, sft_args model_revision 'master') — this flight records the probed main sha eed13092ef92e448dd6875b2a00151bd3f7db0ac and the unpinned-base caveat",
+      "loraGeometry": "r=8, alpha=32, dropout=0.05, target_modules ^(model)(?!.*(lm_head|output|emb|wte|shared)).*, task_type CAUSAL_LM",
+      "venv": "/home/z/hf-bench-5 (uv, python 3.12.14 — a NEW venv; no earlier flight's venv was reused)",
+      "torch": "NOT INSTALLED — installing torch + loading the 16.6 GiB bf16 base is exactly the resource infeasibility of the typed refusal below",
+      "loading": "the ready-to-run recipe (implemented in benchmark_soccerchat.py --mode full): fail-closed pinned downloads (adapter + 5 base shards, local sha verification against the recorded LFS oids), Qwen2VLForConditionalGeneration.from_pretrained(bf16, sdpa), PeftModel.from_pretrained(adapter), the card's own inference regime (24 sampled frames, VIDEO_MAX_PIXELS 100352), the pinned generation_config (temperature 0.01, top_k 1 — near-greedy determinism anchor)",
+      "loadValidation": "REFUSED — the model never loaded on this host: preflight exit code 3, typed refusal 'resource-infeasible-host' (results/preflight-refusal.json). The adapter blob itself was downloaded + sha-verified in the bounded probe (reachable); the block is pure resource arithmetic (RAM + disk), not a stall"
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "model-load-ram-infeasible: the base bf16 working set (~18.5 GiB: 16,582,831,200 B weights + activations/KV/vision headroom) exceeds the host's TOTAL RAM (4042 MiB) — 4.7x over; even 4-bit nf4 (~6.1 GiB) exceeds it, and bnb 4-bit requires CUDA (no GPU here — honestly N/A)",
+        "model-download-disk-infeasible: base safetensors (16,582,831,200 B) + adapter (40,422,208 B) vs ~420 MB free disk — 40x over",
+        "eval-corpus-auth-infeasible: the SoccerChat held-out validation split is SoccerNet-NDA-gated (auto-gated repo, 401 anonymous — probed above); the unblock is a HUMAN NDA acceptance, exactly the HF009 typed-refusal precedent"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json",
+      "note": "per the worker brief: the honest delivery is this typed refusal + the SUBSTANTIAL partial (the load analysis, the event-extraction contract mapping, the commentary-alignment mapping, the hallucination-rate + provenance metric designs implemented ready-to-run, the static intelligence-pipeline comparison) — never a fabricated benchmark"
+    },
+    "fixtures": [
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "role": "the repo's synthetic fixture (sha-pinned, verified in the preflight); the FULL mode would sample 24 frames at the card's regime",
+        "licenseId": "in-repo-synthetic-diagnostic",
+        "scored": false,
+        "unscoredReason": "no event ground truth exists for this fixture (the HF006 repo-wide verdict — spatial-disc annotations only)",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "licenseId": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons — the repo's authorized licensed gate clip)",
+        "scored": false,
+        "unscoredReason": "no event ground truth exists for this real clip",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "sprclip-b8-inplay-original",
+        "mediaKind": "real-footage",
+        "role": "SPR corpus clip, authorized for analysis by the repo's own R606 registration declaration (analysis scope, repo private)",
+        "scored": false,
+        "unscoredReason": "no event ground truth exists for this clip",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "sprclip-b1-wide-broadcast",
+        "mediaKind": "real-footage",
+        "role": "SPR corpus clip, authorized for analysis by the repo's own R606 registration declaration (analysis scope, repo private)",
+        "scored": false,
+        "unscoredReason": "no event ground truth exists for this clip",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json"
+      },
+      {
+        "clipId": "soccerchat-validation-split",
+        "mediaKind": "the candidate's own held-out eval corpus",
+        "role": "NOT the benchmark media — the SoccerNet-NDA gate (401 anonymous, probed) makes it unfetchable in this sandbox on any hardware; recorded as the eval-corpus-auth-infeasible refusal reason",
+        "licenseId": "SoccerNet NDA (annotations MIT, videos NDA-restricted — per the dataset card)",
+        "scored": false,
+        "unscoredReason": "auth-infeasible: the dataset is auto-gated behind the SoccerNet NDA; access requires a human NDA acceptance",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json"
+      }
+    ],
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight — the model never ran. The honest partial evidence is static + designed: the source-verified output schema (results/model-output-schema.json), the machine-checked event-extraction + commentary-alignment contract mapping (results/contract-compatibility.json), and the implemented not-executed metric designs (hallucination rate: event-existence verification with the greedy confidence-descending one-to-one rule at 1/2/5 s tolerances; provenance traceability: timestamp present + parseable + within-duration + evidence-window non-empty) in benchmark_soccerchat.py",
+      "contractCompatibilityVerdict": "PARTIAL: football.eventReasoning compatible-with-adapter (substantial typed gaps: free-text output only — every structured guarantee adapter-synthesized); W209 EventCandidate maps-with-adapter (vocabulary bridge missing); R207 EventCandidateRecord maps-with-adapter (evidence-chain laundering risk recorded); W208 CommentaryUnit NOT-compatible (generated text is a different artifact class — the character-traceability doctrine cannot hold)",
+      "evidence": "scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight — the model never ran. The ready-to-run path implements the repo convention (per-inference CPU wall-clock, median + nearest-rank p95, rank = ceil(p/100*n))"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS is the substitute metric — ALSO not measured here (the model never ran)",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 4,041.6 MiB vs the ~18.5 GiB bf16 working-set estimate (16,582,831,200 B weights + activations headroom)"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, 4,041.6 MiB total RAM, ~0.42 GB free disk): GPU memory is honestly N/A; process RSS would be the substitute metric — and the model never ran, so no RSS number exists either",
+      "the typed refusal (resource-infeasible-host) is the flight's core honesty record: the base bf16 working set (~18.5 GiB) is ~4.7x the host's TOTAL RAM and the download (~16.6 GB) is ~40x the free disk — no latency, memory, or quality figure in this flight is anything but 'not measured'",
+      "even the model card's own Colab recipe quantizes the base to 4-bit nf4 on a free T4 GPU (~6.1 GiB estimate here) — still above this host's TOTAL RAM, and bitsandbytes 4-bit requires CUDA (none exists on this host)",
+      "the full benchmark path in benchmark_soccerchat.py is READY-TO-RUN on an adequate host (>= 32 GB RAM, >= 24 GB free disk): pinned sha-verified downloads, the transformers+peft load, the card's 24-frame/100352-pixel inference regime, the response->event parse, and the hallucination-rate + provenance-traceability + determinism + latency + RSS metric implementations",
+      "the latency metric of the ready-to-run path is per-inference CPU wall-clock (median + nearest-rank p95 — the repo convention); NO such figure exists in this flight (the model never ran)",
+      "the eval-corpus wall is SEPARATE from the resource wall: the SoccerChat validation split (4,625 examples) is SoccerNet-NDA-gated — an operator NDA acceptance is required before the paper's own eval protocol could run anywhere, on any hardware"
+    ],
+    "partialDeliverables": {
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf007/results/load-analysis.json",
+        "description": "the adapter + base composition at the pinned revisions (sizes, shas — the adapter LOCALLY sha-verified, the base hub-reported), the LoRA geometry, the architecture digest, the loading recipes (transformers+peft and the card's ms-swift), the host-gap arithmetic"
+      },
+      "sourceVerifiedOutputSchema": {
+        "path": "scripts/evidence/hf-portfolio/hf007/results/model-output-schema.json",
+        "description": "the SoccerChat output modality (free-form natural language, NO structured event fields — source-verified from the card + dataset card fetched at the pinned revision) + the dataset annotation schema (video/query/response/events/path) with the SoccerNet-vocabulary note"
+      },
+      "eventExtractionContractMapping": {
+        "path": "scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json",
+        "description": "8 machine-checked field-level mapping rows: the response/query/events fields onto the FROZEN football.eventReasoning profile, FOOTBALL_EVENT_TYPES, W209 CommentaryEventType, R207 EventCandidateRecord, EventEnvelope, and the W401 FOOTBALL_MAP authored-bridge rule"
+      },
+      "commentaryAlignmentContractMapping": {
+        "path": "scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json",
+        "description": "3 machine-checked rows: the response vs the W208 CommentaryUnit contract (NOT-compatible — the different-artifact-class verdict with the character-traceability doctrine), the W209 extraction fields, and the profile's commentary/context input"
+      },
+      "metricDesigns": {
+        "path": "scripts/evidence/hf-portfolio/hf007/benchmark_soccerchat.py",
+        "description": "the hallucination-rate + provenance-traceability metric IMPLEMENTATIONS (exact definitions stated; the greedy confidence-descending one-to-one matching rule at 1/2/5 s tolerances; the traceability rule) + the determinism/latency/RSS measurements — all implemented, ready-to-run, honestly typed not-measured"
+      },
+      "staticPipelineComparison": {
+        "path": "scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json",
+        "description": "the 8-row capability-delta table (labeled STATIC-REVIEW): the repo's deterministic event-reasoning path today (W209 pattern matching 'NO language model', R207 pure-function vision impulses, W401 authored fusion, candidates-not-applied) vs what SoccerChat would add (semantic multimodal reasoning) — with the repo-ahead rows (vocabulary governance, provenance discipline, hallucination containment, CPU economics) recorded honestly"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf007/benchmark_soccerchat.py",
+        "description": "preflight mode EXECUTED on this host (exit 3, the typed refusal); full mode ready-to-run on an adequate host (>= 32 GB RAM) with the operator ground-truth unlock for hallucination-rate scoring"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host) — zero executed quality/latency/memory evidence exists in this flight",
+        "the SoccerChat held-out validation split is SoccerNet-NDA-gated (401 anonymous): even on adequate hardware the paper's own eval protocol needs an operator NDA acceptance first",
+        "no event ground truth exists in the repo for any benchmarkable media (the HF006 verdict): hallucination-rate / event accuracy would be unscored-structural on the repo's own media without an operator-supplied GT timeline",
+        "the SoccerNet-NDA dataset lineage (the ledger row's datasetProvenance) — the videos may not be redistributed or commercially used; the HF015 license review must weigh the model's training-data provenance against the commercialUse yes flag (the ledger row records both facts exactly)"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}
