@@ -1,0 +1,102 @@
+{
+  "label": "THE SAME-FIXTURE COMPARISON DESIGN (HF011's acceptance: 'compare single/sparse-view novel-view fidelity against HF010 under the same camera-path/geometry fixtures') — implemented ready-to-run, typed not-measured on this host (the compute leg is resource-refused)",
+  "fixtures": {
+    "fixtureSet": "hf010.camera-paths@1",
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "mandate": "CONSUMED, never re-authored: the SAME 6 deterministic windows x 81 provider-neutral poses (dolly-in / orbit / pan / crane / adversarial pure optical zoom / bullet-time-as-review) feed BOTH lanes; the preflight sha-gate fails closed (exit 2) on drift",
+    "theTwoLanes": {
+      "hf010Lane": "HF010's camera-conditioned video generators (Wan2.2-Fun-Control-Camera / ReCamMaster / Meridian): consume a SOURCE VIDEO + the authored camera path; output an alternate-view video (81-frame class) — per hf010's own full-mode design",
+      "hf011Lane": "ViewCrafter's single/sparse-IMAGE novel-view synthesis: consume one reference IMAGE (or a sparse pair) + the camera trajectory conditioning (the adapter below); output a 25-frame novel-view video"
+    }
+  },
+  "sourceImageDesign": {
+    "question": "the fixtures are pure parametric camera paths WITHOUT imagery — what source imagery does each lane consume?",
+    "answer": "the repo's OWN renderer-3d output frames rendered from the fixture windows (DESIGNED here, EXECUTED only on an adequate host): per window, render the ground-truth sequence G = [g_0..g_80] at the window's 81 authored poses (bun, renderer-3d, the anchor slot's cameraSlotId seam, the W603 game profile 1280x720) — the honest provider-neutral source: the synthetic pitch is the repo's own, no broadcast pixels, no rights surface (the real-source-provenance contract stays satisfied by construction)",
+    "viewcrafterInputs": {
+      "singleView": "the reference image = G[0] (the window's first authored pose — the repo's own convention: 'We use the first frame as the reference image'); the trajectory = the 24 remaining target poses as relative spherical deltas (single_view_txt mode, --traj_txt)",
+      "sparseView": "the reference set = {G[0], G[24]} (first + last of the resampled path — the maximal-baseline pair, the repo's own two-view examples; model_sparse.ckpt, sparse_view_interp mode, --bg_trd 0.2) — the SPARSE-VIEW conditioning class the acceptance names",
+      "elevation": "the --elevation rough value per window = the reference pose's spherical elevation (the adapter computes it exactly — the doc says 'it doesn't need to be precise')",
+      "centerScale": 1.0
+    },
+    "hf010Inputs": "per hf010's own full-mode design: the source clip rendered at the anchor slot + the authored path converted to each candidate's conditioning surface (CameraCtrl lens parameters / trajectory index / Meridian keyframes)",
+    "groundTruth": "the G frames THEMSELVES: the renderer-3d render at each target pose is the novel-view ground truth for BOTH lanes (the repo's own run_eval.sh convention: first frame = reference, subsequent frames = target novel views) — no external dataset, no broadcast pixels, fully deterministic"
+  },
+  "frameHorizonRule": {
+    "theGap": "the fixtures are 81 poses/window (16 fps, 5.0625 s); ViewCrafter generates 25 frames (video_length 25); HF010's candidates are 81-frame class",
+    "theRule": "resample_pose_indices(81, 25): j_i = round(80*i/24), i = 0..24 — endpoint-inclusive, strictly monotone (step 10/3). BOTH lanes are scored at exactly these 25 shared target poses: ViewCrafter generates its 25 frames at them; HF010's 81-frame outputs are evaluated at the same indices (its 81-pose coverage beyond the 25 shared indices is recorded as HF010-only coverage — typed honestly, never silently dropped)"
+  },
+  "metricSplit": {
+    "sharedMetrics": [
+      {
+        "metric": "camera adherence (PnP-estimated pose per output frame vs the authored path)",
+        "implementation": "the SAME estimator as hf010's benchmark_renderer.py — imported (not re-implemented): camera_angular_error_deg + camera_endpoint_translation_error_m + look_at_frame/project_point corner reprojection + lens focal %; evaluated at the 25 shared target poses for BOTH lanes",
+        "subMetrics": [
+          "endpoint translation m",
+          "endpoint angular deg",
+          "mean angular deg",
+          "corner reprojection px",
+          "lens focal % (ViewCrafter: N/A-typed — no lens conditioning surface)"
+        ]
+      },
+      {
+        "metric": "temporal consistency",
+        "implementation": "the SAME: 8x8-mean-filter SSIM (ssim_constant_patches closed form on constant patches) + flow warp residual (flow_warp_residual)"
+      },
+      {
+        "metric": "hallucinated-region rate",
+        "implementation": "the SAME: content pixels outside the geometry-projected visible set / frame pixels (hallucinated_region_rate), the Meridian grey-reference convention as the contrast signal"
+      },
+      {
+        "metric": "novel-view pixel fidelity vs the ground-truth render",
+        "implementation": "PSNR (psnr_db) + SSIM between each lane's 25 output frames and the renderer-3d ground-truth frames at the SAME 25 target poses, in the model-native output space (the resolution adapter below) — the repo's own run_eval.sh convention extended to both lanes"
+      },
+      {
+        "metric": "cost/latency",
+        "implementation": "the SAME: wall_clock_ms_per_output_second + cold-start download bytes; GPU peak honestly N/A-typed on this host and measured only where CUDA exists"
+      }
+    ],
+    "hf011SpecificMetrics": [
+      {
+        "metric": "sparse-view geometric consistency",
+        "implementation": "the depth/point-track reprojection checks per ViewCrafter's own documented pipeline (DUSt3R point cloud as the diffusion condition): reproject ground-truth 3D track points into each generated view's PnP-estimated camera (reprojection_residual_px, the SAME project_point convention) — mean px residual + the fraction of track points recovered (the point cloud's coverage); reported for the single-view AND two-view conditioning legs (the sparse delta is the metric's own axis)"
+      },
+      {
+        "metric": "source-content identity across synthesized views",
+        "implementation": "the reference image's visible content must persist across the 25 synthesized views: source_content_identity_ssim (patch-level SSIM under the estimated correspondence) + the pair-frame identity-stability convention from hf010 (player_identity_stability) applied to the source's entities — 1.0 = identity fully preserved"
+      },
+      {
+        "metric": "sparse-input ablation (1-view vs 2-view)",
+        "implementation": "the SAME window run with the single-view leg (model.ckpt, G[0]) vs the sparse leg (model_sparse.ckpt, G[0]+G[24]): the per-metric delta is the conditioning-class measurement — the acceptance's 'single/sparse-view' axis made explicit"
+      }
+    ],
+    "hf010SideComparatorsTyped": [
+      "lens/focal control: hf010's Wan2.2-Fun CameraCtrl lens seam vs ViewCrafter's ABSENT lens surface — the fixture's adversarial pure-optical-zoom window is the designed discriminator (a d_r dolly is not a zoom; the two lanes are EXPECTED to diverge on this window and the divergence is the measurement)",
+      "source-video dynamic content: HF010's candidates condition on a moving source video (the plain-move convention); ViewCrafter's static-image conditioning holds content static or invents motion — the fixture's bullet-time window (frozen src) is the ALIGNED case for ViewCrafter; the plain-move windows exercise the gap (hallucinated-region rate + identity are the typed signals)",
+      "81-frame horizon vs 25-frame horizon: the resampling rule (above) — HF010's coverage beyond the 25 shared indices is recorded, never dropped"
+    ]
+  },
+  "headToHeadScoring": {
+    "theTable": "per-window side-by-side (6 rows = the 6 fixture windows), one column group per metric family: camera adherence (endpoint/mean angular, corner px), pixel fidelity (PSNR/SSIM vs ground truth), temporal (SSIM/flow), hallucination rate, sparse geometric consistency (ViewCrafter only, typed N/A for hf010's video-conditioned lanes), source identity, cost (ms per output second + cold-start bytes); a per-cell verdict column (win/tie/N/A-typed) + per-window aggregate",
+    "fairnessRules": [
+      "the SAME fixtures (sha-verified) feed both lanes — the preflight gate refuses on drift",
+      "the SAME metric implementations (the shared ones imported from hf010's benchmark_renderer.py, not re-implemented)",
+      "the SAME 25 target poses (the pinned resampling rule)",
+      "the SAME resolution adapter applied to both lanes' references (all pixel metrics in the native output space)",
+      "every N/A is typed (ViewCrafter's lens column: N/A-no-surface; hf010's sparse-geometric column: N/A-wrong-conditioning-class) — never a silent zero"
+    ],
+    "outputArtifacts": "results/head-to-head.json (the table) + results/per-window/<fixtureId>.json (per-lane frames, poses, metric traces) — emitted only by --mode full on an adequate host (never fabricated here)",
+    "verdictPolicy": "the table is EVIDENCE for HF015 (the TL's promotion gate) — no promotion, no aggregate 'winner' claim beyond the per-metric per-window cells"
+  },
+  "resolutionAdapter": {
+    "renderer3dProfile": "1280x720 (the W603 game profile the HF010 full-mode design renders its source clips at)",
+    "modelNativeProfile": "576x1024 (ViewCrafter_25; the 320x512 sibling is an ablation)",
+    "transform": "center-crop the 1280x720 render to 405x720 (x in [437.5, 842.5] — the 9:16 window) then resize x1024/720 to 576x1024; the identical transform is applied to BOTH lanes' references, so every pixel metric is computed in the SAME native output space (fairness rule: never compare pixels across different spaces)",
+    "intrinsicsAdaptation": "focal_out = focal_in * (1024/720); principal point at the adapted center (288, 512); the PnP camera-adherence estimator consumes the adapted intrinsics"
+  },
+  "negativeControls": [
+    "the fixture sha gate (exit 2 on drift — the same-fixture mandate enforced)",
+    "the full-mode host gates (fail-closed exit 3 on this host: RAM/disk/CUDA)",
+    "record-benchmark.ts refuses any measurement-shaped key with no measured run behind it (negative-tested)"
+  ]
+}

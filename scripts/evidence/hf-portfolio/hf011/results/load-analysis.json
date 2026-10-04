@@ -1,0 +1,148 @@
+{
+  "label": "EXECUTED preflight load analysis (bounded HF-API metadata probes + the 290-byte card + the candidate's own GitHub docs; weights NEVER downloaded, never committed, never vendored)",
+  "host": {
+    "cpuCount": 2,
+    "totalRamBytes": 4237889536,
+    "totalRamGiB": 3.95,
+    "availableRamBytes": 1893883904,
+    "availableRamGiB": 1.76,
+    "freeDiskBytes": 1119674368,
+    "freeDiskGiB": 1.04,
+    "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)"
+  },
+  "fixtureGate": {
+    "ok": true,
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+    "fixtureSetVersion": "hf010.camera-paths@1",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "pinnedSha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "windowCount": 6,
+    "posesPerWindow": 81,
+    "shaMatches": true,
+    "shapeOk": true,
+    "note": "CONSUMED from the merged HF010 delivery — never re-authored, never modified (the brief's mandate)"
+  },
+  "candidateProbe": {
+    "repoId": "Drexubery/ViewCrafter_25",
+    "revision": "35af104d9781e9ed5cdaddfcfbbdca5835e1c36f",
+    "sha": "35af104d9781e9ed5cdaddfcfbbdca5835e1c36f",
+    "gated": false,
+    "private": false,
+    "reachable": true,
+    "fileCountWithSize": 3,
+    "totalBytes": 10437550155,
+    "totalGiB": 9.72,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1519,
+        "sha256": null
+      },
+      {
+        "path": "README.md",
+        "bytes": 290,
+        "sha256": null
+      },
+      {
+        "path": "model.ckpt",
+        "bytes": 10437548346,
+        "sha256": "5676e29d8f9d5b6c9bebdaaf6c2fa048c79fd31486937adfb10cc58c918ce422"
+      }
+    ]
+  },
+  "sparseSiblingProbe": {
+    "repoId": "Drexubery/ViewCrafter_25_sparse",
+    "revision": "b0da3ae2be0fd686af4c620c380f7951fdc62ac6",
+    "sha": "b0da3ae2be0fd686af4c620c380f7951fdc62ac6",
+    "gated": false,
+    "private": false,
+    "reachable": true,
+    "fileCountWithSize": 3,
+    "totalBytes": 10437550137,
+    "totalGiB": 9.72,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1519,
+        "sha256": null
+      },
+      {
+        "path": "README.md",
+        "bytes": 272,
+        "sha256": null
+      },
+      {
+        "path": "model_sparse.ckpt",
+        "bytes": 10437548346,
+        "sha256": "de291cae85c8730ca4755454430d0d4091244387a5e82b67d65bdfb31471b680"
+      }
+    ]
+  },
+  "dust3rDependencyProbe": {
+    "url": "https://download.europe.naverlabs.com/ComputerVision/DUSt3R/DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth",
+    "headStatus": 200,
+    "contentLengthBytes": 2285005731,
+    "verdict": "anonymously reachable (200; NO auth wall — unlike HF010's Meridian/VGGT-Omega gate)"
+  },
+  "resourceArithmetic": {
+    "candidate": "ViewCrafter",
+    "singleViewComposition": {
+      "parts": [
+        "Drexubery/ViewCrafter_25 model.ckpt (10,437,548,346 B — hub-reported at the pinned revision, never downloaded)",
+        "DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth (2,285,005,731 B — the documented auxiliary pose/geometry model, naverlabs HEAD)"
+      ],
+      "downloadBytes": 12722554077,
+      "downloadGiB": 11.85,
+      "downloadXFreeDisk": 11.4
+    },
+    "sparseViewComposition": {
+      "parts": [
+        "Drexubery/ViewCrafter_25 model.ckpt (10,437,548,346 B — hub-reported at the pinned revision, never downloaded)",
+        "DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth (2,285,005,731 B — the documented auxiliary pose/geometry model, naverlabs HEAD)",
+        "Drexubery/ViewCrafter_25_sparse model_sparse.ckpt (10,437,548,346 B — the sparse-view leg the README pins: 'specifically trained for the sparse view NVS task')"
+      ],
+      "downloadBytes": 23160102423,
+      "downloadGiB": 21.57,
+      "downloadXFreeDisk": 20.7
+    },
+    "reportedGpuWorkingSet": {
+      "bytes": 23500000000.0,
+      "source": "the repo's own model table (verbatim): 'ViewCrafter_25|576x1024|25| 23.5GB & 120s (perframe_ae=True)' tested on a 40G A100, ddim 50 steps",
+      "xTotalRam": 5.5
+    },
+    "notes": [
+      "the pinned repo is a bare checkpoint tree: model.ckpt 10.438 GB + README.md (290 B) — the code, the DUSt3R pose model, and the sparse sibling live elsewhere (the card's own 'Check out https://github.com/Drexubery/ViewCrafter')",
+      "EVERY shipped inference command pins --device 'cuda:0' (run.sh / run_sparse.sh / run_eval.sh, verbatim); the pinned stack is torch 1.13.1 + pytorch3d 0.7.5 cu117 on python 3.9.16 (requirements.txt + the README setup block) — a CUDA-class stack, and this host has NO CUDA device",
+      "the repo's own table reports 23.5 GB GPU memory per take ≈ 5.5x this host's TOTAL RAM — before any DUSt3R/point-cloud memory",
+      "a 2 vCPU CPU-only host running a 50-step ddim 25-frame 576x1024 video-diffusion take is a latency infeasibility on top of the walls above (the A100 reference is 120 s per take)",
+      "no auth wall anywhere: the HF repos are gated=False and the DUSt3R dependency HEADs 200 anonymously (the honest contrast with HF010's Meridian/VGGT-Omega manual gate)"
+    ]
+  },
+  "smallFileFetches": {
+    "card": {
+      "path": "README.md",
+      "bytes": 290,
+      "sha256": "c2e8c272160a4f19d3df283f039c4b18df0c4493588f5720772079076057e7a5"
+    },
+    "githubReadme": {
+      "url": "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/README.md",
+      "bytes": 8580,
+      "sha256": "d55ef50baedbe4a97fa02228b70608a0bc68c1a58fe31dfbe891adc409c37aa3"
+    },
+    "githubLicense": {
+      "url": "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "githubConfigHelp": {
+      "url": "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/docs/config_help.md",
+      "bytes": 3374,
+      "sha256": "dd5c1d2eec5197a5b29b863b830dcc8488be7ccb20e7335429af6d19c9252884"
+    },
+    "githubRenderHelp": {
+      "url": "https://raw.githubusercontent.com/Drexubery/ViewCrafter/main/docs/render_help.md",
+      "bytes": 5519,
+      "sha256": "c356d19e43f8207fe7cab7d6710cef3ce8f31ec0174e14c34c1dedc2f22c2a92"
+    }
+  }
+}
