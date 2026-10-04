@@ -1,7 +1,7 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: HF001/HF002 COMPLETE; HF003/HF006 BENCHMARKED (executed, no promotion); HF004/HF007/HF008 BENCHMARKED-REFUSED (typed resource, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion)
-Date: 2026-10-03
+Status: HF001/HF002 COMPLETE; HF003/HF006 BENCHMARKED (executed, no promotion); HF004/HF007/HF008/HF010 BENCHMARKED-REFUSED (typed resource, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion)
+Date: 2026-10-04
 
 ## Portfolio
 
@@ -16,7 +16,7 @@ Date: 2026-10-03
 | HF007 SoccerChat | ✅ BENCHMARKED-REFUSED (a5db099, flight 5: resource-infeasible typed refusal — 18.5 GiB bf16 = 4.7x RAM — PLUS the SoccerNet-NDA-gated eval wall; delivered: the machine-checked contract mappings incl. the W208 not-compatible honest negative, the ready-to-run metric designs, the static pipeline comparison; no promotion) | A |
 | HF008 VibeVoice/Qwen3-ASR | ✅ BENCHMARKED-REFUSED (3b76944, flight 6: both candidates resource-infeasible typed refusals — 5.24 GiB fp32 / 4.38 GiB bf16 vs 4 GB RAM; delivered: the W208 transcription-reversal verdict (transcription-of-observed-audio compatible — the honest reversal of HF007's generated-text verdict), the ready-to-run WER/latency/hotword metric designs (self-check 10/10), the speaker composition verdict; no promotion) | A+B |
 | HF009 pyannote | ✅ BENCHMARKED-REFUSED (abdf172, flight 4: auth-gated-model typed refusal — community-1 is user-conditions-gated, 401 at the pinned revision, no HF token exists in-sandbox; the executed partial: 2 SPR WAVs sha-pinned + the 6-probe hub map + the W208 contract review; ready-to-run full mode; no promotion) | A |
-| HF010 camera-controlled neural renderer | NOT_STARTED | C |
+| HF010 camera-controlled neural renderer | ✅ BENCHMARKED-REFUSED (b8121a9, flight 7: all three candidates resource-infeasible typed refusals — Wan2.2-Fun 71.06 GB = 63x disk / ReCamMaster smallest 20.56 GB / Meridian ~82 GB + ~88 GiB peak + CUDA-required, PLUS the VGGT-Omega auth gate (HF-gated manual, anonymous 401, TL re-confirmed live); delivered: the authored camera-path fixtures (hf010.camera-paths@1, sha-pinned 66ef1b4a…, 6 deterministic windows x 81 poses in the CameraPlan/W601-slot language, provider-neutral — the HF014 runway), the license-posture verdicts (Wan2.2-Fun + ReCamMaster production-eligible-by-recorded-terms; Meridian research-only: minimax-h3-community-license + FAIR-Noncommercial VGGT-Omega), the 5 frozen-profile metric designs (selfcheck 14/14, typed not-measured), the machine-checked contract mappings (camera-path conditioning: Meridian maps > Wan2.2-Fun maps-with-adapter > ReCamMaster preset-indexed partial); no promotion) | C |
 | HF011 ViewCrafter | NOT_STARTED | C |
 | HF012 Wan2.2 Animate | NOT_STARTED | C |
 | HF013 LTX-2.3 | NOT_STARTED | A+C |
