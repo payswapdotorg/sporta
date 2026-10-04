@@ -1,0 +1,137 @@
+{
+  "workItem": "HF008",
+  "runBy": "Worker A + Worker B (flight 6, worker 64-f)",
+  "host": {
+    "cpuCount": 2,
+    "gpu": "N/A (no GPU on the benchmark host \u2014 CPU-only, honestly recorded)",
+    "ramTotalMiB": 4041.6,
+    "ramAvailableMiB": 1841.9,
+    "diskFreeBytes": 1159897088,
+    "diskFreeGiB": 1.08
+  },
+  "candidates": [
+    {
+      "candidate": "VibeVoice-ASR-Streaming",
+      "repoId": "microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "revision": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+      "modelUrl": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "modelLicense": "mit",
+      "codeLicense": "mit",
+      "weightsProvenance": "unknown",
+      "datasetProvenance": "unknown",
+      "commercialUse": "yes",
+      "gatingState": "candidate",
+      "taskProfiles": [
+        "football.commentaryASR.streaming"
+      ],
+      "ledgerEchoNote": "the twelve provenance fields echo provenance-ledger.json VERBATIM"
+    },
+    {
+      "candidate": "Qwen3-ASR",
+      "repoId": "Qwen/Qwen3-ASR-1.7B",
+      "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+      "modelUrl": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B",
+      "modelLicense": "apache-2.0",
+      "codeLicense": "apache-2.0",
+      "weightsProvenance": "large-scale speech training data on the Qwen3-Omni foundation model, per card (1.7B and 0.6B family; 52 languages/dialects).",
+      "datasetProvenance": "unknown",
+      "commercialUse": "yes",
+      "gatingState": "candidate",
+      "taskProfiles": [
+        "football.commentaryASR.multilingual"
+      ],
+      "ledgerEchoNote": "the twelve provenance fields echo provenance-ledger.json VERBATIM"
+    }
+  ],
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "typedRefusal": {
+    "type": "resource-infeasible-host",
+    "reasons": [
+      "VibeVoice-ASR-Streaming-1.5B model-load-ram-infeasible: the fp32 working set (5.24 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+      "VibeVoice-ASR-Streaming-1.5B a bf16 cast (2.62 GiB weights alone) does not exceed TOTAL RAM (3.95 GiB) but EXCEEDS AVAILABLE RAM (1.80 GiB) \u2014 and the fp32 checkpoint must be resident (or streamed) before the cast; activations/KV/tokenizers are on top",
+      "VibeVoice-ASR-Streaming-1.5B model-download-disk-infeasible: the pinned weight shards (5.24 GiB) vs the host's free disk (1.08 GiB) \u2014 4.9x over",
+      "VibeVoice-ASR-Streaming-1.5B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures",
+      "Qwen3-ASR-1.7B model-load-ram-infeasible: the fp32 working set (8.75 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+      "Qwen3-ASR-1.7B even a bf16 cast (4.38 GiB weights alone) exceeds TOTAL RAM (3.95 GiB) \u2014 and exceeds AVAILABLE RAM (1.80 GiB) before any activation is allocated",
+      "Qwen3-ASR-1.7B model-download-disk-infeasible: the pinned weight shards (4.38 GiB) vs the host's free disk (1.08 GiB) \u2014 4.1x over",
+      "Qwen3-ASR-1.7B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+    ],
+    "note": "per the worker brief: both candidates are 1.5-1.7B \u2014 the honest delivery is this typed refusal + the SUBSTANTIAL partial (the WER/latency/hotword/multilingual metric designs implemented ready-to-run in this script + the machine-checked ASR contract mappings in contract_compatibility.ts), never a fabricated benchmark. NO promotion \u2014 HF015 owns the gate."
+  },
+  "checks": {
+    "fixture:sprclip-b1-wide-broadcast": "PASS",
+    "fixture:sprclip-b8-inplay-original": "PASS",
+    "repo-fixture:fx-001": "CONFIRMED-NO-AUDIO",
+    "repo-fixture:synthetic-diagnostic-01": "CONFIRMED-NO-AUDIO",
+    "probe:microsoft/VibeVoice-ASR-Streaming-1.5B": "REACHABLE (gated=False)",
+    "probe:Qwen/Qwen3-ASR-1.7B": "REACHABLE (gated=False)"
+  },
+  "weightsDownloaded": false,
+  "boundedProbesOnly": true,
+  "groundTruthSearch": {
+    "question": "does the repo own any REFERENCE TRANSCRIPT for real commentary audio (the WER denominator)?",
+    "verdict": "NO \u2014 WER requires the --ground-truth operator unlock",
+    "sourcesScanned": [
+      {
+        "source": "packages/asr/src/fixture-backend.ts",
+        "finding": "the deterministic TEST substrate returns CANNED strings keyed by window start \u2014 synthetic, never a transcript of real audio"
+      },
+      {
+        "source": "packages/asr/src/zai-backend.ts",
+        "finding": "the functioning production backend transcribes but the repo stores no reference to score it against"
+      },
+      {
+        "source": "packages/commentary-segmentation/test/*",
+        "finding": "the W208 test transcripts are SYNTHETIC inline text (makeUnit({...text...}) literals), not real-media annotations"
+      },
+      {
+        "source": "packages/technology-registry/fixtures/annotations/synthetic-diagnostic-01.json",
+        "finding": "per-frame SPATIAL disc annotations only (the HF006 verdict) \u2014 no transcript fields"
+      },
+      {
+        "source": "SPR corpus (R606)",
+        "finding": "the registration declaration authorizes analysis; no transcript annotation exists for either clip (HF009 searched for speaker annotations; the same absence holds for text)"
+      }
+    ],
+    "operatorUnlock": "--ground-truth <json> mapping fixture id -> reference transcript; without it every WER/hotword field is not-measured, never guessed"
+  },
+  "arithmetic": [
+    {
+      "label": "VibeVoice-ASR-Streaming-1.5B",
+      "storedDtype": "float32",
+      "weightShardBytes": 5628388290,
+      "weightShardGiB": 5.242,
+      "fp32WorkingSetGiB": 5.242,
+      "bf16WorkingSetGiB": 2.621,
+      "hostRamTotalGiB": 3.947,
+      "hostRamAvailableGiB": 1.799,
+      "hostDiskFreeGiB": 1.08,
+      "downloadOverFreeDisk": 4.85,
+      "reasons": [
+        "VibeVoice-ASR-Streaming-1.5B model-load-ram-infeasible: the fp32 working set (5.24 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "VibeVoice-ASR-Streaming-1.5B a bf16 cast (2.62 GiB weights alone) does not exceed TOTAL RAM (3.95 GiB) but EXCEEDS AVAILABLE RAM (1.80 GiB) \u2014 and the fp32 checkpoint must be resident (or streamed) before the cast; activations/KV/tokenizers are on top",
+        "VibeVoice-ASR-Streaming-1.5B model-download-disk-infeasible: the pinned weight shards (5.24 GiB) vs the host's free disk (1.08 GiB) \u2014 4.9x over",
+        "VibeVoice-ASR-Streaming-1.5B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+      ]
+    },
+    {
+      "label": "Qwen3-ASR-1.7B",
+      "storedDtype": "bfloat16",
+      "weightShardBytes": 4698521512,
+      "weightShardGiB": 4.376,
+      "fp32WorkingSetGiB": 8.752,
+      "bf16WorkingSetGiB": 4.376,
+      "hostRamTotalGiB": 3.947,
+      "hostRamAvailableGiB": 1.799,
+      "hostDiskFreeGiB": 1.08,
+      "downloadOverFreeDisk": 4.05,
+      "reasons": [
+        "Qwen3-ASR-1.7B model-load-ram-infeasible: the fp32 working set (8.75 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "Qwen3-ASR-1.7B even a bf16 cast (4.38 GiB weights alone) exceeds TOTAL RAM (3.95 GiB) \u2014 and exceeds AVAILABLE RAM (1.80 GiB) before any activation is allocated",
+        "Qwen3-ASR-1.7B model-download-disk-infeasible: the pinned weight shards (4.38 GiB) vs the host's free disk (1.08 GiB) \u2014 4.1x over",
+        "Qwen3-ASR-1.7B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+      ]
+    }
+  ]
+}

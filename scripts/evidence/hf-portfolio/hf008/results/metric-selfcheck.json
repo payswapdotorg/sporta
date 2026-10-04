@@ -1,0 +1,163 @@
+{
+  "label": "IMPLEMENTATION SELF-VERIFICATION \u2014 the metric functions compute the stated definitions; NOT a model measurement",
+  "werCases": [
+    {
+      "metric": "wer",
+      "ref": "the cat sat on the mat",
+      "hyp": "the cat sat on the mat",
+      "expect": {
+        "wer": 0.0,
+        "S": 0,
+        "D": 0,
+        "I": 0,
+        "N": 6
+      },
+      "got": {
+        "wer": 0.0,
+        "S": 0,
+        "D": 0,
+        "I": 0,
+        "N": 6
+      },
+      "pass": true
+    },
+    {
+      "metric": "wer",
+      "ref": "the cat sat on the mat",
+      "hyp": "the cat sat",
+      "expect": {
+        "wer": 0.5,
+        "S": 0,
+        "D": 3,
+        "I": 0,
+        "N": 6
+      },
+      "got": {
+        "wer": 0.5,
+        "S": 0,
+        "D": 3,
+        "I": 0,
+        "N": 6
+      },
+      "pass": true
+    },
+    {
+      "metric": "wer",
+      "ref": "it's a GOAL!!!",
+      "hyp": "its a goal",
+      "expect": {
+        "wer": 0.0,
+        "N": 3
+      },
+      "got": {
+        "wer": 0.0,
+        "S": 0,
+        "D": 0,
+        "I": 0,
+        "N": 3
+      },
+      "pass": true
+    },
+    {
+      "metric": "wer",
+      "ref": "",
+      "hyp": "hello world",
+      "expect": {
+        "wer": null,
+        "I": 2,
+        "N": 0
+      },
+      "got": {
+        "wer": null,
+        "S": 0,
+        "D": 0,
+        "I": 2,
+        "N": 0,
+        "note": "empty reference \u2014 insertion-only transcript; WER undefined, never reported as 0"
+      },
+      "pass": true
+    },
+    {
+      "metric": "wer",
+      "ref": "great save",
+      "hyp": "great shave",
+      "expect": {
+        "wer": 0.5,
+        "S": 1,
+        "N": 2
+      },
+      "got": {
+        "wer": 0.5,
+        "S": 1,
+        "D": 0,
+        "I": 0,
+        "N": 2
+      },
+      "pass": true
+    }
+  ],
+  "pooledWer": {
+    "got": {
+      "pooledWer": 0.2,
+      "S": 0,
+      "D": 1,
+      "I": 0,
+      "N": 5,
+      "skippedPairs": 0
+    },
+    "pass": true,
+    "expect": {
+      "pooledWer": 0.2,
+      "N": 5
+    }
+  },
+  "hotwordRecall": {
+    "got": {
+      "hotwordRecall": 1.0,
+      "hotwordsInReference": 2,
+      "hotwordsRecognized": 2,
+      "missed": []
+    },
+    "pass": true,
+    "expect": {
+      "hotwordRecall": 1.0,
+      "hotwordsInReference": 2,
+      "note": "Messi absent from reference: recall denominator counts only present hotwords"
+    }
+  },
+  "hypothesisChurnRate": {
+    "got": {
+      "hypothesisChurnRate": 0.238095,
+      "chunkPairs": 2
+    },
+    "pass": true
+  },
+  "w207WindowGrid": {
+    "got": [
+      {
+        "windowIndex": 0,
+        "windowId": "w-0",
+        "unitId": "tu-0",
+        "startMs": 0,
+        "endMs": 5000
+      },
+      {
+        "windowIndex": 1,
+        "windowId": "w-1",
+        "unitId": "tu-1",
+        "startMs": 5000,
+        "endMs": 10000
+      },
+      {
+        "windowIndex": 2,
+        "windowId": "w-2",
+        "unitId": "tu-2",
+        "startMs": 10000,
+        "endMs": 12500.0
+      }
+    ],
+    "pass": true,
+    "expect": "12.5 s -> 3 windows, last endMs 12500 (never beyond the audio)"
+  },
+  "failures": 0
+}

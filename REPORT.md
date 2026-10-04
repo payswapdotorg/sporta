@@ -1,203 +1,278 @@
-===== 64-e REPORT BEGIN =====
+===== 64-f REPORT BEGIN =====
 
-# Worker 64-e delivery — HF007: the SoccerChat event-reasoning benchmark evidence
+# Worker 64-f delivery — HF008: the streaming commentary ASR portfolio benchmark evidence
 
 ## Manifest
 
-- Branch: `work/hf007-soccerchat-benchmark` (from main @ 72c7708; never pushed)
-- Commit: `rel(64-e): HF007 — the SoccerChat event-reasoning benchmark evidence (CPU-host, contracts + typed refusal/partial)`
-- Work item: HF007 (docs/work-items/hf-model-portfolio-work-items.md)
-- Task profile: `football.eventReasoning`
+- Branch: `work/hf008-asr-portfolio-benchmark` (from main @ aca8280; never pushed)
+- Commit: `rel(64-f): HF008 — the ASR portfolio benchmark evidence (CPU-host, fixtures + metric designs + typed refusal)`
+- Work item: HF008 (docs/work-items/hf-model-portfolio-work-items.md)
+- Task profiles: `football.commentaryASR.streaming` + `football.commentaryASR.multilingual`
   (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
 - Evidence tree (all committed in-repo):
-  - `scripts/evidence/hf-portfolio/hf007/benchmark_soccerchat.py` — the benchmark script (preflight EXECUTED on this host: the typed refusal, exit 3; FULL mode ready-to-run on a >= 32 GB host with the hallucination-rate + provenance-traceability metric implementations)
-  - `scripts/evidence/hf-portfolio/hf007/contract_compatibility.ts` — the machine-checked event-extraction + commentary-alignment mapping + the STATIC pipeline-delta table (EXECUTED, exit 0, every claim needle-verified)
-  - `scripts/evidence/hf-portfolio/hf007/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; negative-tested: fabricated hallucinationRate + medianMs numbers refused with exit 1)
-  - `scripts/evidence/hf-portfolio/hf007/benchmark-record.json` — the ledger-shaped HF007 record (the twelve provenance fields echoed VERBATIM + the typed refusal + the partial)
-  - `scripts/evidence/hf-portfolio/hf007/summary.md` — the markdown summary
-  - `scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json` — the EXECUTED preflight: the resource arithmetic, the bounded probes (adapter sha LOCALLY VERIFIED), the NDA-gate probe, the fixture pins
-  - `scripts/evidence/hf-portfolio/hf007/results/load-analysis.json` — the adapter + base composition (sizes, shas, LoRA geometry, architecture, loading recipes, host-gap arithmetic)
-  - `scripts/evidence/hf-portfolio/hf007/results/model-output-schema.json` — the source-verified SoccerChat output/annotation schema (fetched at the pinned revision)
-  - `scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json` — the emitted mapping tables + capability delta
-- Not committed (by design): the model weights (the adapter blob was downloaded + sha-verified INSIDE the bounded preflight probe at /home/z/hf-bench-5/probe — never committed, never vendored; the base was never downloaded), the python venv (/home/z/hf-bench-5 — a NEW venv; no earlier flight's reused).
+  - `scripts/evidence/hf-portfolio/hf008/benchmark_asr.py` — the benchmark script (preflight EXECUTED on this host: the typed refusal, exit 3; selfcheck EXECUTED, 10/10; FULL mode ready-to-run on an adequate host with the WER/latency/hotword/multilingual metric implementations)
+  - `scripts/evidence/hf-portfolio/hf008/contract_compatibility.ts` — the machine-checked transcription-output + evidence-chain + speaker-composition mappings + the STATIC pipeline-delta table (EXECUTED, exit 0, 31 needles verified)
+  - `scripts/evidence/hf-portfolio/hf008/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; negative-tested: fabricated wer + firstChunkLatencyMs refused with exit 1)
+  - `scripts/evidence/hf-portfolio/hf008/benchmark-record.json` — the ledger-shaped HF008 record (BOTH candidate rows echoed VERBATIM + the typed refusal + the partial)
+  - `scripts/evidence/hf-portfolio/hf008/summary.md` — the markdown summary
+  - `scripts/evidence/hf-portfolio/hf008/results/preflight-refusal.json` — the EXECUTED preflight: the resource arithmetic, both bounded hub probes, the fixture sha verification, the ground-truth search, the typed refusal (8 reasons)
+  - `scripts/evidence/hf-portfolio/hf008/results/load-analysis.json` — both candidates' file trees at the pinned revisions (sizes + LFS sha256s per shard), the bounded small-file fetch map, the resource arithmetic
+  - `scripts/evidence/hf-portfolio/hf008/results/model-output-schema.json` — the source-verified output facts (cards + configs fetched at the pinned revisions)
+  - `scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json` — the staged audio story (the HF009 record, re-verified this flight)
+  - `scripts/evidence/hf-portfolio/hf008/results/metric-selfcheck.json` — the EXECUTED metric implementation self-verification (10/10; labeled implementation evidence, NOT a model measurement)
+  - `scripts/evidence/hf-portfolio/hf008/results/contract-compatibility.json` — the emitted mapping tables + capability delta
+- Not committed (by design): the model weights (never downloaded — the resource refusal; the probes were bounded to file trees + small config/card fetches), the python venv (/home/z/hf-bench-6 — a NEW lean venv; no earlier flight's reused).
 - FROZEN contracts untouched; provenance-ledger.json untouched; architecture-lock untouched.
 - Guard batteries green: packages/testing hf-ledger.test.ts 8/8;
   packages/perception-benchmark harness.test.ts (the L010 battery) 8/8.
 
-=== HF007 BENCHMARK REPORT ===
+=== HF008 BENCHMARK REPORT ===
 
-## THE HONEST HEADLINE — resource-infeasible: a typed refusal + a substantial partial
+## THE HONEST HEADLINE — both candidates resource-refused: a typed refusal + a substantial partial
 
-The pinned candidate `SimulaMet/SoccerChat-qwen2-vl-7b` @ the
-ledger-pinned revision `29871536004c0ac788af09cbb87969ab9f6e1410` (task
-profile `football.eventReasoning`, FROZEN) is a LoRA (PEFT) adapter over
-`Qwen/Qwen2-VL-7B-Instruct`. The preflight arithmetic ran FIRST (per the
-brief) and the run is arithmetically impossible on this host — and the
-model's own eval corpus is walled behind the SoccerNet NDA independently
-of hardware:
+This flight covers BOTH HF008 ledger candidates (the work item names
+both; each ledger row echoed VERBATIM into the record):
 
-| Constraint | Needed | Host | Verdict |
-|---|---|---|---|
-| RAM (bf16 base working set) | ~18.5 GiB | 4,041.6 MiB TOTAL | infeasible — 4.7x over total |
-| RAM (the card's own 4-bit nf4 recipe, CUDA-only) | ~6.1 GiB | 4,041.6 MiB TOTAL; no GPU (N/A) | infeasible |
-| Disk (base + adapter) | 16,623,253,408 B | ~420 MB free | infeasible — ~40x over |
-| Eval corpus (SoccerChat validation split) | an operator SoccerNet-NDA acceptance (401 anonymous, probed) | none | auth-infeasible — hardware-independent |
+1. `microsoft/VibeVoice-ASR-Streaming-1.5B` @ revision
+   `4262d23d8a539a6530cf64fbd0b1751ef9a30853` (MIT/MIT,
+   weightsProvenance unknown, datasetProvenance unknown, commercialUse
+   yes, gatingState candidate — task profile `football.commentaryASR.streaming`)
+2. `Qwen/Qwen3-ASR-1.7B` @ revision
+   `7278e1e70fe206f11671096ffdd38061171dd6e5` (apache-2.0/apache-2.0,
+   "large-scale speech training data on the Qwen3-Omni foundation model,
+   per card (1.7B and 0.6B family; 52 languages/dialects)",
+   datasetProvenance unknown, commercialUse yes, gatingState candidate —
+   task profile `football.commentaryASR.multilingual`)
 
-`benchmark_soccerchat.py --mode preflight` was EXECUTED (exit code 3, the
-typed refusal `resource-infeasible-host`,
-`results/preflight-refusal.json`). Per the worker brief, the honest
+The preflight arithmetic ran FIRST (per the brief). BOTH candidates are
+reachable anonymously at their pinned revisions (gated=False — no
+HF009-style auth wall this flight); the wall is pure resources:
+
+| Constraint | VibeVoice-ASR-Streaming-1.5B | Qwen3-ASR-1.7B | Host | Verdict |
+|---|---|---|---|---|
+| Checkpoint (pinned shards) | 5,628,388,290 B fp32 (3 shards) | 4,698,521,512 B bf16 (2 shards) | — | — |
+| Working set (stored dtype) | 5.24 GiB fp32 | 4.38 GiB bf16 | 3.95 GiB TOTAL RAM | infeasible — 1.33x / 1.11x over TOTAL |
+| Working set (cast) | 2.62 GiB bf16 | 8.75 GiB fp32 | ~1.85 GiB AVAILABLE | infeasible — both over AVAILABLE before any activation |
+| Download vs free disk | 5.24 GiB | 4.38 GiB | ~1.08 GiB free | infeasible — 4.85x / 4.05x over |
+| GPU | needed for the streaming regime | recommended | none (N/A) | CPU-only, 2 vCPU — decode far from real time |
+
+`benchmark_asr.py --mode preflight` was EXECUTED (exit code 3, the typed
+refusal `resource-infeasible-host` with 8 reasons covering both
+candidates, `results/preflight-refusal.json`; the weights were never
+downloaded — bounded probes only). Per the worker brief, the honest
 delivery is the refusal + the partial. **No quality, latency, or memory
 number exists in this flight — none is fabricated to stand in.** The
-fail-closed validator is negative-tested (a fabricated
-`hallucinationRate: 0.18` + `medianMs: 41250.0` refused, exit 1, both
-failure messages; restored, exit 0).
+fail-closed validator is negative-tested (a fabricated `wer: 0.087` +
+`firstChunkLatencyMs: 412.5` refused, exit 1, both failure messages;
+restored, exit 0).
 
-## The model + revision + load analysis
+## The candidates (source-verified at the pinned revisions)
 
-- **Adapter** (the pinned SoccerChat repo): `adapter_model.safetensors`,
-  40,422,208 B, sha256
-  `4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47` —
-  **LOCALLY VERIFIED** (downloaded inside the bounded preflight probe and
-  hashed against the hub LFS oid — the adapter is small enough to hold,
-  unlike HF004's checkpoint). LoRA r=8, alpha=32, dropout=0.05, CAUSAL_LM,
-  target_modules `^(model)(?!.*(lm_head|output|emb|wte|shared)).*`.
-- **Base**: `Qwen/Qwen2-VL-7B-Instruct` — 16,582,831,200 B bf16
-  safetensors across 5 shards (hub-reported LFS oids recorded per shard);
-  28 decoder layers, hidden 3584, GQA 28/4, vocab 152,064, depth-32
-  vision tower (patch 14), mrope. **The adapter does NOT pin a base
-  revision** (adapter_config `revision: null`; sft_args
-  `model_revision: "master"`) — this flight records the probed main sha
-  `eed13092ef92e448dd6875b2a00151bd3f7db0ac` and the unpinned-base
-  reproducibility caveat (a recorded HF015-gate observation).
-- **Loading recipe** (implemented in the FULL mode): fail-closed pinned
-  downloads (local sha verification), `Qwen2VLForConditionalGeneration`
-  bf16/sdpa, `PeftModel.from_pretrained(adapter)`, the card's own
-  inference regime (24 sampled frames, VIDEO_MAX_PIXELS 100352), the
-  pinned generation_config (temperature 0.01, top_k 1 — near-greedy, the
-  determinism anchor). The card's own usage recipe quantizes to 4-bit nf4
-  for a free Colab T4 — evidence even the authors need GPU-class
-  resources.
+- **VibeVoice-ASR-Streaming-1.5B** — the card's own headline: "a unified
+  streaming ASR model that transcribes **Who (Speaker)** said **What
+  (Content)**, with support for **Customized Hotwords** and **10
+  languages**" (zh/en/es/pt/de/ja/ko/fr/ru/it). Architecture:
+  VibeVoiceForASRStreamingTraining — a qwen2-family 28-layer decoder
+  (hidden 1536, vocab 151936, tied embeddings) + acoustic/semantic
+  tokenizers + a diffusion head; fp32 storage; 24 kHz input. The pinned
+  `preprocessor_config.json` fixes the STREAMING-CHUNKING constants:
+  chunk_frames 22, lookahead_frames 4, speech_tok_compress_ratio 3200 —
+  3200 samples/token at 24 kHz = 0.1333 s/token, so one hypothesis chunk
+  covers ~22 tokens (~2.93 s) with a ~4-token (~0.53 s) lookahead. No
+  generation_config.json exists at this revision (404 — recorded); no
+  confidence is documented anywhere in the card.
+- **Qwen3-ASR-1.7B** — 30 languages named in `config.json`
+  support_languages (the card claims 52 languages AND dialects = 30
+  languages + 22 Chinese dialects — both recorded verbatim);
+  per-utterance language id (`results[0].language`); "streaming / offline
+  unified inference" with streaming ONLY via the vLLM backend (and
+  streaming mode supports neither batch inference nor timestamps); word/
+  character timestamps require the SEPARATE `Qwen3-ForcedAligner-0.6B`
+  (11 languages, a second model + download); 30 s chunks at 16 kHz
+  (128-mel Whisper-style features — the staged SPR WAVs are already 16
+  kHz mono); near-greedy generation_config (do_sample false,
+  temperature 1e-6 — the determinism anchor). The card documents ZERO
+  speaker metadata and ZERO hotword support (grep: no hits). The card
+  names the 0.6B sibling ("the 0.6B version achieves accuracy-efficient
+  trade-off") — recorded as an observation for the HF015 lane; NOT
+  substituted for the pinned 1.7B candidate.
 
-## The event-extraction contract mapping (machine-checked, EXECUTED exit 0)
+## The audio fixtures (the HF009 story, staged and re-verified)
 
-`contract_compatibility.ts` maps SoccerChat's source-verified schema onto
-the repo's OWN event contracts — 8 field-level rows, every claim
-needle-verified on both sides (`results/contract-compatibility.json`).
-The load-bearing source fact: **SoccerChat's model output is free-form
-natural language** (pipeline_tag `video-text-to-text`; the card documents
-NO structured event JSON; structured events exist only as dataset-side
-annotations — `events`: a list of SoccerNet event types). Therefore:
+The 64-d extraction at `/home/z/hf-bench-4/audio/` is the authorized
+fixture set, sha-verified by this flight's executed preflight (both
+PASS): `spr-b1-audio.wav` (30.070 s, 16 kHz mono PCM16, sha
+`08c2fcfb…`, from clip-b1-wide-broadcast.mp4) and `spr-src-audio.wav`
+(47.624 s, sha `ddf9c203…`, from b8p3.mp4) — SPR corpus clips authorized
+by the repo's own R606 registration declaration (analysis scope, repo
+private). The two structural gaps are recorded exactly as HF009 recorded
+them: **fx-001's audio gap** (the committed clip is video-only by the
+manifest's own `-an` transform — ffprobe re-verified this flight: a
+single h264 stream; the audio lives only in the original webm at the
+canonical URL, whose fetch was HTTP-429-rate-limited on all 6 attempts
+in the 64-d flight — an infrastructure wall, not licensing) and the
+**synthetic fixture's no-audio structural gap** (ffprobe re-verified: a
+single video-only h264 stream — NO audio track exists at all; the repo
+fixture set cannot exercise ANY audio task profile). A third typed gap:
+the SPR WAVs' spoken language is not annotated anywhere in the repo —
+per-language fixtures for the multilingual protocol do not exist.
 
-- `response` → the FROZEN profile's "semantic event candidates with
-  provenance/confidence": **maps-with-adapter** — the output-adapter
-  parse is implemented (`benchmark_soccerchat.py`); typed gaps: no
-  per-event confidence, no evidence links, no vocabulary guarantee.
-- `events` (SoccerNet vocabulary) → the frozen 16-type
-  `FOOTBALL_EVENT_TYPES` / the 14-type W209 vocabulary: **partial** — no
-  canonical SoccerNet→FootballEventType map exists; the W401 precedent
-  governs (an AUTHORED, test-pinned bridge — future work, recorded).
-- `response` → R207 `EventCandidateRecord` / the `EventEnvelope`:
-  **maps-with-adapter with the evidence-chain laundering risk recorded**
-  — the R207 honesty contract (confidence propagated only from supporting
-  evidence, never invented beyond perception) is precisely what a VLM
-  output cannot self-certify; the adapter must synthesize frame-window
-  evidence ids and label derived confidence honestly (provenance DERIVED,
-  the W401 rule for derived understanding).
+## The metric designs (implemented, ready-to-run, typed not-measured)
 
-## The commentary-alignment mapping (machine-checked)
+All definitions are stated exactly in `benchmark_asr.py`'s module
+docstring and implemented as dependency-free functions; the
+implementations were verified by the EXECUTED self-check (10/10
+hand-computed cases — labeled implementation evidence, NOT a model
+measurement, never entering the quality blocks as numbers):
 
-3 rows. **The honest negative result**: generated commentary is
-**NOT-compatible** with W208 `CommentaryUnit` — the W208 doctrine ("every
-output character is traceable to W207 input characters") cannot hold for
-machine-generated text (no source windows, no speaker/channel, no ASR
-confidence, no timestamps): generated text is a different artifact class
-and must never re-enter the W207→W208→W209 evidence chain. `response` →
-W209 extraction fields (eventPhrase/subjects/emphasis) maps-with-adapter
-(the repo's own deterministic extractors apply; the unitId/eventTimeMs
-provenance has no generated-text counterpart — a new provenance class is
-TL territory). The profile's "commentary/context" input matches
-SoccerChat's training triple exactly (maps-with-adapter, unexecuted).
+- **WER** = (S + D + I) / N over the word-sequence Levenshtein
+  alignment, with the normalization stated exactly (case-fold,
+  Unicode-punctuation strip by category, whitespace collapse); reported
+  per utterance and pooled as the micro-average over reference words
+  (never the mean of per-utterance rates). An empty reference with a
+  non-empty hypothesis is insertion-only: WER undefined, NEVER reported
+  as 0. The **reference-transcript requirement**: the repo owns NO
+  commentary transcripts of real audio (the ground-truth search record:
+  the W208 test transcripts are synthetic inline text; the ASR fixture
+  backend returns canned strings; the production z-ai backend has no
+  stored reference) — `--ground-truth` is the OPERATOR UNLOCK.
+- **Streaming-chunking semantics** (VibeVoice): hypothesis-per-chunk vs
+  FINAL (the settled transcript once the chunk leaves the lookahead
+  window); WER is computed on the concatenated finals; the per-chunk
+  hypothesis churn is a separate streaming-consistency measure
+  (hypothesisChurnRate = 1 − mean word-F1 of each hypothesis vs its own
+  final) — never a WER.
+- **Streaming latency**: firstChunkLatencyMs (wall-clock from the first
+  audio sample fed to the first emitted hypothesis), steady-state RTF
+  (processing time / audio duration, per chunk after the first, pooled),
+  per-utterance wall-clock (median + nearest-rank p95,
+  rank = ceil(p/100·n) — the repo convention). TYPED: Qwen3's
+  first-chunk latency is vLLM-only per the card; the transformers
+  backend measures offline metrics only.
+- **Hotword recall** = |{hotwords in the reference ∧ recognized in the
+  hypothesis}| / |{hotwords in the reference}| (the denominator counts
+  only present hotwords — verified by self-check). The hotword
+  VOCABULARY is an authored decision recorded as the gap (the W401
+  precedent: "tech-lead AUTHORED decision (test-pinned), not an
+  inference"): the repo's own candidates are the W209 pattern lexicon
+  and the W401 event taxonomy — extraction vocabularies, not ASR-biasing
+  name lists; the operator passes `--hotwords`. VibeVoice documents
+  input-side customized hotwords natively; Qwen3 documents none (a typed
+  capability gap for the multilingual candidate).
+- **Multilingual WER**: per-language WER pooled per DETECTED language
+  (Qwen3's per-utterance language id). Requires per-language licensed
+  fixtures — NONE exist (typed).
 
-## The hallucination-rate + provenance metric designs (implemented, typed not-measured)
+## The ASR contract mappings (machine-checked, the flight's core value)
 
-Implemented in `benchmark_soccerchat.py` with the definitions stated
-exactly:
+`contract_compatibility.ts` EXECUTED exit 0 — 31 needle-checked claims
+over the FROZEN task profiles, the W207/W208/W209/W401 sources, the ASR
+observation seam, and the committed HF007 evidence; 6 transcription-
+output rows + 3 evidence-chain rows + 2 speaker-composition rows + the
+8-row STATIC capability delta.
 
-- **Hallucination rate** (event-existence verification):
-  `hallucinationRate = |{e ∈ E_pred : unmatched(e)}| / |E_pred|` over the
-  parsed structured events vs a ground-truth timeline, with the
-  HF006-stated matching rule (same normalized type AND |t_pred − t_gt| ≤
-  tol; greedy one-to-one, confidence-descending; tol swept 1/2/5 s);
-  recall reported alongside. Zero GT rows ⇒ not-measured, never zero.
-  NOT MEASURED this flight: no run (the refusal) AND no ground truth (the
-  repo owns none for benchmarkable media — the HF006 verdict; the
-  SoccerChat split is NDA-gated).
-- **Provenance traceability**: per emitted event, traceable = timestamp
-  present AND parseable AND within media duration AND evidence window
-  non-empty; the evidence-chain gap (the model emits no observation ids;
-  the repo contract requires ≥ 1 resolvable id) is surfaced, never
-  laundered.
-- Plus determinism (repeated near-greedy runs, serialized-timeline
-  exact-match), per-inference CPU wall-clock (median + nearest-rank p95),
-  RSS (GPU honestly N/A).
+**The load-bearing verdict — transcription-of-observed-audio vs
+free-form generation.** HF007 ruled the W208 CommentaryUnit
+NOT-COMPATIBLE for GENERATED text ("a different artifact class" — free-
+form commentary synthesis has no character traceability). ASR
+transcription of observed audio is a DIFFERENT artifact class, and the
+distinction is argued from the repo's OWN sources, never asserted: (1)
+the W207 observation contract says STT output enters the pipeline as
+OBSERVATIONS with `modality: "audio"`, `provenance: "OBSERVED"`, payload
+`kind: "transcription"` with text VERBATIM — the audio observation
+EXISTS and is the evidence anchor; (2) W208's own docstring opens "W207
+transcribes fixed 5-second audio windows" — the chain is BUILT on ASR
+output; (3) the production backend (zai-backend.ts) is itself a neural
+ASR behind the vendor-neutral one-method seam. An ASR transcript is
+derived from the observed audio — the same class as the incumbent
+backend's output — so the HF007 exclusion of generated text does NOT
+apply to it, and the W208 verdict is **compatible-with-adapter for
+transcription** (the honest reversal of the HF007 verdict, recorded as
+such). What the doctrine still governs: the W208 segmenter's own
+transformation (trim/join only — traceable to W207 characters) holds
+regardless of the backend. The typed gaps that remain: chunk-level (not
+word-level) timing; the hallucination risk (a neural ASR can emit
+unspoken text — contained by the OBSERVED-audio evidence anchor, the
+honest confidence absence, and W209's DERIVED provenance downstream;
+the insertion-rate-on-non-speech measure is a typed metric design, not
+measured); no confidence from either candidate (asrConfidence stays
+undefined forever — architecture-lock §4, exactly the zai-backend
+discipline).
 
-## The static intelligence-pipeline comparison (labeled STATIC-REVIEW)
+The other key mappings: the transcript text **maps** onto W207
+AsrBackendResult.text behind the existing seam (both candidates are
+just additional backends — vendor neutrality sanctions them);
+timestamps **maps-with-adapter** (VibeVoice's ~2.93 s chunks are finer
+than the 5 s W207 grid — an adapter tiling decision; Qwen3 has no
+timestamps without the separate ForcedAligner); speaker hints
+**maps-with-adapter** for VibeVoice (cluster labels → W207 speakerLabel
+passthrough → W208's hard speaker-change boundary — with the HF009
+typed gaps carried over: cluster-not-identity, overlap→exclusive
+unverified, no per-turn confidence) and **does-not-map** for Qwen3; the
+per-utterance language id is **partial** (W207/W208 are language-blind —
+no landing field; a TL-gated extension, recorded not built); hotwords
+are **partial** (the seam's transcribe(wav) carries no context
+argument — a TL-gated seam extension — plus the authored vocabulary
+gap).
 
-The 8-row capability-delta table
-(`results/contract-compatibility.json`). Headline — the repo's
-event-reasoning path today (cited to file/line):
+## The speaker-hints / diarization composition verdict
 
-- **W209** (commentary understanding): deterministic pattern matching
-  over text — its own source: "NO language model (that arrives with the
-  later GPU/agent-protocol items)".
-- **R207** (vision candidates): pure-function image-space ball-impulse
-  candidates; "candidates remain candidates until a fusion rule maps
-  them" (the W209 pattern); claims nothing about who or what caused the
-  impulse.
-- **W401** (fusion): the AUTHORED FOOTBALL_EVENT_MAP (a tech-lead
-  decision, test-pinned, never an inference); DERIVED provenance for
-  commentary-derived candidates.
-- **There is no semantic event-reasoning production path today** — HF007
-  is the plan, not a present cost (the HF006 recorded absence).
+The two candidates sit at DIFFERENT positions in the pipeline
+composition. **VibeVoice = fused ASR+diarization** (who-said-what in
+one model): the HF009 pyannote stage becomes unnecessary FOR SPEAKER
+LABELS if the fused attribution quality is acceptable — UNVERIFIED (the
+HF009 run was auth-refused, this flight resource-refused) — and the
+HF009 typed gaps carry over unchanged (cluster labels not identities;
+no per-turn confidence; overlap→exclusive quality unverified).
+**Qwen3 = pure ASR** (zero speaker metadata documented): it REQUIRES
+the HF009 pyannote→W208 composition exactly as designed (whose auth
+wall still applies). Neither composition is verified on this host; the
+composition choice is an HF015-lane decision that needs EXECUTED
+evidence from both ready-to-run paths first. Neither candidate provides
+speaker IDENTITIES — identity resolution stays W401 fusion territory.
 
-SoccerChat would add semantic multimodal event reasoning over exactly the
-profile's input set (video + candidates + commentary) with
-natural-language explanation — closing the reasoning gap W209 defers. The
-repo stays ahead (recorded honestly) on vocabulary governance, confidence
-+ provenance discipline, hallucination containment (structural
-never-invent vs the card's own "May generate hallucinated commentary"
-warning), and CPU economics (milliseconds of deterministic compute vs a
-16.6 GiB GPU-class budget — infeasible here).
+## The ready-to-run path (on an adequate host)
 
-## The ready-to-run path + the limitations
+`benchmark_asr.py --mode full` (fail-closed, refuses on this host with
+the same arithmetic): >= 16 GB RAM, >= 24 GB free disk; pinned
+sha-verified downloads of every shard (the hub LFS sha256s are recorded
+in results/load-analysis.json); the VibeVoice path (the vibevoice
+package + torch + transformers>=4.51, 24 kHz resample, the model's
+streaming generator, hypothesis-per-chunk vs finals collected); the
+Qwen3 path (the qwen-asr package, the transformers backend offline per
+fixture — the SPR WAVs are already 16 kHz mono — per-utterance language
+id + text; the vLLM backend is the streaming-only path, typed); the
+`--ground-truth` and `--hotwords` operator unlocks; every metric above
+assembled from the run's own numbers only.
 
-FULL mode (`benchmark_soccerchat.py --mode full`) requires ≥ 32 GB RAM +
-≥ 24 GB free disk: pinned sha-verified downloads, the transformers+peft
-load, inference over the repo's authorized sha-pinned media
-(synthetic-diagnostic-01, fx-001 CC0, the two SPR clips under the R606
-analysis scope) at the card's 24-frame regime, the parse + all metric
-implementations. `--ground-truth` unlocks hallucination-rate scoring
-(operator-supplied timeline JSON). Limitations, honestly: CPU wall-clock
-labeled as such (no GPU, N/A); the 10–20 s authorized clips are far
-outside the model's full-broadcast training regime (a domain-shift
-caveat inherited from every CPU-host flight); the SoccerNet-vocabulary
-bridge does not exist; the model's own held-out eval split is NDA-gated
-so the paper's protocol cannot run anywhere without a human action.
+## The limitations (honest)
+
+The models never ran — every metric-shaped value here is a design, a
+typed refusal, or an implementation self-check (labeled as such). CPU
+wall-clock would be labeled CPU (no GPU, N/A); the 30-48 s authorized
+clips are far outside both models' full-broadcast training regimes (a
+domain-shift caveat); no reference transcripts exist (the WER
+denominator is an operator action away on ANY hardware); no per-language
+fixtures exist; the hotword vocabulary does not exist; the speaker
+quality is unverifiable without a run; Qwen3's 52-language claim is
+card-stated, not measured (30 languages in config).
 
 ## The promotion-gate referral
 
-`gatingState` stands `candidate` — NO promotion; HF015 is the TL's gate
-alone. Blockers for that gate (recorded in benchmark-record.json): zero
-executed evidence (resource-infeasible host); the NDA-gated eval corpus
-(an operator action precedes any paper-protocol run); no event ground
-truth for hallucination-rate/event-accuracy scoring on the repo's own
-media without an operator-supplied timeline; and the SoccerNet-NDA
-dataset lineage (the ledger row's datasetProvenance: videos not
-redistributable/commercially usable — to be weighed against the
-commercialUse yes flag in the HF015 license review). The unpinned
-base-model revision is a recorded reproducibility observation for the
-same gate.
+`gatingState` stands `candidate` for BOTH — NO promotion; HF015 is the
+TL's gate alone. Blockers for that gate (recorded in
+benchmark-record.json): zero executed evidence (resource-infeasible
+host, both candidates); the ground-truth unlock (no reference
+transcripts exist — an operator action precedes any scored run
+anywhere); the three fixture gaps (fx-001's 429-blocked audio, the
+synthetic fixture's missing audio track, no per-language fixtures); the
+authored hotword vocabulary (a W401-lane decision that does not exist);
+and the speaker-hints quality unverifiable without a run (VibeVoice's
+fused cluster-label attribution + no diarization ground truth — the
+HF009 verdict). The 0.6B sibling is a recorded HF015-lane observation
+(smaller checkpoint — possibly feasible on a mid-tier host), not a
+substitution.
 
 === END REPORT ===
 
-===== 64-e REPORT END =====
+===== 64-f REPORT END =====
