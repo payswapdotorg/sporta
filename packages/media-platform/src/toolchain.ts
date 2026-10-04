@@ -64,8 +64,23 @@ const schemaVersionField = z.literal(MEDIA_TOOLCHAIN_SCHEMA_VERSION);
 // The dispatch request (job description + the materialized source-media input)
 // ---------------------------------------------------------------------------
 
-/** The closed set of REAL media operations this profile executes. */
-export const MediaToolchainOperation = z.enum(["probe", "normalize"]);
+/**
+ * The closed set of REAL media operations this profile executes. The
+ * `decode-probe`/`decode-frames` pair is the R607 Gap 1 ADDITIVE extension
+ * (the TL-authorized seam): the R207 real-to-SWM decode dispatched over
+ * the same wire — `decode-probe` answers the demux-level probe document the
+ * R207 pipeline consumes, `decode-frames` answers ONE bounded frame batch
+ * for a `[fromMs, toMs)` window (the pipeline's `decodeVideo` iteration
+ * becomes a single bounded fetch, which its own decode budget
+ * `STUDIO_UPLOAD_DECODE_BUDGET_BYTES` already implies). The existing
+ * `probe`/`normalize` operations are untouched.
+ */
+export const MediaToolchainOperation = z.enum([
+  "probe",
+  "normalize",
+  "decode-probe",
+  "decode-frames",
+]);
 export type MediaToolchainOperation = z.infer<typeof MediaToolchainOperation>;
 
 /**
@@ -100,6 +115,29 @@ export const MediaToolchainMediaPolicy = z
 export type MediaToolchainMediaPolicy = z.infer<typeof MediaToolchainMediaPolicy>;
 
 /**
+ * THE decode-frames window (the R607 Gap 1 bounded-window shape): the
+ * video stream to decode (the pipeline selects it from the decode-probe's
+ * track inventory), the `[fromMs, toMs)` media-timeline slice, and the
+ * cumulative decoded-byte budget — the same `DecodeWindow` semantics the
+ * W102 boundary enforces (`exceeding it terminates the iteration with a
+ * `resource-limit` error`). Rides the job description of a
+ * `decode-frames` dispatch ONLY (enforced below).
+ */
+export const MediaToolchainDecodeWindow = z
+  .object({
+    /** The demuxer stream index to decode (from the decode-probe inventory). */
+    streamIndex: z.number().int().min(0),
+    /** Inclusive window start in ms (default 0 — the W102 semantics). */
+    fromMs: z.number().finite().min(0).optional(),
+    /** Exclusive window end in ms (default: end of stream). */
+    toMs: z.number().finite().positive().optional(),
+    /** Cumulative decoded-frame byte budget for this fetch (fail-closed). */
+    maxTotalBytes: z.number().int().positive(),
+  })
+  .strict();
+export type MediaToolchainDecodeWindow = z.infer<typeof MediaToolchainDecodeWindow>;
+
+/**
  * THE transport-safe media-toolchain job description: what the dispatching
  * side hands the toolchain worker. Identity (jobId + idempotencyKey),
  * session linkage, the operation, the measured source claims, the rights
@@ -128,8 +166,29 @@ export const MediaToolchainJobDescription = z
     constraints: ComputeJobConstraints,
     /** The media policy re-enforced against the produced media. */
     mediaPolicy: MediaToolchainMediaPolicy,
+    /**
+     * The decode-frames window (present iff operation === "decode-frames";
+     * enforced). ADDITIVE — absent on every probe/normalize dispatch.
+     */
+    decodeWindow: MediaToolchainDecodeWindow.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((job, ctx) => {
+    if (job.operation !== "decode-frames" && job.decodeWindow !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["decodeWindow"],
+        message: `decodeWindow is only legal on a decode-frames dispatch (got "${job.operation}")`,
+      });
+    }
+    if (job.operation === "decode-frames" && job.decodeWindow === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["decodeWindow"],
+        message: "a decode-frames dispatch must carry its bounded window (decodeWindow)",
+      });
+    }
+  });
 export type MediaToolchainJobDescription = z.infer<typeof MediaToolchainJobDescription>;
 
 /**
@@ -314,6 +373,106 @@ export const MediaToolchainNormalizedOutput = z
   .strict();
 export type MediaToolchainNormalizedOutput = z.infer<typeof MediaToolchainNormalizedOutput>;
 
+// ---------------------------------------------------------------------------
+// The decode-probe / decode-frames results (R607 Gap 1 — the ADDITIVE wire
+// shapes the R207 real-to-SWM decode consumes)
+// ---------------------------------------------------------------------------
+
+/**
+ * One demuxed track of the decode-probe document — the W102 `TrackInfo`
+ * shape (`@sporta/decoding`'s `ProbeResult.tracks`) mirrored on the wire:
+ * every field MEASURED by the real ffprobe at the worker, structurally
+ * pinned to the exact document the R207 pipeline's track selection
+ * consumes (`probe.tracks.find(track => track.kind === "video")`).
+ */
+export const MediaToolchainDecodeTrack = z
+  .object({
+    /** Stable track id: `t-<streamIndex>-<kind>` (the W102 convention). */
+    trackId: nonEmpty,
+    /** The demuxer stream index (the decode-frames window's selector). */
+    streamIndex: z.number().int(),
+    /** The track kind (the two first-class media track kinds). */
+    kind: z.enum(["video", "audio"]),
+    /** Codec short name as reported by the demuxer. */
+    codec: z.string(),
+    /** ISO 639 language tag when the container declares one. */
+    language: z.string().optional(),
+    /** Stream start offset on the media timeline (ms, rounded). */
+    startTimeMs: z.number().int(),
+    /** Stream duration in ms (rounded; container fallback already applied). */
+    durationMs: z.number().int(),
+  })
+  .strict();
+export type MediaToolchainDecodeTrack = z.infer<typeof MediaToolchainDecodeTrack>;
+
+/**
+ * The decode-probe document — the W102 `ProbeResult` mirrored on the wire:
+ * the video/audio track inventory, the container family, and the
+ * whole-source duration. The SAME document the R207 pipeline consumes from
+ * its local `DecodingService.probe` (the design record's "the probe
+ * document the R207 pipeline consumes"); the client-side port hands it to
+ * the pipeline's unchanged track selection.
+ */
+export const MediaToolchainDecodeProbe = z
+  .object({
+    /** Every video/audio track (data/subtitle streams skipped — the W102 rule). */
+    tracks: z.array(MediaToolchainDecodeTrack),
+    /** The container family (mirrored from the source receipt). */
+    container: z.enum(["mp4", "webm", "mkv", "mpegts", "avi"]),
+    /** Whole-source duration in ms. */
+    durationMs: z.number().int(),
+  })
+  .strict();
+export type MediaToolchainDecodeProbe = z.infer<typeof MediaToolchainDecodeProbe>;
+
+/**
+ * One decoded video frame of the bounded batch — the W102
+ * `NormalizedVideoFrame` mirrored on the wire with the pixels carried as
+ * base64 (`rgb24` packed, `byteLength === width * height * 3` — re-validated
+ * at the RECEIVING boundary by the same W102 output-validation discipline;
+ * a lying frame is a typed refusal, never interpreted).
+ */
+export const MediaToolchainDecodedFrame = z
+  .object({
+    /** Frame id: `f-<streamIndex>-<decodeOrder>` (the W102 convention). */
+    frameId: nonEmpty,
+    /** The stream the frame was decoded from. */
+    streamIndex: z.number().int(),
+    /** Presentation position on the media timeline (ms). */
+    presentationMs: z.number().finite(),
+    /** Decode-order position within this batch, starting at 0. */
+    decodeOrder: z.number().int().min(0),
+    /** Frame width in pixels. */
+    width: z.number().int().min(1),
+    /** Frame height in pixels. */
+    height: z.number().int().min(1),
+    /** The fixed normalized pixel format (packed RGB, 3 bytes per pixel). */
+    pixelFormat: z.literal("rgb24"),
+    /** The frame pixels, base64-encoded (`width * height * 3` bytes). */
+    contentBase64: z.string().min(1),
+  })
+  .strict();
+export type MediaToolchainDecodedFrame = z.infer<typeof MediaToolchainDecodedFrame>;
+
+/**
+ * The decode-frames result: ONE bounded base64 frame batch for the
+ * dispatch's window — the single bounded fetch the R207 pipeline's
+ * `decodeVideo` iteration becomes over this seam (the design's own words).
+ * The batch is bounded fail-closed by the request's `maxTotalBytes` AND the
+ * worker's `maxDecodedFrameBytes` budget (defense in depth — the W914
+ * budget doctrine); an over-budget batch is refused `resource-limit`,
+ * never truncated silently.
+ */
+export const MediaToolchainDecodedFrames = z
+  .object({
+    /** The decoded frames, in decode order (may be empty — the window's honest answer). */
+    frames: z.array(MediaToolchainDecodedFrame),
+    /** The measured total decoded bytes of the batch (the budget's meter). */
+    totalBytes: z.number().int().min(0),
+  })
+  .strict();
+export type MediaToolchainDecodedFrames = z.infer<typeof MediaToolchainDecodedFrames>;
+
 /** The worker's per-job metering counters (the "metered" of the acceptance). */
 export const MediaToolchainMetering = z
   .object({
@@ -325,12 +484,22 @@ export const MediaToolchainMetering = z
     executionMs: z.number().finite().min(0),
     /** REAL ffprobe invocations (the admission probes + the tool's own probes). */
     ffprobeRuns: z.number().int().min(0),
-    /** REAL ffmpeg invocations (the canonical transcodes). */
+    /** REAL ffmpeg invocations (the canonical transcodes / rawvideo decodes). */
     ffmpegRuns: z.number().int().min(0),
     /** Source bytes measured inbound (the verified claim). */
     inputBytes: z.number().int().min(0),
     /** Normalized bytes measured outbound (0 for probe-only jobs). */
     outputBytes: z.number().int().min(0),
+    /**
+     * Decoded frames delivered (decode-frames jobs ONLY). ADDITIVE —
+     * optional so every pre-extension probe/normalize envelope stays valid.
+     */
+    decodedFrames: z.number().int().min(0).optional(),
+    /**
+     * Decoded frame bytes delivered (decode-frames jobs ONLY; equals
+     * `decodedFrames` output). ADDITIVE — optional, same compat rule.
+     */
+    decodedFrameBytes: z.number().int().min(0).optional(),
   })
   .strict();
 export type MediaToolchainMetering = z.infer<typeof MediaToolchainMetering>;
@@ -356,6 +525,10 @@ export const MediaToolchainResult = z
     normalized: MediaToolchainNormalizedOutput.optional(),
     /** Present iff operation === "normalize" AND status === "succeeded". */
     artifact: MediaToolchainArtifact.optional(),
+    /** Present iff operation === "decode-probe" AND status === "succeeded". */
+    decodeProbe: MediaToolchainDecodeProbe.optional(),
+    /** Present iff operation === "decode-frames" AND status === "succeeded". */
+    decodedFrames: MediaToolchainDecodedFrames.optional(),
     /** Present iff status === "failed". */
     failure: MediaToolchainFailure.optional(),
     /** The worker's metering counters for this job. */
@@ -379,12 +552,15 @@ export const MediaToolchainResult = z
     }
     if (
       envelope.operation === "probe" &&
-      (envelope.normalized !== undefined || envelope.artifact !== undefined)
+      (envelope.normalized !== undefined ||
+        envelope.artifact !== undefined ||
+        envelope.decodeProbe !== undefined ||
+        envelope.decodedFrames !== undefined)
     ) {
       ctx.addIssue({
         code: "custom",
         path: ["normalized"],
-        message: "a probe job must not carry normalized output or an artifact",
+        message: "a probe job must not carry normalized output, an artifact, or decode results",
       });
     }
     if (
@@ -399,12 +575,16 @@ export const MediaToolchainResult = z
       });
     }
     if (envelope.operation === "normalize") {
-      if (envelope.sourceProbe !== undefined) {
+      if (
+        envelope.sourceProbe !== undefined ||
+        envelope.decodeProbe !== undefined ||
+        envelope.decodedFrames !== undefined
+      ) {
         ctx.addIssue({
           code: "custom",
           path: ["sourceProbe"],
           message:
-            "a normalize job must not carry a source probe (the output probe is the manifest's source)",
+            "a normalize job must not carry a source probe or decode results (the output probe is the manifest's source)",
         });
       }
       if (envelope.status === "succeeded") {
@@ -438,6 +618,70 @@ export const MediaToolchainResult = z
             });
           }
         }
+      }
+    }
+    if (envelope.operation === "decode-probe") {
+      if (
+        envelope.sourceProbe !== undefined ||
+        envelope.normalized !== undefined ||
+        envelope.artifact !== undefined ||
+        envelope.decodedFrames !== undefined
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["decodeProbe"],
+          message: "a decode-probe job must carry ONLY its decode probe document",
+        });
+      }
+      if (envelope.status === "succeeded" && envelope.decodeProbe === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["decodeProbe"],
+          message: "a succeeded decode-probe job must carry the measured decode probe document",
+        });
+      }
+    }
+    if (envelope.operation === "decode-frames") {
+      if (
+        envelope.sourceProbe !== undefined ||
+        envelope.normalized !== undefined ||
+        envelope.artifact !== undefined ||
+        envelope.decodeProbe !== undefined
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["decodedFrames"],
+          message: "a decode-frames job must carry ONLY its bounded frame batch",
+        });
+      }
+      if (envelope.status === "succeeded" && envelope.decodedFrames === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["decodedFrames"],
+          message: "a succeeded decode-frames job must carry the measured bounded frame batch",
+        });
+      }
+      if (
+        envelope.decodedFrames !== undefined &&
+        envelope.metering.decodedFrames !== undefined &&
+        envelope.metering.decodedFrames !== envelope.decodedFrames.frames.length
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["metering"],
+          message: "the metering's decodedFrames must equal the delivered batch's frame count",
+        });
+      }
+      if (
+        envelope.decodedFrames !== undefined &&
+        envelope.metering.decodedFrameBytes !== undefined &&
+        envelope.metering.decodedFrameBytes !== envelope.decodedFrames.totalBytes
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["metering"],
+          message: "the metering's decodedFrameBytes must equal the delivered batch's totalBytes",
+        });
       }
     }
   });
@@ -498,6 +742,11 @@ export const MediaToolchainDescriptor = z
         maxSourceBytes: z.number().int().positive(),
         maxArtifactBytes: z.number().int().positive(),
         maxConcurrentJobs: z.number().int().min(1),
+        /**
+         * The decode-frames batch bound (R607 Gap 1 — the frame-budget
+         * axis; ADDITIVE alongside the existing four).
+         */
+        maxDecodedFrameBytes: z.number().int().positive(),
       })
       .strict(),
     /** The metering currency (the W919 raw material). */
@@ -576,6 +825,13 @@ export interface MediaToolchainBudgets {
   maxArtifactBytes: number;
   /** Maximum simultaneously executing jobs (integer >= 1; the memory discipline). */
   maxConcurrentJobs: number;
+  /**
+   * Maximum decoded-frame batch byte length per decode-frames dispatch
+   * (fail-closed; the request's own `maxTotalBytes` bound applies FIRST —
+   * the R607 Gap 1 frame-budget axis, the W914 budget doctrine: the batch
+   * is refused `resource-limit`, never truncated silently).
+   */
+  maxDecodedFrameBytes: number;
 }
 
 /** The default budgets (see MediaToolchainBudgets for the derivation). */
@@ -584,6 +840,12 @@ export const DEFAULT_MEDIA_TOOLCHAIN_BUDGETS: MediaToolchainBudgets = Object.fre
   maxSourceBytes: 200 * 1024 * 1024,
   maxArtifactBytes: 200 * 1024 * 1024,
   maxConcurrentJobs: 1,
+  // The R207 studio upload path's own deliberate decode budget
+  // (STUDIO_UPLOAD_DECODE_BUDGET_BYTES = 1 GiB) — the frame-budget axis
+  // default derives from the consuming pipeline's recorded bound so the
+  // worker budget never silently degrades a compliant dispatch; the
+  // REQUEST's window bound is always the tighter authority.
+  maxDecodedFrameBytes: 1024 * 1024 * 1024,
 });
 
 /** Resolves caller-supplied partial budgets over the defaults. */
@@ -621,6 +883,11 @@ export function resolveMediaToolchainBudgets(
  * - `budget-exceeded` — the measured execution exceeded
  *   `min(maxExecutionMs, deadlineMs)` (timeout, resource-limit; outputs
  *   discarded);
+ * - `frame-budget-exceeded` — the decoded frame batch exceeded the
+ *   fail-closed frame budget `min(decodeWindow.maxTotalBytes,
+ *   maxDecodedFrameBytes)` (non-retryable, resource-limit; outputs
+ *   discarded — the R607 Gap 1 frame-budget axis, the same class the local
+ *   W102 boundary's `DecodeWindow.maxTotalBytes` enforcement produces);
  * - `invalid-envelope` — the constructed envelope failed its own schema
  *   (internal — fail-loud on a construction bug, never handed back).
  */
@@ -635,6 +902,7 @@ export const MEDIA_TOOLCHAIN_ERROR_CLASSES = [
   "duration-over-limit",
   "artifact-too-large",
   "budget-exceeded",
+  "frame-budget-exceeded",
   "invalid-envelope",
 ] as const;
 export type MediaToolchainErrorClass = (typeof MEDIA_TOOLCHAIN_ERROR_CLASSES)[number];

@@ -78,6 +78,7 @@ export type {
   ResolvedPipelineConfig,
 } from "./config";
 export { RealToSwmPipeline } from "./pipeline";
+export type { RealToSwmDecodePort, RealToSwmPipelineOptions } from "./decode-port";
 export type {
   EntityProvenance,
   PipelineHooks,

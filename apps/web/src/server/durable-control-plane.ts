@@ -101,6 +101,7 @@ import type {
 import type { PolicyAttestationIndex, PublicationStore } from "./publication";
 import type { SeedStoryMeta } from "./dev-seed";
 import { RealToSwmPipeline } from "@sporta/real-to-swm";
+import type { RealToSwmDecodePort } from "@sporta/real-to-swm";
 import type { ClipSource } from "@sporta/real-to-swm";
 import type { MediaPlatformService } from "@sporta/media-platform";
 import type { MediaStoragePort } from "@sporta/media-platform";
@@ -190,6 +191,15 @@ export interface DurableControlPlaneOptions {
    * production singleton passes `"neon"` alongside the pg adapter.
    */
   provider?: "neon" | "sqlite" | "in-memory";
+  /**
+   * The R607 Gap 1 injected decode-port (the TL-authorized decode seam):
+   * when the composition wires `MEDIA_TOOLCHAIN=http`, the R207 replay the
+   * durable layer re-runs for upload/URL-source sessions routes its decode
+   * through the http decode executor (the SAME port the studio's creation
+   * path used); ABSENT (the default) the replay constructs the LOCAL ffmpeg
+   * adapter path — byte-identical to the pre-seam behavior.
+   */
+  decode?: RealToSwmDecodePort;
   /** Wall clock. */
   nowMs: () => number;
 }
@@ -277,8 +287,14 @@ export function createDurableControlPlane(
     media,
     urlSources,
     provider = "in-memory",
+    decode,
     nowMs,
   } = options;
+
+  // The R607 Gap 1 seam's pipeline options: the injected decode-port when
+  // the composition wired one (MEDIA_TOOLCHAIN=http), none otherwise (the
+  // LOCAL ffmpeg adapter path — the non-degradation law).
+  const pipelineOptions = decode !== undefined ? { decode } : {};
 
   // Per-instance memos (positives only — a negative can become positive when
   // another instance creates the id later, so misses are always re-checked).
@@ -544,7 +560,7 @@ export function createDurableControlPlane(
       authorizationPolicy: record.rightsDeclaration,
     };
     try {
-      const pipeline = new RealToSwmPipeline();
+      const pipeline = new RealToSwmPipeline(pipelineOptions);
       const result = await pipeline.run({
         source,
         config: {
@@ -659,7 +675,7 @@ export function createDurableControlPlane(
       authorizationPolicy: record.rightsDeclaration,
     };
     try {
-      const pipeline = new RealToSwmPipeline();
+      const pipeline = new RealToSwmPipeline(pipelineOptions);
       const result = await pipeline.run({
         source,
         config: {

@@ -182,7 +182,12 @@ export class MediaToolchainWorker {
         providerId: this.providerId,
         providerKind: "cpu-worker" as const,
         operations: resolved
-          ? (["probe", "normalize"] as const satisfies readonly MediaToolchainOperationDoc[])
+          ? ([
+              "probe",
+              "normalize",
+              "decode-probe",
+              "decode-frames",
+            ] as const satisfies readonly MediaToolchainOperationDoc[])
           : [],
         toolchain: {
           ffmpegPath: resolved ? this.tool.ffmpegPath : null,
@@ -195,6 +200,7 @@ export class MediaToolchainWorker {
           maxSourceBytes: this.budgets.maxSourceBytes,
           maxArtifactBytes: this.budgets.maxArtifactBytes,
           maxConcurrentJobs: this.budgets.maxConcurrentJobs,
+          maxDecodedFrameBytes: this.budgets.maxDecodedFrameBytes,
         },
         costUnits: MEDIA_TOOLCHAIN_COST_UNITS,
       };

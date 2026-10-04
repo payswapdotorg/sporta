@@ -26,6 +26,8 @@
 import { FfmpegTool } from "./ffmpeg";
 import { InProcessMediaToolchain } from "./toolchain-executor";
 import { createHttpMediaToolchain } from "./toolchain-http";
+import { createHttpDecodePort } from "./decode-http";
+import type { DecodingService } from "@sporta/decoding";
 import type { MediaToolchainExecutor } from "./toolchain";
 
 /** The toolchain-selection vocabulary (closed). */
@@ -43,6 +45,15 @@ export interface ResolvedMediaToolchain {
    * constructs its own default seam; ALWAYS defined for `http`).
    */
   executor: MediaToolchainExecutor | undefined;
+  /**
+   * The R607 Gap 1 DECODE PORT (the injected seam `RealToSwmPipeline`
+   * accepts): the http decode executor when `toolchain === "http"`, and
+   * `undefined` for the `in-process` default — the pipeline then constructs
+   * its OWN local `FfmpegDecoderAdapter` path, byte-identical to the
+   * pre-seam behavior (the non-degradation law). Structurally a
+   * `DecodingService` — the exact `RealToSwmDecodePort` shape.
+   */
+  decodePort: DecodingService | undefined;
   /** The tool the in-process selection resolves (the `Bun.which` answer). */
   tool: FfmpegTool | null;
 }
@@ -96,6 +107,13 @@ export function resolveMediaToolchainFromEnv(
         ...(options.deadlineMs === undefined ? {} : { deadlineMs: options.deadlineMs }),
         ...(options.mediaPolicy === undefined ? {} : { mediaPolicy: options.mediaPolicy }),
       }),
+      // The R607 Gap 1 seam's client half: the SAME worker URL, wired as the
+      // R207 pipeline's injected decode port.
+      decodePort: createHttpDecodePort(workerUrl, {
+        ...(options.fetchFn === undefined ? {} : { fetchFn: options.fetchFn }),
+        ...(options.deadlineMs === undefined ? {} : { deadlineMs: options.deadlineMs }),
+        ...(options.mediaPolicy === undefined ? {} : { mediaPolicy: options.mediaPolicy }),
+      }),
       tool: null,
     };
   }
@@ -104,6 +122,9 @@ export function resolveMediaToolchainFromEnv(
     toolchain: "in-process",
     workerUrl: null,
     executor: new InProcessMediaToolchain({ tool, nowMs }),
+    // The non-degradation law: NO decode port for the in-process default —
+    // the pipeline constructs its own LOCAL ffmpeg adapter path.
+    decodePort: undefined,
     tool,
   };
 }
