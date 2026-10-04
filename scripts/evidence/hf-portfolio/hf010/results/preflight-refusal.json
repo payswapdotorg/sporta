@@ -1,0 +1,75 @@
+{
+  "label": "EXECUTED preflight (HF010) — the typed refusal for ALL THREE candidates",
+  "workItem": "HF010",
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "typedRefusal": {
+    "type": "resource-infeasible-host",
+    "reasons": [
+      "Wan2.2-Fun-Control-Camera model-download-disk-infeasible: the pinned repo tree is 71.06 GB (71,060,183,454 B) vs the host's free disk 1.12 GB — 63x over; the download itself is the infeasibility (bounded metadata probes only, weights never downloaded)",
+      "Wan2.2-Fun-Control-Camera model-load-ram-infeasible: the dual-expert A14B working set (29.585 + 29.585 GB diffusion + 11.362 GB T5 + 0.508 GB VAE ≈ 71.06 GB storage-dtype bytes) is ~17x the host's TOTAL RAM (3.95 GiB) before any activation — no cast or offload strategy recorded in the card changes the order of magnitude",
+      "Wan2.2-Fun-Control-Camera CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; an 81-frame A14B i2v take on 2 vCPU is a latency infeasibility on top of the walls above",
+      "ReCamMaster model-download-disk-infeasible: EVEN the smallest documented composition (the public example recipe: Wan-AI/Wan2.1-T2V-1.3B 17.574 GB + step20000.ckpt 2.981 GB ≈ 20.56 GB) is ~19x the host's free disk (1.12 GB); the benchmark-grade 14B composition is ~85 GB — ~79x over",
+      "ReCamMaster model-load-ram-infeasible (benchmark-grade): the Wan2.1-I2V-14B-720P class base (82.27 GB storage bytes) is ~20x the host's TOTAL RAM (3.95 GiB); the 1.3B example path alone (~17.6 GB storage + activations) already exceeds TOTAL RAM 4.4x",
+      "ReCamMaster CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; an 81-frame video-diffusion take on 2 vCPU is a latency infeasibility even where the weights would fit",
+      "Meridian model-download-disk-infeasible: the pinned composition is 76.70 GB (MiniMax-H3 transformer/ + vae/ per the installation doc's own include set) + 5.33 GB adapters (teacher 2,666.4 MB + turbo 2,666.4 MB) ≈ 82.04 GB vs the host's free disk 1.12 GB — ~76x over",
+      "Meridian model-load-ram-infeasible: the card's own reported runtime peak is ~88 GiB (73 frames) on a 96 GB-class GPU — ~22x this host's TOTAL RAM (3.95 GiB); the geometry stage is additional",
+      "Meridian requires a CUDA GPU by its own documented posture (docs/installation.md verbatim: 'The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options') — this host has NO CUDA device; the compute leg is impossible on this host class, independent of RAM/disk",
+      "Meridian VGGT-Omega auth-gate (the HF009 convention): the geometry stage's weights repo facebook/VGGT-Omega is HF-GATED with gate type MANUAL — anonymous API probes return 401 (Repository Not Found); the installation doc requires requesting access and authenticating with a granted account. A standing operator action on ANY host, recorded as an auth fact, never faked"
+    ]
+  },
+  "host": {
+    "cpuCount": 2,
+    "totalRamBytes": 4237889536,
+    "totalRamGiB": 3.95,
+    "availableRamBytes": 1866231808,
+    "availableRamGiB": 1.74,
+    "freeDiskBytes": 1124720640,
+    "freeDiskGiB": 1.05,
+    "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)"
+  },
+  "candidates": [
+    {
+      "candidate": "Wan2.2-Fun-Control-Camera",
+      "repoId": "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+      "revision": "da1f119dcf5626b2fa41219ce42ac175752f3892",
+      "reachable": true,
+      "gated": false
+    },
+    {
+      "candidate": "ReCamMaster",
+      "repoId": "KlingTeam/ReCamMaster-Wan2.1",
+      "revision": "4f3f7391743dfd25067ab27e0f1eb8928d11b91d",
+      "reachable": true,
+      "gated": false
+    },
+    {
+      "candidate": "Meridian",
+      "repoId": "Viggle/Meridian",
+      "revision": "9c57d46fbb3924cdac553a1005a8597b574b7225",
+      "reachable": true,
+      "gated": false
+    }
+  ],
+  "weightsDownloaded": false,
+  "boundedProbesOnly": true,
+  "authGate": {
+    "repoId": "facebook/VGGT-Omega",
+    "role": "Meridian geometry stage (VGGT-Omega, obtained separately per the Meridian installation doc)",
+    "gated": "manual",
+    "metadataProbe": "file-tree metadata IS anonymously reachable (the listing above); the WEIGHTS are not",
+    "weightsAccessHeadStatus": {
+      "status": 401,
+      "reason": "Unauthorized",
+      "verdict": "anonymous weight access REFUSED (401) — the gate is real; a granted HF account is required (metadata listing alone is not access)"
+    },
+    "gateType": "manual (request access; a granted HF account is required — the HF009 auth-gate convention)"
+  },
+  "partialDelivered": [
+    "executed load analysis (results/load-analysis.json)",
+    "license-posture verdicts from recorded terms only (results/license-posture.json)",
+    "the authored camera-path fixtures (fixtures/hf010-camera-paths.json — the common benchmark with authored camera paths)",
+    "the five metric designs implemented + self-checked (results/metric-selfcheck.json, 10/10)",
+    "the machine-checkable contract mappings (results/contract-compatibility.json via contract_compatibility.ts)"
+  ]
+}

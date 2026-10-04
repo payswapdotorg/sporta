@@ -1,278 +1,65 @@
-===== 64-f REPORT BEGIN =====
+# Sporta — Worker 65-a Delivery Report (HF010)
 
-# Worker 64-f delivery — HF008: the streaming commentary ASR portfolio benchmark evidence
+Branch: `work/hf010-camera-renderer-benchmark` (from main @ ce1f72c)
+Work item: HF010 — Camera-controlled neural renderer benchmark (flight 7, the renderer-wave opener)
+Evidence tree: `scripts/evidence/hf-portfolio/hf010/` (committed in-repo)
+Run record: `scripts/evidence/hf-portfolio/hf010/benchmark-record.json` (validated fail-closed by `record-benchmark.ts`, exit 0 + negative-tested)
 
-## Manifest
+=== HF010 BENCHMARK REPORT ===
 
-- Branch: `work/hf008-asr-portfolio-benchmark` (from main @ aca8280; never pushed)
-- Commit: `rel(64-f): HF008 — the ASR portfolio benchmark evidence (CPU-host, fixtures + metric designs + typed refusal)`
-- Work item: HF008 (docs/work-items/hf-model-portfolio-work-items.md)
-- Task profiles: `football.commentaryASR.streaming` + `football.commentaryASR.multilingual`
-  (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
-- Evidence tree (all committed in-repo):
-  - `scripts/evidence/hf-portfolio/hf008/benchmark_asr.py` — the benchmark script (preflight EXECUTED on this host: the typed refusal, exit 3; selfcheck EXECUTED, 10/10; FULL mode ready-to-run on an adequate host with the WER/latency/hotword/multilingual metric implementations)
-  - `scripts/evidence/hf-portfolio/hf008/contract_compatibility.ts` — the machine-checked transcription-output + evidence-chain + speaker-composition mappings + the STATIC pipeline-delta table (EXECUTED, exit 0, 31 needles verified)
-  - `scripts/evidence/hf-portfolio/hf008/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; negative-tested: fabricated wer + firstChunkLatencyMs refused with exit 1)
-  - `scripts/evidence/hf-portfolio/hf008/benchmark-record.json` — the ledger-shaped HF008 record (BOTH candidate rows echoed VERBATIM + the typed refusal + the partial)
-  - `scripts/evidence/hf-portfolio/hf008/summary.md` — the markdown summary
-  - `scripts/evidence/hf-portfolio/hf008/results/preflight-refusal.json` — the EXECUTED preflight: the resource arithmetic, both bounded hub probes, the fixture sha verification, the ground-truth search, the typed refusal (8 reasons)
-  - `scripts/evidence/hf-portfolio/hf008/results/load-analysis.json` — both candidates' file trees at the pinned revisions (sizes + LFS sha256s per shard), the bounded small-file fetch map, the resource arithmetic
-  - `scripts/evidence/hf-portfolio/hf008/results/model-output-schema.json` — the source-verified output facts (cards + configs fetched at the pinned revisions)
-  - `scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json` — the staged audio story (the HF009 record, re-verified this flight)
-  - `scripts/evidence/hf-portfolio/hf008/results/metric-selfcheck.json` — the EXECUTED metric implementation self-verification (10/10; labeled implementation evidence, NOT a model measurement)
-  - `scripts/evidence/hf-portfolio/hf008/results/contract-compatibility.json` — the emitted mapping tables + capability delta
-- Not committed (by design): the model weights (never downloaded — the resource refusal; the probes were bounded to file trees + small config/card fetches), the python venv (/home/z/hf-bench-6 — a NEW lean venv; no earlier flight's reused).
-- FROZEN contracts untouched; provenance-ledger.json untouched; architecture-lock untouched.
-- Guard batteries green: packages/testing hf-ledger.test.ts 8/8;
-  packages/perception-benchmark harness.test.ts (the L010 battery) 8/8.
+## The verdict (the honest shape on this host)
 
-=== HF008 BENCHMARK REPORT ===
+ALL THREE candidates REFUSED — typed refusal `resource-infeasible-host`, the EXECUTED preflight (exit 3; `results/preflight-refusal.json`; bounded reachability probes ONLY, weights never downloaded, never committed, never vendored). The delivery is the HF004/HF007/HF008/HF009 convention: the refusal + the SUBSTANTIAL partial — the authored camera-path fixtures, the license-posture verdicts, the five metric designs (implemented + self-checked), the machine-checked contract mappings. NO model ran; NO quality/latency/memory number exists in this flight; every metric-shaped value is a design, a fixture, or a refusal.
 
-## THE HONEST HEADLINE — both candidates resource-refused: a typed refusal + a substantial partial
+## The three candidates (ledger rows echoed VERBATIM in the record; all gatingState stay `candidate`)
 
-This flight covers BOTH HF008 ledger candidates (the work item names
-both; each ledger row echoed VERBATIM into the record):
+1. **Wan2.2-Fun-Control-Camera** = `alibaba-pai/Wan2.2-Fun-A14B-Control-Camera` @ `da1f119dcf5626b2fa41219ce42ac175752f3892` (apache-2.0/apache-2.0, commercial yes). Load analysis: the standalone repo IS the composition — `high_noise_model` + `low_noise_model` (29.585 GB each, the A14B dual-expert pair), `models_t5_umt5-xxl-enc-bf16.pth` (11.362 GB), `Wan2.1_VAE.pth` (0.508 GB); 71.06 GB total (hub-reported sizes + LFS sha256s recorded in `results/load-analysis.json`, NOT downloaded). Config (fetched at the pinned revision): `Wan2_2Transformer3DModel`, dim 5120, 40 layers/40 heads, `add_control_adapter: true`, `in_dim_control_adapter: 24`, `model_type: i2v`; 81 frames @ 16 fps, multi-res 512/768/1024; the camera conditioning is the **CameraCtrl lens-parameter convention** (the card's own dependency list names ComfyUI-CameraCtrl-Wrapper + CameraCtrl). Refusal: download = **63x free disk** (1.05 GiB); working set ≈ 71 GB ≈ **17x TOTAL RAM** (3.95 GiB); 2-vCPU latency infeasibility; GPU N/A honestly.
+2. **ReCamMaster** = `KlingTeam/ReCamMaster-Wan2.1` @ `4f3f7391743dfd25067ab27e0f1eb8928d11b91d` (apache-2.0 model / mit code, commercial yes). Load analysis: the open `step20000.ckpt` (2.981 GB — the control weights migrated by the authors onto Wan2.1; the paper's internal T2V model is NOT open-sourced, the repo README's own words). Conditioning: **camera trajectory over a single source video** — the 10 indexed preset classes (`--cam_type 1..10`: Pan R/L, Tilt U/D, Zoom In/Out, Translate U/D (with rotation), Arc L/R (with rotation)); inputs N mp4s ≥ 81 frames + `metadata.csv` captions. Refusal: EVEN the smallest documented composition (the public `download_wan2.1.py` pin `Wan-AI/Wan2.1-T2V-1.3B` 17.574 GB + the ckpt ≈ 20.56 GB) = **~19x free disk**; the benchmark-grade 14B composition (~85 GB) = ~79x; the 14B-class working set ~20x TOTAL RAM.
+3. **Meridian** = `Viggle/Meridian` @ `9c57d46fbb3924cdac553a1005a8597b574b7225` (model license `other` — **minimax-h3-community-license covering the adapter weights AND their outputs**; code apache-2.0; commercialUse **unclear**). Load analysis: two LoRA adapters (`teacher_lora` 2,666.4 MB + `turbo_lora` 2,666.4 MB — the card rounds to "2.5 GiB each") on the unmodified `MiniMaxAI/MiniMax-H3` transformer + VAE — the installation doc's own include set (`transformer/*` + `vae/*`) is **76.70 GB** hub-reported; the geometry stage requires **VGGT-Omega = `facebook/VGGT-Omega`, HF-GATED (gate type `manual`)** — anonymous WEIGHT access is **401** (verified by a bounded HEAD probe, zero body bytes; the metadata listing alone is not access) — the HF009 auth-gate convention, exactly as the brief predicted. Runtime posture (the card's own doc, verbatim): "The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options"; ~88 GiB peak for 73 frames; a 96 GB-class GPU for ≤ 124-frame takes. Camera conditioning: the **keyframe path** `{pos, look, src, t, ease?, focal?}` (`recam/path.py` fetched verbatim: Catmull-Rom pos/look with Fritsch-Carlson tangents, linear src/focal, roll locked to zero, pivot-depth units; "bullet time is two keys with the same src at different t"). Refusal: composition ≈ 82.04 GB = **~76x free disk**; card-reported runtime peak ~88 GiB = **~22x TOTAL RAM**; CUDA required (absent here) + the standing VGGT-Omega manual gate.
 
-1. `microsoft/VibeVoice-ASR-Streaming-1.5B` @ revision
-   `4262d23d8a539a6530cf64fbd0b1751ef9a30853` (MIT/MIT,
-   weightsProvenance unknown, datasetProvenance unknown, commercialUse
-   yes, gatingState candidate — task profile `football.commentaryASR.streaming`)
-2. `Qwen/Qwen3-ASR-1.7B` @ revision
-   `7278e1e70fe206f11671096ffdd38061171dd6e5` (apache-2.0/apache-2.0,
-   "large-scale speech training data on the Qwen3-Omni foundation model,
-   per card (1.7B and 0.6B family; 52 languages/dialects)",
-   datasetProvenance unknown, commercialUse yes, gatingState candidate —
-   task profile `football.commentaryASR.multilingual`)
+All three candidate repos are anonymously reachable (`gated: false`) — the only auth wall is Meridian's VGGT-Omega dependency, recorded as a fact, never faked, never bypassed.
 
-The preflight arithmetic ran FIRST (per the brief). BOTH candidates are
-reachable anonymously at their pinned revisions (gated=False — no
-HF009-style auth wall this flight); the wall is pure resources:
+## The license posture (first-class acceptance criterion; from recorded terms ONLY; never legal advice; never a promotion)
 
-| Constraint | VibeVoice-ASR-Streaming-1.5B | Qwen3-ASR-1.7B | Host | Verdict |
-|---|---|---|---|---|
-| Checkpoint (pinned shards) | 5,628,388,290 B fp32 (3 shards) | 4,698,521,512 B bf16 (2 shards) | — | — |
-| Working set (stored dtype) | 5.24 GiB fp32 | 4.38 GiB bf16 | 3.95 GiB TOTAL RAM | infeasible — 1.33x / 1.11x over TOTAL |
-| Working set (cast) | 2.62 GiB bf16 | 8.75 GiB fp32 | ~1.85 GiB AVAILABLE | infeasible — both over AVAILABLE before any activation |
-| Download vs free disk | 5.24 GiB | 4.38 GiB | ~1.08 GiB free | infeasible — 4.85x / 4.05x over |
-| GPU | needed for the streaming regime | recommended | none (N/A) | CPU-only, 2 vCPU — decode far from real time |
+- **Wan2.2-Fun-Control-Camera — production-eligible-by-recorded-terms** (apache-2.0/apache-2.0, commercialUse yes; the open edge is `datasetProvenance: unknown` — a provenance question for HF015, not a recorded license block).
+- **ReCamMaster — production-eligible-by-recorded-terms** (apache-2.0 model / mit code, commercialUse yes; the conditioning dataset MultiCamVideo is UE5-rendered synthetic with clean recorded provenance; the recorded caveat is capability-honesty — the repo's own words: "you may not achieve the same results as demonstrated in the demo" because the paper's internal T2V is not open).
+- **Meridian — research-only / watchlist for production** (TWO independent recorded blockers: (1) the MiniMax H3 Community License covering the weights AND their outputs, with territorial restrictions the installation doc itself records; (2) the mandatory geometry stage VGGT-Omega under the FAIR Noncommercial Research License v1 plus the HF manual gate). Nothing in the recorded terms clears commercial output use.
+- Evidence: `results/license-posture.json` (verbatim citations from the ledger rows + the fetched cards/docs).
 
-`benchmark_asr.py --mode preflight` was EXECUTED (exit code 3, the typed
-refusal `resource-infeasible-host` with 8 reasons covering both
-candidates, `results/preflight-refusal.json`; the weights were never
-downloaded — bounded probes only). Per the worker brief, the honest
-delivery is the refusal + the partial. **No quality, latency, or memory
-number exists in this flight — none is fabricated to stand in.** The
-fail-closed validator is negative-tested (a fabricated `wer: 0.087` +
-`firstChunkLatencyMs: 412.5` refused, exit 1, both failure messages;
-restored, exit 0).
+## The authored camera-path fixtures (the "common benchmark with authored camera paths" — the HF014 runway)
 
-## The candidates (source-verified at the pinned revisions)
+`fixtures/hf010-camera-paths.json` (`hf010.camera-paths@1`, sha256 `66ef1b4ad68208f9…`, byte-identical regeneration PROVEN by `--mode author-fixtures` twice): **6 deterministic camera-intent windows × 81 poses** (dolly-in / orbit / pan / crane / an adversarial pure optical zoom / **bullet time as the CameraPlan's own review kind** — the source frozen while the eye orbits), each anchored to a canonical W601 slot (`main-touchline`, `behind-goal-x0`, `behind-goal-x105`, `aerial-tactical`), in the **CameraPlan directed-window language** (`packages/camera-director/src/types.ts`: window + cameraSlotId + live/review presentation kind), exported **provider-neutral** (per-frame `tMs`/`eye`/`look`/`focalMultiplier`/`sourceFrame`). Pure parametric math (lerp, cosine ease, cos/sin of authored angles — no RNG, no solver); 3-decimal quantization for byte stability; the pose formulas are functions of `(spec, frameIndex)` only. The same ONE input set feeds all three candidates identically on any adequate host; the per-candidate converters (lens params / trajectory presets / keyframes in pivot-depth units) are specified in the full-mode driver. Deterministic, versioned, test-pinned (selfcheck recomputation byte-compares + sha-pins + canonical-slot vocabulary check + the record validator re-checks the sha).
 
-- **VibeVoice-ASR-Streaming-1.5B** — the card's own headline: "a unified
-  streaming ASR model that transcribes **Who (Speaker)** said **What
-  (Content)**, with support for **Customized Hotwords** and **10
-  languages**" (zh/en/es/pt/de/ja/ko/fr/ru/it). Architecture:
-  VibeVoiceForASRStreamingTraining — a qwen2-family 28-layer decoder
-  (hidden 1536, vocab 151936, tied embeddings) + acoustic/semantic
-  tokenizers + a diffusion head; fp32 storage; 24 kHz input. The pinned
-  `preprocessor_config.json` fixes the STREAMING-CHUNKING constants:
-  chunk_frames 22, lookahead_frames 4, speech_tok_compress_ratio 3200 —
-  3200 samples/token at 24 kHz = 0.1333 s/token, so one hypothesis chunk
-  covers ~22 tokens (~2.93 s) with a ~4-token (~0.53 s) lookahead. No
-  generation_config.json exists at this revision (404 — recorded); no
-  confidence is documented anywhere in the card.
-- **Qwen3-ASR-1.7B** — 30 languages named in `config.json`
-  support_languages (the card claims 52 languages AND dialects = 30
-  languages + 22 Chinese dialects — both recorded verbatim);
-  per-utterance language id (`results[0].language`); "streaming / offline
-  unified inference" with streaming ONLY via the vLLM backend (and
-  streaming mode supports neither batch inference nor timestamps); word/
-  character timestamps require the SEPARATE `Qwen3-ForcedAligner-0.6B`
-  (11 languages, a second model + download); 30 s chunks at 16 kHz
-  (128-mel Whisper-style features — the staged SPR WAVs are already 16
-  kHz mono); near-greedy generation_config (do_sample false,
-  temperature 1e-6 — the determinism anchor). The card documents ZERO
-  speaker metadata and ZERO hotword support (grep: no hits). The card
-  names the 0.6B sibling ("the 0.6B version achieves accuracy-efficient
-  trade-off") — recorded as an observation for the HF015 lane; NOT
-  substituted for the pinned 1.7B candidate.
+## The five metric designs (per the frozen `renderer.cinematicReCamera` profile; implemented, typed not-measured, exact definitions in the module docstring; self-check 14/14)
 
-## The audio fixtures (the HF009 story, staged and re-verified)
+1. **Camera adherence** (the authored path is ground truth): PnP-estimated camera poses from the output video against the KNOWN synthetic-pitch geometry → `cameraEndpointTranslationErrorM`, `cameraEndpointAngularErrorDeg`, `meanCameraAngularErrorDeg`, `cameraTrackingErrorPx` (corner reprojection RMSE, the 1280×720 profile), `lensFocalErrorPct`; frames with < 4 visible landmarks are typed estimation-impossible (counted, never dropped).
+2. **Player/ball identity** (the SWM entity ids are ground truth): the repo's own vision path on the generated frames → `playerIdentityStability = 1 − idSwitchCount/(entityCount × frameCount)` (pair-frame denominator) and `ballPresenceRecall` against the authored visible set.
+3. **Temporal consistency**: `meanConsecutiveSsim` (8×8 mean filter, valid windows, K1=0.01, K2=0.03, L=255 — stated so the number is reproducible) + `flowWarpResidual` (forward-backward-consistent pixels).
+4. **Hallucinated-region rate**: pixels outside the geometry-projected visible set that are generated content (luma deviation > τ = 8/255 from the reference render's grey — the Meridian "uncovered regions grey" convention as the contrast signal) / total frame pixels; the no-hallucination ideal is 0.
+5. **Generation cost/latency**: `generationWallClockMs` (CPU wall-clock labeled as such), `wallClockMsPerOutputSecond`, `peakGpuMemoryGiB` (honestly N/A-typed on CPU, never zero), `coldStartDownloadBytes`.
 
-The 64-d extraction at `/home/z/hf-bench-4/audio/` is the authorized
-fixture set, sha-verified by this flight's executed preflight (both
-PASS): `spr-b1-audio.wav` (30.070 s, 16 kHz mono PCM16, sha
-`08c2fcfb…`, from clip-b1-wide-broadcast.mp4) and `spr-src-audio.wav`
-(47.624 s, sha `ddf9c203…`, from b8p3.mp4) — SPR corpus clips authorized
-by the repo's own R606 registration declaration (analysis scope, repo
-private). The two structural gaps are recorded exactly as HF009 recorded
-them: **fx-001's audio gap** (the committed clip is video-only by the
-manifest's own `-an` transform — ffprobe re-verified this flight: a
-single h264 stream; the audio lives only in the original webm at the
-canonical URL, whose fetch was HTTP-429-rate-limited on all 6 attempts
-in the 64-d flight — an infrastructure wall, not licensing) and the
-**synthetic fixture's no-audio structural gap** (ffprobe re-verified: a
-single video-only h264 stream — NO audio track exists at all; the repo
-fixture set cannot exercise ANY audio task profile). A third typed gap:
-the SPR WAVs' spoken language is not annotated anywhere in the repo —
-per-language fixtures for the multilingual protocol do not exist.
+Self-check (`results/metric-selfcheck.json`, EXECUTED 14/14): 12 hand-computed metric cases (angular errors 90°/60°, endpoint translation, the projection convention in px + the near-plane rule, identity stability, ball recall, the SSIM constant-patch closed form, the flow-warp residual pair, hallucination rate, cost per output second) + 2 fixture checks (byte-identical recomputation + canonical-slot vocabulary) — labeled IMPLEMENTATION evidence, NOT a model measurement.
 
-## The metric designs (implemented, ready-to-run, typed not-measured)
+## The contract mapping (machine-checkable; the camera-path-conditioning gaps are the HF014 design surface)
 
-All definitions are stated exactly in `benchmark_asr.py`'s module
-docstring and implemented as dependency-free functions; the
-implementations were verified by the EXECUTED self-check (10/10
-hand-computed cases — labeled implementation evidence, NOT a model
-measurement, never entering the quality blocks as numbers):
+`contract_compatibility.ts` → `results/contract-compatibility.json` (exit 0): 15 task-profile INPUT rows (5 frozen inputs × 3 candidates), 9 OUTPUT rows, the 3-row camera-path-conditioning table, the 3-row rights-provenance table, and the profile verdict — every row argued from `results/model-io-surface.json` (the source-verified facts) against 9 repo authorities (the FROZEN `technology-task-profiles.md`, the CameraPlan/slot language, the renderer-3d identity/camera/render seams, the rights-provenance contract, the fixture vocabulary — all needles machine-checked).
 
-- **WER** = (S + D + I) / N over the word-sequence Levenshtein
-  alignment, with the normalization stated exactly (case-fold,
-  Unicode-punctuation strip by category, whitespace collapse); reported
-  per utterance and pooled as the micro-average over reference words
-  (never the mean of per-utterance rates). An empty reference with a
-  non-empty hypothesis is insertion-only: WER undefined, NEVER reported
-  as 0. The **reference-transcript requirement**: the repo owns NO
-  commentary transcripts of real audio (the ground-truth search record:
-  the W208 test transcripts are synthetic inline text; the ASR fixture
-  backend returns canned strings; the production z-ai backend has no
-  stored reference) — `--ground-truth` is the OPERATOR UNLOCK.
-- **Streaming-chunking semantics** (VibeVoice): hypothesis-per-chunk vs
-  FINAL (the settled transcript once the chunk leaves the lookahead
-  window); WER is computed on the concatenated finals; the per-chunk
-  hypothesis churn is a separate streaming-consistency measure
-  (hypothesisChurnRate = 1 − mean word-F1 of each hypothesis vs its own
-  final) — never a WER.
-- **Streaming latency**: firstChunkLatencyMs (wall-clock from the first
-  audio sample fed to the first emitted hypothesis), steady-state RTF
-  (processing time / audio duration, per chunk after the first, pooled),
-  per-utterance wall-clock (median + nearest-rank p95,
-  rank = ceil(p/100·n) — the repo convention). TYPED: Qwen3's
-  first-chunk latency is vLLM-only per the card; the transformers
-  backend measures offline metrics only.
-- **Hotword recall** = |{hotwords in the reference ∧ recognized in the
-  hypothesis}| / |{hotwords in the reference}| (the denominator counts
-  only present hotwords — verified by self-check). The hotword
-  VOCABULARY is an authored decision recorded as the gap (the W401
-  precedent: "tech-lead AUTHORED decision (test-pinned), not an
-  inference"): the repo's own candidates are the W209 pattern lexicon
-  and the W401 event taxonomy — extraction vocabularies, not ASR-biasing
-  name lists; the operator passes `--hotwords`. VibeVoice documents
-  input-side customized hotwords natively; Qwen3 documents none (a typed
-  capability gap for the multilingual candidate).
-- **Multilingual WER**: per-language WER pooled per DETECTED language
-  (Qwen3's per-utterance language id). Requires per-language licensed
-  fixtures — NONE exist (typed).
+**Profile verdict (PARTIAL):** camera-path conditioning **Meridian maps** (the keyframe path IS the profile's camera path; the geometry stage internalizes geometry/depth guidance) > **Wan2.2-Fun maps-with-adapter** (the CameraCtrl lens-parameter seam; slots are discrete cuts, lens is continuous per-frame — the converter is the gap) > **ReCamMaster partial** (preset-indexed trajectories, not authored paths; the custom-trajectory seam is the gap). **Renderer telemetry + geometry/SWM consistency metadata: does-not-map or partial for ALL three** — both outputs are the benchmark's external measurements, never model claims (any HF014 design must keep them external). SWM inputs: partial for all three (pixels + prompts, never SWM structure). Source-video inputs: ReCamMaster + Meridian map; Wan2.2-Fun maps-with-adapter (an i2v image, rights-gated per `real-source-provenance.md`).
 
-## The ASR contract mappings (machine-checked, the flight's core value)
+## The ready-to-run path
 
-`contract_compatibility.ts` EXECUTED exit 0 — 31 needle-checked claims
-over the FROZEN task profiles, the W207/W208/W209/W401 sources, the ASR
-observation seam, and the committed HF007 evidence; 6 transcription-
-output rows + 3 evidence-chain rows + 2 speaker-composition rows + the
-8-row STATIC capability delta.
-
-**The load-bearing verdict — transcription-of-observed-audio vs
-free-form generation.** HF007 ruled the W208 CommentaryUnit
-NOT-COMPATIBLE for GENERATED text ("a different artifact class" — free-
-form commentary synthesis has no character traceability). ASR
-transcription of observed audio is a DIFFERENT artifact class, and the
-distinction is argued from the repo's OWN sources, never asserted: (1)
-the W207 observation contract says STT output enters the pipeline as
-OBSERVATIONS with `modality: "audio"`, `provenance: "OBSERVED"`, payload
-`kind: "transcription"` with text VERBATIM — the audio observation
-EXISTS and is the evidence anchor; (2) W208's own docstring opens "W207
-transcribes fixed 5-second audio windows" — the chain is BUILT on ASR
-output; (3) the production backend (zai-backend.ts) is itself a neural
-ASR behind the vendor-neutral one-method seam. An ASR transcript is
-derived from the observed audio — the same class as the incumbent
-backend's output — so the HF007 exclusion of generated text does NOT
-apply to it, and the W208 verdict is **compatible-with-adapter for
-transcription** (the honest reversal of the HF007 verdict, recorded as
-such). What the doctrine still governs: the W208 segmenter's own
-transformation (trim/join only — traceable to W207 characters) holds
-regardless of the backend. The typed gaps that remain: chunk-level (not
-word-level) timing; the hallucination risk (a neural ASR can emit
-unspoken text — contained by the OBSERVED-audio evidence anchor, the
-honest confidence absence, and W209's DERIVED provenance downstream;
-the insertion-rate-on-non-speech measure is a typed metric design, not
-measured); no confidence from either candidate (asrConfidence stays
-undefined forever — architecture-lock §4, exactly the zai-backend
-discipline).
-
-The other key mappings: the transcript text **maps** onto W207
-AsrBackendResult.text behind the existing seam (both candidates are
-just additional backends — vendor neutrality sanctions them);
-timestamps **maps-with-adapter** (VibeVoice's ~2.93 s chunks are finer
-than the 5 s W207 grid — an adapter tiling decision; Qwen3 has no
-timestamps without the separate ForcedAligner); speaker hints
-**maps-with-adapter** for VibeVoice (cluster labels → W207 speakerLabel
-passthrough → W208's hard speaker-change boundary — with the HF009
-typed gaps carried over: cluster-not-identity, overlap→exclusive
-unverified, no per-turn confidence) and **does-not-map** for Qwen3; the
-per-utterance language id is **partial** (W207/W208 are language-blind —
-no landing field; a TL-gated extension, recorded not built); hotwords
-are **partial** (the seam's transcribe(wav) carries no context
-argument — a TL-gated seam extension — plus the authored vocabulary
-gap).
-
-## The speaker-hints / diarization composition verdict
-
-The two candidates sit at DIFFERENT positions in the pipeline
-composition. **VibeVoice = fused ASR+diarization** (who-said-what in
-one model): the HF009 pyannote stage becomes unnecessary FOR SPEAKER
-LABELS if the fused attribution quality is acceptable — UNVERIFIED (the
-HF009 run was auth-refused, this flight resource-refused) — and the
-HF009 typed gaps carry over unchanged (cluster labels not identities;
-no per-turn confidence; overlap→exclusive quality unverified).
-**Qwen3 = pure ASR** (zero speaker metadata documented): it REQUIRES
-the HF009 pyannote→W208 composition exactly as designed (whose auth
-wall still applies). Neither composition is verified on this host; the
-composition choice is an HF015-lane decision that needs EXECUTED
-evidence from both ready-to-run paths first. Neither candidate provides
-speaker IDENTITIES — identity resolution stays W401 fusion territory.
-
-## The ready-to-run path (on an adequate host)
-
-`benchmark_asr.py --mode full` (fail-closed, refuses on this host with
-the same arithmetic): >= 16 GB RAM, >= 24 GB free disk; pinned
-sha-verified downloads of every shard (the hub LFS sha256s are recorded
-in results/load-analysis.json); the VibeVoice path (the vibevoice
-package + torch + transformers>=4.51, 24 kHz resample, the model's
-streaming generator, hypothesis-per-chunk vs finals collected); the
-Qwen3 path (the qwen-asr package, the transformers backend offline per
-fixture — the SPR WAVs are already 16 kHz mono — per-utterance language
-id + text; the vLLM backend is the streaming-only path, typed); the
-`--ground-truth` and `--hotwords` operator unlocks; every metric above
-assembled from the run's own numbers only.
+`benchmark_renderer.py --mode full`: fails closed (exit 3) unless ≥ 32 GiB RAM, ≥ 64 GiB free disk, AND a CUDA device (Meridian's own documented posture makes the GPU non-optional) — **negative-tested on THIS host** (the three blockers printed, exit 3 verified). The driver: render the source clip per fixture with the repo's own renderer-3d (the honest provider-neutral source — the synthetic pitch, no broadcast pixels, no rights surface), convert the authored fixtures per candidate (lens params / trajectory / keyframes), run each candidate's own documented inference entry point at the pinned revisions (sha-verified downloads), then the five metric implementations vs the authored ground truth.
 
 ## The limitations (honest)
 
-The models never ran — every metric-shaped value here is a design, a
-typed refusal, or an implementation self-check (labeled as such). CPU
-wall-clock would be labeled CPU (no GPU, N/A); the 30-48 s authorized
-clips are far outside both models' full-broadcast training regimes (a
-domain-shift caveat); no reference transcripts exist (the WER
-denominator is an operator action away on ANY hardware); no per-language
-fixtures exist; the hotword vocabulary does not exist; the speaker
-quality is unverifiable without a run; Qwen3's 52-language claim is
-card-stated, not measured (30 languages in config).
+- No model ran — zero executed quality/latency/memory evidence; the fixtures were never consumed by any model; the metric implementations have processed only hand-computed cases.
+- The camera-adherence PnP estimator's accuracy on real generated video is unmeasured until a run exists; the SSIM/flow implementations are definition-exact but run-verified only on synthetic cases.
+- The license-posture verdicts are engineering readings of recorded terms — not legal advice, not adjudications.
+- The full-mode candidate-execution branch documents the per-candidate runtimes (diffusers/VideoX-Fun, DiffSynth-Studio, the Meridian release + granted VGGT-Omega) but the staging of those runtimes is the adequate host's operator action; the VGGT-Omega manual gate stands on any host.
+- ReCamMaster's smallest composition (the 1.3B example path) is recorded for honesty — it is NOT a substitute benchmark configuration (the benchmark-grade composition is the 14B class; no substitution was made, mirroring the HF008 0.6B-sibling discipline).
 
-## The promotion-gate referral
+## The promotion gate (referral — HF015 owns it)
 
-`gatingState` stands `candidate` for BOTH — NO promotion; HF015 is the
-TL's gate alone. Blockers for that gate (recorded in
-benchmark-record.json): zero executed evidence (resource-infeasible
-host, both candidates); the ground-truth unlock (no reference
-transcripts exist — an operator action precedes any scored run
-anywhere); the three fixture gaps (fx-001's 429-blocked audio, the
-synthetic fixture's missing audio track, no per-language fixtures); the
-authored hotword vocabulary (a W401-lane decision that does not exist);
-and the speaker-hints quality unverifiable without a run (VibeVoice's
-fused cluster-label attribution + no diarization ground truth — the
-HF009 verdict). The 0.6B sibling is a recorded HF015-lane observation
-(smaller checkpoint — possibly feasible on a mid-tier host), not a
-substitution.
+UNCHANGED: all three candidates' `gatingState` stay `candidate`; this benchmark recommends NOTHING production. Recorded blockers for HF015: no run anywhere yet; the unconsumed-fixture fact (the ≥ 32 GiB/≥ 64 GiB + CUDA host question or the honest no-promotion posture); Meridian's recorded license terms (independent of resources); the telemetry trust rule (external measurement only). See `benchmark-record.json` → `promotionGate`.
 
 === END REPORT ===
-
-===== 64-f REPORT END =====

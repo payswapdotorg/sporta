@@ -1,0 +1,86 @@
+{
+  "label": "THE AUTHORED CAMERA-PATH FIXTURES (the 'common benchmark with authored camera paths') — deterministic, versioned, test-pinned; host-independent (pure data + math); the HF014 runway",
+  "fixtureSet": {
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+    "fixtureSetVersion": "hf010.camera-paths@1",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "windows": 6,
+    "posesPerWindow": 81,
+    "deterministic": "pure parametric functions of (spec, frameIndex) — no RNG, no solver"
+  },
+  "windows": [
+    {
+      "fixtureId": "hf010-dolly-in-main-touchline",
+      "intentKind": "dolly-in",
+      "anchorSlotId": "main-touchline",
+      "presentationKind": "live",
+      "window": {
+        "startMs": 0,
+        "endMs": 5063
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    },
+    {
+      "fixtureId": "hf010-orbit-goal-behind-x105",
+      "intentKind": "orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "window": {
+        "startMs": 5063,
+        "endMs": 10125
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    },
+    {
+      "fixtureId": "hf010-pan-across-box-behind-x0",
+      "intentKind": "pan",
+      "anchorSlotId": "behind-goal-x0",
+      "presentationKind": "live",
+      "window": {
+        "startMs": 10125,
+        "endMs": 15188
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    },
+    {
+      "fixtureId": "hf010-crane-rise-behind-goal-x105",
+      "intentKind": "crane",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "window": {
+        "startMs": 15188,
+        "endMs": 20250
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    },
+    {
+      "fixtureId": "hf010-zoom-optical-aerial-tactical",
+      "intentKind": "zoom-optical",
+      "anchorSlotId": "aerial-tactical",
+      "presentationKind": "live",
+      "window": {
+        "startMs": 20250,
+        "endMs": 25313
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    },
+    {
+      "fixtureId": "hf010-bullet-time-goal-line-x105",
+      "intentKind": "bullet-time-orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "review",
+      "window": {
+        "startMs": 25313,
+        "endMs": 30375
+      },
+      "frameCount": 81,
+      "providerNeutral": "per-frame {tMs, eye, look, focalMultiplier, sourceFrame} — the Meridian keyframe language (pos/look/src/t/focal), the Wan2.2-Fun lens-sequence target, the ReCamMaster trajectory target; converters per candidate live in the full-mode driver"
+    }
+  ],
+  "consumedBy": "benchmark_renderer.py --mode full (the provider-neutral driver) and the repo's camera-director CameraPlan vocabulary (packages/camera-director/src/types.ts DirectedWindow shape: window + cameraSlotId + presentation kind)"
+}

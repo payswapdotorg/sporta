@@ -1,0 +1,122 @@
+{
+  "label": "IMPLEMENTATION self-check — the metric implementations and the fixture set verified against hand-computed cases. This is implementation evidence, NOT a model measurement: no metric value in this file ever enters the benchmark record as a measured quality/latency/memory figure.",
+  "cases": [
+    {
+      "case": "fixture-determinism",
+      "description": "the committed fixture JSON is byte-identical to the recomputation from the parametric specs (all 6 windows x 81 poses), sha256 pinned",
+      "expected": "byte-identical, sha256 66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+      "actual": "byte-identical, sha256 66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+      "pass": true
+    },
+    {
+      "case": "fixture-canonical-slots",
+      "description": "every fixture window's anchorSlotId is one of the five canonical W601 slots (behind-goal-x0, behind-goal-x105, main-touchline, opposite-touchline, aerial-tactical) — the repo's own vocabulary, never an invented slot",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "angular-90",
+      "description": "camera_angular_error_deg of (1,0,0) vs (0,1,0) is exactly 90.0",
+      "expected": 90.0,
+      "actual": 90.0,
+      "pass": true
+    },
+    {
+      "case": "angular-60",
+      "description": "camera_angular_error_deg of (1,0,0) vs (0.5, sqrt(3)/2, 0) is 60.0 (cos = 0.5; float tolerance 1e-9 — the arccos of 0.5 is 60 deg up to the last ulp)",
+      "expected": 60.0,
+      "actual": 59.99999999999999,
+      "pass": true
+    },
+    {
+      "case": "endpoint-translation",
+      "description": "camera_endpoint_translation_error_m of (10,0,0) vs (7,0,0) is exactly 3.0",
+      "expected": 3.0,
+      "actual": 3.0,
+      "pass": true
+    },
+    {
+      "case": "projection-pixels",
+      "description": "project_point of a point 10 m along forward and +1 m along the right basis direction (focal 512, canvas center 640,360): screen x = 640 + 512*1/10 = 691.2 exactly; depth 10.0",
+      "expected": [
+        691.2,
+        360.0,
+        10.0
+      ],
+      "actual": [
+        691.2,
+        360.0,
+        10.0
+      ],
+      "pass": true
+    },
+    {
+      "case": "projection-near-plane",
+      "description": "a point 1 m BEHIND the camera is not projectable (None — the 0.5 m near-plane rule of renderer-3d/src/camera.ts)",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    },
+    {
+      "case": "identity-stability",
+      "description": "player_identity_stability(4 switches, 10 entities, 40 frames) = 1 - 4/400 = 0.99",
+      "expected": 0.99,
+      "actual": 0.99,
+      "pass": true
+    },
+    {
+      "case": "ball-recall",
+      "description": "ball_presence_recall(54, 60) = 0.9",
+      "expected": 0.9,
+      "actual": 0.9,
+      "pass": true
+    },
+    {
+      "case": "ssim-constant-patches",
+      "description": "ssim of constant patches 100 vs 110 (C1 = (0.01*255)^2 = 6.5025): (2*100*110 + 6.5025)/(100^2 + 110^2 + 6.5025) = 22006.5025/22106.5025 = 0.995477...",
+      "expected": 0.9954764441,
+      "actual": 0.9954764441,
+      "pass": true
+    },
+    {
+      "case": "flow-residual-zero-flow",
+      "description": "flow_warp_residual on a 1-px rightward-shifted linear ramp with ZERO flow: every |I2(x) - I1(x)| = 1 → mean 1.0",
+      "expected": 1.0,
+      "actual": 1.0,
+      "pass": true
+    },
+    {
+      "case": "flow-residual-correct-flow",
+      "description": "the same pair with the CORRECT flow (-1, 0) — warp I1 INTO I2 by sampling one pixel left: I1(x-1) = x-1 = I2(x) exactly → mean 0.0",
+      "expected": 0.0,
+      "actual": 0.0,
+      "pass": true
+    },
+    {
+      "case": "hallucination-rate",
+      "description": "hallucinated_region_rate(12 non-grey pixels outside V out of a 10x10 frame) = 12/100 = 0.12",
+      "expected": 0.12,
+      "actual": 0.12,
+      "pass": true
+    },
+    {
+      "case": "cost-per-output-second",
+      "description": "wall_clock_ms_per_output_second(101250 ms, 81 frames, 16 fps) = 101250/5.0625 = 20000.0",
+      "expected": 20000.0,
+      "actual": 20000.0,
+      "pass": true
+    }
+  ],
+  "total": 14,
+  "failures": 0,
+  "allPass": true,
+  "fixtureSet": {
+    "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+    "fixtureSetVersion": "hf010.camera-paths@1",
+    "sha256": "66ef1b4ad68208f9e04341ed3dfe3384467e0b7990fcc1def4813a71cbcbf3a1",
+    "windows": 6,
+    "posesPerWindow": 81,
+    "deterministic": "pure parametric functions of (spec, frameIndex) — no RNG, no solver"
+  }
+}
