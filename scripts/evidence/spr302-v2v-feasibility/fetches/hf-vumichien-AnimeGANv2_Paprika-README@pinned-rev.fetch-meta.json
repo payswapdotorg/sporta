@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/vumichien/AnimeGANv2_Paprika/resolve/aff2c6fe956c37d70bf2f80b0e98071997f8b466/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:56:21Z",
+  "bytes": 727,
+  "sha256": "64bfc148d6d4228046e9a3b3da7df87c7e90ca450e6dea409282bcd9c85e1645",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg"
+}

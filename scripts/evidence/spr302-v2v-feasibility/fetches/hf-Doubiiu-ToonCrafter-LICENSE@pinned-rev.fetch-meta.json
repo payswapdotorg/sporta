@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/Doubiiu/ToonCrafter/resolve/7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf/LICENSE",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:59Z",
+  "bytes": 11331,
+  "sha256": "9849d33ce88d14d755c8d71d7c8e6deecf7e9ff8d91a6ca0ee5cd9058120b830",
+  "note": "the LICENSE file ON THE HUB REPO at the pinned revision (the ToonCrafter license leg — the license also lives in the hub tree itself)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

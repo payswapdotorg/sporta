@@ -1,0 +1,9 @@
+{
+  "url": "https://ebsynth.com/terms",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:58Z",
+  "bytes": 14327,
+  "sha256": "de07a679b9d476b5ca6d3aab935890cd244635c36cf5d439d67fa6da7f1b84b4",
+  "note": "the EbSynth terms page (the site's Terms link — the license leg for the binary tool)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

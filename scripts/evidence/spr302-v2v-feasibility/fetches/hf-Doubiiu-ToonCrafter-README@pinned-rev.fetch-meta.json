@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/Doubiiu/ToonCrafter/resolve/7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:56:22Z",
+  "bytes": 2496,
+  "sha256": "76a08319bf9f5d1497c206ff09ef08c954158536ae7613168044b16503973c41",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg"
+}

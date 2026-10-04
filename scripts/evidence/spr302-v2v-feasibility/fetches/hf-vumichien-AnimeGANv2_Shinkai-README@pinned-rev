@@ -1,0 +1,24 @@
+---
+license: apache-2.0
+tags:
+- AnimeGanv2
+---
+## Model Description
+
+Transforming photos of real-world scenes into anime style images is a meaningful and challenging task in terms of computer vision and artistic style transfer. 
+
+AnimeGANv2_Shinkai Made by Asher Chan.
+
+The official code in [here](https://github.com/TachibanaYoshino/AnimeGANv2)
+
+## License
+
+This repo is made freely available to academic and 
+non-academic entities for non-commercial purposes such 
+as academic research, teaching, scientific publications. 
+Permission is granted to use the AnimeGAN given 
+that you agree to my license terms. Regarding the 
+request for commercial use, please contact us via 
+email to help you obtain the authorization letter.
+
+

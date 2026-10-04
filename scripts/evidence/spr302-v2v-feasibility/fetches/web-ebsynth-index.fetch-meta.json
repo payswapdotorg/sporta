@@ -1,0 +1,9 @@
+{
+  "url": "https://ebsynth.com/",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:58Z",
+  "bytes": 64000,
+  "sha256": "ff71dc663264fa730be96f573c05c8df2022a1d3c95d6aa73a7083e73299312f",
+  "note": "the EbSynth site root (records where the terms live)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://raw.githubusercontent.com/daooshee/CompoundVST-NTIRE2023/main/README.md",
+  "httpStatus": 404,
+  "fetchedAtUtc": "2026-10-04T07:56:18Z",
+  "bytes": 14,
+  "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg",
+  "finding": "not fetched (non-200 or empty) — recorded as a typed gap, never retried around"
+}

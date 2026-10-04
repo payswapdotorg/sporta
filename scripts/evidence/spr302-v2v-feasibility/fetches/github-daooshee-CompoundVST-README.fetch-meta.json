@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/daooshee/CompoundVST/master/README.md",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T08:01:56Z",
+  "bytes": 69,
+  "sha256": "0e7e954921e6e1c50998cd6e2fda01a989d0488029d25343f6f86d6a4966093d",
+  "note": "CompoundVST readme (weights provenance + usage terms)",
+  "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+}

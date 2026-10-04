@@ -1,83 +1,176 @@
-# Sporta — Worker Delivery Report (HF005, flight 13 — the last unstarted portfolio item)
+# SPR302 — Worker 65-h delivery (the research/matrix flight)
 
-Branch: `work/hf005-sam3-benchmark` (from main @ 86f3d4f)
-Work item: HF005 — SAM3 segmentation/tracking benchmark (Owner: Worker A; verbatim acceptance: "controlled gated benchmark; explicit license review; compare identity continuity and latency; remain research/watchlist unless production-safe.")
-Evidence tree: `scripts/evidence/hf-portfolio/hf005/` (committed in-repo; the fetches are the three bounded text documents with fetch-meta)
-Execution record: `results/preflight-refusal.json` (the executed typed refusal, exit 3) + `results/license-posture.json` (13 machine-verified citations) + `results/metric-selfcheck.json` (18/18 hand-computed cases) + `results/contract-compatibility.json` (machine-checked, exit 0)
+Manifest:
 
-=== HF005 BENCHMARK REPORT ===
+- work item: SPR302 — Neural v2v candidate shortlist + feasibility matrix (Owner: A, Wave: WAVE-1)
+- branch: `work/spr302-v2v-feasibility` (from main @ 1a8e3e0; never pushed)
+- evidence tree: `scripts/evidence/spr302-v2v-feasibility/` (probe scripts EXECUTED, matrix-record.json, fail-closed validator NEGATIVE-TESTED, summary.md, 41 recorded fetch attempts with fetch-meta)
+- gates: `bun scripts/evidence/spr302-v2v-feasibility/validate-matrix.ts` exit 0 (+ 2 negative tests exit 1) · `bunx prettier --check .` clean · `bunx eslint` 0 errors on the touched TS · FROZEN contracts + the hf-portfolio/spr evidence trees untouched
+- no model runs; zero weight bytes; no promotion (SPR303 owns the trial)
 
-## The verdict
+=== SPR302 FEASIBILITY REPORT ===
 
-SAM3 (facebook/sam3 @ 3c879f39826c281e95690f02c7821c4de09afae7) is **MANUAL-GATED on the HF Hub AND resource-infeasible on this CPU host** → the honest delivery is the **typed refusal (`auth-gated-model+resource-infeasible-host`, exit 3, EXECUTED)** + the substantial partial: the explicit license review (first-class), the load analysis, the identity-continuity + latency metric designs (implemented, self-checked, typed not-measured), the comparison design vs the repo's current path, and the machine-checkable contract mapping. **NO promotion**: gatingState stays `candidate`; the HF015 gate (merged at main) owns adjudication — its standing SAM3 row refused all five legs.
+## 1. The shortlist (9 candidates across the landscape's classes — live probe facts)
 
-## The gated probe (EXECUTED — the hf009 convention, bounded)
+Host measured live (2026-10-04T07:56Z, `results/shortlist-probe.json`): **4041.6 MiB total
+RAM / 6.82 GiB free disk / 2 vCPU / no GPU.** Every hub size below is HUB-REPORTED
+(API file listing, never downloaded); every reachability verdict is the executed
+1-byte Range probe (the hf005/hf009 convention, zero weight body bytes).
 
-The anonymous `Range: bytes=0-0` probe map at the PINNED revision (the pinned sha IS the repo HEAD — no drift):
+| # | candidate (class) | HF repo(s) @ pinned rev | gated | size | license (recorded terms) | reachability |
+|---|---|---|---|---|---|---|
+| 1 | **AnimeGANv2** (per-frame NST) | `akhaliq/AnimeGANv2-pytorch`@5f2c6e4b, `vumichien/AnimeGANv2_{Hayao,Paprika,Shinkai}`@f84714b4/aff2c6fe/14924f86 | no (all) | 8.6 MB per style | MIT code (fetched); **NC weights terms on the mirrors** (fetched verbatim); film-frame training provenance (The Wind Rises / Shinkai / Paprika, fetched) | HTTP 206 (all 4) |
+| 2 | **EbSynth** (example-based propagation) | none (a binary/CLI tool, not a hub model — recorded) | n/a | n/a | public-domain code + Adobe PatchMatch patent warning (fetched); tool terms fetched: "You retain full copyright to the videos you create in EbSynth if you own the copyright to the guiding video and keyframes"; "does not utilize AI or pre-trained models"; the SDXL keyframe trap recorded verbatim | n/a (site + repo fetched) |
+| 3 | **ReReVST** (neural VST) | none on the hub (search 0); GitHub `daooshee/ReReVST-Code` (GPL-3.0, full text fetched) | n/a | weights off-hub (Google Drive/Baidu Pan per the fetched README) | GPL-3.0 code; weights terms unstated | n/a |
+| 4 | **Diffutoon** (diffusion toon shading — the wave-3+ quality reference) | official: NOT FOUND (project page 404, GitHub 0 search hits + raw 404 both branches, no official hub repo); mirror `camenduru/Diffutoon`@f9672c4a | no (mirror) | **9.59 GiB** (mirror tree) | **license-terms-not-found** (all recorded official paths 404; the mirror is untagged) | HTTP 206 (mirror) |
+| 5 | **ToonCrafter** (generative interpolation) | `Doubiiu/ToonCrafter`@7c56c5a2 | no | **11.34 GiB** | **Apache-2.0** (the LICENSE is IN the hub tree — fetched, byte-identical with the GitHub copy; the card: "Feel free to use it under the Apache-2.0 license") | HTTP 206 |
+| 6 | **Pix2Video** (text-guided V2V editing) | none on the hub; GitHub code exists (README fetched) | n/a | GPU-class (SD-base dependency) | **Adobe Research License — "for non-commercial and research purposes only"** (fetched verbatim) | n/a |
+| 7 | **vid2vid (NVIDIA)** (conditional V2V) | none on the hub (GitHub-only) | n/a | GPU-class | **CC BY-NC-SA 4.0** (LICENSE.txt fetched verbatim — the red flag CONFIRMED); the few-shot sibling has no license file at either recorded path (typed gap) | n/a |
+| 8 | **FlowVid** (flow-conditioned V2V) | none — **artifact-absent**: the official README is titled "FlowVid (NO CODE)" and states "we are unable to release the FlowVid checkpoints" (fetched verbatim) | n/a | n/a | n/a | n/a |
+| 9 | **CompoundVST** (compound VST) | none — **artifact-absent**: the GitHub repo README is a 69-byte website stub (fetched verbatim) | n/a | n/a | n/a | n/a |
 
-| file | status | verdict |
-| --- | --- | --- |
-| model.safetensors (3,439,938,512 B) | 401 `x-error-code: GatedRepoError` | GATED — "Access to model facebook/sam3 is restricted. You must have access to it and be authenticated to access it. Please log in." |
-| sam3.pt (3,450,062,241 B) | 401 GatedRepoError | GATED |
-| config.json | 401 GatedRepoError | GATED |
-| README.md | 206 | public-reachable |
-| LICENSE | 206 | public-reachable |
+## 2. The feasibility matrix (per candidate × the 5 axes — every cell recorded or typed)
 
-The API metadata says `gated: "manual"` — the SAM License acceptance WALL. The card's gate form demands First Name / Last Name / Date of birth / Country / Affiliation / Job title / geo `ip_location` + the accept-the-license checkbox, with the data "collected, stored, processed and shared in accordance with the [Meta Privacy Policy]". Accepting is a HUMAN action; no HF token exists in this sandbox. **Weights never downloaded, never committed, never vendored — and NO third-party mirror used** (an unofficial re-upload would launder the acceptance wall). The code-repo license probe (GitHub raw) is public-reachable (200) — the codeLicense source.
+Full machine-checkable record: `scripts/evidence/spr302-v2v-feasibility/matrix-record.json`.
 
-## The explicit license review (FIRST-CLASS — the acceptance's own words)
+### RESOURCE (CPU-host: 3.95 GiB RAM / 6.82 GiB disk / 2 vCPU / no GPU, measured)
+- **AnimeGANv2 — FEASIBLE (this host)**: 8.6 MB weights = 0.13% of the measured disk;
+  no GPU; cost arithmetic (class-judgment, labeled not-measured): 1190 frames × 2.5 s
+  ≈ 49.6 min/clip on the b8 envelope.
+- **EbSynth — CPU-class feasible** (class-judgment per the landscape: "no GPU
+  required"; latency not-measured).
+- **ReReVST — class-feasible on CPU** (a 2020-era compact CNN + flow; unmeasured).
+- **Diffutoon — INFEASIBLE**: the 9.59 GiB mirror tree alone exceeds the 6.82 GiB
+  disk; GPU-class. Adequate-host: GPU + ≥10 GiB disk.
+- **ToonCrafter — INFEASIBLE**: 11.34 GiB > disk; GPU-class.
+- **Pix2Video / vid2vid — INFEASIBLE** (GPU-class; vid2vid also needs per-frame
+  semantic maps). **FlowVid / CompoundVST — N/A (artifact-absent).**
 
-Fetched bounded (the ONLY full fetches; sha-pinned + fetch-meta): the SAM License at the pinned revision (7,352 B), the code-repo LICENSE (7,353 B — the SAME agreement, trailing-newline-only difference), the model card (26,038 B). **13 verbatim citations, each machine-verified against the fetched text** (the script fails closed if a quote is absent). The recorded terms:
+### LICENSE (recorded terms only, verbatim citations in the record; never legal advice)
+- Permissive: AnimeGANv2 **code** (MIT); ToonCrafter (Apache-2.0 — the landscape's
+  NC posture CORRECTED by the fetched LICENSE + card); EbSynth **code** (public
+  domain, with the recorded Adobe PatchMatch patent warning).
+- Non-commercial / research-only (recorded verbatim): vid2vid (CC BY-NC-SA 4.0),
+  Pix2Video (Adobe Research License), AnimeGANv2 **weights** (the mirrors' own
+  README: "freely available to academic and non-academic entities for
+  non-commercial purposes… commercial use, please contact us").
+- Not-found (typed gap): Diffutoon (no license text at any recorded official path).
+- Copyleft: ReReVST code (GPL-3.0). N/A: FlowVid, CompoundVST (artifact-absent).
 
-- **§1a** grants a "non-exclusive, worldwide, non-transferable and royalty-free **limited license**" — no field-of-use restriction, no revenue threshold, and **no express commercial-use permission either** → the ledger's commercialUse `unclear` is **CONFIRMED** ("YOU ARE SOLELY RESPONSIBLE FOR DETERMINING THE APPROPRIATENESS OF USING OR REDISTRIBUTING THE SAM MATERIALS", §3).
-- **§8**: "Meta may modify this Agreement from time to time … **All such changes will be effective immediately.** Your continued use … constitutes your agreement to such modification." — the strongest production-continuity risk in the recorded terms.
-- **§6**: termination forces "you shall delete and cease use of the SAM Materials" (plus §5b's patent-style termination-on-litigation and a licensee **indemnification of Meta** for third-party claims).
-- **§1b**: redistribution only under this Agreement + a copy with it; publication acknowledgment; no reverse engineering; trade controls / ITAR / military / warfare / nuclear / espionage / weapons prohibitions. **NO separate acceptable-use attachment** (unlike LTX-2's Attachment A).
-- **§5a** (the friendliest clause): the licensee owns their own derivatives/modifications — still inside the custom agreement. California law + exclusive jurisdiction (§7).
-- The access gate itself is an identity-attestation arrangement with Meta Privacy Policy data-sharing — an operator decision, never a worker decision.
-- SA-CO (270K unique concepts) is the EVAL benchmark introduced with the model; the card names NO training corpus (the dataset leg stays unknown).
+### CONTRACT-FIT vs the FROZEN SPE-v1 contract (docs/contracts/source-preserving-renderer.md)
+- **EbSynth — STRONGEST BY CONSTRUCTION**: propagates OUR deterministic keyframes
+  over the source frames (the substrate is the propagation domain; temporal
+  consistency anchored to our keys; the terms' no-AI clause even simplifies the
+  rights record). Typed gaps: propagation across cuts must be reseeded at every
+  detected cut (the engine's cut-detect owns it — the same cut-reset contract as
+  trail-accumulate); binary determinism unproven; occlusion/large-motion failure
+  mode unmeasured.
+- **AnimeGANv2 — COMPATIBLE-WITH-TYPED-GAPS**: per-frame 1:1 map (frame-count
+  preserving; cuts not threatened by the model proper — no cross-frame state);
+  audio passthrough container-level; typed gaps: bit-exact determinism and the
+  temporal-identity axis are trial questions.
+- **ReReVST — COMPATIBLE-BY-DESIGN-CLASS** (flow-guided temporal regularization
+  targets exactly the flicker invariant; cut-gating of the flow propagation is the
+  typed gap).
+- **Diffutoon — PARTIAL-BY-DESIGN-CLASS** (on-mission toon shading; cuts/determinism
+  are typed gaps — no cut model in diffusion conditioning).
+- **Pix2Video / vid2vid / ToonCrafter — POOR-BY-CLASS / VIOLATES-BY-CLASS**:
+  regeneration classes (the substrate is regenerated, not mapped; ToonCrafter's own
+  card records the 2 s / 8 fps envelope — a 24× duration and 3× fps gap vs the b8
+  substrate). **FlowVid / CompoundVST — N/A (artifact-absent).**
 
-**License verdict: research/watchlist — production-safe NOT proven by the recorded terms.** The acceptance's own bar ("remain research/watchlist unless production-safe") binds: the terms affirmatively delegate the production judgment to the licensee and reserve unilateral modification + termination-with-deletion. Argued from recorded terms only; never legal advice; never a promotion.
+### IDENTITY-RISK (the "no slideshow-of-generated-frames" constraint; the scorecard axes)
+- HIGH: AnimeGANv2 (per-frame independent mapping — the exact structure that
+  collapsed the heuristic stylizers' identityConsistency/temporalConsistency:
+  anime-npr min 1.80, cartoon-cel 1.53), Pix2Video, vid2vid (regeneration classes).
+- LOW-MEDIUM: EbSynth (identity anchored to our keyframes; drift only between keys —
+  keyframe cadence is the control), ReReVST (regularization by design; unmeasured).
+- MEDIUM (class): Diffutoon (ControlNet+motion-module conditioning reduces per-frame
+  independence; unmeasured — no diffusion candidate has any identity measurement in
+  the repo's evidence). N/A: ToonCrafter (not a restyle engine — its own card records
+  "slight flickering artifacts" from the lossy autoencoder), FlowVid, CompoundVST.
 
-## The load analysis (bounded metadata — the pinned-revision composition)
+### WAVE-2 READINESS (the trial verdict + typed blockers)
+- **READY: AnimeGANv2** — blockers: (a) NC weights terms (research-class trial only;
+  production clearance NOT proven), (b) temporal identity not-measured, (c) bit-exact
+  determinism not-measured, (d) hub mirrors are community conversions (provenance
+  off-hub vs the canonical GitHub port).
+- **READY: EbSynth** — blockers: (a) CLI automation work (an integration flight),
+  (b) the recorded PatchMatch patent warning, (c) determinism not-measured, (d)
+  occlusion/large-motion failure mode not-measured.
+- PARTIAL: ReReVST (GPL-3.0 integration decision + unverifiable off-hub weights +
+  painterly-not-anime styles).
+- NOT READY: Diffutoon (resource + license-not-found + official distribution 404 +
+  only an unlicensed mirror), ToonCrafter (class + resource + envelope), Pix2Video
+  (research-only license + resource), vid2vid (NC license + resource), FlowVid
+  (artifact-absent), CompoundVST (artifact-absent).
 
-860M F32 parameters: `model.safetensors` 3.204 GiB + `sam3.pt` 3.214 GiB (**two serialization formats of the SAME checkpoint**; the pinned tree totals 6.422 GiB) + the tokenizer/config (~1 MiB). The minimal working set (ONE checkpoint + the ~0.6 GiB torch/transformers baseline, an ESTIMATE labeled as such) = **~3.79 GiB vs 3.95 GiB TOTAL RAM / 2 vCPU Xeon / no GPU** — the weights alone are ~81% of TOTAL RAM, before activations and the video session's frame store (the card's recipes are GPU-first, bfloat16). Host facts MEASURED at preflight (RAM/disk/CPU/GPU recorded in `results/load-analysis.json`; the earlier flights' ~1.1 GiB disk note recorded alongside the measured 6.82 GiB — the primary refusal is the auth wall in any case).
+## 3. The recommendation (argued FROM the matrix)
 
-## The identity-continuity + latency metric designs (typed not-measured, self-checked)
+**Wave-2 trial pick: AnimeGANv2 A/B on the b8 substrate (primary) + EbSynth
+propagation seeded by our deterministic keyframes (second candidate).** The resource
+axis is decisive on the measured host: only these two are CPU-host-feasible with
+recorded terms. The A/B pairing IS the identity measurement design — a learned
+per-frame map vs propagation-from-our-keys on the same substrate, scored by the
+frozen tier-scorecard axes (the collapse axes to beat: identityConsistency /
+temporalConsistency, anime-npr 1.80 / cartoon-cel 1.53 min-axis). SPR301's verdict
+("preservation proven: sourceFidelity 4.88–5.0; the wave-2 neural target is exactly
+stylizer visual quality") is what this pairing measures.
 
-- **Identity continuity** — the W204 semantics VERBATIM (`packages/perception-tracking/src/benchmark.ts`): `identitySwitches` (consecutive-pair trackId changes summed over GT objects), `continuityScore` (identityPreservingPairs/totalPairs), `fragmentationMeanTracksPerObject` — implemented as pure functions + the `sam3-<id>` EntityId bridge (SAM3's int object_ids → the repo's `[A-Za-z0-9_-]{1,64}` vocabulary, the R207 seam shape). **18 hand-computed cases, ALL PASS** (the id-change case, the two-object swap case, the occlusion-fragmentation-vs-survival pair, the bridge cases, the latency arithmetic, the cascade ratio). The placeholder numbers are labeled **NOT measurements**.
-- **Latency** — per-frame wall-clock per stage + FPS + realtimeFactor vs the source 25 fps + the **cascade cost** (SAM3's one model forward per frame MINUS the repo's current W201 detection + W204 association per-frame cost, on the SAME frames). The formulas self-checked (cases 5/6).
-- **The comparison design** (`results/tracking-comparison.json`): SAM3 (video PCS text prompts / tracker PVS box prompts) vs the repo's current path (W201 contrast-context detector + W204 greedy-IoU tracker) on the **same authorized fixtures** — the sha-pinned SPR corpus clips (b8p3 in-play, b1 wide, b2 closeup, b3 fast-action) under the R606 registration declaration. The prompt-supply answer: **the repo's chain supplies the W201 detections as box prompts (denormalized xyxy) and/or the text concept "football player"**. The GT honesty: NO per-player identity annotations exist in the repo (the hf009 precedent) — the design records BOTH honest options (operator-provisioned GT; the relative cross-mode continuity score), never a fabricated GT.
+**The landscape's prior claims CHECKED against the live probe facts (8 checks in the
+record):**
+1. "AnimeGANv2 is the wave-2 trial with the best cost/benefit" — **CONFIRMED** on the
+   resource axis (ungated, 206-reachable, 8.6 MB mirrors); the license leg SHARPENED
+   to recorded NC weights terms (the production blocker is now recorded, not deferred).
+2. "Diffutoon is the quality reference to chase in wave-3+" — **STANDS as a class
+   judgment**, with a new recorded blocker: the official distribution point is 404 on
+   every recorded path; only an unlicensed 9.59 GiB community mirror is reachable.
+3. vid2vid "CC BY-NC-SA 4.0 RED FLAG" — **CONFIRMED VERBATIM** (LICENSE.txt fetched).
+4. ToonCrafter "treat non-commercial until code license verified" — **CORRECTED on
+   the license leg**: the hub-tree LICENSE + the GitHub LICENSE are Apache-2.0 (fetched,
+   byte-identical) and the card says "use it under the Apache-2.0 license"; the
+   benchmark-only class verdict STANDS on contract-fit grounds (generative
+   interpolation regenerates motion; the card's own 2 s / 8 fps envelope).
+5. FlowVid "research needs-gpu" — **SHARPENED to artifact-absent** (the maintainers'
+   own README: checkpoints will not be released); the landscape's arxiv id corrected
+   (2312.17681 per the README badge vs 2312.08126 in the landscape).
+6. Pix2Video license deferred — **RESOLVED**: research-only (Adobe Research License,
+   verbatim). 7. ReReVST/CompoundVST deferred — **RESOLVED**: GPL-3.0 / website-stub.
+   8. EbSynth "read terms before production" — **RESOLVED**: the terms fetched and
+   recorded; favorable for our deterministic-keyframe lane (the SDXL keyframe trap has
+   a recorded avoidance path: never use the Generate-Image feature).
 
-## The contract mapping (machine-checkable, exit 0)
+**No promotion**: SPR303 owns the executed trial ("only where legitimately
+available"). This flight shortlists only — no renderer-registry change, no status
+claim, no tier claim, no gating change.
 
-`contract_compatibility.ts` (9 repo authorities needle-verified: the FROZEN task profiles, observation.ts, identity.ts, the W204 tracker + benchmark, rights.ts, the fetched card) → 6 mapping rows: **COMPATIBLE-WITH-MAPPING** for both profiles' input/output shapes, with the typed gaps machine-verified:
+## 4. The typed gaps (the honest open edges)
 
-- **the observation payload union has NO mask kind** (detection | track | transcription | field-mapping | generic | team-assignment — machine-checked absence): a segmentation output needs a NEW typed payload variant (a FROZEN-contract decision this flight records, never makes);
-- the segmentation profile's "optional prompts/identifiers" identifier half has NO SAM3 counterpart (no jersey/player-identity surface);
-- MOTA/HOTA need GT (absent); SAM3's object_ids carry no class label (the concept IS the prompt — the label comes from the chain);
-- **rights-provenance: NOT production-eligible by recorded terms** — the code and model legs are the SAME custom non-permissive agreement; the dataset leg unknown; commercialUse unclear (the three-way license record per ADR-011, the candidates.ts precedent);
-- execution REFUSED (the auth gate + the resources); SAM3's outputs are OBSERVED vision observations (no evidence-chain boundary crossed — unlike HF013's generated-audio exclusion).
+- `license-terms-not-found`: Diffutoon (all recorded official paths 404);
+  few-shot-vid2vid (no license file at either recorded path).
+- `weights-provenance-off-hub`: AnimeGANv2 (community ONNX mirrors vs the canonical
+  GitHub port releases), ReReVST (Google Drive/Baidu Pan), Diffutoon (an untagged
+  community mirror — provenance unverifiable).
+- `artifact-absent`: FlowVid (explicit no-release), CompoundVST (website stub).
+- `not-measured`: every identity/latency/determinism claim on this flight (no model
+  ran — the fabrication guard enforces it in the validator).
+- `class-judgment` (labeled): the CPU-feasibility classes for EbSynth/ReReVST and the
+  AnimeGANv2 per-frame cost arithmetic (the landscape's 2–3 s/frame port speed,
+  extrapolated to the b8 envelope — never presented as a measurement).
+- The landscape's own recorded uncertainties it asked wave-2 to resolve — now
+  resolved or sharpened per above (the AnimeGANv2 weights flag is RECORDED, not deferred).
 
-## The ready-to-run path (fail-closed, negative-tested)
+## 5. Limitations
 
-`benchmark_sam3.py --mode full --model-dir <authorized-dir>` refuses exit 3 on THIS host (no authorized model dir; RAM < 2x the working set; 2 vCPU) — **all three modes executed**: preflight exit 3 (the refusal), selfcheck exit 0 (18/18), full exit 3 (the fail-closed negative test). For an authorized + adequate host: the operator accepts the SAM License (a human action — the identity-attestation form), downloads the checkpoint at `3c879f39…` OUTSIDE this repo, then re-runs; the fixtures are sha-pinned in-repo, the metrics self-checked, and the validator pins any executed number exactly as HF003/HF006 did.
-
-## The guard batteries
-
-- `record-benchmark.ts` — EXECUTED exit 0: the ledger echo VERBATIM (12 fields); no promotion (gatingState `candidate` + the HF015 standing verdict); the typed refusal pinned to the EXECUTED preflight; the fabrication guard (recursive scan refuses any measurement-shaped key in the benchmarkRun) — **NEGATIVE-TESTED**: an injected `continuityScore: 0.42` + `perFrameMs: 2500` refused with exit 1; restored, exit 0.
-- `contract_compatibility.ts` — EXECUTED exit 0.
-- prettier --check . clean; eslint 0 errors on the touched TS; FROZEN contracts + the hf003-hf015 trees untouched (git-diff-verified); no tokens/secrets; weights never fetched.
-
-## The limitations (honest)
-
-- NO SAM3 number exists anywhere in this flight (the typed refusal governs); the latency self-check numbers are hand-computed formula placeholders, labeled NOT measurements.
-- The comparison is a DESIGN — the cross-mode continuity scoring without operator GT is a RELATIVE measure, never an absolute one.
-- The license review is argued from recorded terms only; the §7 governing-law note is recorded, not adjudicated; never legal advice.
-- The disk-free figure is MEASURED at preflight (6.82 GiB) and differs from the earlier flights' recorded ~1.1 GiB — both recorded, never averaged.
-
-## The promotion-gate referral
-
-The HF015 gate (merged @ 86f3d4f) owns adjudication: its standing SAM3 row refused ALL FIVE legs (no benchmark flight; resource unrecorded; commercialUse "unclear" + a non-permissive modelLicense; no re-runnable harness; no failure envelope). This flight feeds the future re-adjudication: the benchmark-flight record itself (a typed-refusal record, NOT a passing benchmark), the license terms documented verbatim, the resource story, the re-runnable harness, and the failure envelope (the typed refusal + the negative tests) — the standing blockers (the auth wall, the adequate host, the commercialUse resolution, the mask-payload contract decision, the GT provisioning) are recorded in `benchmark-record.json → promotionGate.blockersObserved`.
+- No model execution: every resource/identity cell beyond the measured host facts and
+  hub-reported sizes is a class judgment or a typed gap — by the work item's design
+  (the matrix is the WAVE-1 deliverable; SPR303 runs the trial).
+- License verdicts are recorded terms only, never legal advice; the AnimeGANv2
+  mirrors' apache-2.0-tag-vs-NC-body contradiction is recorded, not adjudicated.
+- The hub probes are anonymous (no token in this sandbox, per the worker contract) —
+  the ungated verdicts are the anonymous-reachability facts.
+- The Diffutoon official-distribution 404s are the facts AS RECORDED FROM THIS
+  SANDBOX at the recorded timestamps (a re-probe later may find it again — the
+  fetch-metas carry the timestamps).
 
 === END REPORT ===

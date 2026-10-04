@@ -1,0 +1,178 @@
+{
+  "flight": "SPR302 follow-up probe pass (corrected paths + provenance leg)",
+  "probedAtUtc": "2026-10-04T08:01:59Z",
+  "githubSearchRecon": {
+    "executedAtUtc": "2026-10-04 (pass-1 recon, anonymous GitHub search API)",
+    "findings": [
+      "q=DiffToon -> 0 repository hits (rate-limit-free search)",
+      "q=FlowVid -> Jeff-LiangF/FlowVid (default=main, no license file)",
+      "q=ReReVST -> daooshee/ReReVST-Code (master, GPL-3.0) + daooshee/ReReVST (master, none)",
+      "q=CompoundVST -> daooshee/CompoundVST (master, none)",
+      "q=ebsynth -> jamriska/ebsynth (master, no license file)"
+    ],
+    "note": "the api.github.com search later rate-limited (403, recorded) — the successful searches above are the recorded runs"
+  },
+  "documentFetches": [
+    {
+      "url": "https://raw.githubusercontent.com/NVIDIA/vid2vid/master/LICENSE.txt",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:55Z",
+      "bytes": 2554,
+      "sha256": "cbfe4b869632e01b194018202f365e7611426129279d59f8718112f90e98b617",
+      "note": "the CC BY-NC-SA 4.0 license text the landscape cites (vid2vid red flag)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVlabs/few-shot-vid2vid/master/LICENSE.txt",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:56Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "the few-shot-vid2vid license text (the same NVIDIA class)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/ReReVST-Code/master/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:56Z",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "note": "ReReVST code license (GitHub search said GPL-3.0 — verify verbatim)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/ReReVST-Code/master/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:56Z",
+      "bytes": 3025,
+      "sha256": "4779bb989c8a8ef77501650a750fff7a1b8199a1b26c386fe10dcd1d13f6cfed",
+      "note": "ReReVST readme (weights provenance + usage terms)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/daooshee/CompoundVST/master/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:56Z",
+      "bytes": 69,
+      "sha256": "0e7e954921e6e1c50998cd6e2fda01a989d0488029d25343f6f86d6a4966093d",
+      "note": "CompoundVST readme (weights provenance + usage terms)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Jeff-LiangF/FlowVid/main/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:56Z",
+      "bytes": 2488,
+      "sha256": "cff747eed45f383216706784bbf7af2336d46c9b08cf7ae989d826af3a7f9191",
+      "note": "FlowVid readme (code/weights status — the paper-first candidate)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Jeff-LiangF/FlowVid/main/LICENSE",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:57Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "FlowVid code license (search said none — verify)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ECNU-CILab/DiffToon/main/LICENSE",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:57Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "DiffToon official-code license attempt (branch main)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ECNU-CILab/DiffToon/master/LICENSE",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:57Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "DiffToon official-code license attempt (branch master)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://ecnu-cilab.github.io/Diffutoon/",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 2048,
+      "sha256": "31a7b6103976a60e9499b6e71f2a9a8cf72731d06610fe8d21fc8f3fada17e5b",
+      "note": "the official Diffutoon project page (records what the official entry point links)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TachibanaYoshino/AnimeGANv2/master/LICENSE",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "the TF-original AnimeGANv2 license (upstream weights provenance leg)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TachibanaYoshino/AnimeGANv2/master/README.md",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 7691,
+      "sha256": "6b424121f4c606d5574c3cad43b0e199b78510040c11f3bf31961dc877f40ada",
+      "note": "the TF-original readme (dataset/weights provenance)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://ebsynth.com/use.txt",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 0,
+      "sha256": null,
+      "note": "the EbSynth usage terms at the recorded official location (ebsynth.com)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://ebsynth.com/",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 64000,
+      "sha256": "ff71dc663264fa730be96f573c05c8df2022a1d3c95d6aa73a7083e73299312f",
+      "note": "the EbSynth site root (records where the terms live)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://ebsynth.com/terms",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:58Z",
+      "bytes": 14327,
+      "sha256": "de07a679b9d476b5ca6d3aab935890cd244635c36cf5d439d67fa6da7f1b84b4",
+      "note": "the EbSynth terms page (the site's Terms link — the license leg for the binary tool)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVlabs/few-shot-vid2vid/master/LICENSE",
+      "httpStatus": 404,
+      "fetchedAtUtc": "2026-10-04T08:01:59Z",
+      "bytes": 14,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "note": "few-shot-vid2vid license file attempt (LICENSE, not LICENSE.txt — the .txt path 404'd in this pass's first run)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches",
+      "finding": "not fetched (non-200 or empty) — recorded as a typed gap"
+    },
+    {
+      "url": "https://huggingface.co/Doubiiu/ToonCrafter/resolve/7c56c5a23d9f8a9d99398e2a2491fff4bd6cffaf/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T08:01:59Z",
+      "bytes": 11331,
+      "sha256": "9849d33ce88d14d755c8d71d7c8e6deecf7e9ff8d91a6ca0ee5cd9058120b830",
+      "note": "the LICENSE file ON THE HUB REPO at the pinned revision (the ToonCrafter license leg — the license also lives in the hub tree itself)",
+      "fetchedBy": "SPR302 follow-up pass (worker 65-h) — corrected-path text-document fetches"
+    }
+  ]
+}

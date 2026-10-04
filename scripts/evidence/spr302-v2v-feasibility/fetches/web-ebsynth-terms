@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EbSynth - Terms of Use</title>
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="./img/icon_light.ico" media="(prefers-color-scheme: light)" type="image/x-icon">
+    <link rel="shortcut icon" href="./img/icon_dark.ico" media="(prefers-color-scheme: dark)" type="image/x-icon">
+    <!-- Google fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
+    <!-- CSS + Bootstrap -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/style.css">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+
+    <div class="container-fluid py-5">
+        <div class="container py-xl-5">
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h2 class="my-headline color-light">Terms of Use</h2>
+                    <h3 class="my-headline3 color-light pt-5">1. Introduction and Contact</h3>
+                    <p class="my-p pt-2 pt-lg-3 color-grey">
+                        Welcome to EbSynth, a proprietary video editing software developed and maintained by Secret Weapons, Inc. ("Secret Weapons"), headquartered in Dover, Delaware, USA. 
+                    </p>
+                    <p class="my-p color-grey">    
+                        EbSynth is designed to enhance video production by allowing users to propagate visual changes
+                        from a selected number of frames across an entire video sequence. By providing a guiding video
+                        and a set of keyframes, users can create uniquely stylized videos reflecting their personal or
+                        professional vision.
+                    </p>
+                    <p class="my-p color-grey">    
+                        By accessing or using EbSynth, you agree to be bound by these Terms of Use. 
+                    </p>
+                    <p class="my-p color-grey">  
+                        For any inquiries related to these Terms of Use, please contact: <br>
+                        <span class="color-light pb-2">
+                        Secret Weapons, Inc.<br>
+                        1111B Governors Ave, #6078<br>
+                        Dover, Delaware<br>
+                        19904<br>
+                        hello@ebsynth.com
+                    </span>
+                    </p>
+                </div>
+            </div>
+        
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 color-light pt-5">2. Intellectual Property Rights</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        You retain full copyright to the videos you create in EbSynth if you own the copyright to the guiding video
+                        and keyframes used as inputs. The synthesis process in EbSynth does not utilize AI or pre-trained
+                        models, and therefore, does not affect the ownership status of the output video.
+                    </p>
+                    <p class="my-p color-grey">
+                        Secret Weapons does not access or claim ownership of users' input and output media and is not
+                        liable for any misuse of copyrighted materials by users.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">3. AI-Generated Keyframes</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        EbSynth includes a keyframe generation feature (<i class="bi bi-stars pe-2"></i>Generate Image) powered by the SDXL 1.0 model. When using this feature, 
+                        you agree to comply with the SDXL license terms available <a href="https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/blob/main/LICENSE.md" class="my-a color-grey">here</a>.
+                        If you use AI-generated keyframes, your entire output video will be subject to the SDXL license terms.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">4. User Responsibilities</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        You agree to use EbSynth solely for lawful purposes and respect the fundamental rights of others. 
+                        This includes, but is not limited to, not creating content that is illegal, harmful, exploitative, or deceptive. 
+                        You must not infringe on intellectual property rights or impersonate individuals without authorization.
+                    </p>
+                    <p class="my-p color-grey">
+                        Account Requirements:<br>
+                        You must be at least 13 years old to use EbSynth, in compliance with COPPA and GDPR, though users under 13 may use the app with parental or guardian consent. 
+                        You are responsible for your account security and must notify Secret Weapons immediately of any unauthorized account use.
+                    </p>           
+
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">5. Data Processing and Storage</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        EbSynth temporarily uploads your video and keyframes to our server solely for the purpose of synthesizing your animation. 
+                        Once the result is sent back to your browser, your video and keyframes are immediately deleted from our server. 
+                        We do not store your data online, share it with third parties, or use it for any purpose other than producing your final video. 
+                        Your data is not used for AI training.
+                    </p>
+                    <p class="my-p color-grey">
+                        To businesses requiring an offline pipeline, we offer the Studio version with a command line access. For more details, contact us at studio@ebsynth.com.
+                    </p>           
+
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">6. Fees and Taxes</h3>
+                    <p class="my-p color-grey pt-3 d-none d-lg-block">
+                        Secret Weapons offers EbSynth in Free, Pro, and Studio tiers (see our <a href="index.html#pricing-desktop" class="my-a color-grey">pricing table</a>).
+                    </p>
+                    <p class="my-p color-grey pt-2 d-block d-lg-none">
+                        Secret Weapons offers EbSynth in Free, Pro, and Studio tiers (see our <a href="index.html#pricing-mobile" class="my-a color-grey">pricing table</a>).
+                    </p>
+                    <p class="my-p color-grey">
+                        The subscription fees for EbSynth Pro ("Fees") and Developer licenses do not include any sales, use, value-added, or other taxes ("Sales Tax") 
+                        that may apply to your purchase and use of EbSynth. If Secret Weapons determines it has a legal obligation to collect Sales Tax from you, such tax 
+                        will be charged in addition to the Fees. You are responsible for paying all applicable Sales Tax related to your purchase of EbSynth.
+                    </p>
+                    <p class="my-p color-grey">
+                        If any Sales Tax is due but has not been remitted to Secret Weapons, you are responsible for the payment of such Sales Tax and any related penalties 
+                        or interest to the relevant tax authority. Upon request, you will provide Secret Weapons with official receipts or other evidence showing that you 
+                        have paid all applicable taxes.
+                    </p>
+                    <p class="my-p color-grey">
+                        Secret Weapons reserves the right to change the Fees at any time. For existing subscribers, any price changes will take effect at 
+                        the start of the next subscription period or thirty (30) days after notice, whichever is later. If you cancel your subscription, 
+                        your paid tier access will remain active until the end of your current billing cycle, after which it will automatically revert to 
+                        the free tier. No refunds will be issued for previously paid Fees.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">7. Software Integrity</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        You may not modify, reverse engineer, disassemble, or derive the source code of EbSynth. Any such
+                        unauthorized actions are strictly prohibited and may result in legal action.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">8. Termination</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        Secret Weapons may terminate your access to all or any part of EbSynth at any time, with or
+without cause, with or without notice, effective immediately. If you wish to terminate this
+Agreement, you may discontinue using the app.
+                    </p>
+                </div>
+            </div> 
+
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">9. Disclaimer of Warranties</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        EbSynth is provided "as is" and "as available," without any warranties, express or implied,
+including but not limited to implied warranties of merchantability or fitness for a particular purpose.
+Secret Weapons does not guarantee that the app will be uninterrupted, error-free, or completely
+secure.
+                    </p>
+                </div>
+            </div> 
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">10. Limitation of Liability</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        To the fullest extent permitted by law, Secret Weapons will not be liable for any indirect, incidental,
+special, consequential, or punitive damages arising from your use of EbSynth, including but not
+limited to losses of profits, data, or goodwill.
+                    </p>
+                </div>
+            </div> 
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">11. Indemnification</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        You agree to defend, indemnify, and hold harmless Secret Weapons, its affiliates, and their
+respective officers, directors, employees, agents, and licensors from any claims, damages, liabilities,
+costs, and expenses (including reasonable attorneys' fees) arising from your use of EbSynth, your
+violation of these Terms, or your violation of any rights of another.
+                    </p>
+                </div>
+            </div> 
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">12. Amendments to Terms</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        Secret Weapons reserves the right to amend these Terms at any time. All amendments will be
+effective immediately upon posting to the EbSynth website. Your continued use of the software
+after the revised Terms are posted constitutes your acceptance of the changes.
+                    </p>
+                </div>
+            </div> 
+
+            <div class="row justify-content-center">
+                <div class="col-11 col-xl-8">
+                    <h3 class="my-headline3 pt-5 color-light">13. Governing Law</h3>
+                    <p class="my-p color-grey pt-2 pt-lg-3">
+                        These Terms are governed by and construed by the laws of the State of Delaware, USA. Any
+disputes arising from these Terms will be resolved through final and binding arbitration in
+Delaware.
+                    </p>
+                </div>
+            </div>        
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4bd8ac12a2ee47feb570fde94a9e7a0d","spa":2}' crossorigin="anonymous"></script>
+</body>
+
+</html>

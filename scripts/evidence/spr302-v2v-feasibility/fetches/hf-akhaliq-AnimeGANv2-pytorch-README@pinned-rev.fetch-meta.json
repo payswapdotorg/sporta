@@ -1,0 +1,10 @@
+{
+  "url": "https://huggingface.co/akhaliq/AnimeGANv2-pytorch/resolve/5f2c6e4bf913b2c76de3a842f8a952b41bab9db9/README.md",
+  "httpStatus": 404,
+  "fetchedAtUtc": "2026-10-04T07:56:20Z",
+  "bytes": 15,
+  "sha256": "f36668ddf22403a332f978057d527cf285b01468bc3431b04094a7bafa6aba59",
+  "note": "bounded text-document fetch (license/card/README leg); NEVER weights",
+  "fetchedBy": "SPR302 (worker 65-h) — the candidate shortlist license/provenance leg",
+  "finding": "not fetched (non-200 or empty) — recorded as a typed gap, never retried around"
+}
