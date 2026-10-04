@@ -43,6 +43,8 @@ import type {
   MediaToolchainOperation as MediaToolchainOperationDoc,
   MediaToolchainResult as MediaToolchainResultDoc,
 } from "./toolchain";
+import { EncodingError, FfmpegFrameEncoder } from "@sporta/encoding";
+import type { EncodeOrigin, FrameEncoderPort, FrameEncodeResult } from "@sporta/encoding";
 import {
   FfmpegDecoderAdapter,
   ResourceLimitError as DecodeResourceLimitError,
@@ -69,6 +71,17 @@ export interface MediaToolchainExecutorDeps {
   nowMs: () => number;
   /** The fail-closed budgets (./toolchain.ts — measured, never self-reported). */
   budgets: MediaToolchainBudgets;
+  /**
+   * The R306 REAL frame encoder (the encode-frames leg's mechanical
+   * adapter — `FfmpegFrameEncoder`, the SAME adapter the local path runs,
+   * so the remote encode cannot drift from the local one). ADDITIVE:
+   * `undefined` (the default — every pre-extension caller) lazily
+   * constructs the REAL adapter per encode dispatch; `null` = the encoder
+   * was probed UNAVAILABLE at the composition (the leg refuses with the
+   * honest `ffmpeg-unavailable` class, never a faked encode); an instance
+   * = use it as given (the worker resolves one at boot and reuses it).
+   */
+  frameEncoder?: FrameEncoderPort | null;
 }
 
 /** A determinate failure under construction. */
@@ -275,6 +288,19 @@ export async function executeMediaToolchainJob(
   //     the mechanical leg, the wire carries the classified envelope.
   if (job.operation === "decode-probe" || job.operation === "decode-frames") {
     return await executeDecodeLeg(dispatch, bytes, metering, deps, finishAt, measuredSourceHash);
+  }
+
+  // 6c. The ENCODE leg (R306 — the TL-authorized encode seam): the
+  //     derived-reality plane's mechanical rgb24 frame-sequence → h264/MP4
+  //     encode, executed by the SAME MECHANICAL adapter the local path runs
+  //     (`@sporta/encoding`'s `FfmpegFrameEncoder` — the exact pinned argv,
+  //     the exact determinism knobs; never re-implemented here, so the
+  //     remote bytes cannot drift from the local encodes). The R306
+  //     admission discipline (geometry bounds, the packed byte-math) is
+  //     enforced BY the adapter itself; its typed refusals are classified
+  //     onto the wire vocabulary below.
+  if (job.operation === "encode-frames") {
+    return await executeEncodeLeg(dispatch, bytes, metering, deps, finishAt);
   }
 
   // 7. The operation itself (REAL ffprobe / REAL ffmpeg, temp files
@@ -520,7 +546,11 @@ async function executeDecodeLeg(
         sessionId: job.sessionId,
         sourceId: `src-${measuredSourceHash.slice(0, 12)}`,
         checksum: measuredSourceHash,
-        container: job.source.container,
+        // The decode rail's receipt container: the wire schema pairs every
+        // non-encode operation with the mp4 container family (enforced on
+        // the job description — the R306 additive pairing), so the
+        // mechanical adapter's receipt carries "mp4" here.
+        container: "mp4",
         byteLength: bytes.byteLength,
         ingestedAtMs: startedAtMs,
         sourceKind: "file",
@@ -672,6 +702,234 @@ async function executeDecodeLeg(
       failureClass: "internal",
     });
   }
+}
+
+// ---------------------------------------------------------------------------
+// The encode leg (R306 — the derived-reality plane's mechanical encode)
+// ---------------------------------------------------------------------------
+
+/**
+ * The mechanical encode origin the worker-side leg records: the frames are
+ * the DISPATCH's own materialized rgb24 sequence (rendered frames, never
+ * user source media), so the bridge identity is the raw-frames tier. The
+ * origin is a document field only — the REAL adapter ignores it (the pinned
+ * argv derives from the geometry/framerate alone) — recorded honestly.
+ */
+const WIRE_ENCODE_ORIGIN: EncodeOrigin = {
+  rendererId: "media-toolchain-worker",
+  rendererVersion: "encode-frames",
+  bridge: "raw-frames",
+};
+
+/**
+ * Executes the ENCODE leg (R306 — `encode-frames`): the derived-reality
+ * plane's mechanical rgb24 frame-sequence → h264/MP4 encode, executed by
+ * `@sporta/encoding`'s REAL `FfmpegFrameEncoder` — the SAME mechanical
+ * adapter the local path runs (the exact pinned argv: `-threads 1`,
+ * `+bitexact`, `-map_metadata -1`, the fixed preset/tune/profile/level/
+ * crf/pix_fmt/gop), so the remote bytes cannot drift from the local ones.
+ * The adapter's OWN admission discipline (the geometry bounds, the packed
+ * byte-math `frameCount × width × height × 3`) refuses a malformed dispatch
+ * with the typed `frames-invalid` class; its encode failures are classified
+ * `encode-failed` / `ffmpeg-unavailable`. Never throws: every outcome
+ * resolves as a classified {@link MediaToolchainResult} envelope.
+ */
+async function executeEncodeLeg(
+  dispatch: MediaToolchainDispatchRequestDoc,
+  bytes: Uint8Array,
+  metering: MeteringState,
+  deps: MediaToolchainExecutorDeps,
+  finishAt: () => number,
+): Promise<MediaToolchainResultDoc> {
+  const job = dispatch.job;
+  const startedAtMs = metering.startedAtMs;
+  const failLeg = (failure: FailureSpec): MediaToolchainResultDoc =>
+    failedEnvelope(job.jobId, job.operation, failure, {
+      startedAtMs,
+      finishedAtMs: finishAt(),
+      ffprobeRuns: metering.ffprobeRuns,
+      ffmpegRuns: metering.ffmpegRuns,
+      inputBytes: metering.inputBytes,
+      outputBytes: metering.outputBytes,
+    });
+
+  // The encoder the leg runs (the SAME mechanical adapter the local path
+  // uses): an explicitly-injected `null` is the honest unavailable refusal;
+  // `undefined` (the pre-extension default) lazily constructs the REAL
+  // adapter — the decode leg's own per-job construction precedent.
+  if (deps.frameEncoder === null) {
+    return failLeg({
+      errorClass: "ffmpeg-unavailable",
+      message:
+        "the frame encoder was probed unavailable at the worker's composition (no ffmpeg/libx264) — the encode is refused, never faked",
+      terminal: "internal",
+      failureClass: "internal",
+    });
+  }
+  const encoder: FrameEncoderPort = deps.frameEncoder ?? new FfmpegFrameEncoder();
+
+  const spec = job.encodeSpec;
+  if (spec === undefined) {
+    // Unreachable via the schema (enforced on the job description) — the
+    // fail-loud honest answer, never a guess.
+    return failLeg({
+      errorClass: "invalid-dispatch",
+      message: "an encode-frames dispatch must carry its frame-sequence spec (encodeSpec)",
+      terminal: "non-retryable",
+      failureClass: "internal",
+    });
+  }
+
+  // Stage the received (already re-measured: size + sha-256, steps 2-3)
+  // packed frame sequence for the REAL adapter — the adapter's own
+  // `admitSource` re-validates the staged file's byte-math fail-closed
+  // (the LOCAL path's exact admission, never re-implemented here).
+  const workDir = await mkdtemp(join(tmpdir(), "sporta-toolchain-encode-"));
+  let result: FrameEncodeResult;
+  try {
+    const stagedPath = join(workDir, "frames.rgb24");
+    await writeFile(stagedPath, bytes);
+    result = encoder.encode({
+      source: {
+        kind: "rgb24-file",
+        path: stagedPath,
+        frameCount: spec.frameCount,
+        width: spec.width,
+        height: spec.height,
+      },
+      fps: spec.fps,
+      origin: WIRE_ENCODE_ORIGIN,
+    });
+    metering.ffmpegRuns += 1; // the ONE REAL libx264 encode run (measured)
+  } catch (err) {
+    // The metering honesty: the adapter's PRE-SPAWN refusals (the admission
+    // axis `frames-invalid`, the availability probe `encoder-unavailable`)
+    // never spawned ffmpeg — 0 runs; the encode-failure axis (and unknown
+    // faults) did reach the subprocess — 1 run, counted honestly.
+    if (
+      !(err instanceof EncodingError) ||
+      err.kind === "encode-failed" ||
+      err.kind === "artifact-invalid" ||
+      err.kind === "verify-failed"
+    ) {
+      metering.ffmpegRuns += 1;
+    }
+    return encodeFailureOf(err, failLeg);
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
+  }
+  metering.outputBytes = result.byteSize;
+
+  // Fail-closed artifact-size budget (outputs are NEVER handed back).
+  if (result.byteSize > deps.budgets.maxArtifactBytes) {
+    return failLeg({
+      errorClass: "artifact-too-large",
+      message: `the encoded artifact is ${result.byteSize} bytes, over the fail-closed budget of ${deps.budgets.maxArtifactBytes} — outputs discarded`,
+      terminal: "non-retryable",
+      failureClass: "resource-limit",
+    });
+  }
+
+  // The media policy re-check against the PRODUCED media (the clip's
+  // measured duration — defense in depth over the dispatching side).
+  if (result.durationMs > job.mediaPolicy.maxDurationMs) {
+    return failLeg({
+      errorClass: "duration-over-limit",
+      message: `the encoded clip measures ${result.durationMs}ms, over the job's ${job.mediaPolicy.maxDurationMs}ms policy bound`,
+      terminal: "non-retryable",
+      failureClass: "media-invalid",
+    });
+  }
+
+  // Fail-closed execution budget (post-hoc: outputs are DISCARDED).
+  const finishedAtMs = finishAt();
+  const executionMs = Math.max(0, finishedAtMs - startedAtMs);
+  const durationBudgetMs = Math.min(deps.budgets.maxExecutionMs, job.constraints.deadlineMs);
+  if (executionMs > durationBudgetMs) {
+    return failLeg({
+      errorClass: "budget-exceeded",
+      message: `measured execution ${executionMs}ms exceeded the fail-closed budget of ${durationBudgetMs}ms (worker ${deps.budgets.maxExecutionMs}ms / job deadline ${job.constraints.deadlineMs}ms) — outputs discarded`,
+      terminal: "timeout",
+      failureClass: "resource-limit",
+    });
+  }
+
+  return selfChecked(
+    {
+      jobId: job.jobId,
+      operation: "encode-frames",
+      status: "succeeded",
+      encoded: {
+        contentHash: result.contentHash,
+        byteSize: result.byteSize,
+        frameCount: result.frameCount,
+        width: result.width,
+        height: result.height,
+        fps: result.fps,
+        durationMs: result.durationMs,
+        encoderKind: result.encoderKind,
+        encoderVersion: result.encoderVersion,
+        codec: { ...result.codec },
+        contentBase64: Buffer.from(result.bytes).toString("base64"),
+      },
+      metering: meteringBlock(metering, finishedAtMs),
+    },
+    job.jobId,
+    "encode-frames",
+  );
+}
+
+/**
+ * Classifies the encode leg's thrown failures onto the wire vocabulary: the
+ * REAL adapter's TYPED `EncodingError`s (the same kinds the local path's
+ * callers see) map onto the honest error classes — the admission axis
+ * (`frames-invalid`), the boundary class (`ffmpeg-unavailable`), and the
+ * encode-failure axis — never a re-thrown error across the seam.
+ */
+function encodeFailureOf(
+  err: unknown,
+  failLeg: (failure: FailureSpec) => MediaToolchainResultDoc,
+): MediaToolchainResultDoc {
+  if (err instanceof EncodingError) {
+    if (err.kind === "encoder-unavailable") {
+      return failLeg({
+        errorClass: "ffmpeg-unavailable",
+        message: err.message,
+        terminal: "internal",
+        failureClass: "internal",
+      });
+    }
+    if (err.kind === "frames-invalid") {
+      return failLeg({
+        errorClass: "frames-invalid",
+        message: err.message,
+        terminal: "non-retryable",
+        failureClass: "media-invalid",
+      });
+    }
+    // encode-failed / artifact-invalid / verify-failed / store-rejected:
+    // the encode-failure axis, carrying the adapter's own failure class.
+    return failLeg({
+      errorClass: "encode-failed",
+      message: err.message,
+      terminal: "internal",
+      failureClass: err.failureClass,
+    });
+  }
+  if (err instanceof FfmpegUnavailableError) {
+    return failLeg({
+      errorClass: "ffmpeg-unavailable",
+      message: err.message,
+      terminal: "internal",
+      failureClass: "internal",
+    });
+  }
+  return failLeg({
+    errorClass: "encode-failed",
+    message: err instanceof Error ? err.message : String(err),
+    terminal: "internal",
+    failureClass: "internal",
+  });
 }
 
 /** Assembles the metering block from the accumulator + a finish reading. */

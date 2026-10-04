@@ -14,7 +14,9 @@
     "@sporta/compute-adapter": "workspace:*",
     "@sporta/contracts": "workspace:*",
     "@sporta/decoding": "workspace:*",
+    "@sporta/encoding": "workspace:*",
     "@sporta/ingestion": "workspace:*",
+    "@sporta/renderer-tactical": "workspace:*",
     "zod": "^4.0.0"
   },
   "devDependencies": {

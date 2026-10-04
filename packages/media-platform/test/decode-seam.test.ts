@@ -241,6 +241,10 @@ describe("the decode seam's wire shapes (the authorized enum extension)", () => 
       "normalize",
       "decode-probe",
       "decode-frames",
+      // R306 (the G12 walk's named next gap — the same seam-class the
+      // decode seam closed): the encode seam's ONE operation, appended
+      // additively after the decode pair.
+      "encode-frames",
     ]);
   });
 

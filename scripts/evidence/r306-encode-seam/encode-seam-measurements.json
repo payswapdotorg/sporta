@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-encode-seam-measurements",
+  "scope": "the encode seam's own battery + the pair's real worker round trip on THIS machine (a helper toolchain worker in a separate bun process executing the REAL FfmpegFrameEncoder over loopback HTTP, driven through the DEFAULT spawnSync transport) + the transport's contract + the runtime kill-discipline comparison; the LIVE public-wire leg and the hosted golden path are the separate next flights (the r607 arc)",
+  "localToolchain": {
+    "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "resolved": true
+  },
+  "battery": {
+    "command": "bun test packages/media-platform/test/encode-seam.test.ts",
+    "pass": 27,
+    "fail": 0,
+    "expectCalls": 207,
+    "exitCode": 0
+  },
+  "realWorkerRoundTrip": {
+    "workerKind": "a helper bun child serving the media-toolchain adapter + execute routes over real HTTP (a separate process — the sync transport blocks the parent's event loop), executing the REAL FfmpegFrameEncoder with the REAL resolved ffmpeg",
+    "descriptor": {
+      "available": true,
+      "version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "operationsAdvertised": [
+        "probe",
+        "normalize",
+        "decode-probe",
+        "decode-frames",
+        "encode-frames"
+      ]
+    },
+    "frameEncoder": {
+      "surface": "the R306 FrameEncoderPort",
+      "wallMs": 107,
+      "byteSize": 1468,
+      "contentHash": "b6e7672f85e7f0f732af61f899e82e12d07c22f6c9bc53c8de3c4204a615e75b",
+      "durationMs": 160,
+      "encoderKind": "ffmpeg-libx264",
+      "ftyp": true,
+      "reMeasured": {
+        "hashVerified": true,
+        "byteLengthVerified": true
+      }
+    },
+    "tacticalCodec": {
+      "surface": "the R301 TacticalVideoCodec (the SAME encode-frames wire operation)",
+      "wallMs": 95,
+      "byteLength": 1495,
+      "ftyp": true
+    },
+    "workerSideAccounting": {
+      "adapterGets": 1,
+      "executePosts": 2,
+      "identity": "ONE cached descriptor GET for BOTH surfaces + TWO encode-frames POSTs (the one-operation law, measured at the worker)"
+    },
+    "byteDriftLaw": {
+      "localContentHash": "b6e7672f85e7f0f732af61f899e82e12d07c22f6c9bc53c8de3c4204a615e75b",
+      "wireContentHash": "b6e7672f85e7f0f732af61f899e82e12d07c22f6c9bc53c8de3c4204a615e75b",
+      "byteSize": 1468,
+      "byteIdentical": true,
+      "note": "the worker's encode of the same packed frames is byte-identical to the LOCAL adapter's (the cannot-drift law, measured across the wire)"
+    }
+  },
+  "transport": {
+    "contract": {
+      "getStatus": 200,
+      "getWallMs": 32,
+      "bodyParsed": true,
+      "non2xxPassthrough": 418
+    },
+    "unreachable": {
+      "typed": {
+        "failureClass": "resource-limit",
+        "kind": "encoder-unavailable"
+      },
+      "messageExcerpt": "encoding refused (encoder-unavailable): the media toolchain worker at 'http://127.0.0.1:1/v1/media/adapter' is unreachab"
+    },
+    "outlivesBound": {
+      "boundMs": 400,
+      "wallMs": 1532,
+      "typed": {
+        "failureClass": "internal",
+        "kind": "encode-failed"
+      },
+      "note": "the typed refusal surfaces once the child exits (~1.5 s slow route); under bun the kill is deferred to the child's own exit — the refusal is still typed, nothing is interpreted, the child is reaped"
+    }
+  },
+  "runtimeKillDiscipline": {
+    "bun": {
+      "version": "1.3.14",
+      "outlivesThenExits": {
+        "childSleepMs": 5000,
+        "boundMs": 400,
+        "returnedMs": 5023,
+        "error": "SystemError: spawnSync /usr/local/bin/bun ETIMEDOUT",
+        "signal": "SIGKILL",
+        "status": null,
+        "childSurvivedToNaturalExit": true
+      },
+      "neverExiting": {
+        "innerBoundMs": 400,
+        "driverBoundMs": 15000,
+        "innerReturned": false,
+        "driverKilledOuterChild": false,
+        "wallMs": 418
+      }
+    },
+    "node": {
+      "version": "v24.21.0",
+      "neverExiting": {
+        "boundMs": 400,
+        "elapsedMs": 403,
+        "signal": "SIGKILL",
+        "error": "Error: spawnSync /usr/bin/node ETIMEDOUT"
+      }
+    },
+    "honestNote": "MEASURED LIMITATION (bun 1.3.14): spawnSync's timeout does NOT kill the child — a child that outlives the bound is reaped only at its own exit (the typed encode-failed refusal still surfaces, the wall is the child's lifetime), and a NEVER-exiting child hangs the synchronous call indefinitely (bounded in this measurement by the driver's own Bun.spawn kill, which does hold). Under node v24 the bound holds exactly (SIGKILL at the bound, measured). The seam's fail-closed contract (typed refusals, no interpreted answer, no fabricated artifact) holds under both runtimes; the WALL-bound sub-contract of the module doc's 'bounded timeout' claim holds under node only — reported, never laundered."
+  }
+}

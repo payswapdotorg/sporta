@@ -41,6 +41,8 @@
  */
 import { ComputeUsageRecord } from "@sporta/compute-adapter";
 import type { ComputeUsageRecord as ComputeUsageRecordDoc } from "@sporta/compute-adapter";
+import { createFfmpegFrameEncoder } from "@sporta/encoding";
+import type { FrameEncoderPort } from "@sporta/encoding";
 import {
   DEFAULT_MEDIA_TOOLCHAIN_BUDGETS,
   MEDIA_TOOLCHAIN_ADAPTER_ID,
@@ -72,6 +74,17 @@ export interface MediaToolchainWorkerOptions {
   adapterId?: string;
   /** Provider identity (default `sporta-media-toolchain-worker-1`). */
   providerId?: string;
+  /**
+   * The R306 REAL frame encoder (the `encode-frames` leg's mechanical
+   * adapter — the encode seam, ADDITIVE): resolved ONCE at construction
+   * (the `tool`'s own precedent — the availability probe is amortized,
+   * its result cached); `null` = explicitly probed unavailable (the
+   * `encode-frames` operation is NOT advertised and every encode dispatch
+   * refuses with the honest `ffmpeg-unavailable` class — the same
+   * descriptor-honesty posture an unresolved `tool` produces). Default:
+   * resolve the REAL `FfmpegFrameEncoder` (`createFfmpegFrameEncoder`).
+   */
+  frameEncoder?: FrameEncoderPort | null;
 }
 
 /** One executed job's worker-side record. */
@@ -132,6 +145,7 @@ export type MediaToolchainWorkerExecution =
  */
 export class MediaToolchainWorker {
   private readonly tool: FfmpegTool;
+  private readonly frameEncoder: FrameEncoderPort | null;
   private readonly nowMs: () => number;
   private readonly records = new Map<string, MediaToolchainJobRecord>();
   private readonly usage: ComputeUsageRecordDoc[] = [];
@@ -157,6 +171,11 @@ export class MediaToolchainWorker {
 
   constructor(options: MediaToolchainWorkerOptions) {
     this.tool = options.tool;
+    // The R306 encode seam's mechanical adapter: resolved ONCE here (the
+    // honest availability posture — `encode-frames` is advertised ONLY when
+    // this probe resolved; the R607 descriptor-honesty law).
+    this.frameEncoder =
+      options.frameEncoder === undefined ? createFfmpegFrameEncoder() : options.frameEncoder;
     this.nowMs = options.nowMs;
     this.budgets = resolveMediaToolchainBudgets(options.budgets);
     this.adapterId = options.adapterId ?? MEDIA_TOOLCHAIN_ADAPTER_ID;
@@ -175,20 +194,27 @@ export class MediaToolchainWorker {
     if (this.descriptorCache === undefined) {
       const resolved = await this.tool.available();
       const ffmpegVersion = resolved ? await this.tool.version() : null;
+      // The encode seam's resolution (the R306 adapter's own probe — ffmpeg
+      // AND the libx264 encoder, a STRICTER resolution than the tool's): the
+      // `encode-frames` operation is advertised ONLY when BOTH the tool and
+      // the frame encoder resolved — never advertised beyond resolution.
+      const encodeResolved =
+        resolved && this.frameEncoder !== null && this.frameEncoder.available();
       const descriptor = {
         schemaVersion: "1.0" as const,
         adapterId: this.adapterId,
         adapterVersion: MEDIA_TOOLCHAIN_ADAPTER_VERSION,
         providerId: this.providerId,
         providerKind: "cpu-worker" as const,
-        operations: resolved
-          ? ([
+        operations: (resolved
+          ? [
               "probe",
               "normalize",
               "decode-probe",
               "decode-frames",
-            ] as const satisfies readonly MediaToolchainOperationDoc[])
-          : [],
+              ...(encodeResolved ? ["encode-frames"] : []),
+            ]
+          : []) as readonly MediaToolchainOperationDoc[],
         toolchain: {
           ffmpegPath: resolved ? this.tool.ffmpegPath : null,
           ffprobePath: resolved ? this.tool.ffprobePath : null,
@@ -265,6 +291,9 @@ export class MediaToolchainWorker {
         tool: this.tool,
         nowMs: this.nowMs,
         budgets: this.budgets,
+        // The R306 encode seam's adapter: the worker's ONE resolved instance
+        // (null when probed unavailable — the leg's honest refusal class).
+        frameEncoder: this.frameEncoder,
       });
       record.result = result;
       record.metering = result.metering;
