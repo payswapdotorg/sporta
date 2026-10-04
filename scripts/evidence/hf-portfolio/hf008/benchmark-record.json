@@ -1,0 +1,195 @@
+{
+  "benchmarkRun": {
+    "workItem": "HF008",
+    "runBy": "Worker A + Worker B (flight 6, worker 64-f)",
+    "provenanceLedgerEcho": {
+      "note": "the two candidates blocks echo the VibeVoice-ASR-Streaming and Qwen3-ASR rows of scripts/evidence/hf-portfolio/provenance-ledger.json VERBATIM (all twelve fields each: candidate, taskProfiles, modelUrl, revision, modelLicense, codeLicense, weightsProvenance, datasetProvenance, commercialUse, gatingState, sources, recordedAt); the ledger row schema is pinned by packages/testing/test/hf-ledger.test.ts, so the benchmark run is recorded HERE, not as ledger rows \u2014 and both candidates' gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "candidates": [
+      {
+        "candidate": "VibeVoice-ASR-Streaming",
+        "taskProfiles": [
+          "football.commentaryASR.streaming"
+        ],
+        "modelUrl": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+        "revision": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+        "modelLicense": "mit",
+        "codeLicense": "mit",
+        "weightsProvenance": "unknown",
+        "datasetProvenance": "unknown",
+        "commercialUse": "yes",
+        "gatingState": "candidate",
+        "sources": [
+          "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+          "https://huggingface.co/api/models/microsoft/VibeVoice-ASR-Streaming-1.5B",
+          "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B/raw/main/README.md",
+          "https://github.com/microsoft/VibeVoice",
+          "https://raw.githubusercontent.com/microsoft/VibeVoice/main/LICENSE"
+        ],
+        "recordedAt": "2026-10-03T01:40:02Z"
+      },
+      {
+        "candidate": "Qwen3-ASR",
+        "taskProfiles": [
+          "football.commentaryASR.multilingual"
+        ],
+        "modelUrl": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B",
+        "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "modelLicense": "apache-2.0",
+        "codeLicense": "apache-2.0",
+        "weightsProvenance": "large-scale speech training data on the Qwen3-Omni foundation model, per card (1.7B and 0.6B family; 52 languages/dialects).",
+        "datasetProvenance": "unknown",
+        "commercialUse": "yes",
+        "gatingState": "candidate",
+        "sources": [
+          "https://huggingface.co/Qwen/Qwen3-ASR-1.7B",
+          "https://huggingface.co/api/models/Qwen/Qwen3-ASR-1.7B",
+          "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/raw/main/README.md",
+          "https://github.com/QwenLM/Qwen3-ASR",
+          "https://raw.githubusercontent.com/QwenLM/Qwen3-ASR/main/LICENSE"
+        ],
+        "recordedAt": "2026-10-03T01:40:03Z"
+      }
+    ],
+    "modelRuntime": {
+      "vibevoice": {
+        "adapter": "microsoft/VibeVoice-ASR-Streaming-1.5B @ 4262d23d8a539a6530cf64fbd0b1751ef9a30853 \u2014 3 fp32 safetensors shards, 5,628,388,290 B total (hub-reported LFS sha256s recorded in results/load-analysis.json \u2014 NOT downloaded: the resource refusal; weights never committed, never vendored)",
+        "architecture": "VibeVoiceForASRStreamingTraining: qwen2-family 28-layer decoder (hidden 1536, vocab 151936, tied embeddings) + acoustic/semantic tokenizers + diffusion head; fp32 storage (config.json dtype float32); 24 kHz input, chunk_frames 22 / lookahead_frames 4 (the streaming-chunking convention ~2.93 s chunks + ~0.53 s lookahead)",
+        "venv": "/home/z/hf-bench-6 (uv, python 3.12.14, huggingface_hub 2.1.1 ONLY \u2014 a NEW lean venv; no earlier flight's venv was reused; torch NOT installed: installing torch + loading the 5.24 GiB fp32 checkpoint is exactly the resource infeasibility of the typed refusal)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_asr.py --mode full): pinned sha-verified downloads of the 3 shards, the vibevoice package (github.com/microsoft/VibeVoice) + torch + transformers>=4.51, resample the fixtures to 24 kHz mono, the model's streaming generator chunk-by-chunk, hypothesis-per-chunk vs finals collected",
+        "loadValidation": "REFUSED \u2014 the model never loaded on this host: preflight exit code 3, typed refusal resource-infeasible-host (results/preflight-refusal.json). The repo IS reachable anonymously (gated=False, both candidates \u2014 NO auth wall this flight, unlike HF009); the block is pure resource arithmetic (RAM + disk), not a stall"
+      },
+      "qwen3asr": {
+        "adapter": "Qwen/Qwen3-ASR-1.7B @ 7278e1e70fe206f11671096ffdd38061171dd6e5 \u2014 2 bf16 safetensors shards, 4,698,521,512 B total (hub-reported LFS sha256s recorded in results/load-analysis.json \u2014 NOT downloaded)",
+        "architecture": "Qwen3ASRForConditionalGeneration: 24-layer audio encoder (d_model 1024, 128-mel) + 28-layer qwen3 text decoder (hidden 2048, mrope); 30 s chunks at 16 kHz (the SPR WAVs are already 16 kHz mono); near-greedy generation_config (do_sample false, temperature 1e-6); per-utterance language id (config support_languages = 30; the card claims 52 = 30 + 22 Chinese dialects)",
+        "venv": "/home/z/hf-bench-6 (shared with the VibeVoice probe \u2014 same lean huggingface_hub-only install)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_asr.py --mode full): pinned sha-verified downloads, the qwen-asr package + torch, the transformers backend OFFLINE per fixture (the card's vLLM backend is the streaming-only path \u2014 typed: firstChunkLatencyMs is vllm-only for this candidate); word timestamps require the SEPARATE Qwen3-ForcedAligner-0.6B (a typed gap, not bundled)",
+        "loadValidation": "REFUSED \u2014 same typed refusal (the bf16 working set 4.38 GiB exceeds the host's TOTAL RAM 3.95 GiB before any activation)"
+      }
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "VibeVoice-ASR-Streaming-1.5B model-load-ram-infeasible: the fp32 working set (5.24 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "VibeVoice-ASR-Streaming-1.5B a bf16 cast (2.62 GiB weights alone) does not exceed TOTAL RAM (3.95 GiB) but EXCEEDS AVAILABLE RAM (1.80 GiB) \u2014 and the fp32 checkpoint must be resident (or streamed) before the cast; activations/KV/tokenizers are on top",
+        "VibeVoice-ASR-Streaming-1.5B model-download-disk-infeasible: the pinned weight shards (5.24 GiB) vs the host's free disk (1.08 GiB) \u2014 4.9x over",
+        "VibeVoice-ASR-Streaming-1.5B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures",
+        "Qwen3-ASR-1.7B model-load-ram-infeasible: the fp32 working set (8.75 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "Qwen3-ASR-1.7B even a bf16 cast (4.38 GiB weights alone) exceeds TOTAL RAM (3.95 GiB) \u2014 and exceeds AVAILABLE RAM (1.80 GiB) before any activation is allocated",
+        "Qwen3-ASR-1.7B model-download-disk-infeasible: the pinned weight shards (4.38 GiB) vs the host's free disk (1.08 GiB) \u2014 4.1x over",
+        "Qwen3-ASR-1.7B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf008/results/preflight-refusal.json",
+      "note": "per the worker brief: both candidates are 1.5-1.7B (5.24 GiB fp32 / 4.38 GiB bf16 checkpoints) on a 4,041.6 MiB-RAM ~1.1 GB-free-disk 2-vCPU host \u2014 the honest delivery is this typed refusal + the SUBSTANTIAL partial (the WER/latency/hotword/multilingual metric designs implemented ready-to-run + self-check-verified, the machine-checked ASR contract mappings incl. the transcription-vs-generation distinction, the speaker-hints composition verdict), never a fabricated benchmark. Bounded reachability probes ONLY \u2014 the weights were never downloaded"
+    },
+    "fixtures": [
+      {
+        "clipId": "sprclip-b1-wide-broadcast",
+        "mediaKind": "real-footage",
+        "audioExtracted": "EXECUTED by 64-d (HF009): ffmpeg -v error -y -i clip-b1-wide-broadcast.mp4 -vn -ac 1 -ar 16000 -c:a pcm_s16le \u2014 30.070 s, 16,000 Hz, mono PCM16, sha256 08c2fcfb... (re-verified this flight by the preflight sha pin check: PASS)",
+        "authorization": "SPR corpus clip under the repo's R606 registration declaration (analysis scope, repo private) \u2014 the HF009 record",
+        "scored": false,
+        "unscoredReason": "no reference transcript exists (the ground-truth search) \u2014 WER/hotword not-measured; and the model never ran (the typed refusal)",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json"
+      },
+      {
+        "clipId": "sprclip-b8-inplay-original",
+        "mediaKind": "real-footage",
+        "audioExtracted": "EXECUTED by 64-d (HF009): same convention on b8p3.mp4 \u2014 47.624 s, sha256 ddf9c203... (re-verified this flight: PASS)",
+        "authorization": "same R606 registration declaration scope (the HF009 record)",
+        "scored": false,
+        "unscoredReason": "no reference transcript exists; and the model never ran (the typed refusal)",
+        "status": "not-run-resource-refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json"
+      },
+      {
+        "clipId": "fx-001",
+        "mediaKind": "real-footage",
+        "license": "CC0-1.0 (FIFA Beach Soccer World Cup 2021 penalty, Wikimedia Commons \u2014 the repo's authorized licensed gate clip)",
+        "scored": false,
+        "status": "audio-unreachable-this-flight",
+        "unscoredReason": "the committed fx-001-normalized.mp4 is VIDEO-ONLY by the manifest's own '-an' transform (re-verified this flight by ffprobe: a single h264 video stream); the audio lives ONLY in the ORIGINAL source webm (sha a4d163a5...) whose fetch was HTTP-429-rate-limited on all 6 attempts in the 64-d flight \u2014 an infrastructure wall, not licensing (recorded by HF009, unchanged)",
+        "evidence": "scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json"
+      },
+      {
+        "clipId": "synthetic-diagnostic-01",
+        "mediaKind": "synthetic-diagnostic",
+        "scored": false,
+        "status": "no-audio-track-typed-gap",
+        "unscoredReason": "ffprobe re-verified this flight: a single video-only h264 stream \u2014 NO audio track exists at all (first recorded by HF009): the repo fixture set cannot exercise ANY audio task profile",
+        "evidence": "scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json"
+      }
+    ],
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight \u2014 the models never ran. The honest partial evidence is static + designed + implementation-verified: the source-verified output schema (results/model-output-schema.json), the machine-checked transcription-output + evidence-chain + composition mappings (results/contract-compatibility.json), and the WER/hotword/churn metric implementations (benchmark_asr.py) verified by the SELF-CHECK (results/metric-selfcheck.json \u2014 implementation evidence, NOT a model measurement). WER = (S+D+I)/N on the word-sequence Levenshtein with the stated normalization (case-fold + Unicode-punctuation strip + whitespace collapse), pooled micro-average; hypothesis-per-chunk vs finals per the VibeVoice chunking convention; the --ground-truth operator unlock is required (the repo owns NO commentary transcripts)",
+      "contractCompatibilityVerdict": "PARTIAL: football.commentaryASR.streaming compatible-with-adapter (VibeVoice: chunk-level timing, cluster speaker labels, the authored hotword-vocabulary gap); football.commentaryASR.multilingual compatible-with-adapter (Qwen3: no per-language fixtures, language-blind W207/W208, vLLM-only streaming, the separate ForcedAligner for timestamps, the mandatory HF009 composition); W208 CommentaryUnit compatible-with-adapter for TRANSCRIPTION-OF-OBSERVED-AUDIO \u2014 the honest REVERSAL of the HF007 generated-text verdict, argued from the repo's own sources (the W207 observation contract, the W208 docstring's own 'W207 transcribes fixed 5-second audio windows', the zai neural backend in production); W209 maps (downstream, untouched)",
+      "evidence": "scripts/evidence/hf-portfolio/hf008/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight \u2014 the models never ran. The ready-to-run path implements: streaming first-chunk latency (wall-clock from first audio sample to first emitted hypothesis), steady-state RTF (processing time / audio duration, per chunk, pooled), per-utterance wall-clock with median + nearest-rank p95 (rank = ceil(p/100*n), the repo convention). TYPED: Qwen3's first-chunk latency is vLLM-only per the card; the transformers path measures offline metrics only"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host); process RSS is the substitute metric \u2014 ALSO not measured here (the models never ran)",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 4,041.6 MiB (~3.95 GiB) vs the VibeVoice fp32 working set 5.24 GiB (1.33x) and the Qwen3 bf16 working set 4.38 GiB (1.11x) \u2014 both before any activation"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, 4,041.6 MiB total RAM, ~1.1 GB free disk): GPU memory is honestly N/A; process RSS would be the substitute metric \u2014 and the models never ran, so no RSS number exists either",
+      "the typed refusal (resource-infeasible-host) is the flight's core honesty record for BOTH candidates: VibeVoice fp32 working set 5.24 GiB = 1.33x TOTAL RAM (download 4.85x free disk); Qwen3 bf16 4.38 GiB = 1.11x TOTAL RAM (download 4.05x free disk) \u2014 no latency, memory, or quality figure in this flight is anything but 'not measured'",
+      "the models never ran \u2014 every metric-shaped value in this record is a design or a refusal, never a measurement",
+      "the latency metrics of the ready-to-run path are per-inference CPU wall-clock (median + nearest-rank p95 \u2014 the repo convention) plus the streaming first-chunk latency and steady-state RTF; NO such figure exists in this flight",
+      "WER/hotword recall require reference transcripts that the repo does not own: the --ground-truth operator unlock precedes any scored run on ANY hardware (an operator action, like the HF009/HF007 walls but for ground truth rather than auth)",
+      "the audio-fixture story is the HF009 record: 2 SPR WAVs staged + sha-verified (30.070 s + 47.624 s, 16 kHz mono PCM16, R606 analysis-scope authorized, repo-private); fx-001's audio 429-blocked (the sha-pinned re-fetch recipe recorded by HF009); the synthetic fixture carries no audio track at all",
+      "the multilingual protocol needs PER-LANGUAGE fixtures \u2014 none exist (the SPR WAVs' spoken language is not annotated anywhere in the repo); the 52-languages claim is card-stated, not measured",
+      "the venv is deliberately lean (/home/z/hf-bench-6: huggingface_hub only, ~a few hundred MB with the uv cache \u2014 well inside the ~1.1 GB budget); torch was NOT installed because installing it + loading either checkpoint IS the infeasibility; nothing exceeded the disk budget this flight"
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/preflight-refusal.json",
+        "description": "the EXECUTED preflight (exit 3): host resources, both pinned hub probes (bounded \u2014 file trees + small config/card fetches, weights never downloaded), the resource arithmetic, the fixture sha verification (2 SPR WAVs PASS + the fx-001/synthetic no-audio re-verification), the ground-truth search, the typed refusal with 8 reasons"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/load-analysis.json",
+        "description": "both candidates' file trees at the pinned revisions (sizes + hub LFS sha256s for every shard), the bounded small-file fetch map (configs + cards, sha-pinned), the resource arithmetic"
+      },
+      "sourceVerifiedOutputSchema": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/model-output-schema.json",
+        "description": "the source-verified output facts: VibeVoice who-said-what + customized hotwords + 10 languages + the chunking constants; Qwen3 per-utterance language id + 30/52 language counts + the vLLM-only streaming + the separate ForcedAligner + the 0.6B sibling observation (recorded for the HF015 lane, not substituted)"
+      },
+      "audioFixtureEvidence": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/audio-fixtures.json",
+        "description": "the staged audio story: 2 SPR WAVs sha-verified (the 64-d extraction, R606 analysis-scope authorized), the fx-001 audio gap (video-only by the '-an' transform; the source webm 429-blocked), the synthetic fixture's no-audio structural gap, the language-annotation absence"
+      },
+      "metricDesigns": {
+        "path": "scripts/evidence/hf-portfolio/hf008/benchmark_asr.py",
+        "description": "the WER + hotword-recall + hypothesis-churn + pooled/per-utterance + first-chunk-latency + steady-state-RTF + per-language-WER IMPLEMENTATIONS with the exact definitions stated in the module docstring (the streaming-chunking semantics per the pinned VibeVoice constants; the --ground-truth operator unlock; the --hotwords authored-vocabulary unlock) \u2014 ready-to-run on an adequate host, honestly typed not-measured"
+      },
+      "metricSelfCheck": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/metric-selfcheck.json",
+        "description": "the EXECUTED implementation self-verification (10/10 hand-computed cases: WER accounting incl. the never-zero empty-reference rule, the pooled micro-average, the hotword-recall denominator rule, churn, the W207 window grid) \u2014 labeled IMPLEMENTATION evidence, NOT a model measurement; never enters the quality blocks as a number"
+      },
+      "contractMappings": {
+        "path": "scripts/evidence/hf-portfolio/hf008/results/contract-compatibility.json",
+        "description": "the machine-checked mappings: 6 transcription-output rows (text/timestamps/confidence/speaker/language/hotwords), 3 evidence-chain rows (the transcription-vs-generation distinction verdict \u2014 W208 compatible-with-adapter for transcription-of-observed-audio, the honest reversal of HF007's generated-text verdict, argued from the repo's own sources), 2 speaker-hints composition rows (VibeVoice fused vs Qwen3 mandatory HF009 composition), the 8-row STATIC-REVIEW capability delta"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf008/benchmark_asr.py",
+        "description": "preflight mode EXECUTED on this host (exit 3, the typed refusal); selfcheck mode EXECUTED (10/10); full mode ready-to-run on an adequate host (>= 16 GB RAM, >= 24 GB free disk) with the --ground-truth/--hotwords operator unlocks, refusing fail-closed otherwise"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, BOTH candidates) \u2014 zero executed quality/latency/memory evidence exists in this flight",
+        "no reference transcripts exist for any real commentary audio (the repo-wide ground-truth search): WER/hotword recall need the --ground-truth operator unlock before ANY scored run on ANY hardware",
+        "the audio fixture set has three typed gaps: fx-001's audio is 429-blocked (the sha-pinned re-fetch recipe exists), the synthetic fixture has no audio track at all, and NO per-language fixtures exist for the multilingual protocol",
+        "the hotword VOCABULARY is an authored decision that does not exist (the W401-lane gap: the repo's W209 lexicon and W401 taxonomy are extraction vocabularies, not ASR-biasing name lists)",
+        "speaker-hints quality is unverifiable without a run: VibeVoice's fused attribution is cluster-labels-not-identities (the HF009 verdicts carry over) and no diarization ground truth exists to score it (HF009's repo-wide verdict)"
+      ],
+      "note": "UNCHANGED \u2014 this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone"
+    }
+  }
+}

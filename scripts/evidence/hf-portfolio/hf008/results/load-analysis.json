@@ -1,0 +1,292 @@
+{
+  "candidates": [
+    {
+      "candidate": "VibeVoice-ASR-Streaming",
+      "repoId": "microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "revision": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+      "modelUrl": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "modelLicense": "mit",
+      "codeLicense": "mit",
+      "probe": {
+        "repoId": "microsoft/VibeVoice-ASR-Streaming-1.5B",
+        "revision": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+        "resolvedSha": "4262d23d8a539a6530cf64fbd0b1751ef9a30853",
+        "gated": "False",
+        "pipelineTag": "automatic-speech-recognition",
+        "fileCount": 16,
+        "weightShardBytes": 5628388290,
+        "smallFileBytes": 16824238,
+        "totalRepoBytes": 5645212528,
+        "boundedSmallFileFetches": {
+          "README.md": {
+            "bytes": 2238,
+            "sha256": "5e4050aec9e328c5e6ef21973ee6c97660bfcd587da9610a585e028ae97f24c1"
+          },
+          "config.json": {
+            "bytes": 2941,
+            "sha256": "2b46a311855872193b218bc8d4de499e3252cd3c3c06662128d16e3f9e8bc72f"
+          },
+          "generation_config.json": {
+            "error": "RemoteEntryNotFoundError: 404 Client Error. (Request ID: Root=1-6ac19d5a-77f44d9c5a03df33489b9ca4;149b75de-d153-4e26-89f7-db66c2bdf032)\n\nEntry Not Found for url: https://huggingface.co/microsoft/VibeVoice-A"
+          },
+          "preprocessor_config.json": {
+            "bytes": 191,
+            "sha256": "59ee0cc74687fc2ab8f5f9c2fc3b61cdf66078ebd4f34a61e1fcfc1a644ac31a"
+          },
+          "chat_template.json": {
+            "error": "RemoteEntryNotFoundError: 404 Client Error. (Request ID: Root=1-6ac19d5a-7715fcaf0ce786a60a4013ca;4daf134f-ac8c-406e-9e91-e3ad7dcbcdfd)\n\nEntry Not Found for url: https://huggingface.co/microsoft/VibeVoice-A"
+          },
+          "model.safetensors.index.json": {
+            "bytes": 120114,
+            "sha256": "beac94f964e3358f8c66e7dcdbc700e5518e5cf2a7b7697a0c156ff7bcf89038"
+          },
+          "tokenizer_config.json": {
+            "bytes": 9330,
+            "sha256": "e80c7714aaff125403ba7c18a4c06da9b18eb81cb6ee4bee711143fa15d94fd6"
+          }
+        },
+        "weightsDownloaded": false
+      },
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sizeBytes": 1735,
+          "lfsSha256": null
+        },
+        {
+          "path": "README.md",
+          "sizeBytes": 2238,
+          "lfsSha256": null
+        },
+        {
+          "path": "added_tokens.json",
+          "sizeBytes": 714,
+          "lfsSha256": null
+        },
+        {
+          "path": "config.json",
+          "sizeBytes": 2941,
+          "lfsSha256": null
+        },
+        {
+          "path": "figures/VibeVoice_ASR_Streaming_architecture.png",
+          "sizeBytes": 191728,
+          "lfsSha256": "2b38df286fe4d133d3ccbaf97e3195be349aca09dad011ff463b8d3b656c678f"
+        },
+        {
+          "path": "figures/VibeVoice_ASR_Streaming_results.png",
+          "sizeBytes": 623135,
+          "lfsSha256": "fa83f98d6506ea7ed9039e0c886baa375a9614a12ad915d71009bb76b6b15535"
+        },
+        {
+          "path": "merges.txt",
+          "sizeBytes": 1671853,
+          "lfsSha256": null
+        },
+        {
+          "path": "model-00001-of-00003.safetensors",
+          "sizeBytes": 2498354152,
+          "lfsSha256": "788e6206a158c614e1e6777ab843baf64ca8a3f555e3cb72c26d5d79b925d4b9"
+        },
+        {
+          "path": "model-00002-of-00003.safetensors",
+          "sizeBytes": 2486576066,
+          "lfsSha256": "4d58b3ce47ac6b0ac5d3b142d54e56f10e02a928cf016b493e9e6a3f91beb75d"
+        },
+        {
+          "path": "model-00003-of-00003.safetensors",
+          "sizeBytes": 643458072,
+          "lfsSha256": "884b560dcd3024436d8827d32c7e211c545751c099df4ee75101c1ee2196f427"
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sizeBytes": 120114,
+          "lfsSha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sizeBytes": 191,
+          "lfsSha256": null
+        },
+        {
+          "path": "special_tokens_map.json",
+          "sizeBytes": 769,
+          "lfsSha256": null
+        },
+        {
+          "path": "tokenizer.json",
+          "sizeBytes": 11422657,
+          "lfsSha256": "d198a051741ee47805797b744e6524c259b08a59b58d1ec159cfd7f1da5f2df7"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sizeBytes": 9330,
+          "lfsSha256": null
+        },
+        {
+          "path": "vocab.json",
+          "sizeBytes": 2776833,
+          "lfsSha256": null
+        }
+      ]
+    },
+    {
+      "candidate": "Qwen3-ASR",
+      "repoId": "Qwen/Qwen3-ASR-1.7B",
+      "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+      "modelUrl": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B",
+      "modelLicense": "apache-2.0",
+      "codeLicense": "apache-2.0",
+      "probe": {
+        "repoId": "Qwen/Qwen3-ASR-1.7B",
+        "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "resolvedSha": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "gated": "False",
+        "pipelineTag": "automatic-speech-recognition",
+        "fileCount": 12,
+        "weightShardBytes": 4698521512,
+        "smallFileBytes": 4592796,
+        "totalRepoBytes": 4703114308,
+        "boundedSmallFileFetches": {
+          "README.md": {
+            "bytes": 57456,
+            "sha256": "5058416891bc47a2051557765997e8c42f8eb78a0e33c3e775bd17d4b0ba4d50"
+          },
+          "config.json": {
+            "bytes": 6194,
+            "sha256": "2e74a751548b8ad7d7526d29365ad8144c345d8b412b1152d25dc6698452712f"
+          },
+          "generation_config.json": {
+            "bytes": 142,
+            "sha256": "1da527824d81e07118facff437e03f2e24a23311e3bdeb2368973fe77e5f275c"
+          },
+          "preprocessor_config.json": {
+            "bytes": 330,
+            "sha256": "45e120a4eda2c20c5d7f2ea9354e63536bf35e27aa573fb7cdf78017b378770d"
+          },
+          "chat_template.json": {
+            "bytes": 1161,
+            "sha256": "75a8cfca24f00de72d796fbfed6858fc9614ef3dabd8696684cc3bc03a9c58ff"
+          },
+          "model.safetensors.index.json": {
+            "bytes": 64821,
+            "sha256": "f994739fe38e5210b9e3e8ce6c6307315e2ceac3cb630e7b7414d69dce520f60"
+          },
+          "tokenizer_config.json": {
+            "bytes": 12487,
+            "sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+          }
+        },
+        "weightsDownloaded": false
+      },
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sizeBytes": 1519,
+          "lfsSha256": null
+        },
+        {
+          "path": "README.md",
+          "sizeBytes": 57456,
+          "lfsSha256": null
+        },
+        {
+          "path": "chat_template.json",
+          "sizeBytes": 1161,
+          "lfsSha256": null
+        },
+        {
+          "path": "config.json",
+          "sizeBytes": 6194,
+          "lfsSha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "sizeBytes": 142,
+          "lfsSha256": null
+        },
+        {
+          "path": "merges.txt",
+          "sizeBytes": 1671853,
+          "lfsSha256": null
+        },
+        {
+          "path": "model-00001-of-00002.safetensors",
+          "sizeBytes": 4220320824,
+          "lfsSha256": "a4cd1f1a04d90b757dc7f7dd26254e69a013b19e80efe590a83c6a3bde8608d6"
+        },
+        {
+          "path": "model-00002-of-00002.safetensors",
+          "sizeBytes": 478200688,
+          "lfsSha256": "6e0b9d9e09e2e0238e7ef3cc8a484ab387e91b90f1900bedf88bc92d7929ccfc"
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sizeBytes": 64821,
+          "lfsSha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sizeBytes": 330,
+          "lfsSha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sizeBytes": 12487,
+          "lfsSha256": null
+        },
+        {
+          "path": "vocab.json",
+          "sizeBytes": 2776833,
+          "lfsSha256": null
+        }
+      ]
+    }
+  ],
+  "host": {
+    "cpuCount": 2,
+    "gpu": "N/A (no GPU on the benchmark host \u2014 CPU-only, honestly recorded)",
+    "ramTotalMiB": 4041.6,
+    "ramAvailableMiB": 1841.9,
+    "diskFreeBytes": 1159897088,
+    "diskFreeGiB": 1.08
+  },
+  "arithmetic": [
+    {
+      "label": "VibeVoice-ASR-Streaming-1.5B",
+      "storedDtype": "float32",
+      "weightShardBytes": 5628388290,
+      "weightShardGiB": 5.242,
+      "fp32WorkingSetGiB": 5.242,
+      "bf16WorkingSetGiB": 2.621,
+      "hostRamTotalGiB": 3.947,
+      "hostRamAvailableGiB": 1.799,
+      "hostDiskFreeGiB": 1.08,
+      "downloadOverFreeDisk": 4.85,
+      "reasons": [
+        "VibeVoice-ASR-Streaming-1.5B model-load-ram-infeasible: the fp32 working set (5.24 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "VibeVoice-ASR-Streaming-1.5B a bf16 cast (2.62 GiB weights alone) does not exceed TOTAL RAM (3.95 GiB) but EXCEEDS AVAILABLE RAM (1.80 GiB) \u2014 and the fp32 checkpoint must be resident (or streamed) before the cast; activations/KV/tokenizers are on top",
+        "VibeVoice-ASR-Streaming-1.5B model-download-disk-infeasible: the pinned weight shards (5.24 GiB) vs the host's free disk (1.08 GiB) \u2014 4.9x over",
+        "VibeVoice-ASR-Streaming-1.5B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+      ]
+    },
+    {
+      "label": "Qwen3-ASR-1.7B",
+      "storedDtype": "bfloat16",
+      "weightShardBytes": 4698521512,
+      "weightShardGiB": 4.376,
+      "fp32WorkingSetGiB": 8.752,
+      "bf16WorkingSetGiB": 4.376,
+      "hostRamTotalGiB": 3.947,
+      "hostRamAvailableGiB": 1.799,
+      "hostDiskFreeGiB": 1.08,
+      "downloadOverFreeDisk": 4.05,
+      "reasons": [
+        "Qwen3-ASR-1.7B model-load-ram-infeasible: the fp32 working set (8.75 GiB weights alone, before activations/KV/runtime) exceeds the host's TOTAL RAM (3.95 GiB)",
+        "Qwen3-ASR-1.7B even a bf16 cast (4.38 GiB weights alone) exceeds TOTAL RAM (3.95 GiB) \u2014 and exceeds AVAILABLE RAM (1.80 GiB) before any activation is allocated",
+        "Qwen3-ASR-1.7B model-download-disk-infeasible: the pinned weight shards (4.38 GiB) vs the host's free disk (1.08 GiB) \u2014 4.1x over",
+        "Qwen3-ASR-1.7B CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; even if the weights fit, 2-vCPU decode latency would be far from the streaming regime the profile measures"
+      ]
+    }
+  ]
+}

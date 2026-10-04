@@ -1,0 +1,65 @@
+{
+  "stagedAudio": [
+    {
+      "clipId": "sprclip-b1-wide-broadcast",
+      "path": "/home/z/hf-bench-4/audio/spr-b1-audio.wav",
+      "durationSec": 30.07,
+      "sampleRate": 16000,
+      "channels": 1,
+      "codec": "pcm_s16le",
+      "sha256": "08c2fcfb8fb1740bf07d29a7e0abc986c1c4832ac2c0877b5de485a735391918",
+      "bytes": 962314,
+      "role": "SPR corpus clip-b1-wide-broadcast.mp4 audio (the w3a re-cut of the b8p3 source window), ffmpeg -vn -ac 1 -ar 16000 -c:a pcm_s16le, extracted by 64-d (HF009)",
+      "status": "verified",
+      "actualSha256": "08c2fcfb8fb1740bf07d29a7e0abc986c1c4832ac2c0877b5de485a735391918"
+    },
+    {
+      "clipId": "sprclip-b8-inplay-original",
+      "path": "/home/z/hf-bench-4/audio/spr-src-audio.wav",
+      "durationSec": 47.624,
+      "sampleRate": 16000,
+      "channels": 1,
+      "codec": "pcm_s16le",
+      "sha256": "ddf9c20335e7c4e7873e9267906682ac21ccfd1a74f841f58e8676fc0a2a7a17",
+      "bytes": 1523984,
+      "role": "SPR corpus b8p3.mp4 audio, same extraction convention, by 64-d (HF009)",
+      "status": "verified",
+      "actualSha256": "ddf9c20335e7c4e7873e9267906682ac21ccfd1a74f841f58e8676fc0a2a7a17"
+    }
+  ],
+  "repoVideoFixtures": [
+    {
+      "clipId": "fx-001",
+      "path": "packages/real-to-swm/fixtures/media/fx-001-normalized.mp4",
+      "streams": [
+        {
+          "index": "h264",
+          "codecType": "video",
+          "codecName": "?"
+        }
+      ],
+      "hasAudioTrack": false,
+      "expected": "video-only (the gate-clips.json normalizeTransform carries '-an': the committed clip has NO audio stream)",
+      "recordedBy": "HF009 (audio-fixtures.json) \u2014 re-verified by this flight's ffprobe"
+    },
+    {
+      "clipId": "synthetic-diagnostic-01",
+      "path": "packages/technology-registry/fixtures/media/synthetic-diagnostic-01-players-and-ball.mp4",
+      "streams": [
+        {
+          "index": "h264",
+          "codecType": "video",
+          "codecName": "?"
+        }
+      ],
+      "hasAudioTrack": false,
+      "expected": "video-only (the synthetic fixture was authored with a single h264 video stream \u2014 no audio track exists at all)",
+      "recordedBy": "HF009 (audio-fixtures.json) \u2014 re-verified by this flight's ffprobe"
+    }
+  ],
+  "fx001AudioGap": "the committed fx-001-normalized.mp4 is VIDEO-ONLY by the manifest's own transform ('-an' in gate-clips.json normalizeTransform \u2014 re-verified this flight by ffprobe: a single h264 video stream); the audio lives ONLY in the ORIGINAL source webm at the canonical URL (sha a4d163a5...), whose fetch was HTTP-429-rate-limited on all 6 attempts in the 64-d flight \u2014 an infrastructure wall, not licensing (recorded by HF009; unchanged this flight)",
+  "syntheticFixtureGap": "the synthetic fixture carries a single video-only h264 stream \u2014 NO audio track exists at all (ffprobe re-verified this flight; first recorded by HF009): the repo fixture set cannot exercise ANY audio task profile",
+  "authorization": "SPR corpus clips authorized by the repo's own R606 registration declaration (analysis scope, repo private) \u2014 the HF009 record",
+  "languageAnnotation": "NONE: the spoken language of the two SPR WAVs is not annotated anywhere in the repo \u2014 the multilingual protocol needs per-language fixtures that do not exist",
+  "recreateCommand": "ffmpeg -v error -y -i <spr-clip>.mp4 -vn -ac 1 -ar 16000 -c:a pcm_s16le <out>.wav (the 64-d one-liner; shas pinned above)"
+}
