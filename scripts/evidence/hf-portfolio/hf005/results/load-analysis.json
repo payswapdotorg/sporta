@@ -1,0 +1,61 @@
+{
+  "label": "the pinned-revision load composition (hub-reported sizes via the HF API blobs metadata — metadata only, weights NEVER downloaded)",
+  "measuredAtUtc": "2026-10-04T07:35:55Z",
+  "revisionPinned": "3c879f39826c281e95690f02c7821c4de09afae7",
+  "revisionHead": "3c879f39826c281e95690f02c7821c4de09afae7",
+  "revisionDrift": "none — the pinned revision IS the repo HEAD",
+  "gate": {
+    "gated": "manual",
+    "wall": "401 GatedRepoError on the weight files + config.json (the probe map)"
+  },
+  "safetensorsParams": {
+    "F32": 859922360
+  },
+  "paramsNote": "859,922,360 F32 parameters => 4 bytes/param => ~3,439,689,440 B ≈ the reported model.safetensors size (3,439,938,512 B) — the checkpoint is F32",
+  "perFileSizes": {
+    ".gitattributes": 1519,
+    "LICENSE": 7352,
+    "README.md": 26038,
+    "config.json": 25843,
+    "merges.txt": 524619,
+    "model.safetensors": 3439938512,
+    "processor_config.json": 1712,
+    "sam3.pt": 3450062241,
+    "special_tokens_map.json": 588,
+    "tokenizer.json": 3642073,
+    "tokenizer_config.json": 799,
+    "vocab.json": 862328
+  },
+  "treeTotalBytes": 6895093624,
+  "treeTotalGiB": 6.422,
+  "checkpointFormats": {
+    "model.safetensors": 3439938512,
+    "sam3.pt": 3450062241,
+    "note": "the pinned tree carries TWO serialization formats of the same checkpoint — only ONE is needed for the documented transformers recipe"
+  },
+  "minimalWorkingSet": {
+    "recipe": "the card's transformers recipe: Sam3Model.from_pretrained + processor + tokenizer (all in this repo) — ONE checkpoint file",
+    "checkpointBytes": 3439938512,
+    "checkpointGiB": 3.204,
+    "runtimeBaselineEstimateBytes": 629145600,
+    "runtimeBaselineNote": "ESTIMATE (labeled): python + torch + transformers + accelerate import-set baseline ~0.6 GiB before activations; the video session additionally stores the frames + memory state on the processing device per the card's init_video_session",
+    "workingSetBytes": 4069084112,
+    "workingSetGiB": 3.79
+  },
+  "hostGapArithmetic": {
+    "host": {
+      "measuredAtUtc": "2026-10-04T07:35:57Z",
+      "cpuModel": "\t: Intel(R) Xeon(R) Processor",
+      "vcpuCount": 2,
+      "ramTotalBytes": 4237889536,
+      "ramAvailableBytes": 2875531264,
+      "diskAvailableBytes": 7329660928,
+      "gpu": "none (no /dev/nvidia* device nodes; CPU host — GPU honestly N/A)"
+    },
+    "weightsVsTotalRam": "81.2% of TOTAL RAM for the weights alone",
+    "workingSetVsTotalRam": "96.0% of TOTAL RAM (weights + runtime estimate, before activations/video state)",
+    "verdict": "RESOURCE-INFEASIBLE on this host: 3.20 GiB of F32 weights alone is ~81% of the 3.95 GiB TOTAL RAM; adding the ~0.6 GiB runtime baseline + per-frame activations + the video session's frame store exceeds TOTAL RAM — CPU inference of an 860M-param foundation model on 2 vCPU is latency-infeasible as well; GPU honestly N/A (none present)",
+    "diskNote": "disk available 6.83 GiB (measured at preflight; the earlier HF flights recorded ~1.04-1.1 GiB free — this flight reports the MEASURED value; the primary refusal is the auth wall in any case, and weights are never downloaded)"
+  },
+  "huggingfaceHubVersion": "2.1.1"
+}

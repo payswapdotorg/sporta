@@ -1,0 +1,49 @@
+{
+  "label": "the identity-continuity + latency comparison DESIGN — SAM3 vs the repo's CURRENT path on the SAME authorized fixtures (the acceptance's 'compare identity continuity and latency'; designed, NOT executed — the typed refusal governs)",
+  "designStatus": "typed not-measured: no SAM3 number exists (auth-gated + resource-infeasible on this host); the current-path side is the repo's own recorded W201+W204 pipeline",
+  "theTwoSides": [
+    {
+      "side": "SAM3 (the candidate)",
+      "entryPoints": [
+        "video PCS: Sam3VideoModel + add_text_prompt (text concept 'football player') -> per-frame object_ids + boxes + masks + scores",
+        "tracker video PVS: Sam3TrackerVideoModel + box/point prompts from the W-lane detections -> per-frame per-object masks"
+      ],
+      "identitySurface": "session-scoped int object_ids propagated by the model's memory state (the card's zero-shot tracking claim: 'detect, segment, and track objects using text or visual prompts')",
+      "latencySurface": "per-frame model forward (propagate step) + post_process per frame; GPU-first (bfloat16 per the card's recipes); CPU fallback documented but latency-infeasible"
+    },
+    {
+      "side": "the repo's CURRENT path (the baseline)",
+      "entryPoints": [
+        "W201 contrast-context detector (packages/perception-detection — the license-clean production path: pure code, zero external components, deterministic, CPU)",
+        "W204 greedy-IoU association tracker (packages/perception-tracking/src/tracker.ts — IoU-threshold association, maxGap tolerance, close-all at scene cuts; t<seq> EntityIds)"
+      ],
+      "identitySurface": "session-scoped EntityId track ids in the t<seq> scheme; conservative by design (a scene cut or gap>maxGap CLOSES a track — re-detection opens a NEW id; the fragmentation this produces is exactly what the W204 identity-continuity benchmark measures)",
+      "latencySurface": "detection + association per frame (both pure deterministic CPU stages; association is geometric-only, no model forward)"
+    }
+  ],
+  "theAuthorizedFixtures": {
+    "corpus": "scripts/evidence/spr-corpus-bytes/ (the frozen SPR substrate: 8 clips, sha-256-pinned, acquired under the recorded R606 registration declaration — analysis / transformation / derivative generation / storage; repo private)",
+    "selectedForTheComparison": [
+      "sprclip-b8-inplay-original (b8p3.mp4, sha 969af7c6fdb17209…) — real in-play R606 source: the multi-player identity stress case (occlusions, crossings)",
+      "sprclip-b1-wide-broadcast (clip-b1-wide-broadcast.mp4, sha 3a3c249ef351aaff…) — the wide-angle tracking case (small players, dense crowd overlap)",
+      "sprclip-b2-closeup (clip-b2-closeup.mp4, sha e65ae48740472f57…) — the close-up segmentation quality case (large masks, few identities)",
+      "sprclip-b3-fast-action (clip-b3-fast-action.mp4, sha f88e3bd5f88f047b…) — the fast-motion identity-continuity case (the swap/fragmentation stress)"
+    ],
+    "fixtureHonestNote": "the b8p3/b1 WAV extractions of HF009 prove the extraction recipe; the video frames come per the repo's decoding convention (decode-order + presentation timestamps) so BOTH sides consume the SAME frame sequence"
+  },
+  "identityContinuityProtocol": {
+    "metrics": "the W204 semantics VERBATIM (packages/perception-tracking/src/benchmark.ts): identitySwitches (consecutive-pair trackId changes summed over GT objects), continuityScore (identityPreservingPairs/totalPairs), fragmentationMeanTracksPerObject; PLUS per-cut continuity (the scene-cut boundary: W204 close-all vs SAM3 memory state — measured per cut window)",
+    "correspondenceRule": "per frame, GT entries matched against predictions with W201's matchDetections (greedy one-to-one IoU matching, label-gated, IoU >= threshold inclusive) — the SAME rule for both sides, so the comparison is identity-level, not detection-level",
+    "groundTruthHonesty": "TYPED GAP: no per-player GT identity annotation exists in the repo (the hf009 search precedent held for speaker ids; the same holds for player ids). The design has TWO honest options: (a) operator-provisioned GT (a human annotates identity walks on the 4 clips — the protocol above consumes them directly), or (b) the CROSS-MODE continuity comparison (label-free): both sides' trackId walks are scored against each OTHER via mask-IoU correspondence on the same frames — labeled a RELATIVE continuity score, never an absolute one. The metric implementations (identity_continuity in benchmark_sam3.py) are delivered + self-checked either way.",
+    "theSAM3WalkExtraction": "per-frame object_ids -> the sam3-<id> EntityId bridge (delivered + self-checked) -> the same walk arrays the metrics consume",
+    "theCurrentPathWalkExtraction": "W204 TrackedBox.trackId per frame (the t<seq> ids) -> the same walk arrays"
+  },
+  "latencyProtocol": {
+    "metrics": "per-frame wall-clock (ms) per stage: (a) prompt setup (once), (b) per-frame propagate/association, (c) post-process; PLUS end-to-end per-clip wall-clock, FPS, and the realtimeFactor vs the source 25fps; CPU wall-clock labeled as such, GPU honestly N/A on this host",
+    "theCascadeCost": "the repo's current chain is detection-then-association (two cheap CPU stages); SAM3 replaces BOTH with one model forward per frame (plus its memory state) — the cascade cost = SAM3 per-frame time MINUS (W201+W204) per-frame time, measured on the SAME frames of the SAME clips; the self-check's formula (case 6) validates the ratio arithmetic",
+    "warmupPolicy": "3 warmup frames excluded (the model's first-frame prompt encoding amortizes), then every frame timed; medians + p95 reported per clip",
+    "streamingCaveat": "the card's own warning — streaming inference 'disables hotstart heuristics that remove unmatched and duplicate objects' — so BOTH modes (pre-loaded + streaming) are in the design; the streaming numbers are labeled with the card's false-positive caveat"
+  },
+  "theComparisonVerdictShape": "when executed on an authorized + adequate host, the record gains: identityContinuity.{sam3,current}.{identitySwitches,continuityScore,fragmentation} per clip + latency.{sam3,current}.{perFrameMsP50,P95,fps,realtimeFactor} + cascadeDeltaMs — ALL typed not-measured today; the record-benchmark.ts validator refuses any that appears without a measured run behind it",
+  "fixturesConsumptionDesign": "frames decoded ONCE per clip (deterministic decode-order), supplied to BOTH sides; the W-lane supplies SAM3's prompts in the PVS mode: W201 DetectedBox (normalized boxes) denormalized to xyxy pixel boxes as input_boxes + positive labels — the 'what prompts would the repo's chain supply' answer (the PCS text mode additionally probes 'football player' as the concept)"
+}

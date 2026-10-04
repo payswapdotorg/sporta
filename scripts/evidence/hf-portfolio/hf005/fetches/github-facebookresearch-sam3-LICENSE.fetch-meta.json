@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/facebookresearch/sam3/main/LICENSE",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:35:56Z",
+  "bytes": 7353,
+  "sha256": "4dea99bfaa016e21bc860d73f344236bd1e5c4977d1a9a8fd32f822b500ae1be",
+  "note": "the code-repo LICENSE (the ledger row codeLicense source #6 — the SAM License, same agreement)",
+  "fetchedBy": "HF005 (worker 65-g) — the license/documentation leg, first-class (bounded text documents, never weights)"
+}

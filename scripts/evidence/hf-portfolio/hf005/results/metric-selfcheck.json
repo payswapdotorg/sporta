@@ -1,0 +1,119 @@
+{
+  "label": "the identity-continuity + latency metric-design self-checks (HAND-COMPUTED arithmetic cases — these are formula checks, NEVER model-performance claims)",
+  "executedAtUtc": "2026-10-04T07:45:14Z",
+  "semanticsMirroredFrom": "packages/perception-tracking/src/benchmark.ts (W204's documented walk semantics: switches = consecutive-pair trackId changes; continuityScore = identityPreservingPairs/totalPairs) + the EntityId vocabulary of packages/contracts/src/identity.ts",
+  "cases": [
+    {
+      "case": "case1 identitySwitches",
+      "got": 1,
+      "expected": 1,
+      "pass": true
+    },
+    {
+      "case": "case1 continuityScore",
+      "got": 0.666667,
+      "expected": 0.666667,
+      "pass": true
+    },
+    {
+      "case": "case1 fragmentation",
+      "got": 2.0,
+      "expected": 2.0,
+      "pass": true
+    },
+    {
+      "case": "case1 totalPairs",
+      "got": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "case": "case2 identitySwitches (swap)",
+      "got": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "case": "case2 continuityScore (swap)",
+      "got": 0.666667,
+      "expected": 0.666667,
+      "pass": true
+    },
+    {
+      "case": "case2 fragmentation (swap)",
+      "got": 2.0,
+      "expected": 2.0,
+      "pass": true
+    },
+    {
+      "case": "case3 fragmentation occlusion-refused",
+      "got": 2.0,
+      "expected": 2.0,
+      "pass": true
+    },
+    {
+      "case": "case3 fragmentation occlusion-survived",
+      "got": 1.0,
+      "expected": 1.0,
+      "pass": true
+    },
+    {
+      "case": "case3 continuityScore occlusion-survived",
+      "got": 1.0,
+      "expected": 1.0,
+      "pass": true
+    },
+    {
+      "case": "case4 bridge id",
+      "got": "sam3-7",
+      "expected": "sam3-7",
+      "pass": true
+    },
+    {
+      "case": "case4 bridge id 42",
+      "got": "sam3-42",
+      "expected": "sam3-42",
+      "pass": true
+    },
+    {
+      "case": "case4 bridge rejects non-EntityId shapes",
+      "got": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "case": "case5 perFrameMs",
+      "got": 2500.0,
+      "expected": 2500.0,
+      "pass": true
+    },
+    {
+      "case": "case5 fps",
+      "got": 0.4,
+      "expected": 0.4,
+      "pass": true
+    },
+    {
+      "case": "case5 realtimeFactor",
+      "got": 0.016,
+      "expected": 0.016,
+      "pass": true
+    },
+    {
+      "case": "case6 cascade ratio",
+      "got": 781.25,
+      "expected": 781.25,
+      "pass": true
+    },
+    {
+      "case": "case6 cascade delta ms",
+      "got": 2496.8,
+      "expected": 2496.8,
+      "pass": true
+    }
+  ],
+  "typedNotMeasured": "the metric implementations are delivered as PURE functions + these self-checks; NO measured number exists for the SAM3 candidate on this host (the typed refusal covers why)",
+  "placeholderNote": "case 5/6 numbers are HAND-COMPUTED placeholders validating the formulas (labeled: 50 frames / 125,000 ms / 3.2 ms) — they are NOT measurements of any model and must never be copied into a benchmark record as measured values",
+  "pass": true,
+  "caseCount": 18
+}

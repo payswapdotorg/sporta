@@ -1,0 +1,12 @@
+{
+  "label": "HF005 full mode — FAIL-CLOSED refusal (this host is neither authorized nor adequate)",
+  "executedAtUtc": "2026-10-04T07:45:14Z",
+  "refusalType": "auth-gated-model+resource-infeasible-host",
+  "refusalReasons": [
+    "no authorized local model directory (an operator who accepted the SAM License must pre-download facebook/sam3 at revision 3c879f39… outside this sandbox; this script NEVER downloads weights)",
+    "host inadequate: RAM 3.95 GiB < 2x the working-set estimate (3.79 GiB) — 860M F32 params need an adequate host (GPU or high-RAM)",
+    "host inadequate: 2 vCPU — the documented recipes are GPU-first; a 2-vCPU CPU path is latency-infeasible for a video segmentation benchmark"
+  ],
+  "exitCode": 3,
+  "note": "the full-mode harness (identity continuity vs the W204 walk semantics + per-frame latency + cascade cost) is implemented in this script's docstring contract and would run on an authorized + adequate host; on THIS host it refuses"
+}
