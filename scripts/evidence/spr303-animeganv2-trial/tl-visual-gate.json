@@ -1,0 +1,27 @@
+{
+  "label": "THE TL VISUAL GATE (flight 15 — the Tech Lead's own verification pass, three fresh VLM calls, verification prompts distinct from the scorecard's scoring prompts)",
+  "gateDate": "2026-10-04T08:4x:00Z",
+  "calls": [
+    {
+      "sample": "c189pre (cut-adjacent, the pre-cut-chaos class)",
+      "verdict": "FAIL",
+      "findings": "2 malformed limbs in the temporal pair (player legs) + 1 ball hallucination; the match moment/players/camera context preserved; the stylization clear",
+      "evidence": "vlm/tl-visual-gate-c189pre.json"
+    },
+    {
+      "sample": "c475post (cut-adjacent)",
+      "verdict": "FAIL",
+      "findings": "1 malformed limb (the main player's right arm fused into the torso); no disappearing/duplicated players; the ball consistent; the stylization clear",
+      "evidence": "vlm/tl-visual-gate-c475post.json"
+    },
+    {
+      "sample": "t8s (mid-play)",
+      "verdict": "PASS",
+      "findings": "0 critical artifacts — the limbs simplified but not malformed, all players present, no ball hallucination; the identity and camera context preserved; the stylization clear",
+      "evidence": "vlm/tl-visual-gate-t8s.json"
+    }
+  ],
+  "theVerdict": "CONDITIONAL PASS for the evidence: the delivery is HONEST (the artifact counts recorded, never laundered — the TL's three fresh calls CONFIRM the recorded critical class is real and concentrated at the cut-adjacent samples, exactly where the scorecard's 38 criticals and the identityConsistency 2.67 caveat place them). The aggregate collapse-axes-beaten claim (minAxisMean 2.67 vs anime-npr 1.80 / cartoon-cel 1.53) STANDS as the VLM-measured aggregate. The tier claim stays 0 (the worker's honest claim — sampled-frame trial, the G-T battery not run). THE NAMED NEXT INCREMENT: the cut-adjacent critical class (the pre-cut-chaos limb distortion + the arm-fusion classes) — the identity frontier's next target; mid-play quality is already clean.",
+  "tierClaimAfterGate": 0,
+  "promotion": "NONE — the NC-weights license contradiction stays recorded for the HF015-class adjudication; this flight promotes nothing"
+}

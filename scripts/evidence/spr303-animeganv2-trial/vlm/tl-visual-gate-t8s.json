@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) SOURCE IDENTITY: Yes. Same match (LALIGA, 24:16), same score (1-2), same camera angle and player positions. No major elements lost or invented.\n(2) CRITICAL ARTIFACTS: 0. Limbs are simplified but not malformed; all players are present in both frames; no duplicates or ball hallucinations.\n(3) STYLIZATION: Yes. Clear AnimeGANv2 aesthetic applied (flat colors, bold outlines, posterized textures).\n\nVERDICT: PASS",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102859,
+  "id": "2026100416341688a659c1799e49fc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026100416341688a659c1799e49fc",
+  "usage": {
+    "completion_tokens": 112,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1027,
+    "prompt_tokens_details": {
+      "cached_tokens": 155
+    },
+    "total_tokens": 1139
+  }
+}
