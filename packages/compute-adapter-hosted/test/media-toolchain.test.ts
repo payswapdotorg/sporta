@@ -154,7 +154,14 @@ describe("the media toolchain worker's descriptor (honesty)", () => {
       const descriptor = await worker.describe();
       expect(descriptor.adapterId).toBe("sporta.compute.hosted.media");
       expect(descriptor.providerKind).toBe("cpu-worker");
-      expect(descriptor.operations).toEqual(["probe", "normalize"]);
+      // R607 Gap 1 (the TL-authorized enum extension): the resolved
+      // toolchain now also advertises the decode seam's two operations.
+      expect(descriptor.operations).toEqual([
+        "probe",
+        "normalize",
+        "decode-probe",
+        "decode-frames",
+      ]);
       expect(descriptor.toolchain.resolved).toBe(true);
       expect(descriptor.toolchain.ffmpegPath).toBe(tool.ffmpegPath);
       expect(descriptor.toolchain.ffprobePath).toBe(tool.ffprobePath);
@@ -299,7 +306,14 @@ describe("the media toolchain golden path over real HTTP", () => {
         // composition can check the toolchain before dispatching.
         const descriptor = await fetchMediaToolchainDescriptor(base);
         expect(descriptor.toolchain.resolved).toBe(true);
-        expect(descriptor.operations).toEqual(["probe", "normalize"]);
+        // R607 Gap 1 (the TL-authorized enum extension): the live descriptor
+        // fetched over the wire advertises the decode seam's operations too.
+        expect(descriptor.operations).toEqual([
+          "probe",
+          "normalize",
+          "decode-probe",
+          "decode-frames",
+        ]);
 
         const storage = new InMemoryStorage();
         const store = new SqliteMediaPlatformStore(":memory:");

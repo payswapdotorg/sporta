@@ -112,6 +112,11 @@ export {
   MEDIA_TOOLCHAIN_PROVIDER_ID,
   MEDIA_TOOLCHAIN_SCHEMA_VERSION,
   MediaToolchainArtifact,
+  MediaToolchainDecodedFrame,
+  MediaToolchainDecodedFrames,
+  MediaToolchainDecodeProbe,
+  MediaToolchainDecodeTrack,
+  MediaToolchainDecodeWindow,
   MediaToolchainDescriptor,
   MediaToolchainDispatchRequest,
   MediaToolchainFailure,
@@ -132,6 +137,11 @@ export {
 export type {
   MediaToolchainArtifact as MediaToolchainArtifactDoc,
   MediaToolchainBudgets,
+  MediaToolchainDecodedFrame as MediaToolchainDecodedFrameDoc,
+  MediaToolchainDecodedFrames as MediaToolchainDecodedFramesDoc,
+  MediaToolchainDecodeProbe as MediaToolchainDecodeProbeDoc,
+  MediaToolchainDecodeTrack as MediaToolchainDecodeTrackDoc,
+  MediaToolchainDecodeWindow as MediaToolchainDecodeWindowDoc,
   MediaToolchainDescriptor as MediaToolchainDescriptorDoc,
   MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
   MediaToolchainErrorClass,
@@ -158,6 +168,13 @@ export type {
 } from "./toolchain-executor";
 export { createHttpMediaToolchain, fetchMediaToolchainDescriptor } from "./toolchain-http";
 export type { HttpMediaToolchainOptions } from "./toolchain-http";
+// The R607 Gap 1 decode seam (the TL-authorized additive extension): the
+// http decode port the web composition injects into the R207 pipeline when
+// MEDIA_TOOLCHAIN=http — the remote decode-probe/decode-frames dispatch
+// wrapped in the SAME W102 policy envelope (`DecodingService`) the local
+// path uses.
+export { createHttpDecodePort } from "./decode-http";
+export type { HttpDecodePortOptions } from "./decode-http";
 export { mediaToolchainSelectionOf, resolveMediaToolchainFromEnv } from "./toolchain-env";
 export type {
   MediaToolchainSelection,

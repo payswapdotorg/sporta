@@ -869,7 +869,8 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
   if (mediaToolchain.toolchain === "http") {
     console.log(
       `[sporta] media toolchain: HTTP worker at ${mediaToolchain.workerUrl} ` +
-        `(MEDIA_TOOLCHAIN=http — the admission probe + normalization dispatch over real HTTP)`,
+        `(MEDIA_TOOLCHAIN=http — the admission probe + normalization AND the R207 ` +
+        "real-to-SWM decode (decode-probe/decode-frames) dispatch over real HTTP)",
     );
   }
   const media = new MediaPlatformService({
@@ -956,6 +957,10 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
           media: { service: media, storage: mediaStorage },
           urlSources: { store: urlSourceRecords },
           provider: providerOfRecords(options.controlRecords),
+          // The R607 Gap 1 decode seam: the durable replay's R207 pipeline
+          // routes through the SAME http decode port as the creation path
+          // when the env composes http; the LOCAL default otherwise.
+          ...(mediaToolchain.decodePort !== undefined ? { decode: mediaToolchain.decodePort } : {}),
           nowMs,
         })
       : null;
@@ -1148,6 +1153,12 @@ export function createSportaServer(options: SportaServerOptions = {}): SportaSer
     publication,
     attestations,
     derivedRealityProducers,
+    // The R607 Gap 1 decode seam (the TL-authorized closure of the 62-c
+    // Gap 1 blocker): the studio's R207 pipeline decode dispatches through
+    // the http decode executor when MEDIA_TOOLCHAIN=http; ABSENT for the
+    // in-process default — the pipeline's own LOCAL ffmpeg adapter path,
+    // byte-identical to the pre-seam behavior (the non-degradation law).
+    ...(mediaToolchain.decodePort !== undefined ? { decode: mediaToolchain.decodePort } : {}),
     nowMs,
     operations: {
       noteAdmissionRefusal: (depth, maxDepth) => operations.noteAdmissionRefusal(depth, maxDepth),

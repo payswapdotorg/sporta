@@ -40,8 +40,22 @@ import { MediaToolchainDispatchRequest, MediaToolchainResult } from "./toolchain
 import type {
   MediaToolchainBudgets,
   MediaToolchainDispatchRequest as MediaToolchainDispatchRequestDoc,
+  MediaToolchainOperation as MediaToolchainOperationDoc,
   MediaToolchainResult as MediaToolchainResultDoc,
 } from "./toolchain";
+import {
+  FfmpegDecoderAdapter,
+  ResourceLimitError as DecodeResourceLimitError,
+  RightsDeniedError as DecodeRightsDeniedError,
+  UnsupportedMediaError as DecodeUnsupportedMediaError,
+} from "@sporta/decoding";
+import type {
+  DecodeSourceInput,
+  DecodeWindow,
+  NormalizedVideoFrame,
+  ProbeResult,
+} from "@sporta/decoding";
+import type { AuthorizationPolicy } from "@sporta/contracts";
 
 // ---------------------------------------------------------------------------
 // The worker-side execution (classified envelopes — failures are values)
@@ -68,7 +82,7 @@ interface FailureSpec {
 /** Builds the failed envelope (never silent — always classified). */
 function failedEnvelope(
   jobId: string,
-  operation: "probe" | "normalize",
+  operation: MediaToolchainOperationDoc,
   failure: FailureSpec,
   metering: {
     startedAtMs: number;
@@ -124,7 +138,7 @@ export async function executeMediaToolchainJob(
     outputBytes: 0,
   };
   const finishAt = (): number => deps.nowMs();
-  const fail = (failure: FailureSpec, jobId: string, operation: "probe" | "normalize") =>
+  const fail = (failure: FailureSpec, jobId: string, operation: MediaToolchainOperationDoc) =>
     failedEnvelope(jobId, operation, failure, {
       startedAtMs,
       finishedAtMs: finishAt(),
@@ -248,6 +262,19 @@ export async function executeMediaToolchainJob(
       job.jobId,
       job.operation,
     );
+  }
+
+  // 6b. The DECODE legs (R607 Gap 1 — the TL-authorized decode seam): the
+  //     R207 real-to-SWM decode's two operations, executed by the SAME
+  //     MECHANICAL ffmpeg/ffprobe adapter the local path uses
+  //     (`@sporta/decoding`'s `FfmpegDecoderAdapter` — the exact subprocess
+  //     commands, the exact frame/timestamp semantics; never re-implemented
+  //     here, so the remote frames cannot drift from the local ones). ALL
+  //     W102 policy (rights gate, limits, output validation) stays at the
+  //     dispatching side's `DecodingService` envelope — the worker executes
+  //     the mechanical leg, the wire carries the classified envelope.
+  if (job.operation === "decode-probe" || job.operation === "decode-frames") {
+    return await executeDecodeLeg(dispatch, bytes, metering, deps, finishAt, measuredSourceHash);
   }
 
   // 7. The operation itself (REAL ffprobe / REAL ffmpeg, temp files
@@ -441,6 +468,212 @@ export async function executeMediaToolchainJob(
   }
 }
 
+/**
+ * Executes the DECODE legs (R607 Gap 1 — `decode-probe` / `decode-frames`):
+ * the R207 real-to-SWM decode's mechanical ffmpeg/ffprobe operations over
+ * the wire, executed by `@sporta/decoding`'s `FfmpegDecoderAdapter` — the
+ * SAME mechanical adapter the local in-process path uses (the exact
+ * subprocess commands, the exact frame/timestamp semantics), so the remote
+ * decode cannot drift from the local one. Never throws: every outcome
+ * resolves as a classified {@link MediaToolchainResult} envelope.
+ *
+ * The fail-closed frame budget is `min(decodeWindow.maxTotalBytes,
+ * budgets.maxDecodedFrameBytes)` — enforced DURING the iteration (the same
+ * cumulative-byte semantics the dispatching side's W102 `DecodingService`
+ * enforces), defense in depth on top of the client-side envelope.
+ */
+async function executeDecodeLeg(
+  dispatch: MediaToolchainDispatchRequestDoc,
+  bytes: Uint8Array,
+  metering: MeteringState,
+  deps: MediaToolchainExecutorDeps,
+  finishAt: () => number,
+  measuredSourceHash: string,
+): Promise<MediaToolchainResultDoc> {
+  const job = dispatch.job;
+  const startedAtMs = metering.startedAtMs;
+  const failLeg = (failure: FailureSpec): MediaToolchainResultDoc =>
+    failedEnvelope(job.jobId, job.operation, failure, {
+      startedAtMs,
+      finishedAtMs: finishAt(),
+      ffprobeRuns: metering.ffprobeRuns,
+      ffmpegRuns: metering.ffmpegRuns,
+      inputBytes: metering.inputBytes,
+      outputBytes: metering.outputBytes,
+    });
+
+  try {
+    // The mechanical adapter's `DecodeSourceInput`: the bytes are the
+    // re-measured dispatch source (hash + size verified at steps 2-3); the
+    // receipt carries the MEASURED claims (never the requester's numbers).
+    // The `authorizationPolicy` field is INERT for the mechanical adapter
+    // (ALL W102 policy — the rights gate, limits, output validation — lives
+    // at the dispatching side's `DecodingService` envelope; the traveling
+    // rights posture was already checked fail-closed at step 5).
+    const workerPolicy: AuthorizationPolicy = {
+      policyId: job.rights.policyRef,
+      allowedOperations: ["analysis"],
+      assertedBy: "media-toolchain-worker",
+    };
+    const input: DecodeSourceInput = {
+      receipt: {
+        sessionId: job.sessionId,
+        sourceId: `src-${measuredSourceHash.slice(0, 12)}`,
+        checksum: measuredSourceHash,
+        container: job.source.container,
+        byteLength: bytes.byteLength,
+        ingestedAtMs: startedAtMs,
+        sourceKind: "file",
+      },
+      authorizationPolicy: workerPolicy,
+      openBytes: async () => bytes,
+    };
+    const adapter = new FfmpegDecoderAdapter();
+
+    if (job.operation === "decode-probe") {
+      // One REAL ffprobe run (the adapter's demux-level probe).
+      metering.ffprobeRuns += 1;
+      const probe: ProbeResult = await adapter.probe(input);
+      return selfChecked(
+        {
+          jobId: job.jobId,
+          operation: "decode-probe",
+          status: "succeeded",
+          decodeProbe: probe,
+          metering: meteringBlock(metering, finishAt()),
+        },
+        job.jobId,
+        "decode-probe",
+      );
+    }
+
+    // decode-frames: ONE bounded window fetch.
+    const window = job.decodeWindow;
+    if (window === undefined) {
+      // Unreachable via the schema (enforced on the job description) — the
+      // fail-loud honest answer, never a guess.
+      return failLeg({
+        errorClass: "invalid-dispatch",
+        message: "a decode-frames dispatch must carry its bounded window (decodeWindow)",
+        terminal: "non-retryable",
+        failureClass: "internal",
+      });
+    }
+    const frameBudgetBytes = Math.min(window.maxTotalBytes, deps.budgets.maxDecodedFrameBytes);
+    const decodeWindow: DecodeWindow = {
+      ...(window.fromMs !== undefined ? { fromMs: window.fromMs } : {}),
+      ...(window.toMs !== undefined ? { toMs: window.toMs } : {}),
+      maxTotalBytes: frameBudgetBytes,
+    };
+    // The adapter's geometry resolution is one REAL targeted ffprobe run;
+    // the rawvideo decode is one REAL ffmpeg run — counted honestly.
+    metering.ffprobeRuns += 1;
+    metering.ffmpegRuns += 1;
+    const frames: NormalizedVideoFrame[] = [];
+    let totalBytes = 0;
+    for await (const frame of adapter.decodeVideo(input, window.streamIndex, decodeWindow)) {
+      if (totalBytes + frame.bytes.byteLength > frameBudgetBytes) {
+        // The frame-budget axis, fail-closed: outputs discarded, never
+        // truncated silently (the same cumulative-byte semantics the local
+        // W102 boundary's `DecodeWindow.maxTotalBytes` produces).
+        return failLeg({
+          errorClass: "frame-budget-exceeded",
+          message:
+            `the decoded frame batch would measure over the fail-closed frame budget of ` +
+            `${frameBudgetBytes} bytes (window ${window.maxTotalBytes} / worker ${deps.budgets.maxDecodedFrameBytes}) — outputs discarded`,
+          terminal: "non-retryable",
+          failureClass: "resource-limit",
+        });
+      }
+      totalBytes += frame.bytes.byteLength;
+      frames.push(frame);
+    }
+    metering.outputBytes = totalBytes;
+
+    // Fail-closed execution budget (post-hoc: outputs are DISCARDED).
+    const finishedAtMs = finishAt();
+    const executionMs = Math.max(0, finishedAtMs - startedAtMs);
+    const durationBudgetMs = Math.min(deps.budgets.maxExecutionMs, job.constraints.deadlineMs);
+    if (executionMs > durationBudgetMs) {
+      return failLeg({
+        errorClass: "budget-exceeded",
+        message: `measured execution ${executionMs}ms exceeded the fail-closed budget of ${durationBudgetMs}ms (worker ${deps.budgets.maxExecutionMs}ms / job deadline ${job.constraints.deadlineMs}ms) — outputs discarded`,
+        terminal: "timeout",
+        failureClass: "resource-limit",
+      });
+    }
+
+    return selfChecked(
+      {
+        jobId: job.jobId,
+        operation: "decode-frames",
+        status: "succeeded",
+        decodedFrames: {
+          frames: frames.map((frame) => ({
+            frameId: frame.frameId,
+            streamIndex: frame.streamIndex,
+            presentationMs: frame.presentationMs,
+            decodeOrder: frame.decodeOrder,
+            width: frame.width,
+            height: frame.height,
+            pixelFormat: frame.pixelFormat,
+            contentBase64: Buffer.from(frame.bytes).toString("base64"),
+          })),
+          totalBytes,
+        },
+        metering: {
+          ...meteringBlock(metering, finishedAtMs),
+          decodedFrames: frames.length,
+          decodedFrameBytes: totalBytes,
+        },
+      },
+      job.jobId,
+      "decode-frames",
+    );
+  } catch (err) {
+    // The mechanical adapter's TYPED refusals, classified (never thrown
+    // across the seam) — the same classes the local path's callers see.
+    if (err instanceof DecodeRightsDeniedError) {
+      return failLeg({
+        errorClass: "rights-denied",
+        message: err.message,
+        terminal: "non-retryable",
+        failureClass: "rights-denied",
+      });
+    }
+    if (err instanceof DecodeResourceLimitError) {
+      return failLeg({
+        errorClass: "frame-budget-exceeded",
+        message: err.message,
+        terminal: "non-retryable",
+        failureClass: "resource-limit",
+      });
+    }
+    if (err instanceof DecodeUnsupportedMediaError) {
+      return failLeg({
+        errorClass: "media-invalid",
+        message: err.message,
+        terminal: "non-retryable",
+        failureClass: "media-invalid",
+      });
+    }
+    if (err instanceof FfmpegUnavailableError) {
+      return failLeg({
+        errorClass: "ffmpeg-unavailable",
+        message: err.message,
+        terminal: "internal",
+        failureClass: "internal",
+      });
+    }
+    return failLeg({
+      errorClass: "internal",
+      message: err instanceof Error ? err.message : String(err),
+      terminal: "internal",
+      failureClass: "internal",
+    });
+  }
+}
+
 /** Assembles the metering block from the accumulator + a finish reading. */
 function meteringBlock(metering: MeteringState, finishedAtMs: number) {
   return {
@@ -458,7 +691,7 @@ function meteringBlock(metering: MeteringState, finishedAtMs: number) {
 function selfChecked(
   envelope: unknown,
   jobId: string,
-  operation: "probe" | "normalize",
+  operation: MediaToolchainOperationDoc,
 ): MediaToolchainResultDoc {
   const check = MediaToolchainResult.safeParse(envelope);
   if (check.success) return check.data;

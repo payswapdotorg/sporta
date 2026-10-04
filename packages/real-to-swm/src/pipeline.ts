@@ -58,6 +58,7 @@ import { PITCH_LENGTH_AXIS_METERS, PITCH_WIDTH_AXIS_METERS } from "@sporta/contr
 import type { WorldSnapshot, WorldEventStreamEntry } from "@sporta/contracts";
 import { DecodingService, FfmpegDecoderAdapter, isDecodeError } from "@sporta/decoding";
 import type { NormalizedVideoFrame } from "@sporta/decoding";
+import type { RealToSwmDecodePort, RealToSwmPipelineOptions } from "./decode-port";
 import { InMemoryObservationStore } from "@sporta/observation";
 import type { ObservationStore } from "@sporta/observation";
 import { EventDerivationService } from "@sporta/observation";
@@ -259,8 +260,22 @@ const emptyHook: PipelineHooks = {};
  * The R207 real-to-SWM pipeline. One instance per run (constructed per
  * clip; the composition is stateless between `run` calls only if the caller
  * reuses neither store nor engine — a fresh run builds fresh ones).
+ *
+ * R607 Gap 1 (the injected decode-port seam): when constructed with
+ * `options.decode`, the pipeline's W102 boundary routes through the
+ * injected port (the http decode executor the web composition wires when
+ * `MEDIA_TOOLCHAIN=http`); the DEFAULT (no options) constructs the LOCAL
+ * `DecodingService` over `FfmpegDecoderAdapter` exactly as before — the
+ * in-process path stays byte-identical (the non-degradation law).
  */
 export class RealToSwmPipeline {
+  /** The injected decode-port (undefined → the LOCAL in-process default). */
+  private readonly decodePort: RealToSwmDecodePort | undefined;
+
+  constructor(options: RealToSwmPipelineOptions = {}) {
+    this.decodePort = options.decode;
+  }
+
   /** Runs the full composition. Deterministic for (clip bytes, config). */
   async run(
     input: RealToSwmPipelineInput,
@@ -296,8 +311,14 @@ export class RealToSwmPipeline {
     );
     const admission = buildDecodeSourceInput(source, config.nowMs);
     const decodeInput = withSessionId(admission.input, config.sessionId);
-    const adapter = new FfmpegDecoderAdapter();
-    const decoding = new DecodingService({ adapter });
+    // The R607 Gap 1 seam: the injected decode-port routes the W102 boundary
+    // (probe + the bounded frame iteration) when the composition provided
+    // one; the DEFAULT constructs the LOCAL DecodingService over the LOCAL
+    // FfmpegDecoderAdapter — the pre-seam objects, byte-identical behavior.
+    const decoding: RealToSwmDecodePort =
+      this.decodePort !== undefined
+        ? this.decodePort
+        : new DecodingService({ adapter: new FfmpegDecoderAdapter() });
     // Typed W102 refusals (rights/limits/media) propagate unchanged.
     const probe = await decoding.probe(decodeInput);
     const videoTrack = probe.tracks.find((track) => track.kind === "video");

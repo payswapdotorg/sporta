@@ -61,6 +61,7 @@ import { sniffContainer } from "@sporta/ingestion";
 import { UPLOAD_CONSTRAINTS, sha256OfBytes } from "@sporta/media-platform";
 import type { MediaJobView } from "@sporta/media-platform";
 import { RealToSwmPipeline } from "@sporta/real-to-swm";
+import type { RealToSwmDecodePort } from "@sporta/real-to-swm";
 import type { ClipSource } from "@sporta/real-to-swm";
 import type { SelectionExplanation } from "@sporta/connection-center";
 import {
@@ -837,6 +838,14 @@ export interface CreateStudioServiceOptions {
    * registered producer — honestly `producer-unavailable`, never invented.
    */
   derivedRealityProducers: ReadonlyMap<RealityKind, string>;
+  /**
+   * The R607 Gap 1 injected decode-port (the TL-authorized decode seam):
+   * when the composition wires `MEDIA_TOOLCHAIN=http`, the studio's R207
+   * pipeline decode routes through the http decode executor; ABSENT (the
+   * default) the pipeline constructs its own LOCAL ffmpeg adapter path —
+   * byte-identical to the pre-seam behavior (the non-degradation law).
+   */
+  decode?: RealToSwmDecodePort;
   /** Wall clock (rights expiry is evaluated against it). */
   nowMs: () => number;
 }
@@ -855,6 +864,8 @@ export class CreateStudioService {
    * `producer-unavailable`, never invented.
    */
   private readonly derivedRealityProducers: ReadonlyMap<RealityKind, string>;
+  /** The R607 Gap 1 injected decode-port (undefined → the LOCAL default). */
+  private readonly decode: RealToSwmDecodePort | undefined;
   private readonly nowMs: () => number;
   /** The REAL job ids this studio dispatched, per session (in-memory). */
   private readonly jobsBySession = new Map<string, string[]>();
@@ -909,6 +920,7 @@ export class CreateStudioService {
     this.attestations = options.attestations;
     this.operations = options.operations;
     this.derivedRealityProducers = options.derivedRealityProducers;
+    this.decode = options.decode;
     this.nowMs = options.nowMs;
   }
 
@@ -1371,7 +1383,9 @@ export class CreateStudioService {
       authorizationPolicy: attested,
       ...(input.filename !== undefined ? { filename: input.filename } : {}),
     };
-    const pipeline = new RealToSwmPipeline();
+    const pipeline = new RealToSwmPipeline(
+      this.decode !== undefined ? { decode: this.decode } : {},
+    );
     const run = await pipeline.run({
       source: clip,
       config: {
@@ -1625,7 +1639,9 @@ export class CreateStudioService {
         ? { filename: this.#filenameOfUrl(input.registration.url)! }
         : {}),
     };
-    const pipeline = new RealToSwmPipeline();
+    const pipeline = new RealToSwmPipeline(
+      this.decode !== undefined ? { decode: this.decode } : {},
+    );
     const run = await pipeline.run({
       source: clip,
       config: {
