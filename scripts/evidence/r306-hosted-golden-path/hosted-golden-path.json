@@ -1,0 +1,1561 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-hosted-golden-path",
+  "clientHonesty": "the client is THIS DRIVER walking the hosted Vercel runtime's public API (register → login → upload-sessions with the J004 realities form) — the derived kinds' four-reality journey WITH the R306 encode seam injected, the flight the G12 walk named when its derived kinds refused with the TYPED producer-unavailable class (the hosted runtime shipped no ffmpeg); every derived kind's answer below is MEASURED — a real hosted encode played back integrity-verified, or an honest typed refusal recorded verbatim; NEVER fabricated",
+  "target": {
+    "base": "https://sporta-flame.vercel.app",
+    "expectedDeployMarker": "r306-encode-seam-deploy-1",
+    "mediaWorkerUrl": "https://3971-i5lvv9q3jrumm914o1rca.e2b.app",
+    "computeWorkerUrl": "https://3973-i5lvv9q3jrumm914o1rca.e2b.app"
+  },
+  "steps": {
+    "boot": {
+      "httpStatusCode": 200,
+      "deployMarker": "r306-encode-seam-deploy-1",
+      "wallMs": 623,
+      "mediaWorker": {
+        "url": "https://3971-i5lvv9q3jrumm914o1rca.e2b.app",
+        "descriptorHttpStatusCode": 200,
+        "operationsAdvertised": [
+          "decode-frames",
+          "decode-probe",
+          "encode-frames",
+          "normalize",
+          "probe"
+        ],
+        "statsBeforeHttpStatusCode": 200,
+        "statsBefore": {
+          "jobsDispatched": 11,
+          "duplicates": 0,
+          "succeeded": 10,
+          "failed": 1,
+          "inFlight": 0,
+          "capacityRefusals": 0,
+          "usageRecords": 11,
+          "probeRuns": 10,
+          "transcodeRuns": 7,
+          "inputBytes": 191608,
+          "outputBytes": 16639778,
+          "totalExecutionMs": 2050
+        },
+        "usageBeforeJobIds": [
+          "mtenc-16f57701f4ac63f82849c943cd1a8947",
+          "mtenc-e773e9eaaffed3b176e4272e7a0a1166",
+          "mtenc-f837c07b10e7a84f6565f4249ba5e158",
+          "mtdec-ab0cea540a4ff61d0ac6f102f1540b14",
+          "mtdec-acaac418fd4a18c565c89897f1fc16d3",
+          "mtjob-dea4b5ff7a4b4e94a8b39e0be75e9709",
+          "mtjob-0adfe10023844418a240ae7db3fc27be",
+          "mtdec-03fb20508f942bcbcc3afa64374dde08",
+          "mtdec-9988566c6e61345edd34b100446d6d47",
+          "mtjob-92f6475733051e7ef968175844e26d34",
+          "mtjob-6d94ffd954926daacd576d8b39d4e29d"
+        ],
+        "wallMs": 229
+      },
+      "computeWorker": {
+        "url": "https://3973-i5lvv9q3jrumm914o1rca.e2b.app",
+        "descriptorHttpStatusCode": 200,
+        "adapterId": "sporta.compute.hosted",
+        "renderersAdvertised": [
+          "anime-npr.prototype",
+          "anime.prototype",
+          "game-3d.prototype",
+          "sporta.testcard",
+          "tactical.prototype"
+        ],
+        "wallMs": 217
+      },
+      "note": "the boot descriptor fetch must SUCCEED (the live compute worker) and the media worker's descriptor must advertise the encode seam's FIVE operations — the pair the plane's availability probes"
+    },
+    "register": {
+      "httpStatusCode": 200,
+      "body": {
+        "userId": "u-ec9251cd66e64147ad459649247993c5",
+        "username": "r306hgp-muu7jr5t",
+        "roles": [
+          "creator",
+          "viewer"
+        ],
+        "createdAtIso": "2026-10-04T19:22:26.070Z",
+        "activeRole": null
+      },
+      "wallMs": 286
+    },
+    "login": {
+      "httpStatusCode": 200,
+      "sessionCookieIssued": true,
+      "body": {
+        "token": "tYdxN3EXO14XGdz6sJxiCnWhpi2d6pOfEMMF7EKnlNQ",
+        "tokenKind": "bearer",
+        "expiresAtIso": "2026-10-11T19:22:26.356Z",
+        "account": {
+          "userId": "u-ec9251cd66e64147ad459649247993c5",
+          "username": "r306hgp-muu7jr5t",
+          "roles": [
+            "creator",
+            "viewer"
+          ],
+          "createdAtIso": "2026-10-04T19:22:26.070Z",
+          "activeRole": null
+        }
+      },
+      "wallMs": 286
+    },
+    "upload": {
+      "httpStatusCode": 201,
+      "wallMs": 5972,
+      "sourceBytes": 38307,
+      "sourceSha256": "7818f8eeab19bc10e9d5451a94cab8c80385add8e5f0a11d778c44d3b2c0ceb9",
+      "body": {
+        "sessionId": "sess-u-91840d4d6eafdbf9cda27567a2beda55",
+        "label": "R306 hosted golden path — the arc's closure",
+        "rightsCapabilities": {
+          "canReferenceSourceFrames": true,
+          "canDeliverLive": false,
+          "canStoreDerivatives": true,
+          "canShare": false
+        },
+        "visibility": "private",
+        "source": {
+          "asset": {
+            "assetId": "asset-a710453c9c16f7d97e5865a09d713f6a",
+            "contentHash": "7818f8eeab19bc10e9d5451a94cab8c80385add8e5f0a11d778c44d3b2c0ceb9",
+            "byteSize": 38307,
+            "container": "mp4",
+            "durationMs": 2000,
+            "uploadState": "stored",
+            "checksumVerified": true,
+            "declaredRightsPolicyId": "policy-create-studio-upload-1791141747243-6"
+          },
+          "job": {
+            "jobId": "mjob-3fb6fd7110bb22111b772f0c63d9cbd6",
+            "sourceAssetId": "asset-a710453c9c16f7d97e5865a09d713f6a",
+            "sessionId": "sess-u-91840d4d6eafdbf9cda27567a2beda55",
+            "state": "in-flight",
+            "terminal": false,
+            "progress": 0.3333333333333333,
+            "stages": [
+              {
+                "stage": "created",
+                "atMs": 1791141752538,
+                "fraction": 0
+              },
+              {
+                "stage": "upload-complete",
+                "atMs": 1791141752538,
+                "fraction": 0.3333333333333333
+              }
+            ],
+            "createdAtMs": 1791141752538,
+            "updatedAtMs": 1791141752538
+          },
+          "artifact": null
+        },
+        "perception": {
+          "frameCount": 48,
+          "snapshotCount": 2,
+          "eventCount": 0,
+          "degradationCount": 8,
+          "summary": "8 recorded degradation(s) across 9 pipeline stage(s): calibration-unavailable×1, candidate-refused×3, candidate-unavailable×1, detection-observations-not-bridged×1, event-semantics-unavailable×1, football-state-defaults×1"
+        }
+      },
+      "note": "the r607 walk's upload admission, mirrored: the R207 decode dispatches over the wire to the live E2B worker (the decode seam, closed at r607) — the Original leg that carries leg B's derived kinds"
+    },
+    "mediaJob": {
+      "jobId": "mjob-3fb6fd7110bb22111b772f0c63d9cbd6",
+      "terminal": {
+        "jobId": "mjob-3fb6fd7110bb22111b772f0c63d9cbd6",
+        "sourceAssetId": "asset-a710453c9c16f7d97e5865a09d713f6a",
+        "sessionId": "sess-u-91840d4d6eafdbf9cda27567a2beda55",
+        "state": "succeeded",
+        "terminal": true,
+        "progress": 1,
+        "stages": [
+          {
+            "stage": "created",
+            "atMs": 1791141752538,
+            "fraction": 0
+          },
+          {
+            "stage": "upload-complete",
+            "atMs": 1791141752538,
+            "fraction": 0.3333333333333333
+          },
+          {
+            "stage": "normalization-complete",
+            "atMs": 1791141755791,
+            "fraction": 0.6666666666666666
+          },
+          {
+            "stage": "artifact-stored",
+            "atMs": 1791141755792,
+            "fraction": 1
+          },
+          {
+            "stage": "terminal",
+            "atMs": 1791141755792,
+            "fraction": 1
+          }
+        ],
+        "result": {
+          "manifestId": "man-dc10a9ee247b9d6a00cd03242cb70ee0",
+          "artifactId": "art-320658508b172bd6204eb7015ab33a51"
+        },
+        "createdAtMs": 1791141752538,
+        "updatedAtMs": 1791141755792
+      }
+    },
+    "watch": {
+      "catalogHttpStatusCode": 200,
+      "catalogAttempts": [
+        200
+      ],
+      "playbackState": "authorized",
+      "readyRealityCount": 1,
+      "originalAvailability": "ready",
+      "wallMs": 744,
+      "full": {
+        "httpStatusCode": 200,
+        "attempts": [
+          200
+        ],
+        "contentType": "video/mp4",
+        "acceptRanges": "bytes",
+        "servedBytes": 38333,
+        "descriptorBytes": 38333,
+        "servedSha256": "30e74dbf2abc6d48999e58eb6b2ed90b4ff489d2f01a0f60a697721feba1cd71",
+        "descriptorIntegrityHash": "30e74dbf2abc6d48999e58eb6b2ed90b4ff489d2f01a0f60a697721feba1cd71",
+        "integrityVerified": true,
+        "ftypMagic": true,
+        "wallMs": 299
+      },
+      "range": {
+        "httpStatusCode": 206,
+        "contentRange": "bytes 0-1023/38333",
+        "sliceBytes": 1024,
+        "sliceMatches": true
+      }
+    },
+    "j004OneSubmission": {
+      "httpStatusCode": 201,
+      "wallMs": 3600,
+      "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+      "sourceBytes": 8251,
+      "sourceSha256": "fd79303181ef61bde7baf5eacef1e705a8cdf611608f36c9f9f69da69c2a72de",
+      "plan": [
+        {
+          "reality": "tactical",
+          "rendererId": "tactical.prototype",
+          "disposition": "admitted",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-4",
+          "jobState": "in-flight"
+        },
+        {
+          "reality": "three-d-game",
+          "rendererId": "game-3d.prototype",
+          "disposition": "admitted",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-5",
+          "jobState": "in-flight"
+        },
+        {
+          "reality": "anime-npr",
+          "rendererId": "anime-npr.prototype",
+          "disposition": "admitted",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-6",
+          "jobState": "in-flight"
+        }
+      ],
+      "note": "THE DECISIVE LEG: the G12 walk's exact form (the realities + compute + styleId fields). At the pre-seam shas this answered rendererId=null + disposition=failed + errorClass=producer-unavailable for every derived kind (the hosted runtime shipped no ffmpeg — the plane refused to compose). At the arc tip the seam injects the http encode pair: every entry below is the MEASURED answer",
+      "jobRecords": [
+        {
+          "reality": "tactical",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-4",
+          "appTerminalState": "succeeded",
+          "appRenderId": null,
+          "ingest": {
+            "status": "failed",
+            "error": "encoding refused (artifact-invalid): no artifact \"f2dbfe4fb09be90c45dd6697acca5a97dd242f538c652f4e2d30344f111d8ed2\" is stored"
+          },
+          "completion": {
+            "status": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "7f7061d989c6f52818c4071326bec6c0dec14eacdc24fe601bebe7a009415134",
+                "contentType": "video/mp4+base64",
+                "byteLength": 20408,
+                "frameCount": 50,
+                "totalDurationMs": 4000
+              }
+            ]
+          },
+          "computeWorkerState": "succeeded",
+          "computeWorkerRecord": {
+            "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-4",
+            "state": "succeeded",
+            "startedAtMs": 1791141763753,
+            "finishedAtMs": 1791141764051,
+            "resultStatus": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "7f7061d989c6f52818c4071326bec6c0dec14eacdc24fe601bebe7a009415134",
+                "contentHash": "7f7061d989c6f52818c4071326bec6c0dec14eacdc24fe601bebe7a009415134",
+                "contentType": "video/mp4+base64",
+                "byteLength": 20408,
+                "manifest": {
+                  "schemaVersion": "1.0",
+                  "manifestId": "enc-c56c40f0",
+                  "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+                  "bridge": "tactical",
+                  "source": {
+                    "rendererId": "tactical.prototype",
+                    "rendererVersion": "0.1.0"
+                  },
+                  "swm": {
+                    "snapshotVersion": 1,
+                    "lastEventSequence": 0
+                  },
+                  "encoder": {
+                    "kind": "tactical-adopted",
+                    "version": null,
+                    "codec": {
+                      "container": "mp4",
+                      "videoCodec": "avc1.42E01E",
+                      "encoder": "adopted from tactical.prototype@0.1.0 (the renderer's own real MP4)",
+                      "preset": "adopted",
+                      "tune": null,
+                      "profile": "baseline",
+                      "level": "3.0",
+                      "crf": null,
+                      "pixFmt": "yuv420p",
+                      "gop": null,
+                      "threads": 1,
+                      "bitexact": true
+                    }
+                  },
+                  "geometry": {
+                    "widthPx": 640,
+                    "heightPx": 360,
+                    "fps": 12.5,
+                    "frameCount": 50,
+                    "durationMs": 4000
+                  },
+                  "contentHash": "7f7061d989c6f52818c4071326bec6c0dec14eacdc24fe601bebe7a009415134",
+                  "byteSize": 15304,
+                  "frames": [
+                    {
+                      "frameIndex": 0,
+                      "frameMs": 0
+                    },
+                    {
+                      "frameIndex": 1,
+                      "frameMs": 80
+                    },
+                    {
+                      "frameIndex": 2,
+                      "frameMs": 160
+                    },
+                    {
+                      "frameIndex": 3,
+                      "frameMs": 240
+                    },
+                    {
+                      "frameIndex": 4,
+                      "frameMs": 320
+                    },
+                    {
+                      "frameIndex": 5,
+                      "frameMs": 400
+                    },
+                    {
+                      "frameIndex": 6,
+                      "frameMs": 480
+                    },
+                    {
+                      "frameIndex": 7,
+                      "frameMs": 560
+                    },
+                    {
+                      "frameIndex": 8,
+                      "frameMs": 640
+                    },
+                    {
+                      "frameIndex": 9,
+                      "frameMs": 720
+                    },
+                    {
+                      "frameIndex": 10,
+                      "frameMs": 800
+                    },
+                    {
+                      "frameIndex": 11,
+                      "frameMs": 880
+                    },
+                    {
+                      "frameIndex": 12,
+                      "frameMs": 960
+                    },
+                    {
+                      "frameIndex": 13,
+                      "frameMs": 1040
+                    },
+                    {
+                      "frameIndex": 14,
+                      "frameMs": 1120
+                    },
+                    {
+                      "frameIndex": 15,
+                      "frameMs": 1200
+                    },
+                    {
+                      "frameIndex": 16,
+                      "frameMs": 1280
+                    },
+                    {
+                      "frameIndex": 17,
+                      "frameMs": 1360
+                    },
+                    {
+                      "frameIndex": 18,
+                      "frameMs": 1440
+                    },
+                    {
+                      "frameIndex": 19,
+                      "frameMs": 1520
+                    },
+                    {
+                      "frameIndex": 20,
+                      "frameMs": 1600
+                    },
+                    {
+                      "frameIndex": 21,
+                      "frameMs": 1680
+                    },
+                    {
+                      "frameIndex": 22,
+                      "frameMs": 1760
+                    },
+                    {
+                      "frameIndex": 23,
+                      "frameMs": 1840
+                    },
+                    {
+                      "frameIndex": 24,
+                      "frameMs": 1920
+                    },
+                    {
+                      "frameIndex": 25,
+                      "frameMs": 2000
+                    },
+                    {
+                      "frameIndex": 26,
+                      "frameMs": 2080
+                    },
+                    {
+                      "frameIndex": 27,
+                      "frameMs": 2160
+                    },
+                    {
+                      "frameIndex": 28,
+                      "frameMs": 2240
+                    },
+                    {
+                      "frameIndex": 29,
+                      "frameMs": 2320
+                    },
+                    {
+                      "frameIndex": 30,
+                      "frameMs": 2400
+                    },
+                    {
+                      "frameIndex": 31,
+                      "frameMs": 2480
+                    },
+                    {
+                      "frameIndex": 32,
+                      "frameMs": 2560
+                    },
+                    {
+                      "frameIndex": 33,
+                      "frameMs": 2640
+                    },
+                    {
+                      "frameIndex": 34,
+                      "frameMs": 2720
+                    },
+                    {
+                      "frameIndex": 35,
+                      "frameMs": 2800
+                    },
+                    {
+                      "frameIndex": 36,
+                      "frameMs": 2880
+                    },
+                    {
+                      "frameIndex": 37,
+                      "frameMs": 2960
+                    },
+                    {
+                      "frameIndex": 38,
+                      "frameMs": 3040
+                    },
+                    {
+                      "frameIndex": 39,
+                      "frameMs": 3120
+                    },
+                    {
+                      "frameIndex": 40,
+                      "frameMs": 3200
+                    },
+                    {
+                      "frameIndex": 41,
+                      "frameMs": 3280
+                    },
+                    {
+                      "frameIndex": 42,
+                      "frameMs": 3360
+                    },
+                    {
+                      "frameIndex": 43,
+                      "frameMs": 3440
+                    },
+                    {
+                      "frameIndex": 44,
+                      "frameMs": 3520
+                    },
+                    {
+                      "frameIndex": 45,
+                      "frameMs": 3600
+                    },
+                    {
+                      "frameIndex": 46,
+                      "frameMs": 3680
+                    },
+                    {
+                      "frameIndex": 47,
+                      "frameMs": 3760
+                    },
+                    {
+                      "frameIndex": 48,
+                      "frameMs": 3840
+                    },
+                    {
+                      "frameIndex": 49,
+                      "frameMs": 3920
+                    }
+                  ],
+                  "rendererManifest": {
+                    "schemaVersion": "1.1",
+                    "artifactId": "tactical-3609ad7f",
+                    "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+                    "reality": "tactical",
+                    "contentHash": "7f7061d989c6f52818c4071326bec6c0dec14eacdc24fe601bebe7a009415134",
+                    "byteSize": 15304,
+                    "container": "mp4",
+                    "videoCodec": "avc1.42E01E",
+                    "audioCodec": null,
+                    "durationMs": 4000,
+                    "rendererId": "tactical.prototype",
+                    "rendererVersion": "0.1.0",
+                    "generatedAtMs": 1791141763755,
+                    "swm": {
+                      "snapshotVersion": 1,
+                      "lastEventSequence": 0
+                    },
+                    "integrity": {
+                      "algorithm": "sha256",
+                      "verified": true
+                    }
+                  },
+                  "integrity": {
+                    "algorithm": "sha256",
+                    "verified": true
+                  },
+                  "generatedAtMs": 1736164800000
+                },
+                "deliveryMode": "inline"
+              }
+            ]
+          },
+          "appViewAttempts": [
+            200
+          ],
+          "jobPollWallMs": 3775
+        },
+        {
+          "reality": "three-d-game",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-5",
+          "appTerminalState": "succeeded",
+          "appRenderId": null,
+          "ingest": {
+            "status": "failed",
+            "error": "encoding refused (artifact-invalid): no artifact \"f479264fd53a8eb749f56e77e8d37448de5e48cc907a6c6d0e19c7dc95075381\" is stored"
+          },
+          "completion": {
+            "status": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "24a5445901186bdb81d030111afa4d30e754edc8c9bcef902da9375633669283",
+                "contentType": "video/mp4+base64",
+                "byteLength": 384648,
+                "frameCount": 100,
+                "totalDurationMs": 4000
+              }
+            ]
+          },
+          "computeWorkerState": "succeeded",
+          "computeWorkerRecord": {
+            "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-5",
+            "state": "succeeded",
+            "startedAtMs": 1791141764052,
+            "finishedAtMs": 1791141765354,
+            "resultStatus": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "24a5445901186bdb81d030111afa4d30e754edc8c9bcef902da9375633669283",
+                "contentHash": "24a5445901186bdb81d030111afa4d30e754edc8c9bcef902da9375633669283",
+                "contentType": "video/mp4+base64",
+                "byteLength": 384648,
+                "manifest": {
+                  "schemaVersion": "1.0",
+                  "manifestId": "enc-e8c15a5a",
+                  "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+                  "bridge": "game-3d",
+                  "source": {
+                    "rendererId": "game-3d.prototype",
+                    "rendererVersion": "0.1.0",
+                    "engineId": "sporta.software-3d",
+                    "engineVersion": "1.0.0"
+                  },
+                  "swm": {
+                    "snapshotVersion": 1,
+                    "lastEventSequence": 0
+                  },
+                  "encoder": {
+                    "kind": "ffmpeg-libx264",
+                    "version": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+                    "codec": {
+                      "container": "mp4",
+                      "videoCodec": "avc1.42E01E",
+                      "encoder": "ffmpeg -hide_banner -loglevel error -f rawvideo -pixel_format rgb24 -video_size <WxH> -framerate <fps> -i <staged> -an -c:v libx264 -preset veryfast -tune stillimage -profile:v baseline -level 3.0 -crf 18 -pix_fmt yuv420p -g 25 -threads 1 -fflags +bitexact -flags:v +bitexact -map_metadata -1 -f mp4 <out>",
+                      "preset": "veryfast",
+                      "tune": "stillimage",
+                      "profile": "baseline",
+                      "level": "3.0",
+                      "crf": 18,
+                      "pixFmt": "yuv420p",
+                      "gop": 25,
+                      "threads": 1,
+                      "bitexact": true
+                    }
+                  },
+                  "geometry": {
+                    "widthPx": 640,
+                    "heightPx": 360,
+                    "fps": 25,
+                    "frameCount": 100,
+                    "durationMs": 4000
+                  },
+                  "contentHash": "24a5445901186bdb81d030111afa4d30e754edc8c9bcef902da9375633669283",
+                  "byteSize": 288485,
+                  "frames": [
+                    {
+                      "frameIndex": 0,
+                      "frameMs": 0
+                    },
+                    {
+                      "frameIndex": 1,
+                      "frameMs": 40
+                    },
+                    {
+                      "frameIndex": 2,
+                      "frameMs": 80
+                    },
+                    {
+                      "frameIndex": 3,
+                      "frameMs": 120
+                    },
+                    {
+                      "frameIndex": 4,
+                      "frameMs": 160
+                    },
+                    {
+                      "frameIndex": 5,
+                      "frameMs": 200
+                    },
+                    {
+                      "frameIndex": 6,
+                      "frameMs": 240
+                    },
+                    {
+                      "frameIndex": 7,
+                      "frameMs": 280
+                    },
+                    {
+                      "frameIndex": 8,
+                      "frameMs": 320
+                    },
+                    {
+                      "frameIndex": 9,
+                      "frameMs": 360
+                    },
+                    {
+                      "frameIndex": 10,
+                      "frameMs": 400
+                    },
+                    {
+                      "frameIndex": 11,
+                      "frameMs": 440
+                    },
+                    {
+                      "frameIndex": 12,
+                      "frameMs": 480
+                    },
+                    {
+                      "frameIndex": 13,
+                      "frameMs": 520
+                    },
+                    {
+                      "frameIndex": 14,
+                      "frameMs": 560
+                    },
+                    {
+                      "frameIndex": 15,
+                      "frameMs": 600
+                    },
+                    {
+                      "frameIndex": 16,
+                      "frameMs": 640
+                    },
+                    {
+                      "frameIndex": 17,
+                      "frameMs": 680
+                    },
+                    {
+                      "frameIndex": 18,
+                      "frameMs": 720
+                    },
+                    {
+                      "frameIndex": 19,
+                      "frameMs": 760
+                    },
+                    {
+                      "frameIndex": 20,
+                      "frameMs": 800
+                    },
+                    {
+                      "frameIndex": 21,
+                      "frameMs": 840
+                    },
+                    {
+                      "frameIndex": 22,
+                      "frameMs": 880
+                    },
+                    {
+                      "frameIndex": 23,
+                      "frameMs": 920
+                    },
+                    {
+                      "frameIndex": 24,
+                      "frameMs": 960
+                    },
+                    {
+                      "frameIndex": 25,
+                      "frameMs": 1000
+                    },
+                    {
+                      "frameIndex": 26,
+                      "frameMs": 1040
+                    },
+                    {
+                      "frameIndex": 27,
+                      "frameMs": 1080
+                    },
+                    {
+                      "frameIndex": 28,
+                      "frameMs": 1120
+                    },
+                    {
+                      "frameIndex": 29,
+                      "frameMs": 1160
+                    },
+                    {
+                      "frameIndex": 30,
+                      "frameMs": 1200
+                    },
+                    {
+                      "frameIndex": 31,
+                      "frameMs": 1240
+                    },
+                    {
+                      "frameIndex": 32,
+                      "frameMs": 1280
+                    },
+                    {
+                      "frameIndex": 33,
+                      "frameMs": 1320
+                    },
+                    {
+                      "frameIndex": 34,
+                      "frameMs": 1360
+                    },
+                    {
+                      "frameIndex": 35,
+                      "frameMs": 1400
+                    },
+                    {
+                      "frameIndex": 36,
+                      "frameMs": 1440
+                    },
+                    {
+                      "frameIndex": 37,
+                      "frameMs": 1480
+                    },
+                    {
+                      "frameIndex": 38,
+                      "frameMs": 1520
+                    },
+                    {
+                      "frameIndex": 39,
+                      "frameMs": 1560
+                    },
+                    {
+                      "frameIndex": 40,
+                      "frameMs": 1600
+                    },
+                    {
+                      "frameIndex": 41,
+                      "frameMs": 1640
+                    },
+                    {
+                      "frameIndex": 42,
+                      "frameMs": 1680
+                    },
+                    {
+                      "frameIndex": 43,
+                      "frameMs": 1720
+                    },
+                    {
+                      "frameIndex": 44,
+                      "frameMs": 1760
+                    },
+                    {
+                      "frameIndex": 45,
+                      "frameMs": 1800
+                    },
+                    {
+                      "frameIndex": 46,
+                      "frameMs": 1840
+                    },
+                    {
+                      "frameIndex": 47,
+                      "frameMs": 1880
+                    },
+                    {
+                      "frameIndex": 48,
+                      "frameMs": 1920
+                    },
+                    {
+                      "frameIndex": 49,
+                      "frameMs": 1960
+                    },
+                    {
+                      "frameIndex": 50,
+                      "frameMs": 2000
+                    },
+                    {
+                      "frameIndex": 51,
+                      "frameMs": 2040
+                    },
+                    {
+                      "frameIndex": 52,
+                      "frameMs": 2080
+                    },
+                    {
+                      "frameIndex": 53,
+                      "frameMs": 2120
+                    },
+                    {
+                      "frameIndex": 54,
+                      "frameMs": 2160
+                    },
+                    {
+                      "frameIndex": 55,
+                      "frameMs": 2200
+                    },
+                    {
+                      "frameIndex": 56,
+                      "frameMs": 2240
+                    },
+                    {
+                      "frameIndex": 57,
+                      "frameMs": 2280
+                    },
+                    {
+                      "frameIndex": 58,
+                      "frameMs": 2320
+                    },
+                    {
+                      "frameIndex": 59,
+                      "frameMs": 2360
+                    },
+                    {
+                      "frameIndex": 60,
+                      "frameMs": 2400
+                    },
+                    {
+                      "frameIndex": 61,
+                      "frameMs": 2440
+                    },
+                    {
+                      "frameIndex": 62,
+                      "frameMs": 2480
+                    },
+                    {
+                      "frameIndex": 63,
+                      "frameMs": 2520
+                    },
+                    {
+                      "frameIndex": 64,
+                      "frameMs": 2560
+                    },
+                    {
+                      "frameIndex": 65,
+                      "frameMs": 2600
+                    },
+                    {
+                      "frameIndex": 66,
+                      "frameMs": 2640
+                    },
+                    {
+                      "frameIndex": 67,
+                      "frameMs": 2680
+                    },
+                    {
+                      "frameIndex": 68,
+                      "frameMs": 2720
+                    },
+                    {
+                      "frameIndex": 69,
+                      "frameMs": 2760
+                    },
+                    {
+                      "frameIndex": 70,
+                      "frameMs": 2800
+                    },
+                    {
+                      "frameIndex": 71,
+                      "frameMs": 2840
+                    },
+                    {
+                      "frameIndex": 72,
+                      "frameMs": 2880
+                    },
+                    {
+                      "frameIndex": 73,
+                      "frameMs": 2920
+                    },
+                    {
+                      "frameIndex": 74,
+                      "frameMs": 2960
+                    },
+                    {
+                      "frameIndex": 75,
+                      "frameMs": 3000
+                    },
+                    {
+                      "frameIndex": 76,
+                      "frameMs": 3040
+                    },
+                    {
+                      "frameIndex": 77,
+                      "frameMs": 3080
+                    },
+                    {
+                      "frameIndex": 78,
+                      "frameMs": 3120
+                    },
+                    {
+                      "frameIndex": 79,
+                      "frameMs": 3160
+                    },
+                    {
+                      "frameIndex": 80,
+                      "frameMs": 3200
+                    },
+                    {
+                      "frameIndex": 81,
+                      "frameMs": 3240
+                    },
+                    {
+                      "frameIndex": 82,
+                      "frameMs": 3280
+                    },
+                    {
+                      "frameIndex": 83,
+                      "frameMs": 3320
+                    },
+                    {
+                      "frameIndex": 84,
+                      "frameMs": 3360
+                    },
+                    {
+                      "frameIndex": 85,
+                      "frameMs": 3400
+                    },
+                    {
+                      "frameIndex": 86,
+                      "frameMs": 3440
+                    },
+                    {
+                      "frameIndex": 87,
+                      "frameMs": 3480
+                    },
+                    {
+                      "frameIndex": 88,
+                      "frameMs": 3520
+                    },
+                    {
+                      "frameIndex": 89,
+                      "frameMs": 3560
+                    },
+                    {
+                      "frameIndex": 90,
+                      "frameMs": 3600
+                    },
+                    {
+                      "frameIndex": 91,
+                      "frameMs": 3640
+                    },
+                    {
+                      "frameIndex": 92,
+                      "frameMs": 3680
+                    },
+                    {
+                      "frameIndex": 93,
+                      "frameMs": 3720
+                    },
+                    {
+                      "frameIndex": 94,
+                      "frameMs": 3760
+                    },
+                    {
+                      "frameIndex": 95,
+                      "frameMs": 3800
+                    },
+                    {
+                      "frameIndex": 96,
+                      "frameMs": 3840
+                    },
+                    {
+                      "frameIndex": 97,
+                      "frameMs": 3880
+                    },
+                    {
+                      "frameIndex": 98,
+                      "frameMs": 3920
+                    },
+                    {
+                      "frameIndex": 99,
+                      "frameMs": 3960
+                    }
+                  ],
+                  "rendererManifest": null,
+                  "integrity": {
+                    "algorithm": "sha256",
+                    "verified": true
+                  },
+                  "generatedAtMs": 1791141765339
+                },
+                "deliveryMode": "inline"
+              }
+            ]
+          },
+          "appViewAttempts": [
+            200
+          ],
+          "jobPollWallMs": 3775
+        },
+        {
+          "reality": "anime-npr",
+          "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-6",
+          "appTerminalState": "succeeded",
+          "appRenderId": null,
+          "ingest": {
+            "status": "failed",
+            "error": "encoding refused (artifact-invalid): no artifact \"90172cc8c83cba3e86ca476f5e4d72cfc2995b7146d1cf6f9504b93c4fe6b911\" is stored"
+          },
+          "completion": {
+            "status": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "075a7935acbe11543b3f1517f444c1e255d358299512f9cb720a68d1fa601482",
+                "contentType": "video/mp4+base64",
+                "byteLength": 671612,
+                "frameCount": 48,
+                "totalDurationMs": 4000
+              }
+            ]
+          },
+          "computeWorkerState": "succeeded",
+          "computeWorkerRecord": {
+            "jobId": "render-job-sess-u-aae6c8ee3a146571046666aa8e6fcd32-6",
+            "state": "succeeded",
+            "startedAtMs": 1791141765356,
+            "finishedAtMs": 1791141766542,
+            "resultStatus": "succeeded",
+            "outputs": [
+              {
+                "artifactId": "075a7935acbe11543b3f1517f444c1e255d358299512f9cb720a68d1fa601482",
+                "contentHash": "075a7935acbe11543b3f1517f444c1e255d358299512f9cb720a68d1fa601482",
+                "contentType": "video/mp4+base64",
+                "byteLength": 671612,
+                "manifest": {
+                  "schemaVersion": "1.0",
+                  "manifestId": "enc-c41a2448",
+                  "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+                  "bridge": "anime-npr",
+                  "source": {
+                    "rendererId": "anime-npr.prototype",
+                    "rendererVersion": "0.2.0",
+                    "engineId": "sporta.software-3d",
+                    "engineVersion": "1.0.0"
+                  },
+                  "swm": {
+                    "snapshotVersion": 1,
+                    "lastEventSequence": 0
+                  },
+                  "encoder": {
+                    "kind": "ffmpeg-libx264",
+                    "version": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+                    "codec": {
+                      "container": "mp4",
+                      "videoCodec": "avc1.42E01E",
+                      "encoder": "ffmpeg -hide_banner -loglevel error -f rawvideo -pixel_format rgb24 -video_size <WxH> -framerate <fps> -i <staged> -an -c:v libx264 -preset veryfast -tune stillimage -profile:v baseline -level 3.0 -crf 18 -pix_fmt yuv420p -g 25 -threads 1 -fflags +bitexact -flags:v +bitexact -map_metadata -1 -f mp4 <out>",
+                      "preset": "veryfast",
+                      "tune": "stillimage",
+                      "profile": "baseline",
+                      "level": "3.0",
+                      "crf": 18,
+                      "pixFmt": "yuv420p",
+                      "gop": 25,
+                      "threads": 1,
+                      "bitexact": true
+                    }
+                  },
+                  "geometry": {
+                    "widthPx": 640,
+                    "heightPx": 360,
+                    "fps": 12,
+                    "frameCount": 48,
+                    "durationMs": 4000
+                  },
+                  "contentHash": "075a7935acbe11543b3f1517f444c1e255d358299512f9cb720a68d1fa601482",
+                  "byteSize": 503707,
+                  "frames": [
+                    {
+                      "frameIndex": 0,
+                      "frameMs": 0
+                    },
+                    {
+                      "frameIndex": 1,
+                      "frameMs": 83
+                    },
+                    {
+                      "frameIndex": 2,
+                      "frameMs": 167
+                    },
+                    {
+                      "frameIndex": 3,
+                      "frameMs": 250
+                    },
+                    {
+                      "frameIndex": 4,
+                      "frameMs": 333
+                    },
+                    {
+                      "frameIndex": 5,
+                      "frameMs": 417
+                    },
+                    {
+                      "frameIndex": 6,
+                      "frameMs": 500
+                    },
+                    {
+                      "frameIndex": 7,
+                      "frameMs": 583
+                    },
+                    {
+                      "frameIndex": 8,
+                      "frameMs": 667
+                    },
+                    {
+                      "frameIndex": 9,
+                      "frameMs": 750
+                    },
+                    {
+                      "frameIndex": 10,
+                      "frameMs": 833
+                    },
+                    {
+                      "frameIndex": 11,
+                      "frameMs": 917
+                    },
+                    {
+                      "frameIndex": 12,
+                      "frameMs": 1000
+                    },
+                    {
+                      "frameIndex": 13,
+                      "frameMs": 1083
+                    },
+                    {
+                      "frameIndex": 14,
+                      "frameMs": 1167
+                    },
+                    {
+                      "frameIndex": 15,
+                      "frameMs": 1250
+                    },
+                    {
+                      "frameIndex": 16,
+                      "frameMs": 1333
+                    },
+                    {
+                      "frameIndex": 17,
+                      "frameMs": 1417
+                    },
+                    {
+                      "frameIndex": 18,
+                      "frameMs": 1500
+                    },
+                    {
+                      "frameIndex": 19,
+                      "frameMs": 1583
+                    },
+                    {
+                      "frameIndex": 20,
+                      "frameMs": 1667
+                    },
+                    {
+                      "frameIndex": 21,
+                      "frameMs": 1750
+                    },
+                    {
+                      "frameIndex": 22,
+                      "frameMs": 1833
+                    },
+                    {
+                      "frameIndex": 23,
+                      "frameMs": 1917
+                    },
+                    {
+                      "frameIndex": 24,
+                      "frameMs": 2000
+                    },
+                    {
+                      "frameIndex": 25,
+                      "frameMs": 2083
+                    },
+                    {
+                      "frameIndex": 26,
+                      "frameMs": 2167
+                    },
+                    {
+                      "frameIndex": 27,
+                      "frameMs": 2250
+                    },
+                    {
+                      "frameIndex": 28,
+                      "frameMs": 2333
+                    },
+                    {
+                      "frameIndex": 29,
+                      "frameMs": 2417
+                    },
+                    {
+                      "frameIndex": 30,
+                      "frameMs": 2500
+                    },
+                    {
+                      "frameIndex": 31,
+                      "frameMs": 2583
+                    },
+                    {
+                      "frameIndex": 32,
+                      "frameMs": 2667
+                    },
+                    {
+                      "frameIndex": 33,
+                      "frameMs": 2750
+                    },
+                    {
+                      "frameIndex": 34,
+                      "frameMs": 2833
+                    },
+                    {
+                      "frameIndex": 35,
+                      "frameMs": 2917
+                    },
+                    {
+                      "frameIndex": 36,
+                      "frameMs": 3000
+                    },
+                    {
+                      "frameIndex": 37,
+                      "frameMs": 3083
+                    },
+                    {
+                      "frameIndex": 38,
+                      "frameMs": 3167
+                    },
+                    {
+                      "frameIndex": 39,
+                      "frameMs": 3250
+                    },
+                    {
+                      "frameIndex": 40,
+                      "frameMs": 3333
+                    },
+                    {
+                      "frameIndex": 41,
+                      "frameMs": 3417
+                    },
+                    {
+                      "frameIndex": 42,
+                      "frameMs": 3500
+                    },
+                    {
+                      "frameIndex": 43,
+                      "frameMs": 3583
+                    },
+                    {
+                      "frameIndex": 44,
+                      "frameMs": 3667
+                    },
+                    {
+                      "frameIndex": 45,
+                      "frameMs": 3750
+                    },
+                    {
+                      "frameIndex": 46,
+                      "frameMs": 3833
+                    },
+                    {
+                      "frameIndex": 47,
+                      "frameMs": 3917
+                    }
+                  ],
+                  "rendererManifest": null,
+                  "integrity": {
+                    "algorithm": "sha256",
+                    "verified": true
+                  },
+                  "generatedAtMs": 1791141766534
+                },
+                "deliveryMode": "inline"
+              }
+            ]
+          },
+          "appViewAttempts": [
+            200
+          ],
+          "jobPollWallMs": 3775
+        }
+      ],
+      "catalog": {
+        "attempts": 11,
+        "playbackState": "authorized",
+        "readyRealityCount": 1,
+        "kinds": [
+          {
+            "kind": "original",
+            "availability": "ready",
+            "artifactContentTypes": [
+              "mp4/h264"
+            ]
+          },
+          {
+            "kind": "tactical",
+            "availability": "requires-render",
+            "artifactContentTypes": []
+          },
+          {
+            "kind": "three-d-game",
+            "availability": "requires-render",
+            "artifactContentTypes": []
+          },
+          {
+            "kind": "anime-npr",
+            "availability": "requires-render",
+            "artifactContentTypes": []
+          }
+        ]
+      },
+      "playback": {
+        "original": {
+          "availability": "ready",
+          "produced": true,
+          "httpStatusCode": 200,
+          "contentAttempts": [
+            200
+          ],
+          "contentType": "video/mp4",
+          "servedBytes": 8214,
+          "descriptorBytes": 8214,
+          "servedSha256": "dd98d87f5e7faeb6224f5ac1274251dfeb7aa027b0710b8c906702585d798a44",
+          "descriptorIntegrityHash": "dd98d87f5e7faeb6224f5ac1274251dfeb7aa027b0710b8c906702585d798a44",
+          "integrityVerified": true,
+          "ftypMagic": true,
+          "geometry": {
+            "measurable": true,
+            "probedBytes": 8214,
+            "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+            "durationSec": "1.000000",
+            "streamCount": 1,
+            "video": {
+              "codec": "h264",
+              "width": 320,
+              "height": 240,
+              "frameRate": "24/1"
+            },
+            "hasAudio": false
+          }
+        },
+        "tactical": {
+          "availability": "requires-render",
+          "produced": false,
+          "planDisposition": "admitted",
+          "jobTerminalState": "succeeded",
+          "ingestStatus": "failed",
+          "typedRefusal": "encoding refused (artifact-invalid): no artifact \"f2dbfe4fb09be90c45dd6697acca5a97dd242f538c652f4e2d30344f111d8ed2\" is stored",
+          "refusalBoundary": "render-output ingest (the artifact never landed in the session's stores — the catalog's availability is the honest derived state)"
+        },
+        "three-d-game": {
+          "availability": "requires-render",
+          "produced": false,
+          "planDisposition": "admitted",
+          "jobTerminalState": "succeeded",
+          "ingestStatus": "failed",
+          "typedRefusal": "encoding refused (artifact-invalid): no artifact \"f479264fd53a8eb749f56e77e8d37448de5e48cc907a6c6d0e19c7dc95075381\" is stored",
+          "refusalBoundary": "render-output ingest (the artifact never landed in the session's stores — the catalog's availability is the honest derived state)"
+        },
+        "anime-npr": {
+          "availability": "requires-render",
+          "produced": false,
+          "planDisposition": "admitted",
+          "jobTerminalState": "succeeded",
+          "ingestStatus": "failed",
+          "typedRefusal": "encoding refused (artifact-invalid): no artifact \"90172cc8c83cba3e86ca476f5e4d72cfc2995b7146d1cf6f9504b93c4fe6b911\" is stored",
+          "refusalBoundary": "render-output ingest (the artifact never landed in the session's stores — the catalog's availability is the honest derived state)"
+        }
+      },
+      "producedKinds": [
+        "original"
+      ],
+      "refusedKinds": [
+        "tactical",
+        "three-d-game",
+        "anime-npr"
+      ],
+      "allFourRealitiesIntegrityVerified": false
+    },
+    "workerAccounting": {
+      "statsRouteHttpStatusCode": 200,
+      "before": {
+        "jobsDispatched": 11,
+        "duplicates": 0,
+        "succeeded": 10,
+        "failed": 1,
+        "inFlight": 0,
+        "capacityRefusals": 0,
+        "usageRecords": 11,
+        "probeRuns": 10,
+        "transcodeRuns": 7,
+        "inputBytes": 191608,
+        "outputBytes": 16639778,
+        "totalExecutionMs": 2050
+      },
+      "after": {
+        "jobsDispatched": 19,
+        "duplicates": 0,
+        "succeeded": 18,
+        "failed": 1,
+        "inFlight": 0,
+        "capacityRefusals": 0,
+        "usageRecords": 19,
+        "probeRuns": 20,
+        "transcodeRuns": 11,
+        "inputBytes": 377840,
+        "outputBytes": 33275125,
+        "totalExecutionMs": 3420
+      },
+      "delta": {
+        "dispatched": 8,
+        "succeeded": 8,
+        "failed": 0,
+        "usageRecords": 8
+      },
+      "newUsageRecords": [
+        {
+          "jobId": "mtdec-22b9f19deb5d7f865f2c4e7beb602b32",
+          "sessionId": "sess-u-91840d4d6eafdbf9cda27567a2beda55",
+          "operation": "decode-probe",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtdec-1275ed2f49265cf68367b867f20aa936",
+          "sessionId": "sess-u-91840d4d6eafdbf9cda27567a2beda55",
+          "operation": "decode-frames",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtjob-de109e48c1e1625667a06bf70669d318",
+          "sessionId": "media-platform",
+          "operation": "probe",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtjob-3c1c4e6b06ff29833e3aa61c88f16a3f",
+          "sessionId": "media-platform",
+          "operation": "normalize",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtdec-8796fb9d3cbe0ab6da12868023132a88",
+          "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+          "operation": "decode-probe",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtdec-3f3ea29a17da178721a5b731f788ef74",
+          "sessionId": "sess-u-aae6c8ee3a146571046666aa8e6fcd32",
+          "operation": "decode-frames",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtjob-296bbc80ee5821e29f424b4dc87c591e",
+          "sessionId": "media-platform",
+          "operation": "probe",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtjob-4dcbdc91bc7827d6c3ad766115c67dbe",
+          "sessionId": "media-platform",
+          "operation": "normalize",
+          "terminalDisposition": "succeeded"
+        }
+      ],
+      "newDispatches": 8,
+      "encodeFramesDispatches": 0,
+      "encodeFramesJobIds": [],
+      "ledgerIdentities": {
+        "dispatchedEqualsSucceededPlusFailedPlusInFlight": true,
+        "usageRecordsEqualsTerminal": true
+      },
+      "usageDrainCount": 19,
+      "note": "the encode-frames dispatches counted AT THE WORKER (the stats + usage routes): every NEW job record since the walk's BEFORE read was fetched back for its own operation — the count is the worker's own ledger, never the client's inference"
+    }
+  },
+  "verdict": "PASS — the hosted upload admissions through the seams (the R207 decode over the wire; the R306 encode pair injected at the composition); leg A: the Original's byte-route playback INTEGRITY-VERIFIED over the LIVE plane (sha-matched, ftyp, the 206 Range slice); leg B: THE PLAN'S producer-unavailable CLASS IS CLOSED — all three derived kinds ADMITTED with real producers (the plane composed on the hosted runtime through the seam); the three render jobs TERMINAL SUCCEEDED on BOTH planes (the app's view + the compute worker's own record — REAL renders executed at the baked compute worker); 1/4 realities produced + integrity-verified (original); 3 refused (the typed states recorded verbatim — the honest split, never forced); the worker-side accounting: 0 encode-frames dispatch(es) counted at the worker (the stats + usage routes)"
+}

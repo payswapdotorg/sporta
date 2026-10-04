@@ -1,9 +1,10 @@
-# REPORT — the R306 encode-seam arc: the seam + the live public wire + THE DEPLOY (three flights flown; the hosted golden path remains)
+# REPORT — the R306 encode-seam arc FLOWN END-TO-END (the seam + the live public wire + the deploy + THE HOSTED GOLDEN PATH; the producer class closed, the ingest gap named)
 
 - Seam flight: branch `work/r306-encode-seam` (from main @ `250a6052a…`; merged `dc2ed8f`, CI green run #333)
 - Live-wire flight: branch `work/r306-live-wire` (from main @ `dc2ed8fc…`; merged `6b1c052`, CI green run #334)
-- Deploy flight: branch `work/r306-deploy` (from main @ `6b1c052eafc88bb8c8429938c4abe9f49ea9efa4`)
-- Evidence trees: `scripts/evidence/r306-encode-seam/` + `scripts/evidence/r306-live-wire/` + `scripts/evidence/r306-deploy/` (ADD-only)
+- Deploy flight: branch `work/r306-deploy` (from main @ `6b1c052e…`; merged `6832183`)
+- Hosted-walk flight: branch `work/r306-hosted-golden-path` (from main @ `68321830b834ecb9beafddc08ff11f89f32969e3`)
+- Evidence trees: `scripts/evidence/r306-encode-seam/` + `scripts/evidence/r306-live-wire/` + `scripts/evidence/r306-deploy/` + `scripts/evidence/r306-hosted-golden-path/` (ADD-only)
 - Credentials: E2B_API_KEY + VERCEL_TOKEN runtime-env only (`/home/z/.sporta-env`); never committed (validator-scanned, negative-tested)
 
 === R306 ENCODE-SEAM REPORT ===
@@ -60,7 +61,17 @@ The 66-b worker died mid-flight (the session boundary killed it after the code w
 - **The ephemerality doctrine block**: the baked URLs are EPHEMERAL — the sandbox dies at its keep-alive timeout and the 500 class returns to this deployment; the persistent-worker-host decision remains THE operator ask.
 - **The evidence tree**: `scripts/evidence/r306-deploy/` — the deploy driver + the boot-compute-worker leg + the records (deploy, compute-worker) + the fail-closed validator (the LIVE provider cross-check; 6/6 negative variants refused with the check named) + the re-runnable commands.md.
 
-## 8. The honest next flights (the arc's closure remains)
+## 8. THE HOSTED GOLDEN PATH — THE ARC'S CLOSURE FLIGHT (flown, the honest split)
 
-1. **The hosted golden path**: the derived kinds' four-reality journey WITH the seam injected — the J004 walk's `producer-unavailable` refusals replaced by real hosted encodes (the media toolchain's encode-frames operation over the baked URL), the closure the G12 walk named. The deployment is LIVE and marked; the sandbox is re-extended.
-2. **The persistent-worker-host decision** (the standing operator ask — the ephemeral-URL incident class's closure) and the R606 human visual gate remain the operator's outstanding items.
+- **THE PLANE**: the deployment `r306-encode-seam-deploy-1` LIVE (both baked worker descriptors 200 at the walk's boot).
+- **THE WALK** (register 200 → login 200 → upload 201 → the media job terminal → the watch leg): the catalog 200; **the Original's byte-route playback INTEGRITY-VERIFIED** (sha-matched, `ftyp`, the 206 Range slice) — leg A re-flown green.
+- **THE J004 ONE-SUBMISSION (the decisive leg)**: **THE PLAN'S `producer-unavailable` CLASS IS CLOSED** — all three derived kinds ADMITTED with real producers (the derived-reality plane composed on the hosted Vercel runtime through the injected seam); **the three render jobs TERMINAL SUCCEEDED on BOTH planes** (the app's job view + the compute worker's own job records — REAL renders executed at the baked compute worker, the outputs' manifests integrity-verified sha256).
+- **1/4 realities produced + integrity-verified** (the Original); **3/4 refused — THE NEWLY NAMED GAP, typed verbatim**: `encoding refused (artifact-invalid): no artifact "<sha>" is stored` at the **render-output ingest** boundary (the artifact the compute worker produced never landed in the session's stores — the catalog's availability is the honest derived state). Never forced, never laundered.
+- **THE WORKER-SIDE ACCOUNTING (the per-plane split, honestly recorded)**: 0 `encode-frames` dispatches at the MEDIA toolchain worker — the renders encoded at the COMPUTE worker's own local in-sandbox toolchain (its ffmpeg IS available there; the media worker's `encode-frames` operation stood ready and was not the path the renders took). Δ dispatched +8 / succeeded +8 / failed +0; the arithmetic validated.
+- **THE VALIDATOR**: 12/12 checks PASS (the marker, both descriptors, the Original's integrity, the four kinds' exhaustive split with NO LAUNDERED FLAGS — a refused kind carrying a verified flag is itself refused, the jobs' terminal states on both planes, the accounting's arithmetic, the verdict's counts); 6/6 tampered variants refused with the check named.
+- **The ADD-only law enforced**: the hosted-walk worker's edit to the LANDED live-wire `sandbox-record.json` (a re-measured `totalMs` overwriting the landed flight's own measurement) was REVERTED — the laundering class refused.
+
+## 9. The honest next flights (the arc's remaining closure + the standing asks)
+
+1. **THE ARTIFACT-DELIVERY/INGEST SEAM (the newly named gap)**: the compute worker's encoded artifacts → the session's stores → the catalog's availability → the derived kinds' playback. The R306 seam closed the PRODUCER class; this is the next closure of the same journey.
+2. **The persistent-worker-host decision** (the standing operator ask — the ephemeral-URL incident class's closure; the baked sandbox URLs die at the keep-alive timeout) and the R606 human visual gate remain the operator's outstanding items.
