@@ -92,5 +92,31 @@ export type {
   DirectedSkippedMarker,
   DirectedWindowEntry,
 } from "./compose";
+// HF014 — the provider-neutral camera intent/path emission (additive):
+// derives the hf010-pose-vocabulary document FROM an existing CameraPlan.
+export {
+  DEFAULT_INTENT_FRAME_RATE,
+  INTENT_DETERMINISM_NOTE,
+  INTENT_DOCUMENT_VERSION,
+  INTENT_KIND_SLOT_HOLD,
+  INTENT_POSE_DECIMALS,
+  INTENT_POSE_VOCABULARY,
+  INTENT_SOURCE_TIME_NOTE,
+  emitCameraIntent,
+} from "./intent";
+export type {
+  CameraIntentDocument,
+  CameraIntentPath,
+  CameraIntentPose,
+  CameraIntentSlotGeometry,
+  CameraIntentWindow,
+  CameraIntentWindowProvenance,
+  IntentEmitOptions,
+  IntentVec3,
+} from "./intent";
+export { validateIntentDocument } from "./intent-validate";
+export type { IntentValidation } from "./intent-validate";
+export { checkCameraIntent } from "./intent-selfcheck";
+export type { IntentCheckResult } from "./intent-selfcheck";
 export { DirectorError } from "./errors";
 export type { DirectorErrorKind } from "./errors";
