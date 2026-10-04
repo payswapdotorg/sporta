@@ -1,8 +1,9 @@
-# REPORT — the TL delivers the R306 encode seam (the G12 walk's named next gap, closed at the seam)
+# REPORT — the R306 encode-seam arc: the seam flight + THE LIVE PUBLIC-WIRE LEG (the G12 walk's named gap, closed at the seam then measured over the public wire)
 
-- Branch: `work/r306-encode-seam` (from main @ `250a6052a2424404e04c28dad35cccb289c4824e` — the hosted-G12-walk merge the Composio lane replicated; CI green run #332)
-- Evidence tree: `scripts/evidence/r306-encode-seam/` (ADD-only; no FROZEN-contract or prior-evidence edits)
-- Credentials: none required on this flight (the seam is machine-local; the LIVE public-wire leg is the next flight's concern)
+- Seam flight: branch `work/r306-encode-seam` (from main @ `250a6052a2424404e04c28dad35cccb289c4824e`; merged `dc2ed8f`, CI green run #333, 18:11→18:27Z)
+- Live-wire flight: branch `work/r306-live-wire` (from main @ `dc2ed8fc9c7b9c91253a80378e31006965cc1e9a` — the seam merge itself)
+- Evidence trees: `scripts/evidence/r306-encode-seam/` (the seam) + `scripts/evidence/r306-live-wire/` (the public wire; ADD-only)
+- Credentials: E2B_API_KEY runtime-env only (`/home/z/.sporta-env`); never committed (validator-scanned, negative-tested)
 
 === R306 ENCODE-SEAM REPORT ===
 
@@ -39,8 +40,17 @@ The 66-b worker died mid-flight (the session boundary killed it after the code w
 - `bun test packages/media-platform packages/compute-adapter-hosted`: **182 pass / 0 fail**.
 - `bun test apps/web`: **green in isolation** (the golden-path battery 14/14 alone; the full-suite parallel timeouts on THIS sandbox are resource contention, not code — CI's sequential runner is the authoritative battery, same as the prior lane).
 
-## 6. The honest next flights (the same arc the decode seam flew)
+## 6. THE LIVE PUBLIC-WIRE LEG (flown — the same arc's flight B, the R607 precedent mirrored)
 
-1. **The live public-wire leg**: the pair against an E2B-hosted worker over the public URL (the R607 arc's flight B) — the seam's client measured from the same network position the Vercel runtime holds.
+- **The sandbox** (`i5lvv9q3jrumm914o1rca`, E2B template base, Debian 12; fresh provision measured 103 364 ms; 2 h keep-alive re-extended per invocation — EPHEMERAL by design, its death class itself a measured leg below): the pinned `git clone` re-measured HEAD at `dc2ed8fc9c…` (fail-closed on any other), `bun install --frozen-lockfile` 167 packages, the in-sandbox toolchain ffmpeg 5.1.9-0+deb12u1 + libx264; the media-toolchain worker booted on 0.0.0.0:3971 (idempotent health-check-first start — the r607 lesson held; the start RPC's `deadline_exceeded` re-measured, the health wait arbitrated).
+- **The descriptor over the public wire**: FIVE operations `[probe, normalize, decode-probe, decode-frames, encode-frames]` verified from THIS machine (the Vercel runtime's network position), 662 ms.
+- **THE BYTE-DRIFT LAW, MEASURED HONESTLY ACROSS BUILDS**: the receiving-boundary re-hash HOLDS (the delivered bytes re-hashed client-side === the envelope's own claim: 1 468 B, `ftyp`, the `ffmpeg-libx264` producer identity); the local-vs-wire byte-identity does NOT — the local build (ffmpeg 7.1.5-0+deb13u1) hashes `b6e7672f…`, the worker's build (5.1.9-0+deb12u1) hashes `62d7c691…` of the same frames: the encoding module's documented **per-build determinism bound**, recorded as measured (this machine's build deterministic across flights — the local hash identical to the seam flight's loopback record).
+- **The one-operation law at the worker**: ONE cached descriptor GET for both surfaces (the cache signature measured: first probe 279 ms, three subsequent answers [0, 1, 0] ms — no child spawned) + TWO happy-path `encode-frames` POSTs (the R306 FrameEncoderPort 1 026 ms / the R301 TacticalVideoCodec 347 ms, the SAME wire operation) + the refusal leg's counted dispatch — Δ dispatched +3 / succeeded +2 / failed +1; the usage drain === the dispatched count; transcodeRuns 3, inputBytes 5 376, outputBytes 4 431.
+- **The typed refusals over the public wire** (all measured, all typed): a 1 ms worker-side policy → the real encode executed then refused `duration-over-limit` → **media-invalid/frames-invalid**; the DNS-dead unreachable URL + connection-refused control → **resource-limit/encoder-unavailable** (37/29 ms); the dead-sandbox ephemerality → the E2B proxy's **502 "The sandbox was not found"** through the STATUS line → the pair's **internal/encode-failed (http-502)**; the live worker's honest non-2xx answers → **404 unknown-route** / **400 invalid-body**, and through the pair **internal/encode-failed (unknown-route)**.
+- **The evidence tree**: `scripts/evidence/r306-live-wire/` — the orchestrator + the live driver + the records (sandbox, live, worker-stats) + the fail-closed validator (4/4 tampered variants refused exit 1: laundered byte-identical, laundered sha, fabricated re-hash, laundered refusal) + the re-runnable commands.md.
+
+## 7. The honest next flights (the arc continues)
+
+1. **The deploy leg**: the env re-point + the production deployment baking the live worker URL (the r607 deploy precedent) — then the hosted golden path.
 2. **The hosted golden path**: the derived kinds' four-reality journey WITH the seam injected — the J004 walk's `producer-unavailable` refusals replaced by real hosted encodes, the closure the G12 walk named.
 3. **The persistent-worker-host decision** (the standing operator ask — the ephemeral-URL incident class's closure) and the R606 human visual gate remain the operator's outstanding items.
