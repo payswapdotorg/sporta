@@ -1,9 +1,10 @@
-# REPORT — the R306 encode-seam arc: the seam flight + THE LIVE PUBLIC-WIRE LEG (the G12 walk's named gap, closed at the seam then measured over the public wire)
+# REPORT — the R306 encode-seam arc: the seam + the live public wire + THE DEPLOY (three flights flown; the hosted golden path remains)
 
-- Seam flight: branch `work/r306-encode-seam` (from main @ `250a6052a2424404e04c28dad35cccb289c4824e`; merged `dc2ed8f`, CI green run #333, 18:11→18:27Z)
-- Live-wire flight: branch `work/r306-live-wire` (from main @ `dc2ed8fc9c7b9c91253a80378e31006965cc1e9a` — the seam merge itself)
-- Evidence trees: `scripts/evidence/r306-encode-seam/` (the seam) + `scripts/evidence/r306-live-wire/` (the public wire; ADD-only)
-- Credentials: E2B_API_KEY runtime-env only (`/home/z/.sporta-env`); never committed (validator-scanned, negative-tested)
+- Seam flight: branch `work/r306-encode-seam` (from main @ `250a6052a…`; merged `dc2ed8f`, CI green run #333)
+- Live-wire flight: branch `work/r306-live-wire` (from main @ `dc2ed8fc…`; merged `6b1c052`, CI green run #334)
+- Deploy flight: branch `work/r306-deploy` (from main @ `6b1c052eafc88bb8c8429938c4abe9f49ea9efa4`)
+- Evidence trees: `scripts/evidence/r306-encode-seam/` + `scripts/evidence/r306-live-wire/` + `scripts/evidence/r306-deploy/` (ADD-only)
+- Credentials: E2B_API_KEY + VERCEL_TOKEN runtime-env only (`/home/z/.sporta-env`); never committed (validator-scanned, negative-tested)
 
 === R306 ENCODE-SEAM REPORT ===
 
@@ -49,8 +50,17 @@ The 66-b worker died mid-flight (the session boundary killed it after the code w
 - **The typed refusals over the public wire** (all measured, all typed): a 1 ms worker-side policy → the real encode executed then refused `duration-over-limit` → **media-invalid/frames-invalid**; the DNS-dead unreachable URL + connection-refused control → **resource-limit/encoder-unavailable** (37/29 ms); the dead-sandbox ephemerality → the E2B proxy's **502 "The sandbox was not found"** through the STATUS line → the pair's **internal/encode-failed (http-502)**; the live worker's honest non-2xx answers → **404 unknown-route** / **400 invalid-body**, and through the pair **internal/encode-failed (unknown-route)**.
 - **The evidence tree**: `scripts/evidence/r306-live-wire/` — the orchestrator + the live driver + the records (sandbox, live, worker-stats) + the fail-closed validator (4/4 tampered variants refused exit 1: laundered byte-identical, laundered sha, fabricated re-hash, laundered refusal) + the re-runnable commands.md.
 
-## 7. The honest next flights (the arc continues)
+## 7. THE DEPLOY LEG (flown — the arc's flight C, the r607 precedent mirrored)
 
-1. **The deploy leg**: the env re-point + the production deployment baking the live worker URL (the r607 deploy precedent) — then the hosted golden path.
-2. **The hosted golden path**: the derived kinds' four-reality journey WITH the seam injected — the J004 walk's `producer-unavailable` refusals replaced by real hosted encodes, the closure the G12 walk named.
-3. **The persistent-worker-host decision** (the standing operator ask — the ephemeral-URL incident class's closure) and the R606 human visual gate remain the operator's outstanding items.
+- **The env wiring** (three PATCHes, production target, all HTTP 200, each re-read decrypted and matching): `MEDIA_TOOLCHAIN_URL` → the live sandbox's 3971 URL, `COMPUTE_WORKER_URL` → the 3973 URL, `SPORTA_DEPLOY_MARKER` → `r306-encode-seam-deploy-1`; `MEDIA_TOOLCHAIN=http` + `COMPUTE_PROVIDER=http` verified-not-assumed (the 65-j PATCHes still in place); the replaced values were the DEAD r607 sandbox URLs (ioyw6rihmz… — superseded, recorded).
+- **The companion compute worker booted** in the live sandbox (idempotent health-check-first; the derived-reality plane COMPOSED in-sandbox; both public URLs 200 from this machine).
+- **The deployment**: `dpl_Dgtf629qRgTWEZv6i1DmwCdQmrkt` — **READY, production**, built from the repo at `6b1c052e` (HEAD === origin/main, the arc tip; the provider's own meta carries the sha — the validator's LIVE cross-check). No quota refusal (the 65-j class did not reproduce).
+- **The verification (fail-closed, measured)**: `/api/platform/health` **200 with `deployMarker: r306-encode-seam-deploy-1`** (the alias surface; the deployment's own URL is behind Vercel Authentication — the public fetch's SSO 302 recorded as the measured shape, the authenticated probe carried the same marker); the boot-time compute-worker descriptor fetch SUCCEEDED (the 62-c incident class NOT reproduced — the pre-deploy baseline had measured it live on the superseded deployment: 500/empty). The media descriptor: honestly split — the health answer carries no media fields (measurable: false; the golden-path flight named as the end-to-end measurer); measured from this machine over the baked URL (200, five operations).
+- **One TYPED refusal on the record** (never laundered): the first verification pass was refused fail-closed by the validator — its fetch had followed the deployment URL's SSO 302 into a 200 HTML page (a null-marker "health 200"); fixed (redirect: manual + the authenticated probe + the alias surface) and re-measured via `--reverify` (no re-PATCH, no second deployment). Recorded in the deploy record's note.
+- **The ephemerality doctrine block**: the baked URLs are EPHEMERAL — the sandbox dies at its keep-alive timeout and the 500 class returns to this deployment; the persistent-worker-host decision remains THE operator ask.
+- **The evidence tree**: `scripts/evidence/r306-deploy/` — the deploy driver + the boot-compute-worker leg + the records (deploy, compute-worker) + the fail-closed validator (the LIVE provider cross-check; 6/6 negative variants refused with the check named) + the re-runnable commands.md.
+
+## 8. The honest next flights (the arc's closure remains)
+
+1. **The hosted golden path**: the derived kinds' four-reality journey WITH the seam injected — the J004 walk's `producer-unavailable` refusals replaced by real hosted encodes (the media toolchain's encode-frames operation over the baked URL), the closure the G12 walk named. The deployment is LIVE and marked; the sandbox is re-extended.
+2. **The persistent-worker-host decision** (the standing operator ask — the ephemeral-URL incident class's closure) and the R606 human visual gate remain the operator's outstanding items.
