@@ -1,0 +1,208 @@
+{
+  "label": "HF005 — the SAM3 ↔ Sporta contract-compatibility mapping (machine-checkable; static review of source-verified facts, never a run)",
+  "generatedFrom": {
+    "taskProfiles": "docs/contracts/technology-task-profiles.md (FROZEN, needle-verified)",
+    "modelSurface": "results/model-io-surface.json + the fetched card at the pinned revision (needle-verified)",
+    "repoContracts": "observation.ts + identity.ts + tracker.ts (W204) + tracking benchmark.ts (W204) + rights.ts (needle-verified)",
+    "flightEvidence": "results/preflight-refusal.json + results/license-posture.json + results/metric-selfcheck.json + results/load-analysis.json + results/tracking-comparison.json"
+  },
+  "authorityNeedles": [
+    {
+      "authority": "docs/contracts/technology-task-profiles.md",
+      "needles": [
+        "### football.playerSegmentation",
+        "Inputs: football frames and optional prompts/identifiers.",
+        "Outputs: per-instance masks and confidence.",
+        "Metrics: mask quality, identity continuity, latency.",
+        "### football.playerTracking",
+        "Inputs: detections/masks and temporal frames.",
+        "Outputs: stable local tracks.",
+        "Metrics: ID switches, MOTA/HOTA where applicable, continuity under occlusion, latency."
+      ]
+    },
+    {
+      "authority": "packages/contracts/src/observation.ts",
+      "needles": [
+        "z.discriminatedUnion(\"kind\"",
+        "z.literal(\"detection\")",
+        "z.literal(\"track\")",
+        "z.enum([\"OBSERVED\", \"REPORTED\", \"DERIVED\"])",
+        "z.enum([\"vision\", \"audio\", \"metadata\", \"commentary\"])"
+      ]
+    },
+    {
+      "authority": "packages/contracts/src/identity.ts",
+      "needles": [
+        "ENTITY_ID_PATTERN",
+        "opaque, session-scoped entity ids",
+        "z.string()"
+      ]
+    },
+    {
+      "authority": "packages/perception-tracking/src/tracker.ts",
+      "needles": [
+        "GreedyIouTracker",
+        "trackId: EntityId",
+        "t<seq>",
+        "maxGap",
+        "close-all"
+      ]
+    },
+    {
+      "authority": "packages/perception-tracking/src/benchmark.ts",
+      "needles": [
+        "identity switches",
+        "continuityScore",
+        "identityPreservingPairs"
+      ]
+    },
+    {
+      "authority": "packages/contracts/src/rights.ts",
+      "needles": [
+        "AllowedOperation",
+        "\"analysis\"",
+        "\"derivativeGeneration\"",
+        "a missing policy decision means DENY"
+      ]
+    },
+    {
+      "authority": "scripts/evidence/hf-portfolio/hf005/fetches/hf-facebook-sam3-README@pinned-rev",
+      "needles": [
+        "unified foundation model for promptable segmentation in images and videos",
+        "post_process_instance_segmentation",
+        "propagate_in_video_iterator",
+        "Sam3TrackerVideoModel",
+        "drop-in replacement for SAM2 workflows",
+        "object_ids",
+        "bfloat16",
+        "270K unique concepts",
+        "Streaming inference disables hotstart heuristics"
+      ]
+    }
+  ],
+  "authorityChars": {
+    "docs/contracts/technology-task-profiles.md": 3670,
+    "packages/contracts/src/identity.ts": 1909,
+    "packages/perception-tracking/src/tracker.ts": 14233,
+    "packages/perception-tracking/src/benchmark.ts": 8192,
+    "packages/contracts/src/rights.ts": 3969,
+    "the fetched model card (fetches/hf-facebook-sam3-README@pinned-rev)": 26026,
+    "results/model-io-surface.json": 3839,
+    "results/load-analysis.json": 2855,
+    "results/tracking-comparison.json": 6469
+  },
+  "maskPayloadAbsenceMachineCheck": {
+    "checked": "packages/contracts/src/observation.ts z.literal kinds",
+    "kinds": [
+      "detection",
+      "track",
+      "transcription",
+      "field-mapping",
+      "generic",
+      "team-assignment"
+    ],
+    "maskKinds": [],
+    "conclusion": "NO mask/segmentation payload kind exists — the segmentation typed gap is real (recorded, not papered over with the generic escape hatch)"
+  },
+  "mappings": {
+    "footballPlayerSegmentation": {
+      "profile": "football.playerSegmentation (FROZEN)",
+      "inputContract": "Inputs: football frames and optional prompts/identifiers.",
+      "sam3Surface": "image PCS: images + text/box prompts -> masks + boxes + scores; PVS tracker: points/boxes -> per-object masks; pipeline mask-generation with points_per_batch",
+      "verdict": "COMPATIBLE-WITH-PROMPT-MAPPING",
+      "reasoning": [
+        "the profile's inputs ('football frames and optional prompts/identifiers') are SATISFIED by SAM3's documented surface: the frames are the repo's authorized SPR fixtures; the prompts are supplied by the repo's own chain — the W201 detections (normalized boxes denormalized to xyxy pixel input_boxes with positive labels, the PVS mode) or the text concept 'football player' (the PCS mode)",
+        "the profile's outputs ('per-instance masks and confidence') map: SAM3's post_process_instance_segmentation returns per-instance binary masks + scores, and scores land in the observation-level confidence convention ([0,1], preserved with no silent collapse)"
+      ],
+      "typedGaps": [
+        "NO MASK PAYLOAD EXISTS in the observation contract's discriminated union (machine-checked: kinds are detection | track | transcription | field-mapping | generic | team-assignment — no mask/segmentation kind): a segmentation observation would need a NEW typed payload variant (the contract's own docs prefer a typed variant over the DISCOURAGED generic escape hatch; a minor version bump, a FROZEN-contract decision this flight records but NEVER makes)",
+        "the PCS prompt is concept-level (open-vocabulary text) — 'football player' is not a per-jersey identity: the profile's 'optional prompts/identifiers' identifier half has NO SAM3 counterpart (the model has no jersey-number/player-identity surface)"
+      ]
+    },
+    "footballPlayerTracking": {
+      "profile": "football.playerTracking (FROZEN)",
+      "inputContract": "Inputs: detections/masks and temporal frames.",
+      "sam3Surface": "video PCS: frames + add_text_prompt -> per-frame object_ids/boxes/masks/scores; tracker video PVS: session + box/point prompts with obj_ids -> propagated per-object masks",
+      "verdict": "COMPATIBLE-WITH-ADAPTER",
+      "reasoning": [
+        "the profile's inputs ('detections/masks and temporal frames') map: the temporal frames are the same authorized fixture decode; the detections arrive as the W-lane's W201 DetectedBox outputs (denormalized box prompts) and the masks are SAM3's own per-instance outputs — the input contract is satisfied by the repo's chain supplying the prompts",
+        "the profile's outputs ('stable local tracks') map: SAM3's per-frame object_ids are session-scoped local ids (the card's zero-shot tracking claim); they are NOT EntityId-shaped, so the deterministic bridge sam3-<object_id> (delivered + self-checked against the identity contract's pattern) lands them in the repo's identity vocabulary"
+      ],
+      "typedGaps": [
+        "MOTA/HOTA ('where applicable' in the profile's metrics line) need per-player GT track annotations — NONE exist in the repo (the hf009 ground-truth-honesty precedent holds for player ids as it did for speaker ids); the design's two honest options (operator-provisioned GT or the relative cross-mode continuity score) are recorded in tracking-comparison.json",
+        "SAM3's object_ids carry NO class label (the concept IS the prompt text) — the TrackedBox.label field must be supplied by the chain (the prompt string or the W-lane detection's label), a mapping decision recorded, not invented",
+        "the profile's 'continuity under occlusion' is SAM3's DESIGN CLAIM (memory state across occlusions) — unverifiable without the executed run; the W204 baseline's conservatism (close-all at scene cuts, maxGap) is the honest contrast the comparison measures"
+      ]
+    },
+    "identityContinuity": {
+      "claim": "SAM3's per-frame object_ids (ints) map onto the repo's tracking identity surface",
+      "repoSurface": [
+        "packages/contracts/src/identity.ts: EntityId = opaque, session-scoped [A-Za-z0-9_-]{1,64}",
+        "packages/perception-tracking/src/tracker.ts (W204): TrackedBox.trackId: EntityId in the t<seq> scheme — the ids carry NO certainty claim; closed ids never reissue; fragmentation at scene cuts/gaps is the benchmark's own measured subject",
+        "packages/perception-tracking/src/benchmark.ts (W204): identity switches + continuityScore — the instrument this flight's metric design mirrors (self-checked)",
+        "the R207 bridge (packages/real-to-swm/src/bridge.ts) maps trackId -> entityId verbatim into TrackPayload + subjectEntityRefs — the same seam shape the sam3-<id> bridge provides"
+      ],
+      "bridge": "sam3_object_id_to_entity_id: int -> 'sam3-<id>' (delivered in benchmark_sam3.py, self-checked cases 4: 'sam3-7'/'sam3-42' match the pattern; paren-shaped ids rejected)",
+      "verdict": "COMPATIBLE-WITH-BRIDGE"
+    },
+    "evidenceChain": {
+      "claim": "SAM3's outputs as evidence-chain observations",
+      "repoSurface": "the observation contract: modality \"vision\", provenance \"OBSERVED\", componentId + optional modelId, confidence in [0,1]",
+      "verdict": "COMPATIBLE-BY-DOCTRINE",
+      "reasoning": [
+        "SAM3 is a PERCEPTION model (masks/boxes/scores OBSERVED from frames) — unlike HF013's generated-audio exclusion, no evidence-chain boundary is crossed: the vocabulary admits it as OBSERVED vision observations",
+        "the one structural gap is the mask payload absence (recorded above); box-shaped outputs could ride DetectionPayload TODAY, mask outputs need the typed payload variant"
+      ]
+    },
+    "rightsProvenance": {
+      "claim": "the rights-provenance contract vs the SAM License's recorded terms",
+      "repoSurface": "packages/contracts/src/rights.ts: fail-closed semantics — a missing policy decision means DENY; AllowedOperation gates analysis/transformation/derivativeGeneration on INGESTED MEDIA (the R606 registration declaration authorizes the fixture consumption: analysis/transformation/derivative generation/storage)",
+      "threeWayLicenseRecord": {
+        "note": "the ADR-011 three-way convention (code / model checkpoint / training dataset recorded SEPARATELY — the perception-benchmark candidates.ts precedent)",
+        "code": {
+          "status": "custom (not permissive)",
+          "licenseId": "SAM License (the facebookresearch/sam3 repo LICENSE — the SAME agreement as the model, machine-checked: byte-different only in a trailing newline)",
+          "commercialUse": "unclear (the grant is a 'limited license' with no express commercial term)"
+        },
+        "model": {
+          "status": "custom (not permissive)",
+          "licenseId": "SAM License (the HF repo LICENSE at the pinned revision, dated November 19, 2025)",
+          "commercialUse": "unclear (CONFIRMED by the recorded terms: §1a grant + §3 delegates the appropriateness judgment to the licensee)"
+        },
+        "dataset": {
+          "status": "unknown",
+          "licenseId": "unknown",
+          "commercialUse": "unknown (the card names NO training corpus; SA-CO is the EVAL benchmark, not a training dataset)"
+        }
+      },
+      "verdict": "NOT-PRODUCTION-ELIGIBLE-BY-RECORDED-TERMS (research/watchlist stands)",
+      "reasoning": [
+        "the rights contract's fail-closed doctrine maps onto the license posture: commercialUse 'unclear' + a custom non-permissive class on BOTH code and model legs = the rights-provenance leg FAILS the production bar (the HF015 adjudication's standing verdict for SAM3: all five legs failed)",
+        "the access gate itself (manual + the identity-attestation form whose data is collected/stored/processed/shared per the Meta Privacy Policy) is a term-adjacent fact recorded in license-posture.json — an operator decision, never a worker one",
+        "fixture consumption is authorized independently (the R606 registration declaration on the SPR corpus) — the rights gap is on the MODEL side, not the media side"
+      ]
+    },
+    "execution": {
+      "claim": "the benchmark execution path on THIS host",
+      "facts": {
+        "gate": "gated=manual at the pinned revision; 401 GatedRepoError on model.safetensors + sam3.pt + config.json (the executed probe map)",
+        "resource": "860M F32 params = 3.204 GiB per checkpoint vs 3.95 GiB TOTAL RAM / 2 vCPU / no GPU (the load analysis)",
+        "licenseDocuments": "LICENSE + README public at the pinned revision (the bounded fetches — the only fetches this flight performs)"
+      },
+      "verdict": "REFUSED (auth-gated-model + resource-infeasible-host, exit 3 — negative-tested in the three modes)",
+      "reasoning": "the full benchmark is ready-to-run for an authorized + adequate host (an operator who accepted the SAM License downloads the checkpoint outside this sandbox; benchmark_sam3.py --mode full --model-dir …); on THIS host it fails closed"
+    }
+  },
+  "verdict": {
+    "candidate": "SAM3",
+    "profiles": [
+      "football.playerSegmentation",
+      "football.playerTracking"
+    ],
+    "contractVerdict": "COMPATIBLE-WITH-MAPPING for both profiles' input/output shapes (typed gaps recorded: the mask-payload absence, the identifier half, MOTA/HOTA GT absence, the label mapping) — execution REFUSED on this host (auth gate + resources); rights-provenance NOT production-eligible by recorded terms",
+    "promotionGateReferral": "the HF015 gate (merged at main) owns adjudication — its standing SAM3 row refused all five legs; this flight's evidence feeds the benchmark/resource/failure legs' future re-adjudication but changes no state (gatingState stays candidate)",
+    "neverLegalAdvice": true
+  },
+  "failures": [],
+  "pass": true
+}

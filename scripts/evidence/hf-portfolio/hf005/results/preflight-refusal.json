@@ -1,0 +1,96 @@
+{
+  "label": "HF005 preflight — the typed refusal (executed; fail-closed)",
+  "candidate": "SAM3",
+  "repoId": "facebook/sam3",
+  "revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+  "taskProfiles": [
+    "football.playerSegmentation",
+    "football.playerTracking"
+  ],
+  "executedAtUtc": "2026-10-04T07:35:55Z",
+  "refusalType": "auth-gated-model+resource-infeasible-host",
+  "refusalReasons": [
+    "AUTH WALL (primary): the repo is gated=manual at the pinned revision — the anonymous probe map returns 401 x-error-code GatedRepoError on model.safetensors, sam3.pt AND config.json; the gate is the SAM License acceptance wall (an identity-attestation form whose data is collected/stored/processed/shared per the Meta Privacy Policy); accepting is a human action and no HF token exists in this sandbox",
+    "RESOURCE (secondary): 860M F32 params = 3.20 GiB per checkpoint vs 3.95 GiB TOTAL RAM / 2 vCPU / no GPU — the working set (weights + runtime baseline, before activations and the video session's frame store) exceeds TOTAL RAM; the earlier flights' disk note (~1.1 GiB) and the measured value are both recorded in the load analysis",
+    "WEIGHTS NEVER DOWNLOADED, never committed, never vendored — and NO third-party mirror used (an unofficial re-upload would launder the acceptance wall; the refusal is recorded, not worked around)"
+  ],
+  "probeMap": [
+    {
+      "file": "model.safetensors",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/model.safetensors",
+      "httpStatus": 401,
+      "probeKind": "GET with Range: bytes=0-0 (bounded; at most 1 body byte read)",
+      "bodyBytesRead": 121,
+      "verdict": "GATED (anonymous access refused)",
+      "xErrorCode": "GatedRepo",
+      "gateWallTextHead": "Access to model facebook/sam3 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "file": "sam3.pt",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/sam3.pt",
+      "httpStatus": 401,
+      "probeKind": "GET with Range: bytes=0-0 (bounded; at most 1 body byte read)",
+      "bodyBytesRead": 121,
+      "verdict": "GATED (anonymous access refused)",
+      "xErrorCode": "GatedRepo",
+      "gateWallTextHead": "Access to model facebook/sam3 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "file": "config.json",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/config.json",
+      "httpStatus": 401,
+      "probeKind": "GET with Range: bytes=0-0 (bounded; at most 1 body byte read)",
+      "bodyBytesRead": 121,
+      "verdict": "GATED (anonymous access refused)",
+      "xErrorCode": "GatedRepo",
+      "gateWallTextHead": "Access to model facebook/sam3 is restricted. You must have access to it and be authenticated to access it. Please log in."
+    },
+    {
+      "file": "README.md",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/README.md",
+      "httpStatus": 206,
+      "probeKind": "GET with Range: bytes=0-0 (bounded; at most 1 body byte read)",
+      "bodyBytesRead": 1,
+      "verdict": "public-reachable",
+      "rangeTotalBytes": "26038"
+    },
+    {
+      "file": "LICENSE",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/LICENSE",
+      "httpStatus": 206,
+      "probeKind": "GET with Range: bytes=0-0 (bounded; at most 1 body byte read)",
+      "bodyBytesRead": 1,
+      "verdict": "public-reachable",
+      "rangeTotalBytes": "7352"
+    }
+  ],
+  "codeRepoLicenseProbe": {
+    "url": "https://raw.githubusercontent.com/facebookresearch/sam3/main/LICENSE",
+    "httpStatus": 206,
+    "probeKind": "GET with Range: bytes=0-0 (bounded reachability; full text fetched separately)",
+    "contentLength": "1",
+    "verdict": "public-reachable"
+  },
+  "publicFilesAtPinnedRevision": [
+    "README.md",
+    "LICENSE"
+  ],
+  "gatedFilesAtPinnedRevision": [
+    "model.safetensors",
+    "sam3.pt",
+    "config.json"
+  ],
+  "licenseDocumentsFetched": [
+    "fetches/hf-facebook-sam3-LICENSE@pinned-rev",
+    "fetches/github-facebookresearch-sam3-LICENSE",
+    "fetches/hf-facebook-sam3-README@pinned-rev"
+  ],
+  "whatIsMeasured": [],
+  "whatIsNotMeasured": [
+    "identity-continuity (ID switches / continuityScore / fragmentation) — the model never ran (typed not-measured; designs + self-checks delivered)",
+    "latency (per-frame wall-clock, cascade cost) — the model never ran (typed not-measured; designs + self-checks delivered)",
+    "mask quality — the model never ran",
+    "inference RSS — the model never ran (GPU honestly N/A in any case)"
+  ],
+  "exitCode": 3
+}

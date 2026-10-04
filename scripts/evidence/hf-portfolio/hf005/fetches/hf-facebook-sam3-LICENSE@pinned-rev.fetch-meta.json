@@ -1,0 +1,9 @@
+{
+  "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/LICENSE",
+  "httpStatus": 200,
+  "fetchedAtUtc": "2026-10-04T07:35:56Z",
+  "bytes": 7352,
+  "sha256": "bec48f70bd37bf8280a9d1ebf01642d26086f6122ba735baa08fe03c5a6e7448",
+  "note": "the HF repo's own SAM License text at the PINNED revision (the ledger row source #4)",
+  "fetchedBy": "HF005 (worker 65-g) — the license/documentation leg, first-class (bounded text documents, never weights)"
+}

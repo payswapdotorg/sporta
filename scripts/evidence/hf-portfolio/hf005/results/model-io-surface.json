@@ -1,0 +1,54 @@
+{
+  "label": "SAM3's documented I/O surface — STATIC REVIEW of the model card at the PINNED revision (fetched bounded, sha-pinned in ../fetches/); never a run",
+  "source": {
+    "document": "fetches/hf-facebook-sam3-README@pinned-rev",
+    "sha256": "1ac8a322aa4a797db79cbc334acee7c0cae8635032b71c7d5b23ae63a05f4bd5",
+    "bytes": 26038,
+    "pinnedRevision": "3c879f39826c281e95690f02c7821c4de09afae7",
+    "library": "transformers (library_name) + the official sam3 repo (build_sam3_image_model / build_sam3_video_predictor)",
+    "pipelineTag": "mask-generation"
+  },
+  "cardAbstractVerbatim": "SAM 3 is a unified foundation model for promptable segmentation in images and videos. It can detect, segment, and track objects using text or visual prompts such as points, boxes, and masks. Compared to its predecessor SAM 2, SAM 3 introduces the ability to exhaustively segment all instances of an open-vocabulary concept specified by a short text phrase or exemplars.",
+  "modes": [
+    {
+      "mode": "SAM3 image PCS (Sam3Model + Sam3Processor)",
+      "inputs": "images (PIL) + text prompt AND/OR visual prompts (input_boxes xyxy pixel + input_boxes_labels 1/0; image exemplars)",
+      "outputs": "post_process_instance_segmentation results: masks (binary, original size), boxes (xyxy absolute pixels), scores (confidence)",
+      "extraOutputs": "semantic segmentation (outputs.semantic_seg) alongside instance masks",
+      "cardNeedle": "processor.post_process_instance_segmentation"
+    },
+    {
+      "mode": "SAM3 video PCS (Sam3VideoModel + Sam3VideoProcessor)",
+      "inputs": "video frames (pre-loaded or streaming) + add_text_prompt (text concept)",
+      "outputs": "per-frame: object_ids (the track ids), scores, boxes (XYXY absolute), masks (original resolution)",
+      "streaming": "supported (frames as they arrive) — the card WARNS: 'Streaming inference disables hotstart heuristics that remove unmatched and duplicate objects... may result in more false positive detections and duplicate object tracks'",
+      "cardNeedle": "propagate_in_video_iterator"
+    },
+    {
+      "mode": "SAM3 Tracker image PVS (Sam3TrackerModel + Sam3TrackerProcessor)",
+      "inputs": "interactive visual prompts (input_points + input_labels; input_boxes) per object",
+      "outputs": "masks per prompted object (post_process_masks), ranked by quality score",
+      "positioning": "'an updated version of SAM2 that maintains the same API while providing improved performance, making it a drop-in replacement for SAM2 workflows'",
+      "cardNeedle": "Sam3TrackerModel"
+    },
+    {
+      "mode": "SAM3 Tracker video PVS (Sam3TrackerVideoModel + Sam3TrackerVideoProcessor)",
+      "inputs": "video session + points/boxes prompts on a chosen frame with obj_ids",
+      "outputs": "per-frame per-object masks propagated through the video (propagate_in_video_iterator; multi-object supported)",
+      "cardNeedle": "Sam3TrackerVideoModel"
+    },
+    {
+      "mode": "the HF pipeline shortcut",
+      "inputs": "pipeline('mask-generation', model='facebook/sam3') with points_per_batch",
+      "outputs": "outputs['masks'] (automatic mask generation)",
+      "cardNeedle": "points_per_batch=64"
+    }
+  ],
+  "identitySurface": {
+    "videoObjectIds": "per-frame outputs carry object_ids (ints) — the session-scoped track ids the identity-continuity metric consumes (the repo bridge: sam3-<id> -> EntityId)",
+    "zeroShotClaim": "'detect, segment, and track objects using text or visual prompts' — zero-shot on open-vocabulary concepts; NO class taxonomy, NO jersey numbers, NO GT-id correspondence"
+  },
+  "dtypeAndDevices": "the video recipes in the card use torch.bfloat16 + Accelerator().device (GPU-first); the image recipe allows device='cpu'; this host has no GPU",
+  "saCoBenchmark": "the card's eval benchmark: 'our new SA-CO benchmark which contains 270K unique concepts, over 50 times more than existing benchmarks' — the EVAL benchmark introduced with the model, not a training corpus; the card names NO training corpus",
+  "staticReviewLabel": "STATIC REVIEW — the card's documented surface; no model ran in this flight (the typed refusal governs)"
+}

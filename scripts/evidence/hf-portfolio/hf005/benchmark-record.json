@@ -1,0 +1,161 @@
+{
+  "benchmarkRun": {
+    "flight": "HF005",
+    "workItem": "HF005 — SAM3 segmentation/tracking benchmark",
+    "workItemVerbatim": "Owner: Worker A. Acceptance: controlled gated benchmark; explicit license review; compare identity continuity and latency; remain research/watchlist unless production-safe.",
+    "candidate": "SAM3",
+    "taskProfiles": [
+      "football.playerSegmentation",
+      "football.playerTracking"
+    ],
+    "provenanceLedgerEcho": {
+      "note": "the HF002 provenance-ledger row echoed VERBATIM (all fields; the ledger is FROZEN — this record never mutates it)",
+      "candidate": "SAM3",
+      "taskProfiles": [
+        "football.playerSegmentation",
+        "football.playerTracking"
+      ],
+      "modelUrl": "https://huggingface.co/facebook/sam3",
+      "revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+      "modelLicense": "other (SAM License — custom Meta agreement, repo LICENSE file dated 2025-11-19)",
+      "codeLicense": "other (SAM License — facebookresearch/sam3 repo LICENSE)",
+      "weightsProvenance": "Meta's SAM 3 unified foundation model for promptable segmentation (successor of SAM 2, per card); the card states no training corpus.",
+      "datasetProvenance": "SA-CO benchmark (270K unique concepts — eval benchmark introduced with the model, per card; no training datasets named).",
+      "commercialUse": "unclear",
+      "gatingState": "candidate",
+      "sources": [
+        "https://huggingface.co/facebook/sam3",
+        "https://huggingface.co/api/models/facebook/sam3",
+        "https://huggingface.co/facebook/sam3/resolve/main/README.md",
+        "https://huggingface.co/facebook/sam3/resolve/main/LICENSE",
+        "https://github.com/facebookresearch/sam3",
+        "https://raw.githubusercontent.com/facebookresearch/sam3/main/LICENSE"
+      ],
+      "recordedAt": "2026-10-03T01:39:59Z"
+    },
+    "modelRuntime": {
+      "repoId": "facebook/sam3",
+      "revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+      "revisionDrift": "none — the pinned revision IS the repo HEAD (verified by the executed preflight)",
+      "library": "transformers (library_name; pipeline_tag mask-generation) + the official facebookresearch/sam3 code",
+      "runtimeVenv": "/home/z/hf-bench-11 (a FRESH lean venv OUTSIDE the repo; huggingface_hub ONLY — never torch, never transformers: the model never loads on this host)",
+      "weights": "NEVER downloaded, never committed, never vendored; NO third-party mirror used (an unofficial re-upload would launder the acceptance wall)",
+      "inferenceDevice": "none — the typed refusal; GPU honestly N/A (no /dev/nvidia* nodes), CPU host 2 vCPU"
+    },
+    "typedRefusal": {
+      "type": "auth-gated-model+resource-infeasible-host",
+      "verdict": "refused",
+      "exitCode": 3,
+      "reasonsVerbatimInEvidence": "results/preflight-refusal.json (the reasons recorded by the EXECUTED preflight; validated below)",
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/preflight-refusal.json",
+      "note": "AUTH (primary): gated=manual at the pinned revision — 401 x-error-code GatedRepoError on model.safetensors (3,439,938,512 B), sam3.pt (3,450,062,241 B) AND config.json; the gate is the SAM License acceptance wall (an identity-attestation form: First Name / Last Name / Date of birth / Country / Affiliation / Job title / geo ip_location + the accept checkbox, data 'collected, stored, processed and shared' per the Meta Privacy Policy) — accepting is a human action; no HF token exists in this sandbox. RESOURCE (secondary): 860M F32 params = 3.204 GiB for ONE checkpoint (the tree carries two formats, 6.422 GiB total) vs 3.95 GiB TOTAL RAM / 2 vCPU / no GPU — the weights alone are ~81% of TOTAL RAM. The ONLY fetches: the LICENSE + README text documents (bounded, sha-pinned, fetch-meta'd).",
+      "negativeTested": true,
+      "negativeTestedNote": "the three modes: preflight exit 3 (the refusal), selfcheck exit 0 (18/18 hand-computed cases), full exit 3 (fail-closed: no authorized model dir + host inadequate) — all executed on this host"
+    },
+    "licensePosture": {
+      "status": "research/watchlist — production-safe NOT proven by the recorded terms (the acceptance's own bar: 'remain research/watchlist unless production-safe')",
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/license-posture.json",
+      "documentsFetched": [
+        "fetches/hf-facebook-sam3-LICENSE@pinned-rev (7352 B, sha bec48f70bd37bf82…) — the SAM License at the PINNED revision",
+        "fetches/github-facebookresearch-sam3-LICENSE (7353 B, sha 4dea99bfaa016e21…) — the code-repo LICENSE (the SAME agreement, trailing-newline-only difference)",
+        "fetches/hf-facebook-sam3-README@pinned-rev (26,038 B, sha 1ac8a322aa4a797d…) — the card (the I/O surface + SA-CO statement)"
+      ],
+      "citationsMachineVerified": true,
+      "neverLegalAdvice": true
+    },
+    "loadAnalysis": {
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/load-analysis.json",
+      "headline": "tree 6.422 GiB (two serialization formats of the same 860M-F32-param checkpoint); one-checkpoint working set 3.204 GiB + ~0.6 GiB runtime baseline (ESTIMATE, labeled) vs 3.95 GiB TOTAL RAM / 2 vCPU / no GPU"
+    },
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "no model ran: mask quality + identity continuity are typed not-measured; the identity-continuity metric design (W204 semantics: identitySwitches / continuityScore / fragmentation) is implemented as pure functions + self-checked (18/18 hand-computed cases)",
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/metric-selfcheck.json"
+    },
+    "identityContinuity": {
+      "status": "not-measured-typed-refusal",
+      "note": "the comparison DESIGN (SAM3 object_ids vs the repo's W204 t<seq> surface, the sam3-<id> EntityId bridge, the same authorized fixtures, the cross-mode correspondence rule) is delivered; NO number exists",
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/tracking-comparison.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "no wall-clock figure exists (the model never ran; CPU wall-clock would be labeled as such; GPU honestly N/A); the per-frame + cascade-cost latency design with the formula self-checks (cases 5/6) is delivered"
+    },
+    "memory": {
+      "gpuMemory": "N/A — no GPU on the benchmark host",
+      "status": "not-measured-typed-refusal",
+      "note": "the F32 working-set ARITHMETIC (3.204 GiB weights = ~81% of TOTAL RAM before runtime/activations) is recorded in the load analysis — arithmetic, never a measurement"
+    },
+    "contractCompatibility": {
+      "verdict": "COMPATIBLE-WITH-MAPPING (both profiles' input/output shapes) with TYPED GAPS: the mask-payload absence in the observation union (machine-checked), the identifier half of the segmentation input contract, MOTA/HOTA GT absence, the label mapping; execution REFUSED; rights-provenance NOT production-eligible by recorded terms",
+      "evidence": "scripts/evidence/hf-portfolio/hf005/results/contract-compatibility.json"
+    },
+    "fixtures": [
+      {
+        "fixtureId": "sam3-pinned-revision-probe-map (model.safetensors / sam3.pt / config.json / README.md / LICENSE)",
+        "status": "executed (bounded probes only: Range bytes=0-0; zero body bytes on weights)",
+        "scored": false,
+        "unscoredReason": "the probe map is reachability evidence, never a benchmark fixture",
+        "evidence": "scripts/evidence/hf-portfolio/hf005/results/preflight-refusal.json"
+      },
+      {
+        "fixtureId": "sprclip-b8-inplay-original / b1-wide-broadcast / b2-closeup / b3-fast-action (scripts/evidence/spr-corpus-bytes/, sha-pinned, R606 registration-declared)",
+        "status": "designed-not-run (the comparison's SAME authorized fixtures for BOTH sides)",
+        "scored": false,
+        "unscoredReason": "auth-gated-model+resource-infeasible-host — the typed refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf005/results/tracking-comparison.json"
+      }
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/preflight-refusal.json",
+        "description": "the EXECUTED typed refusal (exit 3): the probe map (401 GatedRepoError on the weights + config; README/LICENSE public 206) + the code-repo license reachability probe"
+      },
+      "licenseReview": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/license-posture.json",
+        "description": "the FIRST-CLASS explicit license review: 13 verbatim citations machine-verified against the fetched SAM License text, the gate-form terms, the SA-CO statement, the commercialUse verdict, the acceptance-bar reading"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/load-analysis.json",
+        "description": "the per-file hub-reported sizes at the pinned revision + the working-set arithmetic + the host-gap arithmetic"
+      },
+      "metricDesigns": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/metric-selfcheck.json",
+        "description": "the identity-continuity (W204 semantics) + latency metric designs as pure functions, self-checked with 18 hand-computed cases"
+      },
+      "comparisonDesign": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/tracking-comparison.json",
+        "description": "the SAM3-vs-current-path comparison protocol on the same authorized fixtures (identity continuity + latency + the cascade cost; the prompt-supply answer: W201 box prompts / the text concept)"
+      },
+      "contractMapping": {
+        "path": "scripts/evidence/hf-portfolio/hf005/results/contract-compatibility.json",
+        "description": "the machine-checkable contract mapping (two frozen profiles + identity + evidence-chain + rights-provenance + execution; the mask-payload absence machine-checked)"
+      },
+      "readyToRunFullMode": {
+        "path": "scripts/evidence/hf-portfolio/hf005/benchmark_sam3.py",
+        "description": "--mode full for an authorized + adequate host (fail-closed exit 3 on THIS host — negative-tested); the operator unblock path is recorded in summary.md"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "hf015StandingVerdict": "PROMOTION-REFUSED — all five legs failed (no benchmark flight; resource unrecorded; commercialUse 'unclear' + a non-permissive modelLicense class; no re-runnable harness; no failure envelope)",
+      "whatThisFlightAdds": "the benchmark-flight record itself (the hf015 'no benchmark flight exists' blocker is now superseded by THIS typed-refusal record — a record of refusal, NOT of a passing benchmark), the license-review evidence (the provenance-license leg's terms now documented verbatim), the resource story (the load analysis), the re-runnable harness (benchmark_sam3.py), and the failure envelope (the typed refusal + the negative tests)",
+      "blockersObserved": [
+        "the auth wall: manual gating at the pinned revision — the SAM License acceptance form is a human action (identity attestation + Meta Privacy Policy data sharing)",
+        "the resource gap: 3.204 GiB F32 weights vs 3.95 GiB TOTAL RAM / 2 vCPU / no GPU on this host (an adequate host is an operator action)",
+        "commercialUse 'unclear' CONFIRMED by the recorded terms (§1a limited license + §3 sole-responsibility delegation); §8 unilateral modification + §6 termination-with-deletion are production-continuity risks",
+        "codeLicense and modelLicense are the SAME custom agreement (both non-permissive legs of the three-way record); datasetProvenance unknown stands (the card names no training corpus)",
+        "the observation contract has no mask payload — a segmentation output needs a typed payload variant (a FROZEN-contract decision recorded, never made by a worker)",
+        "no per-player GT identity annotations exist (MOTA/HOTA 'where applicable' — not applicable until GT is provisioned)"
+      ],
+      "note": "HF015 (the TL promotion gate, merged at main) owns adjudication; this flight records evidence and changes NO state"
+    },
+    "recordedAtUtc": "2026-10-04T07:40:43Z",
+    "honestyDoctrines": {
+      "machineClaims": "every machine claim stands on the executed runs recorded above (preflight/selfcheck/full-negative-test executed 2026-10-05 on this host)",
+      "staticReview": "the contract mapping + the I/O surface are STATIC reviews of source-verified facts, labeled as such",
+      "noFabricatedNumbers": "any measurement-shaped value in the quality/identityContinuity/latency/memory blocks would be a fabrication — the validator (record-benchmark.ts) refuses them (negative-tested)",
+      "neverLegalAdvice": true
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "label": "the SAM License review — FIRST-CLASS (the acceptance's own words), argued from RECORDED TERMS ONLY",
+  "neverLegalAdvice": true,
+  "agreement": "SAM License, Last Updated: November 19, 2025 (Meta Platforms — the single agreement covering models, code, weights, documentation as 'SAM Materials')",
+  "fetchedDocuments": [
+    {
+      "path": "fetches/hf-facebook-sam3-LICENSE@pinned-rev",
+      "url": "https://huggingface.co/facebook/sam3/resolve/3c879f39826c281e95690f02c7821c4de09afae7/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T07:35:56Z",
+      "bytes": 7352,
+      "sha256": "bec48f70bd37bf8280a9d1ebf01642d26086f6122ba735baa08fe03c5a6e7448",
+      "note": "the HF repo's own SAM License text at the PINNED revision (the ledger row source #4)",
+      "fetchedBy": "HF005 (worker 65-g) — the license/documentation leg, first-class (bounded text documents, never weights)"
+    },
+    {
+      "path": "fetches/github-facebookresearch-sam3-LICENSE",
+      "url": "https://raw.githubusercontent.com/facebookresearch/sam3/main/LICENSE",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-04T07:35:56Z",
+      "bytes": 7353,
+      "sha256": "4dea99bfaa016e21bc860d73f344236bd1e5c4977d1a9a8fd32f822b500ae1be",
+      "note": "the code-repo LICENSE (the ledger row codeLicense source #6 — the SAM License, same agreement)",
+      "fetchedBy": "HF005 (worker 65-g) — the license/documentation leg, first-class (bounded text documents, never weights)"
+    }
+  ],
+  "hfAndGithubAgreementByteIdentical": false,
+  "hfAndGithubAgreementNote": "byte-different only by a trailing newline (7352 vs 7353 B) — the SAME agreement text governs both the model repo and the code repo (the 'SAM Materials' definition covers both)",
+  "citationsMachineVerifiedAgainstFetchedText": true,
+  "citations": [
+    {
+      "section": "§1a Grant of Rights",
+      "quote": "You are granted a non-exclusive, worldwide, non-transferable and royalty-free limited license under Meta’s intellectual property or other rights owned by Meta embodied in the SAM Materials to use, reproduce, distribute, copy, create derivative works of, and make modifications to the SAM Materials.",
+      "relevance": "the grant itself: a 'limited license' under a CUSTOM agreement — no field-of-use restriction, no revenue threshold, no express commercial grant either"
+    },
+    {
+      "section": "§1b.i Redistribution",
+      "quote": "If you distribute or make the SAM Materials, or any derivative works thereof, available to a third party, you may only do so under the terms of this Agreement and you shall provide a copy of this Agreement with any such SAM Materials.",
+      "relevance": "redistribution ONLY under the SAM License (a viral custom agreement — not a permissive class)"
+    },
+    {
+      "section": "§1b.ii Publication acknowledgment",
+      "quote": "If you submit for publication the results of research you perform on, using, or otherwise in connection with SAM Materials, you must acknowledge the use of SAM Materials in your publication.",
+      "relevance": "an affirmative publication obligation (research-output terms)"
+    },
+    {
+      "section": "§1b.iv No reverse engineering",
+      "quote": "Your use of the SAM Materials will not involve or encourage others to reverse engineer, decompile or discover the underlying components of the SAM Materials.",
+      "relevance": "use restriction (enforcement/inspection boundary on the artifacts)"
+    },
+    {
+      "section": "§1b.v Trade Controls / military",
+      "quote": "You agree not to use, or permit others to use, SAM Materials for any activities subject to the International Traffic in Arms Regulations (ITAR) or end uses prohibited by Trade Controls, including those related to military or warfare purposes, nuclear industries or applications, espionage, or the development or use of guns or illegal weapons.",
+      "relevance": "the use-policy terms the license DOES carry (trade controls / military / weapons; there is NO separate acceptable-use attachment like LTX-2's Attachment A)"
+    },
+    {
+      "section": "§3 Disclaimer of Warranty",
+      "quote": "THE SAM MATERIALS AND ANY OUTPUT AND RESULTS THEREFROM ARE PROVIDED ON AN “AS IS” BASIS, WITHOUT WARRANTIES OF ANY KIND",
+      "relevance": "no warranty; outputs included — production risk allocation stays with the licensee"
+    },
+    {
+      "section": "§3 Sole responsibility",
+      "quote": "YOU ARE SOLELY RESPONSIBLE FOR DETERMINING THE APPROPRIATENESS OF USING OR REDISTRIBUTING THE SAM MATERIALS AND ASSUME ANY RISKS ASSOCIATED WITH YOUR USE OF THE SAM MATERIALS AND ANY OUTPUT AND RESULTS.",
+      "relevance": "the license explicitly delegates the production-appropriateness judgment to the licensee — the recorded 'unclear' commercialUse is not resolved by the licensor"
+    },
+    {
+      "section": "§4 Limitation of Liability",
+      "quote": "IN NO EVENT WILL META OR ITS AFFILIATES BE LIABLE UNDER ANY THEORY OF LIABILITY",
+      "relevance": "liability cap for Meta only (not for the licensee)"
+    },
+    {
+      "section": "§5a IP ownership",
+      "quote": "Subject to Meta’s ownership of SAM Materials and derivatives made by or for Meta, with respect to any derivative works and modifications of the SAM Materials that are made by you, as between you and Meta, you are and will be the owner of such derivative works and modifications.",
+      "relevance": "licensee OWNS own derivatives (Meta keeps its own) — the friendliest clause for downstream work, still inside the custom agreement"
+    },
+    {
+      "section": "§5b Litigation termination + indemnity",
+      "quote": "any licenses granted to you under this Agreement shall terminate as of the date such litigation or claim is filed or instituted. You will indemnify and hold harmless Meta from and against any claim by any third party arising out of or related to your use or distribution of the SAM Materials.",
+      "relevance": "patent-style termination + an INDEMNIFICATION obligation on the licensee — a production-hostile term"
+    },
+    {
+      "section": "§6 Termination",
+      "quote": "Upon termination of this Agreement, you shall delete and cease use of the SAM Materials.",
+      "relevance": "termination forces deletion — a continuity risk for any production dependency"
+    },
+    {
+      "section": "§8 Unilateral modification",
+      "quote": "Meta may modify this Agreement from time to time; provided that they are similar in spirit to the current version of the Agreement, but may differ in detail to address new problems or concerns. All such changes will be effective immediately. Your continued use of the SAM Materials after any modification to this Agreement constitutes your agreement to such modification.",
+      "relevance": "the licensor may change the terms with IMMEDIATE effect; continued use = acceptance — the strongest production-continuity risk in the recorded terms"
+    },
+    {
+      "section": "§7 Governing law",
+      "quote": "This Agreement will be governed and construed under the laws of the State of California",
+      "relevance": "California law + exclusive jurisdiction (recorded; not adjudicated here)"
+    }
+  ],
+  "acceptableUsePolicy": "NONE as a separate attachment (unlike LTX-2's Attachment A): the recorded use-policy terms are inside the license itself — §1b.iv (no reverse engineering) + §1b.v (trade controls / ITAR / military / warfare / nuclear / espionage / weapons)",
+  "saCoBenchmarkTerms": {
+    "cardVerbatim": "It achieves 75-80% of human performance on our new [SA-CO benchmark] which contains 270K unique concepts, over 50 times more than existing benchmarks.",
+    "role": "the EVAL benchmark introduced with the model (the ledger's datasetProvenance) — the card names NO training corpus, so the dataset leg of the three-way license record stays unknown"
+  },
+  "gateTerms": {
+    "gateType": "manual (the HF API metadata field `gated: \"manual\"`) — the SAM License acceptance wall",
+    "cardGateFieldsVerbatim": [
+      "First Name: text",
+      "Last Name: text",
+      "Date of birth: date_picker",
+      "Country: country",
+      "Affiliation: text",
+      "Job title: select (Student | Research Graduate | AI researcher | AI developer/engineer | Reporter | Other)",
+      "geo: ip_location",
+      "By clicking Submit below I accept the terms of the license and acknowledge that the information I provide will be collected stored processed and shared in accordance with the Meta Privacy Policy: checkbox"
+    ],
+    "cardGateDescriptionVerbatim": "The information you provide will be collected, stored, processed and shared in accordance with the [Meta Privacy Policy](https://www.facebook.com/privacy/policy).",
+    "honestNote": "the ACCESS gate itself is an identity-attestation + data-sharing arrangement with a private company — recorded as a term-adjacent fact of the acceptance wall (not part of the license text proper); accepting it is a human action, outside this sandbox's authority"
+  },
+  "commercialUse": {
+    "ledgerSays": "unclear",
+    "recordedTermsSay": "CONFIRMED unclear: the grant is a 'limited license' under a custom agreement with NO express commercial-use permission and NO express prohibition (§1a); §3 delegates the appropriateness judgment entirely to the licensee"
+  },
+  "verdict": {
+    "verdict": "research/watchlist — production-safe NOT proven by the recorded terms",
+    "neverLegalAdvice": true,
+    "argument": [
+      "the SAM License is a CUSTOM bilateral agreement (the ledger's modelLicense 'other'): the grant is a 'limited license' with NO express commercial-use permission and NO express prohibition — the ledger row's commercialUse 'unclear' is CONFIRMED by the recorded terms (the license delegates the appropriateness judgment to the licensee, §3)",
+      "§8 lets Meta modify the agreement with IMMEDIATE effect (continued use = acceptance) and §6 forces deletion of the materials on termination — a production dependency would carry an unresolved continuity risk no benchmark can measure away",
+      "§5b imposes a licensee indemnification of Meta for third-party claims arising from use/distribution — a production-risk allocation term",
+      "the code repo's LICENSE is the SAME agreement (byte-different only in a trailing newline): codeLicense is NOT a permissive class either — both legs of the ADR-011 three-way license record fail the permissive-class check",
+      "NO training corpus is named on the card (the ledger's weightsProvenance); SA-CO (270K unique concepts) is the EVAL benchmark introduced with the model, not a disclosed training corpus — the dataset leg stays unknown",
+      "the access gate is an identity-attestation form whose data is 'collected, stored, processed and shared' per the Meta Privacy Policy — an operator-level acceptance decision, never a worker decision"
+    ],
+    "acceptanceBarVerbatim": "remain research/watchlist unless production-safe",
+    "acceptanceBarReading": "the recorded terms do NOT prove production-safety (they affirmatively delegate that judgment to the licensee and reserve unilateral modification + termination-with-deletion) → the candidate REMAINS research/watchlist; the HF015 promotion gate (already adjudicated: all five legs failed for SAM3) owns any state change"
+  }
+}
