@@ -1,0 +1,36 @@
+{
+  "label": "HF014 emission determinism (the direct() doctrine, executed twice)",
+  "document": "results/camera-intent.json",
+  "sha256": "83e9e5a6a882d28da6f5d63281bbec833cbc6f22eaaaab567170724324867f7f",
+  "sha256SecondEmission": "83e9e5a6a882d28da6f5d63281bbec833cbc6f22eaaaab567170724324867f7f",
+  "byteIdentical": true,
+  "emission": {
+    "frameRate": 16,
+    "frameIntervalMs": 62.5,
+    "intentVersion": "camera-director.intent@1",
+    "poseVocabulary": "hf010.camera-paths@1",
+    "directorVersion": "camera-director@1",
+    "policy": {
+      "policyId": "broadcast-classic",
+      "policyVersion": "camera-director.policy@1"
+    },
+    "planSummary": {
+      "windowCount": 3,
+      "liveWindowCount": 2,
+      "reviewWindowCount": 1,
+      "cutCount": 1,
+      "suppressedCuts": [],
+      "eventAccounting": [
+        {
+          "candidateId": "ec-1",
+          "eventType": "goal",
+          "eventTimeMs": 5500,
+          "confidence": 0.86,
+          "emphasis": 0.6,
+          "outcome": "governed"
+        }
+      ]
+    }
+  },
+  "note": "same CameraPlan + steps + options → JSON-byte-identical document (proven by execution here; pinned by test/intent.test.ts)"
+}

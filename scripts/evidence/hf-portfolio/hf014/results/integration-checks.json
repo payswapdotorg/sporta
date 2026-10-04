@@ -1,0 +1,41 @@
+{
+  "label": "HF014 both-consumer-classes integration (executed): the procedural composition (render3dDirectedMatch, UNCHANGED) and the neural-consumer adapter consume the SAME emission's slot geometry",
+  "validation": {
+    "ok": true
+  },
+  "selfcheck": {
+    "ok": true,
+    "violations": []
+  },
+  "poseCount": 160,
+  "windowCount": 3,
+  "composeIntegration": [
+    {
+      "windowIndex": 0,
+      "kind": "live",
+      "cameraSlotId": "main-touchline",
+      "composedSlotId": "main-touchline",
+      "realizedCameraBlockEqualsEveryPose": true,
+      "decisionRecordCarriedVerbatim": true
+    },
+    {
+      "windowIndex": 1,
+      "kind": "live",
+      "cameraSlotId": "behind-goal-x105",
+      "composedSlotId": "behind-goal-x105",
+      "realizedCameraBlockEqualsEveryPose": true,
+      "decisionRecordCarriedVerbatim": true
+    },
+    {
+      "windowIndex": 2,
+      "kind": "review",
+      "cameraSlotId": "behind-goal-x105",
+      "composedSlotId": "behind-goal-x105",
+      "realizedCameraBlockEqualsEveryPose": true,
+      "decisionRecordCarriedVerbatim": true
+    }
+  ],
+  "allComposeChecksPass": true,
+  "noModelRan": true,
+  "honesty": "no model ran anywhere (the wave's HF010-013 refusals stand); this is the INTEGRATION evidence, not a renderer measurement; model selection stays Technology Plane configuration (no model/provider names in the document)"
+}

@@ -1,0 +1,2761 @@
+{
+  "fixtureSetVersion": "hf014.neural-consumer-paths@1",
+  "classOf": "hf010.camera-paths@1",
+  "authoredBy": "Worker 65-e (HF014, flight 11 — the Camera Director integration): ADAPTED from the camera-director emission (deterministic derivation, not hand-authored poses) — the hf010 fixtures were hand-authored by Worker 65-a; this document is the same CLASS emitted by the director's own CameraPlan",
+  "adaptedFrom": {
+    "document": "results/camera-intent.json",
+    "intentVersion": "camera-director.intent@1",
+    "sha256": "83e9e5a6a882d28da6f5d63281bbec833cbc6f22eaaaab567170724324867f7f",
+    "directorVersion": "camera-director@1",
+    "policy": {
+      "policyId": "broadcast-classic",
+      "policyVersion": "camera-director.policy@1"
+    },
+    "emissionFrameRate": 16
+  },
+  "vocabularyProvenance": {
+    "cameraPlanLanguage": "packages/camera-director/src/types.ts (DirectedWindow: index/kind/source/cameraSlotId/decision; CameraPlan: directorVersion/policy/timeline/windows/summary)",
+    "cameraIntentEmission": "packages/camera-director/src/intent.ts emitCameraIntent (HF014 — the provider-neutral emission this document is adapted FROM)",
+    "canonicalSlots": "packages/scene-projection/src/constants.ts CANONICAL_CAMERA_SLOTS (the five W601 slots; the geometry echoed below VERBATIM from the emission's slotGeometry block)",
+    "presentationKinds": [
+      "live",
+      "review"
+    ],
+    "poseVocabulary": "hf010.camera-paths@1",
+    "rendererSeam": "the procedural consumer consumes the CameraPlan through renderer-3d's styleConfig.config.cameraSlotId seam (compose.ts, UNCHANGED); the neural consumer class consumes THIS document; model selection is Technology Plane configuration"
+  },
+  "pitchGeometry": {
+    "lengthXMeters": 105,
+    "widthYMeters": 68,
+    "zUp": true
+  },
+  "canonicalSlots": {
+    "main-touchline": {
+      "eye": {
+        "x": 52.5,
+        "y": -25,
+        "z": 20
+      },
+      "look": {
+        "x": 52.5,
+        "y": 34,
+        "z": 0
+      }
+    },
+    "opposite-touchline": {
+      "eye": {
+        "x": 52.5,
+        "y": 93,
+        "z": 20
+      },
+      "look": {
+        "x": 52.5,
+        "y": 34,
+        "z": 0
+      }
+    },
+    "behind-goal-x0": {
+      "eye": {
+        "x": -20,
+        "y": 34,
+        "z": 8
+      },
+      "look": {
+        "x": 0,
+        "y": 34,
+        "z": 1.22
+      }
+    },
+    "behind-goal-x105": {
+      "eye": {
+        "x": 125,
+        "y": 34,
+        "z": 8
+      },
+      "look": {
+        "x": 105,
+        "y": 34,
+        "z": 1.22
+      }
+    },
+    "aerial-tactical": {
+      "eye": {
+        "x": 52.5,
+        "y": 34,
+        "z": 60
+      },
+      "look": {
+        "x": 52.5,
+        "y": 34,
+        "z": 0
+      }
+    }
+  },
+  "timeline": {
+    "startMs": 1000,
+    "endMs": 7000
+  },
+  "determinism": "the adapter is a pure function of the emission document: fixed-template descriptions, poses carried VERBATIM (byte-checked), no RNG, no solver, no fitting; re-running the adapter reproduces this file byte-identically",
+  "sourceTimeConvention": "slot-hold source frames advance monotonically through the window's snapshot run (the CameraPlan boundary semantics: the boundary snapshot belongs to the window starting there); the director never freezes match time (bullet time is an authored hf010 fixture class) and never authors new time",
+  "windows": [
+    {
+      "fixtureId": "hf014-intent-w0-main-touchline",
+      "intentKind": "slot-hold",
+      "anchorSlotId": "main-touchline",
+      "presentationKind": "live",
+      "intentDescription": "slot-hold: the director held the main-touchline W601 slot geometry for the live window [1000, 5000] (rule: possession-follow); every pose carries the slot's eye/look verbatim, focalMultiplier 1.0 (the fixed-focal posture), 64 poses at 16 fps; source frames advance monotonically through the window's snapshot run",
+      "source": {
+        "kind": "camera-director-intent",
+        "slotRendered": "main-touchline"
+      },
+      "window": {
+        "startMs": 1000,
+        "endMs": 5000
+      },
+      "frameCount": 64,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          52.5,
+          -25,
+          20
+        ],
+        "anchorLook": [
+          52.5,
+          34,
+          0
+        ],
+        "focalMultiplier": 1
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -25,
+            "z": 20
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34,
+            "z": 0
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf014-intent-w1-behind-goal-x105",
+      "intentKind": "slot-hold",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "intentDescription": "slot-hold: the director held the behind-goal-x105 W601 slot geometry for the live window [5000, 7000] (rule: event-focus); every pose carries the slot's eye/look verbatim, focalMultiplier 1.0 (the fixed-focal posture), 32 poses at 16 fps; source frames advance monotonically through the window's snapshot run",
+      "source": {
+        "kind": "camera-director-intent",
+        "slotRendered": "behind-goal-x105"
+      },
+      "window": {
+        "startMs": 5000,
+        "endMs": 7000
+      },
+      "frameCount": 32,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          125,
+          34,
+          8
+        ],
+        "anchorLook": [
+          105,
+          34,
+          1.22
+        ],
+        "focalMultiplier": 1
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf014-intent-w2-behind-goal-x105",
+      "intentKind": "slot-hold",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "review",
+      "intentDescription": "slot-hold: the director held the behind-goal-x105 W601 slot geometry for the review window [3000, 7000] (rule: replay-emphasis); every pose carries the slot's eye/look verbatim, focalMultiplier 1.0 (the fixed-focal posture), 64 poses at 16 fps; source frames advance monotonically through the window's snapshot run",
+      "source": {
+        "kind": "camera-director-intent",
+        "slotRendered": "behind-goal-x105"
+      },
+      "window": {
+        "startMs": 3000,
+        "endMs": 7000
+      },
+      "frameCount": 64,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          125,
+          34,
+          8
+        ],
+        "anchorLook": [
+          105,
+          34,
+          1.22
+        ],
+        "focalMultiplier": 1
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 125,
+            "y": 34,
+            "z": 8
+          },
+          "look": {
+            "x": 105,
+            "y": 34,
+            "z": 1.22
+          },
+          "focalMultiplier": 1,
+          "sourceFrame": 5
+        }
+      ]
+    }
+  ]
+}

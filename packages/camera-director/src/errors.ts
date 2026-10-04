@@ -17,6 +17,13 @@ export type DirectorErrorKind =
   | "candidates-invalid"
   /** The camera plan is malformed or inconsistent with the match timeline. */
   | "plan-invalid"
+  /**
+   * The camera intent emission options are malformed (HF014 — e.g. a
+   * non-finite or non-positive `frameRate`). Additive to the closed
+   * vocabulary: the emission's own input shape is neither policy, nor
+   * timeline, nor candidates, nor plan.
+   */
+  | "intent-invalid"
   /** The composed directed render exceeds the documented frame budget. */
   | "budget-exceeded";
 

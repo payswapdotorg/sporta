@@ -1,0 +1,20 @@
+{
+  "label": "HF014 neural-consumer adapter (the evidence-plane seam): the hf010-fixture-CLASS document produced FROM the emission",
+  "input": {
+    "document": "results/camera-intent.json",
+    "sha256": "83e9e5a6a882d28da6f5d63281bbec833cbc6f22eaaaab567170724324867f7f",
+    "validationOk": true,
+    "selfcheckOk": true
+  },
+  "output": {
+    "document": "results/neural-consumer-paths.json",
+    "sha256": "d0fe183a8477b2f431c71b6c6d0bcbeb825f6cf5e1c15c0b918f56f0bb5b51ba",
+    "fixtureSetVersion": "hf014.neural-consumer-paths@1",
+    "classOf": "hf010.camera-paths@1",
+    "windowCount": 3,
+    "poseCount": 160
+  },
+  "posesCarriedVerbatim": true,
+  "technologyPlaneBoundary": "NO model/provider/conditioning names anywhere in the domain emission or this adapter output; which renderer consumes this document is Technology Plane configuration (the hf010 conditioning-gap table records the per-candidate conversion classes)",
+  "noModelRan": true
+}
