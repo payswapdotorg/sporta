@@ -8,3 +8,8 @@ docs/
 # frozen measurement/evidence artifacts — byte identity is the evidence chain
 # (sha-verified records); never reformatted
 scripts/evidence/
+
+# frozen e2e measurement/evidence artifacts — same doctrine: the runner's bytes
+# are the record (w909 wrote prettier-formatted JSON; the 63-L local runner
+# wrote raw JSON — both stand as-recorded, never post-hoc reformatted)
+apps/web/e2e/evidence/
