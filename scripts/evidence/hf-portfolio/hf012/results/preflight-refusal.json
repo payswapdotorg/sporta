@@ -1,0 +1,39 @@
+{
+  "workItem": "HF012",
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "exitCode": 3,
+  "reasons": [
+    "model-download-disk-infeasible (core+mandatory-preprocess): 53.65 GiB vs 1.04 GiB free disk = 51.6x over",
+    "model-download-disk-infeasible (the card's own command): 'huggingface-cli download Wan-AI/Wan2.2-Animate-14B' pulls the WHOLE pinned tree 67.41 GiB = 64.8x free disk",
+    "model-download-disk-infeasible (the RECOMMENDED animation preprocessing route): the --use_flux pose-retargeting route adds the GATED black-forest-labs/FLUX.1-Kontext-dev 53.92 GiB of weights -> the recommended-route total 107.57 GiB = 103.4x free disk",
+    "model-load-ram-infeasible: the bf16 inference working set (MoE diffusion + umt5-xxl + CLIP + VAE resident) ≈ 47.68 GiB = 12.1x this host's TOTAL RAM (3.95 GiB)",
+    "cuda-required (the repo's own documented posture): the single-GPU recipe plus the --dit_fsdp/--t5_fsdp/--ulysses multi-GPU variants; torch>=2.4 + flash_attn in requirements; this host has NO CUDA device",
+    "cpu-latency infeasibility: a 2-vCPU CPU-only host is orders of magnitude beyond benchmark-grade wall-clock for a 14B video diffusion model"
+  ],
+  "weightsDownloaded": false,
+  "boundedProbesOnly": true,
+  "boundedProbeKinds": [
+    "HfApi.model_info(files_metadata=True) on the pinned candidate revision + the FLUX dependency + the base model (file trees + sizes; zero weight bytes)",
+    "the 20 010-byte README.md card fetched from the pinned revision",
+    "the candidate's own GitHub docs fetched bounded (UserGuider.md 4 854 B, LICENSE.txt 11 357 B, generate.py 20 392 B)"
+  ],
+  "reachability": {
+    "candidateRepo": "gated=False — anonymously reachable at the pinned revision (no auth wall; the contrast with HF010's Meridian/VGGT-Omega manual gate)",
+    "revisionPin": "resolved sha cb93a225fbaf1ca100f54e79da8f994995b689b3 == the pinned revision cb93a225fbaf1ca100f54e79da8f994995b689b3 (True)",
+    "fluxDependency": "gated=auto (license acceptance before weights; the metadata probe itself is anonymous)"
+  },
+  "host": {
+    "cpuCount": 2,
+    "totalRamBytes": 4237889536,
+    "totalRamGiB": 3.95,
+    "availableRamBytes": 1915506688,
+    "availableRamGiB": 1.78,
+    "freeDiskBytes": 1115754496,
+    "freeDiskGiB": 1.04,
+    "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)",
+    "measuredAt": "2026-10-04T05:45:05Z"
+  },
+  "thePartial": "the typed refusal covers the COMPUTE leg only — the load analysis, license posture, the motion-fidelity/temporal-identity/style-adherence/temporal-consistency metric designs (self-checked), the Anime/NPR comparison (static + design), and the contract mapping are DELIVERED (see benchmark-record.json partialDeliverables)",
+  "noCanonicalTruthNote": "the benchmark design measures AGAINST canonical truth (the SWM entity state + the authorized avatar reference); the renderer under test is NEVER the truth source — the machine-checkable invariant is in this script and self-checked"
+}

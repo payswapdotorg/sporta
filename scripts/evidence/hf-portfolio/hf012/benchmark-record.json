@@ -1,0 +1,148 @@
+{
+  "benchmarkRun": {
+    "workItem": "HF012",
+    "runBy": "Worker 65-c (flight 9, Worker C's renderer wave — the character animation benchmark)",
+    "provenanceLedgerEcho": {
+      "note": "the candidate block echoes the Wan2.2-Animate row of scripts/evidence/hf-portfolio/provenance-ledger.json VERBATIM (all twelve fields, byte-identical — generated programmatically from the ledger, never retyped); validated by record-benchmark.ts",
+      "candidates": [
+        {
+          "candidate": "Wan2.2-Animate",
+          "taskProfiles": [
+            "renderer.characterAnimation"
+          ],
+          "modelUrl": "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B",
+          "revision": "cb93a225fbaf1ca100f54e79da8f994995b689b3",
+          "modelLicense": "apache-2.0",
+          "codeLicense": "apache-2.0",
+          "weightsProvenance": "Wan2.2-Animate-14B, a unified character animation and replacement model built on base model Wan-AI/Wan2.2-I2V-A14B (per card frontmatter and release notes).",
+          "datasetProvenance": "unknown",
+          "commercialUse": "yes",
+          "gatingState": "candidate",
+          "sources": [
+            "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B",
+            "https://huggingface.co/api/models/Wan-AI/Wan2.2-Animate-14B",
+            "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/raw/main/README.md",
+            "https://github.com/Wan-Video/Wan2.2",
+            "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/LICENSE.txt"
+          ],
+          "recordedAt": "2026-10-03T01:40:09Z"
+        }
+      ]
+    },
+    "modelRuntime": {
+      "wan22animate": {
+        "adapter": "Wan-AI/Wan2.2-Animate-14B @ cb93a225fbaf1ca100f54e79da8f994995b689b3 (the pin sha MATCHES the live hub resolve; gated=False, anonymously reachable — no auth wall; pipeline_tag video-to-video)",
+        "architecture": "a unified character animation and replacement model built on base model Wan-AI/Wan2.2-I2V-A14B (the card frontmatter + the ledger's weightsProvenance verbatim); the MoE dual-expert 14B diffusion (4 shards, 32.18 GiB) + umt5-xxl text encoder (10.58 GiB) + CLIP xlm-roberta-large-vit-huge-14 (4.44 GiB) + Wan2.1 VAE (0.47 GiB) = a 47.68 GiB core inference composition at the pinned revision",
+        "conditioningModes": "animation (the character image mimics the performance video's motion) and replacement (the character image replaces the character in the video) — 'Wan-Animate takes a video and a character image as input, and generates a video in either \"animation\" or \"replacement\" mode' (the card verbatim); the input video must be preprocessed into materials (preprocess_data.py -> src_pose.mp4/src_face.mp4 + the replacement mode's src_bg.mp4/src_mask.mp4)",
+        "venv": "/home/z/hf-bench-9 (uv, python 3.12.14, huggingface_hub 2.1.1 ONLY — a NEW lean venv; no earlier flight's venv reused; torch NOT installed by design)",
+        "loading": "the ready-to-run recipe (documented in benchmark_wan22animate.py --mode full + load-analysis.json): the pinned tree staged by the card's own command, the repo's own stack (torch>=2.4 + flash_attn, github.com/Wan-Video/Wan2.2), preprocess_data.py over the ADAPTER output (SWM entity motion -> performance video) + the authorized avatar reference, then generate.py --task animate-14B --refert_num 1 with base_seed pinned; the RECOMMENDED --use_flux retargeting route additionally requires the GATED black-forest-labs/FLUX.1-Kontext-dev (53.90 GiB, license:other) — the basic retargeting route avoids it",
+        "loadValidation": "REFUSED — the model never loaded on this host: preflight exit code 3, typed refusal resource-infeasible-host (the core+preprocess download 53.65 GiB = 51.6x free disk; the whole-tree command 67.41 GiB = 64.8x; the recommended-with-FLUX route ~107.6 GiB = ~103x; the bf16 working set 47.68 GiB = 12.1x TOTAL RAM; CUDA required by every documented generation recipe; 2-vCPU latency infeasibility) — see results/preflight-refusal.json"
+      }
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "model-download-disk-infeasible (core+mandatory-preprocess): 53.65 GiB vs 1.04 GiB free disk = 51.6x over",
+        "model-download-disk-infeasible (the card's own command): 'huggingface-cli download Wan-AI/Wan2.2-Animate-14B' pulls the WHOLE pinned tree 67.41 GiB = 64.8x free disk",
+        "model-download-disk-infeasible (the RECOMMENDED animation preprocessing route): the --use_flux pose-retargeting route adds the GATED black-forest-labs/FLUX.1-Kontext-dev 53.92 GiB of weights -> the recommended-route total 107.57 GiB = 103.4x free disk",
+        "model-load-ram-infeasible: the bf16 inference working set (MoE diffusion + umt5-xxl + CLIP + VAE resident) ≈ 47.68 GiB = 12.1x this host's TOTAL RAM (3.95 GiB)",
+        "cuda-required (the repo's own documented posture): the single-GPU recipe plus the --dit_fsdp/--t5_fsdp/--ulysses multi-GPU variants; torch>=2.4 + flash_attn in requirements; this host has NO CUDA device",
+        "cpu-latency infeasibility: a 2-vCPU CPU-only host is orders of magnitude beyond benchmark-grade wall-clock for a 14B video diffusion model"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf012/results/preflight-refusal.json",
+      "note": "bounded probes ONLY (HfApi file-tree metadata at the pinned revision + the FLUX dependency + the base model, the 20 010-byte README card, the candidate's own GitHub docs: UserGuider.md/LICENSE.txt/generate.py): weights never downloaded, never committed, never vendored; NO auth wall on the candidate (gated=False, the pin sha matches the live resolve)"
+    },
+    "fixtures": [
+      {
+        "fixtureId": "canonical-swm-window-ground-truth",
+        "mediaKind": "designed (the repo's canonical SWM fixture window — the materially-different SWM sessions the sensitivity battery uses; no media bytes authored by this flight)",
+        "status": "designed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the ground-truth track design (the participant entities' positions sampled at the comparison profile's frame times, projected through W601 projectScene) is delivered in results/anime-npr-comparison.json — but no model ever ran on this host (the typed refusal), so no window was scored",
+        "evidence": "scripts/evidence/hf-portfolio/hf012/results/anime-npr-comparison.json"
+      },
+      {
+        "fixtureId": "authorized-avatar-reference",
+        "mediaKind": "designed (the rights-clean target character reference image — the avatar-field/R2 posture; provisioning is an authored HF014-lane decision)",
+        "status": "designed-not-run-resource-refusal",
+        "scored": false,
+        "unscoredReason": "the authorized-reference design (the identity/style anchor + the metric definitions) is delivered — but no model ever ran on this host, so no reference was consumed",
+        "evidence": "scripts/evidence/hf-portfolio/hf012/results/anime-npr-comparison.json"
+      }
+    ],
+    "licensePosture": {
+      "status": "argued-from-recorded-terms-only (never legal advice, never a promotion — HF015 owns all adjudication)",
+      "wan22animate": "production-eligible-by-recorded-terms with the recorded open edges: apache-2.0 / apache-2.0 (the card frontmatter + the fetched LICENSE.txt, sha-pinned), commercialUse yes, datasetProvenance unknown (the open edge — the corpus is not in the recorded terms), AND the recommended --use_flux preprocessing route's third-party dependency (black-forest-labs/FLUX.1-Kontext-dev: hub license tag license:other, gated=auto — a different licensor's terms cover that dependency; the basic retargeting route keeps the dependency set apache-2.0-only); never adjudicated here",
+      "evidence": "scripts/evidence/hf-portfolio/hf012/results/license-posture.json"
+    },
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight — no model ever ran (the typed refusal). The honest partial evidence: the motion-fidelity + temporal-identity + style-adherence + temporal-consistency metric designs (exact definitions in benchmark_wan22animate.py; self-checked 26/26 against hand-computed cases — implementation evidence, NOT a model measurement), the Anime/NPR direction comparison (the static capability-delta table + the adequate-host comparison design — results/anime-npr-comparison.json), and the no-canonical-truth invariant (machine-checkable, self-checked both ways)",
+      "contractCompatibilityVerdict": "PARTIAL — maps-with-adapter: the authorized style/avatar reference input MAPS (rights-gated); the canonical entity motion/state input requires the TYPED SWM-state-to-performance-video ADAPTER (conditioning, never truth); the output video MAPS; renderer telemetry/provenance DO NOT MAP (adapter-synthesized); the no-canonical-truth boundary is PRESERVED BY DESIGN and machine-checked",
+      "evidence": "scripts/evidence/hf-portfolio/hf012/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight — no model ever ran. The ready-to-run path implements wall_clock_ms_per_output_second per take (the SHARED cost metric imported from hf010) + cold-start download bytes (the load analysis's 47.68 GiB core / 67.41 GiB whole-tree figures) — never presented as a measurement on this host"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host; never zero — typed N/A); the 47.68 GiB bf16 core composition is load-analysis arithmetic (12.1x TOTAL RAM), never a measurement",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 3.95 GiB vs the 47.68 GiB bf16 working set ≈ 12.1x; process RSS would be zero — the model never loaded"
+    },
+    "resourceCaveats": [
+      "GPU N/A honestly (no CUDA device on this host; every documented generation recipe is GPU-only — single-GPU + --dit_fsdp/--t5_fsdp variants, torch>=2.4)",
+      "weights NEVER downloaded (bounded metadata/card/doc probes only; the lean venv carries huggingface_hub alone)",
+      "no fabricated numbers: every metric-shaped value in this record is a design, a hand-computed self-check case, or a refusal",
+      "the full-mode host floor (>= 32 GiB RAM, >= 64 GiB free disk, CUDA) is fail-closed and NEGATIVE-TESTED on this host (exit 3)",
+      "THE NO-CANONICAL-TRUTH CONSTRAINT (the acceptance's own words) is encoded as the machine-checkable no_canonical_truth_invariant — the ground truth is the SWM entity state + the authorized avatar reference; the renderer under test (either lane) is NEVER the truth source (self-checked both ways: renderer-truth plans are REFUSED)",
+      "the temporal-consistency/cost estimators are IMPORTED from the merged hf010 flight's benchmark_renderer.py (the same estimator, never re-implemented) — both comparison lanes are scored by the same code"
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/preflight-refusal.json",
+        "description": "the EXECUTED preflight (exit 3): host resources, the pinned candidate probe (pin sha match, gated=False) + the FLUX dependency + the base model, the resource arithmetic (6 reasons), the typed refusal"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/load-analysis.json",
+        "description": "the composition at the pinned revision (the 47.68 GiB core + the mandatory preprocessing leg + the FLUX-gated recommended route + the optional relighting LoRA), the documented loading recipe (the card's own commands), the host-gap arithmetic, the bounded-probe record + the fetched-doc sha pins"
+      },
+      "licensePosture": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/license-posture.json",
+        "description": "the license-posture verdict argued from the recorded terms only (apache-2.0 both, commercial yes, datasetProvenance unknown, the FLUX-route dependency posture as the open edge) — never legal advice"
+      },
+      "animeNprComparison": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/anime-npr-comparison.json",
+        "description": "THE acceptance core: the Anime/NPR direction comparison — the 8-axis STATIC capability-delta table (labeled static-review: what the repo's anime-npr renderer does today vs what Wan2.2-Animate would add) + the adequate-host comparison design (the same ground-truth conventions — swm-entity-state + authorized-avatar-reference; BOTH lanes scored by the SAME metric implementations; the profile-alignment + fairness rules)"
+      },
+      "metricImplementations": {
+        "path": "scripts/evidence/hf-portfolio/hf012/benchmark_wan22animate.py",
+        "description": "the metric implementations with the exact definitions in the module (motion_fidelity_joint_error, identity_drift, style_adherence_distance, the shared temporal-consistency/cost estimators imported from hf010, and the no_canonical_truth_invariant) — typed not-measured"
+      },
+      "metricSelfCheck": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/metric-selfcheck.json",
+        "description": "the EXECUTED implementation self-verification (26/26: 8 motion-fidelity cases incl. the position-error/perfect-dynamics split, 5 identity-drift cases, 4 style-adherence cases, the shared-estimator SSIM/flow hand values, and the no-canonical-truth invariant both ways — renderer-truth plans REFUSED) — implementation evidence, NOT a model measurement"
+      },
+      "contractMappings": {
+        "path": "scripts/evidence/hf-portfolio/hf012/results/contract-compatibility.json",
+        "description": "the machine-checked mappings: 3 task-profile INPUT rows + 3 OUTPUT rows + the 5-axis canonical-entity-motion conditioning table (the key honest question: the typed SWM-state-to-performance-video adapter gap + the C->A boundary) + the rights table + the metric table + the PARTIAL profile verdict, against 10 needle-checked repo authorities"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf012/benchmark_wan22animate.py",
+        "description": "preflight mode EXECUTED on this host (exit 3); selfcheck mode EXECUTED (26/26); full mode NEGATIVE-TESTED fail-closed exit 3 (the >= 32 GiB / >= 64 GiB / CUDA host floor) — the function comments pin the exact execution path an adequate host runs"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "zero executed evidence: the compute leg is resource-refused on this host — no motion-fidelity, identity-stability, or style-adherence number exists anywhere in this flight",
+        "the comparison requires an adequate host (>= 32 GiB RAM / >= 64 GiB disk + CUDA) AND the typed SWM-state-to-performance-video adapter (no repo seam today — an authored HF014-lane decision before any head-to-head)",
+        "datasetProvenance unknown (the training corpus is not in the recorded terms) — an HF015 input",
+        "the recommended --use_flux preprocessing route's third-party dependency (black-forest-labs/FLUX.1-Kontext-dev, gated=auto, license:other) — a resource-independent license posture input for HF015 (the basic retargeting route avoids it)",
+        "the multi-entity scale gap: the candidate animates ONE character per run; the SWM scene carries 22 participants + ball — whole-match animation needs N runs + compositing, unadjudicated",
+        "the identity-association gap: the SWM entityId <-> authorized avatar reference mapping is authored input (the W401 territory — no repo re-id seam exists today)"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone. The recorded value of this flight is the metric designs + the Anime/NPR comparison design + the machine-checked conditioning mapping (the HF014 runway), NOT any measurement."
+    }
+  }
+}

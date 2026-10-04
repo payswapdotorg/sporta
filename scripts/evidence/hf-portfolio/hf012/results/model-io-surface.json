@@ -1,0 +1,59 @@
+{
+  "label": "the candidate's documented I/O surface (the card + the UserGuider + generate.py — fetched bounded, sha-pinned above)",
+  "taskType": "video-to-video (the hub pipeline_tag at the pinned revision)",
+  "theCardVerbatim": "Wan-Animate takes a video and a character image as input, and generates a video in either \"animation\" or \"replacement\" mode.",
+  "modes": {
+    "animation": "The model generates a video of the character image that mimics the human motion in the input video. (the card verbatim)",
+    "replacement": "The model replaces the character image with the input video. (the card verbatim)"
+  },
+  "inputs": [
+    {
+      "name": "video_path",
+      "kind": "performance video (the driving motion source)",
+      "role": "the CONDITIONING — the motion to replicate"
+    },
+    {
+      "name": "refer_path",
+      "kind": "character image",
+      "role": "the TARGET character (identity + style source)"
+    },
+    {
+      "name": "resolution_area",
+      "kind": "pixel-area resolution pin (1280 720 in the card's example)",
+      "role": "preprocessing + generation resolution"
+    },
+    {
+      "name": "fps",
+      "kind": "frame-rate knob",
+      "role": "'A lower frame rate can improve generation efficiency, but may cause stuttering' (the UserGuider verbatim)"
+    },
+    {
+      "name": "retarget_flag / use_flux",
+      "kind": "pose-retargeting route selectors",
+      "role": "the basic retargeting vs the FLUX-enhanced route (gated dependency)"
+    },
+    {
+      "name": "refert_num",
+      "kind": "int (default 77, 'Recommended to be 1 or 5')",
+      "role": "how many frames are used for temporal guidance (generate.py)"
+    },
+    {
+      "name": "seed / sample_solver / sampling_steps / guide_scale / clip_len",
+      "kind": "generation config (generate.py's WanAnimate.generate signature)"
+    }
+  ],
+  "preprocessingOutputs": "src_face.mp4 + src_pose.mp4 (animation mode); + src_bg.mp4 + src_mask.mp4 (replacement mode) — 'The input video should be preprocessed into several materials before be feed into the inference process' (the card verbatim)",
+  "outputs": [
+    {
+      "name": "the animated video",
+      "kind": "the character image animated with the driving video's motion (animation) / the character replaced into the video (replacement)"
+    }
+  ],
+  "textPromptSurface": "the task registry carries an example prompt for animate-14B ('视频中的人在做动作'), but the WanAnimate.generate() call in generate.py takes NO prompt argument — the animate conditioning is the preprocessed video materials + the reference image",
+  "documentedLimitations": [
+    "replacement mask extraction: 'designed for single-person videos ONLY and may produce incorrect results or fail in multi-person videos' (the UserGuider verbatim)",
+    "the FLUX retargeting route: 'Due to the limited capabilities of FLUX.1-Kontext-dev, it is NOT guaranteed to produce the expected results' (the UserGuider verbatim)",
+    "'If you're using Wan-Animate, we do not recommend using LoRA models trained on Wan2.2, since weight changes during training may lead to unexpected behavior.' (the card verbatim)"
+  ],
+  "theContractQuestion": "does 'canonical entity motion/state' (the frozen profile's input) map to the performance-video conditioning? — the SWM entity state is STRUCTURED STATE, the conditioning is VIDEO PIXELS: the mapping is maps-with-adapter (the SWM-state-to-performance-video adapter — see contract-compatibility.json for the typed gap table)"
+}
