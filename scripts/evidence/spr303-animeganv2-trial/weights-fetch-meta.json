@@ -1,0 +1,9 @@
+{
+ "repoId": "vumichien/AnimeGANv2_Hayao",
+ "filename": "AnimeGANv2_Hayao.onnx",
+ "revision": "f84714b47ad2c7e930c5f3d5dff58fe91659be95",
+ "url": "https://huggingface.co/vumichien/AnimeGANv2_Hayao/resolve/f84714b47ad2c7e930c5f3d5dff58fe91659be95/AnimeGANv2_Hayao.onnx",
+ "downloadedAtUtc": "2026-10-04T08:15:27.750204+00:00",
+ "byteSize": 8649739,
+ "sha256": "5a84ca468f3c4fd891fe8c883a3a507ed3e463f4f059985735f6449dae7590b5"
+}

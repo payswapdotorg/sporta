@@ -1,0 +1,143 @@
+{
+ "schemaVersion": "1.0",
+ "flight": "SPR303 \u2014 the executed AnimeGANv2 trial (the provider/hosted-inference work item, honestly resolved)",
+ "worker": "65-i (flight 15, the SPR lane, Worker A's wave-2)",
+ "workItem": "SPR303 \u2014 Provider/hosted-inference trial (BYOK/free-tier verification). Owner: A. Wave: WAVE-2+ (only where legitimately available).",
+ "recordedAtUtc": "2026-10-04T08:26:38Z",
+ "honestReading": {
+  "theWorkItemSays": "Provider/hosted-inference trial (BYOK/free-tier verification)",
+  "theResolution": "the local ONNX trial IS the legitimately-available path: the SPR302 matrix recorded that no legitimate v2v hosted provider exists in the shortlist's classes (Diffutoon/ToonCrafter/Pix2Video/vid2vid = infeasible-or-not-ready; FlowVid/CompoundVST artifact-absent; ReReVST off-hub weights); the BYOK/free-tier hosted angle is a TYPED GAP (hosted-provider-absent), recorded, never faked \u2014 no hosted provider was invoked, no token was used",
+  "typedGap": "hosted-provider-absent (BYOK/free-tier hosted inference unavailable per the recorded matrix; the executed trial is local ONNX on this CPU host)"
+ },
+ "weights": {
+  "policy": "ONE style ONLY (the trial is the A/B, not a portfolio)",
+  "model": "AnimeGANv2 (per-frame neural style transfer, ONNX)",
+  "style": "Hayao",
+  "mirror": "vumichien/AnimeGANv2_Hayao",
+  "revision": "f84714b47ad2c7e930c5f3d5dff58fe91659be95",
+  "file": "AnimeGANv2_Hayao.onnx",
+  "downloadUrl": "https://huggingface.co/vumichien/AnimeGANv2_Hayao/resolve/f84714b47ad2c7e930c5f3d5dff58fe91659be95/AnimeGANv2_Hayao.onnx",
+  "byteSize": 8649739,
+  "sha256": "5a84ca468f3c4fd891fe8c883a3a507ed3e463f4f059985735f6449dae7590b5",
+  "downloadedAtUtc": "2026-10-04T08:15:27.750204+00:00",
+  "storedAt": "/home/z/hf-bench-13/weights/ (OUTSIDE the repo \u2014 weights are never committed; the sha above is the verification pin)",
+  "gated": "no (ungated mirror, HTTP-206-reachable per the SPR302 probe; the download itself executed on this flight)",
+  "license": {
+   "code": "MIT (the canonical bryandlee/animegan2-pytorch port)",
+   "codeCitation": "Permission is hereby granted, free of charge, to any person obtaining a copy of this software ... to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies (Copyright (c) 2021 Bryan Lee) \u2014 scripts/evidence/spr302-v2v-feasibility/fetches/github-bryandlee-animegan2-pytorch-LICENSE",
+   "weights": "NON-COMMERCIAL usage terms on the hub mirror (research-class trial matches SPR303's 'only where legitimately available'); the card-metadata 'license: apache-2.0' tag CONTRADICTS the body's NC terms \u2014 recorded contradiction, never adjudicated here",
+   "weightsCitationVerbatim": "This repo is made freely available to academic and non-academic entities for non-commercial purposes such as academic research, teaching, scientific publications. Permission is granted to use the AnimeGAN given that you agree to my license terms. Regarding the request for commercial use, please contact us via email to help you obtain the authorization letter.",
+   "weightsCitationSource": "scripts/evidence/spr302-v2v-feasibility/fetches/hf-vumichien-AnimeGANv2_Hayao-README@pinned-rev (committed by 65-h, fetch-meta sha256 948ed04b\u2026) \u2014 the SPR302-recorded mirror card, the SAME repo/revision this trial's weights were downloaded from",
+   "trainingProvenance": "film-frame provenance (The Wind Rises / Shinkai / Paprika classes, per the SPR302-recorded cards) \u2014 the production-class typed blocker stands",
+   "commercialClearance": "NOT proven \u2014 the NC terms require the email-authorization letter; recorded for the TL/HF015-class adjudication, never a promotion"
+  }
+ },
+ "substrate": {
+  "clipId": "sprclip-b8-inplay-original",
+  "file": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+  "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+  "pinSource": "scripts/evidence/spr-tier2-scorecards/renders-with-b8-determinism.json inputSubstrate.sha256 (the scorecard-convention pin; byte-verified before every run phase by trial_animegan.py check_pins)",
+  "frameCount": 1190,
+  "fps": 25,
+  "width": 640,
+  "height": 360,
+  "sampleSet": "the frozen 15 scorecard samples (t = 2/8/15/30/45 s + cut-adjacent pre/post for every frozen b8 input cut [189, 475, 550, 862, 979, 982]) + each sample's within-shot \u00b10.2 s partner \u2014 30 trial frames + a 30-frame latency-probe block (300..329, mid-shot)"
+ },
+ "measurements": {
+  "latency": {
+   "executed": true,
+   "host": {
+    "label": "CPU-only host (onnxruntime CPUExecutionProvider)",
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "onnxruntime": "1.30.0",
+    "vcpu": 2,
+    "gpu": "NONE \u2014 no GPU execution provider on this host (honest)",
+    "provider": "CPUExecutionProvider"
+   },
+   "frameCount": 60,
+   "p50TotalMs": 1366.4,
+   "p95TotalMs": 1547.6,
+   "p50InferenceMs": 1267.7,
+   "p95InferenceMs": 1440.9,
+   "meanTotalMs": 1402.8,
+   "record": "results/latency.json",
+   "gpu": "N/A honestly \u2014 no GPU execution provider on this host"
+  },
+  "determinism": {
+   "executed": true,
+   "byteIdentical": true,
+   "extractionByteIdentical": true,
+   "method": "the 30 stylized frames re-stylized in a FRESH interpreter (fresh onnxruntime session) into /tmp/spr303-det-run2; sha256 per frame compared with run 1 (the committed renders/ artifacts); the 15 originals re-extracted twice and compared with the committed frames/",
+   "verdict": "deterministic \u2014 proven by double-run byte-identity (CPUExecutionProvider: fixed weights sha 5a84ca468f3c\u2026, fixed input bytes, fixed session settings)",
+   "record": "results/determinism.json"
+  },
+  "renders": {
+   "committed": "renders/animeganv2-hayao-<sample>{,p2}.png \u2014 30 stylized PNGs (the executed A/B artifacts)",
+   "shaMap": "results/latency.json rendersSha256 (the 30 per-frame pins, byte-verified by the validator)"
+  }
+ },
+ "scorecard": {
+  "record": "scorecard-animeganv2-hayao.json",
+  "protocol": "frozen 7-axis acceptance protocol (vlm_scorecard.py \u00a72/\u00a74) \u2014 same axes, same artifact checklist, same sample set, same response contract, same z-ai vision CLI convention",
+  "meanScores": {
+   "sourceFidelity": 4.93,
+   "temporalConsistency": 2.73,
+   "identityConsistency": 2.67,
+   "motionFidelity": 3.0,
+   "sceneFidelity": 3.33,
+   "stylizationStrength": 4.93
+  },
+  "minAxisMean": 2.67,
+  "overallMean": 3.6,
+  "criticalArtifacts": 38,
+  "totalArtifacts": 83,
+  "scoredSamples": 15,
+  "totalSamples": 15,
+  "perCallEvidence": "vlm/animeganv2-hayao-<sample>.json (15 files)"
+ },
+ "abVerdict": {
+  "baselineReusePolicy": "the committed spr-tier2-scorecards evidence reused verbatim (never re-rendered, never re-scored)",
+  "animeNprMinAxisMean": 1.8,
+  "cartoonCelMinAxisMean": 1.53,
+  "trialMinAxisMean": 2.67,
+  "collapseAxesBeaten": true,
+  "verdict": "trial minAxisMean 2.67 vs anime-npr 1.8 (BEATEN) and cartoon-cel 1.53 (BEATEN) \u2014 the collapse axes stand until beaten; the honest result stands",
+  "caveats": [
+   "beating the collapse axes is NOT a tier claim \u2014 the trial is sampled-frame, the G-T hard gates are a typed gap",
+   "cross-run VLM drift recorded (the baseline scores are an earlier run; same protocol/sample set/prompt criteria)",
+   "identityConsistency 2.67 beats 1.80 but remains below the Tier-1 3.5 bar \u2014 the honest number stands"
+  ]
+ },
+ "tierClaim": 0,
+ "tierClaimNote": "honestly 0 (see scorecard.tierClaimNote): no tier may be claimed from a sampled-frame trial without the full-render hard gates; the TL owns the visual gate \u2014 tlApproval PENDING",
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "ebsynthLeg": {
+  "status": "DEFERRED (honest)",
+  "reason": "the AnimeGANv2 leg completed within the flight budget; the EbSynth leg requires the EbSynth CLI binary (not a hub model \u2014 nothing to download legitimately from the hub) + our deterministic keyframes as seeds; the flight's time budget closed before the second leg",
+  "recordedDesign": "EbSynth propagation seeded by OUR deterministic keyframes (the SPR302 recommendation's second candidate \u2014 the anti-slideshow class): keyframes from the committed spr-anime-npr render family, propagated across the within-shot spans, scored by the same frozen 7-axis protocol on the same sample set; the matrix's blockers stand (public-domain code + the Adobe PatchMatch patent warning + the tool terms)",
+  "nextAction": "a wave-2 continuation flight (SPR303b-class) if the TL admits the second leg"
+ },
+ "noPromotion": "the trial is research-class benchmark evaluation (the NC terms permit it; never a promotion): no rendererId registered, no renderer-registry change, no status claim, no tier claim \u2014 the TL owns the visual gate and the HF015-class adjudication owns any future promotion",
+ "provenance": {
+  "scripts": [
+   "trial_animegan.py (extract / stylize / stylize-raw / determinism \u2014 all executed this flight)",
+   "vlm_scorecard_trial.py (the frozen 7-axis protocol via the z-ai vision CLI \u2014 executed, 15/15 calls)",
+   "record_trial.py (this assembler \u2014 reads only the executed artifacts, no hand-typed measurements)",
+   "validate-trial.ts (the fail-closed validator, negative-tested)"
+  ],
+  "venv": "/home/z/hf-bench-13 (fresh, OUTSIDE the repo: huggingface_hub + onnxruntime + numpy + Pillow ONLY)",
+  "host": {
+   "label": "CPU-only host (onnxruntime CPUExecutionProvider)",
+   "machine": "x86_64",
+   "python": "3.12.14",
+   "onnxruntime": "1.30.0",
+   "vcpu": 2,
+   "gpu": "NONE \u2014 no GPU execution provider on this host (honest)",
+   "provider": "CPUExecutionProvider"
+  }
+ }
+}

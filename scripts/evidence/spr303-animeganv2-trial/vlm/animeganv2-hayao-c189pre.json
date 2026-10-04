@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, score, time, and player positions are clearly identical to the source frame.\n2. temporalConsistency - 2: Significant flickering and morphing of players and background elements between the two stylized frames.\n3. identityConsistency - 2: Player features and jersey numbers (like the #3) are unstable and shift noticeably between frames.\n4. motionFidelity - 3: General forward motion is preserved, but individual limb movements are erratic and lack smooth continuity.\n5. sceneFidelity - 2: The stadium background and advertising boards undergo severe spatial warping and drift.\n6. stylizationStrength - 5: The transformation into a strong Hayao-style anime aesthetic is very obvious and consistent.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=3 dupes=1 ball=0 bg=2 tj=1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102291,
+  "id": "2026100416244707bb1f1299af4b86",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026100416244707bb1f1299af4b86",
+  "usage": {
+    "completion_tokens": 205,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1379
+  }
+}

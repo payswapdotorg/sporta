@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity: 5 - The match, moment, and camera context are perfectly preserved in the stylized versions.\n2. temporalConsistency: 3 - While the scene is stable, the players' limbs and bodies exhibit noticeable flickering and morphing between frames.\n3. identityConsistency: 2 - Players, especially those in orange, lose their human form and become unrecognizable abstract blobs.\n4. motionFidelity: 4 - The overall movement of players and the ball remains consistent with the source footage.\n5. sceneFidelity: 5 - The stadium background, field lines, and advertising boards are spatially consistent and stable.\n6. stylizationStrength: 5 - The AnimeGANv2 Hayao style is very obvious, characterized by bold outlines and flat color fills.\n\nAXES sf=5 tc=3 ic=2 mf=4 scf=5 ss=5\nARTIFACTS limbs=11 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102296,
+  "id": "20261004162451d8515dc6c4b74f55",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004162451d8515dc6c4b74f55",
+  "usage": {
+    "completion_tokens": 214,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1388
+  }
+}

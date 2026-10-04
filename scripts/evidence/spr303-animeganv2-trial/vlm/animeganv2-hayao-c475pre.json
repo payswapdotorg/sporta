@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved in the stylized output.\n2. temporalConsistency - 3: While the scene is stable, the background crowd and advertising boards exhibit noticeable flickering between frames.\n3. identityConsistency - 4: Players maintain their team colors and general positions, though facial features are simplified by the style.\n4. motionFidelity - 4: Player movements and ball trajectory appear consistent with the source frame's action.\n5. sceneFidelity - 3: The stadium structure is consistent, but background details like the crowd and ads shift significantly.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao style is very obvious, with bold lines and flat colors.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102302,
+  "id": "20261004162456f22ffcdc07744842",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004162456f22ffcdc07744842",
+  "usage": {
+    "completion_tokens": 207,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1381
+  }
+}

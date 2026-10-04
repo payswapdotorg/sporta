@@ -1,0 +1,464 @@
+{
+ "schemaVersion": "1.0",
+ "flight": "SPR303 \u2014 the executed AnimeGANv2 trial (worker 65-i)",
+ "family": "animeganv2-hayao",
+ "stylizer": {
+  "class": "learned per-frame neural style transfer (ONNX, CPU)",
+  "model": "vumichien/AnimeGANv2_Hayao @ f84714b47ad2c7e930c5f3d5dff58fe91659be95",
+  "style": "Hayao (ONE style \u2014 the trial is the A/B, not a portfolio)",
+  "weightsSha256": "5a84ca468f3c4fd891fe8c883a3a507ed3e463f4f059985735f6449dae7590b5"
+ },
+ "protocol": "frozen 7-axis acceptance protocol (vlm_scorecard.py \u00a72/\u00a74) \u2014 same axes, same artifact checklist, same sample set, same response contract, same z-ai vision CLI convention",
+ "promptFamilyString": "anime (AnimeGANv2 Hayao style)",
+ "promptDeviationNote": "the ONLY deviation from the frozen baseline prompt: the family string names the trial's stylizer honestly (anime (AnimeGANv2 Hayao style)) instead of the baseline renderer's family label \u2014 the trial must not be labeled as the spr-anime-npr renderer",
+ "clipIds": [
+  "sprclip-b8-inplay-original"
+ ],
+ "substrateSha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+ "perSample": [
+  {
+   "sample": "t2s",
+   "kind": "fixed",
+   "t": 2.0,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (Balde holding the ball), and camera angle as the source.\n2. temporalConsistency - 3: The main subject is stable, but background players and the ball exhibit noticeable flickering and shape-shifting between the two frames.\n3. identityConsistency - 4: The primary player (Balde) maintains a consistent visual identity, though distant players lose distinct features.\n4. motionFidelity - 3: The progression of Balde's arm movement is captured, but the ball's position and other players' movements are erratic.\n5. sceneFidelity - 3: The stadium structure remains consistent, but the field markings and crowd details warp and shift significantly.\n6. stylizationStrength - 5: The transformation to a clean, flat-colored anime aesthetic (Hayao style) is very strong and obvious.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=1 bg=1 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 4,
+    "mf": 3,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 0,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 1,
+    "bg": 1,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "t8s",
+   "kind": "fixed",
+   "t": 8.0,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, score, time, and camera angle are perfectly preserved in the stylized versions.\n2. temporalConsistency - 3: While the scene is stable, the players' positions and shapes shift noticeably between the two frames.\n3. identityConsistency - 2: Players are reduced to abstract blobs of color, making individual identification and visual stability very poor.\n4. motionFidelity - 2: Player movements are inconsistent and lack the fluidity suggested by the original broadcast frame.\n5. sceneFidelity - 4: The stadium structure, pitch lines, and background elements remain spatially consistent across all images.\n6. stylizationStrength - 5: The transformation to a flat, high-contrast anime style is extremely obvious and dominant.\n\nAXES sf=5 tc=3 ic=2 mf=2 scf=4 ss=5\nARTIFACTS limbs=5 players=0 warped=3 dupes=0 ball=0 bg=0 tj=2",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 2,
+    "mf": 2,
+    "scf": 4,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 5,
+    "players": 0,
+    "warped": 3,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 0,
+    "tj": 2
+   }
+  },
+  {
+   "sample": "t15s",
+   "kind": "fixed",
+   "t": 15.0,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, time, and camera angle are perfectly preserved across all frames.\n2. temporalConsistency - 3: The scene is stable, but the players' limbs and bodies morph slightly between frames.\n3. identityConsistency - 2: Players are reduced to abstract blobs; individual features are lost to the style.\n4. motionFidelity - 2: The ball's position is inconsistent (hallucinated in frame 2), and player movements are simplified.\n5. sceneFidelity - 4: The stadium background, lines, and advertising boards remain spatially consistent.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao transformation is very strong and clearly visible.\n\nAXES sf=5 tc=3 ic=2 mf=2 scf=4 ss=5\nARTIFACTS limbs=4 players=0 warped=0 dupes=0 ball=1 bg=0 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 2,
+    "mf": 2,
+    "scf": 4,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 4,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 1,
+    "bg": 0,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "t30s",
+   "kind": "fixed",
+   "t": 30.0,
+   "ok": true,
+   "justification": "1. sourceFidelity - 4: Match, moment, and camera angle are clearly preserved despite the heavy artistic filter.\n2. temporalConsistency - 3: The scene is generally stable, but some background elements and player positions shift slightly between frames.\n3. identityConsistency - 3: Players are recognizable, but their features and kit details fluctuate noticeably between the two stylized frames.\n4. motionFidelity - 3: The general flow of play is maintained, though specific limb movements and ball trajectory are somewhat obscured or altered by the style.\n5. sceneFidelity - 3: The stadium structure and advertising boards remain consistent, but the crowd and field lines show significant warping.\n6. stylizationStrength - 5: The transformation into a distinct Hayao Miyazaki-inspired anime style is very strong and obvious.\n\nAXES sf=4 tc=3 ic=3 mf=3 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=0",
+   "axes": {
+    "sf": 4,
+    "tc": 3,
+    "ic": 3,
+    "mf": 3,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 2,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 1,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "t45s",
+   "kind": "fixed",
+   "t": 45.0,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The stylized images clearly represent the same match, moment (24:58/24:51), and camera angle as the original.\n2. temporalConsistency - 2: Significant flickering and morphing of player shapes and positions between the two consecutive frames.\n3. identityConsistency - 2: Player appearances are highly unstable; jerseys and body shapes change drastically between frames, making individuals hard to track.\n4. motionFidelity - 3: General direction of movement is preserved, but fine-grained limb and ball motion is lost or distorted by the style transfer.\n5. sceneFidelity - 4: The stadium background, goal, and field lines remain spatially consistent across all images.\n6. stylizationStrength - 5: The transformation to the AnimeGANv2 Hayao style is very obvious and pervasive throughout the frame.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=4 ss=5\nARTIFACTS limbs=4 players=0 warped=2 dupes=0 ball=1 bg=0 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 2,
+    "ic": 2,
+    "mf": 3,
+    "scf": 4,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 4,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 1,
+    "bg": 0,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c189pre",
+   "kind": "cut-adjacent",
+   "t": 7.44,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, score, time, and player positions are clearly identical to the source frame.\n2. temporalConsistency - 2: Significant flickering and morphing of players and background elements between the two stylized frames.\n3. identityConsistency - 2: Player features and jersey numbers (like the #3) are unstable and shift noticeably between frames.\n4. motionFidelity - 3: General forward motion is preserved, but individual limb movements are erratic and lack smooth continuity.\n5. sceneFidelity - 2: The stadium background and advertising boards undergo severe spatial warping and drift.\n6. stylizationStrength - 5: The transformation into a strong Hayao-style anime aesthetic is very obvious and consistent.\n\nAXES sf=5 tc=2 ic=2 mf=3 scf=2 ss=5\nARTIFACTS limbs=2 players=0 warped=3 dupes=1 ball=0 bg=2 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 2,
+    "ic": 2,
+    "mf": 3,
+    "scf": 2,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 2,
+    "players": 0,
+    "warped": 3,
+    "dupes": 1,
+    "ball": 0,
+    "bg": 2,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c189post",
+   "kind": "cut-adjacent",
+   "t": 7.68,
+   "ok": true,
+   "justification": "1. sourceFidelity: 5 - The match, moment, and camera context are perfectly preserved in the stylized versions.\n2. temporalConsistency: 3 - While the scene is stable, the players' limbs and bodies exhibit noticeable flickering and morphing between frames.\n3. identityConsistency: 2 - Players, especially those in orange, lose their human form and become unrecognizable abstract blobs.\n4. motionFidelity: 4 - The overall movement of players and the ball remains consistent with the source footage.\n5. sceneFidelity: 5 - The stadium background, field lines, and advertising boards are spatially consistent and stable.\n6. stylizationStrength: 5 - The AnimeGANv2 Hayao style is very obvious, characterized by bold outlines and flat color fills.\n\nAXES sf=5 tc=3 ic=2 mf=4 scf=5 ss=5\nARTIFACTS limbs=11 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 2,
+    "mf": 4,
+    "scf": 5,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 11,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 0,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "c475pre",
+   "kind": "cut-adjacent",
+   "t": 18.88,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved in the stylized output.\n2. temporalConsistency - 3: While the scene is stable, the background crowd and advertising boards exhibit noticeable flickering between frames.\n3. identityConsistency - 4: Players maintain their team colors and general positions, though facial features are simplified by the style.\n4. motionFidelity - 4: Player movements and ball trajectory appear consistent with the source frame's action.\n5. sceneFidelity - 3: The stadium structure is consistent, but background details like the crowd and ads shift significantly.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao style is very obvious, with bold lines and flat colors.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=1 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 4,
+    "mf": 4,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 0,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 1,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "c475post",
+   "kind": "cut-adjacent",
+   "t": 19.12,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, score, time, and camera angle are identical to the source frame.\n2. temporalConsistency - 3: Background players shift positions noticeably, but the main subject remains relatively stable.\n3. identityConsistency - 4: The main player's appearance is consistent, though background figures are less distinct.\n4. motionFidelity - 4: The player's running motion and ball position are logically consistent across the frames.\n5. sceneFidelity - 3: The stadium structure is preserved, but background details like crowd and distant players drift significantly.\n6. stylizationStrength - 5: The transformation into a clear Hayao-style anime aesthetic is very strong and obvious.\n\nAXES sf=5 tc=3 ic=4 mf=4 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=2 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 4,
+    "mf": 4,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 0,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 2,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c550pre",
+   "kind": "cut-adjacent",
+   "t": 21.88,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, moment, and camera context are clearly preserved in the stylized versions.\n2. temporalConsistency - 3: The background stadium structure remains stable, but player positions and shapes shift noticeably between the two frames.\n3. identityConsistency - 2: The main goalkeeper is recognizable, but background players lose distinct features and morph significantly.\n4. motionFidelity - 4: The progression of the goalkeeper's kick and the ball's movement is logically consistent with the source.\n5. sceneFidelity - 3: The pitch lines and goalpost are reasonably stable, though the advertising boards and crowd show some warping.\n6. stylizationStrength - 5: The transformation to the AnimeGANv2 Hayao style is very strong and unmistakable.\n\nAXES sf=5 tc=3 ic=2 mf=4 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 2,
+    "mf": 4,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 2,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 1,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c550post",
+   "kind": "cut-adjacent",
+   "t": 22.12,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, score, time, and camera angle are perfectly preserved across all frames.\n2. temporalConsistency - 3: While the scene is stable, the background and player shapes exhibit noticeable flickering and morphing between frames.\n3. identityConsistency - 3: Players are recognizable by position, but their forms are heavily abstracted and lack stable facial or bodily features.\n4. motionFidelity - 4: The relative movement of players and the ball appears consistent with the source footage's timeline.\n5. sceneFidelity - 3: The stadium structure is maintained, but advertising boards and crowd details shift and warp significantly.\n6. stylizationStrength - 5: The transformation into a distinct Hayao Miyazaki anime style is very strong and obvious.\n\nAXES sf=5 tc=3 ic=3 mf=4 scf=3 ss=5\nARTIFACTS limbs=3 players=0 warped=2 dupes=0 ball=0 bg=2 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 3,
+    "mf": 4,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 3,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 2,
+    "tj": 0
+   }
+  },
+  {
+   "sample": "c862pre",
+   "kind": "cut-adjacent",
+   "t": 34.36,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved across all frames.\n2. temporalConsistency - 3: The background and field lines are stable, but the players' forms fluctuate significantly between frames.\n3. identityConsistency - 2: Players are reduced to abstract, flickering blobs with no consistent visual features.\n4. motionFidelity - 2: While the general positions shift slightly, the lack of clear anatomy makes specific motion tracking impossible.\n5. sceneFidelity - 5: The stadium, advertising boards, and pitch markings remain spatially accurate and stable.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao style is aggressively applied, completely transforming the visual language of the broadcast.\n\nAXES sf=5 tc=3 ic=2 mf=2 scf=5 ss=5\nARTIFACTS limbs=2 players=0 warped=0 dupes=0 ball=0 bg=0 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 3,
+    "ic": 2,
+    "mf": 2,
+    "scf": 5,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 2,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 0,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c862post",
+   "kind": "cut-adjacent",
+   "t": 34.6,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The stylized images clearly depict the same player, match context, and camera angle as the original frame.\n2. temporalConsistency - 2: Significant flickering and morphing of the player's pose and facial features occur between the two frames.\n3. identityConsistency - 3: The player is recognizable, but his facial structure and body proportions shift noticeably between frames.\n4. motionFidelity - 2: The subtle movement of the arm is inconsistent with the drastic changes in the torso and head orientation.\n5. sceneFidelity - 3: The background elements (goal net, grass, scoreboard) remain largely in place but exhibit some warping.\n6. stylizationStrength - 5: The transformation into the Hayao anime style is very distinct and visually obvious.\n\nAXES sf=5 tc=2 ic=3 mf=2 scf=3 ss=5\nARTIFACTS limbs=2 players=0 warped=2 dupes=0 ball=0 bg=1 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 2,
+    "ic": 3,
+    "mf": 2,
+    "scf": 3,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 2,
+    "players": 0,
+    "warped": 2,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 1,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c979pre",
+   "kind": "cut-adjacent",
+   "t": 39.04,
+   "ok": true,
+   "justification": "AXES sf=5 tc=1 ic=1 mf=1 scf=1 ss=4\nARTIFACTS limbs=0 players=1 warped=1 dupes=0 ball=1 bg=1 tj=1",
+   "axes": {
+    "sf": 5,
+    "tc": 1,
+    "ic": 1,
+    "mf": 1,
+    "scf": 1,
+    "ss": 4
+   },
+   "artifacts": {
+    "limbs": 0,
+    "players": 1,
+    "warped": 1,
+    "dupes": 0,
+    "ball": 1,
+    "bg": 1,
+    "tj": 1
+   }
+  },
+  {
+   "sample": "c982post",
+   "kind": "cut-adjacent",
+   "t": 39.4,
+   "ok": true,
+   "justification": "1. sourceFidelity - 5: The match, moment, and camera context are perfectly preserved.\n2. temporalConsistency - 4: Objects remain stable with only minor flickering in the background text.\n3. identityConsistency - 4: Players are visually stable, though the style simplifies their features.\n4. motionFidelity - 4: Player and ball motion is consistent across the frames.\n5. sceneFidelity - 4: The stadium and background are spatially consistent.\n6. stylizationStrength - 5: The AnimeGANv2 Hayao style is very obvious and strong.\n\nAXES sf=5 tc=4 ic=4 mf=4 scf=4 ss=5\nARTIFACTS limbs=0 players=0 warped=0 dupes=0 ball=0 bg=0 tj=0",
+   "axes": {
+    "sf": 5,
+    "tc": 4,
+    "ic": 4,
+    "mf": 4,
+    "scf": 4,
+    "ss": 5
+   },
+   "artifacts": {
+    "limbs": 0,
+    "players": 0,
+    "warped": 0,
+    "dupes": 0,
+    "ball": 0,
+    "bg": 0,
+    "tj": 0
+   }
+  }
+ ],
+ "vlm": {
+  "meanScores": {
+   "sourceFidelity": 4.93,
+   "temporalConsistency": 2.73,
+   "identityConsistency": 2.67,
+   "motionFidelity": 3.0,
+   "sceneFidelity": 3.33,
+   "stylizationStrength": 4.93
+  },
+  "minAxisMean": 2.67,
+  "overallMean": 3.6,
+  "criticalArtifacts": 38,
+  "totalArtifacts": 83,
+  "scoredSamples": 15,
+  "totalSamples": 15,
+  "evidence": [
+   "vlm/animeganv2-hayao-t2s.json",
+   "vlm/animeganv2-hayao-t8s.json",
+   "vlm/animeganv2-hayao-t15s.json",
+   "vlm/animeganv2-hayao-t30s.json",
+   "vlm/animeganv2-hayao-t45s.json",
+   "vlm/animeganv2-hayao-c189pre.json",
+   "vlm/animeganv2-hayao-c189post.json",
+   "vlm/animeganv2-hayao-c475pre.json",
+   "vlm/animeganv2-hayao-c475post.json",
+   "vlm/animeganv2-hayao-c550pre.json",
+   "vlm/animeganv2-hayao-c550post.json",
+   "vlm/animeganv2-hayao-c862pre.json",
+   "vlm/animeganv2-hayao-c862post.json",
+   "vlm/animeganv2-hayao-c979pre.json",
+   "vlm/animeganv2-hayao-c982post.json"
+  ]
+ },
+ "abAgainstCommittedBaseline": {
+  "baselineReusePolicy": "the committed spr-tier2-scorecards evidence is REUSED verbatim (never re-rendered, never re-scored)",
+  "animeNpr": {
+   "family": "anime-npr",
+   "meanScores": {
+    "sourceFidelity": 2.2,
+    "temporalConsistency": 2.73,
+    "identityConsistency": 1.8,
+    "motionFidelity": 1.87,
+    "sceneFidelity": 2.0,
+    "stylizationStrength": 5.0
+   },
+   "minAxisMean": 1.8,
+   "criticalArtifacts": 136,
+   "totalArtifacts": 235,
+   "tierClaim": 0,
+   "record": "scripts/evidence/spr-tier2-scorecards/scorecard-anime-npr.json"
+  },
+  "cartoonCel": {
+   "family": "cartoon-cel",
+   "meanScores": {
+    "sourceFidelity": 2.13,
+    "temporalConsistency": 3.13,
+    "identityConsistency": 1.53,
+    "motionFidelity": 1.67,
+    "sceneFidelity": 1.93,
+    "stylizationStrength": 5.0
+   },
+   "minAxisMean": 1.53,
+   "criticalArtifacts": 99,
+   "totalArtifacts": 190,
+   "tierClaim": 0,
+   "record": "scripts/evidence/spr-tier2-scorecards/scorecard-cartoon-cel.json"
+  },
+  "trialMinAxisMean": 2.67,
+  "collapseAxesVerdict": "trial minAxisMean 2.67 vs anime-npr 1.8 (BEATEN) and cartoon-cel 1.53 (BEATEN) \u2014 the collapse axes stand until beaten; the honest result stands",
+  "crossRunCaveat": "the baseline scores were recorded on an earlier VLM run (2026-09-25); the trial scores on this run \u2014 cross-run VLM drift is a recorded limitation, not laundered away (same protocol, same sample set, same prompt criteria)"
+ },
+ "gates": "TYPED GAP \u2014 G-T1..G-T5 full-render hard gates NOT MEASURED on this trial (the trial stylizes the frozen sample frames, not the full 1190-frame b8 render; measured instead: double-run determinism byte-identical \u2014 results/determinism.json)",
+ "tierClaim": 0,
+ "tierClaimNote": "honestly 0 \u2014 no tier may be claimed from a sampled-frame trial without the full-render hard gates (tier thresholds require hard gates green); the collapse-axes comparison above is the trial's actual result",
+ "tlApproval": {
+  "status": "PENDING",
+  "reviewer": "tech-lead"
+ },
+ "noPromotion": "the trial is a benchmark evaluation (research class, NC weights terms) \u2014 NEVER a renderer-registry promotion; no rendererId registered, no status claim",
+ "limitations": [
+  "temporal axes judged from a within-shot 0.2 s stylized frame pair, not full-video review (Tier-3 / wave-2 video audit); cut-adjacent pre samples pair backwards so the pair never crosses a source cut",
+  "artifact counts are per sampled frame, not per frame of a full render (no full render exists on this trial)",
+  "the baseline side of the A/B is the committed record (a different VLM run) \u2014 cross-run drift recorded above, never laundered"
+ ]
+}

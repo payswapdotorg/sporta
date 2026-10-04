@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. sourceFidelity - 5: The stylized images clearly depict the same match, moment (Balde holding the ball), and camera angle as the source.\n2. temporalConsistency - 3: The main subject is stable, but background players and the ball exhibit noticeable flickering and shape-shifting between the two frames.\n3. identityConsistency - 4: The primary player (Balde) maintains a consistent visual identity, though distant players lose distinct features.\n4. motionFidelity - 3: The progression of Balde's arm movement is captured, but the ball's position and other players' movements are erratic.\n5. sceneFidelity - 3: The stadium structure remains consistent, but the field markings and crowd details warp and shift significantly.\n6. stylizationStrength - 5: The transformation to a clean, flat-colored anime aesthetic (Hayao style) is very strong and obvious.\n\nAXES sf=5 tc=3 ic=4 mf=3 scf=3 ss=5\nARTIFACTS limbs=0 players=0 warped=2 dupes=0 ball=1 bg=1 tj=0",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1791102267,
+  "id": "20261004162422bae4c7af02694632",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261004162422bae4c7af02694632",
+  "usage": {
+    "completion_tokens": 236,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1174,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1410
+  }
+}
