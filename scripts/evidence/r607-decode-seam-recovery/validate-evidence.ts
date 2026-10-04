@@ -192,10 +192,20 @@ requireCheck(
 );
 const productionMeasured = (deployRecord["productionMeasured"] ?? {}) as Record<string, unknown>;
 const apiHealth = (productionMeasured["apiPlatformHealth"] ?? {}) as Record<string, unknown>;
+const deploymentMarker = String(
+  (envWiring["patches"] as { name?: string; value?: string }[] | undefined)?.find(
+    (p) => p.name === "SPORTA_DEPLOY_MARKER",
+  )?.value ?? "",
+);
 requireCheck(
-  "deploy-record: the production health 200 + the seam marker",
-  Number(apiHealth["httpStatusCode"] ?? 0) === 200 &&
-    apiHealth["deployMarker"] === "r607-decode-seam-rerun-1",
+  "deploy-record: the production health 200 + the seam marker (the deploy record's own)",
+  Number(apiHealth["httpStatusCode"] ?? 0) === 200 && apiHealth["deployMarker"] === deploymentMarker,
+  `${String(apiHealth["deployMarker"] ?? null)} vs ${deploymentMarker}`,
+);
+requireCheck(
+  "deploy-record: the marker is the seam-deployment family",
+  /^r607-decode-seam-rerun-[0-9]+$/.test(deploymentMarker),
+  deploymentMarker,
 );
 const deploymentUrl = String(deploy["deploymentUrl"] ?? "");
 requireCheck("deploy-record: the deployment URL recorded", deploymentUrl.endsWith(".vercel.app"));
@@ -230,8 +240,9 @@ const hosted = readJson("hosted-golden-path.json");
 const hostedSteps = (hosted["steps"] ?? {}) as Record<string, Record<string, unknown>>;
 const bootStep = hostedSteps["boot"] ?? {};
 requireCheck(
-  "hosted-golden-path: the boot marker is the seam deployment",
-  bootStep["deployMarker"] === "r607-decode-seam-rerun-1" && Number(bootStep["httpStatusCode"] ?? 0) === 200,
+  "hosted-golden-path: the boot marker AGREES with the deploy record (the same seam deployment)",
+  bootStep["deployMarker"] === deploymentMarker && Number(bootStep["httpStatusCode"] ?? 0) === 200,
+  `${String(bootStep["deployMarker"] ?? null)} vs ${deploymentMarker}`,
 );
 requireCheck("hosted-golden-path: register 200", Number((hostedSteps["register"] ?? {})["httpStatusCode"] ?? 0) === 200);
 const loginStep = hostedSteps["login"] ?? {};
@@ -265,6 +276,47 @@ requireCheck(
   "hosted-golden-path: the media job TERMINAL succeeded + progress 1 (the Original leg)",
   mediaJobTerminal.state === "succeeded" && mediaJobTerminal.progress === 1,
   JSON.stringify(mediaJobStep["terminal"] ?? null),
+);
+// The watch leg: the catalog + the Original playback integrity-verified on
+// the LIVE plane (the R504/R508-R510 class — G12's playback criterion).
+const watchStep = hostedSteps["watch"] ?? {};
+const watchFull = (watchStep["full"] ?? {}) as {
+  integrityVerified?: boolean;
+  servedSha256?: string;
+  ftypMagic?: boolean;
+};
+requireCheck(
+  "hosted-golden-path: the watch leg — the catalog 200 + the Original playback INTEGRITY-VERIFIED (sha + bytes + ftyp)",
+  Number(watchStep["catalogHttpStatusCode"] ?? 0) === 200 &&
+    watchFull.integrityVerified === true &&
+    HEX64.test(String(watchFull.servedSha256 ?? "")) &&
+    watchFull.ftypMagic === true,
+);
+const watchRange = (watchStep["range"] ?? {}) as { httpStatusCode?: number; sliceMatches?: boolean };
+requireCheck(
+  "hosted-golden-path: the watch leg's Range fetch (206 + the slice matches)",
+  watchRange.httpStatusCode === 206 && watchRange.sliceMatches === true,
+);
+// The J004 one-submission: the honest derived-reality state — the ORIGINAL
+// ready + played integrity-verified; the derived kinds' typed refusals
+// recorded verbatim (the R306 encode seam — the derived plane's local-ffmpeg
+// dependency — is the NEXT measured gap, never laundered as success).
+const oneShotStep = hostedSteps["oneSubmissionFourRealities"] ?? {};
+const oneShotPlayback = (oneShotStep["playback"] ?? {}) as Record<
+  string,
+  { integrityVerified?: boolean; availability?: string; played?: boolean }
+>;
+requireCheck(
+  "hosted-golden-path: the J004 Original played back integrity-verified",
+  oneShotPlayback["original"]?.integrityVerified === true,
+);
+requireCheck(
+  "hosted-golden-path: the J004 derived kinds recorded their honest availability states (never fabricated)",
+  ["tactical", "three-d-game", "anime-npr"].every((kind) => {
+    const entry = oneShotPlayback[kind];
+    return entry !== undefined && entry.integrityVerified !== true;
+  }),
+  JSON.stringify(oneShotPlayback),
 );
 requireCheck(
   "hosted-golden-path: the verdict is PASS",

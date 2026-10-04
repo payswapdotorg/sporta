@@ -9,11 +9,11 @@
       "name": "base"
     },
     "sandbox": {
-      "sandboxId": "ifw657jm8lpa5feut1xvr",
+      "sandboxId": "ioyw6rihmz070wo38d6z1",
       "envdVersion": "0.6.10",
       "cpuCount": 2,
       "memoryMB": 512,
-      "startedAtIso": "2026-10-04T10:43:34.825Z",
+      "startedAtIso": "2026-10-04T11:44:24.933Z",
       "lifecycleOnTimeout": "kill",
       "keepAliveMs": 7200000,
       "note": "EPHEMERAL BY DESIGN — the sandbox dies at the timeout; the public worker URL is ephemeral evidence (see the ephemerality doctrine in the 65-j flight's README.md)"
@@ -33,7 +33,7 @@
     "entry": "packages/compute-adapter-hosted/scripts/r607-media-toolchain-worker.ts",
     "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3971 nohup ~/.bun/bin/bun run scripts/r607-media-toolchain-worker.ts",
     "port": 3971,
-    "publicUrl": "https://3971-ifw657jm8lpa5feut1xvr.e2b.app",
+    "publicUrl": "https://3971-ioyw6rihmz070wo38d6z1.e2b.app",
     "health": {
       "httpStatusCode": 200,
       "body": {
@@ -114,7 +114,7 @@
     "entry": "packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts",
     "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3973 nohup ~/.bun/bin/bun run scripts/r607-e2b-compute-worker.ts",
     "port": 3973,
-    "publicUrl": "https://3973-ifw657jm8lpa5feut1xvr.e2b.app",
+    "publicUrl": "https://3973-ioyw6rihmz070wo38d6z1.e2b.app",
     "health": {
       "httpStatusCode": 200,
       "body": {
@@ -126,25 +126,16 @@
       }
     },
     "bootLog": [
-      "135 |   outputSegmentStore: createDefaultOutputSegmentStore(),",
-      "136 |   ...(derivedRealityRenderer === undefined ? {} : { derivedRealityRenderer }),",
-      "137 |   encodedArtifactStore: pipeline.artifactStore,",
-      "138 |   nowMs: Date.now,",
-      "139 | });",
-      "140 | const server = createComputeWorkerServer({ worker, port: PORT, hostname: HOSTNAME });",
-      "                     ^",
-      "error: Failed to start server. Is port 3973 in use?",
-      " syscall: \"listen\",",
-      "   errno: 0,",
-      "    code: \"EADDRINUSE\"",
-      "      at /home/user/sporta-repo/packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts:140:16",
-      "Bun v1.4.2 (Linux x64)"
+      "[e2b-compute-worker] listening on http://0.0.0.0:3973",
+      "[e2b-compute-worker] adapter sporta.compute.hosted v0.1, providerKind cpu-worker, maxConcurrentJobs 4",
+      "[e2b-compute-worker] supportedRenderers: anime-npr.prototype, anime.prototype, game-3d.prototype, sporta.testcard, tactical.prototype",
+      "[e2b-compute-worker] derived-reality plane: COMPOSED (the local ffmpeg+libx264 toolchain resolved — tactical/game-3d/anime-npr render through the R306 bridges)"
     ],
     "role": "the inherited 62-c project env sets COMPUTE_PROVIDER=http (the composition's boot-time live descriptor fetch is fail-loud) — this flight STARTS and measures the compute worker on fresh provision (the 65-j orchestration gap, fix-forwarded) so the production posture stays bootable through the deploy leg"
   },
   "provisioning": {
-    "mode": "reused-live-sandbox",
-    "totalMs": 6986,
+    "mode": "fresh-provision",
+    "totalMs": 158876,
     "cloneCheckout": "git clone https://github.com/payswapdotorg/sporta.git + git checkout 920c556c18ba984d22d4bea50895b6a173b0a4bd (at /home/user/sporta-repo)",
     "notes": [
       "ffmpeg via `sudo apt-get install -y ffmpeg` (Debian bookworm 7:5.1.x + libx264)",

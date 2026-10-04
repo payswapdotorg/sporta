@@ -4,9 +4,9 @@
   "scope": "the client is this driver over the public wire (the same network position the hosted runtime holds); the hosted leg is the separate hosted-golden-path run",
   "workerIdentity": {
     "provider": "E2B",
-    "sandboxId": "ifw657jm8lpa5feut1xvr",
+    "sandboxId": "ioyw6rihmz070wo38d6z1",
     "pinnedSha": "920c556c18ba984d22d4bea50895b6a173b0a4bd",
-    "publicUrl": "https://3971-ifw657jm8lpa5feut1xvr.e2b.app",
+    "publicUrl": "https://3971-ioyw6rihmz070wo38d6z1.e2b.app",
     "note": "the worker the hosted runtime's MEDIA_TOOLCHAIN_URL points at (the same network position); the pinned revision carries the decode seam's ADDITIVE decode-probe/decode-frames profile"
   },
   "localToolchain": {
@@ -29,7 +29,7 @@
   "stages": {
     "probe": {
       "operation": "decode-probe",
-      "wallMs": 386,
+      "wallMs": 407,
       "probe": {
         "container": "mp4",
         "durationMs": 2000,
@@ -51,9 +51,9 @@
       "selectedVideoStreamIndex": 0,
       "accounting": {
         "starting": {
-          "dispatched": 2,
-          "succeeded": 1,
-          "failed": 1
+          "dispatched": 0,
+          "succeeded": 0,
+          "failed": 0
         },
         "delta": {
           "dispatched": 1,
@@ -64,7 +64,7 @@
     },
     "decodeFrames": {
       "operation": "decode-frames",
-      "wallMs": 2150,
+      "wallMs": 2211,
       "frameCount": 48,
       "firstFrame": {
         "frameId": "f-0-0",
@@ -87,9 +87,9 @@
       },
       "accounting": {
         "starting": {
-          "dispatched": 2,
-          "succeeded": 1,
-          "failed": 1
+          "dispatched": 0,
+          "succeeded": 0,
+          "failed": 0
         },
         "delta": {
           "dispatched": 2,
@@ -104,48 +104,48 @@
       "refused": true,
       "typedErrorClass": "ResourceLimitError",
       "framesAdmittedBeforeRefusal": 0,
-      "wallMs": 428
+      "wallMs": 432
     }
   },
   "ledger": {
-    "dispatched": 2,
-    "succeeded": 1,
-    "failed": 1,
-    "usageRecords": 2,
+    "dispatched": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "usageRecords": 0,
     "note": "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker"
   },
   "accounting": {
     "startingLedger": {
-      "dispatched": 2,
-      "succeeded": 1,
-      "failed": 1,
-      "usageRecords": 2,
+      "dispatched": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "usageRecords": 0,
       "note": "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker"
     },
     "stats": {
-      "jobsDispatched": 5,
+      "jobsDispatched": 3,
       "duplicates": 0,
-      "succeeded": 3,
-      "failed": 2,
+      "succeeded": 2,
+      "failed": 1,
       "inFlight": 0,
       "capacityRefusals": 0,
-      "usageRecords": 5,
-      "probeRuns": 5,
-      "transcodeRuns": 3,
-      "inputBytes": 230380,
+      "usageRecords": 3,
+      "probeRuns": 3,
+      "transcodeRuns": 2,
+      "inputBytes": 138228,
       "outputBytes": 11059200,
-      "totalExecutionMs": 813
+      "totalExecutionMs": 482
     },
-    "usageDrainCount": 5,
+    "usageDrainCount": 3,
     "usageRecordsThisRun": [
       {
-        "jobId": "mtdec-0ea5604230718b90bd346bce08cf4720"
+        "jobId": "mtdec-d00679c0505e2cf040cbf784f1b7d4fc"
       },
       {
-        "jobId": "mtdec-a500bf5e38573de02e009abb5cab5074"
+        "jobId": "mtdec-7dd6be1afc5a3f928f5ddc39528e3fce"
       },
       {
-        "jobId": "mtdec-efe4f6eb0a128583adb0376e8b5cfd84"
+        "jobId": "mtdec-186f0d92e63b65a9820ce3ee2b4136f3"
       }
     ],
     "identities": "dispatched === terminal; stats === the usage drain (two independent reads); the stages' deltas: probe +1/1/0, frames +1/1/0, refusal +1/0/1"
