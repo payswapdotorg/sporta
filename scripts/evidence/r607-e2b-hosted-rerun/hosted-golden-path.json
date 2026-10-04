@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-hosted-rerun-hosted-golden-path",
+  "note": "the HOSTED golden-path leg (the hosted Vercel runtime's own dispatch) — the honest typed record: NOT EXECUTED this flight (the deploy was refused at the provider's free-tier daily quota; see deploy-record.json); what IS measured is (a) the current production's API plane state (DOWN at the composition boot — the dead 62-c ephemeral worker URL) and (b) the seam-level admission PASS through this flight's E2B worker (golden-path-seam.json — a different, honestly-labeled client)",
+  "state": "blocked-deploy-quota-refused",
+  "plannedShape": {
+    "steps": [
+      "POST /api/auth/register (fresh sign-up)",
+      "POST /api/auth/login",
+      "POST /api/create/upload-sessions (multipart: the real corpus clip + rights + compute) — THE UPLOAD ADMISSION: the leg that refused at ffprobe-absent in the 2026-09-26 hosted run",
+      "the four-reality pipeline's Original leg (the admitted media job's normalization → the original-reality artifact)"
+    ],
+    "routeReferences": "the prior runs' shapes (r607-hosted-acceptance/commands.md §5-6, the journey-log route map)"
+  },
+  "whyNotExecuted": {
+    "rootCause": "the production deploy was REFUSED twice (typed: api-deployments-free-per-day, >100 — deploy-record.json deployAttempts); env changes take effect only on a NEW deployment, so the hosted runtime never received the re-pointed MEDIA_TOOLCHAIN_URL",
+    "attempted": "the deploy command (the brief's §6 shape, verbatim), retried once after ~15 minutes",
+    "currentProductionMeasuredInstead": {
+      "root": 200,
+      "apiPlatformHealth": 500,
+      "signupAttempt": {
+        "httpStatusCode": 500,
+        "errorId": "d01b946e-f6b9-40c4-8502-1ac170e02a80",
+        "runtimeCauseVerbatim": "compute worker descriptor fetch failed: HTTP 502 (the dead 62-c ephemeral sandbox URL baked at the 62-c deploy)"
+      }
+    }
+  },
+  "theExpectedUploadOutcomeAtThisPinnedSha": {
+    "note": "the code-measured expectation for WHEN the deploy lands (the TL's re-run): the upload admission at the hosted API is expected to REFUSE at the R207 real-to-SWM decode — NOT at the E2B-wired admission seam",
+    "evidenceBasis": [
+      "apps/web/src/server/create-studio-service.ts step 3 runs `new RealToSwmPipeline()` whose decode constructs `new FfmpegDecoderAdapter()` DIRECTLY (packages/real-to-swm/src/pipeline.ts:299) — a LOCAL-ffmpeg dependency with no seam, executing BEFORE step 5's media-platform admission (the step that IS E2B-wired via MEDIA_TOOLCHAIN=http)",
+      "the 62-c flight measured exactly this refusal live on the hosted plane (scripts/evidence/r607-e2b-media-failover README 'Gap 1' — the stack: requireBinary ← FfmpegDecoderAdapter.probe ← DecodingService.probe ← RealToSwmPipeline.run ← createUploadSession)",
+      "git-diff-verified this flight: NO commit between the 62-c base (f3807d3) and this pinned sha (300c035) touched packages/real-to-swm, packages/decoding, packages/media-platform, packages/compute-adapter-hosted, or the upload path (only the 62-c commit itself, then the HF/SPR benchmark flights)"
+    ],
+    "closingRequires": "the R607 gap flight A (the R207 remote seam — the 62-c record's delivered integration design: a decode-probe/decode-frames operation on the media-toolchain wire contract + the pipeline's decode-port injection) — a frozen-contract change, the TL's decision, never a worker improvisation"
+  },
+  "whatThisFlightDidExecute": {
+    "seamLevelAdmissionPass": {
+      "record": "golden-path-seam.json",
+      "verdict": "PASS — the upload admission (the REAL ffprobe dispatch on received bytes) PASSED through the remote E2B worker over the public wire (uploadState 'stored', checksumVerified, worker execution 86-123ms, the same W914 schema); the four-reality Original leg (normalization → the original-reality artifact, hash-chained 7/7, playable) EXECUTED on the E2B sandbox's real ffmpeg",
+      "clientHonesty": "the client was the orchestrating driver, NOT the hosted Vercel runtime — the distinction is the record's first-class field (workerIdentity.clientHonesty)"
+    },
+    "workerLive": "sandbox-record.json (the public health + descriptor verified from this sandbox — the same network position the Vercel runtime holds)",
+    "envWired": "deploy-record.json envWiring (MEDIA_TOOLCHAIN=http + MEDIA_TOOLCHAIN_URL → the live E2B worker, PATCHed 200 on the production target)"
+  },
+  "verdict": "the hosted golden path re-run is HONESTLY PARTIAL: the E2B external toolchain worker + the env wiring + the seam-level admission PASS executed and are recorded; the hosted runtime's own dispatch could NOT execute (the provider's deploy quota refused the deployment — a typed infrastructure refusal, never fabricated around)"
+}

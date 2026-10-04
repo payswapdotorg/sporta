@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r607-e2b-hosted-rerun-determinism",
+  "note": "same-provider determinism (the non-degradation law at the provider boundary): run 1 and run 2 executed against the SAME E2B sandbox/worker (the worker process restarted between runs \u2014 the driver fail-closes on a non-empty ledger; both records' accounting blocks prove fresh ledgers)",
+  "runs": {
+    "run1": {
+      "sourceSha256": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+      "artifactSha256": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+      "artifactBytes": 46195,
+      "admissionClientWallMs": 415,
+      "workerExecutionMsAdmission": 123
+    },
+    "run2": {
+      "sourceSha256": "4a347893921b2e21fa991d72c217c01b19953db5d72bab0efc36e4574de5bd4b",
+      "artifactSha256": "802c5c620779a1fed35bcbce556d24aaf7fbbb922121e889f10751c43efc4604",
+      "artifactBytes": 46195,
+      "admissionClientWallMs": 385,
+      "workerExecutionMsAdmission": 86
+    }
+  },
+  "verdict": {
+    "sourceByteIdentical": true,
+    "artifactByteIdentical": true,
+    "timingsVaryMeasured": true
+  },
+  "crossBuildNote": "the artifact sha differs from the prior r607-w914-toolchain record (964cec11\u2026 vs 802c5c62\u2026) \u2014 the E2B sandbox's Debian bookworm ffmpeg 5.1.9 vs the prior run's Debian trixie 7.1.5: the codec-build difference (the 62-c record's documented cross-build class; within THIS provider the two runs are byte-identical)"
+}
