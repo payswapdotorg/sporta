@@ -1,27 +1,30 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "kind": "r607-decode-seam-recovery-deploy-record",
-  "note": "the deploy leg the 65-j flight could not execute (its two attempts refused at the account's free-tier daily quota at ~08:55Z Oct 4) — this flight's window re-attempt landed it",
+  "note": "the deploy leg the 65-j flight could not execute (its two attempts refused at the account's free-tier daily quota at ~08:55Z Oct 4) — this flight's window re-attempt landed it TWICE (the honest history: the first deployment's ephemeral worker sandbox died mid-session — the ephemerality doctrine RE-MEASURED live — and the re-runnable recovery procedure re-executed end-to-end for the second)",
   "envWiring": {
-    "method": "PATCH v10/projects/sporta/env/{id} (production target, encrypted) — BEFORE the deploy so the new deployment bakes the fresh sandbox URLs",
+    "method": "PATCH v10/projects/sporta/env/{id} (production target, encrypted) — BEFORE each deploy so the new deployment bakes the live sandbox URLs",
     "patches": [
       {
         "envVarId": "iu0c8kUgznFwaH6F",
         "name": "MEDIA_TOOLCHAIN_URL",
-        "value": "https://3971-ifw657jm8lpa5feut1xvr.e2b.app",
-        "httpStatusCode": 200
+        "value": "https://3971-ioyw6rihmz070wo38d6z1.e2b.app",
+        "httpStatusCode": 200,
+        "note": "the RERUN-2 value (the fresh sandbox); the rerun-1 value was https://3971-ifw657jm8lpa5feut1xvr.e2b.app"
       },
       {
         "envVarId": "hSpnqXIKbF1Tb2J7",
         "name": "COMPUTE_WORKER_URL",
-        "value": "https://3973-ifw657jm8lpa5feut1xvr.e2b.app",
-        "httpStatusCode": 200
+        "value": "https://3973-ioyw6rihmz070wo38d6z1.e2b.app",
+        "httpStatusCode": 200,
+        "note": "the RERUN-2 value; the rerun-1 value was https://3973-ifw657jm8lpa5feut1xvr.e2b.app"
       },
       {
         "envVarId": "GHJXtTrqEuB1I8pg",
         "name": "SPORTA_DEPLOY_MARKER",
-        "value": "r607-decode-seam-rerun-1",
-        "httpStatusCode": 200
+        "value": "r607-decode-seam-rerun-2",
+        "httpStatusCode": 200,
+        "note": "the family r607-decode-seam-rerun-N; the hosted-golden-path record + this record must agree (the validator cross-checks)"
       }
     ],
     "unpatched": [
@@ -31,24 +34,38 @@
   },
   "deploy": {
     "command": "bunx vercel deploy --prod --yes --token $VERCEL_TOKEN --project sporta --scope ekonplacidegmailcoms-projects (from the repo root at the seam merge)",
-    "outcome": "DEPLOYED — the quota window had reset (the 65-j typed refusal was api-deployments-free-per-day at ~08:55Z Oct 4; this attempt at ~10:48Z Oct 4 succeeded)",
-    "deploymentId": "dpl_9i2uAP6kHyTLYmM8pApqppiNrogi",
-    "deploymentUrl": "sporta-4mtdi6idm-ekonplacidegmailcoms-projects.vercel.app",
+    "outcome": "DEPLOYED — TWICE (the quota window had reset; the 65-j typed refusal was api-deployments-free-per-day at ~08:55Z Oct 4)",
+    "deploymentId": "dpl_GJXYpu34H2urhYqsw9Q156gF4Zqq",
+    "deploymentUrl": "sporta-it0apshut-ekonplacidegmailcoms-projects.vercel.app",
     "state": "READY",
-    "createdAtMs": 1791110926058,
+    "createdAtMs": 1791114435152,
     "productionAlias": "https://sporta-flame.vercel.app",
+    "deployMarker": "r607-decode-seam-rerun-2",
+    "firstDeployment": {
+      "deploymentId": "dpl_9i2uAP6kHyTLYmM8pApqppiNrogi",
+      "deploymentUrl": "sporta-4mtdi6idm-ekonplacidegmailcoms-projects.vercel.app",
+      "state": "READY (superseded)",
+      "createdAtMs": 1791110926058,
+      "deployMarker": "r607-decode-seam-rerun-1",
+      "whatHappened": "landed ~10:48Z with the first sandbox (ifw657jm8lpa5feut1xvr) baked; the hosted walk measured the upload 201 + the media job succeeded + the watch leg integrity-verified on it; the sandbox DIED mid-session (~12:15Z — 'The sandbox was not found', both worker URLs 502) BEFORE the full walk's record was committed — the ephemerality doctrine's SECOND live measurement (the 62-c incident was the first), and the honest trigger for this re-execution"
+    },
     "priorDeploymentSuperseded": {
       "deploymentId": "dpl_Cr9SwXQF3prrUACFzRQddhsgCzdo",
-      "note": "the 62-c deployment whose BAKED COMPUTE_WORKER_URL was the long-dead 62-c sandbox — the production-500 incident's cause; superseded by this deployment"
+      "note": "the 62-c deployment whose BAKED COMPUTE_WORKER_URL was the long-dead 62-c sandbox — the production-500 incident's cause; superseded by the rerun-1 deployment"
     }
   },
   "productionMeasured": {
     "rootHttpStatusCode": 200,
     "apiPlatformHealth": {
       "httpStatusCode": 200,
-      "deployMarker": "r607-decode-seam-rerun-1",
-      "note": "the boot-time compute-worker descriptor fetch SUCCEEDED (the live 3973 companion worker) — the production-500 incident (every API route 500ing on the dead baked URL) is CLOSED"
+      "deployMarker": "r607-decode-seam-rerun-2",
+      "note": "the boot-time compute-worker descriptor fetch SUCCEEDED (the live 3973 companion worker) — the production-500 incident (every API route 500ing on the dead baked URL) is CLOSED at every deployment that bakes a LIVE worker URL; the incident class itself (a baked EPHEMERAL URL) re-manifests whenever the sandbox dies — the persistent-worker-host decision is the closure"
     }
+  },
+  "ephemeralityDoctrine": {
+    "measuredLive": "TWICE this session (the 62-c incident inherited from the prior flight; the rerun-1 sandbox death at ~12:15Z measured first-hand: both worker URLs 502 'The sandbox was not found', the upload path refusing with the typed http-502 class)",
+    "theHonestPosture": "every record in this tree states which sandbox/deployment it measured; a dead worker URL is a typed refusal at the composition, never a laundered availability; the re-runnable procedure (commands.md) re-executes the whole chain against a fresh sandbox in ~30 minutes",
+    "theOperatorDecision": "a PERSISTENT worker host (a long-lived deployment) is the production posture's closure — named in the status row, never improvised by a worker"
   },
   "credentialsDiscipline": "VERCEL_TOKEN env-only (/home/z/.sporta-env; never echoed in full, never committed; the record carries no secrets)"
 }

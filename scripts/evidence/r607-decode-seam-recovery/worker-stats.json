@@ -1,1 +1,1 @@
-{"jobsDispatched":17,"duplicates":0,"succeeded":15,"failed":2,"inFlight":0,"capacityRefusals":0,"usageRecords":17,"probeRuns":20,"transcodeRuns":9,"inputBytes":690064,"outputBytes":44351799,"totalExecutionMs":3759}
+{"jobsDispatched":19,"duplicates":0,"succeeded":18,"failed":1,"inFlight":0,"capacityRefusals":0,"usageRecords":19,"probeRuns":23,"transcodeRuns":10,"inputBytes":510692,"outputBytes":44329894,"totalExecutionMs":3285}

@@ -51,35 +51,40 @@ curl -s -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
 # GHJXtTrqEuB1I8pg → r607-decode-seam-rerun-1 (SPORTA_DEPLOY_MARKER → 200)
 ```
 
-## 4) The deploy — LANDED (the quota window had reset)
+## 4) The deploy — LANDED TWICE (the quota window had reset; the ephemerality re-measured)
 
 ```bash
 bunx vercel deploy --prod --yes --token "$VERCEL_TOKEN" \
   --project sporta --scope ekonplacidegmailcoms-projects
-# → DEPLOYED (deploy-record.json): dpl_9i2uAP6kHyTLYmM8pApqppiNrogi, READY,
-#    sporta-4mtdi6idm-ekonplacidegmailcoms-projects.vercel.app, production
-#    alias https://sporta-flame.vercel.app; the 65-j refusal
-#    (api-deployments-free-per-day at ~08:55Z Oct 4) did not reproduce at
-#    ~10:48Z. The production-500 incident (the dead 62-c baked
-#    COMPUTE_WORKER_URL) is CLOSED: /api/platform/health 200, marker
-#    r607-decode-seam-rerun-1.
+# → DEPLOYED x2 (deploy-record.json): rerun-1 dpl_9i2uAP6kHyTLYmM8pApqppiNrogi
+#    at ~10:48Z (the 65-j quota refusal did not reproduce), then rerun-2
+#    dpl_GJXYpu34H2urhYqsw9Q156gF4Zqq at ~12:27Z — the SECOND exists because
+#    the first sandbox DIED MID-SESSION (~12:15Z, "The sandbox was not
+#    found" — the ephemerality doctrine's second live measurement), and the
+#    re-runnable procedure re-executed end-to-end (fresh sandbox ioyw6rihmz…
+#    → re-PATCH → re-deploy → re-walk) in ~30 minutes. The production-500
+#    incident is CLOSED at every deployment baking a LIVE worker URL
+#    (/api/platform/health 200, the seam marker family).
 ```
 
-## 5) The hosted golden path — EXECUTED, THE CLOSURE (hosted-golden-path.json)
+## 5) The hosted golden path — EXECUTED, THE CLOSURE, the COMPLETE walk
 
 ```bash
 bun run scripts/evidence/r607-decode-seam-recovery/hosted-golden-path.ts \
-  --base https://sporta-flame.vercel.app
+  --base https://sporta-flame.vercel.app --expected-marker r607-decode-seam-rerun-2
 # → PASS (hosted-golden-path.json): register 200 → login 200 (session
-#    cookie) → POST /api/create/upload-sessions 201 in ~4.6s — stored +
+#    cookie) → POST /api/create/upload-sessions 201 in ~5-8s — stored +
 #    checksum verified, the R207 decode EXECUTED OVER THE WIRE (the E2B
 #    worker's real ffmpeg; the exact leg that refused at
 #    new FfmpegDecoderAdapter() at every pre-seam sha — the 62-c Gap 1),
-#    the perception ran on the 48 decoded frames, and the media job
-#    reached TERMINAL: state succeeded, progress 1, stages through
-#    normalization-complete (the four-reality Original leg). The
-#    code-measured expectation at the seam merge FLIPPED exactly as the
-#    seam designed.
+#    the perception ran on the 48 decoded frames, the media job TERMINAL
+#    (state succeeded, progress 1, stages through normalization-complete),
+#    THE WATCH LEG: the catalog + the Original byte-route playback
+#    INTEGRITY-VERIFIED (38 333 B sha-matched, ftyp, the 206 Range slice),
+#    and THE J004 ONE-SUBMISSION leg: the derived kinds' TYPED
+#    producer-unavailable refusals recorded (the R306 encode seam — the
+#    derived plane's LOCAL-ffmpeg dependency — is the named next gap), the
+#    session's Original played back integrity-verified (8 214 B).
 ```
 
 ## 6) The gates — ALL GREEN
