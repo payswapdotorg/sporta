@@ -1,0 +1,76 @@
+{
+  "label": "the license posture — FIRST-CLASS, argued from RECORDED TERMS ONLY (the ledger row's own sources, fetched bounded as TEXT documents; never legal advice)",
+  "neverLegalAdvice": true,
+  "theThreeSourcesDistinguished": [
+    {
+      "document": "LICENSE (the GitHub switchboard index, 537 B)",
+      "url": "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE",
+      "sha256": "ac628c687b48adb26d8523b967e7f0573590a166157c99c95eb8d070805e739a",
+      "matchesCommittedFetch": true,
+      "role": "the repo's own license switchboard — it DATES and APPLIES the two agreements",
+      "verbatimApplication": "eleases of LTX-2.x under this license. LTX-2 Community License Agreement [https://github.com/Lightricks/LTX-2/blob/main/LICENSE-2] Dated January 5, 2026. This license is applicable to all LTX-2 versions released since January 5, 2026, including LTX-2.3 until August 11, 2026.",
+      "verbatimApplication2": "LTX Community License Agreements LTX-2.x Community License Agreement [https://github.com/Lightricks/LTX-2/blob/main/LICENSE-2_x] Dated August 11, 2026. This license is applicable to all LTX-2.5 versions released since August 11, 2026, and all future releases of LTX-2.x"
+    },
+    {
+      "document": "LICENSE-2 (the LTX-2 Community License Agreement, dated January 5, 2026, 19 197 B)",
+      "url": "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE-2",
+      "sha256": "c325da090976a313b214bf0d6a1738003b96505c01c46043e80edc200a72c147",
+      "matchesCommittedFetch": true,
+      "role": "the agreement the card's YAML license_link names (license_name ltx-2-community-license-agreement) and the one the HF repo's own LICENSE file carries (verified byte-distinct formatting, same agreement — see hfRepoLicense below)",
+      "grantVerbatim": "chatbot, translator, image generator. 2. Grant of License. Subject to the terms and conditions of this Agreement, you are granted a non-exclusive, worldwide, non-transferable and royalty-free limited license under Licensor's intellectual property or other rights owned by Licensor embodied in LTX-2 to use, reproduce, prepare, distribute, publicly display, publicly perform, sublicense, copy, create derivative works of, and make modifications to LTX-2, for any purpose, subject to the restrictions set forth in Attachment A; provided however, that Entities with annual revenues of at least $10,000,000 (the \"Commercial Entities\") are required to obtain a paid commercial use license in order to use LTX-2 and Derivatives of LTX-2, subjec",
+      "commercialEntityThresholdVerbatim": "in Attachment A; provided however, that Entities with annual revenues of at least $10,000,000 (the \"Commercial Entities\") are required to obtain a paid commercial use license in order to use LTX-2 and Derivatives of LTX-2, subject to the terms and provisions of a different license (the \"Commercial Use Agreement\"), as will be provided by the Licensor. Commercial Entities interested in such a commercial license are required to contact Licensor. Any commercial use of LTX-2 or Derivatives of LTX-2 by the Commercial Entities not in accorda",
+      "useRestrictionsNotable": [
+        "sparage or otherwise harass others; 7. To impersonate or attempt to impersonate (e.g. deepfakes) others without their consent; 8. For fully automated decision",
+        "physical or environmental damage; 18. For commercial use only: To train, improve, or fine-tune any other machine learning model, artificial intelligence system, or competing model, except for Derivatives of LTX-2 as expressly permitted under this Agreement; 19. To circumvent, disable, or interfer",
+        "y product, service, or application that directly competes with Licensor's commercial products or services, or is designed to replace or substitute Licensor's offerings in the market, without obtaining a separate commercial license from Licensor."
+      ]
+    },
+    {
+      "document": "LICENSE-2_x (the LTX-2.x Community License Agreement, dated August 11, 2026, 30 399 B)",
+      "url": "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE-2_x",
+      "sha256": "be75acae5c99b0fb16ed6cfbf8f731e5121a729bef112d20337699407e796451",
+      "matchesCommittedFetch": true,
+      "role": "the agreement the card's PROSE license link names ('You can use the models - full, distilled, upscalers and any derivatives of the models - for purposes under the [license](LICENSE-2_x)') and the one the LICENSE index applies to releases since August 11, 2026",
+      "grantVerbatim": "image generator. 2. Grant of License. 2.1 Subject to your compliance with the terms and conditions of this Agreement, you are granted a non-exclusive, worldwide, non-transferable and royalty-free limited license under Licensor's intellectual property or other rights owned by Licensor embodied in LTX-2.x to use, reproduce, prepare, distribute, publicly display, publicly perform, sublicense, copy, create derivative works of, and make modifications to LTX-2.x, for any purpose, subject to the restrictions set forth in Attachment A; provided however, that Entities with annual revenues of at least $10,000,000 (the \"Commercial Entities\") are required to obtain a paid license for any use (excluding use solely for a Non-Commercial Purpos",
+      "nonCommercialCarveOutVerbatim": "30) days of Licensor's written demand. 2.2 Notwithstanding the foregoing or anything to the contrary in this Agreement, a Commercial Entity may download and use LTX-2.x and Derivatives of LTX-2.x without obtaining the Commercial Use Agreement solely for a Non-Commercial Purpose. \"Non-Commercial Purpose\" means any of the following uses, but only so far as such Commercial Entity does not receive any direct or indirect payment arising from the use of LTX-2.x or Derivatives of LTX-2.x: (i) use by an individual acting in a personal capacity for research, experimentation, learning, private study, hobby or recreational projects, or personal entertainment, in each case where such use is not connected, directly or indirectly, to any comme"
+    }
+  ],
+  "hfRepoLicenseAtPinnedRevision": {
+    "url": "https://huggingface.co/Lightricks/LTX-2.3/resolve/3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc/LICENSE",
+    "bytes": 21399,
+    "sha256": "e28ef68d90e17b06308e4c5cba5c9a967b70c3d67f87ddc3dfc46a312cb6a134",
+    "agreementIdentified": "the LTX-2 Community License Agreement (the LICENSE-2 agreement text, HF-side formatting — 'License date: January 5, 2026' present in the fetched text)",
+    "isSameAgreementAsLicense2": true,
+    "isSameAgreementAsLicense2Note": "the HF LICENSE file and GitHub LICENSE-2 are formatting variants of the SAME agreement (both begin 'LTX-2 Community License Agreement / License date: January 5, 2026'); byte-distinct, agreement-identical"
+  },
+  "governingAgreementAmbiguity": {
+    "status": "OPEN EDGE — the candidate's own sources point at BOTH agreements",
+    "evidence": [
+      "the card YAML: license_name ltx-2-community-license-agreement + license_link -> LICENSE-2 (GitHub)",
+      "the card PROSE: 'You can use the models ... for purposes under the [license](LICENSE-2_x)'",
+      "the HF repo's own LICENSE file at the pinned revision: the LTX-2 Community License Agreement (LICENSE-2's agreement)",
+      "the LICENSE index: 'LTX-2 Community License Agreement ... applicable to all LTX-2 versions released since January 5, 2026, including LTX-2.3 until August 11, 2026' vs 'LTX-2.x ... applicable to all LTX-2.5 versions released since August 11, 2026, and all future releases of LTX-2.x under this license' — and the pinned LTX-2.3 snapshot's lastModified is 2026-10-02, AFTER the August 11 switch date, so the date rule alone does not resolve which agreement governs THIS snapshot",
+      "the ledger row (the frozen authority): 'ltx-2-community-license-agreement per card license_link to Lightricks/LTX-2 LICENSE-2'"
+    ],
+    "honestVerdict": "recorded, not adjudicated: BOTH agreements' key terms are documented below; which one governs the pinned snapshot is a question for the HF015 gate / human legal review — the worker argues from recorded terms only"
+  },
+  "sharedSubstance": {
+    "commercialEntityRule": "BOTH agreements: Entities with annual revenues of at least $10,000,000 ('Commercial Entities') must obtain a paid Commercial Use Agreement; commercial use by such entities without it is 'strictly prohibited and ... deemed a material breach' (LICENSE-2 adds liquidated damages at double the owed fees; LICENSE-2_x adds a 30-day demand window at standard fees/market rate)",
+    "subThresholdRule": "entities below the $10M revenue threshold: a non-exclusive, worldwide, non-transferable, royalty-free limited license 'for any purpose, subject to the restrictions set forth in Attachment A'",
+    "nonCommercialCarveOutDifference": "LICENSE-2_x §2.2 adds an explicit Non-Commercial Purpose carve-out for Commercial Entities (personal-capacity research + testing/evaluation/non-commercial R&D in a non-production environment); LICENSE-2 has no such carve-out",
+    "useRestrictions": "Attachment A (both): no PII generation/dissemination, no impersonation/deepfakes without consent, no discrimination, no malware, no military/weapons use, no competing-model training (commercial use only, except Derivatives), no circumvention of safety features, no competing with Licensor's offerings without a separate commercial license",
+    "derivativesClause": "'Derivatives of LTX-2' covers fine-tuned/adapted weights, derivative architectures, and extended Complementary Materials — all subject to the Agreement"
+  },
+  "codeLicenseProbe": {
+    "ledgerSays": "unknown",
+    "githubApiLicense": "Other / NOASSERTION (probed bounded: the Lightricks/LTX-2 repo root carries only the model community-license documents; GitHub's detector asserts no code license)",
+    "verdict": "codeLicense 'unknown' CONFIRMED still accurate — the inference code's license remains unidentified by the repo's own surfaces (an open edge for HF015)"
+  },
+  "datasetProvenance": "unknown (the ledger row; no dataset statement found on the card or in the license documents — an open edge)",
+  "verdict": "research-grade / watchlist-pending-terms: the recorded terms are CONDITIONAL commercial terms (sub-$10M community license vs >= $10M paid Commercial Use Agreement + Attachment A use restrictions), the governing agreement for THIS pinned snapshot is ambiguous among the candidate's own sources, codeLicense is unknown (probed NOASSERTION), and datasetProvenance is unknown — NOT production-eligible by recorded terms; the HF015 gate owns adjudication. Argued from recorded terms only; never legal advice; never a promotion (gatingState stays candidate).",
+  "echoedFromLedger": {
+    "modelLicense": "other (ltx-2-community-license-agreement — per card license_link to Lightricks/LTX-2 LICENSE-2)",
+    "commercialUse": "unclear",
+    "codeLicense": "unknown"
+  }
+}

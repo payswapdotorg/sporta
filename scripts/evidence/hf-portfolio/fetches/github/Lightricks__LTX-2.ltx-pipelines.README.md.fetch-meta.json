@@ -1,0 +1,12 @@
+{
+  "fetches": [
+    {
+      "url": "https://raw.githubusercontent.com/Lightricks/LTX-2/main/packages/ltx-pipelines/README.md",
+      "httpStatus": 200,
+      "bytes": 3223,
+      "note": "the documented loading-recipe authority the LTX-2.3 card points to (the card's Run locally section -> the LTX-2 codebase -> ltx-pipelines); fetched bounded by the HF013 flight (a text document, never weights)"
+    }
+  ],
+  "lastFetchedAtUtc": "2026-10-04T05:55:00Z",
+  "fetchedBy": "HF013 (worker 65-d) — the load-analysis leg"
+}

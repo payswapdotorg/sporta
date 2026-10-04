@@ -1,0 +1,161 @@
+{
+  "benchmarkRun": {
+    "workItem": "HF013 — Joint audio-video benchmark",
+    "workItemVerbatim": "Owner: Worker C + Worker A.\nCandidate: LTX-2.3.\nAcceptance: evaluate future combined commentary/reality generation and upscaling; document community-license/commercial-use constraints.",
+    "provenanceLedgerEcho": {
+      "note": "the LTX-2.3 provenance-ledger row echoed VERBATIM (generated programmatically from scripts/evidence/hf-portfolio/provenance-ledger.json for byte-identity; validated by record-benchmark.ts)",
+      "candidates": [
+        {
+          "candidate": "LTX-2.3",
+          "taskProfiles": [
+            "renderer.neuralVideo",
+            "renderer.audioVideoGeneration",
+            "renderer.upscale"
+          ],
+          "modelUrl": "https://huggingface.co/Lightricks/LTX-2.3",
+          "revision": "3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc",
+          "modelLicense": "other (ltx-2-community-license-agreement — per card license_link to Lightricks/LTX-2 LICENSE-2)",
+          "codeLicense": "unknown",
+          "weightsProvenance": "LTX-2.3, Lightricks' update to LTX-2 with improved audio/visual quality and prompt adherence; DiT-based audio-video foundation model; checkpoint family ltx-2.3-22b (dev, distilled, distilled-LoRA) plus spatial/temporal upscalers, per card.",
+          "datasetProvenance": "unknown",
+          "commercialUse": "unclear",
+          "gatingState": "candidate",
+          "sources": [
+            "https://huggingface.co/Lightricks/LTX-2.3",
+            "https://huggingface.co/api/models/Lightricks/LTX-2.3",
+            "https://huggingface.co/Lightricks/LTX-2.3/raw/main/README.md",
+            "https://github.com/Lightricks/LTX-2",
+            "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE",
+            "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE-2",
+            "https://raw.githubusercontent.com/Lightricks/LTX-2/main/LICENSE-2_x"
+          ],
+          "recordedAt": "2026-10-03T01:40:10Z"
+        }
+      ]
+    },
+    "modelRuntime": {
+      "python": "3.12.14 (the lean benchmark venv /home/z/hf-bench-10 — huggingface_hub 2.1.1 ONLY; torch NOT installed by design)",
+      "huggingfaceHub": "2.1.1",
+      "torch": "not installed (the typed refusal — no model ever ran)",
+      "bun": "1.3.14 (the TS-side validators)",
+      "gpu": "N/A — no GPU on the benchmark host (never zero, never invented)"
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "verdict": "refused",
+      "reasonsVerbatimInEvidence": "results/preflight-refusal.json (reasons recorded verbatim by the EXECUTED preflight; validated below)",
+      "evidence": "scripts/evidence/hf-portfolio/hf013/results/preflight-refusal.json",
+      "note": "the pinned candidate tree is 145.295 GiB (140.1x free disk); the minimal single-checkpoint loading composition ~98.9 GiB (95.4x); the bf16 working set 96.2 GiB (24.4x TOTAL RAM); the documented recipe is GPU-first (CUDA > 12.7); even the 0.244 GiB temporal upscaler is a LATENT-space stage with no standalone runnable path. NO auth wall (gated=False, anonymous Range-0 probe 206) — the contrast with HF010's Meridian/VGGT-Omega gate; the aux Lightricks/LTX-2.5 repo is gated auto but is NOT a download dependency (the LTX-2 component tree is ungated)."
+    },
+    "fixtures": [
+      {
+        "fixtureId": "ltx23-pinned-tree",
+        "status": "designed-not-run (probed metadata-only; weights never downloaded)",
+        "scored": false,
+        "unscoredReason": "resource-infeasible-host — the typed refusal",
+        "evidence": "scripts/evidence/hf-portfolio/hf013/results/load-analysis.json"
+      },
+      {
+        "fixtureId": "repo-authorized-output-artifacts (the upscaling comparison source inputs)",
+        "status": "designed-not-run (the repo's own four-reality outputs — the ONLY sanctioned source inputs, never new content)",
+        "scored": false,
+        "unscoredReason": "resource-infeasible-host — the comparison design + the no-lying metrics are delivered typed not-measured",
+        "evidence": "scripts/evidence/hf-portfolio/hf013/results/upscaling-pipeline-comparison.json"
+      }
+    ],
+    "licensePosture": {
+      "status": "FIRST-CLASS, argued-from-recorded-terms-only, never legal advice",
+      "ltx23": "research-grade / watchlist-pending-terms: the three license sources distinguished (LICENSE the switchboard index; LICENSE-2 the LTX-2 Community License Agreement Jan 5 2026; LICENSE-2_x the LTX-2.x agreement Aug 11 2026) + the HF repo's own LICENSE at the pinned revision (the LICENSE-2 agreement); the governing agreement for THIS pinned snapshot is ambiguous among the candidate's own sources (card YAML license_link -> LICENSE-2 vs card prose -> LICENSE-2_x vs the index's date rule with the snapshot lastModified 2026-10-02); the shared substance: sub-$10M community license vs >= $10M paid Commercial Use Agreement (LICENSE-2_x adds the Non-Commercial Purpose carve-out) + Attachment A use restrictions; codeLicense unknown CONFIRMED (GitHub NOASSERTION probe); datasetProvenance unknown",
+      "evidence": "scripts/evidence/hf-portfolio/hf013/results/license-posture.json"
+    },
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "no model ran; the three-profile metric designs are implemented typed not-measured with exact definitions, self-checked against hand-computed cases (31/31)",
+      "contractCompatibilityVerdict": "PARTIAL — see results/contract-compatibility.json",
+      "evidence": "scripts/evidence/hf-portfolio/hf013/results/metric-selfcheck.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "2-vCPU CPU latency infeasibility is one of the refusal reasons; no wall-clock figure exists (CPU wall-clock would be labeled as such; GPU N/A honestly)"
+    },
+    "memory": {
+      "gpuMemory": "N/A — no GPU on the benchmark host",
+      "status": "not-measured-typed-refusal",
+      "note": "the bf16 working-set ARITHMETIC (24.4x total RAM) is recorded in the load analysis — arithmetic, never a measurement"
+    },
+    "theEvidenceChainExclusion": {
+      "statement": "generated commentary audio can NEVER be evidence-chain audio (the HF007/HF008 transcription-vs-generation boundary; W207/W208 the authorities) — LTX-2.3's joint audio-video GENERATION inherits the boundary; the verdict is carried in the contract mapping, never weakened",
+      "machineCheck": "generated_audio_evidence_exclusion (benchmark_ltx23.py — self-checked BOTH directions: the generated-audio plan REFUSED with the violation named; the W207 transcription-of-observed-audio shape ACCEPTED; unknown shapes REFUSED fail-closed)",
+      "acceptedShapes": [
+        "W207: modality audio, provenance OBSERVED, payloadKind transcription (text verbatim)",
+        "W208: provenance DERIVED over observed transcriptions"
+      ],
+      "refusedShapes": [
+        "provenance GENERATED / payloadKind generation / source audioVideoGeneration-output",
+        "any unknown provenance/payload shape (fail-closed)"
+      ],
+      "whatGeneratedAudioRemains": [
+        "a MEASURAND (the benchmark scores its quality — never its evidentiary fitness, which is settled)",
+        "a RENDER PRODUCT behind the rights contract (derivativeGeneration explicitly allowed by a currently-valid AuthorizationPolicy)"
+      ]
+    },
+    "resourceCaveats": [
+      "GPU N/A — no GPU on the benchmark host (honestly recorded, never zero)",
+      "weights NEVER downloaded: the preflight used HF API metadata + 1-byte anonymous Range reachability probes + TEXT license-document fetches only (the license documents are ~21-30 KB text files — documents, not weights)",
+      "no fabricated measurements: every metric-shaped value in this record is a typed design, a hand-computed self-check case, or a refusal — a machine scan refuses any measurement-shaped key (negative-tested by the TL)",
+      "the full mode fails closed (exit 3) below the adequate-host floor: >= 64 GiB RAM, >= 256 GiB free disk, CUDA — verified on THIS host without pipe-masking",
+      "THE EVIDENCE-CHAIN EXCLUSION: generated commentary audio can NEVER be evidence-chain audio (the load-bearing doctrine; machine-checked both directions in the selfcheck)",
+      "the shared-estimator import: the temporal-SSIM/flow/hallucination/cost/identity estimators are IMPORTED from the merged hf010 benchmark (never re-implemented — both comparison lanes scored by the same code)",
+      "host-stat regeneration note: a preflight re-run differs only in live availableRam/freeDisk bytes (the hf010/hf011/hf012 precedent); the committed bytes are this executing worker's canonical evidence"
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/preflight-refusal.json",
+        "description": "the EXECUTED typed refusal (exit 3) with the reasons verbatim + the no-auth-wall record"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/load-analysis.json",
+        "description": "the per-family-member load analysis (dev/distilled/distilled-1.1/distilled-LoRA x2/spatial x2/temporal) + the auxiliary-component accounting + the host-gap arithmetic"
+      },
+      "licensePosture": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/license-posture.json",
+        "description": "the FIRST-CLASS license documentation: the three sources distinguished + the HF LICENSE at the pinned revision + verbatim citations + the governing-agreement ambiguity + the codeLicense NOASSERTION probe"
+      },
+      "modelIoSurface": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/model-io-surface.json",
+        "description": "the documented I/O surface (conditioning classes + outputs + the card's own limitations verbatim)"
+      },
+      "metricImplementations": {
+        "path": "scripts/evidence/hf-portfolio/hf013/benchmark_ltx23.py",
+        "description": "the three-profile metric designs implemented ready-to-run (av sync/xcorr/WER/audio-hallucination + the upscale no-lying/detail/artifact/temporal set + the shared hf010 imports)"
+      },
+      "metricSelfCheck": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/metric-selfcheck.json",
+        "description": "31/31 hand-computed cases + the evidence-chain exclusion proof both directions (labeled implementation evidence, NOT a model measurement)"
+      },
+      "upscalingPipelineComparison": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/upscaling-pipeline-comparison.json",
+        "description": "the STATIC-REVIEW capability delta (the repo's four-output MP4 pipeline + normalization/encoding chain vs LTX-2.3's latent upscalers) + the adequate-host comparison design (the repo's own authorized artifacts as source inputs)"
+      },
+      "contractMappings": {
+        "path": "scripts/evidence/hf-portfolio/hf013/results/contract-compatibility.json",
+        "description": "the machine-checked mapping: 3 input rows + 3 output rows + THE evidence-chain exclusion + the rights/commercial-use posture + the output seam + the metric mapping (9 authorities needle-checked)"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf013/benchmark_ltx23.py",
+        "description": "the --mode full path for an adequate host (fail-closed exit 3 on this host — negative-tested without pipe-masking)"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "zero executed evidence (resource-infeasible on this host; an adequate host is an operator action)",
+        "the license posture: research-grade/watchlist-pending-terms — the governing agreement ambiguous among the candidate's own sources + the >= $10M Commercial Entity paid-license terms + Attachment A; commercialUse 'unclear' stands",
+        "codeLicense unknown (probed NOASSERTION) + datasetProvenance unknown",
+        "the evidence-chain exclusion stands regardless of resources (generated commentary audio never evidence — the doctrine is resource-independent, like HF010's license blocker)",
+        "the upscale pixel-domain reading has no direct candidate surface (the latent two-stage design is the only honest mapping)"
+      ],
+      "note": "HF015 (the TL promotion gate) owns adjudication; no promotion claim is made or implied by this flight"
+    }
+  }
+}

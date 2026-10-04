@@ -1,0 +1,40 @@
+{
+  "label": "LTX-2.3's documented I/O surface (from the card frontmatter tags + the card's own run-locality sections + the ltx-pipelines README — STATIC-REVIEW, no model ever ran)",
+  "pipelineTag": null,
+  "inputModalities": {
+    "conditioning": [
+      "text (prompt — the Gemma text encoder path)",
+      "image (i2v / first-last-frame conditioning)",
+      "video (v2v, keyframe interpolation, retake)",
+      "audio (a2v, dubbing)"
+    ],
+    "NOT offered": [
+      "camera path / pose sequence (no camera-trajectory conditioning surface anywhere on the card or the pipelines docs — the HF010 camera-path vocabulary has NO LTX-2.3 surface; typed gap)",
+      "SWM snapshot / events (no structured world-model input; the conditioning class is prompt/image/video/audio pixels-and-text, never the repo's observation world)"
+    ]
+  },
+  "outputModalities": {
+    "video": "synchronized video (width/height divisible by 32; frame count divisible by 8+1; pad with -1 then crop — the card's own rule)",
+    "audio": "synchronized audio (joint generation; 'When generating audio without speech, the audio may be of lower quality' — the card's own limitation)",
+    "container": "mp4 via the ltx-pipelines output I/O",
+    "latentUpscalers": [
+      "ltx-2.3-spatial-upscaler-x1.5-1.0 / x2-1.1 (higher resolution, multiscale pipelines)",
+      "ltx-2.3-temporal-upscaler-x2-1.0 (higher FPS)"
+    ]
+  },
+  "familyVariants": "dev (full, trainable) / distilled (+1.1) (8 steps, CFG=1) / distilled-LoRA-384 (+1.1) (applicable TO the full model) / spatial x1.5 x2 / temporal x2",
+  "documentedRecipeSurface": {
+    "python": ">= 3.12",
+    "cuda": "> 12.7 (tested)",
+    "pytorch": "~= 2.7",
+    "diffusersSupport": "'coming soon' per the card (library_name: diffusers is declared but the card's own text says support is coming soon — recorded honestly)"
+  },
+  "cardLimitationsVerbatim": [
+    "This model is not intended or able to provide factual information.",
+    "As a statistical model this checkpoint might amplify existing societal biases.",
+    "The model may fail to generate videos that matches the prompts perfectly.",
+    "Prompt following is heavily influenced by the prompting-style.",
+    "The model may generate content that is inappropriate or offensive.",
+    "When generating audio without speech, the audio may be of lower quality."
+  ]
+}

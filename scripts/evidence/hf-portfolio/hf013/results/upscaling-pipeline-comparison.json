@@ -1,0 +1,87 @@
+{
+  "label": "STATIC-REVIEW + typed not-measured design — LTX-2.3's latent upscalers vs the repo's own media-platform output pipeline",
+  "staticReview": {
+    "repoToday": {
+      "fourOutputPipeline": "R604 four-output MVP realities (packages/contracts/src/media-artifact.ts RealityKind): original | tactical | three-d-game | anime-npr — a CLOSED vocabulary; container 'mp4'; codecs avc1.42E01E / mp4a.40.2; rendererId + rendererVersion per artifact",
+      "outputProfiles": [
+        "tactical (packages/renderer-tactical/src/identity.ts): 640x360@12.5 + 1280x720@25, h264/mp4, offline",
+        "game-3d (packages/renderer-3d/src/game/identity.ts): 640x360@25 (GAME_MP4_SD_PROFILE) + 1280x720@25 (GAME_MP4_HD_PROFILE)",
+        "anime-npr DEFAULT (ANIME_MP4_SD_TWOS_PROFILE): 640x360@12 'on twos' (the J013 budget resolution — the 1 000 000-byte hosted artifact budget; historical SD@25 + HD@25 remain supported)",
+        "renderer-anime SVG prototype: 1170x880@1fps svg (the pre-MP4 identity)"
+      ],
+      "normalizationChain": "R102: SourceAsset -> normalized MediaManifest (NormalizedVideoStream codec/widthPx/heightPx/frameRateFps, sha-256 of the normalized bytes) — the canonical encoding every downstream consumer reads; the pipeline NORMALIZES to a canonical form (fixed geometry/fps), it never ENHANCES",
+      "encodingChain": "packages/encoding: the frozen-template codec argv (libx264, deterministic; fixture.ts: deterministic document = magic + canonical JSON of (origin, geometry, fps, stream sha-256)); artifact sizes bounded by the hosted compute plane's 1 000 000-byte budget",
+      "upscalingToday": "NONE — the repo has no super-resolution / interpolation / enhancement stage anywhere (rg 'upscale|super-resolution' over packages/ hits only the FROZEN profile references + the evaluation registry's hf.ltx23 row); resolutions are chosen at RENDER time from the fixed OutputProfile list, never derived from an existing artifact"
+    },
+    "ltx23WouldAdd": {
+      "whatTheUpscalersAre": "LATENT-space stages (the card's own table: 'upscaler for the ltx-2.3 latents, used in multi stage (multiscale) pipelines') — they consume ltx-2.3's own latent representation, NOT arbitrary source MP4 frames",
+      "spatial": "x1.5 and x2 latent spatial upscaling inside the multiscale generation pipeline (higher output resolution than the base pass)",
+      "temporal": "x2 latent temporal upscaling (higher output FPS than the base pass)",
+      "theAdaptationGap": "the repo's artifacts are PIXEL-domain MP4s; LTX-2.3's upscalers are LATENT-domain stages of ITS OWN generation pipeline. There is NO documented path that upscales a foreign MP4 with these checkpoints — the honest mapping for renderer.upscale against EXISTING repo artifacts is a TWO-STAGE design: re-encode the artifact's frames as image/video conditioning into the LTX-2.3 pipeline, then apply the upscaler stages — which is GENERATION-CONDITIONED-ON-THE-SOURCE, not pure upscaling, and the no-lying metrics below exist precisely to police it"
+    },
+    "capabilityDelta": [
+      {
+        "axis": "input domain",
+        "repo": "source MP4 frames + SWM snapshot (procedural or source-conditioned render)",
+        "ltx23": "ltx-2.3 LATENTS from its own diffusion pass; foreign video only via image/video conditioning"
+      },
+      {
+        "axis": "resolution control",
+        "repo": "fixed OutputProfile list per renderer (640x360 / 1280x720)",
+        "ltx23": "arbitrary width/height divisible by 32 via base pass + x1.5/x2 latent upscaler stages"
+      },
+      {
+        "axis": "fps control",
+        "repo": "fixed per profile (12 / 12.5 / 25; 'on twos' at the anime default)",
+        "ltx23": "base fps + x2 temporal upscaler (frame count divisible by 8+1)"
+      },
+      {
+        "axis": "determinism",
+        "repo": "byte-identical deterministic encodes (frozen argv; sha-pinned manifests)",
+        "ltx23": "seeded stochastic generation (the card's --seed 42 convention); NOT byte-identical across runs by contract"
+      },
+      {
+        "axis": "budget",
+        "repo": "1 000 000-byte hosted artifact budget (fail-closed)",
+        "ltx23": "infeasible here; on an adequate host the 4K/UHD defaults documented by ltx-pipelines exceed the repo budget by orders of magnitude — a typed gap, never silently ignored"
+      },
+      {
+        "axis": "rights surface",
+        "repo": "AuthorizationPolicy + RightsCapabilities fail-closed (packages/contracts/src/rights.ts); transformation vs derivativeGeneration are SEPARATE operations",
+        "ltx23": "the community-license Derivatives clause + Attachment A; commercial-use terms per the license posture above"
+      },
+      {
+        "axis": "output contract",
+        "repo": "RealityOutput artifact record (rendererId/rendererVersion, container+codecs, integrity-verifiable)",
+        "ltx23": "an mp4 from ltx-pipelines' own I/O — no RealityOutput-shaped metadata; the mapping would be a rendererId wrapper, a typed gap"
+      },
+      {
+        "axis": "invented-content risk",
+        "repo": "the closed reality vocabulary doctrine: 'no renderer silently invents or changes' applied event sequence (media-artifact.ts's own words)",
+        "ltx23": "the upscaler stages GENERATE latent content — the no-lying metrics below are the required police; the risk is intrinsic"
+      }
+    ]
+  },
+  "adequateHostComparisonDesign": {
+    "label": "typed not-measured — the comparison design for an adequate host (EXECUTES only with the full-mode resource floor satisfied)",
+    "sourceInputsRule": "the repo's OWN authorized output artifacts are the ONLY source inputs — never new content: the four RealityKind outputs (tactical/game-3d SD 640x360@25 and anime-npr 640x360@12 'on twos') produced by the repo's own renderers under a policy that allows `transformation` (canReferenceSourceFrames per the rights contract); no third-party video, no fresh generation of source content",
+    "lanes": [
+      "baseline lane: the repo's own renderer at its HD profile (1280x720@25) rendered from the SAME SWM snapshot — the repo's native higher-resolution answer (no upscaler involved)",
+      "candidate lane: the repo's SD artifact -> LTX-2.3 image/video-conditioned generation + the x2 spatial (and separately the x2 temporal) upscaler stages",
+      "control lane: bilinear/bicubic upscale of the same SD artifact (the resampling floor — separates honest reconstruction from invented detail)"
+    ],
+    "metrics": {
+      "noLying": "roundtrip_fidelity (area-average back to source geometry: RMSE/PSNR/SSIM vs the SOURCE) + no_invented_content_rate (tolerance = the control lane's worst patch deviation on the same source) — THE constraint: upscaling must not invent content",
+      "detailPreservation": "detail_preservation_gain (Laplacian energy ratio vs the bilinear control; reported SEPARATELY from fidelity so sharpness can never masquerade as faithfulness)",
+      "artifacts": "artifact_block_boundary_rate (boundary discontinuities vs the source's own natural worst case)",
+      "temporal": "temporal_upscale_motion_coherence (the interpolated frames' flow-warp residual via the SHARED hf010 estimator, normalized by source motion) + the repo cadence compatibility note (12fps 'on twos' -> 24fps is exactly a x2 temporal map; 25fps is NOT divisible-by-8+1-compatible and must be handled by the card's own pad-and-crop rule — recorded as a typed gap)",
+      "sharedBothLanes": "temporal consistency (meanConsecutiveSsim + flowWarpResidual via the IMPORTED hf010 estimators — the fairness rule: both lanes scored by the SAME code) + wall_clock_ms_per_output_second + peak memory (adequate host)"
+    },
+    "fairnessRules": [
+      "both lanes' inputs derive from the SAME SWM snapshot + the SAME authorized policy record",
+      "every N/A is typed, never a silent zero",
+      "the LTX lane is labeled generation-conditioned-upscaling (the honest name for what it is)",
+      "the source artifacts' sha-256 (the repo's own RealityOutput integrity records) are pinned in the comparison record BEFORE any candidate run"
+    ]
+  }
+}
