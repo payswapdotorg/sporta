@@ -1,6 +1,6 @@
 # Sporta Hugging Face Model Portfolio Status
 
-Status: HF001/HF002 COMPLETE; HF003 BENCHMARKED (no promotion); HF004 BENCHMARKED-REFUSED (typed, no promotion); HF006 BENCHMARKED (executed, no promotion); HF009 BENCHMARKED-REFUSED (auth-gated, typed, no promotion)
+Status: HF001/HF002 COMPLETE; HF003/HF006 BENCHMARKED (executed, no promotion); HF004/HF009 BENCHMARKED-REFUSED (typed resource/auth, no promotion); HF007 BENCHMARKED-REFUSED (typed + NDA wall, contract mappings delivered, no promotion)
 Date: 2026-10-03
 
 ## Portfolio
@@ -13,7 +13,7 @@ Date: 2026-10-03
 | HF004 MapAnything | ✅ BENCHMARKED-REFUSED (35f265d, flight 2: resource-infeasible-host typed refusal — 4.91 GB checkpoint vs 1.36 GB disk / 5.58 GiB vs 4.04 GB RAM, preflight executed exit 3; the machine-checked contract-compatibility verdict + the ready-to-run path for a >=16 GB host; no promotion) | A |
 | HF005 SAM3 | NOT_STARTED | A |
 | HF006 Spivak | ✅ BENCHMARKED (20db83d, flight 3: EXECUTED CPU-host evidence — sha-verified 74 MB checkpoint, the full ResNet-152+dense-UNet chain ran, per-window 94/100 ms p50/p95, honest zero-detections OOD on short fragments, cascade verdict unfavorable on CPU; no promotion) | A |
-| HF007 SoccerChat | NOT_STARTED | A |
+| HF007 SoccerChat | ✅ BENCHMARKED-REFUSED (a5db099, flight 5: resource-infeasible typed refusal — 18.5 GiB bf16 = 4.7x RAM — PLUS the SoccerNet-NDA-gated eval wall; delivered: the machine-checked contract mappings incl. the W208 not-compatible honest negative, the ready-to-run metric designs, the static pipeline comparison; no promotion) | A |
 | HF008 VibeVoice/Qwen3-ASR | NOT_STARTED | A+B |
 | HF009 pyannote | ✅ BENCHMARKED-REFUSED (abdf172, flight 4: auth-gated-model typed refusal — community-1 is user-conditions-gated, 401 at the pinned revision, no HF token exists in-sandbox; the executed partial: 2 SPR WAVs sha-pinned + the 6-probe hub map + the W208 contract review; ready-to-run full mode; no promotion) | A |
 | HF010 camera-controlled neural renderer | NOT_STARTED | C |
