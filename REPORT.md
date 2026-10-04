@@ -1,252 +1,203 @@
-===== 64-d REPORT BEGIN =====
+===== 64-e REPORT BEGIN =====
 
-# Worker 64-d delivery — HF009: the pyannote speaker-diarization benchmark evidence
+# Worker 64-e delivery — HF007: the SoccerChat event-reasoning benchmark evidence
 
 ## Manifest
 
-- Branch: `work/hf009-pyannote-benchmark` (from main @ c51dd1d; never pushed)
-- Commit: `rel(64-d): HF009 — the pyannote speaker-diarization benchmark evidence (auth-gated typed refusal, CPU-host, SPR audio executed)`
-- Work item: HF009 (docs/work-items/hf-model-portfolio-work-items.md)
-- Task profile: `football.commentarySpeakerDiarization`
+- Branch: `work/hf007-soccerchat-benchmark` (from main @ 72c7708; never pushed)
+- Commit: `rel(64-e): HF007 — the SoccerChat event-reasoning benchmark evidence (CPU-host, contracts + typed refusal/partial)`
+- Work item: HF007 (docs/work-items/hf-model-portfolio-work-items.md)
+- Task profile: `football.eventReasoning`
   (docs/contracts/technology-task-profiles.md, FROZEN — untouched)
 - Evidence tree (all committed in-repo):
-  - `scripts/evidence/hf-portfolio/hf009/benchmark_pyannote.py` — the benchmark script (preflight EXECUTED on this host: the typed refusal, exit 3; FULL mode ready-to-run + fail-closed, verified refusing exit 2 on a missing pipeline dir)
-  - `scripts/evidence/hf-portfolio/hf009/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; negative-tested: a fabricated RTF number refuses with exit 1)
-  - `scripts/evidence/hf-portfolio/hf009/benchmark-record.json` — the ledger-shaped HF009 record (provenance echo verbatim + the typed refusal + the executed partial)
-  - `scripts/evidence/hf-portfolio/hf009/summary.md` — the markdown summary
-  - `scripts/evidence/hf-portfolio/hf009/results/preflight-refusal.json` — the EXECUTED preflight: the 401 wall, the 6-probe map, the ground-truth search
-  - `scripts/evidence/hf-portfolio/hf009/results/audio-fixtures.json` — the EXECUTED audio-fixture evidence (2 SPR WAVs, shas + durations + the exact ffmpeg recipe)
-- Not committed (by design): the community-1 pipeline weights (NEVER downloaded — the repo is user-conditions-gated; no mirror used), the python venv (/home/z/hf-bench-4 — a NEW venv; no earlier flight's reused), and the extracted WAVs (re-creatable from the committed corpus bytes with the recorded one-line recipe).
+  - `scripts/evidence/hf-portfolio/hf007/benchmark_soccerchat.py` — the benchmark script (preflight EXECUTED on this host: the typed refusal, exit 3; FULL mode ready-to-run on a >= 32 GB host with the hallucination-rate + provenance-traceability metric implementations)
+  - `scripts/evidence/hf-portfolio/hf007/contract_compatibility.ts` — the machine-checked event-extraction + commentary-alignment mapping + the STATIC pipeline-delta table (EXECUTED, exit 0, every claim needle-verified)
+  - `scripts/evidence/hf-portfolio/hf007/record-benchmark.ts` — the fail-closed validator (EXECUTED, exit 0; negative-tested: fabricated hallucinationRate + medianMs numbers refused with exit 1)
+  - `scripts/evidence/hf-portfolio/hf007/benchmark-record.json` — the ledger-shaped HF007 record (the twelve provenance fields echoed VERBATIM + the typed refusal + the partial)
+  - `scripts/evidence/hf-portfolio/hf007/summary.md` — the markdown summary
+  - `scripts/evidence/hf-portfolio/hf007/results/preflight-refusal.json` — the EXECUTED preflight: the resource arithmetic, the bounded probes (adapter sha LOCALLY VERIFIED), the NDA-gate probe, the fixture pins
+  - `scripts/evidence/hf-portfolio/hf007/results/load-analysis.json` — the adapter + base composition (sizes, shas, LoRA geometry, architecture, loading recipes, host-gap arithmetic)
+  - `scripts/evidence/hf-portfolio/hf007/results/model-output-schema.json` — the source-verified SoccerChat output/annotation schema (fetched at the pinned revision)
+  - `scripts/evidence/hf-portfolio/hf007/results/contract-compatibility.json` — the emitted mapping tables + capability delta
+- Not committed (by design): the model weights (the adapter blob was downloaded + sha-verified INSIDE the bounded preflight probe at /home/z/hf-bench-5/probe — never committed, never vendored; the base was never downloaded), the python venv (/home/z/hf-bench-5 — a NEW venv; no earlier flight's reused).
 - FROZEN contracts untouched; provenance-ledger.json untouched; architecture-lock untouched.
 - Guard batteries green: packages/testing hf-ledger.test.ts 8/8;
   packages/perception-benchmark harness.test.ts (the L010 battery) 8/8.
 
-=== HF009 BENCHMARK REPORT ===
+=== HF007 BENCHMARK REPORT ===
 
-## THE HONEST HEADLINE — the model is auth-gated: a typed refusal + an executed partial
+## THE HONEST HEADLINE — resource-infeasible: a typed refusal + a substantial partial
 
-The pinned candidate `pyannote/speaker-diarization-community-1` @
-`3533c8cf8e369892e6b79ff1bf80f7b0286a54ee` is **USER-CONDITIONS-GATED on
-the HF Hub**. The brief's assumption "the community-1 pipeline is NOT
-token-gated (verify)" was **VERIFIED FALSE** by the executed probe map:
-anonymous access to `config.yaml` and `embedding/model.pt` at the pinned
-revision 401s with GatedRepoError — "Access to model
-pyannote/speaker-diarization-community-1 is restricted. You must have
-access to it and be authenticated to access it. Please log in." The model
-card's own Setup section reads "Accept user conditions" + "Create access
-token at hf.co/settings/tokens" — a HUMAN action. No HF token exists in
-this sandbox (the operator credentials present are GitHub/Composio keys —
-they do not authenticate against the HF Hub). Per the brief's honesty
-doctrine the delivery is the **typed refusal + the partial** — never a
-fabricated benchmark. **NO speaker-turn, determinism, RTF, wall-clock, or
-RSS number exists in this flight**, and the record-benchmark.ts gate
-refuses any number-shaped value in the measurement blocks (negative-tested
-with a fabricated RTF 0.42 → exit 1).
+The pinned candidate `SimulaMet/SoccerChat-qwen2-vl-7b` @ the
+ledger-pinned revision `29871536004c0ac788af09cbb87969ab9f6e1410` (task
+profile `football.eventReasoning`, FROZEN) is a LoRA (PEFT) adapter over
+`Qwen/Qwen2-VL-7B-Instruct`. The preflight arithmetic ran FIRST (per the
+brief) and the run is arithmetically impossible on this host — and the
+model's own eval corpus is walled behind the SoccerNet NDA independently
+of hardware:
 
-## The model + version + loading recipe
+| Constraint | Needed | Host | Verdict |
+|---|---|---|---|
+| RAM (bf16 base working set) | ~18.5 GiB | 4,041.6 MiB TOTAL | infeasible — 4.7x over total |
+| RAM (the card's own 4-bit nf4 recipe, CUDA-only) | ~6.1 GiB | 4,041.6 MiB TOTAL; no GPU (N/A) | infeasible |
+| Disk (base + adapter) | 16,623,253,408 B | ~420 MB free | infeasible — ~40x over |
+| Eval corpus (SoccerChat validation split) | an operator SoccerNet-NDA acceptance (401 anonymous, probed) | none | auth-infeasible — hardware-independent |
 
-- Candidate (HF002 ledger row, echoed VERBATIM into benchmark-record.json):
-  `pyannote/speaker-diarization-community-1` @ revision
-  `3533c8cf8e369892e6b79ff1bf80f7b0286a54ee` — model license cc-by-4.0,
-  code MIT, commercial use yes; weightsProvenance: "pyannote `community-1`
-  pretrained diarization pipeline; training and tuning ran on the GENCI
-  Jean Zay supercomputer, per card; training corpora not named";
-  datasetProvenance: the twelve named eval benchmarks (AISHELL-4 …
-  VoxConverse). Task profile `football.commentarySpeakerDiarization`
-  (FROZEN, untouched).
-- Code pin: **pyannote-audio 4.0.7 via pip** (recorded from the install),
-  torch 2.9.1+cpu + torchaudio 2.9.1 + torchcodec 0.8.0, python 3.12.14
-  in a NEW venv at `/home/z/hf-bench-4`. CPU inference; GPU honestly N/A.
-  pyannote-metrics 4.1 installed — the DER/JER implementation is present
-  and stated, never executed (no ground truth).
-- Weights: **NEVER downloaded, never committed, never vendored.** The
-  pinned repo is gated (the exact 401 wall text recorded verbatim in
-  results/preflight-refusal.json); the ONLY anonymously-readable file is
-  the model card README.md. **No third-party mirror of the gated weights
-  was used** — an unofficial re-upload would bypass the user-conditions
-  gate; the refusal is recorded, not worked around.
-- The public-pipeline-components attempt (the brief's duty, EXECUTED):
-  `pyannote/segmentation-3.0` (the fallback segmentation) is ALSO gated
-  (401); `pyannote/wespeaker-english-resemblynet` does not exist as a
-  standalone repo; `speechbrain/spkrec-ecapa-voxceleb` IS anonymously
-  reachable but is NOT a component of the ledger candidate — not used as
-  a stand-in (a different model would launder the benchmark claim).
-- The ready-to-run loading recipe (the model card's own offline-use
-  convention): an operator accepts the community-1 user conditions,
-  downloads the pipeline at the pinned revision to
-  `/home/z/hf-bench-4/hf-model-auth` (token in the environment only —
-  never in any repo/log/command line), then
-  `Pipeline.from_pretrained(<local dir>)`; the FULL mode fail-closes on a
-  missing pipeline dir (verified: exit 2) and records the weight-file
-  inventory (sizes + sha256) it runs.
+`benchmark_soccerchat.py --mode preflight` was EXECUTED (exit code 3, the
+typed refusal `resource-infeasible-host`,
+`results/preflight-refusal.json`). Per the worker brief, the honest
+delivery is the refusal + the partial. **No quality, latency, or memory
+number exists in this flight — none is fabricated to stand in.** The
+fail-closed validator is negative-tested (a fabricated
+`hallucinationRate: 0.18` + `medianMs: 41250.0` refused, exit 1, both
+failure messages; restored, exit 0).
 
-## The audio-fixture story (which clips, licensing, extraction)
+## The model + revision + load analysis
 
-1. `fx-001` (CC0 FIFA Beach Soccer 2021 penalty, Wikimedia Commons — the
-   repo's authorized licensed gate clip, sha-pinned in
-   packages/real-to-swm/fixtures/gate-clips.json): the COMMITTED
-   normalized clip is video-only by the manifest's own transform (`-an`
-   in normalizeTransform — verified by ffprobe: a single h264 video
-   stream). The audio lives ONLY in the ORIGINAL source webm at the
-   manifest's canonical URL (source sha256 pin `a4d163a5…cdf131`). This
-   flight's fetch of that original was **HTTP-429-rate-limited on all 6
-   attempts** from this sandbox egress (upload.wikimedia.org and the
-   commons Special:FilePath route, 15-45 s backoff) — an infrastructure
-   wall, NOT a licensing wall; the sha-pinned ready-to-run extraction
-   recipe is recorded in the preflight evidence. Typed: fx-001 audio
-   BLOCKED this flight.
-2. SPR corpus clips (in-repo bytes): authorized by the repo's own corpus
-   rules — the recorded **R606 registration declaration**
-   (analysis/transformation/derivativeGeneration/storage; repo private —
-   scripts/evidence/spr-corpus-bytes/README.md). A local
-   speaker-diarization benchmark run is ANALYSIS, inside the declared
-   scope. EXECUTED extraction with ffmpeg to pyannote's native input:
-   - `b8p3.mp4` (the R606 real in-play substrate, source sha verified
-     `969af7c6…`) → `ffmpeg -v error -y -i b8p3.mp4 -vn -ac 1 -ar 16000
-     -c:a pcm_s16le` → **47.624 s, 16,000 Hz, 1 channel, PCM16,
-     1,524,050 B, sha256 ddf9c203…**
-   - `clip-b1-wide-broadcast.mp4` (the w3a re-cut, source sha verified
-     `3a3c249e…`) → same recipe → **30.070 s, 16 kHz, mono, PCM16,
-     962,314 B, sha256 08c2fcfb…**
-   The WAVs live OUTSIDE the repo (/home/z/hf-bench-4/audio) and are
-   re-creatable from the committed corpus bytes with the recorded
-   one-line recipe.
-3. `synthetic-diagnostic-01` (the technology-registry fixture):
-   ffprobe-verified **NO audio track at all** (video-only h264) — the
-   typed gap: the repo's fixture set is structurally unable to exercise
-   ANY audio task profile (a fixture observation the HF008 ASR flights
-   will hit too).
-4. fx-004 (the second gate clip) was NOT used: its 20 s normalized form
-   is video-only identically, and its original-source audio fetch would
-   hit the same Wikimedia 429 wall — recorded rather than attempted
-   serially.
+- **Adapter** (the pinned SoccerChat repo): `adapter_model.safetensors`,
+  40,422,208 B, sha256
+  `4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47` —
+  **LOCALLY VERIFIED** (downloaded inside the bounded preflight probe and
+  hashed against the hub LFS oid — the adapter is small enough to hold,
+  unlike HF004's checkpoint). LoRA r=8, alpha=32, dropout=0.05, CAUSAL_LM,
+  target_modules `^(model)(?!.*(lm_head|output|emb|wte|shared)).*`.
+- **Base**: `Qwen/Qwen2-VL-7B-Instruct` — 16,582,831,200 B bf16
+  safetensors across 5 shards (hub-reported LFS oids recorded per shard);
+  28 decoder layers, hidden 3584, GQA 28/4, vocab 152,064, depth-32
+  vision tower (patch 14), mrope. **The adapter does NOT pin a base
+  revision** (adapter_config `revision: null`; sft_args
+  `model_revision: "master"`) — this flight records the probed main sha
+  `eed13092ef92e448dd6875b2a00151bd3f7db0ac` and the unpinned-base
+  reproducibility caveat (a recorded HF015-gate observation).
+- **Loading recipe** (implemented in the FULL mode): fail-closed pinned
+  downloads (local sha verification), `Qwen2VLForConditionalGeneration`
+  bf16/sdpa, `PeftModel.from_pretrained(adapter)`, the card's own
+  inference regime (24 sampled frames, VIDEO_MAX_PIXELS 100352), the
+  pinned generation_config (temperature 0.01, top_k 1 — near-greedy, the
+  determinism anchor). The card's own usage recipe quantizes to 4-bit nf4
+  for a free Colab T4 — evidence even the authors need GPU-class
+  resources.
 
-All 4 repo fixture sha pins were verified before use (fail-closed on
-drift: the preflight refuses on any pin mismatch).
+## The event-extraction contract mapping (machine-checked, EXECUTED exit 0)
 
-## The honest metrics (typed where the wall stands)
+`contract_compatibility.ts` maps SoccerChat's source-verified schema onto
+the repo's OWN event contracts — 8 field-level rows, every claim
+needle-verified on both sides (`results/contract-compatibility.json`).
+The load-bearing source fact: **SoccerChat's model output is free-form
+natural language** (pipeline_tag `video-text-to-text`; the card documents
+NO structured event JSON; structured events exist only as dataset-side
+annotations — `events`: a list of SoccerNet event types). Therefore:
 
-- **DER/JER: NOT MEASURED (typed)**. No ground-truth speaker annotations
-  exist anywhere in the repo for benchmarkable media — the repo-wide
-  search is recorded in results/preflight-refusal.json: the
-  commentary-segmentation W208 fixture is a SYNTHETIC inline 30-row
-  5-speaker test transcript (not an annotation of real media); the ASR
-  adapter owns no annotations (speakerLabel is a passthrough contract —
-  "W208 owns real diarization" per the source comment);
-  real-to-swm/technology-registry fixtures carry spatial/vision
-  annotations only; SWM event timelines are derived state; no RTTM file
-  exists in-repo. pyannote-metrics 4.1 is installed and the DER/JER path
-  is stated exactly (RTTM reference vs hypothesis) — it has zero
-  ground-truth rows to score in this sandbox. DER/JER-equivalent metrics
-  were therefore NOT recorded, honestly.
-- **Speaker-segment timelines (turn counts, durations, speech ratio,
-  per-speaker stats): NOT MEASURED (typed refusal — the model never
-  ran)**. The summarizer is implemented in the ready-to-run FULL mode.
-- **Run-to-run determinism: NOT MEASURED (typed refusal)** — the
-  serialized-turn-timeline equality check is implemented.
-- **Per-file wall-clock + the real-time factor (RTF): NOT MEASURED
-  (typed refusal)** — the repeated-full-pipeline microbenchmark
-  (warm-up excluded, identical input, labeled — the HF006 convention)
-  is implemented; NO wall-clock or RTF number exists in this flight.
-- **Memory: GPU honestly N/A (no GPU on the benchmark host); process RSS
-  is the substitute — NOT MEASURED (the model never ran)**. The only
-  honest memory figure in this flight is the preflight process RSS
-  itself (37.9 MiB — the fixture/preflight work, not inference).
-- **The unscored structural comparison against the repo's derived
-  event/transcript timelines: NOT MEASURED (the model never ran) — the
-  static half IS delivered**: the W208 contract-compatibility review
-  (COMPATIBLE-WITH-ADAPTER with typed gaps: no per-turn confidence —
-  W209 consumes confidence; cluster labels are not identities; the
-  regular timeline may overlap while W208 units are exclusive — the
-  card's `exclusive_speaker_diarization` is the intended fit, quality
-  unverified). The boundary-alignment computation (turn boundaries vs a
-  repo-derived timeline JSON, overlap counts only, labeled UNSCORED
-  structural — never a DER/JER number) is implemented in the FULL mode.
+- `response` → the FROZEN profile's "semantic event candidates with
+  provenance/confidence": **maps-with-adapter** — the output-adapter
+  parse is implemented (`benchmark_soccerchat.py`); typed gaps: no
+  per-event confidence, no evidence links, no vocabulary guarantee.
+- `events` (SoccerNet vocabulary) → the frozen 16-type
+  `FOOTBALL_EVENT_TYPES` / the 14-type W209 vocabulary: **partial** — no
+  canonical SoccerNet→FootballEventType map exists; the W401 precedent
+  governs (an AUTHORED, test-pinned bridge — future work, recorded).
+- `response` → R207 `EventCandidateRecord` / the `EventEnvelope`:
+  **maps-with-adapter with the evidence-chain laundering risk recorded**
+  — the R207 honesty contract (confidence propagated only from supporting
+  evidence, never invented beyond perception) is precisely what a VLM
+  output cannot self-certify; the adapter must synthesize frame-window
+  evidence ids and label derived confidence honestly (provenance DERIVED,
+  the W401 rule for derived understanding).
 
-## The failure modes (this flight's honest observations)
+## The commentary-alignment mapping (machine-checked)
 
-1. **The auth wall is failure mode #1**: the ledger row records
-   `commercialUse: yes` yet the weights are access-controlled — the
-   HF002 ledger schema records no distribution gate (recorded for the
-   TL: a `distributionGate` field may be wanted; a "yes" license line
-   does not mean anonymously fetchable weights).
-2. fx-001's audio is only in the 429-blocked original source (the
-   committed clip is deliberately audio-less) — the repo's REAL gate
-   clip cannot exercise ANY audio task profile without an out-of-repo
-   fetch.
-3. The synthetic fixture has no audio track — a structural gap for the
-   whole audio portfolio wave.
-4. NOT OBSERVED (typed — the model never ran): short-clip behavior,
-   music/crowd-noise confusion, confidence distribution, speaker-count
-   stability on 10-47 s fragments. These are the observations the
-   ready-to-run FULL mode will record after the unblock.
+3 rows. **The honest negative result**: generated commentary is
+**NOT-compatible** with W208 `CommentaryUnit` — the W208 doctrine ("every
+output character is traceable to W207 input characters") cannot hold for
+machine-generated text (no source windows, no speaker/channel, no ASR
+confidence, no timestamps): generated text is a different artifact class
+and must never re-enter the W207→W208→W209 evidence chain. `response` →
+W209 extraction fields (eventPhrase/subjects/emphasis) maps-with-adapter
+(the repo's own deterministic extractors apply; the unitId/eventTimeMs
+provenance has no generated-text counterpart — a new provenance class is
+TL territory). The profile's "commentary/context" input matches
+SoccerChat's training triple exactly (maps-with-adapter, unexecuted).
 
-## The ledger/record path
+## The hallucination-rate + provenance metric designs (implemented, typed not-measured)
 
-- `scripts/evidence/hf-portfolio/hf009/benchmark-record.json` — the
-  ledger-shaped HF009 record: the twelve provenance fields echoing the
-  pyannote row VERBATIM + the typed refusal (pinned to the executed
-  preflight) + the executed partial's pointers + the promotion-gate
-  referral.
-- `scripts/evidence/hf-portfolio/hf009/record-benchmark.ts` — the
-  fail-closed validator: EXECUTED, exit 0. It checks the provenance echo
-  against the HF002 ledger, the unchanged candidate gating state, the
-  resolving evidence pointers, the refusal's pinning to the EXECUTED
-  preflight (the record's refusal type + the 401 wall text vs the
-  committed probe map), the NO-FABRICATED-NUMBERS rule (any
-  number-shaped value in the quality/latency/memory blocks refuses —
-  negative-tested with a fabricated RTF 0.42 → exit 1), the executed
-  partial's pinning (the 2 SPR WAV shas/durations, the usability types,
-  the fixture statuses), the honest caveats (GPU N/A, RSS substitute,
-  CPU wall-clock, the no-mirror principle), and the DER/JER NOT MEASURED
-  statements.
-- `scripts/evidence/hf-portfolio/provenance-ledger.json` — untouched
-  (its row schema is pinned by hf-ledger.test.ts; the run is recorded in
-  benchmark-record.json, not as a ledger row).
+Implemented in `benchmark_soccerchat.py` with the definitions stated
+exactly:
 
-## Limitations
+- **Hallucination rate** (event-existence verification):
+  `hallucinationRate = |{e ∈ E_pred : unmatched(e)}| / |E_pred|` over the
+  parsed structured events vs a ground-truth timeline, with the
+  HF006-stated matching rule (same normalized type AND |t_pred − t_gt| ≤
+  tol; greedy one-to-one, confidence-descending; tol swept 1/2/5 s);
+  recall reported alongside. Zero GT rows ⇒ not-measured, never zero.
+  NOT MEASURED this flight: no run (the refusal) AND no ground truth (the
+  repo owns none for benchmarkable media — the HF006 verdict; the
+  SoccerChat split is NDA-gated).
+- **Provenance traceability**: per emitted event, traceable = timestamp
+  present AND parseable AND within media duration AND evidence window
+  non-empty; the evidence-chain gap (the model emits no observation ids;
+  the repo contract requires ≥ 1 resolvable id) is surfaced, never
+  laundered.
+- Plus determinism (repeated near-greedy runs, serialized-timeline
+  exact-match), per-inference CPU wall-clock (median + nearest-rank p95),
+  RSS (GPU honestly N/A).
 
-- Zero executed model evidence: the pipeline never ran — the auth wall
-  needs an operator action (accept the user conditions + provide an
-  authenticated local copy) before ANY turn-timeline/latency/RSS number
-  can exist.
-- No ground-truth speaker annotations are reachable — DER/JER has an
-  unscored ceiling in this sandbox even after the unblock.
-- fx-001's audio is blocked by the Wikimedia 429 (infrastructure, not
-  licensing); the SPR clips are the only executed audio, and their usage
-  scope is the R606 analysis declaration (a private-repo benchmark),
-  which the HF015 license review must confirm.
-- The static W208 contract review is source-scanned, not run-executed.
-- The preflight wall text, probe verdicts and fixture shas are pinned to
-  this host's 2026-10-03 execution; the unblock path re-records them on
-  the run host.
+## The static intelligence-pipeline comparison (labeled STATIC-REVIEW)
 
-## Promotion-gate referral
+The 8-row capability-delta table
+(`results/contract-compatibility.json`). Headline — the repo's
+event-reasoning path today (cited to file/line):
 
-The pyannote candidate remains `candidate` — UNCHANGED. Observed
-blockers for HF015: (1) the benchmark DID NOT RUN (typed refusal:
-auth-gated-model — an operator action is required before any evidence
-can exist); (2) no speaker ground truth is reachable (DER/JER
-unmeasurable here even after the unblock — the honest ceiling is
-unscored structural evidence); (3) fx-001's audio is only in the
-429-blocked original source, and the SPR corpus usage scope (the R606
-analysis declaration) needs the HF015 license review's confirmation;
-(4) the HF002 ledger row does not record the user-conditions
-distribution gate (a schema observation for the TL). This flight
-recommends NOTHING; the TL decides at the HF015 gate alone.
+- **W209** (commentary understanding): deterministic pattern matching
+  over text — its own source: "NO language model (that arrives with the
+  later GPU/agent-protocol items)".
+- **R207** (vision candidates): pure-function image-space ball-impulse
+  candidates; "candidates remain candidates until a fusion rule maps
+  them" (the W209 pattern); claims nothing about who or what caused the
+  impulse.
+- **W401** (fusion): the AUTHORED FOOTBALL_EVENT_MAP (a tech-lead
+  decision, test-pinned, never an inference); DERIVED provenance for
+  commentary-derived candidates.
+- **There is no semantic event-reasoning production path today** — HF007
+  is the plan, not a present cost (the HF006 recorded absence).
 
-## The unblock path (recorded for the TL)
+SoccerChat would add semantic multimodal event reasoning over exactly the
+profile's input set (video + candidates + commentary) with
+natural-language explanation — closing the reasoning gap W209 defers. The
+repo stays ahead (recorded honestly) on vocabulary governance, confidence
++ provenance discipline, hallucination containment (structural
+never-invent vs the card's own "May generate hallucinated commentary"
+warning), and CPU economics (milliseconds of deterministic compute vs a
+16.6 GiB GPU-class budget — infeasible here).
 
-An operator with an hf.co account accepts the community-1 user
-conditions, creates a read token OUTSIDE any repo/log (never committed),
-downloads the pipeline at the pinned revision to
-`/home/z/hf-bench-4/hf-model-auth`, then re-runs
-`python3 scripts/evidence/hf-portfolio/hf009/benchmark_pyannote.py
---mode full --pipeline-dir /home/z/hf-bench-4/hf-model-auth`. The
-fixtures are already prepared (the two SPR WAVs), the harness is
-syntax-checked and import-verified on this host, and the fail-closed
-validator will pin the executed numbers exactly as HF006 did.
+## The ready-to-run path + the limitations
+
+FULL mode (`benchmark_soccerchat.py --mode full`) requires ≥ 32 GB RAM +
+≥ 24 GB free disk: pinned sha-verified downloads, the transformers+peft
+load, inference over the repo's authorized sha-pinned media
+(synthetic-diagnostic-01, fx-001 CC0, the two SPR clips under the R606
+analysis scope) at the card's 24-frame regime, the parse + all metric
+implementations. `--ground-truth` unlocks hallucination-rate scoring
+(operator-supplied timeline JSON). Limitations, honestly: CPU wall-clock
+labeled as such (no GPU, N/A); the 10–20 s authorized clips are far
+outside the model's full-broadcast training regime (a domain-shift
+caveat inherited from every CPU-host flight); the SoccerNet-vocabulary
+bridge does not exist; the model's own held-out eval split is NDA-gated
+so the paper's protocol cannot run anywhere without a human action.
+
+## The promotion-gate referral
+
+`gatingState` stands `candidate` — NO promotion; HF015 is the TL's gate
+alone. Blockers for that gate (recorded in benchmark-record.json): zero
+executed evidence (resource-infeasible host); the NDA-gated eval corpus
+(an operator action precedes any paper-protocol run); no event ground
+truth for hallucination-rate/event-accuracy scoring on the repo's own
+media without an operator-supplied timeline; and the SoccerNet-NDA
+dataset lineage (the ledger row's datasetProvenance: videos not
+redistributable/commercially usable — to be weighed against the
+commercialUse yes flag in the HF015 license review). The unpinned
+base-model revision is a recorded reproducibility observation for the
+same gate.
 
 === END REPORT ===
 
-===== 64-d REPORT END =====
+===== 64-e REPORT END =====

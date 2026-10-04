@@ -1,0 +1,153 @@
+{
+  "evidenceId": "hf007-soccerchat-preflight",
+  "purpose": "HF007 preflight: the load analysis + the resource arithmetic FIRST (per the worker brief), bounded reachability probes, fixture pins, and the eval-corpus gating story \u2014 BEFORE any benchmark claim",
+  "candidate": "SimulaMet/SoccerChat-qwen2-vl-7b",
+  "revision": "29871536004c0ac788af09cbb87969ab9f6e1410",
+  "host": {
+    "cpuCores": 2,
+    "ramTotalMiB": 4041.6,
+    "diskFreeBytes": 420151296,
+    "gpu": "none \u2014 GPU memory honestly N/A; process RSS is the substitute metric",
+    "pythonVenv": "/home/z/hf-bench-5",
+    "note": "GPU memory: N/A (no GPU on the benchmark host); process RSS recorded instead; latency is CPU wall-clock, labeled as such"
+  },
+  "startedAtUtc": "2026-10-04T00:06:32.069218+00:00",
+  "hubProbes": [
+    {
+      "probe": "adapter-download-and-sha",
+      "file": "adapter_model.safetensors",
+      "bytes": 40422208,
+      "sha256LocallyVerified": true,
+      "sha256": "4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47",
+      "hubLfsOid": "4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47",
+      "note": "LOCALLY VERIFIED (unlike HF004's hub-reported-only etag \u2014 this adapter is small enough to hold)"
+    },
+    {
+      "probe": "base-model-metadata",
+      "repoId": "Qwen/Qwen2-VL-7B-Instruct",
+      "probedRevision": "eed13092ef92e448dd6875b2a00151bd3f7db0ac",
+      "shards": [
+        {
+          "file": "model-00001-of-00005.safetensors",
+          "sizeBytes": 3898649896,
+          "sha256HubReported": "eab4f4dc1abf860794c98ce3759b4ace1059fc0fc041ede76b88988b3557c132"
+        },
+        {
+          "file": "model-00002-of-00005.safetensors",
+          "sizeBytes": 3864726320,
+          "sha256HubReported": "0546b7cd070ff239de0f61a28770de6a0ac517ad313071e151653e38911ffb25"
+        },
+        {
+          "file": "model-00003-of-00005.safetensors",
+          "sizeBytes": 3864726424,
+          "sha256HubReported": "11368ea1e9c0039ca54012a74ac32d543a9e9d980b2d0ad7e93af0341ace1fe6"
+        },
+        {
+          "file": "model-00004-of-00005.safetensors",
+          "sizeBytes": 3864733680,
+          "sha256HubReported": "381e110d74db594cc24956af0e74a01ae02104497113a78926990c5bd1f395f6"
+        },
+        {
+          "file": "model-00005-of-00005.safetensors",
+          "sizeBytes": 1089994880,
+          "sha256HubReported": "e76ec4dc2e7c0dcbe3432e58fae08e62204a2ef2323069d85c8fa0affb87332a"
+        }
+      ],
+      "totalSafetensorsBytes": 16582831200,
+      "note": "hub-reported LFS oids (the pinned blob etags); full local verification happens in FULL mode after download"
+    },
+    {
+      "probe": "dataset-gating",
+      "repoId": "SimulaMet/SoccerChat",
+      "gated": "auto",
+      "private": false,
+      "validationParquetAnonymous": "HTTP 401 Unauthorized"
+    }
+  ],
+  "resourceArithmetic": {
+    "disk": {
+      "neededBytes": 16623253408,
+      "neededGiB": 15.48,
+      "hostFreeBytes": 420151296,
+      "hostFreeGiB": 0.39,
+      "feasible": false,
+      "ratioNeededOverFree": 39.6
+    },
+    "ram": {
+      "bf16WorkingSetGiBEstimate": 18.49,
+      "hostTotalMiB": 4041.6,
+      "hostTotalGiB": 3.95,
+      "bf16Feasible": false,
+      "ratioBf16OverTotal": 4.68,
+      "quant4GiBEstimate": 6.13,
+      "quant4Feasible": false,
+      "quant4Note": "even the card's own 4-bit nf4 Colab recipe (bnb, CUDA-only) exceeds this host's TOTAL RAM; no CUDA GPU exists here in any case"
+    },
+    "verdict": "resource-infeasible-host"
+  },
+  "fixturePins": {
+    "synthetic-diagnostic-01": {
+      "path": "packages/technology-registry/fixtures/media/synthetic-diagnostic-01-players-and-ball.mp4",
+      "sha256": "e75abe1441fe2e6680b2aad5e7d2e66a5bcd21ab4b91928e25181f90a37f7f76",
+      "pinVerified": true
+    },
+    "fx-001": {
+      "path": "packages/real-to-swm/fixtures/media/fx-001-normalized.mp4",
+      "sha256": "4e2f3e3d9df1eb4b0403a442c2371821c684ab8880b4544099b2d5d962543ff7",
+      "pinVerified": true
+    },
+    "sprclip-b8-inplay-original": {
+      "path": "scripts/evidence/spr-corpus-bytes/b8p3.mp4",
+      "sha256": "969af7c6fdb172091ff00705b25fa37b7073f4332d722416b9754a4a7579917a",
+      "durationS": 47.624,
+      "authorization": "authorized for analysis by the repo's own R606 registration declaration (analysis/transformation/derivativeGeneration/storage, repo private \u2014 scripts/evidence/spr-corpus-bytes/README.md)"
+    },
+    "sprclip-b1-wide-broadcast": {
+      "path": "scripts/evidence/spr-corpus-bytes/clip-b1-wide-broadcast.mp4",
+      "sha256": "3a3c249ef351aaffca5c23fde0aa7efceb920c3d40a0b0a1b317e24fc7c01307",
+      "durationS": 30.07,
+      "authorization": "authorized for analysis by the repo's own R606 registration declaration (analysis/transformation/derivativeGeneration/storage, repo private \u2014 scripts/evidence/spr-corpus-bytes/README.md)"
+    }
+  },
+  "evalCorpus": {
+    "soccerchatHeldOutSplit": {
+      "status": "NOT FETCHABLE (typed): the dataset is auto-gated behind the SoccerNet NDA (401 anonymous on the validation parquet \u2014 probed above); access requires an operator NDA acceptance (the HF009 auth-wall convention)",
+      "schema": {
+        "video": "string (previewable clip path)",
+        "query": "string (natural-language question)",
+        "response": "string (natural-language answer \u2014 the MODEL's output modality)",
+        "events": "list of one or more SoccerNet event types (can be empty if unannotated)",
+        "path": "string (relative path inside videos/)"
+      },
+      "licenseSplit": {
+        "gated": "auto",
+        "extraGatedHeading": "SoccerNet NDA Required for Video Access",
+        "annotationsLicense": "MIT (dataset card: 'Annotations and metadata in SoccerChat are released under MIT licence')",
+        "videoLicense": "NOT MIT \u2014 SoccerNet NDA terms; 'may not be redistributed, publicly hosted, reconstructed, or used for commercial purposes'",
+        "validationParquetAnonymousAccess": "401 Unauthorized (probed this flight)",
+        "trainExamples": 85220,
+        "validationExamples": 4625,
+        "videosBytesApprox": 48000000000
+      }
+    },
+    "repoAuthorizedMedia": {
+      "status": "the FULL-mode benchmark set (sha-pinned above): synthetic-diagnostic-01, fx-001 (CC0), the SPR corpus clips (R606 analysis scope)"
+    },
+    "eventGroundTruth": {
+      "status": "NOT MEASURED (typed): no event ground truth exists in the repo for any benchmarkable media (the HF006 repo-wide search verdict \u2014 spatial-disc annotations only; real-to-swm emits candidates; SWM timelines are derived). The hallucination-rate metric unlocks ONLY with an operator-supplied GT timeline."
+    }
+  },
+  "typedRefusal": {
+    "type": "resource-infeasible-host",
+    "reasons": [
+      "model-load-ram-infeasible: the base bf16 working set (~18.5 GiB: 16,582,831,200 B weights + activations/KV/vision headroom) exceeds the host's TOTAL RAM (4042 MiB) \u2014 4.7x over; even 4-bit nf4 (~6.1 GiB) exceeds it, and bnb 4-bit requires CUDA (no GPU here \u2014 honestly N/A)",
+      "model-download-disk-infeasible: base safetensors (16,582,831,200 B) + adapter (40,422,208 B) vs ~420 MB free disk \u2014 40x over",
+      "eval-corpus-auth-infeasible: the SoccerChat held-out validation split is SoccerNet-NDA-gated (auto-gated repo, 401 anonymous \u2014 probed above); the unblock is a HUMAN NDA acceptance, exactly the HF009 typed-refusal precedent"
+    ],
+    "note": "per the worker brief: the honest delivery is this typed refusal + the PARTIAL (the load analysis, the event-extraction contract mapping, the commentary-alignment mapping, the hallucination/provenance metric designs, the static intelligence-pipeline comparison) \u2014 never a fabricated benchmark"
+  },
+  "adapterShaLocallyVerified": true,
+  "verdict": "refused",
+  "refusalType": "resource-infeasible-host",
+  "finishedAtUtc": "2026-10-04T00:06:33.315875+00:00"
+}

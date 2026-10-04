@@ -1,0 +1,36 @@
+{
+  "evidenceId": "hf007-soccerchat-model-output-schema",
+  "model": {
+    "candidate": "SoccerChat",
+    "modelUrl": "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b",
+    "revision": "29871536004c0ac788af09cbb87969ab9f6e1410"
+  },
+  "pipelineTag": "video-text-to-text",
+  "modelOutput": {
+    "modality": "free-form natural-language text (the response to a video + text query)",
+    "structuredEventFields": "NONE \u2014 the model card documents NO structured event JSON output; structured events exist ONLY as dataset-side annotations",
+    "verbatim": "The model accepts video + text queries. ... print(resp[0].choices[0].message.content)"
+  },
+  "datasetAnnotationSchema": {
+    "features": {
+      "video": "string (previewable clip path)",
+      "query": "string (natural-language question)",
+      "response": "string (natural-language answer \u2014 the MODEL's output modality)",
+      "events": "list of one or more SoccerNet event types (can be empty if unannotated)",
+      "path": "string (relative path inside videos/)"
+    },
+    "eventsFieldNote": "list of one or more SoccerNet event types (can be empty if unannotated); the observed vocabulary is SoccerNet Challenge classes (e.g. the card's own example path 'Shotsontarget--Balloutofplay')",
+    "cardMetrics": "BLEU, ROUGE, METEOR (generated text); event-based accuracy/recall for detecting key match events; human evaluation (fluency/correctness) \u2014 per the model card"
+  },
+  "sourcesFetchedThisFlight": [
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/resolve/main/README.md?revision=29871536004c0ac788af09cbb87969ab9f6e1410 (6,632 B)",
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/resolve/main/adapter_config.json?revision=29871536004c0ac788af09cbb87969ab9f6e1410",
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/resolve/main/config.json?revision=29871536004c0ac788af09cbb87969ab9f6e1410",
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/resolve/main/sft_args.json?revision=29871536004c0ac788af09cbb87969ab9f6e1410",
+    "https://huggingface.co/SimulaMet/SoccerChat-qwen2-vl-7b/resolve/main/generation_config.json?revision=29871536004c0ac788af09cbb87969ab9f6e1410",
+    "https://huggingface.co/datasets/SimulaMet/SoccerChat/resolve/main/README.md (6,068 B \u2014 the dataset card with the features list + the NDA gate text)",
+    "https://huggingface.co/api/models/Qwen/Qwen2-VL-7B-Instruct/tree/main?recursive=true (the base shards' sizes + LFS oids)",
+    "https://raw.githubusercontent.com/simula/SoccerChat/main/README.md (8,438 B)"
+  ],
+  "recordedAtUtc": "2026-10-04T00:06:33.316504+00:00"
+}

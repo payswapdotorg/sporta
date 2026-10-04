@@ -1,0 +1,129 @@
+{
+  "evidenceId": "hf007-soccerchat-load-analysis",
+  "candidate": "SimulaMet/SoccerChat-qwen2-vl-7b",
+  "revision": "29871536004c0ac788af09cbb87969ab9f6e1410",
+  "adapter": {
+    "file": "adapter_model.safetensors",
+    "bytes": 40422208,
+    "sha256": "4c3b45687dd15e744f84874ef06e365e96d1d4e308f89f001cf5173a75946e47",
+    "shaVerification": "LOCALLY VERIFIED (downloaded in the bounded preflight probe; matches the hub LFS oid)",
+    "lora": {
+      "peft_type": "LORA",
+      "r": 8,
+      "lora_alpha": 32,
+      "lora_dropout": 0.05,
+      "target_modules": "^(model)(?!.*(lm_head|output|emb|wte|shared)).*",
+      "task_type": "CAUSAL_LM",
+      "bias": "none"
+    },
+    "trainerState": "global_step7270 (the repo carries the DeepSpeed ZeRO checkpoint shards + optim states \u2014 inference needs ONLY adapter_model.safetensors + adapter_config.json)"
+  },
+  "base": {
+    "repoId": "Qwen/Qwen2-VL-7B-Instruct",
+    "revisionPinnedByAdapter": null,
+    "revisionPinnedByAdapterNote": "adapter_config.json revision is null and sft_args.json records model_revision 'master' \u2014 the adapter does NOT pin a base revision; this flight records the probed main sha and flags the unpinned-base reproducibility caveat (the HF015 gate may want the operator to pin it)",
+    "probedRevision": "eed13092ef92e448dd6875b2a00151bd3f7db0ac",
+    "safetensors": [
+      {
+        "file": "model-00001-of-00005.safetensors",
+        "bytes": 3898649896,
+        "sha256HubReported": "eab4f4dc1abf860794c98ce3759b4ace1059fc0fc041ede76b88988b3557c132"
+      },
+      {
+        "file": "model-00002-of-00005.safetensors",
+        "bytes": 3864726320,
+        "sha256HubReported": "0546b7cd070ff239de0f61a28770de6a0ac517ad313071e151653e38911ffb25"
+      },
+      {
+        "file": "model-00003-of-00005.safetensors",
+        "bytes": 3864726424,
+        "sha256HubReported": "11368ea1e9c0039ca54012a74ac32d543a9e9d980b2d0ad7e93af0341ace1fe6"
+      },
+      {
+        "file": "model-00004-of-00005.safetensors",
+        "bytes": 3864733680,
+        "sha256HubReported": "381e110d74db594cc24956af0e74a01ae02104497113a78926990c5bd1f395f6"
+      },
+      {
+        "file": "model-00005-of-00005.safetensors",
+        "bytes": 1089994880,
+        "sha256HubReported": "e76ec4dc2e7c0dcbe3432e58fae08e62204a2ef2323069d85c8fa0affb87332a"
+      }
+    ],
+    "totalBytes": 16582831200,
+    "dtype": "bfloat16 (config.json torch_dtype)",
+    "architecture": {
+      "architectures": [
+        "Qwen2VLForConditionalGeneration"
+      ],
+      "num_hidden_layers": 28,
+      "hidden_size": 3584,
+      "intermediate_size": 18944,
+      "num_attention_heads": 28,
+      "num_key_value_heads": 4,
+      "vocab_size": 152064,
+      "torch_dtype": "bfloat16",
+      "vision_config": {
+        "depth": 32,
+        "embed_dim": 1280,
+        "num_heads": 16,
+        "patch_size": 14,
+        "spatial_merge_size": 2,
+        "temporal_patch_size": 2,
+        "hidden_size": 3584
+      },
+      "rope_scaling": {
+        "type": "mrope",
+        "mrope_section": [
+          16,
+          24,
+          24
+        ]
+      }
+    }
+  },
+  "generationConfig": {
+    "do_sample": true,
+    "temperature": 0.01,
+    "top_k": 1,
+    "top_p": 0.001,
+    "max_new_tokens": 2048
+  },
+  "cardInferenceRegime": {
+    "frames": 24,
+    "max_video_pixels": 100352,
+    "engine": "ms-swift PtEngine (card) / transformers+peft (this script)",
+    "quantization": "4-bit nf4 bnb on a free T4 (the card's own Colab recipe \u2014 evidence even the authors need quantization; fp16 paper results)",
+    "max_tokens": 512,
+    "temperature": 0.3,
+    "top_k": 20,
+    "top_p": 0.7
+  },
+  "loadingRecipe": {
+    "transformersPeft": "AutoProcessor.from_pretrained(Qwen/Qwen2-VL-7B-Instruct); Qwen2VLForConditionalGeneration.from_pretrained(base, torch_dtype=torch.bfloat16, attn_implementation='sdpa'); PeftModel.from_pretrained(model, adapter_dir) \u2014 the adapter repo's own config.json carries the full base architecture (verified identical to the base config)",
+    "cardMsSwift": "ms-swift PtEngine(adapters=['SimulaMet/SoccerChat-qwen2-vl-7b'], model_id_or_path='Qwen/Qwen2-VL-7B-Instruct', quantization_config=bnb nf4) with FPS_MIN_FRAMES=FPS_MAX_FRAMES=24, VIDEO_MAX_PIXELS=100352",
+    "hostRequirement": ">= 32 GB RAM (bf16 unquantized, the paper's regime) or a >= 16 GB CUDA GPU (the card's 4-bit regime); >= 24 GB free disk for the download; this host: 4,041.6 MiB RAM / ~442 MB free \u2014 INFEASIBLE (the typed refusal)"
+  },
+  "hostGapArithmetic": {
+    "disk": {
+      "neededBytes": 16623253408,
+      "neededGiB": 15.48,
+      "hostFreeBytes": 420151296,
+      "hostFreeGiB": 0.39,
+      "feasible": false,
+      "ratioNeededOverFree": 39.6
+    },
+    "ram": {
+      "bf16WorkingSetGiBEstimate": 18.49,
+      "hostTotalMiB": 4041.6,
+      "hostTotalGiB": 3.95,
+      "bf16Feasible": false,
+      "ratioBf16OverTotal": 4.68,
+      "quant4GiBEstimate": 6.13,
+      "quant4Feasible": false,
+      "quant4Note": "even the card's own 4-bit nf4 Colab recipe (bnb, CUDA-only) exceeds this host's TOTAL RAM; no CUDA GPU exists here in any case"
+    },
+    "verdict": "resource-infeasible-host"
+  },
+  "recordedAtUtc": "2026-10-04T00:06:33.316312+00:00"
+}
