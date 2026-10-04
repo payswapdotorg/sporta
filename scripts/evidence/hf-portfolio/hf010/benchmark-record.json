@@ -1,0 +1,262 @@
+{
+  "benchmarkRun": {
+    "workItem": "HF010",
+    "runBy": "Worker 65-a (flight 7, the renderer-wave opener — Worker C's renderer wave)",
+    "provenanceLedgerEcho": {
+      "note": "the three candidates blocks echo the Wan2.2-Fun-Control-Camera, ReCamMaster, and Meridian rows of scripts/evidence/hf-portfolio/provenance-ledger.json VERBATIM (all twelve fields each: candidate, taskProfiles, modelUrl, revision, modelLicense, codeLicense, weightsProvenance, datasetProvenance, commercialUse, gatingState, sources, recordedAt); the ledger row schema is pinned by the hf-ledger guard tests, so the benchmark run is recorded HERE, not as ledger rows — and all three candidates' gatingState stays 'candidate' (promotion is the TL's HF015 gate alone)"
+    },
+    "candidates": [
+      {
+        "candidate": "Wan2.2-Fun-Control-Camera",
+        "taskProfiles": ["renderer.cinematicReCamera"],
+        "modelUrl": "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+        "revision": "da1f119dcf5626b2fa41219ce42ac175752f3892",
+        "modelLicense": "apache-2.0",
+        "codeLicense": "apache-2.0",
+        "weightsProvenance": "Wan2.2-Fun camera-lens-control weights on base model Wan-AI/Wan2.2-I2V-A14B (per card frontmatter; 81-frame/16fps multi-resolution training described on card).",
+        "datasetProvenance": "unknown",
+        "commercialUse": "yes",
+        "gatingState": "candidate",
+        "sources": [
+          "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+          "https://huggingface.co/api/models/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+          "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera/raw/main/README.md",
+          "https://github.com/aigc-apps/VideoX-Fun",
+          "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/LICENSE"
+        ],
+        "recordedAt": "2026-10-03T01:40:05Z"
+      },
+      {
+        "candidate": "ReCamMaster",
+        "taskProfiles": ["renderer.cinematicReCamera"],
+        "modelUrl": "https://huggingface.co/KlingTeam/ReCamMaster-Wan2.1",
+        "revision": "4f3f7391743dfd25067ab27e0f1eb8928d11b91d",
+        "modelLicense": "apache-2.0",
+        "codeLicense": "mit",
+        "weightsProvenance": "open checkpoint (step20000.ckpt) of ReCamMaster migrated by its authors onto Wan2.1; the paper's internal T2V model is not open-sourced (company policy), per the repo README.",
+        "datasetProvenance": "MultiCamVideo-Dataset (KwaiVGI, multi-camera synchronized videos rendered with Unreal Engine 5 — released with the method, per repo README).",
+        "commercialUse": "yes",
+        "gatingState": "candidate",
+        "sources": [
+          "https://huggingface.co/KlingTeam/ReCamMaster-Wan2.1",
+          "https://huggingface.co/api/models/KlingTeam/ReCamMaster-Wan2.1",
+          "https://huggingface.co/KlingTeam/ReCamMaster-Wan2.1/raw/main/README.md",
+          "https://github.com/KwaiVGI/ReCamMaster",
+          "https://raw.githubusercontent.com/KwaiVGI/ReCamMaster/main/LICENSE",
+          "https://raw.githubusercontent.com/KwaiVGI/ReCamMaster/main/README.md"
+        ],
+        "recordedAt": "2026-10-03T01:40:06Z"
+      },
+      {
+        "candidate": "Meridian",
+        "taskProfiles": ["renderer.cinematicReCamera"],
+        "modelUrl": "https://huggingface.co/Viggle/Meridian",
+        "revision": "9c57d46fbb3924cdac553a1005a8597b574b7225",
+        "modelLicense": "other (minimax-h3-community-license — MiniMax H3 Community License Agreement covering the adapter weights and their outputs)",
+        "codeLicense": "apache-2.0",
+        "weightsProvenance": "two LoRA adapters (teacher plus a turbo distilled to 3 forwards) on the unmodified MiniMaxAI/MiniMax-H3 transformer, shipped by Viggle; geometry stage requires VGGT-Omega (gated, FAIR Noncommercial Research License v1, obtained separately), per card.",
+        "datasetProvenance": "unknown",
+        "commercialUse": "unclear",
+        "gatingState": "candidate",
+        "sources": [
+          "https://huggingface.co/Viggle/Meridian",
+          "https://huggingface.co/api/models/Viggle/Meridian",
+          "https://huggingface.co/Viggle/Meridian/raw/main/README.md",
+          "https://huggingface.co/Viggle/Meridian/resolve/main/LICENSE",
+          "https://huggingface.co/Viggle/Meridian/resolve/main/LICENSE-CODE",
+          "https://raw.githubusercontent.com/facebookresearch/vggt-omega/main/LICENSE"
+        ],
+        "recordedAt": "2026-10-03T01:40:07Z"
+      }
+    ],
+    "modelRuntime": {
+      "wan22funcontrolcamera": {
+        "adapter": "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera @ da1f119dcf5626b2fa41219ce42ac175752f3892 — the standalone camera-lens-control repo: high_noise_model + low_noise_model diffusion_pytorch_model.safetensors (29.585 GB each), models_t5_umt5-xxl-enc-bf16.pth (11.362 GB), Wan2.1_VAE.pth (0.508 GB); 71.06 GB total (hub-reported sizes + LFS sha256s in results/load-analysis.json — NOT downloaded: the resource refusal; weights never committed, never vendored). The card frontmatter records the base as Wan-AI/Wan2.2-I2V-A14B (provenance; the base tree itself is 117.54 GiB, probed for the record only)",
+        "architecture": "Wan2_2Transformer3DModel (config.json, fetched at the pinned revision): dim 5120, 40 layers / 40 heads, patch (1,2,2), in_channels 36, add_control_adapter true, in_dim_control_adapter 24, model_type i2v — the A14B dual-expert (high/low noise) pipeline with the control adapter; camera conditioning is the CameraCtrl lens-parameter convention (the card's own dependency list: ComfyUI-CameraCtrl-Wrapper, CameraCtrl); 81 frames @ 16 fps, multi-resolution 512/768/1024",
+        "venv": "/home/z/hf-bench-7 (uv, python 3.12, huggingface_hub 2.1.1 ONLY — a NEW lean venv; no earlier flight's venv was reused; torch NOT installed: installing torch + loading the 71 GB dual-expert pipeline is exactly the resource infeasibility of the typed refusal)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_renderer.py --mode full): the pinned sha-verified download of the repo tree, diffusers (the config is a diffusers Wan2_2Transformer3DModel) + the VideoX-Fun repo's control pipeline, the fixture poses converted to the CameraCtrl lens-parameter sequence, the 1280x720 output converted from the card's 512/768/1024 multi-resolution surface",
+        "loadValidation": "REFUSED — the model never loaded on this host: preflight exit code 3, typed refusal resource-infeasible-host (results/preflight-refusal.json). The repo IS anonymously reachable (gated=False); the block is pure resource arithmetic (download 63x free disk; working set ~17x TOTAL RAM), not a stall and not an auth wall"
+      },
+      "recammaster": {
+        "adapter": "KlingTeam/ReCamMaster-Wan2.1 @ 4f3f7391743dfd25067ab27e0f1eb8928d11b91d — the open step20000.ckpt (2.981 GB, hub-reported LFS sha256 recorded in results/load-analysis.json — NOT downloaded), the control weights the authors migrated onto Wan2.1; the paper's internal T2V model is NOT open-sourced (company policy, the repo README's own words)",
+        "architecture": "the video-conditioning scheme over a single source video (N mp4s, >= 81 frames each, + metadata.csv captions); camera conditioning by trajectory: the 10 indexed preset classes (--cam_type 1..10: Pan Right, Pan Left, Tilt Up, Tilt Down, Zoom In, Zoom Out, Translate Up/Down (with rotation), Arc Left/Right (with rotation)) — custom trajectories exist in the method, the public example path drives the presets; the minimal documented composition is the public download_wan2.1.py pin Wan-AI/Wan2.1-T2V-1.3B (17.574 GB), the benchmark-grade composition is Wan-AI/Wan2.1-I2V-14B-720P (82.27 GB — both probed, never downloaded)",
+        "venv": "/home/z/hf-bench-7 (shared with the other two probes — same lean huggingface_hub-only install)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_renderer.py --mode full): DiffSynth-Studio (the repo's documented runtime, requires Rust/Cargo extensions) + the pinned sha-verified ckpt + the Wan2.1 base, the fixture arcs converted to trajectories (preset classes for the authored pan/zoom/arc intents; the custom-trajectory seam for the per-frame poses — an HF014 gap), inputs staged per the example_test_data convention",
+        "loadValidation": "REFUSED — same typed refusal: EVEN the smallest documented composition (~20.56 GB: the 1.3B example base + the ckpt) is ~19x the host's free disk (1.05 GiB); the benchmark-grade composition ~85 GB is ~79x over; the 14B-class working set is ~20x TOTAL RAM; 2-vCPU-only latency is the additional wall"
+      },
+      "meridian": {
+        "adapter": "Viggle/Meridian @ 9c57d46fbb3924cdac553a1005a8597b574b7225 — two LoRA adapters on the unmodified MiniMax-H3 transformer: teacher_lora/pytorch_lora_weights.safetensors 2,666.4 MB + turbo_lora/pytorch_lora_weights.safetensors 2,666.4 MB (hub-reported; the card's rounding: '2.5 GiB each', 'approximately 5 GiB'); the base the installation doc pins (hf download MiniMaxAI/MiniMax-H3 --include transformer/* vae/*) is 76.70 GB hub-reported; the geometry stage requires VGGT-Omega = facebook/VGGT-Omega, GATED (gate type manual — a granted HF account is required; anonymous WEIGHT access is 401, verified by a bounded HEAD probe with zero body bytes; the metadata listing alone is not access) — the HF009 auth-gate convention",
+        "architecture": "geometry-guided video-to-video: VGGT-Omega estimates depth + camera poses from the source video, renders the warped reference (uncovered regions grey), and the H3+LoRA model generates the new view; camera conditioning is the KEYFRAME PATH {pos, look, src, t, ease?, focal?} (recam/path.py fetched verbatim: Catmull-Rom pos/look with Fritsch-Carlson tangents, linear src/focal, roll locked to zero — the training corpus has no roll, p99 2.1 deg, units of the pivot depth zm; bullet time = two keys with the same src at different t); runtime posture per docs/installation.md: 'The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options' (~88 GiB peak for 73 frames; a 96 GB-class GPU for takes up to 124 frames)",
+        "venv": "/home/z/hf-bench-7 (same lean install; nothing beyond huggingface_hub — the Meridian requirements.txt stack IS the infeasibility)",
+        "loading": "the ready-to-run recipe (implemented in benchmark_renderer.py --mode full): the pinned sha-verified downloads (the adapters + the H3 transformer/vae include set), the Meridian release repo + its pinned Diffusers commit (d6726f3) + peft 0.18.0, VGGT-Omega obtained separately (the manual-gate operator action), the fixture keyframes converted to pivot-depth units, inference/sample.py per camera recipe (--yaw/--dolly/--zoom/--truck/--boom/--sweep/--ease/--aim)",
+        "loadValidation": "REFUSED — the triple wall: the composition download (~82.04 GB) is ~76x free disk; the card's own reported runtime peak (~88 GiB) is ~22x TOTAL RAM; and the documented posture REQUIRES a CUDA GPU this host does not have (plus the standing VGGT-Omega manual gate). The Meridian repo itself is anonymously reachable (gated=False) — the auth wall is the VGGT-Omega DEPENDENCY, exactly as the brief predicted"
+      }
+    },
+    "typedRefusal": {
+      "type": "resource-infeasible-host",
+      "reasons": [
+        "Wan2.2-Fun-Control-Camera model-download-disk-infeasible: the pinned repo tree is 71.06 GB (71,060,183,454 B) vs the host's free disk 1.12 GB — 63x over; the download itself is the infeasibility (bounded metadata probes only, weights never downloaded)",
+        "Wan2.2-Fun-Control-Camera model-load-ram-infeasible: the dual-expert A14B working set (29.585 + 29.585 GB diffusion + 11.362 GB T5 + 0.508 GB VAE ≈ 71.06 GB storage-dtype bytes) is ~17x the host's TOTAL RAM (3.95 GiB) before any activation — no cast or offload strategy recorded in the card changes the order of magnitude",
+        "Wan2.2-Fun-Control-Camera CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; an 81-frame A14B i2v take on 2 vCPU is a latency infeasibility on top of the walls above",
+        "ReCamMaster model-download-disk-infeasible: EVEN the smallest documented composition (the public example recipe: Wan-AI/Wan2.1-T2V-1.3B 17.574 GB + step20000.ckpt 2.981 GB ≈ 20.56 GB) is ~19x the host's free disk (1.12 GB); the benchmark-grade 14B composition is ~85 GB — ~79x over",
+        "ReCamMaster model-load-ram-infeasible (benchmark-grade): the Wan2.1-I2V-14B-720P class base (82.27 GB storage bytes) is ~20x the host's TOTAL RAM (3.95 GiB); the 1.3B example path alone (~17.6 GB storage + activations) already exceeds TOTAL RAM 4.4x",
+        "ReCamMaster CPU-only host (2 vCPU, no GPU): GPU memory is honestly N/A; an 81-frame video-diffusion take on 2 vCPU is a latency infeasibility even where the weights would fit",
+        "Meridian model-download-disk-infeasible: the pinned composition is 76.70 GB (MiniMax-H3 transformer/ + vae/ per the installation doc's own include set) + 5.33 GB adapters (teacher 2,666.4 MB + turbo 2,666.4 MB) ≈ 82.04 GB vs the host's free disk 1.12 GB — ~76x over",
+        "Meridian model-load-ram-infeasible: the card's own reported runtime peak is ~88 GiB (73 frames) on a 96 GB-class GPU — ~22x this host's TOTAL RAM (3.95 GiB); the geometry stage is additional",
+        "Meridian requires a CUDA GPU by its own documented posture (docs/installation.md verbatim: 'The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options') — this host has NO CUDA device; the compute leg is impossible on this host class, independent of RAM/disk",
+        "Meridian VGGT-Omega auth-gate (the HF009 convention): the geometry stage's weights repo facebook/VGGT-Omega is HF-GATED with gate type MANUAL — anonymous API probes return 401 (Repository Not Found); the installation doc requires requesting access and authenticating with a granted account. A standing operator action on ANY host, recorded as an auth fact, never faked"
+      ],
+      "evidence": "scripts/evidence/hf-portfolio/hf010/results/preflight-refusal.json",
+      "note": "per the worker brief: all three candidates are tens-of-GB compositions (71.06 GB / 20.56-85.16 GB / ~82.04 GB) on a 3.95 GiB-RAM 1.05 GiB-free-disk 2-vCPU no-GPU host — the honest delivery is this typed refusal + the SUBSTANTIAL partial (the authored camera-path fixtures in the repo's own CameraPlan/slot vocabulary, the license-posture verdicts, the five metric designs implemented + self-checked, the machine-checked contract mappings), never a fabricated benchmark. Bounded reachability probes ONLY — the weights were never downloaded. The one auth-gate fact: Meridian's VGGT-Omega dependency (facebook/VGGT-Omega) is HF-gated with gate type manual; anonymous weight access is 401 (verified by a bounded HEAD probe, zero body bytes)"
+    },
+    "fixtures": [
+      {
+        "fixtureId": "hf010-dolly-in-main-touchline",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "dolly-in",
+        "anchorSlotId": "main-touchline",
+        "presentationKind": "live",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      },
+      {
+        "fixtureId": "hf010-orbit-goal-behind-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "orbit",
+        "anchorSlotId": "behind-goal-x105",
+        "presentationKind": "live",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      },
+      {
+        "fixtureId": "hf010-pan-across-box-behind-x0",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "pan",
+        "anchorSlotId": "behind-goal-x0",
+        "presentationKind": "live",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      },
+      {
+        "fixtureId": "hf010-crane-rise-behind-goal-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "crane",
+        "anchorSlotId": "behind-goal-x105",
+        "presentationKind": "live",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      },
+      {
+        "fixtureId": "hf010-zoom-optical-aerial-tactical",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "zoom-optical",
+        "anchorSlotId": "aerial-tactical",
+        "presentationKind": "live",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      },
+      {
+        "fixtureId": "hf010-bullet-time-goal-line-x105",
+        "mediaKind": "authored-camera-path (deterministic JSON fixture — no media bytes)",
+        "intentKind": "bullet-time-orbit",
+        "anchorSlotId": "behind-goal-x105",
+        "presentationKind": "review",
+        "scored": false,
+        "status": "authored-not-run-resource-refusal",
+        "unscoredReason": "the fixture exists, is deterministic (sha256-pinned) and test-pinned — but no candidate ever consumed it (the typed refusal: no model ran on this host); the fixture is the COMMON input all three candidates would receive identically on an adequate host",
+        "evidence": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json"
+      }
+    ],
+    "licensePosture": {
+      "status": "argued-from-recorded-terms-only (a FIRST-CLASS acceptance criterion of HF010 — never legal advice, never a promotion; HF015 owns all adjudication)",
+      "wan22FunControlCamera": "production-eligible-by-recorded-terms: apache-2.0/apache-2.0, commercialUse yes (the ledger row + the card's own license block); the open edge is datasetProvenance unknown — a provenance question for HF015, not a recorded license block",
+      "recammaster": "production-eligible-by-recorded-terms: apache-2.0 model / mit code, commercialUse yes; the recorded caveat is capability-honesty (the repo README's own words: the paper's internal T2V model is not open-sourced — 'you may not achieve the same results as demonstrated in the demo'); the conditioning dataset (MultiCamVideo, UE5-rendered synthetic) has clean recorded provenance",
+      "meridian": "research-only / watchlist for production — TWO independent recorded blockers: (1) the minimax-h3-community-license covering the adapter weights AND their outputs, with territorial restrictions the installation doc itself records; (2) the mandatory geometry stage VGGT-Omega under the FAIR Noncommercial Research License v1 plus the HF manual gate (anonymous weight access 401 — the executed auth-gate probe). Nothing in the recorded terms clears commercial output use; the recorded commercialUse is 'unclear'",
+      "evidence": "scripts/evidence/hf-portfolio/hf010/results/license-posture.json"
+    },
+    "quality": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO quality number exists in this flight — no model ever ran. The honest partial evidence: the five METRIC DESIGNS implemented ready-to-run with exact definitions (camera adherence via PnP-estimated poses vs the authored path in meters/degrees/pixels; player/ball identity via the repo's own vision path with the pair-frame identity-stability denominator; temporal consistency via 8x8-mean-filter SSIM + flow warp residual; hallucinated-region rate vs the geometry-projected visible set with the Meridian grey-reference convention as the contrast signal; cost/latency per second of output), the IMPLEMENTATION self-check (results/metric-selfcheck.json — 14/14 hand-computed cases: 12 metric cases + 2 fixture-determinism checks, labeled implementation evidence NOT a model measurement), and the machine-checked contract mappings (results/contract-compatibility.json)",
+      "contractCompatibilityVerdict": "PARTIAL — renderer.cinematicReCamera: no candidate maps the full frozen profile. Camera-path conditioning: Meridian maps (the keyframe path IS the profile's camera path; the geometry stage internalizes geometry/depth guidance) / Wan2.2-Fun maps-with-adapter (the CameraCtrl lens-parameter seam) / ReCamMaster partial (preset-indexed trajectories, not authored paths) — the gaps are the HF014 design surface. Renderer telemetry + geometry/SWM consistency metadata: does-not-map or partial for ALL three (both outputs are the benchmark's external measurements, never model claims). Source-video inputs: ReCamMaster + Meridian map; Wan2.2-Fun maps-with-adapter (an i2v image, rights-gated). SWM inputs: partial for all three (pixels+prompts, never SWM structure)",
+      "evidence": "scripts/evidence/hf-portfolio/hf010/results/contract-compatibility.json"
+    },
+    "latency": {
+      "status": "not-measured-typed-refusal",
+      "note": "NO latency number exists in this flight — no model ever ran. The ready-to-run path implements: generationWallClockMs (time.monotonic around the full generation call, CPU wall-clock labeled as such), wallClockMsPerOutputSecond (wall-clock / (frameCount/fps)), peakGpuMemoryGiB (torch.cuda.max_memory_allocated — honestly N/A typed on a CPU host, never zero), coldStartDownloadBytes (the pinned composition's download total from the load analysis). The 81-frame take convention (Wan2.2-Fun / ReCamMaster) at 16 fps = 5.0625 s of output per run; Meridian's 73-frame samples at 24 fps"
+    },
+    "memory": {
+      "gpuMemory": "N/A (no GPU on the benchmark host; peakGpuMemoryGiB is typed N/A, never zero); process RSS would be the CPU substitute metric — ALSO not measured (the models never ran)",
+      "status": "not-measured-typed-refusal",
+      "note": "the only honest memory evidence in this flight is the refusal arithmetic: host total RAM 3.95 GiB vs the candidates' working sets — Wan2.2-Fun ~71.06 GB storage-dtype bytes (~17x TOTAL RAM), ReCamMaster's benchmark-grade composition 82.27 GB base (~20x), Meridian's card-reported runtime peak ~88 GiB (~22x) — all before any activation"
+    },
+    "resourceCaveats": [
+      "CPU-only benchmark host (2 vCPU, 3.95 GiB total RAM, 1.05 GiB free disk): GPU memory is honestly N/A; process RSS would be the substitute — and no model ran, so no RSS number exists either",
+      "the typed refusal (resource-infeasible-host) is the flight's core honesty record for ALL THREE candidates: Wan2.2-Fun download 71.06 GB = 63x free disk (working set ~17x TOTAL RAM); ReCamMaster even the smallest documented composition ~20.56 GB = ~19x free disk (benchmark-grade ~85 GB = ~79x); Meridian ~82.04 GB = ~76x free disk (card-reported runtime peak ~88 GiB = ~22x TOTAL RAM) — no latency, memory, or quality figure in this flight is anything but 'not measured'",
+      "the models never ran — every metric-shaped value in this record is a design, a fixture, or a refusal, never a measurement; the self-check numbers are implementation evidence (hand-computed cases), labeled as such",
+      "Meridian's VGGT-Omega dependency is a standing AUTH wall on ANY host (HF gate type manual — request access + a granted account; anonymous weight access 401, verified by a bounded HEAD probe with zero body bytes) — recorded per the HF009 convention, never faked, never bypassed",
+      "the full-mode host requirement is >= 32 GiB RAM / >= 64 GiB free disk + a CUDA GPU (Meridian's own documented posture makes the GPU non-optional); the script refuses fail-closed exit 3 otherwise (negative-tested on THIS host)",
+      "the authored camera-path fixtures are DATA (JSON), host-independent, deterministic (sha256-pinned, byte-identical regeneration proven) — they are the common benchmark surface, but they have never been consumed by any model (the refusal); the metric implementations have never processed any model output",
+      "the venv is deliberately lean (/home/z/hf-bench-7: huggingface_hub 2.1.1 only); torch was NOT installed because installing it + loading any of the three compositions IS the infeasibility; nothing exceeded the disk budget this flight (bounded metadata + small-file fetches only)",
+      "license-posture verdicts are engineering readings of the RECORDED terms only (the ledger rows + the fetched cards/docs) — never legal advice, never a promotion; the Meridian VGGT-Omega FAIR-Noncommercial + minimax-h3-community-license combination is recorded as a research-only posture, and the decision is HF015's alone"
+    ],
+    "partialDeliverables": {
+      "executedPreflight": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/preflight-refusal.json",
+        "description": "the EXECUTED preflight (exit 3): host resources, the three pinned candidate probes + the five composition companions (bounded — file trees + small metadata files, weights never downloaded), the resource arithmetic, the VGGT-Omega auth-gate probe (bounded HEAD, zero body bytes, 401 recorded), the typed refusal with 10 reasons"
+      },
+      "loadAnalysis": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/load-analysis.json",
+        "description": "all three candidates' file trees at the pinned revisions (sizes + hub LFS sha256s for the largest files), the composition companions (the Wan bases, the H3 transformer/vae include set, the gated VGGT-Omega), the per-candidate resource arithmetic (download vs free disk, working set vs total RAM)"
+      },
+      "licensePosture": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/license-posture.json",
+        "description": "the license-posture verdicts (first-class acceptance criterion): per candidate, argued from the recorded terms only with verbatim citations (the ledger rows, the card license blocks, the installation doc's territorial-restrictions statement, the code-license-does-not-cover-weights statement) — never legal advice, never a promotion"
+      },
+      "authoredCameraFixtures": {
+        "path": "scripts/evidence/hf-portfolio/hf010/fixtures/hf010-camera-paths.json",
+        "description": "THE authored camera-path fixture set (the 'common benchmark with authored camera paths'): 6 deterministic camera-intent windows x 81 poses (dolly-in / orbit / pan / crane / adversarial pure-zoom / bullet-time-as-review) anchored to the canonical W601 slots, in the CameraPlan directed-window language, exported provider-neutral (per-frame tMs/eye/look/focalMultiplier/sourceFrame); versioned (hf010.camera-paths@1), sha256-pinned, byte-identical regeneration proven, selfcheck-verified — the HF014 runway"
+      },
+      "fixtureReport": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/camera-fixtures.json",
+        "description": "the fixture report: what each window is, its anchor slot, its provider-neutral export, what consumes it (the full-mode driver + the repo's CameraPlan vocabulary)"
+      },
+      "metricDesigns": {
+        "path": "scripts/evidence/hf-portfolio/hf010/benchmark_renderer.py",
+        "description": "the five metric IMPLEMENTATIONS with the exact definitions stated in the module docstring (camera adherence: endpoint translation/angular error + mean angular error + corner-reprojection tracking error in px + lens focal error; player/ball identity: pair-frame identity stability + ball presence recall; temporal: 8x8-mean-filter SSIM (K1=0.01, K2=0.03, L=255, valid windows) + flow warp residual; hallucinated-region rate vs the geometry-projected visible set (tau = 8/255 grey-contrast rule, the Meridian grey-reference convention); cost/latency: wall-clock per second of output + peak GPU memory typed N/A on CPU + cold-start download bytes) — ready-to-run on an adequate host, honestly typed not-measured"
+      },
+      "metricSelfCheck": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/metric-selfcheck.json",
+        "description": "the EXECUTED implementation self-verification (14/14: 12 hand-computed metric cases — angular errors 90/60 deg, endpoint translation, the projection convention in px + the near-plane rule, identity stability, ball recall, the SSIM constant-patch closed form, the flow-warp residual zero/correct-flow pair, the hallucination rate, the cost-per-output-second — plus the 2 fixture-determinism checks: byte-identical recomputation + canonical-slot vocabulary) — labeled IMPLEMENTATION evidence, NOT a model measurement; never enters the quality blocks as a number"
+      },
+      "contractMappings": {
+        "path": "scripts/evidence/hf-portfolio/hf010/results/contract-compatibility.json",
+        "description": "the machine-checked mappings: 15 task-profile INPUT rows (5 frozen inputs x 3 candidates), 9 OUTPUT rows (3 frozen outputs x 3 candidates), the 3-row camera-path-conditioning table (the HF014 design surface), the 3-row rights-provenance table, and the profile verdict (PARTIAL — the honest camera-path ranking Meridian > Wan2.2-Fun > ReCamMaster); every row argued from the source-verified model-io-surface.json + the repo's own frozen authorities (9 authorities, all needles machine-checked)"
+      },
+      "readyToRunScript": {
+        "path": "scripts/evidence/hf-portfolio/hf010/benchmark_renderer.py",
+        "description": "preflight mode EXECUTED on this host (exit 3, the typed refusal); author-fixtures mode EXECUTED (byte-identical regeneration proven); selfcheck mode EXECUTED (14/14); full mode ready-to-run on an adequate host (>= 32 GiB RAM, >= 64 GiB free disk, CUDA GPU), refusing fail-closed exit 3 otherwise (negative-tested on THIS host: the three resource blockers printed, exit 3 verified)"
+      }
+    },
+    "promotionGate": {
+      "gatingState": "candidate",
+      "blockersObserved": [
+        "the benchmark DID NOT RUN on this host (typed refusal: resource-infeasible-host, ALL THREE candidates) — zero executed quality/latency/memory evidence exists in this flight",
+        "the authored fixtures have never been consumed by any model: the common-benchmark surface exists, the runs do not (the >= 32 GiB RAM / >= 64 GiB disk + CUDA host question, or the honest no-promotion posture — the HF015 gate's standing question)",
+        "Meridian's VGGT-Omega geometry dependency is a standing auth wall (HF gate type manual — request access + a granted account) PLUS a noncommercial license (FAIR Noncommercial Research License v1): a research-only posture recorded from the terms; the production-side question for Meridian is blocked by recorded license terms independent of resources",
+        "the camera-adherence metric depends on PnP pose estimation against the known pitch geometry (implemented, self-checked on the closed-form cases) — the estimator's accuracy on REAL generated video is unmeasured until a run exists",
+        "no candidate emits renderer telemetry or geometry/SWM consistency metadata (the contract mapping's does-not-map verdicts) — both outputs are the benchmark's external measurements; any HF014 design must keep them external, never trust model claims"
+      ],
+      "note": "UNCHANGED — this benchmark recommends NOTHING production; promotion is the Tech Lead's HF015 gate alone. The three candidates' gatingState stay candidate; the license-posture verdicts are recorded terms, not adjudications"
+    }
+  }
+}

@@ -1,0 +1,463 @@
+{
+  "label": "EXECUTED preflight load analysis (bounded HF-API metadata probes + small-file fetches ONLY — weights never downloaded, never committed, never vendored)",
+  "host": {
+    "cpuCount": 2,
+    "totalRamBytes": 4237889536,
+    "totalRamGiB": 3.95,
+    "availableRamBytes": 1866231808,
+    "availableRamGiB": 1.74,
+    "freeDiskBytes": 1124720640,
+    "freeDiskGiB": 1.05,
+    "gpu": "N/A (no CUDA device on this host — nvidia-smi absent)"
+  },
+  "candidateProbes": [
+    {
+      "repoId": "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+      "revision": "da1f119dcf5626b2fa41219ce42ac175752f3892",
+      "sha": "da1f119dcf5626b2fa41219ce42ac175752f3892",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 14,
+      "totalBytes": 71060183454,
+      "totalGiB": 66.18,
+      "largestFiles": [
+        {
+          "path": "high_noise_model/diffusion_pytorch_model.safetensors",
+          "bytes": 29584580312,
+          "sha256": "b242a310d161460d3ecf8430d4f8ee01398bebc3925a479c267b71318e8e30ad"
+        },
+        {
+          "path": "low_noise_model/diffusion_pytorch_model.safetensors",
+          "bytes": 29584580312,
+          "sha256": "277a7b0374f9d0d5ba0e769fa9648687301cfff8b32d32c9b57d122dbea24c02"
+        },
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418,
+          "sha256": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d"
+        },
+        {
+          "path": "Wan2.1_VAE.pth",
+          "bytes": 507609880,
+          "sha256": "38071ab59bd94681c686fa51d75a1968f64e470262043be31f7a094e442fd981"
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer.json",
+          "bytes": 16837417,
+          "sha256": "6e197b4d3dbd71da14b4eb255f4fa91c9c1f2068b20a2de2472967ca3d22602b"
+        },
+        {
+          "path": "google/umt5-xxl/spiece.model",
+          "bytes": 4548313,
+          "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458"
+        }
+      ]
+    },
+    {
+      "repoId": "KlingTeam/ReCamMaster-Wan2.1",
+      "revision": "4f3f7391743dfd25067ab27e0f1eb8928d11b91d",
+      "sha": "4f3f7391743dfd25067ab27e0f1eb8928d11b91d",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 3,
+      "totalBytes": 2981096613,
+      "totalGiB": 2.78,
+      "largestFiles": [
+        {
+          "path": "step20000.ckpt",
+          "bytes": 2981094906,
+          "sha256": "352ac47a24781202dee2addaafa0d2bddfaea7b1847ff45faa26f1bceec5b5d4"
+        },
+        {
+          "path": ".gitattributes",
+          "bytes": 1519,
+          "sha256": null
+        },
+        {
+          "path": "README.md",
+          "bytes": 188,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "repoId": "Viggle/Meridian",
+      "revision": "9c57d46fbb3924cdac553a1005a8597b574b7225",
+      "sha": "9c57d46fbb3924cdac553a1005a8597b574b7225",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 163,
+      "totalBytes": 78356352321,
+      "totalGiB": 72.98,
+      "largestFiles": [
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00001-of-00014.safetensors",
+          "bytes": 4980100544,
+          "sha256": "26d7e3aaec342a316406635154c5e875d369711d6e3a5d516e4b8cca976d37f2"
+        },
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00004-of-00014.safetensors",
+          "bytes": 4933368952,
+          "sha256": "82de7715a842989a71ac51309dbdb25e465d577d261fa0af07db63224c7027a3"
+        },
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00007-of-00014.safetensors",
+          "bytes": 4933368952,
+          "sha256": "ef569f63dd305ab3089ecb2b9bbe37aacd0e86c67c56129581aa4a4de2781e6a"
+        },
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00010-of-00014.safetensors",
+          "bytes": 4933368952,
+          "sha256": "55043eff4d4eebc5cc63be80991580432e97e45d7e4f905fef2834ed0c646c5a"
+        },
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00013-of-00014.safetensors",
+          "bytes": 4933368952,
+          "sha256": "b8f4e878e731d6a33146db93c868ffe4abe901480d73cb543d03b0a18a2b0d79"
+        },
+        {
+          "path": "legacy/transformer/diffusion_pytorch_model-00003-of-00014.safetensors",
+          "bytes": 4701942704,
+          "sha256": "83da1e3950401718a89cd2760e2c1dfc2f42b05236c3441798579eee71bad7cc"
+        }
+      ]
+    }
+  ],
+  "companionProbes": [
+    {
+      "repoId": "Wan-AI/Wan2.2-I2V-A14B",
+      "revision": "206a9ee1b7bfaaf8f7e4d81335650533490646a3",
+      "sha": "206a9ee1b7bfaaf8f7e4d81335650533490646a3",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 33,
+      "totalBytes": 126205359703,
+      "totalGiB": 117.54,
+      "largestFiles": [
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418,
+          "sha256": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d"
+        },
+        {
+          "path": "high_noise_model/diffusion_pytorch_model-00001-of-00006.safetensors",
+          "bytes": 9994119944,
+          "sha256": "aeea563f9d38ec434b6761c497027ed2843220ee3efaf8c92c815255ade955e3"
+        },
+        {
+          "path": "low_noise_model/diffusion_pytorch_model-00001-of-00006.safetensors",
+          "bytes": 9994119944,
+          "sha256": "1127e3dea8c08cd746e36d1a7047a3197449adf13d90725ae0a276aeccaf8521"
+        },
+        {
+          "path": "high_noise_model/diffusion_pytorch_model-00003-of-00006.safetensors",
+          "bytes": 9943979184,
+          "sha256": "c5d7ddaae0ef24ab452d852a7a53dde7bdad598cd8542e6824e65b0666f39e7f"
+        },
+        {
+          "path": "low_noise_model/diffusion_pytorch_model-00003-of-00006.safetensors",
+          "bytes": 9943979184,
+          "sha256": "d0f75d2f41fdab239dbc0624c13ca1c56d79196f2aa0ac57f5f5c68cb53220ea"
+        },
+        {
+          "path": "high_noise_model/diffusion_pytorch_model-00002-of-00006.safetensors",
+          "bytes": 9943937936,
+          "sha256": "fe3b3fcab2b50ff967d971eafbf45e24269c66adacc0881fd6e7f72cd24051e8"
+        }
+      ],
+      "role": "Wan2.2-Fun base (provenance only, not downloaded)"
+    },
+    {
+      "repoId": "Wan-AI/Wan2.1-T2V-1.3B",
+      "revision": "37ec512624d61f7aa208f7ea8140a131f93afc9a",
+      "sha": "37ec512624d61f7aa208f7ea8140a131f93afc9a",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 22,
+      "totalBytes": 17573837064,
+      "totalGiB": 16.37,
+      "largestFiles": [
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418,
+          "sha256": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d"
+        },
+        {
+          "path": "diffusion_pytorch_model.safetensors",
+          "bytes": 5676070424,
+          "sha256": "96b6b242ca1c2f24e9d02cd6596066fab6d310e2d7538f33ae267cb18d957e8f"
+        },
+        {
+          "path": "Wan2.1_VAE.pth",
+          "bytes": 507609880,
+          "sha256": "38071ab59bd94681c686fa51d75a1968f64e470262043be31f7a094e442fd981"
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer.json",
+          "bytes": 16837417,
+          "sha256": "6e197b4d3dbd71da14b4eb255f4fa91c9c1f2068b20a2de2472967ca3d22602b"
+        },
+        {
+          "path": "google/umt5-xxl/spiece.model",
+          "bytes": 4548313,
+          "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458"
+        },
+        {
+          "path": "assets/comp_effic.png",
+          "bytes": 1793594,
+          "sha256": "b0e225caffb4b31295ad150f95ee852e4c3dde4a00ac8f79a2ff500f2ce26b8d"
+        }
+      ],
+      "role": "ReCamMaster example-recipe base (the public download_wan2.1.py pin)"
+    },
+    {
+      "repoId": "Wan-AI/Wan2.1-I2V-14B-720P",
+      "revision": "8823af45fcc58a8aa999a54b04be9abc7d2aac98",
+      "sha": "8823af45fcc58a8aa999a54b04be9abc7d2aac98",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 32,
+      "totalBytes": 82272024808,
+      "totalGiB": 76.62,
+      "largestFiles": [
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418,
+          "sha256": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d"
+        },
+        {
+          "path": "diffusion_pytorch_model-00001-of-00007.safetensors",
+          "bytes": 9847223624,
+          "sha256": "3c36c371b3060931770f693f22253a7de7c76fc79cffb0ab08032fb5a04784e4"
+        },
+        {
+          "path": "diffusion_pytorch_model-00003-of-00007.safetensors",
+          "bytes": 9797041744,
+          "sha256": "072ebcc282f2d35c016c22fbc46e1c8eefa85745b9038ca4eea9e34cf4a47186"
+        },
+        {
+          "path": "diffusion_pytorch_model-00002-of-00007.safetensors",
+          "bytes": 9797021016,
+          "sha256": "eb465c3d3ec91bf5562f8f9c1a7cbb010266012f255d05d0d5c8815524a1dd43"
+        },
+        {
+          "path": "diffusion_pytorch_model-00004-of-00007.safetensors",
+          "bytes": 9692142864,
+          "sha256": "3b3e8561340ad1d43e4569912810fdc24f83ddbcf4f2863c968114479113324b"
+        },
+        {
+          "path": "diffusion_pytorch_model-00005-of-00007.safetensors",
+          "bytes": 9692142864,
+          "sha256": "9700f2ba6194aad23a458adc6e73352ea982a0b1c7606f459cd3e559eacc270d"
+        }
+      ],
+      "role": "ReCamMaster benchmark-grade base (the Wan2.1 14B class)"
+    },
+    {
+      "repoId": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "sha": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "gated": false,
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 280,
+      "totalBytes": 498474749480,
+      "totalGiB": 464.24,
+      "largestFiles": [
+        {
+          "path": "FL2VA/video_vae/source/model.safetensors",
+          "bytes": 10415548320,
+          "sha256": "5f0c2e161d895a9fee7645ca32d4a7e3a22b90cacfcbeba62ec999cdbbefe0d3"
+        },
+        {
+          "path": "Ref2VA/video_vae/source/model.safetensors",
+          "bytes": 10415548320,
+          "sha256": "5f0c2e161d895a9fee7645ca32d4a7e3a22b90cacfcbeba62ec999cdbbefe0d3"
+        },
+        {
+          "path": "FL2VA/transformer/model-00001-of-00013.safetensors",
+          "bytes": 5227812968,
+          "sha256": "0b3386565e476bfdea287e9ea9f269d036e5c649ed14bb9b4afac1dc4661bd2a"
+        },
+        {
+          "path": "Ref2VA/transformer/model-00001-of-00013.safetensors",
+          "bytes": 5227812968,
+          "sha256": "902d6ae787f6d394d0104c1ef3ce19528209715fd5b0292f09d4ef7ca19c8504"
+        },
+        {
+          "path": "FL2VA/transformer/model-00004-of-00013.safetensors",
+          "bytes": 5164578896,
+          "sha256": "4a851df37cce2d14b39cb58df41def7b591b1f11b8520a32b421a5fa3e997c9f"
+        },
+        {
+          "path": "FL2VA/transformer/model-00005-of-00013.safetensors",
+          "bytes": 5164578896,
+          "sha256": "3fe6ff94dc9d3107c6776a25277d2b72b5443f88cf0f4ed835fd5b65a94ea5d4"
+        }
+      ],
+      "role": "Meridian base transformer+VAE (the installation doc pin)"
+    },
+    {
+      "repoId": "facebook/VGGT-Omega",
+      "revision": "1041e80fc0e911235d3426b0a3d9a81075111a53",
+      "sha": "1041e80fc0e911235d3426b0a3d9a81075111a53",
+      "gated": "manual",
+      "private": false,
+      "reachable": true,
+      "fileCountWithSize": 6,
+      "totalBytes": 14552916197,
+      "totalGiB": 13.55,
+      "largestFiles": [
+        {
+          "path": "vggt_omega_1b_256_text.pt",
+          "bytes": 5399490950,
+          "sha256": "2c59393e2d15569498d42191e03c29aabc72bdb243a20870b22a0b24a8f8095c"
+        },
+        {
+          "path": "vggt_omega_1b_512.pt",
+          "bytes": 4576706117,
+          "sha256": "c02da418b18bb01d0392598d3f6147366bcde1bb70fd08a5e3bf7925b0667934"
+        },
+        {
+          "path": "vggt_omega_1b_416_reproduce.pt",
+          "bytes": 4576703488,
+          "sha256": "e900833330eb0e570e10543e6108d0dd704fa7c8dbc32738a645987875298896"
+        },
+        {
+          "path": "LICENSE.txt",
+          "bytes": 11720,
+          "sha256": null
+        },
+        {
+          "path": "README.md",
+          "bytes": 2403,
+          "sha256": null
+        },
+        {
+          "path": ".gitattributes",
+          "bytes": 1519,
+          "sha256": null
+        }
+      ],
+      "role": "Meridian geometry stage (obtained separately; the auth gate)"
+    }
+  ],
+  "resourceArithmetic": {
+    "Wan2.2-Fun-Control-Camera": {
+      "candidate": "Wan2.2-Fun-Control-Camera",
+      "downloadBytes": 71060183454,
+      "downloadGiB": 66.18,
+      "downloadXFreeDisk": 63.2,
+      "notes": [
+        "repo total 71.06 GB: high_noise_model/diffusion_pytorch_model.safetensors 29.585 GB + low_noise_model 29.585 GB + models_t5_umt5-xxl-enc-bf16.pth 11.362 GB + Wan2.1_VAE.pth 0.508 GB (hub-reported sizes, never downloaded)",
+        "the card's own model table lists the Control-Camera family at 64.0 GB (the card's rounding of the same tree)",
+        "the dual-expert (high/low noise) Wan2.2 A14B pipeline must be resident for i2v control inference — 66.75 GiB of diffusion weights alone is ~17x the host's TOTAL RAM before any activation, T5, or VAE"
+      ],
+      "workingSetEstimateBytes": 71060183454,
+      "workingSetEstimateGiB": 66.18,
+      "workingSetXTotalRam": 16.8
+    },
+    "ReCamMaster": {
+      "candidate": "ReCamMaster",
+      "downloadBytes": 2981096613,
+      "downloadGiB": 2.78,
+      "downloadXFreeDisk": 2.7,
+      "notes": [
+        "EVEN the smallest documented composition (the public example path: the 1.3B base + the control checkpoint, ~20.56 GB) is ~19x the host's free disk — the download IS the infeasibility",
+        "the paper's internal T2V model is not open-sourced (company policy) — the open weights are a Wan2.1 migration whose results the repo README itself says may differ: 'Due to differences in the underlying T2V model, you may not achieve the same results as demonstrated in the demo.'",
+        "CPU-only 2 vCPU for an 81-frame video diffusion take is a latency infeasibility on top of the disk wall (typed honestly: latency, not a claim it could never run on a big-CPU host)"
+      ],
+      "minimalDocumentedComposition": {
+        "downloadBytes": 20554933677,
+        "downloadGiB": 19.14,
+        "downloadXFreeDisk": 18.3,
+        "parts": [
+          "KlingTeam/ReCamMaster-Wan2.1 step20000.ckpt (2.981 GB)",
+          "Wan-AI/Wan2.1-T2V-1.3B (17.574 GB — the public example recipe download_wan2.1.py pin, modelscope mirror recorded by the repo)"
+        ]
+      },
+      "benchmarkGradeComposition": {
+        "downloadBytes": 85253121421,
+        "downloadGiB": 79.4,
+        "downloadXFreeDisk": 75.8,
+        "parts": [
+          "KlingTeam/ReCamMaster-Wan2.1 step20000.ckpt (2.981 GB)",
+          "Wan-AI/Wan2.1-I2V-14B-720P (82.27 GB — the 14B class the migration documents)"
+        ]
+      }
+    },
+    "Meridian": {
+      "candidate": "Meridian",
+      "downloadBytes": 78356352321,
+      "downloadGiB": 72.98,
+      "downloadXFreeDisk": 69.7,
+      "notes": [
+        "the two adapters the card ships: teacher_lora/pytorch_lora_weights.safetensors 2,666.4 MB + turbo_lora/pytorch_lora_weights.safetensors 2,666.4 MB (hub-reported; the card rounds to '2.5 GiB each', 'approximately 5 GiB' total)",
+        "the base the installation doc pins: 'hf download MiniMaxAI/MiniMax-H3 --include transformer/* vae/*' — hub-reported 76.70 GB for exactly that include set (the card's own rounding: 'approximately 62 GiB' for the transformer alone; 66.88 GB in 14 shards)",
+        "the geometry stage needs VGGT-Omega on top: facebook/VGGT-Omega, GATED (gate type manual) — anonymous probes 401; the installation doc: 'Request access to facebook/VGGT-Omega, read its license, and authenticate with a Hugging Face account that has been granted access'",
+        "the card's own runtime posture: 'The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options' with a reported ~88 GiB peak for 73 frames, 'A 96 GB-class GPU is the reported configuration for takes up to 124 frames' — this host has NO CUDA device at all"
+      ],
+      "workingSetEstimateBytes": 576831101801,
+      "workingSetEstimateGiB": 537.22,
+      "workingSetEstimateXTotalRam": 136.1
+    }
+  },
+  "smallFileFetches": {
+    "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera::README.md": {
+      "path": "README.md",
+      "bytes": 16404,
+      "sha256": "ba71810007d0bc241027cddf9d9eb9dd990aca2fd98ee9827feffde8490c9aa5"
+    },
+    "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera::high_noise_model/config.json": {
+      "path": "high_noise_model/config.json",
+      "bytes": 606,
+      "sha256": "2e1b1971cf1a1810b9dc4cdad5864fc88cdf0990189f3e30bc5e3e46a8077060"
+    },
+    "alibaba-pai/Wan2.2-Fun-A14B-Control-Camera::low_noise_model/config.json": {
+      "path": "low_noise_model/config.json",
+      "bytes": 606,
+      "sha256": "2e1b1971cf1a1810b9dc4cdad5864fc88cdf0990189f3e30bc5e3e46a8077060"
+    },
+    "KlingTeam/ReCamMaster-Wan2.1::README.md": {
+      "path": "README.md",
+      "bytes": 188,
+      "sha256": "2fab491fc74baf57a3ce91cd87566bb8b4ae1956d5b0afa86db059c0663833de"
+    },
+    "Viggle/Meridian::README.md": {
+      "path": "README.md",
+      "bytes": 19733,
+      "sha256": "ac0dad892f9ac228a7a3feffb66f79e51160c03b8d4b7ffda0ae43d304f874d5"
+    },
+    "Viggle/Meridian::docs/installation.md": {
+      "path": "docs/installation.md",
+      "bytes": 10996,
+      "sha256": "fc3d2d5a523daa9e27298cb5ef763eaf681bef16069534007a51adae80314960"
+    },
+    "Viggle/Meridian::docs/inference.md": {
+      "path": "docs/inference.md",
+      "bytes": 15637,
+      "sha256": "bc003c270114fe0be2d920ff4e438f5c966e458d1894dcd8a684a3c6e4bb14cd"
+    },
+    "Viggle/Meridian::recam/path.py": {
+      "path": "recam/path.py",
+      "bytes": 5127,
+      "sha256": "344d0bb0dac712266846de4614a73260016c989b9f8cb8441a5b966c471b06fc"
+    },
+    "Viggle/Meridian::requirements.txt": {
+      "path": "requirements.txt",
+      "bytes": 404,
+      "sha256": "93eba82a8a3e7311ed5fe4bc8069a6d0c51fc39c4efbef09157f41f85471b345"
+    },
+    "Viggle/Meridian::MODIFICATIONS.md": {
+      "path": "MODIFICATIONS.md",
+      "bytes": 4649,
+      "sha256": "68acc8229899421c8da62be503602d0c0eff13b846445a6c63a3777c316d3d25"
+    }
+  }
+}

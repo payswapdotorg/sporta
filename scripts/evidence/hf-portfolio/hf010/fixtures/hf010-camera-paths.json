@@ -1,0 +1,8067 @@
+{
+  "fixtureSetVersion": "hf010.camera-paths@1",
+  "authoredBy": "Worker 65-a (HF010, flight 7 — the renderer-wave opener)",
+  "vocabularyProvenance": {
+    "cameraPlanLanguage": "packages/camera-director/src/types.ts (DirectedWindow: index/kind/source/cameraSlotId/decision; CameraPlan: directorVersion/policy/timeline/windows/summary)",
+    "canonicalSlots": "packages/scene-projection/src/constants.ts CANONICAL_CAMERA_SLOTS (the five W601 slots, values echoed in this document)",
+    "presentationKinds": [
+      "live",
+      "review"
+    ],
+    "rendererSeam": "packages/renderer-3d/src/render.ts styleConfig.config.cameraSlotId (the renderer's own slot seam the camera-director compose.ts drives)",
+    "taskProfile": "renderer.cinematicReCamera (docs/contracts/technology-task-profiles.md, FROZEN)"
+  },
+  "pitchGeometry": {
+    "lengthXMeters": 105.0,
+    "widthYMeters": 68.0,
+    "zUp": true
+  },
+  "canonicalSlots": {
+    "main-touchline": {
+      "eye": {
+        "x": "e",
+        "y": "y",
+        "z": "e"
+      },
+      "look": {
+        "x": "l",
+        "y": "o",
+        "z": "o"
+      }
+    },
+    "opposite-touchline": {
+      "eye": {
+        "x": "e",
+        "y": "y",
+        "z": "e"
+      },
+      "look": {
+        "x": "l",
+        "y": "o",
+        "z": "o"
+      }
+    },
+    "behind-goal-x0": {
+      "eye": {
+        "x": "e",
+        "y": "y",
+        "z": "e"
+      },
+      "look": {
+        "x": "l",
+        "y": "o",
+        "z": "o"
+      }
+    },
+    "behind-goal-x105": {
+      "eye": {
+        "x": "e",
+        "y": "y",
+        "z": "e"
+      },
+      "look": {
+        "x": "l",
+        "y": "o",
+        "z": "o"
+      }
+    },
+    "aerial-tactical": {
+      "eye": {
+        "x": "e",
+        "y": "y",
+        "z": "e"
+      },
+      "look": {
+        "x": "l",
+        "y": "o",
+        "z": "o"
+      }
+    }
+  },
+  "timeline": {
+    "startMs": 0,
+    "endMs": 30375
+  },
+  "determinism": "every pose is a pure function of (spec, frameIndex): parametric formulas only (lerp, cosine ease, cos/sin of authored angles), no RNG, no solver, no data fitting; all values quantized to 3 decimals so the JSON is byte-stable; --mode author-fixtures regenerates this file byte-identically",
+  "sourceTimeConvention": "plain moves advance source frames 1:1 with output frames (the plain-move convention of Meridian's recam/path.py); bullet time freezes the source frame (the same src at different t)",
+  "windows": [
+    {
+      "fixtureId": "hf010-dolly-in-main-touchline",
+      "intentKind": "dolly-in",
+      "anchorSlotId": "main-touchline",
+      "presentationKind": "live",
+      "intentDescription": "fixed-lens push-in along the main-touchline slot's optical axis: the eye travels 25% of the eye-to-look distance toward the pitch center (a 13.1 m dolly), look pinned (the Meridian doc's '--dolly 0.8 --zoom 1' fixed-lens push-in class), cosine-eased",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "main-touchline"
+      },
+      "window": {
+        "startMs": 0,
+        "endMs": 5063
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          52.5,
+          -25.0,
+          20.0
+        ],
+        "anchorLook": [
+          52.5,
+          34.0,
+          0.0
+        ],
+        "travelFraction": 0.25,
+        "ease": true
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": 52.5,
+            "y": -25.0,
+            "z": 20.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.994,
+            "z": 19.998
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.977,
+            "z": 19.992
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.949,
+            "z": 19.983
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.909,
+            "z": 19.969
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.858,
+            "z": 19.952
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.796,
+            "z": 19.931
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 6
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.723,
+            "z": 19.906
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 7
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.639,
+            "z": 19.878
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 8
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.544,
+            "z": 19.845
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 9
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.439,
+            "z": 19.81
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 10
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.323,
+            "z": 19.77
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 11
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": 52.5,
+            "y": -24.196,
+            "z": 19.728
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 12
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -24.06,
+            "z": 19.681
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 13
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": 52.5,
+            "y": -23.913,
+            "z": 19.632
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 14
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -23.757,
+            "z": 19.579
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 15
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": 52.5,
+            "y": -23.592,
+            "z": 19.523
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 16
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -23.417,
+            "z": 19.463
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 17
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": 52.5,
+            "y": -23.233,
+            "z": 19.401
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 18
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -23.041,
+            "z": 19.336
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 19
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": 52.5,
+            "y": -22.84,
+            "z": 19.268
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 20
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -22.631,
+            "z": 19.197
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 21
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": 52.5,
+            "y": -22.415,
+            "z": 19.124
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 22
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -22.191,
+            "z": 19.048
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 23
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": 52.5,
+            "y": -21.96,
+            "z": 18.969
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 24
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -21.722,
+            "z": 18.889
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 25
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": 52.5,
+            "y": -21.478,
+            "z": 18.806
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 26
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -21.229,
+            "z": 18.722
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 27
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": 52.5,
+            "y": -20.973,
+            "z": 18.635
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 28
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -20.713,
+            "z": 18.547
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 29
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": 52.5,
+            "y": -20.447,
+            "z": 18.457
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 30
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -20.178,
+            "z": 18.365
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 31
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": 52.5,
+            "y": -19.904,
+            "z": 18.273
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 32
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -19.627,
+            "z": 18.179
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 33
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": 52.5,
+            "y": -19.347,
+            "z": 18.084
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 34
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -19.064,
+            "z": 17.988
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 35
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": 52.5,
+            "y": -18.779,
+            "z": 17.891
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 36
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -18.492,
+            "z": 17.794
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 37
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": 52.5,
+            "y": -18.204,
+            "z": 17.696
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 38
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -17.915,
+            "z": 17.598
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 39
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": 52.5,
+            "y": -17.625,
+            "z": 17.5
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -17.335,
+            "z": 17.402
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 41
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": 52.5,
+            "y": -17.046,
+            "z": 17.304
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 42
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -16.758,
+            "z": 17.206
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 43
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": 52.5,
+            "y": -16.471,
+            "z": 17.109
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 44
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -16.186,
+            "z": 17.012
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 45
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": 52.5,
+            "y": -15.903,
+            "z": 16.916
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 46
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -15.623,
+            "z": 16.821
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 47
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": 52.5,
+            "y": -15.346,
+            "z": 16.727
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 48
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -15.072,
+            "z": 16.635
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 49
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": 52.5,
+            "y": -14.803,
+            "z": 16.543
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 50
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -14.537,
+            "z": 16.453
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 51
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": 52.5,
+            "y": -14.277,
+            "z": 16.365
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 52
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -14.021,
+            "z": 16.278
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 53
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": 52.5,
+            "y": -13.772,
+            "z": 16.194
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 54
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -13.528,
+            "z": 16.111
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 55
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": 52.5,
+            "y": -13.29,
+            "z": 16.031
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 56
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -13.059,
+            "z": 15.952
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 57
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": 52.5,
+            "y": -12.835,
+            "z": 15.876
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 58
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -12.619,
+            "z": 15.803
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 59
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": 52.5,
+            "y": -12.41,
+            "z": 15.732
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 60
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -12.209,
+            "z": 15.664
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 61
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": 52.5,
+            "y": -12.017,
+            "z": 15.599
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 62
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -11.833,
+            "z": 15.537
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 63
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": 52.5,
+            "y": -11.658,
+            "z": 15.477
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 64
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": 52.5,
+            "y": -11.493,
+            "z": 15.421
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 65
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": 52.5,
+            "y": -11.337,
+            "z": 15.368
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 66
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": 52.5,
+            "y": -11.19,
+            "z": 15.319
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 67
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": 52.5,
+            "y": -11.054,
+            "z": 15.272
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 68
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.927,
+            "z": 15.23
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 69
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.811,
+            "z": 15.19
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 70
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.706,
+            "z": 15.155
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 71
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.611,
+            "z": 15.122
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 72
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.527,
+            "z": 15.094
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 73
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.454,
+            "z": 15.069
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 74
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.392,
+            "z": 15.048
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 75
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.341,
+            "z": 15.031
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 76
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.301,
+            "z": 15.017
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 77
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.273,
+            "z": 15.008
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 78
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": 52.5,
+            "y": -10.256,
+            "z": 15.002
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 79
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": 52.5,
+            "y": -10.25,
+            "z": 15.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 80
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf010-orbit-goal-behind-x105",
+      "intentKind": "orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "intentDescription": "orbital arc around the x105 goal center (the slot's own aim point) on an 18 m radius, yaw 0 to +40 deg (camera swings toward the y0 touchline side), eye height 8 to 5.5 m, look pinned at the pivot, cosine-eased (the Meridian '--yaw' orbit class; positive yaw moves the camera left around the pivot)",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "behind-goal-x105"
+      },
+      "window": {
+        "startMs": 5063,
+        "endMs": 10125
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "pivot": [
+          105.0,
+          34.0,
+          1.22
+        ],
+        "radiusM": 18.0,
+        "thetaStartDeg": 0.0,
+        "thetaEndDeg": 40.0,
+        "zStartM": 8.0,
+        "zEndM": 5.5,
+        "ease": true
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": 123.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 123.0,
+            "y": 34.005,
+            "z": 7.999
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": 123.0,
+            "y": 34.019,
+            "z": 7.996
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 123.0,
+            "y": 34.044,
+            "z": 7.991
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": 123.0,
+            "y": 34.077,
+            "z": 7.985
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 123.0,
+            "y": 34.121,
+            "z": 7.976
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": 122.999,
+            "y": 34.174,
+            "z": 7.965
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 6
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 122.998,
+            "y": 34.236,
+            "z": 7.953
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 7
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": 122.997,
+            "y": 34.308,
+            "z": 7.939
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 8
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 122.996,
+            "y": 34.388,
+            "z": 7.923
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 9
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": 122.994,
+            "y": 34.478,
+            "z": 7.905
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 10
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 122.991,
+            "y": 34.577,
+            "z": 7.885
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 11
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": 122.987,
+            "y": 34.685,
+            "z": 7.864
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 12
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 122.982,
+            "y": 34.801,
+            "z": 7.841
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 13
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": 122.976,
+            "y": 34.925,
+            "z": 7.816
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 14
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 122.969,
+            "y": 35.058,
+            "z": 7.789
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 15
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": 122.96,
+            "y": 35.199,
+            "z": 7.761
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 16
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 122.949,
+            "y": 35.348,
+            "z": 7.732
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 17
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": 122.937,
+            "y": 35.504,
+            "z": 7.701
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 18
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 122.923,
+            "y": 35.667,
+            "z": 7.668
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 19
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": 122.906,
+            "y": 35.837,
+            "z": 7.634
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 20
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 122.887,
+            "y": 36.014,
+            "z": 7.599
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 21
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": 122.865,
+            "y": 36.197,
+            "z": 7.562
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 22
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 122.841,
+            "y": 36.386,
+            "z": 7.524
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 23
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": 122.814,
+            "y": 36.581,
+            "z": 7.485
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 24
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 122.784,
+            "y": 36.781,
+            "z": 7.444
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 25
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": 122.751,
+            "y": 36.986,
+            "z": 7.403
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 26
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 122.714,
+            "y": 37.196,
+            "z": 7.361
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 27
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": 122.674,
+            "y": 37.41,
+            "z": 7.317
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 28
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 122.631,
+            "y": 37.628,
+            "z": 7.273
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 29
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": 122.584,
+            "y": 37.849,
+            "z": 7.228
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 30
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 122.533,
+            "y": 38.073,
+            "z": 7.183
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 31
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": 122.479,
+            "y": 38.3,
+            "z": 7.136
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 32
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 122.421,
+            "y": 38.528,
+            "z": 7.089
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 33
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": 122.359,
+            "y": 38.759,
+            "z": 7.042
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 34
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 122.294,
+            "y": 38.991,
+            "z": 6.994
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 35
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": 122.225,
+            "y": 39.224,
+            "z": 6.946
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 36
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 122.153,
+            "y": 39.457,
+            "z": 6.897
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 37
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": 122.077,
+            "y": 39.691,
+            "z": 6.848
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 38
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 121.997,
+            "y": 39.924,
+            "z": 6.799
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 39
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": 121.914,
+            "y": 40.156,
+            "z": 6.75
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 121.829,
+            "y": 40.388,
+            "z": 6.701
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 41
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": 121.74,
+            "y": 40.617,
+            "z": 6.652
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 42
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 121.648,
+            "y": 40.845,
+            "z": 6.603
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 43
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": 121.553,
+            "y": 41.07,
+            "z": 6.554
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 44
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 121.456,
+            "y": 41.293,
+            "z": 6.506
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 45
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": 121.357,
+            "y": 41.513,
+            "z": 6.458
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 46
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 121.256,
+            "y": 41.729,
+            "z": 6.411
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 47
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": 121.153,
+            "y": 41.942,
+            "z": 6.364
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 48
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 121.049,
+            "y": 42.15,
+            "z": 6.317
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 49
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": 120.944,
+            "y": 42.354,
+            "z": 6.272
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 50
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 120.838,
+            "y": 42.554,
+            "z": 6.227
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 51
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": 120.731,
+            "y": 42.748,
+            "z": 6.183
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 52
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 120.624,
+            "y": 42.938,
+            "z": 6.139
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 53
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": 120.517,
+            "y": 43.122,
+            "z": 6.097
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 54
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 120.411,
+            "y": 43.301,
+            "z": 6.056
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 55
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": 120.305,
+            "y": 43.473,
+            "z": 6.015
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 56
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 120.201,
+            "y": 43.64,
+            "z": 5.976
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 57
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": 120.098,
+            "y": 43.801,
+            "z": 5.938
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 58
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 119.997,
+            "y": 43.955,
+            "z": 5.901
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 59
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": 119.898,
+            "y": 44.102,
+            "z": 5.866
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 60
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 119.801,
+            "y": 44.244,
+            "z": 5.832
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 61
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": 119.707,
+            "y": 44.378,
+            "z": 5.799
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 62
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 119.616,
+            "y": 44.505,
+            "z": 5.768
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 63
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": 119.529,
+            "y": 44.626,
+            "z": 5.739
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 64
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": 119.445,
+            "y": 44.739,
+            "z": 5.711
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 65
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": 119.365,
+            "y": 44.846,
+            "z": 5.684
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 66
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": 119.29,
+            "y": 44.945,
+            "z": 5.659
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 67
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": 119.219,
+            "y": 45.037,
+            "z": 5.636
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 68
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": 119.153,
+            "y": 45.122,
+            "z": 5.615
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 69
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": 119.091,
+            "y": 45.2,
+            "z": 5.595
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 70
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": 119.035,
+            "y": 45.27,
+            "z": 5.577
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 71
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": 118.984,
+            "y": 45.333,
+            "z": 5.561
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 72
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": 118.939,
+            "y": 45.388,
+            "z": 5.547
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 73
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": 118.9,
+            "y": 45.437,
+            "z": 5.535
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 74
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": 118.866,
+            "y": 45.477,
+            "z": 5.524
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 75
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": 118.838,
+            "y": 45.511,
+            "z": 5.515
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 76
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": 118.817,
+            "y": 45.537,
+            "z": 5.509
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 77
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": 118.801,
+            "y": 45.555,
+            "z": 5.504
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 78
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": 118.792,
+            "y": 45.566,
+            "z": 5.501
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 79
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": 118.789,
+            "y": 45.57,
+            "z": 5.5
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 80
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf010-pan-across-box-behind-x0",
+      "intentKind": "pan",
+      "anchorSlotId": "behind-goal-x0",
+      "presentationKind": "live",
+      "intentDescription": "lateral pan from the behind-goal-x0 slot's fixed eye: the look point translates linearly along the six-yard-box line (x=5.5 m) from y=26 to y=42, zero roll (the ReCamMaster 'Pan Right'/'Pan Left' preset class, authored as an explicit path rather than an index)",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "behind-goal-x0"
+      },
+      "window": {
+        "startMs": 10125,
+        "endMs": 15188
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          -20.0,
+          34.0,
+          8.0
+        ],
+        "lookX": 5.5,
+        "lookYStartM": 26.0,
+        "lookYEndM": 42.0,
+        "lookZ": 1.0,
+        "ease": false
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 26.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 26.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 26.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 26.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 26.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 27.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 27.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 6
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 27.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 7
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 27.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 8
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 27.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 9
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 28.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 10
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 28.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 11
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 28.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 12
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 28.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 13
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 28.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 14
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 29.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 15
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 29.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 16
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 29.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 17
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 29.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 18
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 29.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 19
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 30.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 20
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 30.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 21
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 30.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 22
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 30.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 23
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 30.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 24
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 31.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 25
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 31.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 26
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 31.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 27
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 31.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 28
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 31.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 29
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 32.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 30
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 32.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 31
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 32.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 32
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 32.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 33
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 32.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 34
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 33.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 35
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 33.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 36
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 33.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 37
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 33.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 38
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 33.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 39
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 34.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 34.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 41
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 34.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 42
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 34.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 43
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 34.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 44
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 35.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 45
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 35.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 46
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 35.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 47
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 35.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 48
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 35.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 49
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 36.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 50
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 36.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 51
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 36.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 52
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 36.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 53
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 36.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 54
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 37.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 55
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 37.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 56
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 37.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 57
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 37.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 58
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 37.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 59
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 38.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 60
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 38.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 61
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 38.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 62
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 38.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 63
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 38.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 64
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 39.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 65
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 39.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 66
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 39.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 67
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 39.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 68
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 39.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 69
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 40.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 70
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 40.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 71
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 40.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 72
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 40.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 73
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 40.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 74
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 41.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 75
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 41.2,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 76
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 41.4,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 77
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 41.6,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 78
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 41.8,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 79
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": -20.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 5.5,
+            "y": 42.0,
+            "z": 1.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 80
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf010-crane-rise-behind-goal-x105",
+      "intentKind": "crane",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "live",
+      "intentDescription": "crane/boom rise from the behind-goal-x105 slot: the eye rises 8 to 16 m directly above the slot position while the look stays pinned at the goal center (the Meridian '--boom' class), cosine-eased",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "behind-goal-x105"
+      },
+      "window": {
+        "startMs": 15188,
+        "endMs": 20250
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          125.0,
+          34.0,
+          8.0
+        ],
+        "anchorLook": [
+          105.0,
+          34.0,
+          1.22
+        ],
+        "zStartM": 8.0,
+        "zEndM": 16.0,
+        "ease": true
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.003
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.012
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.028
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.049
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.077
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.111
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 6
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.15
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 7
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.196
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 8
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.247
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 9
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.304
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 10
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.367
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 11
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.436
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 12
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.51
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 13
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.589
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 14
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.674
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 15
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.764
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 16
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.859
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 17
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 8.958
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 18
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.063
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 19
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.172
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 20
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.285
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 21
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.402
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 22
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.524
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 23
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.649
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 24
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.778
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 25
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 9.91
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 26
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.046
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 27
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.184
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 28
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.325
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 29
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.469
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 30
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.616
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 31
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.764
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 32
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 10.914
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 33
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.066
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 34
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.22
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 35
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.374
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 36
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.53
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 37
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.686
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 38
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 11.843
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 39
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.157
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 41
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.314
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 42
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.47
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 43
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.626
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 44
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.78
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 45
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 12.934
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 46
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.086
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 47
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.236
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 48
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.384
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 49
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.531
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 50
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.675
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 51
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.816
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 52
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 13.954
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 53
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.09
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 54
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.222
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 55
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.351
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 56
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.476
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 57
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.598
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 58
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.715
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 59
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.828
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 60
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 14.937
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 61
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.042
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 62
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.141
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 63
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.236
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 64
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.326
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 65
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.411
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 66
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.49
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 67
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.564
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 68
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.633
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 69
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.696
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 70
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.753
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 71
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.804
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 72
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.85
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 73
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.889
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 74
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.923
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 75
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.951
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 76
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.972
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 77
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.988
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 78
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 15.997
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 79
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": 125.0,
+            "y": 34.0,
+            "z": 16.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 80
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf010-zoom-optical-aerial-tactical",
+      "intentKind": "zoom-optical",
+      "anchorSlotId": "aerial-tactical",
+      "presentationKind": "live",
+      "intentDescription": "the ADVERSARIAL pure optical zoom from the aerial-tactical slot: eye and look absolutely fixed, focal multiplier 1.0 to 1.6 linear — Meridian's own doc warns 'these pure-zoom takes can be ignored by the model. Prefer moves with parallax.' (included precisely to measure that failure mode honestly)",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "aerial-tactical"
+      },
+      "window": {
+        "startMs": 20250,
+        "endMs": 25313
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "anchorEye": [
+          52.5,
+          34.0,
+          60.0
+        ],
+        "anchorLook": [
+          52.5,
+          34.0,
+          0.0
+        ],
+        "focalStart": 1.0,
+        "focalEnd": 1.6,
+        "ease": false
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 0
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.008,
+          "sourceFrame": 1
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.015,
+          "sourceFrame": 2
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.022,
+          "sourceFrame": 3
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.03,
+          "sourceFrame": 4
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.038,
+          "sourceFrame": 5
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.045,
+          "sourceFrame": 6
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.052,
+          "sourceFrame": 7
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.06,
+          "sourceFrame": 8
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.068,
+          "sourceFrame": 9
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.075,
+          "sourceFrame": 10
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.083,
+          "sourceFrame": 11
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.09,
+          "sourceFrame": 12
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.097,
+          "sourceFrame": 13
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.105,
+          "sourceFrame": 14
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.113,
+          "sourceFrame": 15
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.12,
+          "sourceFrame": 16
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.127,
+          "sourceFrame": 17
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.135,
+          "sourceFrame": 18
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.143,
+          "sourceFrame": 19
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.15,
+          "sourceFrame": 20
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.157,
+          "sourceFrame": 21
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.165,
+          "sourceFrame": 22
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.173,
+          "sourceFrame": 23
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.18,
+          "sourceFrame": 24
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.188,
+          "sourceFrame": 25
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.195,
+          "sourceFrame": 26
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.203,
+          "sourceFrame": 27
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.21,
+          "sourceFrame": 28
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.218,
+          "sourceFrame": 29
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.225,
+          "sourceFrame": 30
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.232,
+          "sourceFrame": 31
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.24,
+          "sourceFrame": 32
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.248,
+          "sourceFrame": 33
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.255,
+          "sourceFrame": 34
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.263,
+          "sourceFrame": 35
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.27,
+          "sourceFrame": 36
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.278,
+          "sourceFrame": 37
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.285,
+          "sourceFrame": 38
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.292,
+          "sourceFrame": 39
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.3,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.308,
+          "sourceFrame": 41
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.315,
+          "sourceFrame": 42
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.323,
+          "sourceFrame": 43
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.33,
+          "sourceFrame": 44
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.337,
+          "sourceFrame": 45
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.345,
+          "sourceFrame": 46
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.353,
+          "sourceFrame": 47
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.36,
+          "sourceFrame": 48
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.368,
+          "sourceFrame": 49
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.375,
+          "sourceFrame": 50
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.383,
+          "sourceFrame": 51
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.39,
+          "sourceFrame": 52
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.397,
+          "sourceFrame": 53
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.405,
+          "sourceFrame": 54
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.413,
+          "sourceFrame": 55
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.42,
+          "sourceFrame": 56
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.428,
+          "sourceFrame": 57
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.435,
+          "sourceFrame": 58
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.443,
+          "sourceFrame": 59
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.45,
+          "sourceFrame": 60
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.458,
+          "sourceFrame": 61
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.465,
+          "sourceFrame": 62
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.473,
+          "sourceFrame": 63
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.48,
+          "sourceFrame": 64
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.488,
+          "sourceFrame": 65
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.495,
+          "sourceFrame": 66
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.502,
+          "sourceFrame": 67
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.51,
+          "sourceFrame": 68
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.518,
+          "sourceFrame": 69
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.525,
+          "sourceFrame": 70
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.533,
+          "sourceFrame": 71
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.54,
+          "sourceFrame": 72
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.548,
+          "sourceFrame": 73
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.555,
+          "sourceFrame": 74
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.562,
+          "sourceFrame": 75
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.57,
+          "sourceFrame": 76
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.578,
+          "sourceFrame": 77
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.585,
+          "sourceFrame": 78
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.593,
+          "sourceFrame": 79
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 60.0
+          },
+          "look": {
+            "x": 52.5,
+            "y": 34.0,
+            "z": 0.0
+          },
+          "focalMultiplier": 1.6,
+          "sourceFrame": 80
+        }
+      ]
+    },
+    {
+      "fixtureId": "hf010-bullet-time-goal-line-x105",
+      "intentKind": "bullet-time-orbit",
+      "anchorSlotId": "behind-goal-x105",
+      "presentationKind": "review",
+      "intentDescription": "BULLET TIME as the CameraPlan's own review kind: the source is FROZEN at frame 40 (the same source frame at every output frame — Meridian's 'bullet time is two keys with the same src at different t') while the eye orbits the x105 goal line on a 14 m radius, yaw -30 to +30 deg, at 6 m height, cosine-eased. A re-presentation of EXISTING match time at the review cadence — no new content is authored",
+      "source": {
+        "kind": "synthetic-pitch",
+        "slotRendered": "behind-goal-x105"
+      },
+      "window": {
+        "startMs": 25313,
+        "endMs": 30375
+      },
+      "frameCount": 81,
+      "frameIntervalMs": 62.5,
+      "fps": 16,
+      "spec": {
+        "pivot": [
+          105.0,
+          34.0,
+          1.22
+        ],
+        "radiusM": 14.0,
+        "thetaStartDeg": -30.0,
+        "thetaEndDeg": 30.0,
+        "zM": 6.0,
+        "frozenSourceFrame": 40,
+        "ease": true
+      },
+      "poses": [
+        {
+          "frameIndex": 0,
+          "tMs": 0.0,
+          "eye": {
+            "x": 117.124,
+            "y": 27.0,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 1,
+          "tMs": 62.5,
+          "eye": {
+            "x": 117.127,
+            "y": 27.005,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 2,
+          "tMs": 125.0,
+          "eye": {
+            "x": 117.136,
+            "y": 27.02,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 3,
+          "tMs": 187.5,
+          "eye": {
+            "x": 117.15,
+            "y": 27.044,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 4,
+          "tMs": 250.0,
+          "eye": {
+            "x": 117.169,
+            "y": 27.078,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 5,
+          "tMs": 312.5,
+          "eye": {
+            "x": 117.194,
+            "y": 27.122,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 6,
+          "tMs": 375.0,
+          "eye": {
+            "x": 117.224,
+            "y": 27.176,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 7,
+          "tMs": 437.5,
+          "eye": {
+            "x": 117.26,
+            "y": 27.24,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 8,
+          "tMs": 500.0,
+          "eye": {
+            "x": 117.3,
+            "y": 27.313,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 9,
+          "tMs": 562.5,
+          "eye": {
+            "x": 117.345,
+            "y": 27.396,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 10,
+          "tMs": 625.0,
+          "eye": {
+            "x": 117.394,
+            "y": 27.489,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 11,
+          "tMs": 687.5,
+          "eye": {
+            "x": 117.447,
+            "y": 27.591,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 12,
+          "tMs": 750.0,
+          "eye": {
+            "x": 117.504,
+            "y": 27.703,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 13,
+          "tMs": 812.5,
+          "eye": {
+            "x": 117.564,
+            "y": 27.824,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 14,
+          "tMs": 875.0,
+          "eye": {
+            "x": 117.628,
+            "y": 27.955,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 15,
+          "tMs": 937.5,
+          "eye": {
+            "x": 117.694,
+            "y": 28.096,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 16,
+          "tMs": 1000.0,
+          "eye": {
+            "x": 117.763,
+            "y": 28.245,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 17,
+          "tMs": 1062.5,
+          "eye": {
+            "x": 117.833,
+            "y": 28.404,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 18,
+          "tMs": 1125.0,
+          "eye": {
+            "x": 117.905,
+            "y": 28.572,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 19,
+          "tMs": 1187.5,
+          "eye": {
+            "x": 117.978,
+            "y": 28.749,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 20,
+          "tMs": 1250.0,
+          "eye": {
+            "x": 118.051,
+            "y": 28.934,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 21,
+          "tMs": 1312.5,
+          "eye": {
+            "x": 118.125,
+            "y": 29.128,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 22,
+          "tMs": 1375.0,
+          "eye": {
+            "x": 118.198,
+            "y": 29.331,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 23,
+          "tMs": 1437.5,
+          "eye": {
+            "x": 118.271,
+            "y": 29.541,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 24,
+          "tMs": 1500.0,
+          "eye": {
+            "x": 118.342,
+            "y": 29.759,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 25,
+          "tMs": 1562.5,
+          "eye": {
+            "x": 118.412,
+            "y": 29.985,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 26,
+          "tMs": 1625.0,
+          "eye": {
+            "x": 118.479,
+            "y": 30.217,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 27,
+          "tMs": 1687.5,
+          "eye": {
+            "x": 118.544,
+            "y": 30.457,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 28,
+          "tMs": 1750.0,
+          "eye": {
+            "x": 118.606,
+            "y": 30.703,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 29,
+          "tMs": 1812.5,
+          "eye": {
+            "x": 118.665,
+            "y": 30.956,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 30,
+          "tMs": 1875.0,
+          "eye": {
+            "x": 118.72,
+            "y": 31.214,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 31,
+          "tMs": 1937.5,
+          "eye": {
+            "x": 118.771,
+            "y": 31.477,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 32,
+          "tMs": 2000.0,
+          "eye": {
+            "x": 118.817,
+            "y": 31.745,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 33,
+          "tMs": 2062.5,
+          "eye": {
+            "x": 118.859,
+            "y": 32.017,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 34,
+          "tMs": 2125.0,
+          "eye": {
+            "x": 118.896,
+            "y": 32.293,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 35,
+          "tMs": 2187.5,
+          "eye": {
+            "x": 118.927,
+            "y": 32.572,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 36,
+          "tMs": 2250.0,
+          "eye": {
+            "x": 118.953,
+            "y": 32.855,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 37,
+          "tMs": 2312.5,
+          "eye": {
+            "x": 118.973,
+            "y": 33.139,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 38,
+          "tMs": 2375.0,
+          "eye": {
+            "x": 118.988,
+            "y": 33.425,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 39,
+          "tMs": 2437.5,
+          "eye": {
+            "x": 118.997,
+            "y": 33.712,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 40,
+          "tMs": 2500.0,
+          "eye": {
+            "x": 119.0,
+            "y": 34.0,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 41,
+          "tMs": 2562.5,
+          "eye": {
+            "x": 118.997,
+            "y": 34.288,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 42,
+          "tMs": 2625.0,
+          "eye": {
+            "x": 118.988,
+            "y": 34.575,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 43,
+          "tMs": 2687.5,
+          "eye": {
+            "x": 118.973,
+            "y": 34.861,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 44,
+          "tMs": 2750.0,
+          "eye": {
+            "x": 118.953,
+            "y": 35.145,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 45,
+          "tMs": 2812.5,
+          "eye": {
+            "x": 118.927,
+            "y": 35.428,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 46,
+          "tMs": 2875.0,
+          "eye": {
+            "x": 118.896,
+            "y": 35.707,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 47,
+          "tMs": 2937.5,
+          "eye": {
+            "x": 118.859,
+            "y": 35.983,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 48,
+          "tMs": 3000.0,
+          "eye": {
+            "x": 118.817,
+            "y": 36.255,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 49,
+          "tMs": 3062.5,
+          "eye": {
+            "x": 118.771,
+            "y": 36.523,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 50,
+          "tMs": 3125.0,
+          "eye": {
+            "x": 118.72,
+            "y": 36.786,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 51,
+          "tMs": 3187.5,
+          "eye": {
+            "x": 118.665,
+            "y": 37.044,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 52,
+          "tMs": 3250.0,
+          "eye": {
+            "x": 118.606,
+            "y": 37.297,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 53,
+          "tMs": 3312.5,
+          "eye": {
+            "x": 118.544,
+            "y": 37.543,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 54,
+          "tMs": 3375.0,
+          "eye": {
+            "x": 118.479,
+            "y": 37.783,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 55,
+          "tMs": 3437.5,
+          "eye": {
+            "x": 118.412,
+            "y": 38.015,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 56,
+          "tMs": 3500.0,
+          "eye": {
+            "x": 118.342,
+            "y": 38.241,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 57,
+          "tMs": 3562.5,
+          "eye": {
+            "x": 118.271,
+            "y": 38.459,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 58,
+          "tMs": 3625.0,
+          "eye": {
+            "x": 118.198,
+            "y": 38.669,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 59,
+          "tMs": 3687.5,
+          "eye": {
+            "x": 118.125,
+            "y": 38.872,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 60,
+          "tMs": 3750.0,
+          "eye": {
+            "x": 118.051,
+            "y": 39.066,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 61,
+          "tMs": 3812.5,
+          "eye": {
+            "x": 117.978,
+            "y": 39.251,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 62,
+          "tMs": 3875.0,
+          "eye": {
+            "x": 117.905,
+            "y": 39.428,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 63,
+          "tMs": 3937.5,
+          "eye": {
+            "x": 117.833,
+            "y": 39.596,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 64,
+          "tMs": 4000.0,
+          "eye": {
+            "x": 117.763,
+            "y": 39.755,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 65,
+          "tMs": 4062.5,
+          "eye": {
+            "x": 117.694,
+            "y": 39.904,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 66,
+          "tMs": 4125.0,
+          "eye": {
+            "x": 117.628,
+            "y": 40.045,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 67,
+          "tMs": 4187.5,
+          "eye": {
+            "x": 117.564,
+            "y": 40.176,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 68,
+          "tMs": 4250.0,
+          "eye": {
+            "x": 117.504,
+            "y": 40.297,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 69,
+          "tMs": 4312.5,
+          "eye": {
+            "x": 117.447,
+            "y": 40.409,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 70,
+          "tMs": 4375.0,
+          "eye": {
+            "x": 117.394,
+            "y": 40.511,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 71,
+          "tMs": 4437.5,
+          "eye": {
+            "x": 117.345,
+            "y": 40.604,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 72,
+          "tMs": 4500.0,
+          "eye": {
+            "x": 117.3,
+            "y": 40.687,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 73,
+          "tMs": 4562.5,
+          "eye": {
+            "x": 117.26,
+            "y": 40.76,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 74,
+          "tMs": 4625.0,
+          "eye": {
+            "x": 117.224,
+            "y": 40.824,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 75,
+          "tMs": 4687.5,
+          "eye": {
+            "x": 117.194,
+            "y": 40.878,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 76,
+          "tMs": 4750.0,
+          "eye": {
+            "x": 117.169,
+            "y": 40.922,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 77,
+          "tMs": 4812.5,
+          "eye": {
+            "x": 117.15,
+            "y": 40.956,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 78,
+          "tMs": 4875.0,
+          "eye": {
+            "x": 117.136,
+            "y": 40.98,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 79,
+          "tMs": 4937.5,
+          "eye": {
+            "x": 117.127,
+            "y": 40.995,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        },
+        {
+          "frameIndex": 80,
+          "tMs": 5000.0,
+          "eye": {
+            "x": 117.124,
+            "y": 41.0,
+            "z": 6.0
+          },
+          "look": {
+            "x": 105.0,
+            "y": 34.0,
+            "z": 1.22
+          },
+          "focalMultiplier": 1.0,
+          "sourceFrame": 40
+        }
+      ]
+    }
+  ]
+}

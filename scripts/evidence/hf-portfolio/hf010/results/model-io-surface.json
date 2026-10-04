@@ -1,0 +1,26 @@
+{
+  "label": "SOURCE-VERIFIED model I/O facts (each fact cites the fetched card/doc/source — static review of the candidates' own documentation, never a run)",
+  "candidates": {
+    "Wan2.2-Fun-Control-Camera": {
+      "conditioning": "camera LENS control: the card names the family 'Wan2.2-14B 相机镜头控制权重' (camera lens control weights) and its dependency list names ComfyUI-CameraCtrl-Wrapper and CameraCtrl (github.com/hehao13/CameraCtrl) — the CameraCtrl lens-parameter convention",
+      "inputForm": "image-to-video with a control signal; config.json: Wan2_2Transformer3DModel with add_control_adapter=true, in_dim_control_adapter=24, dim 5120, 40 layers/40 heads (the A14B dual-expert high_noise_model + low_noise_model pair)",
+      "trainingCadence": "81 frames @ 16 fps (5.06 s), multi-resolution 512/768/1024 (the card)",
+      "repoTree": "high_noise_model/ + low_noise_model/ (29.585 GB each) + models_t5_umt5-xxl-enc-bf16.pth (11.362 GB) + Wan2.1_VAE.pth (0.508 GB)",
+      "cameraPathSurface": "per-frame LENS parameters (the CameraCtrl convention: extrinsics+intrinsics of the control camera) — a parametric camera-path input, NOT a slot id and NOT a free video"
+    },
+    "ReCamMaster": {
+      "conditioning": "camera TRAJECTORY: the repo README offers 10 basic camera trajectories by index (--cam_type 1..10: Pan Right, Pan Left, Tilt Up, Tilt Down, Zoom In, Zoom Out, Translate Up (with rotation), Translate Down (with rotation), Arc Left (with rotation), Arc Right (with rotation)) — a video-conditioning scheme over a single source video",
+      "inputForm": "N mp4 source videos, each with at least 81 frames, + metadata.csv with paths and captions (the repo README's example_test_data structure)",
+      "trainingCadence": ">= 81 frames per source video (the repo README)",
+      "repoTree": "step20000.ckpt (2.981 GB) — the control weights migrated onto Wan2.1; the paper's internal T2V model is not open-sourced",
+      "cameraPathSurface": "camera trajectory conditioning over a SOURCE VIDEO (preset index or trajectory) — the input is the source video plus the desired trajectory, not slots and not free generation"
+    },
+    "Meridian": {
+      "conditioning": "camera PATH: keyframes {pos, look, src, t, ease?, focal?} — pos/look on a Catmull-Rom curve (Fritsch-Carlson tangents, no overshoot), src/focal linear, roll locked to zero (the training corpus has no roll, p99 2.1 deg), units of the pivot depth zm (recam/path.py, fetched verbatim)",
+      "inputForm": "a source video (>= start+frames decoded frames; the two included samples are exactly 73 frames @ 24 fps) + the keyframe camera path; the geometry stage (VGGT-Omega) estimates depth and camera poses from the input and renders the warped reference with uncovered regions grey",
+      "recipeVocabulary": "--yaw/--dolly/--zoom/--truck/--boom/--sweep/--ease/--aim (docs/inference.md); '--dolly alone performs a dolly zoom... Add --zoom 1 for a fixed-lens push-in'; 'these pure-zoom takes can be ignored by the model'",
+      "runtimePosture": "The released scripts run on one GPU and do not expose CPU inference, multi-GPU sharding, quantization, or CPU-offload options (docs/installation.md, verbatim); ~88 GiB peak for 73 frames; a 96 GB-class GPU for takes up to 124 frames",
+      "cameraPathSurface": "the keyframe path IS a parametric camera path (pos/look/src/focal over t) — the closest of the three to the repo's authored fixture language, but in pivot-depth units with roll locked to zero"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "label": "LICENSE POSTURE (a first-class HF010 acceptance criterion) — argued from the recorded terms only (the provenance-ledger rows + the fetched card/doc text); NEVER legal advice; NEVER a promotion (HF015 owns all adjudication)",
+  "neverLegalAdvice": "This is an engineering reading of the recorded license terms for benchmark-planning purposes. It is not legal advice and does not clear any candidate for use; the Tech Lead's HF015 promotion gate owns every adjudication.",
+  "candidates": {
+    "Wan2.2-Fun-Control-Camera": {
+      "recordedTerms": "ledger row: modelLicense apache-2.0, codeLicense apache-2.0, commercialUse yes; the card's own license block: '本项目采用 [Apache License (Version 2.0)]' (this project adopts Apache License 2.0); the ledger's datasetProvenance: unknown",
+      "verdict": "production-eligible-by-recorded-terms (watch the unrecorded edges)",
+      "reasoning": "Apache-2.0 on both model and code with commercialUse recorded yes — the only ledger caveat is datasetProvenance unknown (the card describes the 81-frame/16fps multi-resolution training but not the corpus), which is a provenance-open edge for HF015, not a license block recorded in the terms."
+    },
+    "ReCamMaster": {
+      "recordedTerms": "ledger row: modelLicense apache-2.0, codeLicense mit, commercialUse yes; the HF card frontmatter is 'license: apache-2.0'; the GitHub repo LICENSE is MIT (Copyright (c) 2025 Kuaishou Visual Generation and Interaction Center); datasetProvenance MultiCamVideo-Dataset (KwaiVGI, multi-camera synchronized videos rendered with Unreal Engine 5 — released with the method)",
+      "verdict": "production-eligible-by-recorded-terms (with a capability caveat the repo itself states)",
+      "reasoning": "Apache-2.0 model weights + MIT code, commercialUse recorded yes, and the conditioning dataset is synthetic (UE5-rendered) with clean recorded provenance. The caveat is capability-honesty, not license: the repo README itself states 'Due to company policy restrictions, we are unable to open-source the model used in the paper... you may not achieve the same results as demonstrated in the demo.' — the open weights are a Wan2.1 migration of the paper's model."
+    },
+    "Meridian": {
+      "recordedTerms": "ledger row: modelLicense other (minimax-h3-community-license — MiniMax H3 Community License Agreement covering the adapter weights and their outputs), codeLicense apache-2.0, commercialUse unclear; card frontmatter license_name minimax-h3-community-license, base_model MiniMaxAI/MiniMax-H3, base_model_relation adapter; the card: 'Review the licenses before use: the code license does not cover the weights or remove VGGT-Omega's noncommercial restrictions.'; docs/installation.md: 'the weights are not Apache 2.0, the MiniMax-H3 license has territorial restrictions, and the VGGT-Omega dependency is licensed separately for noncommercial research'; the geometry dependency facebook/VGGT-Omega is HF-gated (gate type manual) and its license is FAIR Noncommercial Research License v1 (the ledger's recorded source)",
+      "verdict": "research-only / watchlist for production (TWO independent recorded blockers)",
+      "reasoning": "Two recorded terms block any production posture today, independent of resources: (1) the MiniMax H3 Community License covering the adapter weights AND their outputs, with territorial restrictions recorded by the installation doc; (2) the mandatory geometry stage VGGT-Omega under the FAIR Noncommercial Research License v1 (and the HF manual gate — an auth fact, recorded per the HF009 convention). The recorded commercialUse is 'unclear' and nothing in the recorded terms clears commercial output use. This is a benchmark-planning verdict only — NOT a legal determination and NOT a promotion decision."
+    }
+  },
+  "dispositionNote": "Wan2.2-Fun-Control-Camera and ReCamMaster: production-SIDE candidates by recorded terms (HF015 adjudicates everything else); Meridian: research benchmarking only on any host, with the VGGT-Omega manual gate as a standing operator action (HF009-class auth wall) — none of this is a promotion; all three gatingState stay candidate."
+}
