@@ -1,0 +1,284 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-live-wire-encode-seam",
+  "scope": "the client is this driver over the PUBLIC E2B wire (the same network position the hosted runtime holds), driving the R306 encode pair (createHttpEncodePair, the DEFAULT bounded spawnSync transport) against the pinned encode-seam merge's media-toolchain worker; the hosted leg is the separate hosted-golden-path flight",
+  "workerIdentity": {
+    "provider": "E2B",
+    "sandboxId": "i5lvv9q3jrumm914o1rca",
+    "pinnedSha": "dc2ed8fc9c7b9c91253a80378e31006965cc1e9a",
+    "publicUrl": "https://3971-i5lvv9q3jrumm914o1rca.e2b.app",
+    "note": "the pinned R306 encode-seam merge's media-toolchain worker, driven from THIS machine over its public E2B URL — the same network position the hosted runtime's derived-reality plane holds; the revision carries the ADDITIVE encode-frames operation (the worker resolves the REAL FfmpegFrameEncoder)"
+  },
+  "localToolchain": {
+    "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "bunVersion": "1.3.14"
+  },
+  "descriptor": {
+    "operationsAdvertised": [
+      "decode-frames",
+      "decode-probe",
+      "encode-frames",
+      "normalize",
+      "probe"
+    ],
+    "operationsExpected": [
+      "decode-frames",
+      "decode-probe",
+      "encode-frames",
+      "normalize",
+      "probe"
+    ],
+    "toolchain": {
+      "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "resolved": true
+    },
+    "budgets": {
+      "maxExecutionMs": 120000,
+      "maxSourceBytes": 209715200,
+      "maxArtifactBytes": 209715200,
+      "maxConcurrentJobs": 1,
+      "maxDecodedFrameBytes": 1073741824
+    },
+    "fetchWallMs": 662
+  },
+  "stages": {
+    "pairProbe": {
+      "firstProbeWallMs": 279,
+      "subsequentProbeWallsMs": [
+        0,
+        1,
+        0
+      ],
+      "available": true,
+      "version": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "note": "the ONE cached descriptor probe serves BOTH surfaces — the first probe pays the child + the public round trip; the subsequent probe answers return without spawning any child (the wall-clock cache signature)"
+    },
+    "frameEncoder": {
+      "surface": "the R306 FrameEncoderPort",
+      "wallMs": 1026,
+      "byteSize": 1468,
+      "contentHash": "62d7c691aa98ea048553330ea2e9cff8ef5305f3a34d694ac4f975506b44901f",
+      "durationMs": 160,
+      "frameCount": 2,
+      "geometry": "16x16 @ 12.5fps rgb24",
+      "encoderKind": "ffmpeg-libx264",
+      "encoderVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "ftyp": true,
+      "reMeasured": {
+        "hashVerified": true,
+        "byteLengthVerified": true
+      },
+      "accounting": {
+        "delta": {
+          "dispatched": 1,
+          "succeeded": 1,
+          "failed": 0
+        }
+      }
+    },
+    "tacticalCodec": {
+      "surface": "the R301 TacticalVideoCodec (the SAME encode-frames wire operation)",
+      "wallMs": 347,
+      "byteLength": 1495,
+      "ftyp": true,
+      "accounting": {
+        "delta": {
+          "dispatched": 1,
+          "succeeded": 1,
+          "failed": 0
+        }
+      }
+    }
+  },
+  "byteDriftLaw": {
+    "receivingBoundary": {
+      "measuredHash": "62d7c691aa98ea048553330ea2e9cff8ef5305f3a34d694ac4f975506b44901f",
+      "claimedHash": "62d7c691aa98ea048553330ea2e9cff8ef5305f3a34d694ac4f975506b44901f",
+      "hashVerified": true,
+      "byteLengthVerified": true,
+      "byteSize": 1468,
+      "law": "the delivered bytes re-hashed client-side === the envelope's own contentHash claim (a lying claim is never interpreted — the pair refuses it typed)"
+    },
+    "localAdapter": {
+      "available": true,
+      "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+    },
+    "localVsWire": {
+      "measurable": true,
+      "localContentHash": "b6e7672f85e7f0f732af61f899e82e12d07c22f6c9bc53c8de3c4204a615e75b",
+      "wireContentHash": "62d7c691aa98ea048553330ea2e9cff8ef5305f3a34d694ac4f975506b44901f",
+      "localByteSize": 1468,
+      "wireByteSize": 1468,
+      "byteIdentical": false,
+      "localHashVerified": true,
+      "localWallMs": 60,
+      "wireWallMs": 1026,
+      "workerFfmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "localFfmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "note": "the wire encode and the LOCAL adapter's encode of the same frames DIVERGE — the encoding module's own documented bound measured honestly: byte-determinism is PER BUILD (the sandbox's ffmpeg and this machine's ffmpeg are different builds; the x264 bitstream embeds the build's core-version SEI; cross-build byte-stability is NOT claimed). The law that HOLDS is the receiving-boundary law (hashVerified) + the within-build determinism the seam flight measured at the worker (three runs, one sha)"
+    }
+  },
+  "typedRefusals": {
+    "workerSideClassified": {
+      "case": "a 1 ms media policy bound — the real encode EXECUTED at the worker, then the produced 160 ms clip refused the policy",
+      "through": "the REAL pair (createHttpEncodePair with mediaPolicy.maxDurationMs=1)",
+      "refusal": {
+        "refused": true,
+        "failureClass": "media-invalid",
+        "kind": "frames-invalid",
+        "errorClass": "duration-over-limit",
+        "messageExcerpt": "encoding refused (frames-invalid): the encoded clip measures 160ms, over the job's 1ms policy bound",
+        "wallMs": 314
+      },
+      "pairProbeWallMs": 251
+    },
+    "unreachable": {
+      "dnsDead": {
+        "url": "https://3971-r306-unreachable-sandbox.invalid",
+        "refusal": {
+          "refused": true,
+          "failureClass": "resource-limit",
+          "kind": "encoder-unavailable",
+          "errorClass": null,
+          "messageExcerpt": "encoding refused (encoder-unavailable): the media toolchain worker at 'https://3971-r306-unreachable-sandbox.invalid/v1/media/adapter' is unreachable: Unable to",
+          "wallMs": 37
+        }
+      },
+      "connectionRefusedControl": {
+        "url": "http://127.0.0.1:1/v1/media/adapter",
+        "refusal": {
+          "refused": true,
+          "failureClass": "resource-limit",
+          "kind": "encoder-unavailable",
+          "errorClass": null,
+          "messageExcerpt": "encoding refused (encoder-unavailable): the media toolchain worker at 'http://127.0.0.1:1/v1/media/adapter' is unreachable: Unable to connect. Is the computer a",
+          "wallMs": 29
+        }
+      },
+      "note": "the connection-level unreachable worker URL → the TYPED resource-limit/encoder-unavailable class (the same class the local adapter's missing-binary refusal produces)"
+    },
+    "ephemerality": {
+      "case": "a DEAD sandbox's public URL — the E2B port proxy's 502 (the ephemerality doctrine's own signature, measured live by the r607 flight when its first sandbox died mid-session)",
+      "transportPassthrough": {
+        "status": 502,
+        "body": "{\"sandboxId\":\"r306deadwiresandbox\",\"message\":\"The sandbox was not found\",\"code\":502}",
+        "wallMs": 260
+      },
+      "pairProbe": {
+        "available": false,
+        "wallMs": 247
+      },
+      "pairEncodeRefusal": {
+        "refused": true,
+        "failureClass": "internal",
+        "kind": "encode-failed",
+        "errorClass": "http-502",
+        "messageExcerpt": "encoding refused (encode-failed): http-502: the media toolchain worker answered HTTP 502",
+        "wallMs": 280
+      }
+    },
+    "non2xxPassthrough": {
+      "liveWorker": {
+        "note": "the pinned worker serves NO teapot route — what it actually answers is recorded verbatim",
+        "unknownRoute": {
+          "status": 404,
+          "errorClass": "unknown-route",
+          "wallMs": 276
+        },
+        "invalidDispatchBody": {
+          "status": 400,
+          "errorClass": "invalid-body",
+          "wallMs": 780
+        }
+      },
+      "throughThePair": {
+        "case": "a bogus path prefix — the pair's execute POST hits the worker's 404 unknown-route",
+        "refusal": {
+          "refused": true,
+          "failureClass": "internal",
+          "kind": "encode-failed",
+          "errorClass": "unknown-route",
+          "messageExcerpt": "encoding refused (encode-failed): unknown-route: no route POST /nope/v1/media/jobs/execute",
+          "wallMs": 252
+        }
+      }
+    }
+  },
+  "accounting": {
+    "startingLedger": {
+      "dispatched": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "usageRecords": 0,
+      "note": "the STARTING ledger (measured); the stages below assert exact deltas against it — the identities hold identically on a cold or warm worker"
+    },
+    "happyPathSnapshot": {
+      "stats": {
+        "jobsDispatched": 2,
+        "duplicates": 0,
+        "succeeded": 2,
+        "failed": 0,
+        "inFlight": 0,
+        "capacityRefusals": 0,
+        "usageRecords": 2,
+        "probeRuns": 0,
+        "transcodeRuns": 2,
+        "inputBytes": 3840,
+        "outputBytes": 2963,
+        "totalExecutionMs": 266
+      },
+      "deltas": {
+        "dispatched": 2,
+        "succeeded": 2,
+        "failed": 0
+      },
+      "usageDrainCount": 2,
+      "usageRecordsThisRun": [
+        {
+          "jobId": "mtenc-16f57701f4ac63f82849c943cd1a8947",
+          "terminalDisposition": "succeeded"
+        },
+        {
+          "jobId": "mtenc-e773e9eaaffed3b176e4272e7a0a1166",
+          "terminalDisposition": "succeeded"
+        }
+      ],
+      "oneOperationLaw": {
+        "executePosts": 2,
+        "descriptorCrossings": 1,
+        "note": "BOTH surfaces over the ONE encode-frames wire operation: TWO execute POSTs; the pair's descriptor crossed the public wire ONCE (the cached probe's wall signature: first probe 279ms, the three subsequent probe answers [0, 1, 0]ms — no child spawned)"
+      }
+    },
+    "stats": {
+      "jobsDispatched": 3,
+      "duplicates": 0,
+      "succeeded": 2,
+      "failed": 1,
+      "inFlight": 0,
+      "capacityRefusals": 0,
+      "usageRecords": 3,
+      "probeRuns": 0,
+      "transcodeRuns": 3,
+      "inputBytes": 5376,
+      "outputBytes": 4431,
+      "totalExecutionMs": 339
+    },
+    "usageDrainCount": 3,
+    "usageRecordsThisRun": [
+      {
+        "jobId": "mtenc-16f57701f4ac63f82849c943cd1a8947",
+        "terminalDisposition": "succeeded"
+      },
+      {
+        "jobId": "mtenc-e773e9eaaffed3b176e4272e7a0a1166",
+        "terminalDisposition": "succeeded"
+      },
+      {
+        "jobId": "mtenc-f837c07b10e7a84f6565f4249ba5e158",
+        "terminalDisposition": "failed"
+      }
+    ],
+    "stageDeltas": "frameEncoder +1/1/0, tacticalCodec +1/1/0, the duration-over-limit refusal +1/0/1 — the non-2xx legs (404/400) enter NO ledger bucket",
+    "identities": "dispatched === succeeded + failed + inFlight; usageRecords === succeeded + failed; stats === the usage drain (two independent reads over the public wire)"
+  }
+}
