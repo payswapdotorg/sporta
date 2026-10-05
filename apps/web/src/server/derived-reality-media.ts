@@ -16,6 +16,29 @@
  *   `original` reality's normalized MP4s take, so the Watch surface serves
  *   all four realities through one verified-read byte route.
  *
+ * THE ARTIFACT-DELIVERY/INGEST SEAM (R306 flight 5): on the HOSTED plane
+ * (`COMPUTE_PROVIDER=http`) the compute worker encodes and registers the
+ * artifact in ITS OWN store, then hands the job envelope back with the
+ * artifact INLINE (delivery mode "inline", the base64 document) — the app
+ * side's composed store is a DIFFERENT instance in a different runtime, so
+ * its read misses with the TYPED `no artifact "<sha>" is stored` refusal
+ * (the hosted golden path's measured 3/4 gap: the bytes were ALREADY
+ * delivered, the ingest simply never landed them). When THAT specific
+ * miss meets a present inline delivery, the delivery is LANDED: decode →
+ * integrity-verify → validate the container manifest (EVERY existing
+ * fail-closed check BEFORE any put) → reconstruct the `EncodedArtifact`
+ * from the validated segment → `registerEncodedArtifact` (the store's own
+ * cross-verify: put + decode-back + re-hash) → re-read through the SAME
+ * verified `loadEncodedArtifact` seam under the registration's RETURNED
+ * artifactId (the store's own content address — never a re-computed one).
+ * Nothing else is registrable: an integrity failure from the store (a hash
+ * disagreement, a contentType mismatch, a tampered record) propagates
+ * VERBATIM — the laundering class, refused loud; a miss with NO decodable
+ * inline delivery re-throws the SAME typed refusal verbatim. The
+ * IN-PROCESS shape (the worker's store IS the app's store) never lands a
+ * put — the initial verified read succeeds and the landing is
+ * byte-identical (non-degradation).
+ *
  * The frozen manifest: the tactical bridge carries the renderer's OWN
  * frozen manifest VERBATIM (`manifest.rendererManifest`); the game bridges
  * carry the container manifest, and the frozen manifest is DERIVED from
@@ -31,10 +54,12 @@ import type { RenderArtifactManifest as RenderArtifactManifestDoc } from "@sport
 import type { RenderOutputWriter } from "@sporta/control-api";
 import {
   ENCODED_ARTIFACT_CONTENT_TYPE,
+  EncodingError,
   loadEncodedArtifact,
+  registerEncodedArtifact,
   validateEncodedManifest,
 } from "@sporta/encoding";
-import type { EncodedContainerManifest } from "@sporta/encoding";
+import type { EncodedArtifact, EncodedContainerManifest } from "@sporta/encoding";
 import type { ArtifactStore, RenderSegmentStore } from "@sporta/output-pipeline";
 import { sha256OfBytes } from "@sporta/media-platform";
 import type { MediaPlatformService } from "@sporta/media-platform";
@@ -121,16 +146,34 @@ async function landDerivedRealityMp4(
   //    the ingest never lands bytes that do not re-hash to their content
   //    address). When the R306 store is composed, prefer its own verified
   //    read (the same bytes, the same hash, cross-checked).
+  //
+  //    THE ARTIFACT-DELIVERY/INGEST SEAM (R306 flight 5): the composed read
+  //    on the HOSTED plane misses — the worker registered ITS OWN store,
+  //    the app's is empty, and the bytes are ALREADY delivered inline. Only
+  //    the SPECIFIC miss (`no artifact "<sha>" is stored`) with a PRESENT
+  //    inline delivery arms the landing below; every other refusal (an
+  //    integrity failure from the store — the laundering class) and every
+  //    delivery-less miss propagate VERBATIM, unchanged.
+  const artifactStore = options.encodedArtifactStore;
   let bytes: Uint8Array;
   let measuredHash: string;
-  if (options.encodedArtifactStore !== undefined) {
-    const loaded = loadEncodedArtifact(
-      options.encodedArtifactStore,
-      storeArtifactIdOf(segment.content),
-      segment.contentHash,
-    );
-    bytes = loaded.bytes;
-    measuredHash = loaded.contentHash;
+  let landDelivery = false;
+  if (artifactStore !== undefined) {
+    const artifactId = storeArtifactIdOf(segment.content);
+    try {
+      const loaded = loadEncodedArtifact(artifactStore, artifactId, segment.contentHash);
+      bytes = loaded.bytes;
+      measuredHash = loaded.contentHash;
+    } catch (err) {
+      if (!isStoreMissRefusal(err) || !isPresentInlineDelivery(segment.content)) {
+        throw err;
+      }
+      // The hosted-shape miss: decode the delivered bytes in place — every
+      // existing check below runs BEFORE any put (verify-then-register).
+      landDelivery = true;
+      bytes = Buffer.from(segment.content, "base64");
+      measuredHash = sha256OfBytes(bytes);
+    }
   } else {
     bytes = Buffer.from(segment.content, "base64");
     measuredHash = sha256OfBytes(bytes);
@@ -174,6 +217,7 @@ async function landDerivedRealityMp4(
   // derived one on the fields that matter — a disagreement is a conflict,
   // never a silently preferred side.
   const verbatim = RenderArtifactManifest.safeParse(container.rendererManifest);
+  let recordManifest: RenderArtifactManifestDoc = manifest;
   if (verbatim.success) {
     if (
       verbatim.data.contentHash !== manifest.contentHash ||
@@ -185,13 +229,44 @@ async function landDerivedRealityMp4(
         `derived-reality artifact '${segment.contentHash}' carries a verbatim renderer manifest that disagrees with its container manifest`,
       );
     }
-    await options.getMedia().recordDerivedRealityArtifact({
-      manifest: verbatim.data,
-      bytes,
-    });
-    return;
+    recordManifest = verbatim.data;
   }
-  await options.getMedia().recordDerivedRealityArtifact({ manifest, bytes });
+
+  // 4. LAND THE DELIVERY (R306 flight 5): every check above passed BEFORE
+  //    any put. Reconstruct the `EncodedArtifact` from the validated
+  //    segment, register it in the composed app-side store (the store's own
+  //    cross-verify: put + decode-back + re-hash), and re-read through the
+  //    SAME verified `loadEncodedArtifact` seam the in-process path uses —
+  //    under the registration's RETURNED artifactId (the store's own
+  //    content address of the CANONICAL base64 re-encode, which may differ
+  //    from the delivered text's own hash: never re-computed here). The
+  //    in-process shape (the initial verified read succeeded) never reaches
+  //    this point — zero puts, byte-identical.
+  if (landDelivery) {
+    if (artifactStore === undefined) {
+      throw new Error(
+        "the derived-reality delivery landing was armed without a composed artifact store (an impossible state)",
+      );
+    }
+    const deliveredArtifact: EncodedArtifact = {
+      kind: container.encoder.codec.container === "mp4" ? "mp4" : "fixture",
+      manifestId: container.manifestId,
+      sessionId: container.sessionId,
+      contentHash: container.contentHash,
+      byteSize: bytes.byteLength,
+      bytes,
+      manifest: container,
+    };
+    const registration = registerEncodedArtifact(artifactStore, deliveredArtifact);
+    const verified = loadEncodedArtifact(
+      artifactStore,
+      registration.artifactId,
+      segment.contentHash,
+    );
+    bytes = verified.bytes;
+  }
+
+  await options.getMedia().recordDerivedRealityArtifact({ manifest: recordManifest, bytes });
 }
 
 /**
@@ -202,6 +277,33 @@ async function landDerivedRealityMp4(
  */
 function storeArtifactIdOf(base64Content: string): string {
   return sha256OfBytes(new TextEncoder().encode(base64Content));
+}
+
+/**
+ * The ONE registrable-from-delivery refusal: the composed store's read
+ * missed with the SPECIFIC `no artifact "<sha>" is stored` class
+ * (`EncodingError`, kind `artifact-invalid`, failureClass `media-invalid`).
+ * Every other store refusal — an integrity failure (`verify-failed`), a
+ * read throw (`store-rejected`), a contentType mismatch — is the
+ * laundering class and is NEVER registrable from a delivery.
+ */
+function isStoreMissRefusal(err: unknown): err is EncodingError {
+  return (
+    err instanceof EncodingError &&
+    err.kind === "artifact-invalid" &&
+    err.failureClass === "media-invalid" &&
+    /^encoding refused \(artifact-invalid\): no artifact ".+" is stored$/.test(err.message)
+  );
+}
+
+/**
+ * Whether an inline delivery is present and decodes to at least one byte:
+ * an empty or wholly undecodable document is NO delivery — the miss
+ * refusal itself propagates VERBATIM (the honest pre-seam answer).
+ */
+function isPresentInlineDelivery(content: string): boolean {
+  if (content.length === 0) return false;
+  return Buffer.from(content, "base64").byteLength > 0;
 }
 
 /** Derives the frozen `RenderArtifactManifest` from a validated container manifest. */

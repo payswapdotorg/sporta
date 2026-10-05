@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-artifact-ingest-seam",
+  "clientHonesty": "the client is THIS DRIVER composing the hosted plane's two-runtime split locally (the worker's own store ≠ the app-side composed store, both REAL InMemoryArtifactStore instances; the artifact a REAL ffmpeg/libx264 encode through the R306 bridge; the ingest through the REAL routing render-output writer with the REAL media platform) — every field below is MEASURED in this run, never copied, never fabricated; the pre-fix refusal is reproduced by calling the PRE-fix ingest's own store read on the empty app store (the exact call site the hosted golden path measured refusing)",
+  "machine": {
+    "bun": "1.3.14",
+    "nodeCompat": "v24.3.0",
+    "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "encoderKind": "ffmpeg-libx264",
+    "measuredAtIso": "2026-10-05T00:20:22.247Z",
+    "totalWallMs": 470
+  },
+  "battery": {
+    "command": "bun test apps/web/test/artifact-ingest-seam.test.ts",
+    "pass": 6,
+    "fail": 0,
+    "expectCalls": 90,
+    "exitCode": 0
+  },
+  "preFixRefusal": {
+    "reproduced": true,
+    "verbatim": "encoding refused (artifact-invalid): no artifact \"2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f\" is stored",
+    "sha256OfMessage": "d030f401ed64084a001e3bf7fb8e0f74285f8d3298d6600f24ee11f5af2fcf10",
+    "kind": "artifact-invalid",
+    "failureClass": "media-invalid",
+    "missedArtifactId": "2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f",
+    "wallMs": 24
+  },
+  "postFixLanding": {
+    "landed": true,
+    "contentHash": "c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8",
+    "byteSize": 55669,
+    "manifestId": "enc-32b11014",
+    "frozenManifest": {
+      "schemaVersion": "1.1",
+      "artifactId": "mp4-c0d01de32969c465",
+      "sessionId": "sess-r306-artifact-ingest",
+      "reality": "three-d-game",
+      "contentHash": "c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8",
+      "byteSize": 55669,
+      "container": "mp4",
+      "videoCodec": "avc1.42E01E",
+      "audioCodec": null,
+      "durationMs": 480,
+      "rendererId": "game-3d.prototype",
+      "rendererVersion": "0.3.0",
+      "generatedAtMs": 1736164800000,
+      "swm": {
+        "snapshotVersion": 7,
+        "lastEventSequence": 402
+      },
+      "integrity": {
+        "algorithm": "sha256",
+        "verified": true
+      }
+    },
+    "appStoreArtifactId": "2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f",
+    "workerStoreArtifactId": "2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f",
+    "appStoreArtifactIdEqualsMissedId": true,
+    "base64Canonical": {
+      "deliveredEqualsCanonicalReEncode": true,
+      "note": "the worker's delivery text is its own base64Of (canonical); the wrapped variant (content + newline) decodes to the same bytes under a different text hash — the read-back uses the registration's RETURNED artifactId either way"
+    },
+    "putCounters": {
+      "dispatched": 1,
+      "stored": 1,
+      "duplicate": 0
+    },
+    "mediaPlatform": {
+      "records": 1,
+      "artifactId": "mp4-c0d01de32969c465",
+      "reality": "three-d-game",
+      "sessionId": "sess-r306-artifact-ingest",
+      "storageKey": "normalized/c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8.mp4",
+      "servedBytesSha256": "c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8",
+      "servedByteLength": 55669,
+      "servedBytesByteIdenticalToWorkerEncode": true,
+      "ftyp": true
+    },
+    "reRead": {
+      "contentHashVerified": true,
+      "bytesByteIdentical": true,
+      "contentType": "video/mp4+base64",
+      "metadata": {
+        "sessionId": "sess-r306-artifact-ingest",
+        "renderId": "game-3d.prototype",
+        "segmentId": "enc-32b11014",
+        "snapshotVersion": 7,
+        "frameCount": 12,
+        "totalDurationMs": 480
+      }
+    },
+    "wallMs": 8
+  },
+  "inProcessShape": {
+    "putCounters": {
+      "dispatched": 1,
+      "stored": 1,
+      "duplicate": 0
+    },
+    "ingestPuts": 0,
+    "recordDeepEqualsHosted": true,
+    "bytesByteIdentical": true
+  },
+  "reDelivery": {
+    "sameEnvelope": {
+      "putCounters": {
+        "dispatched": 1,
+        "stored": 1,
+        "duplicate": 0
+      },
+      "mediaRecords": 1
+    },
+    "nonCanonicalDelivery": {
+      "deliveredEqualsCanonicalReEncode": false,
+      "putCounters": {
+        "dispatched": 2,
+        "stored": 1,
+        "duplicate": 1
+      },
+      "storeStats": {
+        "artifacts": 1,
+        "totalBytes": 74228,
+        "duplicatePuts": 1
+      },
+      "registeredUnderCanonicalArtifactId": true,
+      "duplicateCount": 1
+    }
+  },
+  "refusals": {
+    "integrity": {
+      "refused": true,
+      "name": "integrity",
+      "kind": null,
+      "message": "derived-reality artifact 'c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8' failed integrity: the delivered bytes hash to ff7ff6c1d17faaf71d13307eef22d0d776bd67083640b31dcc23f98c67a82697",
+      "messageSha256": "cb286ded437f3f8a1c0dac5d137002145d992520500ae2d118ba60a1cdbc2340",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    },
+    "manifestMismatch": {
+      "refused": true,
+      "name": "manifest-mismatch",
+      "kind": null,
+      "message": "derived-reality artifact 'c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8' disagrees with its own container manifest (hash 039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81, byteSize 55669 vs 55669)",
+      "messageSha256": "d9077f46a162339363df9cd6f67b89cdd703eaa10cca34116bd2173ec1b85df3",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    },
+    "sessionMismatch": {
+      "refused": true,
+      "name": "session-mismatch",
+      "kind": null,
+      "message": "derived-reality artifact 'c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8' belongs to session 'sess-someone-else', not the ingested 'sess-r306-artifact-ingest'",
+      "messageSha256": "a7892043b7645375a641a7e5093a858724dd006d257c6faddd8a1a9afc1e078a",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    },
+    "launderedTamperedRecord": {
+      "refused": true,
+      "name": "laundered-tampered-record",
+      "kind": "verify-failed",
+      "message": "encoding refused (verify-failed): artifact \"2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f\" decodes to bytes whose sha-256 80c1187e16991e04c380d5532538f977946a5e4daf28b8cc16823744f0ca85e2 disagrees with the expected c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8",
+      "messageSha256": "3aca57a7c84b337e622ded58e51337b12a882fe5e3ec0654d1fac3405ec06254",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    },
+    "launderedContentType": {
+      "refused": true,
+      "name": "laundered-content-type",
+      "kind": "artifact-invalid",
+      "message": "encoding refused (artifact-invalid): artifact \"2b0aad8178288986529a00d9fb0146dc54a5fccdae6165fc1dca217dc8a4837f\" is not an encoded artifact (contentType \"text/plain\")",
+      "messageSha256": "fbfc4ee607c21f429db884dcfbd06e4ee48f6eea03fcbad9cb9a76dd5551b730",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    },
+    "noDelivery": {
+      "refused": true,
+      "name": "no-delivery",
+      "kind": "artifact-invalid",
+      "message": "encoding refused (artifact-invalid): no artifact \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\" is stored",
+      "messageSha256": "03a720b805fa74c3f141afe964378acd7fe1570889dd89a8d3382c919b6a9202",
+      "putCounters": {
+        "dispatched": 0,
+        "stored": 0,
+        "duplicate": 0
+      },
+      "mediaRecords": 0
+    }
+  },
+  "verdict": "THE ARTIFACT-DELIVERY/INGEST SEAM IS CLOSED at the app-side ingest (R306 flight 5, LOCAL-ONLY): the pre-fix typed refusal reproduced VERBATIM (no artifact \"2b0aad8178288986…\" is stored; message sha d030f401ed64084a…); the HOSTED-shape delivery (the worker's store ≠ the app's store) LANDS — the real MP4 sha256 c0d01de32969c46508addf607e1e0a99b683b41ace261929db859d7ba15f31b8 (55669 B) registered in the app store under the store's own content address 2b0aad8178288986…, re-read through the verified loadEncodedArtifact seam, and recorded in the media platform with integrity-verified byte-identical bytes (ftyp); the in-process shape degraded NOTHING (ZERO ingest puts, record-identical + byte-identical landing); re-delivery is idempotent (no second put on the same envelope; the non-canonical delivery is the store's COUNTED duplicate, never a second put); every existing refusal stayed loud with NOTHING put (integrity, manifest mismatch, session mismatch, laundered tampered-record, laundered content-type, no-delivery VERBATIM); the battery 6/6 green (90 expect() calls). THE HOSTED RE-FLIGHT (a fresh E2B sandbox + redeploy + the golden-path walk re-run — the 4/4 closure measure) is the named NEXT flight, not this one."
+}
