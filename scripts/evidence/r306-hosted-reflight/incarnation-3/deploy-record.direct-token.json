@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-hosted-reflight-incarnation-3-deploy-leg-refused",
+  "writtenBy": "the incarnation-3 session, by hand from THIS session's own first-hand measurements (the driver's fail-closed precondition exit precedes its record write — every value below was measured in this session and is typed verbatim; nothing laundered, nothing fabricated)",
+  "when": "2026-10-05T06:36Z–06:52Z (UTC)",
+  "packet": {
+    "flight": "R306 hosted re-flight (flight 6 — the 4/4 closure measure)",
+    "expectedDeployMarker": "r306-hosted-reflight-1",
+    "pinnedTip": "5424a84e089db3b96b5f489b3e11f2ed66a56dec",
+    "branchFound": "work/r306-hosted-reflight ALREADY EXISTED on origin with two prior-incarnation commits (a4ebb65 prep + 2cf1465 the quota-blocked checkpoint) — this session continued ADD-only on top (fast-forward, no force, no overwrite; this run lives under incarnation-3/)"
+  },
+  "executedLegs": {
+    "baselineGates": {
+      "eslint": "0 errors (1 pre-existing no-console warning in packages/media-platform/src/service.ts) — exit 0",
+      "prettierCheck": "All matched files use Prettier code style! — exit 0",
+      "artifactIngestSeamBattery": "6 pass / 0 fail / 90 expect() calls (apps/web/test/artifact-ingest-seam.test.ts)",
+      "goldenPathBattery": "14 pass / 0 fail / 282 expect() calls (apps/web/test/golden-path.test.ts)"
+    },
+    "provisioning": {
+      "driver": "incarnation-3/orchestrate-e2b.ts (the R607 §1 pair-provisioning shape, pinned at the packet's tip)",
+      "sandboxId": "i7wthxzje6u8lomv200hc",
+      "pinnedShaVerifiedInSandbox": "5424a84e089db3b96b5f489b3e11f2ed66a56dec (fail-closed, exact)",
+      "toolchain": "ffmpeg 5.1.9-0+deb12u1 (+libx264), bun 1.4.2, 167 packages installed --frozen-lockfile",
+      "mediaWorker": "https://3971-i7wthxzje6u8lomv200hc.e2b.app — health 200, descriptor 200, operations [decode-frames, decode-probe, encode-frames, normalize, probe]",
+      "computeWorker": "https://3973-i7wthxzje6u8lomv200hc.e2b.app — health 200, descriptor 200, renderers [anime-npr.prototype, anime.prototype, game-3d.prototype, sporta.testcard, tactical.prototype]",
+      "keepAlive": "2h from the boot-compute-worker invocation (re-extended once); both workers still healthy at record-write (2026-10-05T06:51:30Z)",
+      "records": ["incarnation-3/sandbox-record.json", "incarnation-3/compute-worker-record.json"],
+      "note": "both worker-start RPC responses were lost to the SDK's deadline_exceeded (the measured class — the bounded health waits arbitrated, both 200)"
+    },
+    "deployLeg": {
+      "driver": "incarnation-3/deploy.ts --sandbox-id i7wthxzje6u8lomv200hc (executed at the pack root at HEAD 5424a84e… before the ADD-only move)",
+      "preconditionsPassed": [
+        "HEAD === origin/main === 5424a84e089db3b96b5f489b3e11f2ed66a56dec",
+        "tracked tree clean outside the .vercelignore'd scripts/ evidence paths",
+        "both worker URLs LIVE (media health+descriptor 200, compute health+descriptor 200)"
+      ],
+      "preDeployBaselineMeasured": {
+        "productionAlias": "https://sporta-flame.vercel.app",
+        "rootHttpStatusCode": 200,
+        "apiPlatformHealthHttpStatusCode": 500,
+        "apiPlatformHealthBodyBytes": 0,
+        "reMeasuredAtRecordWrite": "2026-10-05T06:51:30Z — same shape (root 200 / health 500 empty body)",
+        "note": "the 62-c production-500 incident class LIVE (the superseded r306-deploy deployment dpl_Dgtf629qRgTWEZv6i1DmwCdQmrkt with its dead baked i5lvv9q3… worker URLs; the env's re-PATCHed URLs point at the PRIOR incarnation's now-dead sandbox iuspg21vqeg256a94osir)"
+      },
+      "refusedBeforeAnyPatch": true,
+      "patchesFired": 0,
+      "deploymentsCreated": 0,
+      "driverRecordWritten": false,
+      "refusal": {
+        "refusalClass": "vercel-env-unreadable-token-dead (the fail-closed posture re-read: every value undefined)",
+        "detail": "the driver's pre-PATCH decrypted re-read returned undefined for MEDIA_TOOLCHAIN / COMPUTE_PROVIDER / SPORTA_DEPLOY_MARKER — not because the posture is unset (the landed prior-incarnation record measured it http through the Composio lane), but because THIS packet's VERCEL_TOKEN cannot read the Vercel API AT ALL",
+        "driverFatalVerbatim": "FATAL: the http posture is NOT set (MEDIA_TOOLCHAIN/COMPUTE_PROVIDER) — the r306-deploy record said it was; refusing to deploy on an unverified posture"
+      },
+      "directTokenProbesVerbatim": [
+        {
+          "request": "GET https://api.vercel.com/v2/user",
+          "httpStatusCode": 403,
+          "body": "{\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}}"
+        },
+        {
+          "request": "GET https://api.vercel.com/v9/projects/sporta",
+          "httpStatusCode": 403,
+          "body": "{\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}}"
+        },
+        {
+          "request": "GET https://api.vercel.com/v9/projects/sporta/env",
+          "httpStatusCode": 403,
+          "body": "{\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}}"
+        },
+        {
+          "request": "bunx vercel whoami (VERCEL_TOKEN through the process env)",
+          "exitCode": 1,
+          "stderrVerbatim": "Error: The token provided via VERCEL_TOKEN environment variable is not valid. Please provide a valid token."
+        }
+      ],
+      "priorIncarnationCorroboration": "the landed checkpoint's deploy-record.json carries the SAME class typed verbatim (directTokenProbe httpStatusCode 403, invalidToken:true) — the packet's VERCEL_TOKEN is the same dead credential the prior incarnation worked around with its Composio vercel lane (connection ca_31iruA2qEdfl), a credential NOT present in this packet"
+    }
+  },
+  "blockers": [
+    {
+      "refusalClass": "vercel-token-dead",
+      "detail": "the packet's VERCEL_TOKEN is refused on every Vercel API surface (403 invalidToken, verbatim above) AND by the CLI — the three env PATCHes, the deployment, and the two-surface marker verification are impossible with it"
+    },
+    {
+      "refusalClass": "api-deployments-free-per-day (not re-measurable this session — the dead token cannot even read the project)",
+      "detail": "the LANDED prior-incarnation record (../deploy-record.json, 2026-10-05T02:5xZ) measured HTTP 402 {\"limit\":{\"total\":100,\"remaining\":0,\"reset\":1791253483018}} — the account's rolling-day deployment quota EXHAUSTED until 2026-10-06T01:31Z, which is AFTER this flight's midnight-UTC deadline; even a valid token could not deploy before the deadline"
+    },
+    {
+      "refusalClass": "composio-lane-credential-absent",
+      "detail": "the prior incarnation's workaround lane (Composio connection ca_31iruA2qEdfl) is not among this packet's credentials"
+    }
+  ],
+  "theWalk": {
+    "ran": false,
+    "reason": "the walk requires the production deployment carrying marker r306-hosted-reflight-1 with THIS session's live worker URLs baked; no PATCH and no deployment were possible (the blockers above). The walk driver fails closed at boot against any other plane (the current alias serves the superseded deployment: root 200 / health 500 empty body) — running it there is a crash, not a measurement",
+    "theFourOfFourMeasure": "NOT TAKEN — this record says so; nothing fabricated"
+  },
+  "sandboxDisposition": "i7wthxzje6u8lomv200hc honestly left to die at its keep-alive timeout (the ephemerality doctrine — the walk cannot consume it this session; both workers were healthy at record-write)",
+  "nextSessionChain": "(1) at the quota window (2026-10-06T01:31Z) with a LIVE vercel lane (a fresh valid token, or the Composio connection): provision fresh (or re-extend while a sandbox lives), re-PATCH the three env vars to the live sandbox URLs + the flight's marker, deploy, verify both surfaces with the marker, then THE WALK, then the validators; (2) the prior incarnation's build-error diagnosis (the workspace-deps layout failure of dpl_8kLx…) is the landed data-driven fix input — see ../README.md §THE TL LEGS",
+  "credentialsDiscipline": "VERCEL_TOKEN + E2B_API_KEY env-only (never echoed in full, never committed; this record carries no secrets; the tree is scanned for the vcp_/e2b_ prefixes)"
+}
