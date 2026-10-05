@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-hosted-reflight-compute-worker-record",
+  "provider": {
+    "name": "E2B",
+    "sandbox": {
+      "sandboxId": "id0g6thukn787yjakgt19",
+      "envdVersion": "0.6.10",
+      "startedAtIso": "2026-10-05T13:51:24.983Z",
+      "keepAliveMs": 7200000,
+      "keepAliveReExtendedAtIso": "2026-10-05T13:57:30.233Z",
+      "lifecycleOnTimeout": "kill",
+      "note": "EPHEMERAL BY DESIGN — the sandbox dies at the timeout; both public worker URLs are ephemeral evidence (the ephemerality doctrine in deploy-record.json)"
+    },
+    "pinnedRevision": {
+      "sha": "312d2cbecb383053f999b3b4dcd51116ee7932ef",
+      "note": "the in-sandbox clone's HEAD re-measured fail-closed (the same pinned revision the re-flight orchestrator provisioned — the R306 arc's flight-5 merge; the compute worker runs from the checked-out revision, never a hand-moved bundle)"
+    }
+  },
+  "computeWorker": {
+    "entry": "packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts",
+    "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3973 nohup ~/.bun/bin/bun run scripts/r607-e2b-compute-worker.ts",
+    "port": 3973,
+    "publicUrl": "https://3973-id0g6thukn787yjakgt19.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-compute-worker",
+        "adapterId": "sporta.compute.hosted",
+        "providerId": "sporta-compute-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "descriptor": {
+      "httpStatusCode": 200,
+      "body": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted",
+        "adapterVersion": "0.1",
+        "providerKind": "cpu-worker",
+        "supportedRenderers": [
+          {
+            "rendererId": "anime-npr.prototype",
+            "rendererVersions": [
+              "0.2.0"
+            ]
+          },
+          {
+            "rendererId": "anime.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "game-3d.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "sporta.testcard",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "tactical.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          }
+        ],
+        "supportedLatencyClasses": [
+          "offline"
+        ],
+        "maxConcurrentJobs": 4,
+        "dispatchTimeoutMs": 5000,
+        "maxJobDeadlineMs": 60000,
+        "minJobDeadlineMs": 1000,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured render+encode execution time"
+          },
+          {
+            "unitId": "render-requests",
+            "unitKind": "count",
+            "description": "renderer plugin invocations"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "encoded artifact bytes stored"
+          }
+        ]
+      },
+      "renderersAdvertised": [
+        "anime-npr.prototype",
+        "anime.prototype",
+        "game-3d.prototype",
+        "sporta.testcard",
+        "tactical.prototype"
+      ],
+      "note": "THE BOOT-TIME FETCH MEASURED: GET {COMPUTE_WORKER_URL}/v1/adapter over the exact URL the deploy bakes — the fetch the composition performs fail-loud at boot (compute-adapter-hosted/src/env.ts); HTTP 200 here is the leg whose failure is the 62-c production-500 incident class"
+    },
+    "bootLog": [
+      "[e2b-compute-worker] listening on http://0.0.0.0:3973",
+      "[e2b-compute-worker] adapter sporta.compute.hosted v0.1, providerKind cpu-worker, maxConcurrentJobs 4",
+      "[e2b-compute-worker] supportedRenderers: anime-npr.prototype, anime.prototype, game-3d.prototype, sporta.testcard, tactical.prototype",
+      "[e2b-compute-worker] derived-reality plane: COMPOSED (the local ffmpeg+libx264 toolchain resolved — tactical/game-3d/anime-npr render through the R306 bridges)"
+    ],
+    "bootLogRead": "base64-wrapped (`base64 -w 0 <log>` decoded client-side — the live-wire flight's measured display artifact: a bare `[m` sequence is eaten by this sandbox's terminal DISPLAY channel; the round trip carries the TRUE bytes)",
+    "role": "the inherited COMPUTE_PROVIDER=http posture requires a live compute worker at the composition's fail-loud boot — the r607 two-worker lesson mirrored at the re-flight; the walk's render jobs execute HERE"
+  },
+  "mediaWorker": {
+    "publicUrl": "https://3971-id0g6thukn787yjakgt19.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-media-toolchain-worker",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "descriptor": {
+      "httpStatusCode": 200,
+      "operationsAdvertised": [
+        "decode-frames",
+        "decode-probe",
+        "encode-frames",
+        "normalize",
+        "probe"
+      ],
+      "operationsExpected": [
+        "decode-frames",
+        "decode-probe",
+        "encode-frames",
+        "normalize",
+        "probe"
+      ]
+    },
+    "note": "the re-flight orchestrator's worker (still up — re-verified from THIS machine at the compute boot: the five-operation profile incl. encode-frames, the R306 arc's seam)"
+  },
+  "provisioning": {
+    "mode": "reused-live-sandbox (the re-flight orchestrator's)",
+    "totalMs": 4341,
+    "notes": [
+      "the media worker was NOT restarted (health-check-first idempotent skip — it was already healthy)",
+      "the compute worker started idempotently on :3973 (health-check-first, start-if-down)",
+      "the keep-alive re-extended to 2h from THIS invocation (the deploy + the four-reality walk window)"
+    ]
+  },
+  "credentialsDiscipline": "E2B_API_KEY env-only (never echoed, never committed; the record carries no secrets — scan target: the 'e2b_' prefix)"
+}

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "r306-hosted-reflight-deploy-record",
+  "note": "the R306 hosted re-flight (flight 6 — the 4/4 closure measure) — the deploy leg (the r306-deploy precedent mirrored at the re-flight tip: the env re-point + the production deployment baking the LIVE re-flight sandbox worker URLs + the fail-closed verification)",
+  "envWiring": {
+    "method": "PATCH v10/projects/sporta/env/{id} (production target, encrypted) — BEFORE the deploy so the new deployment bakes the live re-flight sandbox URLs (the env var ids DISCOVERED live from GET /v9/projects/sporta/env, never assumed)",
+    "prePatchVerified": {
+      "note": "every value re-read DECRYPTED before any PATCH (verify, do not assume)",
+      "values": {
+        "MEDIA_TOOLCHAIN": "http",
+        "MEDIA_TOOLCHAIN_URL": "https://3971-id0g6thukn787yjakgt19.e2b.app",
+        "COMPUTE_PROVIDER": "http",
+        "COMPUTE_WORKER_URL": "https://3973-id0g6thukn787yjakgt19.e2b.app",
+        "SPORTA_DEPLOY_MARKER": "r306-hosted-reflight-1"
+      },
+      "posture": "MEDIA_TOOLCHAIN=http + COMPUTE_PROVIDER=http confirmed live (the 65-j PATCHes — still correct; NOT re-PATCHed this flight)",
+      "deadUrlMeasured": "the pre-PATCH MEDIA_TOOLCHAIN_URL/COMPUTE_WORKER_URL pointed at the r306-deploy flight's sandbox (3971/3973-i5lvv9q3jrumm914o1rca) — DEAD since that sandbox's timeout; the pre-deploy production baseline below measures the incident class that posture was serving"
+    },
+    "patches": [
+      {
+        "envVarId": "iu0c8kUgznFwaH6F",
+        "name": "MEDIA_TOOLCHAIN_URL",
+        "value": "https://3971-id0g6thukn787yjakgt19.e2b.app",
+        "httpStatusCode": 200,
+        "reReadValue": "https://3971-id0g6thukn787yjakgt19.e2b.app"
+      },
+      {
+        "envVarId": "hSpnqXIKbF1Tb2J7",
+        "name": "COMPUTE_WORKER_URL",
+        "value": "https://3973-id0g6thukn787yjakgt19.e2b.app",
+        "httpStatusCode": 200,
+        "reReadValue": "https://3973-id0g6thukn787yjakgt19.e2b.app"
+      },
+      {
+        "envVarId": "GHJXtTrqEuB1I8pg",
+        "name": "SPORTA_DEPLOY_MARKER",
+        "value": "r306-hosted-reflight-1",
+        "httpStatusCode": 200,
+        "reReadValue": "r306-hosted-reflight-1"
+      }
+    ],
+    "unpatched": [
+      "MEDIA_TOOLCHAIN=http (the 65-j PATCH — re-verified decrypted, still correct)",
+      "COMPUTE_PROVIDER=http (the 65-j PATCH — re-verified decrypted, still correct)"
+    ]
+  },
+  "deploy": {
+    "command": "bunx vercel deploy --prod --yes --project sporta --scope ekonplacidegmailcoms-projects (from the repo root; the token through the process env — never argv, never echoed)",
+    "repoState": {
+      "HEAD": "312d2cbecb383053f999b3b4dcd51116ee7932ef",
+      "originMain": "312d2cbecb383053f999b3b4dcd51116ee7932ef",
+      "note": "the deployed source is exactly the tracked tree at the re-flight tip (.vercelignore excludes scripts/ docs/ tests/ — the evidence dirs ride outside the upload)"
+    },
+    "outcome": "REFUSED",
+    "refusal": {
+      "refusalClass": "api-deployments-free-per-day",
+      "detail": "the deploy CLI exited 1 after 2931ms",
+      "verbatimOutputTail": "Vercel CLI 62.2.0 (Node.js 24.21.0)\nRetrieving project…\nDeploying ekonplacidegmailcoms-projects/sporta\n✗ Resource is limited - try again in 24 hours (more than 100, code: \"api-deployments-free-per-day\").\n  Check the billing or feature requirement reported above with a team owner. Retry after that requirement is resolved."
+    }
+  },
+  "baselineMeasured": {
+    "when": "pre-deploy, from THIS machine (the first invocation)",
+    "productionAlias": "https://sporta-flame.vercel.app",
+    "rootHttpStatusCode": 200,
+    "apiPlatformHealthHttpStatusCode": 500,
+    "apiPlatformHealthBody": "",
+    "note": "the production alias serving the r306-deploy flight's deployment dpl_Dgtf629q with the env's worker URLs dead (the currently-env'd sandbox iuspg21vqeg… long dead at its keep-alive) — the composition's fail-loud boot-time compute-worker descriptor fetch failing → the health route 500 with an empty body (the documented 62-c incident class); THIS is the incident class this re-flight's deployment closes for the closure measure"
+  },
+  "productionMeasured": null,
+  "ephemeralityDoctrine": {
+    "measuredLive": "the baked URLs are EPHEMERAL: the sandbox dies at its timeout and the incident class (a baked ephemeral URL) re-manifests on its death — the r607 flight measured it twice, and THIS flight measured the current manifestation as its pre-deploy baseline (the r306-deploy deployment 500ing on production with its dead baked URLs)",
+    "sandbox": {
+      "sandboxId": "id0g6thukn787yjakgt19",
+      "startedAtIso": "2026-10-05T13:51:24.983Z",
+      "keepAliveMs": 7200000,
+      "lastReExtendedAtIso": "2026-10-05T13:57:30.233Z",
+      "lifecycleOnTimeout": "kill",
+      "mediaWorkerUrlLiveAtRecordWrite": 200,
+      "computeWorkerUrlLiveAtRecordWrite": 200,
+      "note": "the keep-alive is 2 h from the LAST orchestration/boot invocation; at the timeout the sandbox dies, both public worker URLs answer the E2B proxy's 502 'The sandbox was not found', and the boot-time compute descriptor fetch fails → the 500 class returns to whatever deployment still bakes this URL"
+    },
+    "theHonestPosture": "every record in this tree states which sandbox/deployment it measured; a dead worker URL is a typed refusal at the composition, never a laundered availability; the re-runnable procedure (commands.md) re-executes the whole chain against a fresh sandbox in ~30 minutes",
+    "theOperatorDecision": "a PERSISTENT worker host (a long-lived deployment) is the production posture's closure — named in the status row, never improvised by a worker"
+  },
+  "credentialsDiscipline": "VERCEL_TOKEN + E2B_API_KEY env-only (never echoed in full, never committed; the record carries no secrets; the tree is scanned for the vcp_/e2b_ prefixes)"
+}
