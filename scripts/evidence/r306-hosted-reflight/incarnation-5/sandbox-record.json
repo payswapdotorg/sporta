@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "r306-hosted-reflight-sandbox-record",
+  "provider": {
+    "name": "E2B",
+    "product": "E2B Sandboxes (api.e2b.dev)",
+    "template": {
+      "id": "rki5dems9wqfm4r03t7g",
+      "name": "base"
+    },
+    "sandbox": {
+      "sandboxId": "i0zwlljga6g81lnciaj1s",
+      "envdVersion": "0.6.10",
+      "cpuCount": 2,
+      "memoryMB": 512,
+      "startedAtIso": "2026-10-05T14:05:14.038Z",
+      "lifecycleOnTimeout": "kill",
+      "keepAliveMs": 7200000,
+      "note": "EPHEMERAL BY DESIGN — the sandbox dies at the timeout; the public worker URLs are ephemeral evidence (the ephemerality doctrine measured live by the r607 + r306-deploy flights: a dead sandbox's public URL answers the proxy's 502 'The sandbox was not found')"
+    },
+    "pinnedRevision": {
+      "sha": "312d2cbecb383053f999b3b4dcd51116ee7932ef",
+      "subject": "Merge work/r306-hosted-reflight: the R306 hosted re-flight's flight-6 record — the honest BLOCKED landing (deploy leg refused fail-closed: the packet's VERCEL_TOKEN typed-dead 403 + the account's rolling-day deploy quota 402 until 2026-10-06T01:31Z; THE WALK DID NOT RUN, the 4/4 measure NOT taken — typed, nothing laundered); the ADD-only delta over the flight-5 ingest-seam merge is scripts/-evidence-only, the worker/app code byte-identical (the upload set is the flight-5 tree's)",
+      "note": "the in-sandbox `git clone` checks out EXACTLY this sha (orchestrate-e2b.ts fails closed on any other HEAD); the workers the hosted runtime dispatches to run this revision — the R306 arc's flight-5 merge, the artifact-delivery/ingest seam closure whose hosted 4/4 this re-flight measures"
+    },
+    "toolchain": {
+      "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "bunVersion": "1.4.2",
+      "libx264Encoders": "2"
+    }
+  },
+  "worker": {
+    "entry": "packages/compute-adapter-hosted/scripts/r607-media-toolchain-worker.ts",
+    "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3971 nohup ~/.bun/bin/bun run scripts/r607-media-toolchain-worker.ts",
+    "port": 3971,
+    "publicUrl": "https://3971-i0zwlljga6g81lnciaj1s.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-media-toolchain-worker",
+        "adapterId": "sporta.compute.hosted.media",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "descriptor": {
+      "httpStatusCode": 200,
+      "body": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted.media",
+        "adapterVersion": "0.1",
+        "providerId": "sporta-media-toolchain-worker-1",
+        "providerKind": "cpu-worker",
+        "operations": [
+          "probe",
+          "normalize",
+          "decode-probe",
+          "decode-frames",
+          "encode-frames"
+        ],
+        "toolchain": {
+          "ffmpegPath": "/usr/bin/ffmpeg",
+          "ffprobePath": "/usr/bin/ffprobe",
+          "ffmpegVersion": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+          "resolved": true
+        },
+        "budgets": {
+          "maxExecutionMs": 120000,
+          "maxSourceBytes": 209715200,
+          "maxArtifactBytes": 209715200,
+          "maxConcurrentJobs": 1,
+          "maxDecodedFrameBytes": 1073741824
+        },
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured media-toolchain execution time"
+          },
+          {
+            "unitId": "media-jobs",
+            "unitKind": "count",
+            "description": "executed media-toolchain jobs"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "normalized artifact bytes produced"
+          }
+        ]
+      },
+      "operationsAdvertised": [
+        "decode-frames",
+        "decode-probe",
+        "encode-frames",
+        "normalize",
+        "probe"
+      ],
+      "operationsExpected": [
+        "decode-frames",
+        "decode-probe",
+        "encode-frames",
+        "normalize",
+        "probe"
+      ]
+    },
+    "bootLog": [
+      "[media-toolchain-worker] listening on http://0.0.0.0:3971",
+      "[media-toolchain-worker] adapter sporta.compute.hosted.media v0.1, provider sporta-media-toolchain-worker-1",
+      "[media-toolchain-worker] toolchain: RESOLVED — ffmpeg '/usr/bin/ffmpeg' / ffprobe '/usr/bin/ffprobe'",
+      "[media-toolchain-worker] measured identity: ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers",
+      "[media-toolchain-worker] budgets: maxExecutionMs=120000 maxSourceBytes=209715200 maxArtifactBytes=209715200 maxConcurrentJobs=1 (ONE ffmpeg at a time — the memory discipline)"
+    ],
+    "bootLogRead": "base64-wrapped (`base64 -w 0 <log>` decoded client-side — the live-wire flight's measured display artifact: a bare `[m` sequence is eaten by this sandbox's terminal DISPLAY channel; the round trip carries the TRUE bytes)"
+  },
+  "computeWorkerCompanion": {
+    "entry": "packages/compute-adapter-hosted/scripts/r607-e2b-compute-worker.ts",
+    "startCommand": "cd /home/user/sporta-repo/packages/compute-adapter-hosted && HOSTNAME=0.0.0.0 PORT=3973 nohup ~/.bun/bin/bun run scripts/r607-e2b-compute-worker.ts",
+    "port": 3973,
+    "publicUrl": "https://3973-i0zwlljga6g81lnciaj1s.e2b.app",
+    "health": {
+      "httpStatusCode": 200,
+      "body": {
+        "ok": true,
+        "service": "sporta-compute-worker",
+        "adapterId": "sporta.compute.hosted",
+        "providerId": "sporta-compute-worker-1",
+        "adapterVersion": "0.1"
+      }
+    },
+    "descriptor": {
+      "httpStatusCode": 200,
+      "body": {
+        "schemaVersion": "1.0",
+        "adapterId": "sporta.compute.hosted",
+        "adapterVersion": "0.1",
+        "providerKind": "cpu-worker",
+        "supportedRenderers": [
+          {
+            "rendererId": "anime-npr.prototype",
+            "rendererVersions": [
+              "0.2.0"
+            ]
+          },
+          {
+            "rendererId": "anime.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "game-3d.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "sporta.testcard",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          },
+          {
+            "rendererId": "tactical.prototype",
+            "rendererVersions": [
+              "0.1.0"
+            ]
+          }
+        ],
+        "supportedLatencyClasses": [
+          "offline"
+        ],
+        "maxConcurrentJobs": 4,
+        "dispatchTimeoutMs": 5000,
+        "maxJobDeadlineMs": 60000,
+        "minJobDeadlineMs": 1000,
+        "costUnits": [
+          {
+            "unitId": "cpu-ms",
+            "unitKind": "time-ms",
+            "description": "measured render+encode execution time"
+          },
+          {
+            "unitId": "render-requests",
+            "unitKind": "count",
+            "description": "renderer plugin invocations"
+          },
+          {
+            "unitId": "artifact-bytes",
+            "unitKind": "bytes",
+            "description": "encoded artifact bytes stored"
+          }
+        ]
+      },
+      "renderersAdvertised": [
+        "anime-npr.prototype",
+        "anime.prototype",
+        "game-3d.prototype",
+        "sporta.testcard",
+        "tactical.prototype"
+      ],
+      "note": "THE BOOT-TIME FETCH MEASURED: GET {COMPUTE_WORKER_URL}/v1/adapter over the exact URL the deploy bakes — the fetch the composition performs fail-loud at boot (compute-adapter-hosted/src/env.ts); HTTP 200 here is the leg whose failure is the 62-c production-500 incident class"
+    },
+    "bootLog": [
+      "[e2b-compute-worker] listening on http://0.0.0.0:3973",
+      "[e2b-compute-worker] adapter sporta.compute.hosted v0.1, providerKind cpu-worker, maxConcurrentJobs 4",
+      "[e2b-compute-worker] supportedRenderers: anime-npr.prototype, anime.prototype, game-3d.prototype, sporta.testcard, tactical.prototype",
+      "[e2b-compute-worker] derived-reality plane: COMPOSED (the local ffmpeg+libx264 toolchain resolved — tactical/game-3d/anime-npr render through the R306 bridges)"
+    ],
+    "bootLogRead": "base64-wrapped (`base64 -w 0 <log>` decoded client-side)",
+    "role": "the inherited COMPUTE_PROVIDER=http posture requires a live compute worker at the composition's fail-loud boot — the r607 two-worker lesson mirrored at the re-flight; the walk's render jobs execute HERE (the derived realities' encodes at the compute worker's own local in-sandbox toolchain)"
+  },
+  "provisioning": {
+    "mode": "fresh-provision",
+    "totalMs": 165231,
+    "cloneCheckout": "git clone https://github.com/payswapdotorg/sporta.git + git checkout 312d2cbecb383053f999b3b4dcd51116ee7932ef (at /home/user/sporta-repo)",
+    "notes": [
+      "ffmpeg via `sudo apt-get install -y ffmpeg` (Debian bookworm 7:5.1.x + libx264)",
+      "bun via `curl -fsSL https://bun.sh/install | bash`",
+      "the repo workspace installed in-sandbox with `bun install --frozen-lockfile`",
+      "the workers run from the checked-out pinned revision — never a hand-moved bundle",
+      "BOTH workers (media 3971 + compute 3973) started and measured on fresh provision"
+    ]
+  },
+  "credentialsDiscipline": "E2B_API_KEY env-only (never echoed, never committed; the record carries no secrets — scan target: the 'e2b_' prefix)"
+}
