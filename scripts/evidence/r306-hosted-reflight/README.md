@@ -81,14 +81,13 @@ lands only when the hosted plane measures it.
   playbacks, the worker-side accounting (hosted-golden-path.json).
 - The validator's check-by-check verdict (12 checks + the negative battery).
 
-## STATE FOUND AT PREP (honest, typed — the residue is NOT part of the commit)
+## STATE FOUND AT PREP (honest, typed — recorded before the TL legs)
 
 A prior 69-a1 incarnation died mid-flight WITHOUT committing. This prep found
 its uncommitted drivers (adopted only after line-by-line re-verification
 against the r306 originals; the pin/marker/record-path adaptations re-checked,
 two guards added to deploy.ts) AND its uncommitted EXECUTION residue (the four
-`*.json` records on disk here — NOT committed, NOT re-verified by this prep,
-which executes nothing):
+`*.json` records on disk here — the prep itself executes nothing):
 
 - sandbox `iuspg21vqeg256a94osir` provisioned 2026-10-05T01:34Z (2 h keep-alive
   → dead ~03:34Z unless re-extended), pinned sha verified in-sandbox.
@@ -100,16 +99,57 @@ which executes nothing):
   `ca_31iruA2qEdfl`, proxy_execute) engaged: the deployment creation
   `dpl_8kLxtHfiEcsnuRxwHxwK5Mun6ToX` was ACCEPTED (missing-files retry round
   worked: 3 `.gitignore` files inlined) but the build ERRORED instantly
-  (INITIALIZING→ERROR at ~16 s, NO cause captured — the residue's honest gap;
-  this prep's diagnostics addition captures the failed deployment's doc +
-  events tail verbatim on the next run).
+  (INITIALIZING→ERROR at ~16 s, NO cause captured by the residue).
 - THE WALK NEVER RAN (no hosted-golden-path.json exists).
 
-The TL arbitrates: race the live window (re-verify legs with
-`--sandbox-id iuspg21vqeg256a94osir`) or re-run the chain fresh (the drivers
-overwrite the residue records; deploy fails closed if the discovered sandbox
-is dead). The residue files stay untracked either way — the commit below is
-prep only, nothing measured by it.
+## THE TL LEGS, 2026-10-05 02:08–02:5xZ (the honest flight state — QUOTA-BLOCKED)
+
+The TL raced the live window. Every outcome below is measured, typed verbatim,
+never fabricated:
+
+1. **THE BUILD-ERROR CAUSE CAPTURED** (the residue's honest gap, closed): the
+   failed deployment's own events (`/v3/deployments/…/events`), read through
+   the Composio lane — the build ran `bun install` at `/vercel/path1` on
+   `apps/web/package.json` (the duplicate-dependency warnings fingerprint it
+   exactly: `@sporta/output-pipeline` at lines 35+54) and REFUSED the
+   workspace deps: `error: Workspace dependency "@sporta/asr" not found /
+   Searched in "./*"` (bun 1.3.14) — the workspace ROOT (root package.json +
+   `packages/*`) was NOT visible at the build's install root. The ORIGINAL
+   deployment (`dpl_Dgtf629qRgTWEZv6i1DmwCdQmrkt`, source: cli) ran its
+   install ON the repo root ("Checked 303 installs across 270 packages") —
+   the build-layout difference is the failure's mechanism, and the upload's
+   path-shape is RULED OUT: both deployments' files land identically (the
+   platform's own files trees compared; the 93-file delta is the CLI's
+   accidental gitignored runtime-data upload — `db/*.db`,
+   `db/media-storage/*.mp4`, `tsconfig.tsbuildinfo` — none load-bearing).
+2. **ATTEMPT: `rootDirectory: ""` in the deployment body** — the API REFUSED
+   the field itself: HTTP 400 `should NOT have additional property
+   rootDirectory` (the v13 creation carries no root override; the build root
+   comes from the PROJECT's apps/web for API deployments).
+3. **ATTEMPT: the diagnostic installCommand** (pwd + the `/vercel/*` listings
+   printed into the build events BEFORE the install — the layout ground
+   truth, still wired in the driver for the NEXT creation) — REFUSED BEFORE
+   CREATION: **HTTP 402 `api-deployments-free-per-day`** — `{"limit":{"total":
+   100,"remaining":0,"reset":1791253483018}}` — the account's rolling-day
+   deployment quota is EXHAUSTED (the r306 arc's flights + the incarnations'
+   retries burned it; exactly ONE deployment exists since 2026-10-05T00:00Z,
+   the failed dpl_8kLxt). The quota RESETS at epoch 1791253483018 ≈
+   **2026-10-06T01:31Z (~23 h from the refusal)**.
+4. **THE FLIGHT IS TYPED-BLOCKED at the deploy leg** until the quota window.
+   The chain when it opens: the fresh provisioning legs (THIS sandbox dies at
+   its keep-alive timeout — the ephemerality doctrine, honestly left to die),
+   then `deploy.ts` (the diagnostic installCommand captures the container
+   layout in the build events — the next fix iteration is data-driven), then
+   THE WALK + the validators. The operators' levers: wait the window, or lift
+   the quota (the Vercel plan decision — joins the standing operator asks
+   alongside the persistent-worker-host decision).
+
+The records ARE part of this checkpoint commit (the flight's measured state —
+see deploy-record.json (the 402), deploy-record.attempt1.json (the build
+ERROR), sandbox-record.json + compute-worker-record.json (the live window's
+provisioning), deploy-files-manifest.json (the upload manifest, sha
+87fef70e9c20…). Nothing laundered: the walk did NOT run, the 4/4 measure was
+NOT taken, and the commit says so.
 
 ## The ephemerality doctrine (standing)
 

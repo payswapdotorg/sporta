@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.1",
+  "kind": "r306-hosted-reflight-deploy-record",
+  "note": "THE R306 HOSTED RE-FLIGHT — the deploy leg (the r306-deploy precedent mirrored at the artifact-ingest merge: the env re-point + the production deployment baking THIS flight's fresh sandbox worker URLs + the fail-closed verification)",
+  "envWiring": {
+    "method": "PATCH v10/projects/sporta/env/{id} (production target, encrypted) — BEFORE the deploy so the new deployment bakes the live sandbox URLs (the env var ids DISCOVERED live from GET /v9/projects/sporta/env, never assumed)",
+    "prePatchVerified": {
+      "note": "every value re-read DECRYPTED before any PATCH (verify, do not assume)",
+      "values": {
+        "MEDIA_TOOLCHAIN": "http",
+        "MEDIA_TOOLCHAIN_URL": "https://3971-iuspg21vqeg256a94osir.e2b.app",
+        "COMPUTE_PROVIDER": "http",
+        "COMPUTE_WORKER_URL": "https://3973-iuspg21vqeg256a94osir.e2b.app",
+        "SPORTA_DEPLOY_MARKER": "r306-ingest-seam-reflight-1"
+      },
+      "posture": "MEDIA_TOOLCHAIN=http + COMPUTE_PROVIDER=http confirmed live (the 65-j PATCHes — still correct; NOT re-PATCHed this flight)",
+      "deadUrlMeasured": "the pre-PATCH MEDIA_TOOLCHAIN_URL/COMPUTE_WORKER_URL pointed at the r306-hosted-golden-path flight's sandbox (3971/3973-i5lvv9q3jrumm914o1rca) — DEAD since that sandbox's timeout; the pre-deploy production baseline below measures the incident class that posture was serving"
+    },
+    "patches": [
+      {
+        "envVarId": "iu0c8kUgznFwaH6F",
+        "name": "MEDIA_TOOLCHAIN_URL",
+        "value": "https://3971-iuspg21vqeg256a94osir.e2b.app",
+        "httpStatusCode": 200,
+        "reReadValue": "https://3971-iuspg21vqeg256a94osir.e2b.app"
+      },
+      {
+        "envVarId": "hSpnqXIKbF1Tb2J7",
+        "name": "COMPUTE_WORKER_URL",
+        "value": "https://3973-iuspg21vqeg256a94osir.e2b.app",
+        "httpStatusCode": 200,
+        "reReadValue": "https://3973-iuspg21vqeg256a94osir.e2b.app"
+      },
+      {
+        "envVarId": "GHJXtTrqEuB1I8pg",
+        "name": "SPORTA_DEPLOY_MARKER",
+        "value": "r306-ingest-seam-reflight-1",
+        "httpStatusCode": 200,
+        "reReadValue": "r306-ingest-seam-reflight-1"
+      }
+    ],
+    "unpatched": [
+      "MEDIA_TOOLCHAIN=http (the 65-j PATCH — re-verified decrypted, still correct)",
+      "COMPUTE_PROVIDER=http (the 65-j PATCH — re-verified decrypted, still correct)"
+    ]
+  },
+  "vercelLane": {
+    "mode": "composio",
+    "directTokenProbe": {
+      "httpStatusCode": 403,
+      "login": "ekonplacide-5312",
+      "refused": true,
+      "typedRefusalVerbatim": "{\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}}",
+      "note": "the direct VERCEL_TOKEN is TYPED-DEAD (the refusal above is verbatim; the CLI answers the same class: 'The token provided via VERCEL_TOKEN environment variable is not valid') — the flight fell back to the COMPOSIO VERCEL LANE (the operator-provisioned connected account ca_31iruA2qEdfl, the same lane class the 68-TL flight proved for the GitHub push): every Vercel API call (env list/decrypt-read/PATCH, the deployment creation, the deployment observation) executed through Composio's proxy_execute under the connection's OWN credential — never extracted, never echoed, never committed"
+    },
+    "composioLane": {
+      "proxySessionId": "trs_2hvARcaug_Dt",
+      "connectionId": "ca_31iruA2qEdfl",
+      "userProbeLogin": "ekonplacide-5312"
+    },
+    "deploymentCreation": "POST /v13/deployments through the proxy (the tracked tree's file manifest — by-ref digest entries for the content-identical files + inline base64 for this sha's changed files; the full manifest: deploy-files-manifest.json in THIS dir)"
+  },
+  "deploy": {
+    "command": "POST /v13/deployments through the composio proxy (the tracked tree's manifest at 5424a84e — the same deployment creation the CLI performs; the direct-token CLI lane refused: token typed-dead)",
+    "repoState": {
+      "HEAD": "a4ebb653d2b7f630c5e4873b499ae796b90550a6",
+      "originMain": "5424a84e089db3b96b5f489b3e11f2ed66a56dec",
+      "note": "the deployed source is exactly the tracked tree at the artifact-ingest merge (.vercelignore excludes scripts/ docs/ tests/ — the evidence dirs ride outside the upload)"
+    },
+    "outcome": "REFUSED",
+    "refusal": {
+      "refusalClass": "api-deployments-free-per-day",
+      "detail": "the deployment creation (POST /v13/deployments through the composio lane) exited 1 after 2339ms",
+      "verbatimOutputTail": "POST /v13/deployments → HTTP 402\n{\"error\":{\"code\":\"payment_required\",\"message\":\"Resource is limited - try again in 24 hours (more than 100, code: \\\"api-deployments-free-per-day\\\").\",\"limit\":{\"total\":100,\"remaining\":0,\"reset\":1791253483018},\"resource\":\"api-deployments-free-per-day\"}}"
+    }
+  },
+  "baselineMeasured": {
+    "when": "pre-deploy, from THIS machine (the first invocation)",
+    "productionAlias": "https://sporta-flame.vercel.app",
+    "rootHttpStatusCode": 200,
+    "apiPlatformHealthHttpStatusCode": 500,
+    "apiPlatformHealthBody": "",
+    "note": "the r306-encode-seam-deploy-1 deployment serving production with its baked worker URLs dead (the r306-hosted-golden-path flight's sandbox long timed out) — the composition's fail-loud boot-time compute-worker descriptor fetch failing → the health route 500 with an empty body (the documented 62-c incident class); THIS is the incident this flight's deployment closes"
+  },
+  "productionMeasured": null,
+  "ephemeralityDoctrine": {
+    "measuredLive": "the baked URLs are EPHEMERAL: the sandbox dies at its timeout and the incident class (a baked ephemeral URL) re-manifests on its death — the r607 flight measured it twice and the r306 arc measured it again (the r306-hosted-golden-path flight's sandbox death class), and THIS flight's pre-deploy baseline measured the current manifestation (the r306-encode-seam-deploy-1 deployment 500ing on production with its dead baked URLs)",
+    "sandbox": {
+      "sandboxId": "iuspg21vqeg256a94osir",
+      "startedAtIso": "2026-10-05T01:34:16.434Z",
+      "keepAliveMs": 7200000,
+      "lastReExtendedAtIso": "2026-10-05T01:37:30.307Z",
+      "lifecycleOnTimeout": "kill",
+      "mediaWorkerUrlLiveAtRecordWrite": 200,
+      "computeWorkerUrlLiveAtRecordWrite": 200,
+      "note": "the keep-alive is 2 h from the LAST orchestration invocation (re-extended by this flight's keep-alive re-run + boot-compute-worker.ts); at the timeout the sandbox dies, both public worker URLs answer the E2B proxy's 502 'The sandbox was not found', and the boot-time compute descriptor fetch fails → the 500 class returns to whatever deployment still bakes this URL"
+    },
+    "theHonestPosture": "every record in this tree states which sandbox/deployment it measured; a dead worker URL is a typed refusal at the composition, never a laundered availability; the re-runnable procedure (commands.md) re-executes the whole chain against a fresh sandbox in ~30 minutes",
+    "theOperatorDecision": "a PERSISTENT worker host (a long-lived deployment) is the production posture's closure — named in the status row, never improvised by a worker"
+  },
+  "credentialsDiscipline": "VERCEL_TOKEN + E2B_API_KEY + COMPOSIO_API_KEY env-only (/home/z/.sporta-env; never echoed in full, never committed; the record carries no secrets — the direct token's refusal body is redacted before recording; the composio lane's credential lives inside the connection, never extracted; the tree is scanned for the vcp_/e2b_/composio-key prefixes)"
+}

@@ -335,11 +335,33 @@ if (SANDBOX_ID === "(no-sandbox-id)") {
   process.exit(1);
 }
 log("repo", `HEAD ${head.slice(0, 12)} / origin/main ${originMain.slice(0, 12)} / sandbox ${SANDBOX_ID}`);
-if (head !== DEPLOY_SHA || originMain !== DEPLOY_SHA) {
+// origin/main MUST be the pinned ingest-seam merge (fail-closed, no exceptions).
+// HEAD may sit on a flight branch whose commits touch ONLY paths the upload
+// never carries (.vercelignore excludes scripts/ docs/ tests/): the manifest
+// is enumerated from DEPLOY_SHA's OWN tree, so a branch like that deploys
+// byte-identical content to the pinned merge. Any HEAD change visible to the
+// upload set stays FATAL.
+if (originMain !== DEPLOY_SHA) {
   console.error(
-    `FATAL: the repo is not at the artifact-ingest merge (HEAD ${head} / origin/main ${originMain} — expected ${DEPLOY_SHA})`,
+    `FATAL: origin/main is not the artifact-ingest merge (${originMain} — expected ${DEPLOY_SHA})`,
   );
   process.exit(1);
+}
+if (head !== DEPLOY_SHA) {
+  const changedVsMain = git(`diff --name-only ${DEPLOY_SHA} ${head}`).split("\n").filter(Boolean);
+  const uploadVisible = changedVsMain.filter(
+    (p) => !p.startsWith("scripts/") && !p.startsWith("docs/") && !p.startsWith("tests/"),
+  );
+  if (uploadVisible.length > 0 || changedVsMain.length === 0) {
+    console.error(
+      `FATAL: HEAD ${head} is not the artifact-ingest merge and carries upload-visible changes vs ${DEPLOY_SHA} (${uploadVisible.slice(0, 5).join(", ")})`,
+    );
+    process.exit(1);
+  }
+  log(
+    "repo",
+    `HEAD ${head.slice(0, 12)} is a flight branch (evidence-only changes vs ${DEPLOY_SHA.slice(0, 8)} — the upload set is the pinned tree's, byte-identical)`,
+  );
 }
 // The tracked tree must be clean OUTSIDE the .vercelignore'd scripts/ paths
 // (the deployed source is exactly the tracked tree at DEPLOY_SHA — scripts/,
@@ -786,6 +808,20 @@ if (!reverify) {
     );
 
     const commitSubject = git(`log -1 --format=%s ${DEPLOY_SHA}`);
+    // The build-layout lesson (measured, dpl_8kLxtHfiEcsnuRxwHxwK5Mun6ToX vs the
+    // original dpl_Dgtf629qRgTWEZv6i1DmwCdQmrkt): with NO deployment-level
+    // rootDirectory the build inherits the PROJECT's apps/web as its working
+    // root — the install then runs on apps/web's package.json ALONE (the
+    // build container's /vercel/path1 carries the rootDirectory subtree
+    // without the workspace parent) and bun 1.3.14 refuses the workspace:*
+    // deps ("Workspace dependency @sporta/asr not found, Searched in ./*").
+    // The CLI-shaped deployments (source: cli, from the repo root) carry the
+    // deployment root AS the build root — bun install at the repo root (the
+    // .vercelignore's own documented posture: "bun install at the repo root
+    // and next build in apps/web"). THIS body mirrors that: rootDirectory ""
+    // = the deployment's own root (the uploaded tree's root — the workspace
+    // root), nodeVersion left UNSET (the original's deployment carried none;
+    // the project's own 24.x applies).
     const baseDeploymentBody = {
       name: PROJECT,
       target: "production",
@@ -794,9 +830,14 @@ if (!reverify) {
         devCommand: null,
         framework: "nextjs",
         commandForIgnoringBuildStep: null,
-        installCommand: "bun install",
+        // DIAGNOSTIC ATTEMPT 2: the install command prints the build
+        // container's actual layout (pwd + /vercel/* listings) into the
+        // build events BEFORE the install — the typed ground truth for the
+        // workspace-root visibility question. The `bun install` still runs
+        // after the listings (the build outcome stays the honest arbiter).
+        installCommand:
+          "pwd && ls -la /vercel/ && (ls /vercel/path0 2>/dev/null | head -25 || echo NO_PATH0) && (ls /vercel/path1 2>/dev/null | head -25 || echo NO_PATH1) && bun install",
         outputDirectory: null,
-        nodeVersion: "24.x",
       },
       meta: {
         githubCommitAuthorName: git(`log -1 --format=%an ${DEPLOY_SHA}`),
