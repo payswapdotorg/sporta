@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "kind": "r606-visual-gate-prep",
+  "ts": "2026-10-05T20:36:25.909Z",
+  "provenance": {
+    "note": "The R606 gate's preparation: the four realities rendered LOCALLY through the REAL pipeline (the golden-path battery's own walk shape — the same composition, the same pitch-scene clip, the same in-process compute with REAL local ffmpeg; the hosted plane's 4/4 closure is measured separately at scripts/evidence/r306-hosted-reflight/). The GATE itself is the operator's eyes; this record is the prep's own honest state.",
+    "clip": {
+      "scene": "pitch",
+      "durationSeconds": 2,
+      "generator": "generateTestMp4 (REAL ffmpeg, no committed fixture)"
+    },
+    "clipBytes": 38307,
+    "clipSha256": "7818f8eeab19bc10e9d5451a94cab8c80385add8e5f0a11d778c44d3b2c0ceb9"
+  },
+  "walk": {
+    "providerId": "sporta.compute.hosted",
+    "register": {
+      "http": 200,
+      "username": "r606-gate-muvpmt55"
+    },
+    "upload": {
+      "http": 201,
+      "sessionId": "sess-u-f658f37ae093459c00f437512f60adfc",
+      "mediaJobId": "mjob-274a9766ff6ef49b39260e32610e4ba4",
+      "perceptionFrameCount": 48
+    },
+    "mediaJob": {
+      "terminalState": "succeeded"
+    },
+    "renderDispatches": [
+      {
+        "rendererId": "anime.prototype",
+        "styleId": "golden-path",
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-1",
+        "http": 202,
+        "admitted": true
+      },
+      {
+        "rendererId": "tactical.prototype",
+        "styleId": "golden-path-derived",
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-2",
+        "http": 202,
+        "admitted": true
+      },
+      {
+        "rendererId": "game-3d.prototype",
+        "styleId": "golden-path-derived",
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-3",
+        "http": 202,
+        "admitted": true
+      },
+      {
+        "rendererId": "anime-npr.prototype",
+        "styleId": "golden-path-derived",
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-4",
+        "http": 202,
+        "admitted": true
+      }
+    ],
+    "jobTerminals": [
+      {
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-1",
+        "state": "succeeded",
+        "outputs": 1
+      },
+      {
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-2",
+        "state": "succeeded",
+        "outputs": 1
+      },
+      {
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-3",
+        "state": "succeeded",
+        "outputs": 1
+      },
+      {
+        "jobId": "render-job-sess-u-f658f37ae093459c00f437512f60adfc-4",
+        "state": "succeeded",
+        "outputs": 1
+      }
+    ],
+    "watch": {
+      "http": 200,
+      "playbackState": "authorized"
+    }
+  },
+  "outputs": [
+    {
+      "kind": "original",
+      "artifactId": "art-61c28ea0b5d9cb53e667c8d0e6b1018b",
+      "byteSize": 38331,
+      "sha256": "fd202292b74735ff854269de3fb1c6b92f059f142d1dc010c8800514b9f3fcd3",
+      "http": 200,
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "savedPath": "/home/z/my-project/public/r606/original.mp4"
+    },
+    {
+      "kind": "tactical",
+      "artifactId": "tactical-f5f7e26c",
+      "byteSize": 15297,
+      "sha256": "e1f28067089809c3a89f7eb280d6edee2a9e1f7935f8038c645e554f72e6b7c3",
+      "http": 200,
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "savedPath": "/home/z/my-project/public/r606/tactical.mp4"
+    },
+    {
+      "kind": "three-d-game",
+      "artifactId": "mp4-77e1f9c7a301ba84",
+      "byteSize": 288485,
+      "sha256": "77e1f9c7a301ba8419f7c01036a7936c9f969a1bcebd0661e759ea51de7a4b6b",
+      "http": 200,
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "savedPath": "/home/z/my-project/public/r606/three-d-game.mp4"
+    },
+    {
+      "kind": "anime-npr",
+      "artifactId": "mp4-05835206aeb99fbe",
+      "byteSize": 503707,
+      "sha256": "05835206aeb99fbe363787f9b4c5fd9dadd0458adabf32674d19c5f5be2d2b0e",
+      "http": 200,
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "savedPath": "/home/z/my-project/public/r606/anime-npr.mp4"
+    }
+  ]
+}
