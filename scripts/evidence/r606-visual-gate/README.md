@@ -1,5 +1,68 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE 2D-BOARD RE-PREP (the genre-composition + clarity + ball-trajectory fix — the RE-RE-RE-RE-VERDICT PERFORMABLE)
+
+The fix the re-re-re-verdict directed (its three grounds: "tactical: still not
+showing a 2D field with players moving on it" / "3d game: needs a little more
+clarity" / "anime-npr: needs a little more clarity, the ball stays between the
+player's feet after he took his shot") — the reported-to-work classes, copied
+and adapted (the operator's directive, carried since verdict 1):
+
+1. **The copied class (the tactical)**: the broadcast tactical-cam / analytics
+   2D-match-view (Hudl Wyscout's tactical-angle views; the Football Manager
+   2D-match-engine lineage) — a DETERMINISTIC top-down board rendered from the
+   source's own tracked player/ball positions (VLM roster keyframes + the
+   dedicated per-frame fine ball pass + an ANCHORED camera solve: the
+   goal-mouth world constancy, the ball's net endpoint, the GK at his post,
+   the shooter in front of the goal — the pure-translation and free-polynomial
+   variants were MEASURED wrong and honestly refused). "A 2D field with players
+   moving on it" is true BY CONSTRUCTION, never generatively re-imagined.
+2. **The copied class (the clarity)**: the standard video restoration order —
+   denoise then unsharp (fastNlMeans h=4 + unsharp sigma 1.4), A/B VLM-gated:
+   anime ships MILD (amount 0.7 — the strong measured crunchy on the line art
+   and refused), 3d ships STRONG (1.2 — "looks like a higher-resolution
+   render"). Measured: anime edge strength 37.5 → 49.1, 3d 28.7 → 40.8.
+3. **The copied class (the anime ball)**: the tracked-asset cut-and-paste —
+   the video's OWN patterned ball disc cut from the verified stuck/teleported
+   positions (Hough CIRCLE-ON-BALL + crop-verified) and pasted along the
+   source's own fine-pass flight f052-f064; the vacated sites filled with
+   mid-tone annulus grass with the PITCH LINES redrawn from the originals'
+   fitted lines (the v1 TELEA smear, v2 bright-fill, v3 dark-median, v4
+   donor-clone were each crop-measured and refused — the line-preserving v5
+   passed CLEAN at full-frame/operator scale).
+4. **The measured design gate, BEFORE freezing**: flicker 0.00 (board) /
+   4.38 (3d) / 1.84 (anime) vs the original's 1.40 band — the retired
+   temporal ground HELD (no regression vs the reprep3 numbers); the strict
+   merged-crop ball-count MAX: 1 (the full-frame VLM pass double-counted the
+   same ball across split crops — disproven by merged-crop checks, honestly
+   typed); the ball trajectory crop-verified LEAVING the shooter at the
+   strike and ending in the net; the six-question board check 6/6; the
+   five-question overall check all YES.
+5. **The verifier driver** (`visual-gate-reprep4.ts`): the four MP4s
+   re-hashed + the `ftyp` magic + durations re-probed + the ORIGINAL verified
+   byte-identical to the researched source + the render record's claims
+   cross-checked against the bytes on disk. The record:
+   `visual-gate-reprep4.json`; the lane's own record `render-record.json` +
+   `board-tracks.json` ride in the out dir.
+
+The run (2026-10-06): original 3 371 473 B (the source's own bytes) /
+tactical 104 549 B / three-d-game 4 347 159 B / anime-npr 5 089 234 B — each
+65 frames, 8 fps, 1280×720. The exports + manifest: `public/r606-reprep4/`
+(outside the repo, the no-committed-media doctrine). The operator's move:
+watch the four and answer the gate — the RE-RE-RE-RE-VERDICT is the
+operator's, never a worker's.
+
+## THE RE-RE-RE-VERDICT (the operator's, 2026-10-06 — the gate REFUSED a fourth time: GENRE-COMPOSITION + CLARITY + BALL-TRAJECTORY; the temporal ground RETIRED)
+
+The operator watched the temporally-coherent re-prep's four (the flow-guided
+propagations) and answered in the chat (typed verbatim, verdict-reprep3.json):
+"tactical: still not showing a 2D field with players moving on it" / "3d game:
+needs a little more clarity" / "anime-npr: needs a little more clarity, the
+ball stays between the player's feet after he took his shot". The
+temporal-consistency ground is RETIRED (no flicker, no flipping, no
+duplicated balls re-raised — the flow-guided lane WORKED, honestly typed);
+criterion 1 stands PASS (artifact-level observations, not identity-level).
+
 ## THE TEMPORALLY-COHERENT RE-PREP (the temporal-consistency fix — the RE-RE-RE-VERDICT PERFORMABLE)
 
 The fix the re-re-verdict directed: **flow-guided temporal coherence** — the

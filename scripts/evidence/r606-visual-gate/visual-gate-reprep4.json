@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "kind": "r606-visual-gate-reprep4",
+  "ts": "2026-10-06T15:10:14.902Z",
+  "context": {
+    "reReReVerdict": "scripts/evidence/r606-visual-gate/verdict-reprep3.json (criterion 1 PASS / the temporal ground RETIRED / criterion 2 FAIL on genre-composition + clarity + ball-trajectory — the gate REFUSED a fourth time)",
+    "directive": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them (the operator's, carried verbatim since verdict 1)",
+    "lane": "the 2D-BOARD RE-PREP — the broadcast tactical-cam / analytics 2D-match-view class (a DETERMINISTIC top-down board from the source's own tracked positions) for the tactical kind + the standard denoise→unsharp restoration for the 3d/anime clarity + the tracked-asset cut-and-paste for the anime ball's true trajectory — design-gated by MEASUREMENT before freezing",
+    "path": "the VIDEO-STYLIZATION path (the operator's copy-and-adapt) — NOT the state-driven reality engine's own real-footage path (the product-scale CAP lane)"
+  },
+  "provenance": {
+    "note": "The R606 2D-board re-prep: the SAME real goal clip as the original; the tactical kind now a TRUE top-down 2D board with the players moving on it (the genre's promise BY CONSTRUCTION — the deterministic render of the source's own tracked positions, never generatively re-imagined); the 3d and anime kinds the reprep3 propagations (the operator's temporal fix that HELD — this verdict retired the ground) now restored for clarity; the anime ball moved onto the source's own fine-pass flight. The GATE itself is the operator's eyes; this record is the re-prep's own honest state.",
+    "source": {
+      "title": "Goal play in a semi-professional soccer game (Mixkit 43499)",
+      "url": "https://assets.mixkit.co/videos/43499/43499-720.mp4",
+      "license": "Mixkit License (free, no attribution; https://mixkit.co/license/#videoFree)",
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "acquired": "the first re-prep's verified download (byte-identical, re-verified by this driver)"
+    },
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+    },
+    "render": {
+      "lane": "the broadcast tactical-cam / analytics 2D-match-view class for the tactical kind (a DETERMINISTIC top-down board render driven by the source's own tracked player/ball positions — the genre's promise BY CONSTRUCTION, never generatively re-imagined) + the standard denoise-then-unsharp restoration order for the clarity grounds + the tracked-asset cut-and-paste for the anime ball's true trajectory (the video's own ball asset moved along the source's own fine-pass flight)",
+      "citations": [
+        "Hudl Wyscout tactical-angle video analysis (support.hudl.com — 'Watch Tactical Angle Videos' through the Wyscout player: the broadcast tactical analysis view class)",
+        "the Football Manager 2D match-engine lineage (community.sports-interactive.com — the 2D match view, player markers moving on an overhead pitch: the reported-to-work class since the 2000s; 'Football Club Sim 27 — a 2D match engine with real positioning')",
+        "the reprep3 lane's own flow-guided citations (Fast Coherent Video Style Transfer via Flow Errors Reduction, MDPI / Coherent Online Video Style Transfer, IEEE / the Lai et al. blind-temporal-consistency class / EbSynth) — the temporal coherence the 3d/anime kinds inherit as their base",
+        "the standard video restoration order (denoise then unsharp — the classic detail-restoration chain; the A/B VLM gate froze anime=mild 0.7, 3d=strong 1.2)"
+      ],
+      "implementation": "(1) THE BOARD: VLM roster keyframes every 4 frames (17 keyframes, batch-1's pixel-format corruption re-run clean) + the dedicated per-frame fine ball pass f050-f064 + a top-band LK/RANSAC camera path, all fused by an ANCHORED solve (scipy least_squares: a shear-affine world model world=A@frame+cam(t) constrained by the goal-mouth world constancy, the ball's net endpoint, the GK at his post, the shooter ending in front of the goal, the ball never past the line pre-shot) — the pure-translation v1 and free-poly v2 were measured (world span 37-1743, the ball past the goal pre-shot) and honestly refused; outlier pass + PCHIP + MA(5) densify to 65 frames; deterministic OpenCV render (mow-stripe pitch, penalty box, goal net box, numbered markers, ball trail, GOAL pulse) + ffmpeg x264 8fps. (2) THE CLARITY: fastNlMeansDenoisingColored(h=4) + unsharp(sigma 1.4, amount 0.7 anime / 1.2 3d) on every frame of the propagated outputs — A/B VLM-gated (the anime strong measured crunchy and refused). (3) THE BALL: per-frame cut-and-paste f052-f064 — the anime's own patterned ball disc cut from the verified stuck/teleported positions (Hough CIRCLE-ON-BALL + crop-verified), pasted at the source's tracked flight positions; the vacated sites filled with mid-tone annulus grass + the pitch lines REDRAWN from the originals' fitted lines (the v1 TELEA smear, the v2 bright-fill, the v3 dark-median, the v4 donor-clone were each measured at crop level and refused — the line-preserving v5 passed CLEAN at full-frame scale).",
+      "designGate": {
+        "method": "check BEFORE freezing, never after: the flicker metric (region y420-620 x540-740, mean |luminance jump| per frame), the strict VLM ball-count at MERGED-CROP level (the full-frame pass double-counted the same ball across split crops — disproven by merged-crop checks, honestly typed), the crop-verified ball-trajectory checks (true positions + vacated sites + lines), the six-question board check, the A/B clarity gate, the five-question overall check",
+        "flickerBefore": {
+          "tactical": 4.75,
+          "three-d-game": 4.43,
+          "anime-npr": 1.85
+        },
+        "flickerAfter": {
+          "tactical": 0,
+          "three-d-game": 4.38,
+          "anime-npr": 1.84
+        },
+        "originalBand": 1.4,
+        "ballCheck": "the merged-crop strict count across the shot window (c053/c055 wide crops + the c053/c055 quadrant battery + the c058/c061/c064 true-position/vacated-site pairs): every frame exactly ONE patterned ball — MAX: 1 (the full-frame VLM count reported 2 at c053/c055 and 0 at the net frames — both disproven at crop level: the split-crop boundary double-counted the same ball, and the net-area ball is small at full-frame scale but crop-verified PRESENT)",
+        "ballTrajectory": "the anime ball now LEAVES the shooter at the strike (f052) and follows the source's own fine-pass flight to the net (f062-64): crop-verified at the true positions 3/3 BALL-PRESENT + CLEAN; the vacated feet sites CLEAN with the pitch lines redrawn continuous (v7 full-frame check: 3/3 CLEAN); the teleported-goal ball also moved to the true net position",
+        "boardCheck": "the six-question VLM check on spread board frames (b001/b013/b025/b041/b053/b064): (1) a 2D top-down pitch with field lines YES (2) player markers whose positions change across frames YES (3) a white ball marker YES (4) the ball travels to the right-side goal and ends in the net YES (5) the overall animation reads as an attacking play ending in a goal YES (6) no visual defects YES — 6/6",
+        "boardMotion": {
+          "shooter": "943px total travel (mean 14.7 px/frame)",
+          "blueA": "1160px (18.1)",
+          "blueB": "584px (9.1)",
+          "other": "756px (11.8)",
+          "gk": "225px (3.5)",
+          "ball": "680px (10.6)"
+        },
+        "clarity": {
+          "animeEdge": [
+            37.5,
+            49.1
+          ],
+          "animeLapvar": [
+            484,
+            1145.9
+          ],
+          "3dEdge": [
+            28.7,
+            40.8
+          ],
+          "3dLapvar": [
+            232.2,
+            796.4
+          ],
+          "abVerdict": "A/B VLM: anime ships MILD (the strong measured crunchy edges on the line art — refused); 3d ships STRONG ('looks like a higher-resolution render, minimal to no artifacts')"
+        },
+        "overallVerdict": "A) YES, the same goal-play event (dribble, shot, goal) is identifiable across all ten spread frames. B) YES, images 1-3 are a 2D overhead pitch with numbered circular markers for players and a dot for the ball. C) YES, images 4-6 are a clean 3D game-engine render style. D) YES, images 7-10 are hand-drawn anime with the ball flying into the net after the shot. E) YES, each version keeps a consistent style without mixing."
+      },
+      "renderRecord": "the lane's own render-record.json (carried in the out dir)"
+    }
+  },
+  "outputs": [
+    {
+      "kind": "original",
+      "byteSize": 3371473,
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none (the real clip's own bytes, as-is — byte-identical to the researched source, re-verified)",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep4/original.mp4"
+    },
+    {
+      "kind": "tactical",
+      "byteSize": 104549,
+      "sha256": "2ac7e23014e0963dc63f1112120848a6765c51d0069b803ce0a628d8b76ec06c",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "deterministic 2D top-down board render from the source's own tracked player/ball positions (the broadcast tactical-cam / 2D-match-view class) + ffmpeg assembly",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep4/tactical.mp4"
+    },
+    {
+      "kind": "three-d-game",
+      "byteSize": 4347159,
+      "sha256": "3099faa3aa9898c90ae63fc08a0e97fb310a3ca8aff90f03099df3ea50442df0",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "the reprep3 temporally-coherent propagation + the denoise→unsharp clarity restoration (strong, A/B-gated) + ffmpeg re-assembly",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep4/three-d-game.mp4"
+    },
+    {
+      "kind": "anime-npr",
+      "byteSize": 5089234,
+      "sha256": "a4a498c9af63477e7fb15a4dc96ed4f8c92f1e95d2538772efa7d6c7c850b6b1",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "the reprep3 temporally-coherent propagation + the denoise→unsharp clarity restoration (mild, A/B-gated) + the tracked-asset ball cut-and-paste onto the source's own fine-pass flight (the vacated sites grass-filled, the pitch lines redrawn) + ffmpeg re-assembly",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep4/anime-npr.mp4"
+    }
+  ]
+}

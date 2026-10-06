@@ -76,6 +76,8 @@ const reprep2Arg = argValue("--reprep2");
 const reprep2OutArg = argValue("--reprep2-out");
 const reprep3Arg = argValue("--reprep3");
 const reprep3OutArg = argValue("--reprep3-out");
+const reprep4Arg = argValue("--reprep4");
+const reprep4OutArg = argValue("--reprep4-out");
 const here = dirname(new URL(import.meta.url).pathname);
 const recordPath = recordArg ?? join(here, "visual-gate-prep.json");
 const verdictPath = verdictArg ?? join(here, "verdict.json");
@@ -85,6 +87,7 @@ const rerereverdictPath = rerereverdictArg ?? join(here, "verdict-reprep3.json")
 const reprepPath = reprepArg ?? join(here, "visual-gate-reprep.json");
 const reprep2Path = reprep2Arg ?? join(here, "visual-gate-reprep2.json");
 const reprep3Path = reprep3Arg ?? join(here, "visual-gate-reprep3.json");
+const reprep4Path = reprep4Arg ?? join(here, "visual-gate-reprep4.json");
 const SOURCE_SHA_EXPECTED = "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d";
 
 type Output = {
@@ -674,6 +677,156 @@ async function checkReprep3Files(reprep3: Reprep3Record, dir: string): Promise<v
   }
 }
 
+// The 2D-BOARD RE-PREP record (visual-gate-reprep4.json — the re-re-re-verdict's
+// genre-composition + clarity + ball-trajectory fix).
+type Reprep4Record = {
+  kind?: string;
+  context?: Record<string, string>;
+  outputs?: ReprepOutput[];
+  provenance?: {
+    source?: { sha256?: string };
+    toolchain?: { version?: string };
+    render?: {
+      citations?: string[];
+      implementation?: string;
+      designGate?: {
+        flickerBefore?: Record<string, number>;
+        flickerAfter?: Record<string, number>;
+        ballCheck?: string;
+        ballTrajectory?: string;
+        boardCheck?: string;
+        boardMotion?: Record<string, string>;
+        clarity?: { animeEdge?: number[]; "3dEdge"?: number[]; abVerdict?: string };
+        overallVerdict?: string;
+      };
+    };
+  };
+};
+
+function checkReprep4(reprep4: Reprep4Record, label: string): void {
+  if (reprep4.kind !== "r606-visual-gate-reprep4") {
+    fail("reprep4-kind", `${label}: ${reprep4.kind}`);
+  }
+  if (
+    !reprep4.context?.reReReVerdict ||
+    !reprep4.context.directive ||
+    !reprep4.context.lane ||
+    !reprep4.context.path
+  ) {
+    fail("reprep4-context", `${label}: the re-re-re-verdict + directive + lane + path must be carried`);
+  }
+  const outputs = reprep4.outputs;
+  if (!Array.isArray(outputs) || outputs.length !== 4) {
+    fail("reprep4-outputs", `${label}: ${outputs?.length ?? 0} outputs (expected 4)`);
+  }
+  const kinds = new Set(outputs.map((output) => output.kind));
+  const expected = new Set(["original", "tactical", "three-d-game", "anime-npr"]);
+  if (kinds.size !== 4 || [...kinds].some((kind) => !expected.has(kind ?? ""))) {
+    fail("reprep4-kinds", `${label}: ${[...kinds].join(", ")}`);
+  }
+  for (const output of outputs) {
+    if (output.integrityVerified !== true) {
+      fail("reprep4-integrity", `${label}: ${output.kind} not integrity-verified`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(output.sha256 ?? "")) {
+      fail("reprep4-sha-shape", `${label}: ${output.kind} sha not 64-hex`);
+    }
+    if (!(output.byteSize! > 0)) {
+      fail("reprep4-byte-size", `${label}: ${output.kind} ${output.byteSize}`);
+    }
+    if (output.containerMagic !== "ftyp") {
+      fail("reprep4-magic", `${label}: ${output.kind} ${output.containerMagic}`);
+    }
+  }
+  const original = outputs.find((output) => output.kind === "original");
+  if (original?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail(
+      "reprep4-original-source",
+      `${label}: the original must be byte-identical to the researched source (${original?.sha256?.slice(0, 16)}…)`,
+    );
+  }
+  if (reprep4.provenance?.source?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail("reprep4-source-sha", `${label}: the provenance source sha must be the researched source's`);
+  }
+  const render = reprep4.provenance?.render;
+  if (!Array.isArray(render?.citations) || render!.citations!.length < 3) {
+    fail("reprep4-citations", `${label}: the copied-and-adapted reported-to-work sources must be cited (≥3)`);
+  }
+  if (typeof render?.implementation !== "string" || render.implementation.length < 100) {
+    fail("reprep4-implementation", `${label}: the render implementation record must be carried`);
+  }
+  const designGate = render?.designGate;
+  const before = designGate?.flickerBefore ?? {};
+  const after = designGate?.flickerAfter ?? {};
+  for (const kind of ["tactical", "three-d-game", "anime-npr"]) {
+    if (!((before[kind] ?? 0) > 0) || !((after[kind] ?? 0) >= 0)) {
+      fail("reprep4-flicker", `${label}: the ${kind} flicker before/after must both be carried`);
+    }
+    if (after[kind]! > before[kind]! * 1.05) {
+      fail(
+        "reprep4-flicker-no-regression",
+        `${label}: the ${kind} flicker after (${after[kind]}) must not regress past the before (${before[kind]}) — the retired temporal ground must hold`,
+      );
+    }
+  }
+  if ((after["tactical"] ?? 1) > 1.0) {
+    fail("reprep4-board-flicker", `${label}: the board's static background must measure ~zero flicker`);
+  }
+  if (!designGate?.ballCheck?.includes("MAX: 1")) {
+    fail("reprep4-ball-check", `${label}: the strict merged-crop ball-count verdict must be carried (MAX: 1)`);
+  }
+  if (!designGate?.ballTrajectory?.includes("LEAVES the shooter")) {
+    fail("reprep4-ball-trajectory", `${label}: the ball-trajectory restoration verdict must be carried (leaves the shooter, ends in the net)`);
+  }
+  if (!designGate?.boardCheck?.includes("6/6")) {
+    fail("reprep4-board-check", `${label}: the six-question board verdict must be carried (6/6 — a 2D field with players moving on it)`);
+  }
+  const motion = designGate?.boardMotion ?? {};
+  for (const name of ["shooter", "blueA", "blueB", "other", "gk", "ball"]) {
+    if (typeof motion[name] !== "string" || !motion[name]!.includes("px")) {
+      fail("reprep4-board-motion", `${label}: the board motion must be quantified for ${name} (the 'players moving' criterion)`);
+    }
+  }
+  const clarity = designGate?.clarity;
+  const animeEdge = clarity?.animeEdge ?? [];
+  const d3Edge = clarity?.["3dEdge"] ?? [];
+  if (animeEdge.length !== 2 || d3Edge.length !== 2) {
+    fail("reprep4-clarity", `${label}: the clarity edge metrics must be carried before/after for both kinds`);
+  }
+  if (animeEdge[1]! <= animeEdge[0]! * 1.15 || d3Edge[1]! <= d3Edge[0]! * 1.15) {
+    fail(
+      "reprep4-clarity-gain",
+      `${label}: the clarity must measurably improve (anime ${animeEdge.join("→")}, 3d ${d3Edge.join("→")} — ≥ +15%)`,
+    );
+  }
+  const overall = designGate?.overallVerdict ?? "";
+  for (const marker of ["A) YES", "B) YES", "C) YES", "D) YES", "E) YES"]) {
+    if (!overall.includes(marker)) {
+      fail("reprep4-overall", `${label}: the five-question verdict must be carried (${marker} missing)`);
+    }
+  }
+  if (!reprep4.provenance?.toolchain?.version) {
+    fail("reprep4-toolchain", `${label}: the ffmpeg toolchain version must be measured`);
+  }
+}
+
+async function checkReprep4Files(reprep4: Reprep4Record, dir: string): Promise<void> {
+  for (const output of reprep4.outputs ?? []) {
+    const path = join(dir, `${output.kind}.mp4`);
+    if (!existsSync(path)) {
+      fail("reprep4-file-present", `${output.kind}: ${path} absent`);
+    }
+    const bytes = new Uint8Array(await readFile(path));
+    if (bytes.byteLength !== output.byteSize) {
+      fail("reprep4-file-size", `${output.kind}: ${bytes.byteLength} != ${output.byteSize}`);
+    }
+    const reHashed = sha256OfBytes(bytes);
+    if (reHashed !== output.sha256) {
+      fail("reprep4-file-sha", `${output.kind}: ${reHashed.slice(0, 16)}… != ${output.sha256?.slice(0, 16)}…`);
+    }
+  }
+}
+
 if (battery) {
   // The negative battery: a tampered copy (one sha flipped to another VALID
   // hex char — the shape check alone cannot catch it; the re-hash
@@ -895,6 +1048,44 @@ if (battery) {
         "battery: the LAUNDERED temporal-coherence record REFUSED (child exit 1) — a failed fix can never pass as passing",
       );
     }
+    if (existsSync(reprep4Path) && reprep4OutArg !== undefined) {
+      const realReprep4 = JSON.parse(await readFile(reprep4Path, "utf8")) as Reprep4Record;
+      const tamperedReprep4: Reprep4Record = JSON.parse(JSON.stringify(realReprep4));
+      const gate = tamperedReprep4.provenance?.render?.designGate;
+      if (gate?.flickerAfter && gate.flickerAfter["anime-npr"] !== undefined) {
+        // the laundering: the anime's after-flicker inflated ABOVE the
+        // no-regression bar — the retired temporal ground dressed as HELD
+        // when the record would show it regressed — a failed fix dressed as
+        // a passing one
+        gate.flickerAfter["anime-npr"] = (gate.flickerBefore?.["anime-npr"] ?? 9.72) + 1;
+      }
+      const tamperedReprep4Path = join(scratch, "tampered-reprep4.json");
+      await writeFile(tamperedReprep4Path, JSON.stringify(tamperedReprep4), "utf8");
+      const reprep4Child = spawnSync(
+        process.execPath,
+        [
+          join(here, "validate-evidence.ts"),
+          "--record",
+          recordPath,
+          "--out",
+          outDir,
+          "--reprep4",
+          tamperedReprep4Path,
+          "--reprep4-out",
+          reprep4OutArg,
+        ],
+        { encoding: "utf8", timeout: 30000 },
+      );
+      if (reprep4Child.status === null || reprep4Child.status === 0) {
+        console.error(
+          `REFUSED [battery-reprep4]: the LAUNDERED 2D-board record (the after-flicker inflated past the no-regression bar — a failed fix dressed as passing) was ACCEPTED (child exit ${reprep4Child.status}) — the validator is broken`,
+        );
+        process.exit(1);
+      }
+      console.log(
+        "battery: the LAUNDERED 2D-board record REFUSED (child exit 1) — a regressed flicker can never pass as held",
+      );
+    }
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
@@ -941,6 +1132,22 @@ if (battery) {
       reprep3Note = " + the TEMPORALLY-COHERENT re-prep's shape (no --reprep3-out given — its files not re-checked)";
     }
   }
+  let reprep4Note = "";
+  if (existsSync(reprep4Path)) {
+    let reprep4: Reprep4Record;
+    try {
+      reprep4 = JSON.parse(await readFile(reprep4Path, "utf8")) as Reprep4Record;
+    } catch (error) {
+      fail("reprep4-parse", String(error));
+    }
+    checkReprep4(reprep4, "reprep4");
+    if (reprep4OutArg !== undefined) {
+      await checkReprep4Files(reprep4, reprep4OutArg);
+      reprep4Note = " + the 2D-BOARD re-prep's shape + its 4 exported files re-hashed";
+    } else {
+      reprep4Note = " + the 2D-BOARD re-prep's shape (no --reprep4-out given — its files not re-checked)";
+    }
+  }
   let reprepNote = "";
   if (existsSync(reprepPath)) {
     let reprep: ReprepRecord;
@@ -960,11 +1167,11 @@ if (battery) {
   if (outDir !== undefined) {
     await checkFiles(record, outDir);
     console.log(
-      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${rerereverdict ? " + the re-re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}`,
+      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${rerereverdict ? " + the re-re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}${reprep4Note}`,
     );
   } else {
     console.log(
-      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${rerereverdict ? " + the re-re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}`,
+      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${rerereverdict ? " + the re-re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}${reprep4Note}`,
     );
   }
 }

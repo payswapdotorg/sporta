@@ -95,3 +95,26 @@ bun run scripts/evidence/r606-visual-gate/validate-evidence.ts \
   --reprep2-out /home/z/my-project/public/r606-reprep2 \
   --reprep3-out /home/z/my-project/public/r606-reprep3 --battery
 ```
+
+## The 2D-board re-prep's verifier + validator (after visual-gate-reprep4.json)
+
+The board + clarity + ball-surgery lane itself ran OUTSIDE the repo (the TL
+station's OpenCV lane — /home/z/r606-board/assemble.py + render.py +
+fix-anime-3d.py, never committed; its own record render-record.json + the
+board tracks board-tracks.json are carried in the out dir). The repo-side
+discipline:
+
+```bash
+# The verifier driver (measures the four MP4s + cross-checks the lane's
+# record, emits the manifest + the evidence record):
+bun run scripts/evidence/r606-visual-gate/visual-gate-reprep4.ts \
+  --out /home/z/my-project/public/r606-reprep4
+
+# The validator (all eight records + all five file sets + the full battery):
+bun run scripts/evidence/r606-visual-gate/validate-evidence.ts \
+  --out /home/z/my-project/public/r606 \
+  --reprep-out /home/z/my-project/public/r606-reprep \
+  --reprep2-out /home/z/my-project/public/r606-reprep2 \
+  --reprep3-out /home/z/my-project/public/r606-reprep3 \
+  --reprep4-out /home/z/my-project/public/r606-reprep4 --battery
+```
