@@ -1,0 +1,45 @@
+{
+  "kind": "r606-visual-gate-reprep3-verdict",
+  "ts": "2026-10-06T23:55:00.000Z",
+  "verdictSource": "the OPERATOR'S own words in the chat (the TL session, 2026-10-06 — the RE-RE-RE-VERDICT on the TEMPORALLY-COHERENT re-prep) — typed verbatim, never paraphrased into a softer shape",
+  "operatorVerbatim": [
+    "tactical: still not showing a 2D field with players moving on it",
+    "3d game: needs a little more clarity",
+    "anime-npr: needs a little more clarity, the ball stays between the player's feet after he took his shot"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "PASS",
+      "operatorGround": "NOT CONTESTED by this verdict — the operator's three observations are artifact/quality-level (a view type, a sharpness level, a ball trajectory), not identity-level. The by-construction real-clip event carrier still carries; criterion 1 stands PASS as the re-verdict measured it"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "FAIL",
+      "operatorGround": "the TEMPORAL-CONSISTENCY refusal ground is RETIRED — this verdict raises NO flicker, NO flipping, NO duplicated balls (the flow-guided propagation held: 'the pitch keeps flashing' and 'showing the ball multiple times' are not raised against the temporally-coherent re-prep) — but the styles as RENDERED VIDEO are still not acceptable on three NEW artifact-level grounds: (1) the tactical kind FAILS ITS GENRE'S PROMISE — 'still not showing a 2D field with players moving on it': a tactical view IS a top-down 2D board with players moving on it, and the propagated per-frame 'tactical-styled broadcast view' is a genre-adjacent rendering, not the genre itself; (2) CLARITY near-miss on both generative kinds — the 3d game and the anime both 'need a little more clarity' (the propagation's warp + error-driven blend + Lab harmonization softened the styled detail); (3) the anime's BALL TRAJECTORY is lost — 'the ball stays between the player's feet after he took his shot': the post-shot ball never leaves the shooter, exactly the small-fast-object failure class the propagation record's own rejected-variant warned about ('a small moving object is a minority vote at every site')"
+    }
+  },
+  "gateOutcome": "REFUSED — criterion 2 fails on genre-composition (the tactical), detail clarity (the 3d and the anime), and ball-trajectory fidelity (the anime); the MVP's R606 acceptance is NOT granted by this verdict either (four REFUSED verdicts, four distinct grounds: verdict 1 the fixture, verdict 2 the filter class, verdict 3 the per-frame independence, this verdict the genre-composition + clarity + trajectory level) — while the TEMPORAL-CONSISTENCY ground raised by verdict 3 is retired, honestly typed: the flow-guided lane worked",
+  "diagnosis": {
+    "theRetiredGround": "RETIRED by this verdict: the flicker (34.03 → 4.75 / 14.00 → 4.30 / 9.72 → 2.01 vs the original's 1.41), the tactical flipping (nine-frame check CONSISTENT), and the duplicated balls (frames 53-64 MAX: 1) — NONE re-raised; the temporal-coherence mechanism is approved in effect",
+    "theNewGrounds": {
+      "tacticalGenreComposition": "the tactical genre's own name — the operator's words 'a 2D field with players moving on it' — is a TOP-DOWN BOARD: the broadcast-tactical-cam / analytics 2D-match-view class (players as markers on an overhead pitch, moving with the play). The generative per-frame lane (verdict 2's fix) styled the BROADCAST CAMERA VIEW to look tactical; the propagation (verdict 3's fix) carried that view coherently; but no per-frame re-styling of a side-on camera view ever BECOMES an overhead board — the composition is the wrong camera geometry, a class no prompt on the side-on frames can cross",
+      "clarity": "the propagation pipeline warps (resampling blur), blends (error-weighted averaging with the fresh styled frame), and harmonizes (Lab statistics pull) — every stage is a mild low-pass; the per-frame styled frames' detail is systematically softened, hence 'needs a little more clarity' on BOTH generative kinds",
+      "animeBallTrajectory": "the anti-hallucination mechanism (anchor-warp dominance where the source-space warp error is low) treats the post-shot BALL — small, fast, in the goal-mouth motion peak — the same way it treated the hallucinated extra balls: the flow at the ball's site during fast flight is unreliable, the nearest anchor's styled ball (painted where the edit model put it, near the shooter) wins the blend, and the real in-flight ball from the fresh frames is suppressed — the trajectory is flattened back onto the shooter's feet"
+    },
+    "consequence": "the fix lane, per the operator's standing copy-and-adapt directive: (1) the TACTICAL kind leaves the generative lane entirely — a DETERMINISTIC 2D top-down board render (the broadcast tactical-cam / 2D-match-view class, copied and adapted): the source's own tracked player and ball positions drive markers on an overhead pitch, so 'a 2D field with players moving on it' is true BY CONSTRUCTION, never re-imagined; (2) the CLARITY lane: the sharpness restored before propagation (the styled inputs sharpened, the propagation re-run, the flicker re-measured to hold its band) — never a post-hoc blanket sharpen that could re-open the flicker; (3) the ANIME BALL lane: the trajectory restored by construction — the source's own tracked ball flight drives a hand-drawn-anime ball (white disc, bold ink outline — the way TV anime actually draws balls) composited at the true position, the stuck styled ball inpainted away; the small-fast-object is never left to a per-site vote again"
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "carried unchanged from verdict 1 — the fix lane copies the reported-to-work classes: the broadcast tactical-cam / analytics 2D-match-view (the top-down board from tracked positions), the unsharp restoration class (sharpen-then-propagate, the standard detail-restoration order), and the hand-drawn-anime ball (drawn along the tracked trajectory, the way anime production actually renders fast balls)"
+  },
+  "nextFlight": {
+    "1": "the 2D-board design gate: the player/ball tracking lane (VLM keyframe positions + OpenCV per-frame refinement, association + smoothing) measured against the source's own motion — the board render prototyped and VLM-checked ('a 2D field? players moving? the same goal play?') before freezing",
+    "2": "the clarity + ball-trajectory lane: the styled inputs sharpened (measured Laplacian gain, VLM clarity check), the propagation re-run (the flicker re-measured in band), the anime ball surgery (inpaint the stuck ball, composite the tracked drawn ball — the post-shot trajectory VLM-verified to LEAVE the shooter)",
+    "3": "the re-prep: the three derived kinds re-rendered (the tactical board + the sharpened 3d + the sharpened ball-corrected anime), integrity-verified end-to-end, the gate re-surfaced for the operator's eyes",
+    "4": "the RE-RE-RE-RE-VERDICT: the operator's eyes again — the verdict always the operator's"
+  },
+  "provenance": {
+    "reprep3Record": "scripts/evidence/r606-visual-gate/visual-gate-reprep3.json (the run this re-re-re-verdict judged: 2026-10-06T13:45Z, the same real goal clip, the flow-guided temporally-coherent propagations)",
+    "watchedOn": "the replay console's gate card (public/r606-reprep3/ — original 3 371 473 B / tactical 4 693 450 B / three-d-game 3 955 794 B / anime-npr 4 949 469 B, manifest integrity-verified)",
+    "priorVerdicts": "verdict.json (criterion 1 FAIL — the synthetic fixture) + verdict-reprep.json (criterion 2 FAIL — the filter class) + verdict-reprep2.json (criterion 2 FAIL — temporal consistency; its criterion-1 PASS ground carries, and its temporal fix is now approved in effect by this verdict's retirement of the ground)"
+  }
+}
