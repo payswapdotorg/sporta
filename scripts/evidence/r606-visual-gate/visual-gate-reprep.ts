@@ -74,8 +74,6 @@ function fail(step: string, detail: string): never {
   process.exit(1);
 }
 
-const KINDS = ["original", "tactical", "three-d-game", "anime-npr"] as const;
-
 // The researched source (proven-solutions-research.json: the pick + its
 // live-measured CDN probe). The license: the Mixkit License — free, no
 // attribution required (the page's own JSON-LD: copyrightNotice "Free",
