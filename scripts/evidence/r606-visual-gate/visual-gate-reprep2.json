@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "kind": "r606-visual-gate-reprep2",
+  "ts": "2026-10-06T08:54:44.539Z",
+  "context": {
+    "reVerdict": "scripts/evidence/r606-visual-gate/verdict-reprep.json (criterion 1 PASS / criterion 2 FAIL on style fidelity — the gate REFUSED again)",
+    "directive": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them (the operator's, carried verbatim since verdict 1)",
+    "lane": "the GENERATIVE restyling lane — the platform's documented image-edit capability (z-ai, backend-only) in per-call isolated child processes, design-gated BEFORE freezing",
+    "path": "the VIDEO-STYLIZATION path (the operator's copy-and-adapt) — NOT the state-driven reality engine's own real-footage path (the product-scale CAP lane)"
+  },
+  "provenance": {
+    "note": "The R606 generative re-prep: the SAME real goal clip as the original + the three derived kinds as PER-FRAME GENERATIVE genre restyles (actual anime / actual tactical board / actual 3D-game render, each with the same-event preservation clause) — the same-event identity holds BY CONSTRUCTION, the style fidelity by the design gate's strict VLM genre check. The GATE itself is the operator's eyes; this record is the re-prep's own honest state.",
+    "source": {
+      "title": "Goal play in a semi-professional soccer game (Mixkit 43499)",
+      "url": "https://assets.mixkit.co/videos/43499/43499-720.mp4",
+      "license": "Mixkit License (free, no attribution; https://mixkit.co/license/#videoFree)",
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "acquired": "the first re-prep's verified download (byte-identical, re-verified by this driver)"
+    },
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+    },
+    "generative": {
+      "lane": "the TL station's z-ai image-edit lane (the SDK in per-call isolated child processes — the platform's own documented image-edit capability, backend-only)",
+      "designGate": {
+        "method": "one keyframe per genre through the candidate prompts → the strict VLM genre check (z-ai vision) BEFORE freezing",
+        "verdict": "A) YES. The core composition of the player kicking the ball, the defender in blue, and the background player is preserved across all four images.\nB) YES. It successfully adopts a top-down schematic style with flat vector graphics, a tactical grid, and a data legend, completely abandoning photorealism.\nC) YES. It features characteristic 3D rendering traits like low-poly geometry, uniform lighting, hard-edged shadows, and a \"plastic\" game-engine aesthetic.\nD) YES. It displays clear hand-drawn qualities including ink outlines, cel-shaded color blocks, stylized proportions, and a lack of photographic texture.\nE) None; all three stylized images (2, 3, and 4) successfully pass their respective genre tests."
+      },
+      "videoLevelCheck": {
+        "method": "three sampled frames per genre (early/middle/late) + the original frame — ten images, one strict VLM call: same-scene in all ten + every genre frame actual to its genre",
+        "verdict": "A) YES, the core scene (player in red vest vs blue, specific pitch markings and background structures) is consistently identifiable across all ten images.\nB) YES, all three frames utilize flat vector graphics, grid overlays, and abstracted player markers consistent with a tactical board aesthetic.\nC) YES, all three frames display 3D game-engine rendering with realistic textures, lighting, and shadows typical of a sports simulation game.\nD) YES, all three frames exhibit distinct hand-drawn line art, cel-shaded coloring, and stylized features characteristic of anime.\nE) YES, each video maintains a high level of stylistic consistency and clearly embodies its assigned genre."
+      },
+      "prompts": {
+        "frozen": {
+          "tactical": "Redraw this exact soccer frame as a broadcast tactical analysis view: the whole scene rendered like a TV tactics screen — flat clean vector-style graphics, the players as simple uniform markers on a stylized flat pitch, a muted strategy-board palette, subtle grid lines and zones like a coaching whiteboard overlay. Keep the exact same camera framing, every player's position and pose, the ball and the pitch layout identical — same scene, same moment, only the rendering becomes a tactical analysis board.",
+          "three-d-game": "Redraw this exact soccer frame as a modern 3D video game graphic: the players and pitch rendered as clean cel-shaded 3D models like a current-gen console sports game (FIFA / eFootball style), smooth low-poly geometry, crisp bright textures, clean stadium lighting, a slight game-engine sheen. Keep the exact same camera framing, every player's position and pose, the ball and the pitch layout identical — same scene, same moment, only the render becomes a 3D game engine frame.",
+          "anime-npr": "Redraw this exact soccer frame as genuine hand-drawn Japanese anime artwork: clean bold ink line art, flat cel shading with hard shadow edges, a bright anime color palette, the painted-background style of a TV anime episode, simplified stylized features. Keep the exact same camera framing, every player's position and pose, the ball and the pitch layout identical — same scene, same moment, only the art style becomes real anime."
+        }
+      },
+      "sampling": {
+        "fps": 8,
+        "sourceFrames": 65,
+        "editSize": "1344x768",
+        "assembledSize": "1280x720"
+      },
+      "generationRecord": "the lane's own generation.json (carried in the out dir)"
+    }
+  },
+  "outputs": [
+    {
+      "kind": "original",
+      "byteSize": 3371473,
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none (the real clip's own bytes, as-is — byte-identical to the researched source, re-verified)",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep2/original.mp4"
+    },
+    {
+      "kind": "tactical",
+      "byteSize": 3023007,
+      "sha256": "77a068a29a2b2e7f7b72eeeef233c7d49c6df7de0866aac86ad0f7533ae3afd1",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "per-frame generative genre restyle (the frozen prompt, carried in the record) + ffmpeg assembly",
+      "durationSeconds": 8.125,
+      "frameCount": 65,
+      "savedPath": "/home/z/my-project/public/r606-reprep2/tactical.mp4"
+    },
+    {
+      "kind": "three-d-game",
+      "byteSize": 3478444,
+      "sha256": "04aeec5f50d460027c2592d0e8bb44e6ebc72619d7134cecf52e90c21813e038",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "per-frame generative genre restyle (the frozen prompt, carried in the record) + ffmpeg assembly",
+      "durationSeconds": 8.125,
+      "frameCount": 65,
+      "savedPath": "/home/z/my-project/public/r606-reprep2/three-d-game.mp4"
+    },
+    {
+      "kind": "anime-npr",
+      "byteSize": 4803051,
+      "sha256": "4517d1fce81dd6c925e26b243ce4a425db319c91330318dead67e12e6d3d91a8",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "per-frame generative genre restyle (the frozen prompt, carried in the record) + ffmpeg assembly",
+      "durationSeconds": 8.125,
+      "frameCount": 65,
+      "savedPath": "/home/z/my-project/public/r606-reprep2/anime-npr.mp4"
+    }
+  ]
+}

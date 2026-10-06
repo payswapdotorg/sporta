@@ -46,7 +46,7 @@ J001-J015 ✅          L001-L014 ✅             HF001 ✅
 - R401-R409 ✅
 - R501-R510 ✅
 - R601-R605 ✅
-- R606 🟨 verdict TAKEN, gate REFUSED (criterion 1 FAIL — the synthetic fixture cannot carry event identity; criterion 2 PASS — the stylists' differences seen). Next: the copy-and-adapt re-prep with real match footage per the operator's directive, then the operator's eyes again (verdict record: scripts/evidence/r606-visual-gate/verdict.json)
+- R606 🟨 TWO verdicts TAKEN, the gate REFUSED twice on two different grounds (verdict 1: criterion 1 FAIL — the synthetic fixture could not carry event identity; the re-verdict: criterion 1 PASS — the same REAL goal clip carried it — but criterion 2 FAIL on STYLE FIDELITY — "the anime style for instance is not actual anime, same for the tactical and 3d styles", the ffmpeg chains were color grading, not genre restyling). The GENERATIVE re-prep FLOWN: 195 per-frame genre restyles of the same real goal clip through the platform's image-edit lane, the design gate + the video-level spot check both all-YES (the record: visual-gate-reprep2.json) — the RE-RE-VERDICT PERFORMABLE (verdict records: scripts/evidence/r606-visual-gate/verdict.json + verdict-reprep.json)
 - R607 ⬜ public MVP / hosted durability final gate
 
 ## User Journey Hardening
@@ -116,7 +116,7 @@ These are capability-depth gates, not hidden navigation failures. The UI is inte
 
 ## Current safe order
 
-1. R606 re-prep: the proven-solutions research (real-footage sourcing + per-reality styling, reported-to-work, copy-and-adapt per the operator's directive) → the re-prep flight with a REAL-footage source clip → the operator's re-verdict (first verdict REFUSED on criterion 1 — the synthetic fixture's own limitation, typed in scripts/evidence/r606-visual-gate/verdict.json).
+1. R606 re-re-verdict (the operator's eyes — the operator's move NOW): the re-verdict REFUSED criterion 2 on style fidelity — the same match now identifiable (criterion 1 PASS, the real goal clip worked) but the styles not accurate to their genres (typed in scripts/evidence/r606-visual-gate/verdict-reprep.json). The GENERATIVE fix FLOWN: the per-frame genre restyling lane (actual anime / actual tactical board / actual 3D-game render, the same-event preservation clause, the design gate + the video-level spot check both all-YES — visual-gate-reprep2.json). The four realities watchable on the console; the re-re-verdict gates R607.
 2. R607 hosted public MVP / durability gate.
 3. L015-L017 final live gates.
 4. CAP001-CAP002 as next user-facing capability completion.

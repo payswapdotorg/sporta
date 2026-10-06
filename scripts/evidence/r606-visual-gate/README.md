@@ -1,5 +1,76 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE RE-VERDICT (the operator's, 2026-10-06 — the gate REFUSED again: STYLE FIDELITY)
+
+The operator watched the re-prep's four (the same REAL goal clip through the
+three frozen ffmpeg chains) and answered in the chat (typed verbatim in
+`verdict-reprep.json`):
+
+- **criterion 1 (the same match/event identifiable across all four): PASS** —
+  "I can identify the same match" — the by-construction real-clip event
+  carrier WORKED; verdict 1's failure mode is FIXED.
+- **criterion 2 (meaningful stylistic differences): FAIL on style fidelity** —
+  "the styles applied are not accurate … the anime style for instance is not
+  actual anime, same for the tactical and 3d styles".
+
+The diagnosis is the re-prep's own honestly-typed filter class (the research
+record, written BEFORE the re-verdict, deferred the generative lane): global
+color filters (the green duotone, the palette posterization, the edgedetect
+colormix) are **color grading, not genre restyling** — they shift the footage's
+tone but cannot turn real footage into ACTUAL anime, an ACTUAL tactical
+analysis view, or an ACTUAL 3D-game render. Style fidelity was unpassable by
+construction on the filter class, exactly as event identity was unpassable by
+construction on the synthetic fixture in verdict 1.
+
+The fix lane (the copy-and-adapt directive, unchanged): **per-frame
+GENERATIVE restyling** — the research's own named proven class ("proven
+per-frame GAN styling"), adapted through the platform's documented image-edit
+capability (z-ai, backend-only) with genre-accurate prompts and a hard
+same-event preservation clause. The design gate runs FIRST (one keyframe per
+genre through the candidate prompts → the STRICT VLM genre check — actual
+anime / actual tactical board / actual 3D-game, not color grades — the
+prompts frozen only on PASS), then the full generative re-prep
+(`visual-gate-reprep2.ts`), then the operator's eyes again. The full typed
+record: `verdict-reprep.json`.
+
+## THE GENERATIVE RE-PREP (the style-fidelity fix — the RE-RE-VERDICT PERFORMABLE)
+
+The fix the re-verdict directed: per-frame **GENERATIVE genre restyling** —
+the research's own named proven class, adapted through the platform's
+documented image-edit capability (z-ai, backend-only, per-call isolated child
+processes — the SDK's orphan-rejection quirk and the CLI's local-file 400
+both measured and typed in the lane's own headers). The discipline:
+
+1. **The design gate FIRST**: one keyframe per genre through the candidate
+   prompts → the STRICT VLM genre check. Measured verdict: all four questions
+   YES (same scene across all four; the tactical frame an actual tactics
+   board "completely abandoning photorealism"; the 3D frame an actual
+   game-engine render; the anime frame actual hand-drawn) — the prompts
+   FROZEN.
+2. **The batch**: the SAME real goal clip (the verified Mixkit bytes,
+   re-hashed at start), 65 sampled frames × 3 kinds = 195 independent genre
+   restyles, paced + cooldown-aware + resume-safe (the lane 429s on bursts;
+   the sandbox reaps background processes between tool calls — chunked
+   foreground passes), then real-ffmpeg assembly (crop to 16:9, scale
+   1280×720, h264). All 195 frames restyled, zero laundered (a frame
+   exhausting 12 attempts aborts the run).
+3. **The video-level spot check**: three frames per genre across the video
+   (early/middle/late) + the original — ten images, one strict VLM call.
+   Measured verdict: all five questions YES ("each video maintains a high
+   level of stylistic consistency and clearly embodies its assigned genre").
+4. **The verifier driver** (`visual-gate-reprep2.ts`): the four MP4s
+   re-hashed + the `ftyp` magic + durations re-probed + the ORIGINAL verified
+   byte-identical to the researched source + the generation record's own
+   claims cross-checked against the bytes on disk; the manifest surfaced for
+   the operator's eyes. The record: `visual-gate-reprep2.json`.
+
+The run (2026-10-06): original 3 371 473 B (the source's own bytes) /
+tactical 3 023 007 B / three-d-game 3 478 444 B / anime-npr 4 803 051 B —
+each 65 frames, 8 fps, 1280×720. The exports + manifest:
+`public/r606-reprep2/` (outside the repo, the no-committed-media doctrine).
+The operator's move: watch the four and answer the gate — the RE-RE-VERDICT
+is the operator's, never a worker's.
+
 ## THE VERDICT (the operator's, 2026-10-05T21:20Z — the gate REFUSED)
 
 The operator watched the four and answered in the chat (typed verbatim in

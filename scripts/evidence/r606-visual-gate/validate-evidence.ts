@@ -18,6 +18,18 @@
  *      operatorDirective, the nextFlight plan. The verdict is NEVER
  *      re-derived — only its shape is checked (the words are the
  *      operator's, the validator has no opinion on the visuals).
+ *   5. the RE-VERDICT record (verdict-reprep.json, when present in this
+ *      dir): its own shape — the kind, the two criteria (criterion 1 PASS
+ *      + criterion 2 FAIL — the operator's re-verdict on the re-prep:
+ *      the same match identifiable, the applied styles not accurate),
+ *      the verbatim quotes, the gateOutcome REFUSED, the directive, the
+ *      nextFlight plan. Never re-derived — the shape only.
+ *   6. the GENERATIVE RE-PREP record (visual-gate-reprep2.json, when present
+ *      in this dir): its own shape — the kind, the re-verdict context, four
+ *      outputs (the ORIGINAL byte-identical to the researched source —
+ *      hard-checked), the generative provenance (the design gate's strict
+ *      VLM verdict, the three frozen prompts, the sampling facts), the
+ *      toolchain; with --reprep2-out the four exported files re-hashed.
  *
  * Modes:
  *   --out <dir>      the exported outputs' dir (optional — when absent only
@@ -33,6 +45,11 @@
  *                    A SECOND tampered VERDICT copy (criterion 1's FAIL
  *                    flipped to PASS — a laundered verdict is the worst
  *                    lie this tree could hold) must ALSO be refused.
+ *                    A THIRD tampered RE-VERDICT copy (criterion 2's FAIL
+ *                    flipped to PASS — the style-fidelity failure
+ *                    laundered into a pass) must ALSO be refused. A FOURTH
+ *                    tampered RE-PREP2 copy (one sha flipped), with
+ *                    --reprep2-out given, must ALSO be refused.
  */
 import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -52,10 +69,16 @@ const recordArg = argValue("--record");
 const verdictArg = argValue("--verdict");
 const reprepArg = argValue("--reprep");
 const reprepOutArg = argValue("--reprep-out");
+const reverdictArg = argValue("--reverdict");
+const reprep2Arg = argValue("--reprep2");
+const reprep2OutArg = argValue("--reprep2-out");
 const here = dirname(new URL(import.meta.url).pathname);
 const recordPath = recordArg ?? join(here, "visual-gate-prep.json");
 const verdictPath = verdictArg ?? join(here, "verdict.json");
+const reverdictPath = reverdictArg ?? join(here, "verdict-reprep.json");
 const reprepPath = reprepArg ?? join(here, "visual-gate-reprep.json");
+const reprep2Path = reprep2Arg ?? join(here, "visual-gate-reprep2.json");
+const SOURCE_SHA_EXPECTED = "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d";
 
 type Output = {
   kind: string;
@@ -160,6 +183,36 @@ function checkVerdict(verdict: VerdictRecord, label: string): void {
   }
   if (!verdict.nextFlight || Object.keys(verdict.nextFlight).length < 3) {
     fail("verdict-next-flight", `${label}: the next-flight plan (≥3 legs) must be present`);
+  }
+}
+
+function checkVerdictReprep(verdict: VerdictRecord, label: string): void {
+  if (verdict.kind !== "r606-visual-gate-reprep-verdict") {
+    fail("reverdict-kind", `${label}: ${verdict.kind}`);
+  }
+  const quotes = verdict.operatorVerbatim;
+  if (!Array.isArray(quotes) || quotes.length < 2 || quotes.some((q) => typeof q !== "string" || q.length < 10)) {
+    fail("reverdict-verbatim", `${label}: the operator's own words must be present (≥2, typed verbatim)`);
+  }
+  const criteria = verdict.criteria;
+  if (
+    !criteria ||
+    criteria["same-match-event-identifiable-across-all-four"]?.verdict !== "PASS" ||
+    criteria["meaningful-stylistic-differences"]?.verdict !== "FAIL"
+  ) {
+    fail(
+      "reverdict-criteria",
+      `${label}: criterion 1 must be PASS and criterion 2 FAIL — the OPERATOR's measured re-verdict (a worker NEVER re-derives these)`,
+    );
+  }
+  if (typeof verdict.gateOutcome !== "string" || !verdict.gateOutcome.startsWith("REFUSED")) {
+    fail("reverdict-outcome", `${label}: ${verdict.gateOutcome}`);
+  }
+  if (typeof verdict.operatorDirective?.text !== "string" || verdict.operatorDirective.text.length < 20) {
+    fail("reverdict-directive", `${label}: the operator's directive must be carried verbatim`);
+  }
+  if (!verdict.nextFlight || Object.keys(verdict.nextFlight).length < 3) {
+    fail("reverdict-next-flight", `${label}: the next-flight plan (≥3 legs) must be present`);
   }
 }
 
@@ -281,6 +334,116 @@ async function checkReprepFiles(reprep: ReprepRecord, dir: string): Promise<void
   }
 }
 
+// ---------------------------------------------------------------------------
+// The GENERATIVE RE-PREP record (visual-gate-reprep2.json — the style-
+// fidelity fix flight)
+// ---------------------------------------------------------------------------
+type Reprep2Output = {
+  kind?: string;
+  byteSize?: number;
+  sha256?: string;
+  integrityVerified?: boolean;
+  containerMagic?: string;
+  frameCount?: number;
+  savedPath?: string;
+};
+type Reprep2Record = {
+  kind?: string;
+  context?: Record<string, string>;
+  provenance?: {
+    source?: { sha256?: string };
+    generative?: {
+      designGate?: { verdict?: string };
+      prompts?: { frozen?: Record<string, string> };
+      sampling?: { fps?: number; sourceFrames?: number };
+    };
+    toolchain?: { version?: string };
+  };
+  outputs?: Reprep2Output[];
+};
+
+function checkReprep2(reprep2: Reprep2Record, label: string): void {
+  if (reprep2.kind !== "r606-visual-gate-reprep2") {
+    fail("reprep2-kind", `${label}: ${reprep2.kind}`);
+  }
+  if (
+    !reprep2.context?.reVerdict ||
+    !reprep2.context.directive ||
+    !reprep2.context.lane ||
+    !reprep2.context.path
+  ) {
+    fail("reprep2-context", `${label}: the re-verdict + directive + lane + path must be carried`);
+  }
+  const outputs = reprep2.outputs;
+  if (!Array.isArray(outputs) || outputs.length !== 4) {
+    fail("reprep2-outputs", `${label}: ${outputs?.length ?? 0} outputs (expected 4)`);
+  }
+  const kinds = new Set(outputs.map((output) => output.kind));
+  const expected = new Set(["original", "tactical", "three-d-game", "anime-npr"]);
+  if (kinds.size !== 4 || [...kinds].some((kind) => !expected.has(kind ?? ""))) {
+    fail("reprep2-kinds", `${label}: ${[...kinds].join(", ")}`);
+  }
+  for (const output of outputs) {
+    if (output.integrityVerified !== true) {
+      fail("reprep2-integrity", `${label}: ${output.kind} not integrity-verified`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(output.sha256 ?? "")) {
+      fail("reprep2-sha-shape", `${label}: ${output.kind} sha not 64-hex`);
+    }
+    if (!(output.byteSize! > 0)) {
+      fail("reprep2-byte-size", `${label}: ${output.kind} ${output.byteSize}`);
+    }
+    if (output.containerMagic !== "ftyp") {
+      fail("reprep2-magic", `${label}: ${output.kind} ${output.containerMagic}`);
+    }
+  }
+  // the ORIGINAL: byte-identical to the researched source (hard check)
+  const original = outputs.find((output) => output.kind === "original");
+  if (original?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail(
+      "reprep2-original-source",
+      `${label}: the original must be byte-identical to the researched source (${original?.sha256?.slice(0, 16)}…)`,
+    );
+  }
+  if (reprep2.provenance?.source?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail("reprep2-source-sha", `${label}: the provenance source sha must be the researched source's`);
+  }
+  const generative = reprep2.provenance?.generative;
+  const designVerdict = generative?.designGate?.verdict ?? "";
+  if (designVerdict.length < 50 || !designVerdict.includes("YES")) {
+    fail("reprep2-design-gate", `${label}: the strict VLM genre check's verdict must be carried (with its YES findings)`);
+  }
+  const frozen = generative?.prompts?.frozen ?? {};
+  for (const kind of ["tactical", "three-d-game", "anime-npr"]) {
+    if (typeof frozen[kind] !== "string" || frozen[kind]!.length < 100) {
+      fail("reprep2-prompts", `${label}: the ${kind} frozen genre prompt must be carried (≥100 chars)`);
+    }
+  }
+  if (!((generative?.sampling?.fps ?? 0) >= 1) || !((generative?.sampling?.sourceFrames ?? 0) >= 8)) {
+    fail("reprep2-sampling", `${label}: the sampling facts (fps, frame count) must be recorded`);
+  }
+  if (!reprep2.provenance?.toolchain?.version) {
+    fail("reprep2-toolchain", `${label}: the ffmpeg toolchain version must be measured`);
+  }
+}
+
+async function checkReprep2Files(reprep2: Reprep2Record, dir: string): Promise<void> {
+  for (const output of reprep2.outputs ?? []) {
+    const path = join(dir, `${output.kind}.mp4`);
+    if (!existsSync(path)) {
+      fail("reprep2-file-present", `${output.kind}: ${path} absent`);
+    }
+    const bytes = new Uint8Array(await readFile(path));
+    if (bytes.byteLength !== output.byteSize) {
+      fail("reprep2-file-size", `${output.kind}: ${bytes.byteLength} != ${output.byteSize}`);
+    }
+    const reHashed = sha256OfBytes(bytes);
+    if (reHashed !== output.sha256) {
+      fail("reprep2-file-sha", `${output.kind}: ${reHashed.slice(0, 16)}… != ${output.sha256?.slice(0, 16)}…`);
+    }
+  }
+}
+
 if (battery) {
   // The negative battery: a tampered copy (one sha flipped to another VALID
   // hex char — the shape check alone cannot catch it; the re-hash
@@ -297,6 +460,7 @@ if (battery) {
   const record = await loadRecord(recordPath);
   checkRecord(record, "record");
   const realVerdict = await loadVerdictIfPresent(verdictPath);
+  const realReVerdict = await loadVerdictIfPresent(reverdictPath);
   const scratch = await mkdtemp(join(tmpdir(), "r606-battery-"));
   try {
     const tampered: Record = JSON.parse(JSON.stringify(record));
@@ -347,6 +511,66 @@ if (battery) {
         "battery: the LAUNDERED verdict REFUSED (child exit 1) — a flipped FAIL can never pass",
       );
     }
+    if (realReVerdict) {
+      const launderedReVerdict: VerdictRecord = JSON.parse(JSON.stringify(realReVerdict));
+      launderedReVerdict.criteria!["meaningful-stylistic-differences"]!.verdict = "PASS";
+      const launderedRePath = join(scratch, "laundered-reverdict.json");
+      await writeFile(launderedRePath, JSON.stringify(launderedReVerdict), "utf8");
+      const reVerdictChild = spawnSync(
+        process.execPath,
+        [
+          join(here, "validate-evidence.ts"),
+          "--record",
+          recordPath,
+          "--out",
+          outDir,
+          "--reverdict",
+          launderedRePath,
+        ],
+        { encoding: "utf8", timeout: 30000 },
+      );
+      if (reVerdictChild.status === null || reVerdictChild.status === 0) {
+        console.error(
+          `REFUSED [battery-reverdict]: the LAUNDERED re-verdict (criterion 2's FAIL flipped to PASS — the style-fidelity failure laundered into a pass) was ACCEPTED (child exit ${reVerdictChild.status}) — the validator is broken`,
+        );
+        process.exit(1);
+      }
+      console.log(
+        "battery: the LAUNDERED re-verdict REFUSED (child exit 1) — a flipped style-fidelity FAIL can never pass",
+      );
+    }
+    if (existsSync(reprep2Path) && reprep2OutArg !== undefined) {
+      const realReprep2 = JSON.parse(await readFile(reprep2Path, "utf8")) as Reprep2Record;
+      const tamperedReprep2: Reprep2Record = JSON.parse(JSON.stringify(realReprep2));
+      const sha = tamperedReprep2.outputs?.[1]?.sha256 ?? "";
+      tamperedReprep2.outputs![1]!.sha256 = sha.startsWith("0") ? `1${sha.slice(1)}` : `0${sha.slice(1)}`;
+      const tamperedReprep2Path = join(scratch, "tampered-reprep2.json");
+      await writeFile(tamperedReprep2Path, JSON.stringify(tamperedReprep2), "utf8");
+      const reprep2Child = spawnSync(
+        process.execPath,
+        [
+          join(here, "validate-evidence.ts"),
+          "--record",
+          recordPath,
+          "--out",
+          outDir,
+          "--reprep2",
+          tamperedReprep2Path,
+          "--reprep2-out",
+          reprep2OutArg,
+        ],
+        { encoding: "utf8", timeout: 30000 },
+      );
+      if (reprep2Child.status === null || reprep2Child.status === 0) {
+        console.error(
+          `REFUSED [battery-reprep2]: the tampered GENERATIVE re-prep record was ACCEPTED (child exit ${reprep2Child.status}) — the validator is broken`,
+        );
+        process.exit(1);
+      }
+      console.log(
+        "battery: the tampered GENERATIVE re-prep record REFUSED (child exit 1) — the re-hash cross-check catches it",
+      );
+    }
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
@@ -355,6 +579,24 @@ if (battery) {
   checkRecord(record, "record");
   const verdict = await loadVerdictIfPresent(verdictPath);
   if (verdict) checkVerdict(verdict, "verdict");
+  const reverdict = await loadVerdictIfPresent(reverdictPath);
+  if (reverdict) checkVerdictReprep(reverdict, "reverdict");
+  let reprep2Note = "";
+  if (existsSync(reprep2Path)) {
+    let reprep2: Reprep2Record;
+    try {
+      reprep2 = JSON.parse(await readFile(reprep2Path, "utf8")) as Reprep2Record;
+    } catch (error) {
+      fail("reprep2-parse", String(error));
+    }
+    checkReprep2(reprep2, "reprep2");
+    if (reprep2OutArg !== undefined) {
+      await checkReprep2Files(reprep2, reprep2OutArg);
+      reprep2Note = " + the GENERATIVE re-prep's shape + its 4 exported files re-hashed";
+    } else {
+      reprep2Note = " + the GENERATIVE re-prep's shape (no --reprep2-out given — its files not re-checked)";
+    }
+  }
   let reprepNote = "";
   if (existsSync(reprepPath)) {
     let reprep: ReprepRecord;
@@ -374,11 +616,11 @@ if (battery) {
   if (outDir !== undefined) {
     await checkFiles(record, outDir);
     console.log(
-      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reprepNote}`,
+      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
     );
   } else {
     console.log(
-      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reprepNote}`,
+      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
     );
   }
 }
