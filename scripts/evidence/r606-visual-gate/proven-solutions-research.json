@@ -1,0 +1,105 @@
+{
+  "kind": "r606-proven-solutions-research",
+  "ts": "2026-10-05T21:55:00.000Z",
+  "operatorDirective": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them (the verdict record's directive, typed verbatim there)",
+  "searches": [
+    { "query": "SoccerNet dataset football broadcast video clips download open license", "engine": "z-ai web_search", "num": 8 },
+    { "query": "SoccerNet challenges sample video clip download 224p 720p creative commons non-commercial research license", "engine": "z-ai web_search", "num": 6 },
+    { "query": "free stock footage football match video clips", "engine": "z-ai web_search", "num": 6 },
+    { "query": "ffmpeg cartoon effect stylize video filters edge detect posterize", "engine": "z-ai web_search", "num": 6 },
+    { "query": "soccer tactical view top down camera transformation github open source", "engine": "z-ai web_search", "num": 6 },
+    { "query": "AnimeGAN video style transfer github code", "engine": "z-ai web_search", "num": 6 }
+  ],
+  "realFootageCandidates": [
+    {
+      "pick": true,
+      "provider": "Mixkit (Envato)",
+      "id": "43499",
+      "title": "Goal play in a semi-professional soccer game",
+      "description": "Skillful team play that ends in a goal, in a semi-professional soccer game, in a shot from inside the field.",
+      "url720": "https://assets.mixkit.co/videos/43499/43499-720.mp4",
+      "license": "https://mixkit.co/license/#videoFree (the Mixkit License — free, no attribution required; copyrightNotice \"Free\", isAccessibleForFree true, in the page's own JSON-LD)",
+      "liveProbe": { "method": "HTTP HEAD, 2026-10-05T21:53Z", "status": 200, "contentType": "video/mp4", "contentLength": 3371473 },
+      "why": "a REAL goal event (team play ending in a goal, shot from inside the field) — the same-event criterion's material, license-clean, directly downloadable from the CDN (no key, no NDA, no auth)"
+    },
+    {
+      "pick": false,
+      "provider": "Mixkit (Envato)",
+      "id": "43495",
+      "title": "Penalty kick seen from behind the goal nets",
+      "url720": "https://assets.mixkit.co/videos/43495/43495-720.mp4",
+      "license": "Mixkit License (free, no attribution)",
+      "why-not": "a real penalty+goal event, viable alternative; the 43499 pick has clearer open-field team play"
+    },
+    {
+      "pick": false,
+      "provider": "Mixkit (Envato)",
+      "id": "43481",
+      "title": "Play between two teams in a soccer match",
+      "url720": "https://assets.mixkit.co/videos/43481/43481-720.mp4",
+      "license": "Mixkit License (free, no attribution)",
+      "why-not": "general match play without a legible event"
+    },
+    {
+      "pick": false,
+      "provider": "Wikimedia Commons",
+      "title": "File:Next Generation. U19. Inter vs Ajax. Ajax goal..webm",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Next_Generation._U19._Inter_vs_Ajax._Ajax_goal..webm",
+      "license": "CC BY 2.0 (per the Commons imageinfo extmetadata, measured live)",
+      "liveProbe": { "method": "HTTP GET range 0-65535, 2026-10-05T21:45Z, with backoff + descriptive UA", "status": 429, "body": "Wikimedia Error (rate limit) — the upload CDN refuses THIS sandbox IP" },
+      "why-not": "a real U19 goal (1280x720, CC BY 2.0) — REFUSED at download time by the Wikimedia CDN's rate limiting on this sandbox's IP (measured twice, both files, with backoff and a descriptive UA); not reachable from the flight's runtime"
+    },
+    {
+      "pick": false,
+      "provider": "Wikimedia Commons",
+      "title": "File:Barcelona goal.ogv",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Barcelona_goal.ogv",
+      "license": "CC BY-SA 3.0 (per the Commons imageinfo extmetadata, measured live)",
+      "liveProbe": { "status": 429, "body": "same Wikimedia CDN refusal" },
+      "why-not": "same CDN refusal + the .ogv container would need a transcode anyway"
+    },
+    {
+      "pick": false,
+      "provider": "SoccerNet",
+      "title": "the SoccerNet broadcast corpus (500+ matches, 720p/224p)",
+      "license": "research-only, NDA-gated (the GitHub README's own instruction: 'download 224p/720p Videos (require password from NDA)')",
+      "why-not": "the license gate (NDA password) makes it wrong for an operator-watchable console export; the corpus is the CV-research lane, not the visual gate's"
+    }
+  ],
+  "stylingSolutions": [
+    {
+      "reality": "the three derived kinds (tactical / three-d-game / anime-npr)",
+      "solution": "ffmpeg's own DOCUMENTED filter chains applied to the SAME real clip's verified bytes",
+      "reportedToWork": [
+        "ffmpeg.org Filters Documentation — edgedetect: 'Detect and draw edges. The filter uses the Canny Edge Detection algorithm… Mix the colors to create a paint/cartoon effect' (the modes + the cartoon-effect mix are first-party documented)",
+        "superuser.com 'Make 3s sketch filter effect every minute in ffmpeg' (the sketch/edge recipe class)",
+        "zayne.io 'Creating Vintage Video Filters with FFmpeg' (the stylization-recipe class on real footage)",
+        "the repo's OWN seam already does filter_complex composition on real footage (packages/media-platform/src/ffmpeg.ts generateTestMp4 — overlay chains) — the adaptation point exists in-tree"
+      ],
+      "adaptation": "per-kind chains: tactical-look (green duotone via colorchannelmixer/eq + edge-line emphasis), 3D-game-look (palette/posterize quantization + saturation/sharpen boost), anime-npr-look (edge-outline + cel-quantization — the cartoon-effect mix)"
+    },
+    {
+      "reality": "anime-npr (the deeper option)",
+      "solution": "AnimeGANv2/AnimeGANv3 (the kdnuggets-cited proven project; per-frame GAN style transfer)",
+      "reportedToWork": ["kdnuggets '10 Amazing Machine Learning Projects of 2020' (AnimeGANv2)", "the aimodels.fyi comparison (AnimeGANv2 vs VToonify use cases)"],
+      "adaptation": "NOT the re-prep's path: needs GPU per-frame inference (the repo's compute plane has the adapters — modal/lightning/runpod — but the gate's honest minimal flight uses the in-sandbox documented ffmpeg chains; AnimeGAN is the later Technology-Plane promotion lane, HF-benchmark-gated per the roadmap)"
+    },
+    {
+      "reality": "tactical (the state-extraction option)",
+      "solution": "the open-source broadcast-to-tactical projects: FootyTacticalAnalysis (github.com/keshh22/FootyTacticalAnalysis — 'converts camera footage clips from football games into a tactical map/field representation'), SoccerEye (github.com/WWandP/SoccerEye), Hawk-Eye birds-eye registration (nihal111.github.io)",
+      "reportedToWork": ["the projects' own READMEs/summaries (the search's snippets)"],
+      "adaptation": "NOT the re-prep's path: player-detection + homography is the product-scale real-analysis lane (the CAP backlog); the gate's tactical REALITY for the re-prep is the tactical-LOOK stylization of the same footage"
+    }
+  ],
+  "theCopyAndAdaptDesign": {
+    "source": "Mixkit 43499 (the goal play) — downloaded at flight time, trimmed to a short segment, ingested as the ORIGINAL reality",
+    "derivedKinds": "the SAME clip's verified bytes through three DOCUMENTED ffmpeg filter chains (the per-kind looks) — the same-event identity holds BY CONSTRUCTION (the same underlying real footage), the stylistic differences are the chains' own documented effects",
+    "integrityDiscipline": "unchanged from the first prep: every output sha-256 re-verified at the receiving boundary + the ftyp container magic + the byte-length claim; exported OUTSIDE the repo (the no-committed-media doctrine)",
+    "honestScope": "this is the VIDEO-STYLIZATION path — the copy-and-adapt the operator directed. It is NOT the state-driven reality engine's own real-footage path (SWM analysis → procedural renders, the product-scale CAP lane). The GATE's substance (the same real event + meaningful stylistic differences across the four) is exactly what this path demonstrates; the state-driven path remains the roadmap's product lane behind its own gates."
+  },
+  "provenance": {
+    "searchEngine": "the z-ai web_search function (the TL station's live research lane)",
+    "liveProbes": "the Mixkit CDN HEAD probes (200s) + the Wikimedia range GETs (the 429 refusals) + the Commons imageinfo API (licenses) — all measured first-hand this session",
+    "consoleArtifact": "the research session's raw search JSONs (/tmp/search*.json — ephemeral, the findings carried in this record)"
+  }
+}
