@@ -75,3 +75,23 @@ bun run scripts/evidence/r606-visual-gate/validate-evidence.ts \
   --reprep-out /home/z/my-project/public/r606-reprep \
   --reprep2-out /home/z/my-project/public/r606-reprep2
 ```
+
+## The temporally-coherent re-prep's verifier + validator (after visual-gate-reprep3.json)
+
+The propagation lane itself ran OUTSIDE the repo (the TL station's OpenCV
+lane, /home/z/r606-fix/propagate.py — never committed; its own record
+propagation.json is carried in the out dir). The repo-side discipline:
+
+```bash
+# The verifier driver (measures the four MP4s + cross-checks the lane's
+# record, emits the manifest + the evidence record):
+bun run scripts/evidence/r606-visual-gate/visual-gate-reprep3.ts \
+  --out /home/z/my-project/public/r606-reprep3
+
+# The validator (all six records + all four file sets + the full battery):
+bun run scripts/evidence/r606-visual-gate/validate-evidence.ts \
+  --out /home/z/my-project/public/r606 \
+  --reprep-out /home/z/my-project/public/r606-reprep \
+  --reprep2-out /home/z/my-project/public/r606-reprep2 \
+  --reprep3-out /home/z/my-project/public/r606-reprep3 --battery
+```

@@ -1,5 +1,49 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE TEMPORALLY-COHERENT RE-PREP (the temporal-consistency fix — the RE-RE-RE-VERDICT PERFORMABLE)
+
+The fix the re-re-verdict directed: **flow-guided temporal coherence** — the
+reported-to-work class, copied and adapted (the operator's directive,
+unchanged):
+
+1. **The copied class**: optical-flow-guided video stylization coherence
+   ("Fast Coherent Video Style Transfer via Flow Errors Reduction", MDPI;
+   "Coherent Online Video Style Transfer", IEEE; the Lai et al.
+   blind-temporal-consistency class) + keyframe-anchored propagation
+   (EbSynth — "transform videos by changing one frame") + per-kind Lab color
+   harmonization to median statistics. Adapted locally with OpenCV 4.13 DIS
+   flow: the SOURCE clip's own motion transports the anchor styled frames
+   (the re-re-verdict's own approved generative outputs — "the anime-npr is
+   good"), the blend weight driven by the SOURCE-space warp error
+   (occlusion/new-content admits the fresh styled frame; faithful warps
+   suppress fresh-frame hallucinations — the extra-ball class), the
+   harmonization pins the global tone (the pitch-flashing class).
+2. **The measured design gate, BEFORE freezing**: the flicker metric
+   (tactical 34.03 → **4.75**, three-d-game 14.00 → **4.30**, anime 9.72 →
+   **2.01** vs the original's 1.41 luminance-jump units); the strict VLM
+   ball-count on the operator's reported window (frames 53-64): **MAX: 1**
+   clearly-rendered ball; the tactical consistency check: nine spread frames
+   all **TACTICAL + CONSISTENT: yes**; the strict five-question overall
+   check: **all five YES**.
+3. **The honestly-typed rejected variants** (both VLM-measured): the
+   two-anchor cross-fade (semi-transparent ghost doubles at motion
+   discontinuities) and the temporal-median-of-3 fresh (it suppressed the
+   hallucinated extra ball but ALSO the real fast-moving ball — a small
+   moving object is a minority vote at every site).
+4. **The verifier driver** (`visual-gate-reprep3.ts`): the four MP4s
+   re-hashed + the `ftyp` magic + durations re-probed + the ORIGINAL
+   verified byte-identical to the researched source + the propagation
+   record's own claims cross-checked against the bytes on disk (including
+   the flicker-improvement bar — the after must be less than HALF the
+   before). The record: `visual-gate-reprep3.json`.
+
+The run (2026-10-06): original 3 371 473 B (the source's own bytes) /
+tactical 4 693 450 B / three-d-game 3 955 794 B / anime-npr 4 949 469 B —
+each 65 frames, 8 fps, 1280×720. The exports + manifest:
+`public/r606-reprep3/` (outside the repo, the no-committed-media doctrine).
+The operator's move: watch the four and answer the gate — the
+RE-RE-RE-VERDICT is the operator's, never a worker's.
+
 ## THE RE-RE-VERDICT (the operator's, 2026-10-06 — the gate REFUSED a third time: TEMPORAL CONSISTENCY)
 
 The operator watched the generative re-prep's four (the same REAL goal clip,

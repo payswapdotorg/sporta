@@ -73,6 +73,8 @@ const reverdictArg = argValue("--reverdict");
 const rereverdictArg = argValue("--rereverdict");
 const reprep2Arg = argValue("--reprep2");
 const reprep2OutArg = argValue("--reprep2-out");
+const reprep3Arg = argValue("--reprep3");
+const reprep3OutArg = argValue("--reprep3-out");
 const here = dirname(new URL(import.meta.url).pathname);
 const recordPath = recordArg ?? join(here, "visual-gate-prep.json");
 const verdictPath = verdictArg ?? join(here, "verdict.json");
@@ -80,6 +82,7 @@ const reverdictPath = reverdictArg ?? join(here, "verdict-reprep.json");
 const rereverdictPath = rereverdictArg ?? join(here, "verdict-reprep2.json");
 const reprepPath = reprepArg ?? join(here, "visual-gate-reprep.json");
 const reprep2Path = reprep2Arg ?? join(here, "visual-gate-reprep2.json");
+const reprep3Path = reprep3Arg ?? join(here, "visual-gate-reprep3.json");
 const SOURCE_SHA_EXPECTED = "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d";
 
 type Output = {
@@ -487,6 +490,140 @@ async function checkReprep2Files(reprep2: Reprep2Record, dir: string): Promise<v
   }
 }
 
+// ---------------------------------------------------------------------------
+// The TEMPORALLY-COHERENT RE-PREP record (visual-gate-reprep3.json — the
+// temporal-consistency fix flight)
+// ---------------------------------------------------------------------------
+type Reprep3Output = {
+  kind?: string;
+  byteSize?: number;
+  sha256?: string;
+  integrityVerified?: boolean;
+  containerMagic?: string;
+  savedPath?: string;
+};
+type Reprep3Record = {
+  kind?: string;
+  context?: Record<string, string>;
+  provenance?: {
+    source?: { sha256?: string };
+    propagation?: {
+      citations?: string[];
+      implementation?: string;
+      designGate?: {
+        flickerBefore?: Record<string, number>;
+        flickerAfter?: Record<string, number>;
+        ballCheck?: string;
+        tacticalConsistency?: string;
+        overallVerdict?: string;
+      };
+    };
+    toolchain?: { version?: string };
+  };
+  outputs?: Reprep3Output[];
+};
+
+function checkReprep3(reprep3: Reprep3Record, label: string): void {
+  if (reprep3.kind !== "r606-visual-gate-reprep3") {
+    fail("reprep3-kind", `${label}: ${reprep3.kind}`);
+  }
+  if (
+    !reprep3.context?.reReVerdict ||
+    !reprep3.context.directive ||
+    !reprep3.context.lane ||
+    !reprep3.context.path
+  ) {
+    fail("reprep3-context", `${label}: the re-re-verdict + directive + lane + path must be carried`);
+  }
+  const outputs = reprep3.outputs;
+  if (!Array.isArray(outputs) || outputs.length !== 4) {
+    fail("reprep3-outputs", `${label}: ${outputs?.length ?? 0} outputs (expected 4)`);
+  }
+  const kinds = new Set(outputs.map((output) => output.kind));
+  const expected = new Set(["original", "tactical", "three-d-game", "anime-npr"]);
+  if (kinds.size !== 4 || [...kinds].some((kind) => !expected.has(kind ?? ""))) {
+    fail("reprep3-kinds", `${label}: ${[...kinds].join(", ")}`);
+  }
+  for (const output of outputs) {
+    if (output.integrityVerified !== true) {
+      fail("reprep3-integrity", `${label}: ${output.kind} not integrity-verified`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(output.sha256 ?? "")) {
+      fail("reprep3-sha-shape", `${label}: ${output.kind} sha not 64-hex`);
+    }
+    if (!(output.byteSize! > 0)) {
+      fail("reprep3-byte-size", `${label}: ${output.kind} ${output.byteSize}`);
+    }
+    if (output.containerMagic !== "ftyp") {
+      fail("reprep3-magic", `${label}: ${output.kind} ${output.containerMagic}`);
+    }
+  }
+  // the ORIGINAL: byte-identical to the researched source (hard check)
+  const original = outputs.find((output) => output.kind === "original");
+  if (original?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail(
+      "reprep3-original-source",
+      `${label}: the original must be byte-identical to the researched source (${original?.sha256?.slice(0, 16)}…)`,
+    );
+  }
+  if (reprep3.provenance?.source?.sha256 !== SOURCE_SHA_EXPECTED) {
+    fail("reprep3-source-sha", `${label}: the provenance source sha must be the researched source's`);
+  }
+  const propagation = reprep3.provenance?.propagation;
+  if (!Array.isArray(propagation?.citations) || propagation!.citations!.length < 3) {
+    fail("reprep3-citations", `${label}: the copied-and-adapted reported-to-work sources must be cited (≥3)`);
+  }
+  if (typeof propagation?.implementation !== "string" || propagation.implementation.length < 100) {
+    fail("reprep3-implementation", `${label}: the propagation implementation record must be carried`);
+  }
+  const designGate = propagation?.designGate;
+  const before = designGate?.flickerBefore ?? {};
+  const after = designGate?.flickerAfter ?? {};
+  for (const kind of ["tactical", "three-d-game", "anime-npr"]) {
+    if (!((before[kind] ?? 0) > 0) || !((after[kind] ?? 0) >= 0)) {
+      fail("reprep3-flicker", `${label}: the ${kind} flicker before/after must both be carried`);
+    }
+    if (after[kind]! > before[kind]! / 2) {
+      fail(
+        "reprep3-flicker-improved",
+        `${label}: the ${kind} flicker after (${after[kind]}) must be less than HALF the before (${before[kind]}) — the fix's own measured bar`,
+      );
+    }
+  }
+  if (!designGate?.ballCheck?.includes("MAX: 1")) {
+    fail("reprep3-ball-check", `${label}: the strict VLM ball-count verdict must be carried (MAX: 1)`);
+  }
+  if (!designGate?.tacticalConsistency?.includes("CONSISTENT: yes")) {
+    fail("reprep3-tactical-consistency", `${label}: the tactical consistency verdict must be carried (CONSISTENT: yes)`);
+  }
+  const overall = designGate?.overallVerdict ?? "";
+  for (const marker of ["A) YES", "B) YES", "C) YES", "D) YES", "E) YES"]) {
+    if (!overall.includes(marker)) {
+      fail("reprep3-overall", `${label}: the five-question verdict must be carried (${marker} missing)`);
+    }
+  }
+  if (!reprep3.provenance?.toolchain?.version) {
+    fail("reprep3-toolchain", `${label}: the ffmpeg toolchain version must be measured`);
+  }
+}
+
+async function checkReprep3Files(reprep3: Reprep3Record, dir: string): Promise<void> {
+  for (const output of reprep3.outputs ?? []) {
+    const path = join(dir, `${output.kind}.mp4`);
+    if (!existsSync(path)) {
+      fail("reprep3-file-present", `${output.kind}: ${path} absent`);
+    }
+    const bytes = new Uint8Array(await readFile(path));
+    if (bytes.byteLength !== output.byteSize) {
+      fail("reprep3-file-size", `${output.kind}: ${bytes.byteLength} != ${output.byteSize}`);
+    }
+    const reHashed = sha256OfBytes(bytes);
+    if (reHashed !== output.sha256) {
+      fail("reprep3-file-sha", `${output.kind}: ${reHashed.slice(0, 16)}… != ${output.sha256?.slice(0, 16)}…`);
+    }
+  }
+}
+
 if (battery) {
   // The negative battery: a tampered copy (one sha flipped to another VALID
   // hex char — the shape check alone cannot catch it; the re-hash
@@ -643,6 +780,42 @@ if (battery) {
         "battery: the tampered GENERATIVE re-prep record REFUSED (child exit 1) — the re-hash cross-check catches it",
       );
     }
+    if (existsSync(reprep3Path) && reprep3OutArg !== undefined) {
+      const realReprep3 = JSON.parse(await readFile(reprep3Path, "utf8")) as Reprep3Record;
+      const tamperedReprep3: Reprep3Record = JSON.parse(JSON.stringify(realReprep3));
+      const gate = tamperedReprep3.provenance?.propagation?.designGate;
+      if (gate?.flickerAfter && gate.flickerAfter.tactical !== undefined) {
+        // the laundering: the after-flicker inflated ABOVE half the before — a
+        // failed fix dressed as a passing one
+        gate.flickerAfter.tactical = (gate.flickerBefore?.tactical ?? 34.03) + 1;
+      }
+      const tamperedReprep3Path = join(scratch, "tampered-reprep3.json");
+      await writeFile(tamperedReprep3Path, JSON.stringify(tamperedReprep3), "utf8");
+      const reprep3Child = spawnSync(
+        process.execPath,
+        [
+          join(here, "validate-evidence.ts"),
+          "--record",
+          recordPath,
+          "--out",
+          outDir,
+          "--reprep3",
+          tamperedReprep3Path,
+          "--reprep3-out",
+          reprep3OutArg,
+        ],
+        { encoding: "utf8", timeout: 30000 },
+      );
+      if (reprep3Child.status === null || reprep3Child.status === 0) {
+        console.error(
+          `REFUSED [battery-reprep3]: the LAUNDERED temporal-coherence record (the after-flicker inflated above half the before — a failed fix dressed as passing) was ACCEPTED (child exit ${reprep3Child.status}) — the validator is broken`,
+        );
+        process.exit(1);
+      }
+      console.log(
+        "battery: the LAUNDERED temporal-coherence record REFUSED (child exit 1) — a failed fix can never pass as passing",
+      );
+    }
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
@@ -671,6 +844,22 @@ if (battery) {
       reprep2Note = " + the GENERATIVE re-prep's shape (no --reprep2-out given — its files not re-checked)";
     }
   }
+  let reprep3Note = "";
+  if (existsSync(reprep3Path)) {
+    let reprep3: Reprep3Record;
+    try {
+      reprep3 = JSON.parse(await readFile(reprep3Path, "utf8")) as Reprep3Record;
+    } catch (error) {
+      fail("reprep3-parse", String(error));
+    }
+    checkReprep3(reprep3, "reprep3");
+    if (reprep3OutArg !== undefined) {
+      await checkReprep3Files(reprep3, reprep3OutArg);
+      reprep3Note = " + the TEMPORALLY-COHERENT re-prep's shape + its 4 exported files re-hashed";
+    } else {
+      reprep3Note = " + the TEMPORALLY-COHERENT re-prep's shape (no --reprep3-out given — its files not re-checked)";
+    }
+  }
   let reprepNote = "";
   if (existsSync(reprepPath)) {
     let reprep: ReprepRecord;
@@ -690,11 +879,11 @@ if (battery) {
   if (outDir !== undefined) {
     await checkFiles(record, outDir);
     console.log(
-      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
+      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}`,
     );
   } else {
     console.log(
-      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
+      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}${reprep3Note}`,
     );
   }
 }
