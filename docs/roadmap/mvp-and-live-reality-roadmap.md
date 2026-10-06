@@ -46,7 +46,7 @@ J001-J015 ✅          L001-L014 ✅             HF001 ✅
 - R401-R409 ✅
 - R501-R510 ✅
 - R601-R605 ✅
-- R606 ⬜ human visual acceptance
+- R606 🟨 verdict TAKEN, gate REFUSED (criterion 1 FAIL — the synthetic fixture cannot carry event identity; criterion 2 PASS — the stylists' differences seen). Next: the copy-and-adapt re-prep with real match footage per the operator's directive, then the operator's eyes again (verdict record: scripts/evidence/r606-visual-gate/verdict.json)
 - R607 ⬜ public MVP / hosted durability final gate
 
 ## User Journey Hardening
@@ -116,7 +116,7 @@ These are capability-depth gates, not hidden navigation failures. The UI is inte
 
 ## Current safe order
 
-1. R606 human visual acceptance.
+1. R606 re-prep: the proven-solutions research (real-footage sourcing + per-reality styling, reported-to-work, copy-and-adapt per the operator's directive) → the re-prep flight with a REAL-footage source clip → the operator's re-verdict (first verdict REFUSED on criterion 1 — the synthetic fixture's own limitation, typed in scripts/evidence/r606-visual-gate/verdict.json).
 2. R607 hosted public MVP / durability gate.
 3. L015-L017 final live gates.
 4. CAP001-CAP002 as next user-facing capability completion.

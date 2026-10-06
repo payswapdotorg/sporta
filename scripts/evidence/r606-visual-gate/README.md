@@ -1,5 +1,30 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE VERDICT (the operator's, 2026-10-05T21:20Z — the gate REFUSED)
+
+The operator watched the four and answered in the chat (typed verbatim in
+`verdict.json`):
+
+- **criterion 1 (the same match/event identifiable across all four): FAIL** —
+  "I can't identify the same match/event in each".
+- **criterion 2 (meaningful stylistic differences): PASS** — "I do see
+  stylistic differences".
+
+The diagnosis is this prep's own honestly-typed limitation (below, "the
+honest scope", written BEFORE the verdict): the fixture class is a 2 s
+**synthetic** pitch scene — it proves the pipeline (criterion 2 passed
+through exactly this) but **cannot carry event identity**: there is no real
+match, no real event, nothing to recognize as the same. Criterion 1 was
+unpassable by construction on this fixture class.
+
+The operator's directive for the next flight, typed verbatim: *"instead of
+building the complete solution from scratch, try looking for solutions that
+have been reported to work and just copy and adapt them"* — the next flights
+are (1) the proven-solutions research (real-footage sourcing + per-reality
+styling, reported-to-work solutions with citations), (2) the re-prep with a
+REAL-footage source clip through the same driver, (3) the operator's eyes
+again. The full typed record: `verdict.json`.
+
 ## The gate (the operator's, never a worker's)
 
 **R606 — the human visual gate** (`docs/roadmap/mvp-reality-engine-roadmap.md`):

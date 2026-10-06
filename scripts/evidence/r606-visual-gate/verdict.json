@@ -1,0 +1,39 @@
+{
+  "kind": "r606-visual-gate-verdict",
+  "ts": "2026-10-05T21:20:00.000Z",
+  "verdictSource": "the OPERATOR'S own words in the chat (msg 42 of the TL session, 2026-10-05) — typed verbatim, never paraphrased into a softer shape",
+  "operatorVerbatim": [
+    "I can't identify the same match/event in each, I do see stylistic differences",
+    "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "FAIL",
+      "operatorGround": "the operator cannot identify the same match/event in each of the four realities"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "PASS",
+      "operatorGround": "the operator does see stylistic differences between the realities"
+    }
+  },
+  "gateOutcome": "REFUSED — criterion 1 fails; the MVP's R606 acceptance is NOT granted by this verdict",
+  "diagnosis": {
+    "by": "the prep's own README (written BEFORE the verdict, line 44-46): 'The outputs are the golden-path battery's own fixture class (the 2 s synthetic pitch scene)'",
+    "mechanism": "the prep's fixture is a 2-second SYNTHETIC pitch-scene test clip (generateTestMp4 — procedural shapes, no players, no event). A synthetic fixture PROVES the pipeline (encode/decode/style surfaces — criterion 2 passed through exactly this) but CANNOT carry event identity: there is no real match, no real event, nothing to RECOGNIZE as the same across the four renders. Criterion 1 was unpassable by construction on this fixture class — the failure is the FIXTURE's, honestly typed, not the stylists' (which produced visible differences) and not the pipeline's (integrity-verified end-to-end).",
+    "consequence": "the R606 gate needs REAL match/event footage as the source clip for the same-event criterion to be passable at all. The prep driver's own escape hatch (README: 'a longer or real-footage re-run is one command away') is the seam."
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "the next flight(s) must RESEARCH proven, reported-to-work solutions (real-footage sourcing + per-reality styling) and COPY-AND-ADAPT them, rather than hand-building from scratch. The research's findings land as their own record before implementation."
+  },
+  "nextFlight": {
+    "1": "the proven-solutions research flight: web-search for (a) real football match clip sources with permissive licensing (datasets reported to work), (b) per-reality styling solutions with WORKING public code reported by others (tactical view / 3D-game render / anime-NPR) — findings recorded with citations",
+    "2": "the re-prep flight: the SAME driver re-run with a REAL-footage source clip (--scene/--source adaptation per findings), the four realities re-exported, the gate re-surfaced for the operator's eyes",
+    "3": "the re-verdict: the operator's eyes again — the verdict always the operator's"
+  },
+  "provenance": {
+    "prepRecord": "scripts/evidence/r606-visual-gate/visual-gate-prep.json (the run this verdict judged: 2026-10-05T20:36Z, four renders integrity-verified)",
+    "watchedOn": "the replay console's gate card (public/r606/ — original 38331 B / tactical 15297 B / three-d-game 288485 B / anime-npr 503707 B, manifest integrity-verified)",
+    "tlBrowserProof": "the TL station's agent-browser proof the same session: all four readyState 4, real-click playback verified, zero page errors"
+  }
+}
