@@ -1,0 +1,39 @@
+{
+  "kind": "r606-visual-gate-reprep-verdict",
+  "ts": "2026-10-06T07:45:00.000Z",
+  "verdictSource": "the OPERATOR'S own words in the chat (the TL session, 2026-10-06 — the RE-VERDICT on the re-prep) — typed verbatim, never paraphrased into a softer shape",
+  "operatorVerbatim": [
+    "I can identify the same match but the styles applied are not accurate",
+    "the anime style for instance is not actual anime, same for the tactical and 3d styles"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "PASS",
+      "operatorGround": "the operator CAN identify the same match across the four — the same REAL goal clip (Mixkit 43499) carried the event identity BY CONSTRUCTION, exactly as the research designed; verdict 1's criterion-1 failure is FIXED"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "FAIL",
+      "operatorGround": "the operator sees the applied styles as NOT ACCURATE to their named genres — 'the anime style for instance is not actual anime, same for the tactical and 3d styles'. Differences are visible but they are not TACTICAL / 3D-GAME / ANIME — the criterion's substance, not its letter, is what fails"
+    }
+  },
+  "gateOutcome": "REFUSED — criterion 2 fails on style fidelity; the MVP's R606 acceptance is NOT granted by this verdict either (two REFUSED verdicts, two different grounds: verdict 1 refused the fixture, verdict 2 refuses the filter class)",
+  "diagnosis": {
+    "by": "the re-prep's own research record (proven-solutions-research.md, written BEFORE the re-verdict): the styling legs chosen were 'ffmpeg's own documented chains' — the color-class recipes — while the per-frame generative lane was honestly typed as the LATER lane ('AnimeGANv2/v3 (proven per-frame GAN styling — the later Technology-Plane promotion lane)')",
+    "mechanism": "global color filters (the green duotone, the palette posterization, the edgedetect colormix) are COLOR GRADING, not GENRE RESTYLING. They shift the footage's tone (the 'differences' the operator sees) but cannot turn real footage into ACTUAL anime, an ACTUAL tactical analysis view, or an ACTUAL 3D-game render. Style fidelity was unpassable by construction on the filter class — exactly as event identity was unpassable by construction on the synthetic fixture in verdict 1. The honest pattern repeats: the re-prep fixed criterion 1 (the real clip) while the fixture class it chose for the styling could not carry criterion 2's substance.",
+    "consequence": "the fix lane: per-frame GENERATIVE restyling — the research's own named proven class ('proven per-frame GAN styling'), adapted through the platform's documented image-edit capability (z-ai-web-dev-sdk, backend-only per its doctrine) with genre-accurate prompts and a hard preservation clause (the event identity verdict 2's criterion 1 PASS established must KEEP passing while the styles become actually-anime / actually-tactical / actually-3D-game)"
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "carried unchanged from verdict 1 — the generative lane IS the reported-to-work solution class this time (the platform's own documented image-edit capability + the design-gated prompts), copied and adapted, never hand-built"
+  },
+  "nextFlight": {
+    "1": "the generative design gate: one keyframe per genre through the candidate prompts + the STRICT VLM genre check (actual anime / actual tactical board / actual 3D-game render — not color grades), the prompts frozen only on PASS",
+    "2": "the generative re-prep: the SAME real goal clip, every sampled frame restyled per genre, reassembled with real ffmpeg, integrity-verified end-to-end, the gate re-surfaced for the operator's eyes",
+    "3": "the re-re-verdict: the operator's eyes again — the verdict always the operator's"
+  },
+  "provenance": {
+    "reprepRecord": "scripts/evidence/r606-visual-gate/visual-gate-reprep.json (the run this re-verdict judged: 2026-10-06T04:07Z, the same real goal clip through the three frozen ffmpeg chains)",
+    "watchedOn": "the replay console's gate card (public/r606-reprep/ — original 3 371 473 B / tactical 4 251 551 B / three-d-game 8 301 049 B / anime-npr 8 646 606 B, manifest integrity-verified)",
+    "firstVerdict": "scripts/evidence/r606-visual-gate/verdict.json (criterion 1 FAIL / criterion 2 PASS — the synthetic fixture's own limitation)"
+  }
+}
