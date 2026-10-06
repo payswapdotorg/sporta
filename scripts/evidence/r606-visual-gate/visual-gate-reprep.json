@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "kind": "r606-visual-gate-reprep",
+  "ts": "2026-10-06T04:07:55.652Z",
+  "context": {
+    "firstVerdict": "scripts/evidence/r606-visual-gate/verdict.json (criterion 1 FAIL — the gate REFUSED)",
+    "directive": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them (the operator's, typed verbatim in the verdict record)",
+    "research": "scripts/evidence/r606-visual-gate/proven-solutions-research.md (the copy-and-adapt design)",
+    "path": "the VIDEO-STYLIZATION path (the operator's copy-and-adapt) — NOT the state-driven reality engine's own real-footage path (the product-scale CAP lane)"
+  },
+  "provenance": {
+    "note": "The R606 re-prep: the SAME real goal clip as the original + the three derived kinds as DOCUMENTED ffmpeg filter chains over the SAME bytes — the same-event identity holds BY CONSTRUCTION, the differences are the chains' own documented effects. The GATE itself is the operator's eyes; this record is the re-prep's own honest state.",
+    "source": {
+      "title": "Goal play in a semi-professional soccer game (Mixkit 43499)",
+      "description": "Skillful team play that ends in a goal, in a semi-professional soccer game, in a shot from inside the field (the provider's own description)",
+      "url": "https://assets.mixkit.co/videos/43499/43499-720.mp4",
+      "license": "Mixkit License (free, no attribution; https://mixkit.co/license/#videoFree)",
+      "acquired": "live download (fetch, the CDN's direct URL)"
+    },
+    "chains": {
+      "frozen": {
+        "tactical": [
+          "-vf",
+          "eq=saturation=0.55:contrast=1.2,colorchannelmixer=rr=0.15:rg=0.75:rb=0.10:gr=0.15:gg=0.85:gb=0.00:br=0.10:bg=0.60:bb=0.30,format=yuv420p"
+        ],
+        "three-d-game": [
+          "-vf",
+          "eq=saturation=1.5:contrast=1.1,split[a][b];[a]palettegen=max_colors=28[p];[b][p]paletteuse=dither=bayer:bayer_scale=4,format=yuv420p"
+        ],
+        "anime-npr": [
+          "-vf",
+          "edgedetect=mode=colormix:low=0.1:high=0.14,eq=saturation=1.25,format=yuv420p"
+        ]
+      },
+      "frameCheck": {
+        "method": "the research flight's frame-level VLM check (the TL station's z-ai vision lane, four frame extracts: the original + one frame per chain)",
+        "verdict": "A) Yes, the same scene/event is identifiable across all four frames (same players, same pitch, same moment). B) Yes, the visual styles are meaningfully different: Original — realistic, full-color video footage; Tactical — desaturated, high-contrast (like a tactical analysis board); 3D Game — smooth, low-texture, computer-generated aesthetic (resembling a sports video game); Anime — high-contrast, cel-shaded with dark outlines and stylized colors. C) None of the four fail; all preserve the recognizable scene and exhibit a meaningfully distinct visual style from the original."
+      }
+    },
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+    },
+    "sourceMeasured": {
+      "byteSize": 3371473,
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "durationSeconds": 8.133,
+      "width": 1280,
+      "height": 720,
+      "codec": "h264",
+      "hasAudio": false
+    }
+  },
+  "outputs": [
+    {
+      "kind": "original",
+      "byteSize": 3371473,
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none (the real clip's own bytes, as-is)",
+      "savedPath": "/home/z/my-project/public/r606-reprep/original.mp4"
+    },
+    {
+      "kind": "tactical",
+      "byteSize": 4251551,
+      "sha256": "69434ff8c9f8b26145ed761a153ff7ccff8b58acf6db3c88622db45097e14dc2",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "eq=saturation=0.55:contrast=1.2,colorchannelmixer=rr=0.15:rg=0.75:rb=0.10:gr=0.15:gg=0.85:gb=0.00:br=0.10:bg=0.60:bb=0.30,format=yuv420p",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep/tactical.mp4"
+    },
+    {
+      "kind": "three-d-game",
+      "byteSize": 8301049,
+      "sha256": "0f9de1ca38e164ea6e1a13bccd93ada68e66721f6c04ce81557380f6896dbefc",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "eq=saturation=1.5:contrast=1.1,split[a][b];[a]palettegen=max_colors=28[p];[b][p]paletteuse=dither=bayer:bayer_scale=4,format=yuv420p",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep/three-d-game.mp4"
+    },
+    {
+      "kind": "anime-npr",
+      "byteSize": 8646606,
+      "sha256": "bf66a45ef29a23e5567638b14dcb4cd5760bf5a53756cc65dfc051d08f563c6c",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "edgedetect=mode=colormix:low=0.1:high=0.14,eq=saturation=1.25,format=yuv420p",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep/anime-npr.mp4"
+    }
+  ]
+}

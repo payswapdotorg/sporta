@@ -50,9 +50,12 @@ const outDir = argValue("--out");
 const battery = argv.includes("--battery");
 const recordArg = argValue("--record");
 const verdictArg = argValue("--verdict");
+const reprepArg = argValue("--reprep");
+const reprepOutArg = argValue("--reprep-out");
 const here = dirname(new URL(import.meta.url).pathname);
 const recordPath = recordArg ?? join(here, "visual-gate-prep.json");
 const verdictPath = verdictArg ?? join(here, "verdict.json");
+const reprepPath = reprepArg ?? join(here, "visual-gate-reprep.json");
 
 type Output = {
   kind: string;
@@ -178,6 +181,106 @@ async function loadVerdictIfPresent(path: string): Promise<VerdictRecord | null>
   }
 }
 
+// ---------------------------------------------------------------------------
+// The RE-PREP record (visual-gate-reprep.json — the copy-and-adapt flight)
+// ---------------------------------------------------------------------------
+type ReprepOutput = {
+  kind?: string;
+  byteSize?: number;
+  sha256?: string;
+  integrityVerified?: boolean;
+  containerMagic?: string;
+  transform?: string;
+  savedPath?: string;
+};
+type ReprepRecord = {
+  kind?: string;
+  context?: Record<string, string>;
+  provenance?: {
+    source?: { url?: string; license?: string; title?: string };
+    sourceMeasured?: { sha256?: string; durationSeconds?: number };
+    chains?: { frozen?: Record<string, readonly string[]>; frameCheck?: { verdict?: string } };
+    toolchain?: { version?: string };
+  };
+  outputs?: ReprepOutput[];
+};
+
+function checkReprep(reprep: ReprepRecord, label: string): void {
+  if (reprep.kind !== "r606-visual-gate-reprep") {
+    fail("reprep-kind", `${label}: ${reprep.kind}`);
+  }
+  if (
+    !reprep.context?.firstVerdict ||
+    !reprep.context.directive ||
+    !reprep.context.research ||
+    !reprep.context.path
+  ) {
+    fail("reprep-context", `${label}: the first verdict + directive + research + path must be carried`);
+  }
+  const outputs = reprep.outputs;
+  if (!Array.isArray(outputs) || outputs.length !== 4) {
+    fail("reprep-outputs", `${label}: ${outputs?.length ?? 0} outputs (expected 4)`);
+  }
+  const kinds = new Set(outputs.map((output) => output.kind));
+  const expected = new Set(["original", "tactical", "three-d-game", "anime-npr"]);
+  if (kinds.size !== 4 || [...kinds].some((kind) => !expected.has(kind ?? ""))) {
+    fail("reprep-kinds", `${label}: ${[...kinds].join(", ")}`);
+  }
+  for (const output of outputs) {
+    if (output.integrityVerified !== true) {
+      fail("reprep-integrity", `${label}: ${output.kind} not integrity-verified`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(output.sha256 ?? "")) {
+      fail("reprep-sha-shape", `${label}: ${output.kind} sha not 64-hex`);
+    }
+    if (!(output.byteSize > 0)) {
+      fail("reprep-byte-size", `${label}: ${output.kind} ${output.byteSize}`);
+    }
+    if (output.containerMagic !== "ftyp") {
+      fail("reprep-magic", `${label}: ${output.kind} ${output.containerMagic}`);
+    }
+  }
+  const source = reprep.provenance?.source;
+  if (!source?.url?.startsWith("https://") || !source.license || !source.title) {
+    fail("reprep-source", `${label}: the researched source's url + license + title must be recorded`);
+  }
+  const measured = reprep.provenance?.sourceMeasured;
+  if (!/^[0-9a-f]{64}$/.test(measured?.sha256 ?? "") || !((measured?.durationSeconds ?? 0) >= 1)) {
+    fail("reprep-source-measured", `${label}: the source's own sha + duration must be measured`);
+  }
+  const frozen = reprep.provenance?.chains?.frozen;
+  if (
+    !frozen?.tactical?.[1] ||
+    !frozen?.["three-d-game"]?.[1] ||
+    !frozen?.["anime-npr"]?.[1]
+  ) {
+    fail("reprep-chains", `${label}: the three frozen chains must be recorded`);
+  }
+  if (!reprep.provenance?.chains?.frameCheck?.verdict || reprep.provenance.chains.frameCheck.verdict.length < 50) {
+    fail("reprep-frame-check", `${label}: the research flight's frame-level VLM check verdict must be carried`);
+  }
+  if (!reprep.provenance?.toolchain?.version) {
+    fail("reprep-toolchain", `${label}: the ffmpeg toolchain version must be measured`);
+  }
+}
+
+async function checkReprepFiles(reprep: ReprepRecord, dir: string): Promise<void> {
+  for (const output of reprep.outputs ?? []) {
+    const path = join(dir, `${output.kind}.mp4`);
+    if (!existsSync(path)) {
+      fail("reprep-file-present", `${output.kind}: ${path} absent`);
+    }
+    const bytes = new Uint8Array(await readFile(path));
+    if (bytes.byteLength !== output.byteSize) {
+      fail("reprep-file-size", `${output.kind}: ${bytes.byteLength} != ${output.byteSize}`);
+    }
+    const reHashed = sha256OfBytes(bytes);
+    if (reHashed !== output.sha256) {
+      fail("reprep-file-sha", `${output.kind}: ${reHashed.slice(0, 16)}… != ${output.sha256?.slice(0, 16)}…`);
+    }
+  }
+}
+
 if (battery) {
   // The negative battery: a tampered copy (one sha flipped to another VALID
   // hex char — the shape check alone cannot catch it; the re-hash
@@ -252,14 +355,30 @@ if (battery) {
   checkRecord(record, "record");
   const verdict = await loadVerdictIfPresent(verdictPath);
   if (verdict) checkVerdict(verdict, "verdict");
+  let reprepNote = "";
+  if (existsSync(reprepPath)) {
+    let reprep: ReprepRecord;
+    try {
+      reprep = JSON.parse(await readFile(reprepPath, "utf8")) as ReprepRecord;
+    } catch (error) {
+      fail("reprep-parse", String(error));
+    }
+    checkReprep(reprep, "reprep");
+    if (reprepOutArg !== undefined) {
+      await checkReprepFiles(reprep, reprepOutArg);
+      reprepNote = " + the re-prep's shape + its 4 exported files re-hashed";
+    } else {
+      reprepNote = " + the re-prep's shape (no --reprep-out given — its files not re-checked)";
+    }
+  }
   if (outDir !== undefined) {
     await checkFiles(record, outDir);
     console.log(
-      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}`,
+      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reprepNote}`,
     );
   } else {
     console.log(
-      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}`,
+      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reprepNote}`,
     );
   }
 }
