@@ -60,3 +60,18 @@ outside the repo). The GENERATIVE RE-PREP's own record:
 `visual-gate-reprep2.json` (the verifier driver's discipline: the four MP4s
 re-hashed + the original verified byte-identical to the researched source +
 the generation record's own claims cross-checked against the bytes on disk).
+
+
+## The re-re-verdict record's validator run (after verdict-reprep2.json)
+
+The validator now carries the RE-RE-VERDICT record's shape checks (criterion 1
+PASS-not-contested / criterion 2 FAIL on temporal consistency, the MEASURED
+flicker metrics + the VLM ball check carried — a laundered re-re-verdict is
+refused by the battery):
+
+```bash
+bun run scripts/evidence/r606-visual-gate/validate-evidence.ts \
+  --out /home/z/my-project/public/r606 \
+  --reprep-out /home/z/my-project/public/r606-reprep \
+  --reprep2-out /home/z/my-project/public/r606-reprep2
+```

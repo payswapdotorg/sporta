@@ -70,12 +70,14 @@ const verdictArg = argValue("--verdict");
 const reprepArg = argValue("--reprep");
 const reprepOutArg = argValue("--reprep-out");
 const reverdictArg = argValue("--reverdict");
+const rereverdictArg = argValue("--rereverdict");
 const reprep2Arg = argValue("--reprep2");
 const reprep2OutArg = argValue("--reprep2-out");
 const here = dirname(new URL(import.meta.url).pathname);
 const recordPath = recordArg ?? join(here, "visual-gate-prep.json");
 const verdictPath = verdictArg ?? join(here, "verdict.json");
 const reverdictPath = reverdictArg ?? join(here, "verdict-reprep.json");
+const rereverdictPath = rereverdictArg ?? join(here, "verdict-reprep2.json");
 const reprepPath = reprepArg ?? join(here, "visual-gate-reprep.json");
 const reprep2Path = reprep2Arg ?? join(here, "visual-gate-reprep2.json");
 const SOURCE_SHA_EXPECTED = "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d";
@@ -222,6 +224,47 @@ async function loadRecord(path: string): Promise<Record> {
     return JSON.parse(await readFile(path, "utf8")) as Record;
   } catch (error) {
     return fail("record-parse", String(error));
+  }
+}
+
+function checkVerdictReprep2(verdict: VerdictRecord, label: string): void {
+  if (verdict.kind !== "r606-visual-gate-reprep2-verdict") {
+    fail("rereverdict-kind", `${label}: ${verdict.kind}`);
+  }
+  const quotes = verdict.operatorVerbatim;
+  if (!Array.isArray(quotes) || quotes.length < 3 || quotes.some((q) => typeof q !== "string" || q.length < 10)) {
+    fail("rereverdict-verbatim", `${label}: the operator's three observations must be present (≥3, typed verbatim)`);
+  }
+  const criteria = verdict.criteria;
+  if (
+    !criteria ||
+    criteria["same-match-event-identifiable-across-all-four"]?.verdict !== "PASS" ||
+    criteria["meaningful-stylistic-differences"]?.verdict !== "FAIL"
+  ) {
+    fail(
+      "rereverdict-criteria",
+      `${label}: criterion 1 must be PASS (not contested) and criterion 2 FAIL (temporal consistency) — the OPERATOR's measured re-re-verdict (a worker NEVER re-derives these)`,
+    );
+  }
+  if (typeof verdict.gateOutcome !== "string" || !verdict.gateOutcome.startsWith("REFUSED")) {
+    fail("rereverdict-outcome", `${label}: ${verdict.gateOutcome}`);
+  }
+  const diagnosis = verdict.diagnosis as { measuredBeforeFix?: { flickerMetric?: string; ballCheck?: string } } | undefined;
+  if (
+    !diagnosis?.measuredBeforeFix?.flickerMetric ||
+    !diagnosis.measuredBeforeFix.flickerMetric.includes("34.03") ||
+    !diagnosis.measuredBeforeFix.ballCheck
+  ) {
+    fail(
+      "rereverdict-measured-diagnosis",
+      `${label}: the re-re-verdict's diagnosis must carry the MEASURED flicker metrics (the tactical 34.03 jump/frame) + the VLM ball check — the diagnosis is measured, never asserted`,
+    );
+  }
+  if (typeof verdict.operatorDirective?.text !== "string" || verdict.operatorDirective.text.length < 20) {
+    fail("rereverdict-directive", `${label}: the operator's directive must be carried verbatim`);
+  }
+  if (!verdict.nextFlight || Object.keys(verdict.nextFlight).length < 3) {
+    fail("rereverdict-next-flight", `${label}: the next-flight plan (≥3 legs) must be present`);
   }
 }
 
@@ -461,6 +504,7 @@ if (battery) {
   checkRecord(record, "record");
   const realVerdict = await loadVerdictIfPresent(verdictPath);
   const realReVerdict = await loadVerdictIfPresent(reverdictPath);
+  const realReReVerdict = await loadVerdictIfPresent(rereverdictPath);
   const scratch = await mkdtemp(join(tmpdir(), "r606-battery-"));
   try {
     const tampered: Record = JSON.parse(JSON.stringify(record));
@@ -539,6 +583,34 @@ if (battery) {
         "battery: the LAUNDERED re-verdict REFUSED (child exit 1) — a flipped style-fidelity FAIL can never pass",
       );
     }
+    if (realReReVerdict) {
+      const launderedReReVerdict: VerdictRecord = JSON.parse(JSON.stringify(realReReVerdict));
+      launderedReReVerdict.criteria!["meaningful-stylistic-differences"]!.verdict = "PASS";
+      const launderedReRePath = join(scratch, "laundered-rereverdict.json");
+      await writeFile(launderedReRePath, JSON.stringify(launderedReReVerdict), "utf8");
+      const reReVerdictChild = spawnSync(
+        process.execPath,
+        [
+          join(here, "validate-evidence.ts"),
+          "--record",
+          recordPath,
+          "--out",
+          outDir,
+          "--rereverdict",
+          launderedReRePath,
+        ],
+        { encoding: "utf8", timeout: 30000 },
+      );
+      if (reReVerdictChild.status === null || reReVerdictChild.status === 0) {
+        console.error(
+          `REFUSED [battery-rereverdict]: the LAUNDERED re-re-verdict (criterion 2's temporal-consistency FAIL flipped to PASS — the flicker/duplication failure laundered into a pass) was ACCEPTED (child exit ${reReVerdictChild.status}) — the validator is broken`,
+        );
+        process.exit(1);
+      }
+      console.log(
+        "battery: the LAUNDERED re-re-verdict REFUSED (child exit 1) — a flipped temporal-consistency FAIL can never pass",
+      );
+    }
     if (existsSync(reprep2Path) && reprep2OutArg !== undefined) {
       const realReprep2 = JSON.parse(await readFile(reprep2Path, "utf8")) as Reprep2Record;
       const tamperedReprep2: Reprep2Record = JSON.parse(JSON.stringify(realReprep2));
@@ -581,6 +653,8 @@ if (battery) {
   if (verdict) checkVerdict(verdict, "verdict");
   const reverdict = await loadVerdictIfPresent(reverdictPath);
   if (reverdict) checkVerdictReprep(reverdict, "reverdict");
+  const rereverdict = await loadVerdictIfPresent(rereverdictPath);
+  if (rereverdict) checkVerdictReprep2(rereverdict, "rereverdict");
   let reprep2Note = "";
   if (existsSync(reprep2Path)) {
     let reprep2: Reprep2Record;
@@ -616,11 +690,11 @@ if (battery) {
   if (outDir !== undefined) {
     await checkFiles(record, outDir);
     console.log(
-      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
+      `PASS: the record's shape + the 4 exported files re-hashed and re-measured (${outDir})${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
     );
   } else {
     console.log(
-      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
+      `PASS: the record's shape (no --out given — the files not re-checked)${verdict ? " + the verdict record's shape" : ""}${reverdict ? " + the re-verdict record's shape" : ""}${rereverdict ? " + the re-re-verdict record's shape" : ""}${reprepNote}${reprep2Note}`,
     );
   }
 }

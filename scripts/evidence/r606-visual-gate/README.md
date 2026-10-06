@@ -1,5 +1,44 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE RE-RE-VERDICT (the operator's, 2026-10-06 — the gate REFUSED a third time: TEMPORAL CONSISTENCY)
+
+The operator watched the generative re-prep's four (the same REAL goal clip,
+195 per-frame generative genre restyles) and answered in the chat (typed
+verbatim in `verdict-reprep2.json`):
+
+- **criterion 1 (the same match/event identifiable): PASS — not contested**;
+  the observations are artifact-level: "the anime-npr is good" — the anime's
+  STATIC style is now APPROVED (verdict 2's own refusal ground — style
+  fidelity — is fixed at the frame level).
+- **criterion 2 (the styles as rendered VIDEO): FAIL on TEMPORAL
+  CONSISTENCY** — "showing the ball multiple times from the 7th second … the
+  pitch keeps flashing/blinking", the tactical "keeps flipping between
+  tactical and something else", "the pitch keeps flashing in most videos
+  except for the original".
+
+The diagnosis is MEASURED (never asserted): the stable-pitch-region
+luminance jump per frame — original **1.41** / anime **9.72** / tactical
+**34.03** / 3D **14.00** (the tactical "flipping" is 24× the original's
+flicker), and the strict VLM ball-count on the anime tail shows the
+duplicated-ball class exactly "from the 7th second" (frame 53: two balls in
+the goal-mouth action). The mechanism: **per-frame INDEPENDENT restyling has
+no temporal-coherence mechanism** — every frame re-imagined from scratch
+flashes (inter-frame variance), flips (prompt-adherence variance), and
+hallucinates extra balls (fast goal-mouth motion). Unpassable by
+construction — the honest pattern's third repetition (fixture → filter class
+→ per-frame independence).
+
+The fix lane (the copy-and-adapt directive, unchanged): the
+**reported-to-work flow-guided temporal-coherence class** ("Fast Coherent
+Video Style Transfer via Flow Errors Reduction", MDPI; "Coherent Online
+Video Style Transfer", IEEE; the Lai et al. blind-temporal-consistency
+class) + **keyframe-anchored propagation** (EbSynth — "transform videos by
+changing one frame"), adapted locally with OpenCV DIS flow: the SOURCE
+clip's own motion transports anchor styled frames, occlusion-aware blending
+admits the fresh styled frames only where the warp disagrees, and a per-kind
+color harmonization pins the global tone. The full typed record:
+`verdict-reprep2.json`.
+
 ## THE RE-VERDICT (the operator's, 2026-10-06 — the gate REFUSED again: STYLE FIDELITY)
 
 The operator watched the re-prep's four (the same REAL goal clip through the

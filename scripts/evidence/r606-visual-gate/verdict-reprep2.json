@@ -1,0 +1,43 @@
+{
+  "kind": "r606-visual-gate-reprep2-verdict",
+  "ts": "2026-10-06T21:30:00.000Z",
+  "verdictSource": "the OPERATOR'S own words in the chat (the TL session, 2026-10-06 — the RE-RE-VERDICT on the GENERATIVE re-prep) — typed verbatim, never paraphrased into a softer shape",
+  "operatorVerbatim": [
+    "the anime-npr is good but it's showing the ball multiple times from the 7th second, also the pitch keeps flashing/blinking",
+    "the tactical is not really tactical (it keeps flipping between tactical and something else)",
+    "the pitch keeps flashing in most videos except for the original"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "PASS",
+      "operatorGround": "NOT CONTESTED by this verdict — the operator's observations are artifact-level, not identity-level: 'the anime-npr is good' (the same real goal event is watchable in all four). The by-construction real-clip event carrier still carries; criterion 1 stands PASS as the re-verdict measured it"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "FAIL",
+      "operatorGround": "the styles as RENDERED VIDEO are not acceptable: the anime's STATIC style is now approved ('the anime-npr is good' — the per-frame style fidelity WORKED, verdict 2's own refusal ground is fixed at the frame level) but the VIDEOS are not: 'showing the ball multiple times from the 7th second', 'the pitch keeps flashing/blinking', the tactical 'keeps flipping between tactical and something else', and 'the pitch keeps flashing in most videos except for the original' — the failure class is TEMPORAL CONSISTENCY, a class no per-frame-stills check can catch (the design gate and the video-level spot check both sampled stills; flicker and duplicated balls only exist in PLAYBACK)"
+    }
+  },
+  "gateOutcome": "REFUSED — criterion 2 fails on temporal consistency; the MVP's R606 acceptance is NOT granted by this verdict either (three REFUSED verdicts, three different grounds: verdict 1 refused the fixture, verdict 2 refused the filter class, this verdict refuses the per-frame independence itself)",
+  "diagnosis": {
+    "measuredBeforeFix": {
+      "flickerMetric": "the stable-pitch-region mean-luminance jump per frame (65 frames @ 8 fps, region y420-620 x540-740): original 1.41 (max 13.2, per-pixel temporal std 15.1) / anime-npr 9.72 (max 33.7, std 22.9) / tactical 34.03 (max 92.2, std 42.6) / three-d-game 14.00 (max 35.8, std 26.0) — the tactical 'flipping' is 24x the original's flicker, MEASURED exactly where the operator saw it",
+      "ballCheck": "the strict VLM ball-count on the anime tail (frames 40/48/53/56/58/61/64): mostly 1 ball, frame 53 shows 2 ('one in mid-air near the goal and one near the goalkeeper's hands') — the duplicated-ball class in the goal-mouth action, exactly 'from the 7th second' as the operator typed"
+    },
+    "mechanism": "per-frame INDEPENDENT restyling has NO temporal-coherence mechanism: every frame is re-imagined from scratch against its own source frame, so (a) inter-frame style/color variance manifests as global FLASHING (the pitch region pulsing), (b) prompt-adherence variance manifests as the tactical FLIPPING between board-like and non-board-like renders, and (c) fast goal-mouth motion manifests as HALLUCINATED EXTRA BALLS (each frame independently re-draws the ball during the deflection/save). The per-frame lane was the right fix for verdict 2's ground (style fidelity — the anime style is now approved) but per-frame independence is unpassable BY CONSTRUCTION for temporal consistency, exactly as the synthetic fixture was for event identity (verdict 1) and the filter class was for style fidelity (verdict 2). The honest pattern repeats a third time",
+    "consequence": "the fix lane: TEMPORAL-COHERENT propagation of the approved styled frames — the reported-to-work class (the operator's copy-and-adapt directive, carried since verdict 1): optical-flow-guided video stylization coherence ('Fast Coherent Video Style Transfer via Flow Errors Reduction', MDPI; 'Coherent Online Video Style Transfer', IEEE; the Lai et al. 'Learning Blind Video Temporal Consistency' class — flow-warped blending of consecutive outputs) + the keyframe-anchored propagation class (EbSynth, ebsynth.com — 'transform videos by changing one frame'), adapted locally with OpenCV DIS flow: the SOURCE clip's own motion transports anchor styled frames forward/backward, occlusion-aware blending admits the fresh styled frames only where the warp disagrees with them, and a per-kind color harmonization pins the global tone — the ball's trajectory then follows the source's single ball, the pitch color is anchored, and each genre's style is inherited from its anchors instead of re-imagined per frame"
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "carried unchanged from verdict 1 — the fix lane copies the reported flow-guided temporal-coherence class (papers + EbSynth's practitioner lineage), adapting it to the already-approved styled frames, never hand-building a coherence engine from scratch"
+  },
+  "nextFlight": {
+    "1": "the temporal-coherence design gate: the propagation lane (flow + anchors + occlusion blending + color harmonization) prototyped on the REAL frames, MEASURED — the flicker metric must approach the original's band, the strict VLM ball-count must hold (no duplicated balls), and the per-kind style-consistency VLM check must show no flipping — frozen only on PASS",
+    "2": "the temporally-coherent re-prep: the three derived kinds re-rendered through the frozen propagation lane, reassembled with real ffmpeg, integrity-verified end-to-end, the gate re-surfaced for the operator's eyes",
+    "3": "the re-re-re-verdict: the operator's eyes again — the verdict always the operator's"
+  },
+  "provenance": {
+    "reprep2Record": "scripts/evidence/r606-visual-gate/visual-gate-reprep2.json (the run this re-re-verdict judged: 2026-10-06T08:54Z, the same real goal clip, 195 per-frame generative genre restyles)",
+    "watchedOn": "the replay console's gate card (public/r606-reprep2/ — original 3 371 473 B / tactical 3 023 007 B / three-d-game 3 478 444 B / anime-npr 4 803 051 B, manifest integrity-verified)",
+    "priorVerdicts": "scripts/evidence/r606-visual-gate/verdict.json (criterion 1 FAIL — the synthetic fixture) + verdict-reprep.json (criterion 2 FAIL on style fidelity — the filter class; this verdict's criterion-1 PASS inherits its ground)"
+  }
+}
