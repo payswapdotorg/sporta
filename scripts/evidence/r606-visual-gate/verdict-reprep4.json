@@ -1,0 +1,40 @@
+{
+  "kind": "r606-visual-gate-reprep4-verdict",
+  "ts": "2026-10-07T03:09:00.000Z",
+  "verdictSource": "the OPERATOR'S own words in the chat (the TL session, 2026-10-07 — the RE-RE-RE-RE-VERDICT on the 2D-BOARD RE-PREP) — typed verbatim, never paraphrased into a softer shape (the console panel's PASS/FAIL buttons were not used; the words are the operator's)",
+  "operatorVerbatim": [
+    "tactical: this is rendering much more as a tactical game but it is not faithful to the actual events in the real clip",
+    "3d: still some noise but acceptable for an MVP",
+    "anime: still some noise but acceptable for an MVP"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "PASS",
+      "operatorGround": "NOT CONTESTED by this verdict — the observations are about the board's event script and the two generative kinds' noise level, not the event identity; criterion 1 stands as the prior verdicts measured it"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "FAIL",
+      "operatorGround": "two of three kinds MVP-ACCEPTED ('still some noise but acceptable for an MVP' on BOTH the 3d and the anime — carried forward byte-identical from this verdict on); the TACTICAL's GENRE question is RESOLVED ('this is rendering much more as a tactical game' — the judgment-4 ground 'still not showing a 2D field with players moving on it' is retired by concession) but its EVENT FIDELITY is refused: 'it is not faithful to the actual events in the real clip' — the single remaining ground, the fifth distinct refusal ground across five verdicts"
+    }
+  },
+  "gateOutcome": "REFUSED — criterion 2 fails on the tactical's event fidelity ALONE; the 3d and the anime are MVP-accepted at their judgment-5 versions (byte-identical carry-forward mandated by this verdict); the genre-composition ground is retired by the operator's own concession. The refusal count: five verdicts, five distinct grounds (fixture evidence → filter-class styling → per-frame independence/flicker → genre-composition + clarity + ball-trajectory → event fidelity)",
+  "diagnosis": {
+    "theRetiredGround": "RETIRED by this verdict: the tactical genre-composition ground (judgment 4's 'still not showing a 2D field with players moving on it') — 'this is rendering much more as a tactical game' concedes the 2D-board genre is now rendered as itself",
+    "theNewGround": "the board's event script was SYNTHESIZED, not extracted: measured with the same VLM event-schema on both videos — the reprep4 board plays a SOLO RUN (no pass sequence), shoots at 3.0s, floats a 2.5s slow ball, goals at 5.5-6.0s, then ~2s of celebration padding; the real clip's own script is pass @0.4-1.0s → dribble → pass into space @3.4-4.1s → carry → shot release @6.35s → 0.4s flight → GK dive @6.375s near-post (misses) → GOAL @6.75s → celebration. A plausible-but-DIFFERENT event structure: exactly the infidelity the operator named",
+    "consequence": "the fix lane, per the operator's standing copy-and-adapt directive: the EVENT-DATA-DRIVEN 2D match view — the class that sports analytics actually uses for faithful replay (StatsBomb open-data event streams, mplsoccer rendering, the FM-2D event-choreographed engine lineage): the clip's OWN events extracted (two VLM passes reconciled into a typed event stream: 5 players' PCHIP tracks + the ball's 9 typed segments + the caption timeline), rendered deterministically at the TRUE timestamps — fidelity by construction at the event level, not the pixel level"
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "carried unchanged from verdict 1 — the fix copies the event-data class that real analytics uses for faithful 2D replay (typed events at true timestamps driving the board), the same way mplsoccer renders StatsBomb open data"
+  },
+  "nextFlight": {
+    "1": "the event-extraction lane: two VLM passes (16-frame @2fps whole-clip + 17-frame @8fps shot-window) reconciled into the canonical event stream (eventscript.json + finescript.json → event-stream.json)",
+    "2": "the event-faithful render: render_board.py (deterministic OpenCV, 1280x720, 65 frames @8fps) on the proven board surface — every event at its true timestamp, the scoreboard flip at the measured goal time, phase captions synced",
+    "3": "the per-event fidelity gate (NEW, the direct test of the refusal ground): original vs board at IDENTICAL timestamps, 4/4 FAITHFUL required; the 3d/anime/original carried byte-identical (hash-verified)"
+  },
+  "provenance": {
+    "reprep4Record": "scripts/evidence/r606-visual-gate/visual-gate-reprep4.json (the run this re-re-re-re-verdict judged: 2026-10-06T22:12Z, the 2D-board re-prep — the deterministic board, the clarity restoration, the anime ball surgery)",
+    "staging": "public/r606-reprep4/ (the sandbox out dir: the four MP4s + manifest + render-record — never committed, the no-committed-media doctrine)",
+    "mvpAcceptance": "the 3d/anime judgment-5 versions (sha256 a38e2777… / 9580340d…) are the MVP-accepted bytes: every later generation carries them byte-identical unless the operator changes the acceptance"
+  }
+}

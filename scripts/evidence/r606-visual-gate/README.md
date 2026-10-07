@@ -1,5 +1,64 @@
 # R606 visual-gate prep — the flight that makes the HUMAN gate performable
 
+## THE JUDGMENT-6 CLOSURE (the operator's, 2026-10-07 — the gate CLOSES on the stylization path)
+
+The operator's word, verbatim: **"approved"** — the judgment-6 verdict on the
+event-faithful re-prep. The gate is GRANTED: six judgments to closure
+(fixture evidence → filter-class styling → per-frame independence → genre +
+clarity + ball-trajectory → event fidelity alone → **approved**). The record:
+`verdict-reprep5.json` (the word, the criteria both PASS, the honest scope).
+The archived verdict state: the staging's `verdict-pending.json` + the
+operator-inbox thread line + the record — three places, one word.
+
+**The honest scope (typed in the verdict record):** this closes the
+VIDEO-STYLIZATION path's human visual acceptance — the copy-and-adapt lane the
+operator drove through six verdicts. It does NOT close the product-scale CAP
+lane (the in-play real-footage R606 row in
+`docs/status/mvp-and-live-reality-status.md`) and does NOT touch the hosted
+plane's ephemerality follow-up (the R607 row's persistent-worker-host
+decision). Each lane keeps its own honest state.
+
+## THE EVENT-FAITHFUL RE-PREP (the event-fidelity fix — the judgment-6 verdict PERFORMABLE)
+
+The fix the judgment-5 verdict directed (its single remaining ground: "it is
+not faithful to the actual events in the real clip") — the copied class, per
+the operator's standing directive:
+
+1. **The copied class (the tactical's event script)**: the EVENT-DATA-DRIVEN
+   2D match view — the class sports analytics actually uses for faithful
+   replay (StatsBomb open-data event streams, mplsoccer rendering, the FM-2D
+   event-choreographed lineage). The clip's OWN events extracted in two VLM
+   passes (16-frame @2fps whole-clip + 17-frame @8fps shot-window), reconciled
+   into the canonical typed event stream (5 players' PCHIP tracks + the ball's
+   9 typed segments + the caption timeline), rendered deterministically at
+   the TRUE timestamps: the pass @0.4-1.0s, the pass into space @3.4-4.1s,
+   the carry, the shot @6.35s, the GK dive @6.375s, the GOAL @6.75s, the
+   scoreboard flip 0-0→1-0 AT 6.75s. Fidelity by construction at the event
+   level — never re-imagined.
+2. **The carry**: the 3d/anime/original byte-identical (the judgment-5
+   MVP-accepted versions, hash-verified at staging) — never re-rendered.
+
+The design gate (all PASS, measured before freezing): the NEW per-event
+fidelity gate 4/4 FAITHFUL (original vs board at IDENTICAL timestamps
+t=0.75/3.6/6.5/7.25 — the direct test of the refused ground); the board check
+6/6 ALL-YES; flicker 0.533 (the source band 17.5965); the ball-count 1/1/1.
+The staging: `public/r606-reprep5/` (the four MP4s + manifest + the vendored
+event-stream provenance — eventscript/finescript/event-stream/fidelity/
+boardcheck/ballcount/render_board.py). The record:
+`visual-gate-reprep5.json`.
+
+## THE RE-RE-RE-RE-VERDICT (the operator's, 2026-10-07 — the gate REFUSED a fifth time: EVENT FIDELITY; the genre CONCEDED, the 3d/anime MVP-ACCEPTED)
+
+The operator's words, verbatim: "tactical: this is rendering much more as a
+tactical game but it is not faithful to the actual events in the real clip /
+3d: still some noise but acceptable for an MVP / anime: still some noise but
+acceptable for an MVP". The genre ground RETIRED by concession; the 3d/anime
+MVP-accepted (byte-identical carry mandated); the event fidelity refused
+ALONE — the measured diagnosis: the reprep4 board's event script was
+synthesized (a solo run, shot @3.0s, a 2.5s slow float) while the real clip's
+own script passes at 0.4-1.0s, passes into space at 3.4-4.1s, shoots at
+6.35s, dives at 6.375s, goals at 6.75s. The record: `verdict-reprep4.json`.
+
 ## THE 2D-BOARD RE-PREP (the genre-composition + clarity + ball-trajectory fix — the RE-RE-RE-RE-VERDICT PERFORMABLE)
 
 The fix the re-re-re-verdict directed (its three grounds: "tactical: still not

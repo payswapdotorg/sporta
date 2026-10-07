@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "kind": "r606-visual-gate-reprep5",
+  "ts": "2026-10-07T03:09:00.000Z",
+  "context": {
+    "reReReReVerdict": "scripts/evidence/r606-visual-gate/verdict-reprep4.json (the judgment-5 verdict: the tactical genre CONCEDED + the 3d/anime MVP-ACCEPTED + the event fidelity refused — the single remaining ground: 'not faithful to the actual events in the real clip')",
+    "directive": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them (the operator's, carried verbatim since verdict 1)",
+    "lane": "the EVENT-FAITHFUL RE-PREP — the event-data-driven 2D match view (the clip's OWN typed event stream rendered at the clip's OWN timestamps) for the tactical kind; the 3d/anime/original carried BYTE-IDENTICAL (the judgment-5 MVP acceptance, never re-rendered)",
+    "path": "the VIDEO-STYLIZATION path (the operator's copy-and-adapt) — NOT the state-driven reality engine's own real-footage path (the product-scale CAP lane, tracked separately in docs/status/mvp-and-live-reality-status.md)"
+  },
+  "provenance": {
+    "note": "The R606 event-faithful re-prep: the SAME real goal clip; the tactical kind re-rendered from the clip's own VLM-extracted event stream (typed events at true timestamps — the event-data class real analytics uses for faithful 2D replay); the 3d/anime/original the judgment-5 MVP-accepted versions carried byte-identical, hash-verified. The GATE itself is the operator's eyes; this record is the re-prep's own honest state.",
+    "source": {
+      "title": "Goal play in a semi-professional soccer game (Mixkit 43499)",
+      "url": "https://assets.mixkit.co/videos/43499/43499-720.mp4",
+      "license": "Mixkit License (free, no attribution; https://mixkit.co/license/#videoFree)",
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "acquired": "the first re-prep's verified download (byte-identical through every generation since, hash-verified at each staging)"
+    },
+    "toolchain": {
+      "ffmpegPath": "/usr/bin/ffmpeg",
+      "version": "ffmpeg version 7.1.5-0+deb13u1 (the sandbox's own toolchain; the board itself is pure OpenCV + numpy + PCHIP)"
+    },
+    "render": {
+      "lane": "the event-data-driven 2D match view — typed event streams rendered by the analytics-replay class, choreographed at true timestamps",
+      "citations": [
+        "mplsoccer (mplsoccer.readthedocs.io — the standard StatsBomb open-data event renderer: pass/shot maps and animated event sequences on a 2D pitch)",
+        "StatsBomb open data (the free event-stream schema: typed events with timestamps + start/end locations — fidelity lives in the EVENT STREAM, not the pixels)",
+        "Hudl Wyscout tactical-angle views + the Football Manager 2D match-engine lineage (the reprep4 board's own proven render surface — the genre's visual class)",
+        "SoccER: Computer graphics meets sports analytics (event-driven soccer rendering research)"
+      ],
+      "implementation": "(1) THE EXTRACTION, two VLM passes reconciled: a 16-frame @2fps whole-clip pass (eventscript.json: the roster of 5, per-frame positions, timed events) + a 17-frame @8fps shot-window pass (finescript.json: the shot release 6.35s, the goal cross 6.75s, the GK dive 6.375s toward the near post, the ball-flight points) → the canonical event-stream.json (5 players' PCHIP keyframe tracks + the ball's 9 typed segments + the caption timeline). (2) THE RENDER, deterministic (render_board.py, OpenCV, 1280x720, 65 frames @8fps): the pass @0.4-1.0s, the pass into space @3.4-4.1s, the carry, the shot @6.35s with trail, the GK dive shape @6.375s, the net ripple, the GOAL banner + the scoreboard flip 0-0→1-0 AT 6.75s (the measured source timing), phase captions synced to the true event times + ffmpeg x264. (3) THE CARRY: the 3d/anime/original copied BYTE-IDENTICAL from reprep4 (the judgment-5 MVP-accepted versions), sha256-verified at staging.",
+      "designGate": {
+        "method": "the design gate by MEASUREMENT before freezing, extended with the NEW per-event fidelity gate — the direct test of the judgment-5 refusal ground (the event script itself): original frame vs board frame at IDENTICAL timestamps",
+        "perEventFidelity": "4/4 FAITHFUL — pairs at t=0.75 / 3.6 / 6.5 / 7.25 (the same_event_phase, ball_state_consistent, gk_state_consistent, players_involved_consistent checks all true at every pair); the verbatim JSON in the out dir's fidelity.json",
+        "boardCheck": "6/6 ALL-YES (A flat top-down 2D pitch; B colored numbered markers; C markers + ball changing positions; D goal with net on the right + goalkeeper marker; E ball inside the net with GOAL overlay in the last frame; F broadcast-style 2D tactical board)",
+        "flicker": {
+          "metric": "mean abs consecutive-frame grayscale diff (64 pairs)",
+          "value": 0.533,
+          "context": "the reprep4 board's 0.0 (minimal marker motion); this render carries real marker motion + per-frame caption changes; the source clip's own band 17.5965"
+        },
+        "ballCheck": "1/1/1 (frames b050/b052/b056 — the shot-flight window; merged-crop vision gate)"
+      },
+      "renderRecord": "the out dir's own render-record.json (kind r606-2d-board-recovery → the reprep5 method + gates; the vendored reset-proof provenance: eventscript.json, finescript.json, event-stream.json, fidelity.json, boardcheck.json, ballcount.json, render_board.py)"
+    }
+  },
+  "outputs": [
+    {
+      "kind": "original",
+      "byteSize": 3371473,
+      "sha256": "d53f611eb3688c52e1f44ac69721e11b1bd2bb52efb4f705c4b745afba15915d",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none — carried BYTE-IDENTICAL from reprep4 (the judgment-5 carry; the real clip's own bytes, hash-verified)",
+      "durationSeconds": 8.133,
+      "savedPath": "/home/z/my-project/public/r606-reprep5/original.mp4"
+    },
+    {
+      "kind": "tactical",
+      "byteSize": 96848,
+      "sha256": "37aa4d846131af5918241e165789f3e21460c51dd3e740708354afe8f28bab84",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "the EVENT-FAITHFUL deterministic 2D board: the clip's own typed event stream (two VLM extraction passes, reconciled) rendered on the proven board surface — every event at its true timestamp (pass 0.4-1.0, pass into space 3.4-4.1, shot 6.35, dive 6.375, GOAL 6.75, scoreboard flip 1-0) + ffmpeg x264 @8fps",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep5/tactical.mp4"
+    },
+    {
+      "kind": "three-d-game",
+      "byteSize": 2333974,
+      "sha256": "a38e2777a68c3a96e9424c9770a167ec6c6d796d2b4abf8d61036d4709f68c7a",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none — carried BYTE-IDENTICAL from reprep4 (the judgment-5 MVP-ACCEPTED version, 'still some noise but acceptable for an MVP'; hash-verified)",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep5/three-d-game.mp4"
+    },
+    {
+      "kind": "anime-npr",
+      "byteSize": 3024945,
+      "sha256": "9580340df17972b28ee86e42d9ed579c8100ec40b50f7c0529df1aedb4fdc523",
+      "integrityVerified": true,
+      "containerMagic": "ftyp",
+      "transform": "none — carried BYTE-IDENTICAL from reprep4 (the judgment-5 MVP-ACCEPTED version, 'still some noise but acceptable for an MVP'; hash-verified)",
+      "durationSeconds": 8.125,
+      "savedPath": "/home/z/my-project/public/r606-reprep5/anime-npr.mp4"
+    }
+  ]
+}

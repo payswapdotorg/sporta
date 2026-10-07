@@ -1,0 +1,33 @@
+{
+  "kind": "r606-visual-gate-reprep5-verdict",
+  "ts": "2026-10-07T04:09:32.000Z",
+  "verdictSource": "the OPERATOR'S own word in the chat (the TL session, 2026-10-07 — the judgment-6 verdict on the EVENT-FAITHFUL re-prep): 'approved' — typed verbatim, the whole word, never paraphrased into a softer shape (the console panel's PASS/FAIL buttons were not used; the TL harvested the chat word, same as every prior verdict)",
+  "operatorVerbatim": [
+    "approved"
+  ],
+  "criteria": {
+    "same-match-event-identifiable-across-all-four": {
+      "verdict": "PASS",
+      "operatorGround": "'approved' — the single word grants the whole gate; the event identity was not contested at this verdict (the judgment-5 diagnosis had confirmed the carrier while refusing the script)"
+    },
+    "meaningful-stylistic-differences": {
+      "verdict": "PASS",
+      "operatorGround": "the judgment-5 refusal ground ('not faithful to the actual events in the real clip') is retired by the event-faithful re-prep the operator just watched and approved: the clip's own event sequence at the clip's own times (the per-event fidelity gate 4/4 FAITHFUL, the direct test of the refused ground, staged with the videos); the 3d and the anime are the judgment-5 MVP-accepted versions carried byte-identical (a38e2777… / 9580340d…, hash-verified at staging), accepted again by this verdict"
+    }
+  },
+  "gateOutcome": "GRANTED — the R606 visual gate CLOSES on the VIDEO-STYLIZATION path: six judgments to closure (verdict 1 REFUSED the fixture evidence → verdict 2 refused the filter-class styling → verdict 3 refused the per-frame independence [flicker, duplicated balls, the not-a-2D-field genre] → verdict 4 retired the temporal ground, refused genre + clarity + ball-trajectory → verdict 5 conceded the genre, MVP-accepted the 3d/anime, refused the event fidelity → verdict 6 'approved' — the event-faithful board accepted). The gate-closed generation: the reprep5 staging (the four MP4s byte-hashed in visual-gate-reprep5.json)",
+  "diagnosis": {
+    "theFinalGround": "the event fidelity — the ONLY ground still open at judgment 5 — closed by construction: the board no longer synthesizes a plausible event script; it renders the clip's OWN typed event stream at the clip's OWN timestamps (the StatsBomb/mplsoccer event-data class, the operator's standing copy-and-adapt directive), design-gated by the per-event side-by-side check at identical timestamps before the operator ever saw it",
+    "honestScope": "this closure is the VIDEO-STYLIZATION path's human visual acceptance (the copy-and-adapt lane the operator drove through six verdicts); it does NOT close the product-scale CAP lane (the in-play real-footage R606 row in docs/status/mvp-and-live-reality-status.md — the calibration fix + the VPN-egress ratification + the in-play human gate remain that lane's own documented blockers) and it does NOT touch the hosted plane's ephemerality follow-up (the R607 row's persistent-worker-host decision). No laundering: each lane keeps its own honest state"
+  },
+  "operatorDirective": {
+    "text": "instead of building the complete solution from scratch, try looking for solutions that have been reported to work and just copy and adapt them",
+    "interpretation": "carried unchanged from verdict 1 — the winning lane WAS the copied class: the event-data-driven 2D match view (StatsBomb open-data event streams + mplsoccer-class rendering + the FM-2D event-choreographed lineage), copied and adapted to the clip's own VLM-extracted events"
+  },
+  "nextFlight": "the R606 visual gate is CLOSED; the follow-on is the standing operator-facing decision set (docs/deployment/hosted-plane-durability-decision.md): the persistent worker host (the $4-7/mo always-on recommendation) + the Vercel plan — the hosted plane's remaining honest sub-item; plus the in-play CAP lane's own blockers per the mvp-and-live-reality status",
+  "provenance": {
+    "reprep5Record": "scripts/evidence/r606-visual-gate/visual-gate-reprep5.json (the run this verdict judged: the event-faithful re-prep, 2026-10-07T03:09Z)",
+    "staging": "public/r606-reprep5/ (the sandbox out dir: the four MP4s + manifest + render-record + the vendored event-stream provenance — never committed, the no-committed-media doctrine)",
+    "verdictArchive": "the verdict word archived in three places at harvest time: the staging's verdict-pending.json (the panel's answered state), the operator-inbox thread line, and this record"
+  }
+}
